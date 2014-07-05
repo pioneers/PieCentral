@@ -1,0 +1,39 @@
+{
+  "author": "Maximilian Stroh",
+  "name": "node-webkit-hipster-seed",
+  "description": "Bootstrap a crossplatform Desktop Application using tools you probably never heard of.",
+  "version": "0.0.2",
+  "homepage": "https://github.com/Anonyfox/node-webkit-hipster-seed",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Anonyfox/node-webkit-hipster-seed"
+  },
+  "scripts": {
+    "compiler": "brunch watch -P",
+    "test": "karma start test/karma.conf.js",
+    "app": "nodewebkit _public",
+    "deploy": "grunt"
+  },
+  "dependencies": {
+    "jade": "~0.33",
+    "coffee-script": "~1.6",
+    "brunch": "~1.7",
+    "javascript-brunch": ">= 1.0 < 1.8",
+    "coffee-script-brunch": ">= 1.0 < 1.8",
+    "css-brunch": ">= 1.0 < 1.8",
+    "less-brunch": ">= 1.0 < 1.8",
+    "stylus-brunch": ">= 1.0 < 1.8",
+    "auto-reload-brunch": ">= 1.0 < 1.8",
+    "uglify-js-brunch": ">= 1.0 < 1.8",
+    "clean-css-brunch": ">= 1.0 < 1.8",
+    "bower": "~1.0",
+    "jade-angularjs-brunch": "~0.0.5",
+    "karma": "~0.9.4",
+    "karma-coffee-preprocessor": "~0.0.2",
+    "karma-ng-scenario": "~0.0.2",
+    "grunt": "~0.4.2",
+    "grunt-node-webkit-builder": "~0.1.14",
+    "nodewebkit": "~0.8.4-2",
+    "grunt-cli": "~0.1.11"
+  }
+}

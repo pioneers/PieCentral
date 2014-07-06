@@ -2,7 +2,7 @@
 
 ### Filters ###
 
-angular.module('app.filters', [])
+angular.module('daemon.filters', [])
 
 .filter('interpolate', [
   'version',

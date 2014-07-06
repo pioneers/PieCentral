@@ -2,7 +2,7 @@
 
 ### Controllers ###
 
-angular.module('app.controllers', [])
+angular.module('daemon.controllers', [])
 
 .controller('AppCtrl', [
   '$scope'

@@ -1,7 +1,7 @@
 {
-  "author": "My Name",
-  "name": "MyAwesomeApp",
-  "description": "Package Description",
+  "author": "Pioneers in Engineering",
+  "name": "Daemon Player",
+  "description": "Easy to use robotics control system interface",
   "version": "0.0.1",
   "homepage": "",
   "private": true,

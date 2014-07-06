@@ -2,6 +2,6 @@
 
 ### Sevices ###
 
-angular.module('app.services', [])
+angular.module('daemon.services', [])
 
 .factory 'version', -> "0.1"

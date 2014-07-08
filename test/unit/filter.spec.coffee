@@ -2,7 +2,7 @@
 
 # jasmine specs for filters go here
 describe "filter", ->
-  beforeEach(module "app.filters")
+  beforeEach(module "daemon.filters")
 
   describe "interpolate", ->
 

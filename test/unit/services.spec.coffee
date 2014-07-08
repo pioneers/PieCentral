@@ -4,7 +4,7 @@
 
 describe "service", ->
 
-  beforeEach(module "app.services")
+  beforeEach(module "daemon.services")
 
   describe "version", ->
     it "should return current version", inject((version) ->

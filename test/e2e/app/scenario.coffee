@@ -1,18 +1,18 @@
 "use strict"
 
 # http://docs.angularjs.org/guide/dev_guide.e2e-testing 
-describe "my app", ->
+describe "the app as a whole", ->
   beforeEach ->
     browser().navigateTo "/"
 
-  it "should automatically redirect to /todo when location hash/fragment is empty", ->
-    expect(browser().location().url()).toBe "/todo"
+  it "should automatically redirect to /control when location hash/fragment is empty", ->
+    expect(browser().location().url()).toBe "/control"
 
-  it "should navigate to /view1 when the View 1 link in nav is clicked", ->
-    element(".nav a[href=\"#/view1\"]").click()
-    expect(browser().location().url()).toBe "/view1"
+  it "should navigate to /edit when the View 1 link in nav is clicked", ->
+    element(".nav a[href=\"#/edit\"]").click()
+    expect(browser().location().url()).toBe "/edit"
 
-  describe "todo", ->
+  describe "control module", ->
 
     it "should list 2 items", ->
       expect(repeater("[ng-view] ul li").count()).toEqual 2
@@ -39,17 +39,17 @@ describe "my app", ->
       expect(input("todoText").val()).toEqual ""
 
 
-  describe "view1", ->
+  describe "edit", ->
     beforeEach ->
-      browser().navigateTo "#/view1"
+      browser().navigateTo "#/edit"
 
-    it "should render view1 when user navigates to /view1", ->
+    it "should render edit when user navigates to /edit", ->
       expect(element("[ng-view] p:first").text()).toMatch /partial for view 1/
 
 
-  describe "view2", ->
+  describe "simulate", ->
     beforeEach ->
-      browser().navigateTo "#/view2"
+      browser().navigateTo "#/simulate"
 
-    it "should render view2 when user navigates to /view2", ->
+    it "should render simulate when user navigates to /simulate", ->
       expect(element("[ng-view] p:first").text()).toMatch /partial for view 2/

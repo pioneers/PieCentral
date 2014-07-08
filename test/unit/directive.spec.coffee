@@ -3,7 +3,7 @@
 # jasmine specs for directives go here
 describe "directives", ->
 
-  beforeEach(module "app.directives")
+  beforeEach(module "daemon.directives")
 
   describe "app-version", ->
 

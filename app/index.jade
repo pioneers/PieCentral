@@ -23,16 +23,13 @@ html(lang='en', ng-app='daemon')
     script(src='js/app.js')
   body(ng-controller='AppCtrl')
     .wrapper
-      .navbar.navbar-static-top
-        .navbar-inner
-          .container
-            div(ng-include="'/partials/nav.html'")
-      .container.main-content
+      div(ng-include="'/partials/nav.html'")
+      .container-fluid.main-content
         div(ng-view)
       .push
 
     footer.footer
-      .container
+      .container-fluid
         p
           small
             a(href='https://github.com/pioneers/csui') Daemon Player is Open Source Software

@@ -1,7 +1,7 @@
 {
-  "name": "angular-brunch-seed",
-  "repo": "scotch/angular-brunch-seed",
-  "version": "0.3.0",
+  "name": "Daemon",
+  "repo": "pioneers/daemon",
+  "version": "0.0.1",
   "main": "_public/js/app.js",
   "ignore": [
     "**/.*",

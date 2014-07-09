@@ -10,6 +10,7 @@ App = angular.module('daemon', [
   'daemon.filters'
   'daemon.services'
   'partials'
+  'daemon.edit'
 ])
 
 App.config([

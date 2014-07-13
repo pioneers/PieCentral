@@ -1,2 +1,8 @@
 div(ng-controller='EditCtrl')
-  div#editor(ui-ace)
+  div#editor(ui-ace="{ \
+    onLoad : aceLoaded,\
+    onChange : aceChanged,\
+    useWrapMode : true,\
+    showGutter: true,\
+    theme: 'monokai',\
+    mode: 'lua' }")

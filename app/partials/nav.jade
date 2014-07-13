@@ -1,16 +1,24 @@
-.navbar.navbar-static-top
-  .navbar-inner
-    .container-fluid
-      button.btn.btn-navbar(data-toggle='collapse', data-target='.nav-collapse')
-        span.icon-bar
-        span.icon-bar
-        span.icon-bar
-      a(href='#/').brand Daemon
-      .nav-collapse
-        ul.nav
+mixin navigation
+  .container
+      .navbar-header
+        button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+          span.sr-only Toggle navigation
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.navbar-brand(href='#') Daemon
+      .collapse.navbar-collapse
+        ul.nav.navbar-nav
           li(ng-class="getClass('/control')")
-            a(ng-href='#/control') Control
+            a(href='#/control') Control
           li(ng-class="getClass('/edit')")
-            a(ng-href='#/edit') Edit
+            a(href='#/edit') Edit
           li(ng-class="getClass('/simulate')")
-            a(ng-href='#/simulate') Debug Information
+            a(href='#/simulate') Debug Information
+
+
+.navbar.navbar-main.navbar-fixed-top(role='navigation')
+  +navigation()
+
+.navbar.navbar-main.navbar-fixed-spacer(role='navigation')
+  +navigation()

@@ -10,7 +10,9 @@ div(ng-app='ng-app')
         label(class='checkbox inline')
           input(type='checkbox', ng-model='todo.done')
           span(class='done{{todo.done}}') {{todo.text}}
-    form(class='form-inline', ng-submit='addTodo()')
-      p
-        input(type='text', ng-model='todoText', size='30', placeholder='add new todo here')
-        input.btn.btn-primary(type='submit', value='add')
+    
+    form(ng-submit='addTodo()')
+      .form-group.row
+        .col-sm-5
+          input.form-control(type='text', ng-model='todoText', size='30', placeholder='add new todo here')
+        input.col-sm-1.btn.btn-primary(type='submit', value='add')

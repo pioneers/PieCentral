@@ -2,7 +2,6 @@ exports.config =
   # See docs at http://brunch.readthedocs.org/en/latest/config.html.
   conventions:
     assets:  /^app[\/\\]+assets[\/\\]+/
-    ignored: /^(bower_components[\/\\]+bootstrap-less(-themes)?|app[\/\\]+styles[\/\\]+overrides|(.*?[\/\\]+)?[_]\w*)/
   modules:
     definition: false
     wrapper: false
@@ -17,10 +16,6 @@ exports.config =
     stylesheets:
       joinTo:
         'css/app.css': /^(app|vendor|bower_components)/
-      order:
-        before: [
-          'app/styles/app.less'
-        ]
 
     templates:
       joinTo:

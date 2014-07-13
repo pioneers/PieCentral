@@ -11,7 +11,7 @@
   "dependencies": {
     "console-polyfill": "~0.1.0",
     "jquery": "~2.0.3",
-    "bootstrap-less": "~2.3.2",
+    "bootstrap-less": "~>3.1.1",
     "bootstrap-less-themes": "https://github.com/angular-brunch/bootstrap-less-themes.git",
     "angular-bootstrap": "~0.5.0",
     "angular": "1.2.5",
@@ -25,9 +25,24 @@
   },
   "overrides": {
     "bootstrap-less": {
-      "ignore": [
-        "*"
-      ]
+      "main": [
+        "less/bootstrap.less",
+        "js/transition.js",
+        "js/alert.js",
+        "js/button.js",
+        "js/carousel.js",
+        "js/collapse.js",
+        "js/dropdown.js",
+        "js/modal.js",
+        "js/tooltip.js",
+        "js/popover.js",
+        "js/scrollspy.js",
+        "js/tab.js",
+        "js/affix.js"
+      ],
+      "dependencies": {
+        "jquery": "~2.0.3"
+      }
     },
     "angular-mocks": {
       "main": "README.md"

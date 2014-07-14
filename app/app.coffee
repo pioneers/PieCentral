@@ -5,12 +5,13 @@ App = angular.module('daemon', [
   'ngCookies'
   'ngResource'
   'ngRoute'
+  'partials'
   'daemon.controllers'
   'daemon.directives'
   'daemon.filters'
   'daemon.services'
-  'partials'
   'daemon.edit'
+  'daemon.radio'
 ])
 
 App.config([

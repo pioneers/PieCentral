@@ -1,12 +1,12 @@
 {
-  "author": "Maximilian Stroh",
-  "name": "node-webkit-hipster-seed",
-  "description": "Bootstrap a crossplatform Desktop Application using tools you probably never heard of.",
-  "version": "0.0.2",
-  "homepage": "https://github.com/Anonyfox/node-webkit-hipster-seed",
+  "author": "Pioneers in Engineering",
+  "name": "Daemon",
+  "description": "It's the future.",
+  "version": "0.0.1",
+  "homepage": "https://pioneers.berkeley.edu",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Anonyfox/node-webkit-hipster-seed"
+    "url": "https://github.com/pioneers/daemon"
   },
   "scripts": {
     "compiler": "brunch watch -P",

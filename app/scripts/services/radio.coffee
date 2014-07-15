@@ -43,7 +43,7 @@ angular.module('daemon.radio', [])
         _init = false
         callbacks = {}
         return true
-      registerCallback: (type, callback) ->
+      onReceive: (type, callback) ->
         if _init
           callbacks[type] = [] unless callbacks[type]?
           callbacks[type].push callback

@@ -17,7 +17,7 @@ describe "daemon.radio", ->
     it "should report an initialized radio", ->
       expect(radio.initialized()).toBe(true)
     it "should create mock events", ->
-      radio.registerCallback('mock', callbackfn)
+      radio.onReceive('mock', callbackfn)
       $interval.flush(101)
       expect(callbackfn).toHaveBeenCalled()
     describe "and then closed", ->
@@ -25,7 +25,7 @@ describe "daemon.radio", ->
       it "should not report an initialized radio", ->
         expect(radio.initialized()).toBe(false)
       it "should not accept callbacks", ->
-        return_value = radio.registerCallback('mock', callbackfn)
+        return_value = radio.onReceive('mock', callbackfn)
         expect(return_value).toBe(false)
         $interval.flush(101)
         expect(callbackfn).not.toHaveBeenCalled()
@@ -34,7 +34,7 @@ describe "daemon.radio", ->
     it "should not report an initialized radio", ->
       expect(radio.initialized()).toBe(false)
     it "should not accept callbacks", ->
-      return_value = radio.registerCallback('mock', callbackfn)
+      return_value = radio.onReceive('mock', callbackfn)
       expect(return_value).toBe(false)
       $interval.flush(101)
       expect(callbackfn).not.toHaveBeenCalled()

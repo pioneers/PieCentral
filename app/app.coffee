@@ -10,6 +10,7 @@ App = angular.module('daemon', [
   'daemon.nav'
   'daemon.edit'
   'daemon.radio'
+  'daemon.footer'
 ])
 
 App.config([

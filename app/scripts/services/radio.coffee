@@ -20,6 +20,7 @@ angular.module('daemon.radio', [])
 
     # fake radio event sent every 100 ms
     mockEnabled = false
+    mockPromise = undefined
     mockRadio = ->
       now = new Date().getTime()
       num = Math.random()
@@ -35,11 +36,12 @@ angular.module('daemon.radio', [])
       enableMock: (millis = 100) ->
         unless mockEnabled
           mockEnabled = true
-          $interval(mockRadio, millis)
+          mockPromise = $interval(mockRadio, millis)
       initialized: ->
         return _init
       close: ->
         _init = false
+        $interval.cancel(mockPromise)
         mockEnabled = false
         callbacks = {}
         return true

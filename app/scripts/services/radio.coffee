@@ -8,23 +8,22 @@ angular.module('daemon.radio', [])
     # whether or not we've initialized
     _init = false
     # an object of arrays, where the keys are
-    # the type of events to repond to
+    # the channel of events to repond to
     # and the values are arrays of callbacks
     callbacks = {}
 
     # send an update to each callback that has registered with us
     # but only if the radio is initialized
-    processUpdate = (update) ->
-      if _init and callbacks[update.type]?
-        callback(update) for callback in callbacks[update.type]
+    processUpdate = (channel, update) ->
+      if _init and callbacks[channel]?
+        callback(channel, update) for callback in callbacks[channel]
 
     # fake radio event sent every 100 ms
     mockEnabled = false
     mockRadio = ->
       now = new Date().getTime()
       num = Math.random()
-      processUpdate({
-        type: 'mock'
+      processUpdate('mock', {
         id: '1234567890'
         time: now
         value: num
@@ -41,14 +40,23 @@ angular.module('daemon.radio', [])
         return _init
       close: ->
         _init = false
+        mockEnabled = false
         callbacks = {}
         return true
-      onReceive: (type, callback) ->
-        if _init
-          callbacks[type] = [] unless callbacks[type]?
-          callbacks[type].push callback
-          return true
-        else
-          return false
+      onReceive: (channels..., callback) ->
+        return false unless _init # exit if we're not initialized
+
+        for channel in channels
+          callbacks[channel] = [] unless callbacks[channel]?
+          callbacks[channel].push callback
+        return true
+      send: (channels..., object) ->
+        return false unless _init # exit if we're not initialized
+
+        for channel in channels
+          console.log "radio channel 'chname': fake sent object"
+          .replace(/object/, String(object))
+          .replace(/chname/, channel)
+        return true
     }
 ])

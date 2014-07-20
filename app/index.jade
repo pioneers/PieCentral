@@ -14,6 +14,8 @@ html(lang='en', ng-app='daemon')
     //if lte IE 8
       script(src='//html5shiv.googlecode.com/svn/trunk/html5.js')
     script.
+      window.requireNode = window.require
+      window.require = undefined
       window.brunch = window.brunch || {};
       window.brunch['auto-reload'] = {
         enabled: true

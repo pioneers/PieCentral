@@ -1,0 +1,81 @@
+- name: uint8_t
+  kind: alien
+  size: 1
+  repr: unsigned
+- name: uint16_t
+  kind: alien
+  size: 2
+  repr: unsigned
+- name: uint32_t
+  kind: alien
+  size: 4
+  repr: unsigned
+- name: uint64_t
+  kind: alien
+  size: 8
+  repr: unsigned
+
+- name: XBEE_MAGIC
+  kind: const
+  value: 0x7E
+- name: XBEE_API_TYPE_TX64
+  kind: const
+  value: 0x00
+- name: XBEE_API_TYPE_RX64
+  kind: const
+  value: 0x80
+
+- name: xbee_api_packet
+  kind: struct
+  packed: true
+  slots:
+    - name: xbee_api_magic
+      type: uint8_t
+    - name: length
+      type: uint16_t
+      endian: big
+    - name: payload
+      type: xbee_payload
+- name: xbee_payload
+  kind: union
+  slots:
+    - name: tx64
+      type: xbee_tx64_header
+    - name: rx64
+      type: xbee_rx64_header
+    - name: xbee_api_type
+      type: uint8_t
+    - name: bytes
+      type: uint8_t[1]
+
+- name: xbee_tx64_header
+  kind: struct
+  packed: true
+  slots:
+    - name: xbee_api_type
+      type: uint8_t
+    - name: frameId
+      type: uint8_t
+    - name: xbee_dest_addr
+      type: uint64_t
+      endian: big
+    - name: options
+      type: uint8_t
+    - name: data
+      type: uint8_t[]
+
+- name: xbee_rx64_header
+  kind: struct
+  packed: true
+  slots:
+    - name: xbee_api_type
+      type: uint8_t
+    - name: xbee_src_addr
+      type: uint64_t
+      endian: big
+    - name: rssi
+      type: uint8_t
+    - name: options
+      type: uint8_t
+    - name: data
+      type: uint8_t[]

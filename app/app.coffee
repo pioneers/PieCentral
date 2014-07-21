@@ -11,6 +11,7 @@ App = angular.module('daemon', [
   'daemon.edit'
   'daemon.radio'
   'daemon.footer'
+  'debug'
 ])
 
 App.config([

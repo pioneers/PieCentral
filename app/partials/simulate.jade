@@ -1,3 +1,14 @@
 div.jumbotron
   h1 Daemon
   p It's the future. 
+
+table.table(ng-controller="DebugInfoCtrl")
+  thead
+    tr 
+      th Property
+      th Value
+  tbody
+    tr(ng-repeat="property in debugProperties")
+      td {{property.name}}
+      td {{property.value}}
+

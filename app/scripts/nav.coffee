@@ -23,7 +23,7 @@ angular.module('daemon.nav', [])
   #   getClass('/orders') # returns ''
   #
   $scope.getClass = (id) ->
-    if $scope.activeNavId.substring(0, id.length) == id
+    if $scope.activeNavId? and $scope.activeNavId.substring(0, id.length) == id
       return 'active'
     else
       return ''

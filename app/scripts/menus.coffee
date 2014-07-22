@@ -3,37 +3,40 @@ require = window.requireNode
 gui = require('nw.gui')
 win = gui.Window.get()
 menubar = new gui.Menu(type: 'menubar')
-menubar.createMacBuiltin('Daemon')
+
+onMac = process.platform == 'darwin'
+if onMac
+  menubar.createMacBuiltin('Daemon')
 debugMenu = new gui.Menu()
 
 debugMenu.append new gui.MenuItem(
-  label: "Reload"
+  label: 'Reload'
   click: -> win.reload()
-  key: "r"
-  modifiers: "cmd"
+  key: 'r'
+  modifiers: if onMac then 'cmd' else 'ctrl'
   )
 
 debugMenu.append new gui.MenuItem(
-  label: "Reload and Clear Cache"
+  label: 'Reload and Clear Cache'
   click: -> win.reloadIgnoringCache()
-  key: "r"
-  modifiers: "cmd-shift"
+  key: 'r'
+  modifiers: if onMac then 'cmd-shift' else 'ctrl-shift'
   )
 
 debugMenu.append new gui.MenuItem(
   label: "Toggle Kiosk Mode"
   click: -> win.toggleKioskMode()
-  key: "f"
-  modifiers: "cmd-shift"
+  key: 'f'
+  modifiers: if onMac then 'cmd-shift' else 'ctrl-shift'
   )
 
 debugMenu.append new gui.MenuItem type: 'separator'
 
 debugMenu.append new gui.MenuItem(
-  label: "Developer Tools"
+  label: 'Developer Tools'
   click: -> win.showDevTools()
-  key: "i"
-  modifiers: "cmd-alt"
+  key: 'i'
+  modifiers: if onMac then 'cmd-alt' else 'ctrl-alt'
   )
 
 menubar.append new gui.MenuItem(

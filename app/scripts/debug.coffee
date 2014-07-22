@@ -1,3 +1,5 @@
+window.angularGet = (name) -> angular.element(document).injector().get(name)
+
 angular.module('debug', [])
 
 .controller('DebugInfoCtrl', [

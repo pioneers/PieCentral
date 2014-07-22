@@ -13,6 +13,7 @@ App = angular.module('daemon', [
   'daemon.footer'
   'daemon.widget'
   'debug'
+  'menubar'
 ])
 
 App.config([

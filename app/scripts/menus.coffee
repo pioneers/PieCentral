@@ -41,3 +41,11 @@ menubar.append new gui.MenuItem(
   submenu: debugMenu
   )
 win.menu = menubar
+
+angular.module('menubar', [])
+
+.service('Menubar', [
+  ->
+    return menubar
+  ])
+

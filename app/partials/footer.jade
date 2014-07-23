@@ -1,8 +1,9 @@
-footer.footer.nav(ng-controller="FooterCtrl")
-  .container-fluid.navbar-right
-    span.label.label-success(ng-show="radio.initialized()") Radio initialized
-    span.label.label-danger(ng-hide="radio.initialized()") Radio not initialized
-    button.btn.btn-success(ng-click="radio.init()") Init
-    button.btn.btn-danger(ng-click="radio.close()") Close
+.container(ng-controller='FooterCtrl')
+  nav.navbar.navbar-default.navbar-fixed-bottom.footer
+    .navbar-right
+      span.label.label-success(ng-show="radio.initialized()") Radio initialized
+      span.label.label-danger(ng-hide="radio.initialized()") Radio not initialized
+      button.btn.btn-success(ng-click="radio.init()") Init
+      button.btn.btn-danger(ng-click="radio.close()") Close
 
 

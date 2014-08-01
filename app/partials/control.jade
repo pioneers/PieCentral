@@ -1,18 +1,2 @@
-div(ng-app='ng-app')
-  h2 Todo
-  div(ng-controller='TodoCtrl')
-    span {{remaining()}} of {{todos.length}} remaining
-    |  [
-    a(href='', ng-click='archive()') archive
-    | ]
-    ul.unstyled
-      li(ng-repeat='todo in todos')
-        label(class='checkbox inline')
-          input(type='checkbox', ng-model='todo.done')
-          span(class='done{{todo.done}}') {{todo.text}}
-    
-    form(ng-submit='addTodo()')
-      .form-group.row
-        .col-sm-5
-          input.form-control(type='text', ng-model='todoText', size='30', placeholder='add new todo here')
-        input.col-sm-1.btn.btn-primary(type='submit', value='add')
+div(id='widgetContainer', ng-app='ng-app', ng-controller='widgetCtrl', ng-click='addWidget()')
+  div(draggable, resizable, class='widget', ng-repeat='widget in widgets')

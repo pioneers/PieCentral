@@ -6,12 +6,12 @@ App = angular.module('daemon', [
   'ngResource'
   'ngRoute'
   'partials'
-  'daemon.control'
   'daemon.nav'
   'daemon.edit'
   'daemon.radio'
   'daemon.robot'
   'daemon.footer'
+  'daemon.widget'
   'debug'
 ])
 

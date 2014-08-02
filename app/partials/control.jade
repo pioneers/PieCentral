@@ -1,2 +1,10 @@
-div(id='widgetContainer', ng-app='ng-app', ng-controller='widgetCtrl', ng-click='addWidget()')
-  div(draggable, resizable, class='widget', ng-repeat='widget in widgets')
+div(ng-app='ng-app')
+  div(id='widgetContainer', ng-controller='widgetCtrl', ng-click='addWidget()', data-target="testMenu", context-menu)
+    div(draggable, resizable, class='widget', ng-repeat='widget in widgets')
+
+  div.context-menu#testMenu.dropdown(style="position: fixed")
+    ui.dropdown-menu(role="menu", ng-controller="WidgetContextCtrl")
+      li(role="presentation", ng-repeat="item in menuItems",
+        class="{{item.class}}", ng-click="item.ngClick()")
+        span(ng-show="item.class") {{item.label}}
+        a(role="menuitem", ng-hide="item.class") {{item.label}}

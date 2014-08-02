@@ -12,4 +12,9 @@
       tr(ng-repeat="property in debugProperties")
         td {{property.name}}
         td {{property.value}}
-
+      tr
+        td Gamepad output
+        td {{gamepad().buttons}}
+      tr
+        td Gamepad axes
+        td {{gamepad().axes}}

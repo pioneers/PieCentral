@@ -1,6 +1,6 @@
 'use strict'
 
-angular.module('daemon.robot', ['daemon.radio'])
+angular.module('daemon.robot', ['daemon.radio', 'daemon.gamepad'])
 
 .service('robot', [
   'radio'

@@ -67,6 +67,9 @@ angular.module('daemon.robot', ['daemon.radio'])
           ans.push closestValue(time)
         return ans
 
+      historyPairs = (time = 10000) ->
+        _map(_updateHistory, (event) -> [event.time, event.value])
+
       # update the Peripheral
       update = (channel, update) ->
         # insert the update in sorted order

@@ -18,7 +18,7 @@
     "//": "screen settings",
     "title": "Daemon",
     "icon": "link.png",
-    "toolbar": true,
+    "toolbar": false,
     "frame": true,
     "position": "center",
     "width": 1024,

@@ -51,6 +51,12 @@
     },
     "ace-builds" : {
       "main": "src/ace.js"
+    },
+    "jquery-ui" : {
+      "main": [
+        "jquery-ui.js",
+        "themes/ui-lightness/jquery-ui.css"
+      ]
     }
   }
 }

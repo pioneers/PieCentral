@@ -25,5 +25,7 @@ angular.module('debug', ['daemon.gamepad'])
         value: hasSerialport()
       ]
 
-    $scope.gamepad = gamepads.gamepad
+    $scope.gamepadCounter = gamepads.gamepadCounter
+    $scope.validGamepad = gamepads.validGamepads
+
 ])

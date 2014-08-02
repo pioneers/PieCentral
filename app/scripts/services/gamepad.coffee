@@ -6,16 +6,32 @@ angular.module('daemon.gamepad', [])
   '$interval'
   ($interval) ->
     _gamepads = undefined
-
     updateGamepads = ->
       _gamepads = navigator.webkitGetGamepads()
 
+    gamepadCounter = ->
+      count = 0
+      for g in _gamepads 
+        if g?
+          count++
+      return count
+    
+    validGamepads = ->
+      valid = []
+      for g in _gamepads
+        if g?
+          valid.push(g)
+      return valid
+
     $interval(updateGamepads, 50)
 
+    
+    
     return {
-      gamepad: -> 
-        _gamepads[0]
-      gamepads: ->
-        _gamepads
+      gamepadCounter: ->
+        gamepadCounter()
+
+      validGamepads: ->
+        validGamepads()
     }
   ])

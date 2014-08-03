@@ -12,6 +12,10 @@ exports.config =
       joinTo:
         'js/app.js': /^app/
         'js/vendor.js': /^(bower_components|vendor)/
+      order:
+        before: [
+          'bower_components/jquery/jquery.js'
+        ]
 
     stylesheets:
       joinTo:

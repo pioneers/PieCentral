@@ -1,10 +1,10 @@
-angular.module('daemon.context', ['ngRoute', 'ng-context-menu', 'daemon.radio'])
+angular.module('daemon.context', ['daemon.radio'])
 
-.controller('WidgetContextCtrl', [
+.controller('CanvasContextCtrl', [
   '$scope'
   'radio'
   ($scope, radio) ->
-    
+
     toggleRadio = ->
       if radio.initialized()
         radio.close()
@@ -13,11 +13,10 @@ angular.module('daemon.context', ['ngRoute', 'ng-context-menu', 'daemon.radio'])
 
     $scope.menuItems = [
       class: 'dropdown-header'
-      label: 'Add Widget'
+      label: 'Visualize'
     ,
-      label: 'Distance Sensor'
-    ,
-      label: 'Light Sensor'
+      label: 'Mock Peripheral'
+      ngClick: $scope.addWidget
     ,
       class: 'divider'
     ,
@@ -26,6 +25,48 @@ angular.module('daemon.context', ['ngRoute', 'ng-context-menu', 'daemon.radio'])
     ,
       label: 'Toggle Radio'
       ngClick: toggleRadio
+    ,
+      class: 'divider'
+    ,
+      label: 'Close All Widgets'
+      ngClick: $scope.removeAllWidgets
     ]
+  ])
 
+.directive('canvascontext', [
+  ->
+    return {
+      restrict: 'E'
+      templateUrl: '/partials/canvascontext.html'
+      link: (scope, elem, attrs) ->
+        $('#widgetContainer').contextmenu({
+          before: (e, element, target) ->
+            if $(e.target).is('#widgetContainer')
+              return true
+            return false
+        })
+    }
+  ])
+
+.directive('widgetcontext', [
+  ->
+    return {
+      restrict: 'E'
+      templateUrl: '/partials/widgetcontext.html'
+      link: (scope, elem, attrs) ->
+        $(elem[0])
+    }
+  ])
+
+.directive('widgetcontextcaller', [
+  ->
+    return {
+      restrict: 'A'
+      link: (scope, elem, attrs) ->
+        $(elem[0]).contextmenu(
+            target: '#widget-context-menu'
+            before: (e, context) ->
+              scope.setRecentWidget(scope.widget)
+          )
+    }
   ])

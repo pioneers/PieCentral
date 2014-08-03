@@ -12,9 +12,28 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
 
 ($scope, $interval, widgetFactory, robot) ->
   $scope.widgets = []
+  $scope.mostRecentWidget = {}
 
-  $scope.addWidget = ->
-    $scope.widgets.push((new widgetFactory(robot.peripherals()[1].subPeripherals()[7], 'linechart')))
+  $scope.setRecentWidget = (widget) ->
+    console.log 'setting most recent widget'
+    console.log widget.id
+    $scope.mostRecentWidget = widget
+
+  $scope.addWidget = (peripheralFilter = {id: -1}) ->
+    $scope.widgets.push new widgetFactory(robot.peripheral(peripheralFilter), 'linechart')
+
+  $scope.removeWidget = (widget) ->
+    id = widget.id
+    for i in [0...$scope.widgets.length]
+      if $scope.widgets[i].id == id
+        $scope.widgets.splice i, 0
+        return
+
+  $scope.removeRecentWidget = ->
+    $scope.removeWidget($scope.mostRecentWidget)
+
+  $scope.removeAllWidgets = ->
+    $scope.widgets = []
 
   $interval(
     ->
@@ -51,6 +70,12 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
 .factory('widgetFactory',
 ->
   defaultURL = '/partials/type.html'
+  # guid generator code
+  guid = ->
+    s4 = ->
+      return Math.floor((1 + Math.random() * 0x10000)).toString(16).substring(1)
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+             s4() + '-' + s4() + s4() + s4()
 
   (periph, type) ->
     _data = [{
@@ -60,6 +85,7 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
     }]
 
     return {
+      id: guid()
       data: _data
       update: -> _.each(_data, (element, index, list) ->
         element.values =  element.peripheral.historyPairs())

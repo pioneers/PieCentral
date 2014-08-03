@@ -12,6 +12,12 @@ angular.module('daemon.gamepad', ['daemon.radio'])
 
     updateGamepads = ->
       _gamepads = navigator.webkitGetGamepads()
+      gamepad = _gamepads[0]
+      if gamepad.timestamp != _timeStamp
+        for fn in _updatefunctions
+          fn(gamepad)
+
+      _timeStamp = gamepad.timestamp
 
     sendGamepads = ->
       updateGamepads()
@@ -23,7 +29,7 @@ angular.module('daemon.gamepad', ['daemon.radio'])
 
     gamepadCount = ->
       count = 0
-      for g in _gamepads 
+      for g in _gamepads
         if g?
           count++
       return count

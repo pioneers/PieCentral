@@ -1,2 +1,2 @@
 div(id='widgetContainer', ng-app='ng-app', ng-controller='widgetCtrl', ng-click='addWidget()')
-  div(draggable, resizable, class='widget', ng-repeat='widget in widgets')
+  div(draggable, resizable, class='widget', ng-repeat='widget in widgets', ng-include='widget.url')

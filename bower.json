@@ -23,7 +23,8 @@
     "components-underscore": "~1.5.2",
     "angular-ui-ace": "~0.1.1",
     "angular-nvd3": "~0.0.8",
-    "jquery-ui": "~1.11.0"
+    "jquery-ui": "~1.11.0",
+    "angularjs-nvd3-directives": "~0.0.7"
   },
   "overrides": {
     "bootstrap-less": {
@@ -49,7 +50,7 @@
     "angular-mocks": {
       "main": "README.md"
     },
-    "ace-builds" : {
+    "ace-builds": {
       "main": "src/ace.js"
     }
   }

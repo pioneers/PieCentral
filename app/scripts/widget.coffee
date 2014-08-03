@@ -2,20 +2,18 @@
 
 ### Graphing Widgets ###
 
-angular.module('daemon.widget', [])
+angular.module('daemon.widget', ['nvd3ChartDirectives', 'daemon.robot'])
 
 .controller('widgetCtrl', [
   '$scope'
   'widgetFactory'
+  'robot'
 
-($scope, widgetFactory) ->
-  $scope.widgets = widgetFactory.getWidgets()
+($scope, widgetFactory, robot) ->
+  $scope.widgets = []
 
   $scope.addWidget = ->
-    widgetFactory.addWidget()
-
-  $scope.getWidgets = (index) ->
-    widgetFactory.getWidgets(index)
+    $scope.widgets.push((new widgetFactory(robot.peripherals()[0], 'linechart')))
 
 ])
 
@@ -23,7 +21,7 @@ angular.module('daemon.widget', [])
 ->
   restrict: 'A',
   link: (scope, elm, attr) ->
-    widget = scope.getWidgets(scope.$index)
+    widget = scope.widgets[scope.$index]
     jQelm = $(elm[0])
     if widget.position
       $(jQelm).css('left', widget.position.left)
@@ -45,13 +43,14 @@ angular.module('daemon.widget', [])
 
 .factory('widgetFactory',
 ->
-  widgets = []
+  defaultURL = '/partials/type.html'
 
-  addWidget: ->
-    widgets.push {position: null}
-  getWidgets: (index) ->
-    if index
-      widgets[index]
-    else
-      widgets
+  (periph, type) ->
+    data:
+      [
+        "key": periph.name
+        "values": periph.historyPairs()
+      ]
+    url: defaultURL.replace('type', String(type))
+    position: null
 )

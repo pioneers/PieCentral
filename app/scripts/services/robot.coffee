@@ -68,7 +68,7 @@ angular.module('daemon.robot', ['daemon.radio'])
         return ans
 
       historyPairs = (time = 10000) ->
-        _map(_updateHistory, (event) -> [event.time, event.value])
+        _.map(_updateHistory, (event) -> [event.time, event.value])
 
       # update the Peripheral
       update = (channel, update) ->
@@ -81,6 +81,7 @@ angular.module('daemon.robot', ['daemon.radio'])
         id: id
         name: name
         history: history
+        historyPairs: historyPairs
         update: update
       }
   ])

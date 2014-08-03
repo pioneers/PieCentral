@@ -39,33 +39,21 @@ angular.module('daemon.robot', ['daemon.radio'])
 .factory('Peripheral', [
   ->
     (id, name = 'default', memoryLength = 10) ->
-      _updateHistory = []
+      _updateHistory = [{time: Date.now(), value: 0}]
 
       # removes elements of history older than memoryLength seconds ago
+      # not very expensive
       cleanHistory = ->
         cutoff = _.sortedIndex(_updateHistory,
           {time: Date.now() - 1000 * memoryLength}, 'time')
         _updateHistory.splice 0, cutoff
 
-      closestValue = (time) ->
-        index = _.sortedIndex(_updateHistory, {time: time}, 'time')
-        if index == 0
-          return 0
-        else
-          return _updateHistory[index - 1].value
-
-
       ###
       Publicly accessible methods
       ###
 
-      history = (length = 100, period = 50) ->
-        now = Date.now()
-        start = now - (now % period) - length * period + period
-        ans = []
-        for time in (start + period * i for i in [0...length])
-          ans.push closestValue(time)
-        return ans
+      historyPairs = () ->
+        return _updateHistory
 
       # update the Peripheral
       update = (channel, update) ->
@@ -77,7 +65,8 @@ angular.module('daemon.robot', ['daemon.radio'])
       return {
         id: id
         name: name
-        history: history
+        historyPairs: historyPairs
         update: update
+        lastUpdate: -> _.last(_updateHistory)
       }
   ])

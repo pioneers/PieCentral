@@ -2,7 +2,7 @@
 
 ### Graphing Widgets ###
 
-angular.module('daemon.widget', ['daemon.robot', 'nvd3'])
+angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
 
 .controller('widgetCtrl', [
   '$scope'

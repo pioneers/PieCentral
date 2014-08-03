@@ -12,4 +12,13 @@
       tr(ng-repeat="property in debugProperties")
         td {{property.name}}
         td {{property.value}}
-
+      
+      tr(ng-repeat="g in validGamepad()")
+        td Gamepad{{$index}} buttons 
+        td {{g.buttons}}
+      tr(ng-repeat="g in validGamepad()")
+        td Gamepad{{$index}} axes
+        td {{g.axes}}
+      tr 
+        td Gamepads Connected
+        td {{gamepadCounter()}}

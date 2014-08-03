@@ -1,10 +1,11 @@
 window.angularGet = (name) -> angular.element(document).injector().get(name)
 
-angular.module('debug', [])
+angular.module('debug', ['daemon.gamepad'])
 
 .controller('DebugInfoCtrl', [
   '$scope'
-  ($scope) ->
+  'gamepads'
+  ($scope, gamepads) ->
     hasSerialport = ->
       try
         serialport = requireNode('serialport')
@@ -22,5 +23,9 @@ angular.module('debug', [])
       ,
         name: 'Has serialport?'
         value: hasSerialport()
-    ]
+      ]
+
+    $scope.gamepadCounter = gamepads.gamepadCounter
+    $scope.validGamepad = gamepads.validGamepads
+
 ])

@@ -20,7 +20,7 @@ angular.module('daemon.widget', ['daemon.robot', 'nvd3'])
     ->
       for widget in $scope.widgets
         widget.update()
-    , 100
+    , 300
     )
 ])
 
@@ -56,11 +56,13 @@ angular.module('daemon.widget', ['daemon.robot', 'nvd3'])
     _data = [{
       "key": periph.name
       "values": []
+      "peripheral": periph
     }]
 
     return {
       data: _data
-      update: -> _data[0].values = periph.historyPairs()
+      update: -> _.each(_data, (element, index, list) ->
+        element.values =  element.peripheral.historyPairs())
       url: defaultURL.replace('type', String(type))
       position: null
       options: {
@@ -81,6 +83,8 @@ angular.module('daemon.widget', ['daemon.robot', 'nvd3'])
             tickFormat: (d) -> d3.format('.01f')(d)
           }
           yDomain: [0, 1]
+          tooltips: false
+          interpolate: 'basis'
         }
       }
     }

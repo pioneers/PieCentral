@@ -29,6 +29,7 @@ angular.module('daemon.radio', [])
         time: now
         value: num
         })
+    
     return {
       init: ->
         _init = true

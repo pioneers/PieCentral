@@ -1,37 +1,50 @@
 'use strict'
 
-angular.module('daemon.gamepad', [])
+angular.module('daemon.gamepad', ['daemon.radio'])
 
-.service('gamepads', [
+.service('gamepad', [
   '$interval'
-  ($interval) ->
-    _gamepads = undefined
+  'radio'
+
+  ($interval, radio) ->
+    _gamepads = []
+    _listeners = []
+
     updateGamepads = ->
       _gamepads = navigator.webkitGetGamepads()
 
-    gamepadCounter = ->
+    sendGamepads = ->
+      updateGamepads()
+      for listener in _listeners
+        listener()
+      if radio._init
+        for g in _gamepads
+          radio.send(g.index, {buttons: g.buttons, axes: g.axes})
+
+    gamepadCount = ->
       count = 0
       for g in _gamepads 
         if g?
           count++
       return count
-    
+
     validGamepads = ->
+      updateGamepads()
       valid = []
       for g in _gamepads
         if g?
           valid.push(g)
       return valid
 
-    $interval(updateGamepads, 50)
+    $interval(sendGamepads, 100)
 
-    
-    
     return {
-      gamepadCounter: ->
+      updateGamepads: -> updateGamepads()
+      gamepadCount: ->
         gamepadCounter()
-
       validGamepads: ->
         validGamepads()
+      registerListener: (func) ->
+        _listeners.push(func)
     }
   ])

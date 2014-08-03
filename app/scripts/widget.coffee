@@ -14,7 +14,7 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
   $scope.widgets = []
 
   $scope.addWidget = ->
-    $scope.widgets.push((new widgetFactory(robot.peripherals()[0], 'linechart')))
+    $scope.widgets.push((new widgetFactory(robot.peripherals()[1].subPeripherals()[7], 'linechart')))
 
   $interval(
     ->

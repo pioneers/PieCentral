@@ -4,8 +4,8 @@ angular.module('debug', ['daemon.gamepad'])
 
 .controller('DebugInfoCtrl', [
   '$scope'
-  'gamepads'
-  ($scope, gamepads) ->
+  'gamepad'
+  ($scope, gamepad) ->
     hasSerialport = ->
       try
         serialport = requireNode('serialport')
@@ -25,7 +25,7 @@ angular.module('debug', ['daemon.gamepad'])
         value: hasSerialport()
       ]
 
-    $scope.gamepadCounter = gamepads.gamepadCounter
-    $scope.validGamepad = gamepads.validGamepads
+    $scope.gamepadCounter = gamepad.gamepadCounter
+    $scope.validGamepad = gamepad.validGamepads
 
 ])

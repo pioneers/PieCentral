@@ -73,8 +73,8 @@ angular.module('daemon.widget', ['daemon.robot', 'nvd3'])
             bottom: 40
             left: 50
           }
-          x: (d) -> d[0]
-          y: (d) -> d[1]
+          x: (d) -> d.time - periph.lastUpdate().time
+          y: (d) -> d.value
           useInteractiveGuideline: true
           transitionDuration: 1
           yAxis: {

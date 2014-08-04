@@ -53,8 +53,6 @@ angular.module('daemon.context', ['daemon.radio'])
     return {
       restrict: 'E'
       templateUrl: '/partials/widgetcontext.html'
-      link: (scope, elem, attrs) ->
-        $(elem[0])
     }
   ])
 
@@ -63,10 +61,14 @@ angular.module('daemon.context', ['daemon.radio'])
     return {
       restrict: 'A'
       link: (scope, elem, attrs) ->
+        target = '#widget-context-menu'
         $(elem[0]).contextmenu(
-            target: '#widget-context-menu'
+            target: target
             before: (e, context) ->
               scope.setRecentWidget(scope.widget)
+            onItem: (context, e) ->
+              this.closemenu()
+              scope.removeRecentWidget()
           )
     }
   ])

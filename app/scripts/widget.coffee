@@ -15,8 +15,6 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
   $scope.mostRecentWidget = {}
 
   $scope.setRecentWidget = (widget) ->
-    console.log 'setting most recent widget'
-    console.log widget.id
     $scope.mostRecentWidget = widget
 
   $scope.addWidget = (peripheralFilter = {id: -1}) ->
@@ -26,7 +24,7 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
     id = widget.id
     for i in [0...$scope.widgets.length]
       if $scope.widgets[i].id == id
-        $scope.widgets.splice i, 0
+        $scope.widgets.splice i, 1
         return
 
   $scope.removeRecentWidget = ->
@@ -35,10 +33,10 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
   $scope.removeAllWidgets = ->
     $scope.widgets = []
 
+  # update widgets
   $interval(
     ->
-      for widget in $scope.widgets
-        widget.update()
+      widget.update() for widget in $scope.widgets
     , 300
     )
 ])

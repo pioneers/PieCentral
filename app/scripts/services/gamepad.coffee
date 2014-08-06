@@ -8,51 +8,39 @@ angular.module('daemon.gamepad', ['daemon.radio'])
 
   ($interval, radio) ->
     _gamepads = [undefined, undefined, undefined, undefined]
-    _listeners = []
-    _currTimestamp = [0, 0, 0, 0]
+    _callbacks = []
+    _currentTimestamps = [0, 0, 0, 0]
 
-    updateGamepads = ->
-      _gamepads = navigator.webkitGetGamepads()
-      for g,index in _gamepads
-        if g?
-          _currTimestamp[index] = g.timestamp
+    update = ->
+      # call callbacks if we made change, but only once
+      callCallbacksOnce = _.once( -> fn() for fn in _callbacks )
 
+      # get the gamepads
+      _gamepads = navigator.getGamepads()
 
-    sendGamepads = ->
-      updateGamepads()
-      for listener in _listeners
-        listener()
-      if radio.initialized()
-        for g,index in _gamepads
-          if g? and _currTimestamp[index] != g.timestamp 
-            radio.send(g.index, {buttons: g.buttons, axes: g.axes})
-            _currTimestamp[index] = g.timestamp
-              
+      for i in [0...3]
+        gamepad = _gamepads[i]
+        oldTimestamp = _currentTimestamps[i]
 
-    gamepadCount = ->
-      count = 0
-      for g in _gamepads
-        if g?
-          count++
-      return count
+        # if the gamepad isn't undefined and the timestamp is changed
+        if gamepad? and oldTimestamp != gamepad.timestamp
+          callCallbacksOnce()
+          if radio.initialized()
+            radio.send('gp' + String(gamepad.index),
+              {buttons: gamepad.buttons, axes: gamepad.axes})
+          # update the timestamps
+          _currentTimestamps[i] = gamepad.timestamp
 
-    validGamepads = ->
-      updateGamepads()
-      valid = []
-      for g in _gamepads
-        if g?
-          valid.push(g)
-      return valid
-
-    $interval(sendGamepads, 100)
+    $interval(update, 100)
 
     return {
-      updateGamepads: -> updateGamepads()
-      gamepadCount: ->
-        gamepadCount()
-      validGamepads: ->
-        validGamepads()
-      registerListener: (func) ->
-        _listeners.push(func)
+      active: ->
+        _.filter(_gamepads, (g) -> g?)
+      all: ->
+        _gamepads
+      count: ->
+        validGamepads().length
+      onUpdate: (func) ->
+        _callbacks.push(func)
     }
   ])

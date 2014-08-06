@@ -2,7 +2,7 @@
 
 angular.module('daemon.gamepad', ['daemon.radio'])
 
-.service('gamepad', [
+.service('gamepads', [
   '$interval'
   'radio'
 

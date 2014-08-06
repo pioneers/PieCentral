@@ -1,50 +1,4 @@
-'use strict'
-
-angular.module('daemon.robot', ['daemon.radio', 'daemon.gamepad'])
-
-.service('robot', [
-  '$interval'
-  'radio'
-  'gamepad'
-  'Peripheral'
-  'gamepadFactory'
-
-  ($interval, radio, gamepad, Peripheral, gamepadFactory) ->
-    _lastContact = Date.now()
-    _peripherals = []
-    _peripherals.push(new Peripheral(-1, 'Mock Peripheral'))
-
-    _gamepads = gamepad.active()
-    for g in _gamepads
-      gpad = new gamepadFactory(g, g.id, 'Gamepad ' + g.index)
-      _peripherals.push(gpad)
-      gamepad.onUpdate(gpad.update)
-
-    updateLastContact = ->
-      _lastContact = Date.now()
-
-    findPeripheral = (properties) ->
-      switch typeof properties
-        when 'number' then _.findWhere(_peripherals, id: properties)
-        else # assume object
-          _.findWhere(_peripherals, properties)
-
-
-    radio.init()
-    radio.enableMock()
-    radio.onReceive('mock', (channel, update) ->
-      updateLastContact()
-      findPeripheral(-1).update channel, update
-    )
-
-    return {
-      lastContact: ->
-        return _lastContact
-      peripherals: ->
-        return _peripherals
-      peripheral: findPeripheral
-    }
-  ])
+angular.module('daemon.peripheral', ['daemon.gamepad'])
 
 .factory('Peripheral', [
   ->
@@ -81,7 +35,7 @@ angular.module('daemon.robot', ['daemon.radio', 'daemon.gamepad'])
       }
   ])
 
-.factory('gamepadFactory', [
+.factory('Gamepad', [
   'Peripheral'
 
   (Peripheral) ->
@@ -117,7 +71,6 @@ angular.module('daemon.robot', ['daemon.radio', 'daemon.gamepad'])
           periph: new Peripheral(genID(i), buttonNames[i], memoryLength)
           index: i
           })
-
 
       update = ->
         for action in _actions

@@ -20,14 +20,14 @@ debugMenu.append new gui.MenuItem(
   label: 'Reload and Clear Cache'
   click: -> win.reloadIgnoringCache()
   key: 'r'
-  modifiers: if onMac then 'cmd-shift' else 'ctrl-shift'
+  modifiers: if onMac then 'cmd-shift' else 'shift-ctrl'
   )
 
 debugMenu.append new gui.MenuItem(
   label: "Toggle Kiosk Mode"
   click: -> win.toggleKioskMode()
   key: 'f'
-  modifiers: if onMac then 'cmd-shift' else 'ctrl-shift'
+  modifiers: if onMac then 'cmd-shift' else 'shift-ctrl'
   )
 
 debugMenu.append new gui.MenuItem type: 'separator'
@@ -36,7 +36,7 @@ debugMenu.append new gui.MenuItem(
   label: 'Developer Tools'
   click: -> win.showDevTools()
   key: 'i'
-  modifiers: if onMac then 'cmd-alt' else 'ctrl-alt'
+  modifiers: if onMac then 'cmd-alt' else 'shift-ctrl'
   )
 
 menubar.append new gui.MenuItem(

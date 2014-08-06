@@ -33,6 +33,7 @@ function call(name) {
 var Radio = function(address, serportObj) {
   EventEmitter.apply(this);
   this.connected = false;
+  this._accumulator = null;
   this.net = call('NDL3_new', 0, 0, 0);
   if (this.net === 0) {
     throw 'Could not allocate NDL3.';
@@ -85,7 +86,8 @@ Radio.prototype.connectXBee = function (address, serportObj) {
   this.address = address;
   this.serportObj = serportObj;
   this._read_handler = read_handler.bind(this);
-  serportObj.on('data', this._read_handler);
+  this._accumulator = new xbee.Accumulator(serportObj);
+  this._accumulator.on('data', this._read_handler);
   this._send_data = send_data.bind(this);
   this.on('send_data', this._send_data);
 };
@@ -95,7 +97,9 @@ Radio.prototype.disconnectXBee = function () {
     throw 'XBee not connected.';
   }
   this.off('send_data', this._send_data);
-  this.serportObj.off(this._read_handler);
+  this._accumulator.off('data', this._read_handler);
+  this._accumulator.destroy();
+  this._accumulator = null;
   this.address = null;
   this.serportObj = null;
 };

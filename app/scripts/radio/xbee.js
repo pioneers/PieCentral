@@ -1,10 +1,39 @@
 /* jshint globalstrict: true */
 "use strict";
 
+var EventEmitter = require('./EventEmitter');
 var typpo_module = require('./factory');
 var Int64 = require('./Int64');
 var buffer = require('buffer');
 var typpo = require('./typpo');
+
+var MAX_XBEE_PACKET_SIZE = 0x10000;
+
+var Accumulator = function(serportObj) {
+  EventEmitter.apply(this);
+  this.buf = buffer.Buffer(MAX_XBEE_PACKET_SIZE);
+  this.offset = 0;
+  this._on_recv = on_recv.bind(this);
+  this.serportObj = serportObj;
+  serportObj.on('data', this._on_recv);
+};
+
+Accumulator.prototype = Object.create(EventEmitter.prototype);
+
+Accumulator.prototype.destroy = function () {
+  this.serportObj.off('data', this._on_recv);
+};
+
+var on_recv = function (data) {
+  data.copy(this.buf, this.offset, 0, data.length);
+  this.offset += data.length;
+  var buf = this.buf.slice(0, this.offset);
+  if (exports.isFullPacket(buf)) {
+    this.buf = buffer.Buffer(MAX_XBEE_PACKET_SIZE);
+    this.offset = 0;
+    this.emit('data', buf);
+  }
+};
 
 // This module contains utilities for using an XBee radio.
 // TODO(kzentner): Move other, duplicated xbee functionality here.

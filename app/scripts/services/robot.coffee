@@ -14,11 +14,11 @@ angular.module('daemon.robot', ['daemon.radio', 'daemon.gamepad'])
     _peripherals = []
     _peripherals.push(new Peripheral(-1, 'Mock Peripheral'))
 
-    _gamepads = gamepad.validGamepads()
+    _gamepads = gamepad.active()
     for g in _gamepads
       gpad = new gamepadFactory(g, g.id, 'Gamepad ' + g.index)
       _peripherals.push(gpad)
-      gamepad.registerListener(gpad.update)
+      gamepad.onUpdate(gpad.update)
 
     updateLastContact = ->
       _lastContact = Date.now()

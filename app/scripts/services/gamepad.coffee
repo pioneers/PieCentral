@@ -7,44 +7,40 @@ angular.module('daemon.gamepad', ['daemon.radio'])
   'radio'
 
   ($interval, radio) ->
-    _gamepads = []
-    _listeners = []
+    _gamepads = [undefined, undefined, undefined, undefined]
+    _callbacks = []
+    _currentTimestamps = [0, 0, 0, 0]
 
-    updateGamepads = ->
-      _gamepads = navigator.webkitGetGamepads()
+    update = ->
+      # call callbacks if we made change, but only once
+      callCallbacksOnce = _.once( -> fn() for fn in _callbacks )
 
-    sendGamepads = ->
-      updateGamepads()
-      for listener in _listeners
-        listener()
-      if radio._init
-        for g in _gamepads
-          radio.send(g.index, {buttons: g.buttons, axes: g.axes})
+      # get the gamepads
+      _gamepads = navigator.getGamepads()
 
-    gamepadCount = ->
-      count = 0
-      for g in _gamepads
-        if g?
-          count++
-      return count
+      for i in [0...3]
+        gamepad = _gamepads[i]
+        oldTimestamp = _currentTimestamps[i]
 
-    validGamepads = ->
-      updateGamepads()
-      valid = []
-      for g in _gamepads
-        if g?
-          valid.push(g)
-      return valid
+        # if the gamepad isn't undefined and the timestamp is changed
+        if gamepad? and oldTimestamp != gamepad.timestamp
+          callCallbacksOnce()
+          if radio.initialized()
+            radio.send('gp' + String(gamepad.index),
+              {buttons: gamepad.buttons, axes: gamepad.axes})
+          # update the timestamps
+          _currentTimestamps[i] = gamepad.timestamp
 
-    $interval(sendGamepads, 100)
+    $interval(update, 100)
 
     return {
-      updateGamepads: -> updateGamepads()
-      gamepadCount: ->
-        gamepadCounter()
-      validGamepads: ->
-        validGamepads()
-      registerListener: (func) ->
-        _listeners.push(func)
+      active: ->
+        _.filter(_gamepads, (g) -> g?)
+      all: ->
+        _gamepads
+      count: ->
+        validGamepads().length
+      onUpdate: (func) ->
+        _callbacks.push(func)
     }
   ])

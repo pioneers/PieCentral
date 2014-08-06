@@ -12,12 +12,6 @@ angular.module('daemon.gamepad', ['daemon.radio'])
 
     updateGamepads = ->
       _gamepads = navigator.webkitGetGamepads()
-      gamepad = _gamepads[0]
-      if gamepad.timestamp != _timeStamp
-        for fn in _updatefunctions
-          fn(gamepad)
-
-      _timeStamp = gamepad.timestamp
 
     sendGamepads = ->
       updateGamepads()

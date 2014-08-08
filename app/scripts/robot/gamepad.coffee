@@ -39,7 +39,7 @@ angular.module('daemon.gamepad', ['daemon.radio'])
       all: ->
         _gamepads
       count: ->
-        validGamepads().length
+        _.filter(_gamepads, (g) -> g?).length
       onUpdate: (func) ->
         _callbacks.push(func)
     }

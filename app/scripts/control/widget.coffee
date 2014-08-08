@@ -6,11 +6,10 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
 
 .controller('widgetCtrl', [
   '$scope'
-  '$interval'
   'widgetFactory'
   'robot'
 
-($scope, $interval, widgetFactory, robot) ->
+($scope, widgetFactory, robot) ->
   $scope.widgets = []
   $scope.mostRecentWidget = {}
 
@@ -19,6 +18,7 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
 
   $scope.addWidget = (peripheralFilter = {id: -1}) ->
     $scope.widgets.push new widgetFactory(robot.peripheral(peripheralFilter), 'linechart')
+    $scope.widgets[$scope.widgets.length-1].update()
 
   $scope.removeWidget = (widget) ->
     id = widget.id
@@ -32,13 +32,6 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
 
   $scope.removeAllWidgets = ->
     $scope.widgets = []
-
-  # update widgets
-  $interval(
-    ->
-      widget.update() for widget in $scope.widgets when widget.render
-    , 300
-    )
 ])
 
 .directive('draggable',
@@ -53,12 +46,11 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
     $(jQelm).draggable({
       containment: 'parent'
       start: (event, ui) ->
-        widget.render = false
         for series in widget.data
           series.values = series.values.slice()
       stop: (event, ui) ->
         widget.position = ui.position
-        widget.render = true
+        widget.update()
       })
 )
 
@@ -70,11 +62,10 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
     jQelm = $(elm[0])
     $(jQelm).resizable({
       start: (event, ui) ->
-        widget.render = false
         for series in widget.data
           series.values = series.values.slice()
       stop: (event, ui) ->
-        widget.render = true
+        widget.update()
     })
 )
 
@@ -101,7 +92,6 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
       update: -> _.each(_data, (element, index, list) ->
         element.values =  element.peripheral.historyPairs())
       url: defaultURL.replace('type', String(type))
-      render: true
       position: null
       options: {
         chart: {

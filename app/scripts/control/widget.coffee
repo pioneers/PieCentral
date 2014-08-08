@@ -36,7 +36,7 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
   # update widgets
   $interval(
     ->
-      widget.update() for widget in $scope.widgets
+      widget.update() for widget in $scope.widgets when widget.render
     , 300
     )
 ])
@@ -52,8 +52,13 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
       $(jQelm).css('top', widget.position.top)
     $(jQelm).draggable({
       containment: 'parent'
+      start: (event, ui) ->
+        widget.render = false
+        for series in widget.data
+          series.values = series.values.slice()
       stop: (event, ui) ->
         widget.position = ui.position
+        widget.render = true
       })
 )
 
@@ -61,8 +66,16 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
 ->
   restrict: 'A',
   link: (scope, elm, attr) ->
+    widget = scope.widgets[scope.$index]
     jQelm = $(elm[0])
-    $(jQelm).resizable()
+    $(jQelm).resizable({
+      start: (event, ui) ->
+        widget.render = false
+        for series in widget.data
+          series.values = series.values.slice()
+      stop: (event, ui) ->
+        widget.render = true
+    })
 )
 
 .factory('widgetFactory',
@@ -88,6 +101,7 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
       update: -> _.each(_data, (element, index, list) ->
         element.values =  element.peripheral.historyPairs())
       url: defaultURL.replace('type', String(type))
+      render: true
       position: null
       options: {
         chart: {

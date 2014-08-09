@@ -29,6 +29,18 @@ angular.module('daemon.radio', [])
         time: now
         value: num
         })
+
+    # SerialPort = require("serialport").SerialPort
+    # radioAddr = "AAAAAAAAAAAAAAAA"
+    # serialPort = new SerialPort("/dev/ttyUSB0",
+    #   baudrate: 57600
+    # )
+
+    # radio = require('kyleradio')
+    # rad = radio.Radio()
+
+    # rad.connectXBee(radioAddr, serialPort)
+
     
     return {
       init: ->

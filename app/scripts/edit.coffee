@@ -70,12 +70,10 @@ angular.module("daemon.edit", ["ui.ace", "daemon.radio"])
     # succession in the first place.
     aceLoadedDebounced = _.debounce(aceLoaded, 100, true)
 
-    sendEditorData = () ->
+    $scope.aceChanged = -> aceChangedDebounced()
+    $scope.aceLoaded = (args...) -> aceLoadedDebounced(args...)
+    $scope.sendEditorData = ->
       editor = promised.editor
       value = editor.getValue()
       radio.send('robotCode', value)
-
-    $scope.aceChanged = -> aceChangedDebounced()
-    $scope.aceLoaded = (args...) -> aceLoadedDebounced(args...)
-    $scope.sendEditorData = sendEditorData
 ]

@@ -18,10 +18,11 @@ print(addto(4)(3))
 ]]
 '''
 
-angular.module("daemon.edit", ["ui.ace"])
+angular.module("daemon.edit", ["ui.ace", "daemon.radio"])
 .controller "EditCtrl", [
   "$scope"
-  ($scope) ->
+  "radio"
+  ($scope, radio) ->
 
     promised = {}
 
@@ -69,8 +70,10 @@ angular.module("daemon.edit", ["ui.ace"])
     # succession in the first place.
     aceLoadedDebounced = _.debounce(aceLoaded, 100, true)
 
-
     $scope.aceChanged = -> aceChangedDebounced()
     $scope.aceLoaded = (args...) -> aceLoadedDebounced(args...)
-
+    $scope.sendEditorData = ->
+      editor = promised.editor
+      value = editor.getValue()
+      radio.send('robotCode', value)
 ]

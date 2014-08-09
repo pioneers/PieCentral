@@ -8,4 +8,4 @@ div.container-fluid(ng-controller='EditCtrl')
     mode: 'lua' }")
   div#buts.pull-left
     button.btn.btn-danger Stop
-    button.btn.btn-success Play
+    button.btn.btn-success(ng-click="sendEditorData()") Play

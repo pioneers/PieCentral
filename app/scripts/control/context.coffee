@@ -39,9 +39,9 @@ angular.module('daemon.context', ['daemon.radio'])
       restrict: 'E'
       templateUrl: '/partials/canvascontext.html'
       link: (scope, elem, attrs) ->
-        $('#widgetContainer').contextmenu({
+        $('#widget-container').contextmenu({
           before: (e, element, target) ->
-            if $(e.target).is('#widgetContainer')
+            if $(e.target).is('#widget-container')
               return true
             return false
         })

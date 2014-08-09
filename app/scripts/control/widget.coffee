@@ -4,20 +4,20 @@
 
 angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
 
-.controller('widgetCtrl', [
+.controller('WidgetCtrl', [
   '$scope'
-  'widgetFactory'
+  'Widget'
   'robot'
 
-($scope, widgetFactory, robot) ->
+($scope, Widget, robot) ->
   $scope.widgets = []
-  $scope.mostRecentWidget = {}
+  $scope.activeWidget = {}
 
   $scope.setRecentWidget = (widget) ->
-    $scope.mostRecentWidget = widget
+    $scope.activeWidget = widget
 
-  $scope.addWidget = (peripheralFilter = {id: -1}) ->
-    $scope.widgets.push new widgetFactory(robot.peripheral(peripheralFilter), 'linechart')
+  $scope.addWidget = (properties = {id: -1}) ->
+    $scope.widgets.push new Widget(robot.peripheral(properties), 'linechart')
     $scope.widgets[$scope.widgets.length-1].update()
 
   $scope.removeWidget = (widget) ->
@@ -28,7 +28,7 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
         return
 
   $scope.removeRecentWidget = ->
-    $scope.removeWidget($scope.mostRecentWidget)
+    $scope.removeWidget($scope.activeWidget)
 
   $scope.removeAllWidgets = ->
     $scope.widgets = []
@@ -69,13 +69,13 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
     })
 )
 
-.factory('widgetFactory',
+.factory('Widget',
 ->
   defaultURL = '/partials/type.html'
   # guid generator code
   guid = ->
     s4 = ->
-      return Math.floor((1 + Math.random() * 0x10000)).toString(16).substring(1)
+      return Math.floor(1 + Math.random() * 0x10000).toString(16).substring(1)
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
              s4() + '-' + s4() + s4() + s4()
 

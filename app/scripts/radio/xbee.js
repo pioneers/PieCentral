@@ -18,6 +18,8 @@ var Accumulator = function(serportObj) {
   serportObj.on('data', this._on_recv);
 };
 
+exports.Accumulator = Accumulator;
+
 Accumulator.prototype = Object.create(EventEmitter.prototype);
 
 Accumulator.prototype.destroy = function () {
@@ -124,4 +126,18 @@ exports.isFullPacket = function (buf) {
     // not a full packet).
   }
   return false;
+};
+
+exports.extractPayload = function (rxPacket) {
+  var api_packet = typpo.read('xbee_api_packet', rxPacket);
+  var payload = api_packet.get_slot('payload');
+  var api_type = payload.get_slot('xbee_api_type').unwrap();
+  if (api_type !== typpo.get_const('XBEE_API_TYPE_RX64')) {
+    throw "Attempt to extract the payload from a non-rx64 packet.";
+  }
+  var rx = api_packet.get_slot('payload').get_slot('rx64');
+  var data = rx.get_slot('data').unwrap();
+
+  // Don't ouput checksum.
+  return data.slice(0, -1);
 };

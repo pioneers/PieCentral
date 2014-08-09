@@ -47,6 +47,12 @@ exports.get_ptr = function (emcc, ptr_ptr) {
   return emcc.getValue(ptr_ptr, 'i32');
 };
 
+// Write a ptr at address <ptr_ptr> from an emscripten instance
+// <emcc>.
+exports.set_ptr = function (emcc, ptr_ptr, ptr) {
+  return emcc.setValue(ptr_ptr, ptr, 'i32');
+};
+
 // Size of a pointer in bytes in emscripten. Useful for allocating
 // arrays of (pointer) pointers.
 exports.PTR_SIZE = 4;

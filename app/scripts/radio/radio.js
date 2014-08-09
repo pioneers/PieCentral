@@ -15,6 +15,8 @@ var UBJSON_PORT = typpo.get_const('NDL3_UBJSON_PORT');
 var STRING_PORT = typpo.get_const('NDL3_STRING_PORT');
 var CODE_PORT = typpo.get_const('NDL3_CODE_PORT');
 
+exports.RADIO_DEBUG = false;
+
 try {
   var ndl3 = require('./ndl3');
 } catch (_) {
@@ -57,21 +59,26 @@ var Radio = function(address, serportObj) {
     this.address = null;
     this.serportObj = null;
   }
+  this._send_data = send_data.bind(this);
 
-  // Print out every message in or out of the radio, for debugging
-  // purposes.
-  var events = ['data', 'object', 'string', 'code'];
-  function make_evt_callback(evt) {
-    return function (data) {
-      console.log('radio: ', evt, ':', data);
-    };
-  }
-  for (var e = 0; e < events.length; e++) {
-    var evt = events[e];
-    this.on(evt, make_evt_callback(evt));
-    this.on('send_' + evt, make_evt_callback('send_' + evt));
+  
+  if (exports.RADIO_DEBUG) {
+    // Print out every message in or out of the radio, for debugging
+    // purposes.
+    var events = ['data', 'object', 'string', 'code'];
+    for (var e = 0; e < events.length; e++) {
+      var evt = events[e];
+      this.on(evt, make_evt_callback(evt));
+      this.on('send_' + evt, make_evt_callback('send_' + evt));
+    }
   }
 };
+
+function make_evt_callback(evt) {
+  return function (data) {
+    console.log('radio: ', evt, ':', data);
+  };
+}
 
 Radio.prototype = Object.create(EventEmitter.prototype);
 
@@ -93,9 +100,6 @@ Radio.prototype.connectXBee = function (address, serportObj) {
 };
 
 Radio.prototype.disconnectXBee = function () {
-  if (!this.connected) {
-    throw 'XBee not connected.';
-  }
   this.off('send_data', this._send_data);
   this._accumulator.off('data', this._read_handler);
   this._accumulator.destroy();
@@ -111,6 +115,9 @@ function send_L2 () {
   if (out_size_ptr === 0 || send_block === 0) {
     throw 'malloc failed';
   }
+
+  emcc_tools.set_ptr(ndl3, out_size_ptr, 0);
+
   call('NDL3_elapse_time', this.net, SEND_INTERVAL);
   call('NDL3_L2_pop', this.net, send_block, MAX_XBEE_PAYLOAD_SIZE, out_size_ptr);
   var length = emcc_tools.get_ptr(ndl3, out_size_ptr);
@@ -130,11 +137,19 @@ function read_handler(data) {
   this.emit('data', data);
 }
 
-function recv_L2 (evt) {
+function recv_L2 (rxbuf) {
   /* jshint validthis: true */
-  var rxbuf = evt.data;
-  var ptr = emcc_tools.buffer_to_ptr(ndl3, rxbuf);
-  call('NDL3_L2_push', this.net, ptr, rxbuf.length);
+  // We need to extract the payload from the xbee packet.
+  var data = xbee.extractPayload(rxbuf);
+  if (data[0] !== typpo.get_const('NDL3_IDENT')) {
+    // Not an NDL3 packet.
+    return;
+  } else {
+    // Remove the framing.
+    data = data.slice(1);
+  }
+  var ptr = emcc_tools.buffer_to_ptr(ndl3, data);
+  call('NDL3_L2_push', this.net, ptr, data.length);
   call('free', ptr);
 
   check_L3.apply(this);
@@ -175,7 +190,9 @@ function check_port(port, callback) {
 function throw_on_NDL3_error(net) {
   var err = call('NDL3_pop_error', net);
   if (err !== 0) {
-    throw 'Error number ' + err + ' in NDL3.';
+    if (exports.RADIO_DEBUG) {
+      throw 'Error number ' + err + ' in NDL3.';
+    }
   }
 }
 

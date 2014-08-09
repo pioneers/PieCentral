@@ -21,3 +21,5 @@ bower_components/
 # build stuff.
 dist
 dist/*
+
+cache/

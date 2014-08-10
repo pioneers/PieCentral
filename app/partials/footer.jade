@@ -1,16 +1,23 @@
 .container(ng-controller='FooterCtrl')
   nav.navbar.navbar-default.navbar-fixed-bottom.footer
     ul.nav.navbar.navbar-left
-      .input-group.input-group-sm
-        span.input-group-addon(style = "width: 120px;") Radio Address
-        input.form-control(ng-model="radioAddr", placeholder="Radio Address")
-      .input-group.input-group-sm
-        span.input-group-addon(style = "width: 120px;") COM Port
-        input.form-control(ng-model="portPath", placeholder="Communications Port")
+      .col-sm-9
+        .input-group.input-group-sm
+          span.input-group-addon(style = "width: 120px;") Radio Address
+          input.form-control(ng-model="radioAddr", placeholder="Radio Address")
+        .input-group.input-group-sm
+          span.input-group-addon(style = "width: 120px;") COM Port
+          input.form-control(ng-model="portPath", placeholder="Communications Port")
+      .dropdown.col-sm-3
+        button#com-ports.btn.btn-default.droptown-toggle(type="button", data-toggle="dropdown") Available COM Ports
+          span.caret
+        ul.dropdown-menu(role="menu", aria-labelledby="com-ports")
+          li.disabled(role="presentation", ng-show="portPathList.length == 0")
+            a(role="menuitem", tabindex="-1", href="#") No Ports Detected
+          li(role="presentation", ng-repeat="port in portPathList")
+            a(role="menuitem", tabindex="-1", href="#", ng-click="assignPortPath(port)") {{port}}
     ul.nav.navbar.navbar-right
       span.label.label-success(ng-show="radio.initialized()") Radio initialized
       span.label.label-danger(ng-hide="radio.initialized()") Radio not initialized
       button.btn.btn-success(ng-click="radio.init(radioAddr, portPath)") Init
       button.btn.btn-danger(ng-click="radio.close()") Close
-
-

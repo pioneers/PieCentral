@@ -45,6 +45,9 @@ angular.module('daemon.radio', [])
         if error
           console.log('failed to open: ' + error)
         _ndl3Radio.connectXBee(radioAddr, serialPort)
+        _ndl3Radio.on('string', (str) ->
+          console.log('got string', str)
+          )
         )
 
     return {
@@ -86,6 +89,7 @@ angular.module('daemon.radio', [])
               _ndl3Radio.send(channel: object)
           else
             console.log "_ndl3Radio not defined"
+            return false
 
           console.log "radio channel 'chname': fake sent object"
           .replace(/object/, String(object))

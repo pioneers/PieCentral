@@ -39,23 +39,25 @@ angular.module('daemon.radio', [])
     _serialPort = undefined
 
     radioInit = (radioAddr = "0013A20040A580C4", portPath = "/dev/ttyUSB0") ->
+      _radioAddr = radioAddr
+
       _ndl3Radio.close() if _ndl3Radio
       radio = requireNode('kyleradio')
       _ndl3Radio = new radio.Radio()
 
       if _portPath != portPath
         _portPath = portPath
-        SerialPort = requireNode("serialport").SerialPort
         if _serialPort? # we have an old _serialPort to close
           _serialPort.close( (error) -> initSerialPort() )
-        else # we have no _serialport
+        else # we have no _serialPort
           initSerialPort()
       else # portPath hasn't changed, and we have a _serialPort
         registerRadio()
 
     # make a new _serialPort and register the radio
     initSerialPort = ->
-      _serialPort = new SerialPort(portPath, baudrate: 57600, false)
+      SerialPort = requireNode("serialport").SerialPort
+      _serialPort = new SerialPort(_portPath, baudrate: 57600, false)
       _serialPort.open(registerRadio)
 
     # register the radio with the serialport

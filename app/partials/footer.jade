@@ -1,9 +1,16 @@
 .container(ng-controller='FooterCtrl')
   nav.navbar.navbar-default.navbar-fixed-bottom.footer
-    .navbar-right
+    ul.nav.navbar.navbar-left
+      .input-group.input-group-sm
+        span.input-group-addon(style = "width: 120px;") Radio Address
+        input.form-control(ng-model="radioAddr", placeholder="Radio Address")
+      .input-group.input-group-sm
+        span.input-group-addon(style = "width: 120px;") COM Port
+        input.form-control(ng-model="portPath", placeholder="Communications Port")
+    ul.nav.navbar.navbar-right
       span.label.label-success(ng-show="radio.initialized()") Radio initialized
       span.label.label-danger(ng-hide="radio.initialized()") Radio not initialized
-      button.btn.btn-success(ng-click="radio.init()") Init
+      button.btn.btn-success(ng-click="radio.init(radioAddr, portPath)") Init
       button.btn.btn-danger(ng-click="radio.close()") Close
 
 

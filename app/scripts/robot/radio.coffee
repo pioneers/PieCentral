@@ -7,6 +7,10 @@ angular.module('daemon.radio', [])
   ($interval) ->
     # whether or not we've initialized
     _init = false
+
+    # thing
+    _ndl3Radio = undefined
+
     # an object of arrays, where the keys are
     # the channel of events to repond to
     # and the values are arrays of callbacks
@@ -30,20 +34,17 @@ angular.module('daemon.radio', [])
         value: num
         })
 
-    init = ->
+    radioInit = (radioAddr = "AAAAAAAAAAAAAAAA", portPath = "/dev/ttyUSB0") ->
       SerialPort = require("serialport").SerialPort
-      radioAddr = "AAAAAAAAAAAAAAAA"
-      serialPort = new SerialPort("/dev/ttyUSB0",
-        baudrate: 57600
-      )
+      serialPort = new SerialPort(portPath, baudrate: 57600)
 
       radio = requireNode('kyleradio')
-      rad = new radio.Radio()
+      _ndl3Radio = new radio.Radio()
 
-      rad.connectXBee(radioAddr, serialPort)
+      _ndl3Radio.connectXBee(radioAddr, serialPort)
       # $interval( ->
       #   console.log 'try to send shit'
-      #   rad.send(
+      #   _ndl3Radio.send(
       #     PiELESAnalogValues: [127,127,127,127,127,127,127]
       #     PiELESDigitalValues: [true, true, true, true, true, true, true, true]
       #     )
@@ -51,9 +52,10 @@ angular.module('daemon.radio', [])
     
     return {
       init: ->
+        unless _init
+          radioInit()
         _init = true
         return true
-      initRadio: init
       enableMock: (millis = 100) ->
         unless mockEnabled
           mockEnabled = true
@@ -75,8 +77,15 @@ angular.module('daemon.radio', [])
         return true
       send: (channels..., object) ->
         return false unless _init # exit if we're not initialized
+        return false unless object?
 
         for channel in channels
+          object._channel = channel
+
+          _ndl3Radio.send(
+            channel: object
+            )
+
           console.log "radio channel 'chname': fake sent object"
           .replace(/object/, String(object))
           .replace(/chname/, channel)

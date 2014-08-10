@@ -38,14 +38,14 @@ angular.module('daemon.radio', [])
       SerialPort = requireNode("serialport").SerialPort
       serialPort = new SerialPort(portPath, baudrate: 57600, false)
 
+      radio = requireNode('kyleradio')
+      _ndl3Radio = new radio.Radio()
+
       serialPort.open( (error) ->
         if error
           console.log('failed to open: ' + error)
+        _ndl3Radio.connectXBee(radioAddr, serialPort)
         )
-
-      radio = requireNode('kyleradio')
-      _ndl3Radio = new radio.Radio()
-      _ndl3Radio.connectXBee(radioAddr, serialPort)
 
     return {
       init: ->

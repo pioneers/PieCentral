@@ -41,7 +41,7 @@ angular.module('daemon.radio', [])
     radioInit = (radioAddr = "0013A20040A580C4", portPath = "/dev/ttyUSB0") ->
       _radioAddr = radioAddr
 
-      _ndl3Radio.close() if _ndl3Radio
+      _ndl3Radio.close() if _ndl3Radio?
       radio = requireNode('kyleradio')
       _ndl3Radio = new radio.Radio()
 
@@ -84,7 +84,6 @@ angular.module('daemon.radio', [])
       close: ->
         if _init
           _ndl3Radio.close() if _ndl3Radio?
-          _serialPort.close() if _serialPort?
           _ndl3Radio = undefined
           _serialPort = undefined
           _portPath = ''

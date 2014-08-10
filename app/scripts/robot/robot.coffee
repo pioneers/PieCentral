@@ -29,7 +29,6 @@ angular.module('daemon.robot', ['daemon.radio', 'daemon.peripheral', 'daemon.gam
           _.findWhere(_peripherals, properties)
 
 
-    radio.init()
     radio.enableMock()
     radio.onReceive('mock', (channel, update) ->
       updateLastContact()

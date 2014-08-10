@@ -84,6 +84,7 @@ angular.module('daemon.radio', [])
       close: ->
         if _init
           _ndl3Radio.close() if _ndl3Radio?
+          _serialPort.close() if _serialPort?
           _ndl3Radio = undefined
           _serialPort = undefined
           _portPath = ''

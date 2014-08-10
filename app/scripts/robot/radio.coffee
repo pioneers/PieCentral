@@ -34,21 +34,18 @@ angular.module('daemon.radio', [])
         value: num
         })
 
-    radioInit = (radioAddr = "AAAAAAAAAAAAAAAA", portPath = "/dev/ttyUSB0") ->
-      SerialPort = require("serialport").SerialPort
-      serialPort = new SerialPort(portPath, baudrate: 57600)
+    radioInit = (radioAddr = "0013A2004090CAA3", portPath = "/dev/tty.usbserial-A700eETt") ->
+      SerialPort = requireNode("serialport").SerialPort
+      serialPort = new SerialPort(portPath, baudrate: 57600, false)
+
+      serialPort.open( (error) ->
+        if error
+          console.log('failed to open: ' + error)
+        )
 
       radio = requireNode('kyleradio')
       _ndl3Radio = new radio.Radio()
-
       _ndl3Radio.connectXBee(radioAddr, serialPort)
-      # $interval( ->
-      #   console.log 'try to send shit'
-      #   _ndl3Radio.send(
-      #     PiELESAnalogValues: [127,127,127,127,127,127,127]
-      #     PiELESDigitalValues: [true, true, true, true, true, true, true, true]
-      #     )
-      # , 100)
     
     return {
       init: ->
@@ -80,11 +77,15 @@ angular.module('daemon.radio', [])
         return false unless object?
 
         for channel in channels
-          object._channel = channel
 
-          _ndl3Radio.send(
-            channel: object
-            )
+          if _ndl3Radio
+            if channel == 'robotCode'
+              _ndl3Radio.send(object, 'code')
+            else
+              object._channel = channel
+              _ndl3Radio.send(channel: object)
+          else
+            console.log "_ndl3Radio not defined"
 
           console.log "radio channel 'chname': fake sent object"
           .replace(/object/, String(object))

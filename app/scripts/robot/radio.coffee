@@ -34,7 +34,7 @@ angular.module('daemon.radio', [])
         value: num
         })
 
-    radioInit = (radioAddr = "0013A2004090CAA3", portPath = "/dev/tty.usbserial-A700eETt") ->
+    radioInit = (radioAddr = "0013A20040A580C4", portPath = "/dev/ttyUSB0") ->
       SerialPort = requireNode("serialport").SerialPort
       serialPort = new SerialPort(portPath, baudrate: 57600, false)
 
@@ -46,7 +46,7 @@ angular.module('daemon.radio', [])
       radio = requireNode('kyleradio')
       _ndl3Radio = new radio.Radio()
       _ndl3Radio.connectXBee(radioAddr, serialPort)
-    
+
     return {
       init: ->
         unless _init

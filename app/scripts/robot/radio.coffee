@@ -42,7 +42,7 @@ angular.module('daemon.radio', [])
       _radioAddr = radioAddr
 
       _ndl3Radio.close() if _ndl3Radio?
-      radio = requireNode('kyleradio')
+      radio = requireNode('ndl3radio')
       _ndl3Radio = new radio.Radio()
 
       if _portPath != portPath

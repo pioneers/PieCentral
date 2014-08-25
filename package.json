@@ -2,7 +2,7 @@
   "author": "Pioneers in Engineering",
   "name": "Daemon",
   "description": "It's the future.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "homepage": "https://pioneers.berkeley.edu",
   "repository": {
     "type": "git",
@@ -34,6 +34,8 @@
     "grunt": "~0.4.2",
     "grunt-node-webkit-builder": "~0.2.1",
     "nodewebkit": "~0.10.0",
-    "grunt-cli": "~0.1.11"
+    "grunt-cli": "~0.1.11",
+    "js-yaml": "3.1.0",
+    "serialport": "1.4.2"
   }
 }

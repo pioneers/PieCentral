@@ -30,17 +30,20 @@ angular.module('daemon.radio', [])
         value: num
         })
 
-    # SerialPort = require("serialport").SerialPort
-    # radioAddr = "AAAAAAAAAAAAAAAA"
-    # serialPort = new SerialPort("/dev/ttyUSB0",
-    #   baudrate: 57600
-    # )
+    SerialPort = require("serialport").SerialPort
+    radioAddr = "AAAAAAAAAAAAAAAA"
+    serialPort = new SerialPort("/dev/ttyUSB0",
+      baudrate: 57600
+    )
 
-    # radio = require('kyleradio')
-    # rad = radio.Radio()
+    radio = require('kyleradio')
+    rad = new radio.Radio()
 
-    # rad.connectXBee(radioAddr, serialPort)
-
+    rad.connectXBee(radioAddr, serialPort)
+    $interval( ->
+      console.log 'try to send shit'
+      rad.send({'PiELESAnalogValues': [127,127,127,127,127,127,127]})
+    , 100)
     
     return {
       init: ->

@@ -10,7 +10,6 @@ App = angular.module('daemon', [
   'daemon.edit'
   'daemon.radio'
   'daemon.robot'
-  'daemon.footer'
   'daemon.widget'
   'debug'
   'menubar'
@@ -27,6 +26,7 @@ App.config([
     .when('/control', {templateUrl: '/partials/control.html'})
     .when('/edit', {templateUrl: '/partials/edit.html'})
     .when('/simulate', {templateUrl: '/partials/simulate.html'})
+    .when('/config', {templateUrl: '/partials/config.html'})
 
     # Catch all
     .otherwise({redirectTo: '/control'})

@@ -1,0 +1,12 @@
+div(ng-app='ng-app', ng-controller='WidgetCtrl')
+  div(id='widget-container', data-target="#canvas-context-menu", data-toggle="context")
+    div.widget(draggable, resizable, widgetcontextcaller
+      ng-repeat='widget in widgets', ng-include='widget.url')
+  canvascontext#canvas-context-menu(ng-controller="CanvasContextCtrl")
+  widgetcontext#widget-context-menu
+
+  div.col-sm-9
+  div.col-sm-3
+    div.well Sensors / Peripherals
+    div.well Connection Status
+

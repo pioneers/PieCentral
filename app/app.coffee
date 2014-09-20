@@ -24,13 +24,13 @@ App.config([
 
   $routeProvider
 
-    .when('/control', {templateUrl: '/partials/control.html'})
+    .when('/dashboard', {templateUrl: '/partials/dashboard.html'})
     .when('/edit', {templateUrl: '/partials/edit.html'})
-    .when('/simulate', {templateUrl: '/partials/simulate.html'})
-    .when('/config', {templateUrl: '/partials/configure.html'})
+    .when('/debug', {templateUrl: '/partials/debug.html'})
+    .when('/configure', {templateUrl: '/partials/configure.html'})
 
     # Catch all
-    .otherwise({redirectTo: '/control'})
+    .otherwise({redirectTo: '/dashboard'})
 
   # Without server side support html5 must be disabled.
   $locationProvider.html5Mode(false)

@@ -1,5 +1,5 @@
-angular.module("daemon.footer", ["daemon.radio"])
-  .controller "FooterCtrl", [
+angular.module("daemon.configure", ["daemon.radio"])
+  .controller "ConfigureCtrl", [
     "$scope"
     "$interval"
     "radio"

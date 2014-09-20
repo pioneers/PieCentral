@@ -9,12 +9,14 @@ mixin navigation
         a.navbar-brand(href='#') Daemon
       .collapse.navbar-collapse
         ul.nav.navbar-nav.navbar-right
-          li(ng-class="getClass('/control')")
-            a(href='#/control') Control
+          li(ng-class="getClass('/dashboard')")
+            a(href='#/dashboard') Dashboard
           li(ng-class="getClass('/edit')")
             a(href='#/edit') Edit
-          li(ng-class="getClass('/simulate')")
-            a(href='#/simulate') Debug Information
+          li(ng-class="getClass('/debug')")
+            a(href='#/debug') Debug
+          li(ng-class="getClass('/configure')")
+            a(href='#/configure') Configure
 
 
 .navbar.navbar-main.navbar-fixed-top(role='navigation')

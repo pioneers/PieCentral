@@ -5,8 +5,12 @@ angular.module('daemon.radio', [])
 .service('radio', [
   '$interval'
   ($interval) ->
+    radio = {}
     # whether or not we've initialized
     _init = false
+
+    radio.initialized = ->
+      return _init
 
     # thing
     _ndl3Radio = undefined
@@ -33,7 +37,7 @@ angular.module('daemon.radio', [])
         time: now
         value: num
         })
-    enableMock = (millis = 100) ->
+    radio.enableMock = (millis = 100) ->
       unless mock
         mock = true
         mockPromise = $interval(mockRadio, millis)
@@ -42,14 +46,15 @@ angular.module('daemon.radio', [])
     _portPath = ''
     _serialPort = undefined
 
-    radioInit = (radioAddr = "0013A20040A580C4", portPath = "/dev/ttyUSB0") ->
+    radio.init = (radioAddr = "0013A20040A580C4", portPath = "/dev/ttyUSB0") ->
+      _init = true
       _radioAddr = radioAddr
 
       _ndl3Radio.close() if _ndl3Radio?
       if requireNode?
         radio = requireNode('ndl3radio')
       else
-        enableMock()
+        radio.enableMock()
         return
 
       _ndl3Radio = new radio.Radio()
@@ -79,49 +84,44 @@ angular.module('daemon.radio', [])
         console.log('got string', str)
         )
 
-    return {
-      init: (args...) ->
-        radioInit(args...)
-        _init = true
-        return true
-      enableMock: enableMock
-      initialized: ->
-        return _init
-      close: ->
-        if _init
-          _ndl3Radio.close() if _ndl3Radio?
-          _serialPort.close() if _serialPort?
-          _ndl3Radio = undefined
-          _serialPort = undefined
-          _portPath = ''
-          _radioAddr = ''
-        _init = false
-        return true
-      onReceive: (channels..., callback) ->
-        return false unless _init # exit if we're not initialized
+    radio.close = ->
+      if _init
+        _ndl3Radio.close() if _ndl3Radio?
+        _serialPort.close() if _serialPort?
+        _ndl3Radio = undefined
+        _serialPort = undefined
+        _portPath = ''
+        _radioAddr = ''
+      _init = false
+      return true
 
-        for channel in channels
-          callbacks[channel] = [] unless callbacks[channel]?
-          callbacks[channel].push callback
-        return true
-      send: (channels..., object) ->
-        return false unless _init # exit if we're not initialized
-        return false unless object?
+    radio.onReceive = (channels..., callback) ->
+      return false unless _init # exit if we're not initialized
 
-        for channel in channels
+      for channel in channels
+        callbacks[channel] = [] unless callbacks[channel]?
+        callbacks[channel].push callback
+      return true
 
-          if _ndl3Radio
-            if channel == 'robotCode'
-              _ndl3Radio.send(object, 'code')
-            else
-              object._channel = channel
-              _ndl3Radio.send(object)
+    radio.send = (channels..., object) ->
+      return false unless _init # exit if we're not initialized
+      return false unless object?
+
+      for channel in channels
+
+        if _ndl3Radio
+          if channel == 'robotCode'
+            _ndl3Radio.send(object, 'code')
           else
-            console.log "_ndl3Radio not defined, not sending"
+            object._channel = channel
+            _ndl3Radio.send(object)
+        else
+          console.log "_ndl3Radio not defined, not sending"
 
-          console.log "radio channel 'chname': sent \nobject"
-          .replace(/object/, JSON.stringify(object, null, 4))
-          .replace(/chname/, channel)
-        return true
-    }
+        console.log "radio channel 'chname': sent \nobject"
+        .replace(/object/, JSON.stringify(object, null, 4))
+        .replace(/chname/, channel)
+      return true
+
+    return radio
 ])

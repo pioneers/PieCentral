@@ -66,7 +66,7 @@ module.exports = function(karma) {
     // - Safari (only Mac)
     // - PhantomJS
     // - IE (only Windows)
-    browsers: ['Chrome'],
+    browsers: ['NodeWebkit'],
 
 
     // If browser does not capture in given timeout [ms], kill it
@@ -77,7 +77,8 @@ module.exports = function(karma) {
     plugins: [
       'karma-jasmine',
       'karma-coffee-preprocessor',
-      'karma-chrome-launcher'
+      'karma-chrome-launcher',
+      'karma-nodewebkit-launcher'
     ],
 
 

@@ -61,12 +61,12 @@ angular.module('daemon.radio', [])
 
       _ndl3Radio.close() if _ndl3Radio?
       if requireNode?
-        rdio = requireNode('ndl3radio')
+        ndl3 = requireNode('ndl3radio')
       else
         this.enableMock()
         return
 
-      _ndl3Radio = new rdio.Radio()
+      _ndl3Radio = new ndl3.Radio()
 
       if _portPath != portPath
         _portPath = portPath
@@ -104,33 +104,29 @@ angular.module('daemon.radio', [])
       _init = false
       return true
 
-    radio.onReceive = (channels..., callback) ->
+    radio.onReceive = (channel, callback) ->
       return false unless _init # exit if we're not initialized
 
-      for channel in channels
-        callbacks[channel] = [] unless callbacks[channel]?
-        callbacks[channel].push callback
+      callbacks[channel] = [] unless callbacks[channel]?
+      callbacks[channel].push callback
       return true
 
-    radio.send = (channels..., object) ->
+    radio.send = (channel, object) ->
       return false unless _init # exit if we're not initialized
       return false unless object?
 
-      for channel in channels
-
-        if _ndl3Radio
-          if channel == 'robotCode'
-            _ndl3Radio.send(object, 'code')
-          else
-            object._channel = channel
-            _ndl3Radio.send(object)
+      if _ndl3Radio
+        if channel == 'robotCode'
+          _ndl3Radio.send(object, 'code')
         else
-          console.log "_ndl3Radio not defined, not sending"
+          object._channel = channel
+          _ndl3Radio.send(object)
+      else
+        console.log "_ndl3Radio not defined, not sending"
 
-        console.log "radio channel 'chname': sent \nobject"
-        .replace(/object/, JSON.stringify(object, null, 4))
-        .replace(/chname/, channel)
-      return true
+      console.log "radio channel 'chname': sent \nobject"
+      .replace(/object/, JSON.stringify(object, null, 4))
+      .replace(/chname/, channel)
 
     # sends an object with typpo
     sendWithTyppo = (obj, type = 'config_port', port = 'config') ->

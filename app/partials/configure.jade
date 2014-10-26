@@ -1,7 +1,7 @@
 .container(ng-controller='ConfigureCtrl')
-  button.btn.btn-primary(ng-click="radio.changeGameState(ID_SET_TELEOP)") Teleop
-  button.btn.btn-primary(ng-click="radio.changeGameState(ID_SET_AUTON)") Autonomous
-  button.btn.btn-primary(ng-click="radio.changeGameState(ID_CONTROL_STOP)") Stahp
+  button.btn.btn-primary(ng-click="radio.setAutonomous()") Teleop
+  button.btn.btn-warning(ng-click="radio.setTeleoperated()") Autonomous
+  button.btn.btn-danger(ng-click="radio.emergencyStop()") Emergency Stop
   nav.navbar.navbar-default.navbar-fixed-bottom.footer
     ul.nav.navbar.navbar-left
       .col-sm-9

@@ -19,7 +19,6 @@ angular.module('daemon.radio', [])
 
     RADIO_PROTOCOL_YAML_FILE = "./radio_protocol_ng.yaml"
     typpo_module = requireNode('ndl3radio/factory')
-    buffer = requireNode('buffer')
 
     typpo = typpo_module.make()
     typpo.set_target_type('ARM')
@@ -62,12 +61,12 @@ angular.module('daemon.radio', [])
 
       _ndl3Radio.close() if _ndl3Radio?
       if requireNode?
-        radio = requireNode('ndl3radio')
+        rdio = requireNode('ndl3radio')
       else
-        radio.enableMock()
+        this.enableMock()
         return
 
-      _ndl3Radio = new radio.Radio()
+      _ndl3Radio = new rdio.Radio()
 
       if _portPath != portPath
         _portPath = portPath
@@ -114,7 +113,6 @@ angular.module('daemon.radio', [])
       return true
 
     radio.send = (channels..., object) ->
-      console.log "called radio.send"
       return false unless _init # exit if we're not initialized
       return false unless object?
 
@@ -134,19 +132,34 @@ angular.module('daemon.radio', [])
         .replace(/chname/, channel)
       return true
 
-    radio.changeGameState = (option = 'ID_CONTROL_SET_AUTON') ->
-      id_param = typpo.get_const(option)
-      obj = {
-        id: id_param
-        data: {
-          nothing: 0
-        }
-      }
-
-      cmd = typpo.wrap(typpo.get_type('config_port'), obj)
-      buf = new buffer.Buffer(cmd.get_size())
+    # sends an object with typpo
+    sendWithTyppo = (obj, type = 'config_port', port = 'config') ->
+      # wrap the object into binary command
+      cmd = typpo.wrap(typpo.get_type(type), obj)
+      # write binary command into buffer
+      buf = new requireNode('buffer').Buffer(cmd.get_size())
       cmd.write(buf)
+      # send buffer
       _ndl3Radio.send(buf, 'config')
+
+    # sends the yaml-specified object obj to the config port
+    sendConfig = (obj) -> sendWithTyppo(obj, 'config_port', 'config')
+
+    radio.setGameState = (option) ->
+      obj =
+        id: typpo.get_const(option)
+        data:
+          nothing: 0 # no extra payload data
+      sendConfig(obj)
+
+    radio.setAutonomous = ->
+      this.setGameState('ID_CONTROL_SET_AUTON')
+
+    radio.setTeleoperated = ->
+      this.setGameState('ID_CONTROL_SET_TELEOP')
+
+    radio.emergencyStop = ->
+      this.setGameState('ID_CONTROL_UNPOWERED')
 
     return radio
 ])

@@ -170,10 +170,6 @@
     - name: len
       type: uint16_t
 
-- name: LENGTH_AT_LEAST_ONE
-  kind: const
-  value: 0x01
-
 - name: device_read_descriptor_resp_t
   kind: struct
   packed: true
@@ -181,7 +177,7 @@
     - name: did
       type: uint64_t
     - name: data
-      type: uint8_t[LENGTH_AT_LEAST_ONE]
+      type: uint8_t[1]
 
 - name: device_blink_t
   kind: struct
@@ -203,6 +199,9 @@
       type: device_read_descriptor_resp_t
     - name: device_blink
       type: device_blink_t
+    - name: nothing
+      type: uint8_t
+
 
 - name: config_port
   kind: struct

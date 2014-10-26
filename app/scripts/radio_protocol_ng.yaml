@@ -178,6 +178,8 @@
   kind: struct
   packed: true
   slots:
+    - name: did
+      type: uint64_t
     - name: data
       type: uint8_t[LENGTH_AT_LEAST_ONE]
 

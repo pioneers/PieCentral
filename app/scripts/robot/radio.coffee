@@ -35,18 +35,14 @@ angular.module('daemon.radio', [])
       if _init and callbacks[channel]?
         callback(channel, update) for callback in callbacks[channel]
 
-    # fake radio event sent every 100 ms
+    ### MOCK RADIO STUFF
+    Sends a false mock event on channel 'mock' every 100 ms
+    ###
     mock = false
     mockPromise = undefined
     mockRadio = ->
-      now = new Date().getTime()
-      num = Math.random()
-      processUpdate('mock', {
-        id: '1234567890'
-        time: now
-        value: num
-        })
-    radio.enableMock = (millis = 100) ->
+      processUpdate('mock', {id: '123', time: _.now(), value: Math.random()})
+    setupMock = (millis = 100) ->
       unless mock
         mock = true
         mockPromise = $interval(mockRadio, millis)
@@ -59,11 +55,11 @@ angular.module('daemon.radio', [])
       _init = true
       _radioAddr = radioAddr
 
+      setupMock()
       _ndl3Radio.close() if _ndl3Radio?
       if requireNode?
         ndl3 = requireNode('ndl3radio')
       else
-        this.enableMock()
         return
 
       _ndl3Radio = new ndl3.Radio()

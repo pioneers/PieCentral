@@ -123,5 +123,8 @@ angular.module('daemon.radio', [])
         .replace(/chname/, channel)
       return true
 
+    radio.changeGameState = ->
+      console.log "It worked"
+
     return radio
 ])

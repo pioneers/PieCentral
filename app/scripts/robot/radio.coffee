@@ -15,6 +15,16 @@ angular.module('daemon.radio', [])
     # thing
     _ndl3Radio = undefined
 
+    # initialize typpo
+
+    RADIO_PROTOCOL_YAML_FILE = "./radio_protocol_ng.yaml"
+    typpo_module = requireNode('ndl3radio/factory')
+    buffer = requireNode('buffer')
+
+    typpo = typpo_module.make()
+    typpo.set_target_type('ARM')
+    typpo.load_type_file(RADIO_PROTOCOL_YAML_FILE, false)
+
     # an object of arrays, where the keys are
     # the channel of events to repond to
     # and the values are arrays of callbacks
@@ -125,15 +135,6 @@ angular.module('daemon.radio', [])
       return true
 
     radio.changeGameState = (option = 'ID_CONTROL_SET_AUTON') ->
-      console.log "called changeGameState"
-      console.log _ndl3Radio
-      typpo_module = requireNode('ndl3radio/factory')
-      buffer = requireNode('buffer')
-      typpo = typpo_module.make()
-      RADIO_PROTOCOL_YAML_FILE = "./radio_protocol_ng.yaml"
-      typpo.set_target_type('ARM')
-      typpo.load_type_file(RADIO_PROTOCOL_YAML_FILE, false)
-      # typpo is initialized
       id_param = typpo.get_const(option)
       obj = {
         id: id_param
@@ -145,10 +146,7 @@ angular.module('daemon.radio', [])
       cmd = typpo.wrap(typpo.get_type('config_port'), obj)
       buf = new buffer.Buffer(cmd.get_size())
       cmd.write(buf)
-      console.log (_ndl3Radio.send(buf, 'config'))
-      console.log _ndl3Radio
-      console.log "Sent cmd on config port."
-
+      _ndl3Radio.send(buf, 'config')
 
     return radio
 ])

@@ -1,5 +1,7 @@
 .container(ng-controller='ConfigureCtrl')
-  button.btn.btn-primary(ng-click="radio.changeGameState()") Yes We Can!
+  button.btn.btn-primary(ng-click="radio.changeGameState(ID_SET_TELEOP)") Teleop
+  button.btn.btn-primary(ng-click="radio.changeGameState(ID_SET_AUTON)") Autonomous
+  button.btn.btn-primary(ng-click="radio.changeGameState(ID_CONTROL_STOP)") Stahp
   nav.navbar.navbar-default.navbar-fixed-bottom.footer
     ul.nav.navbar.navbar-left
       .col-sm-9

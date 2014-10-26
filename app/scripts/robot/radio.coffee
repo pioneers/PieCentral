@@ -104,6 +104,7 @@ angular.module('daemon.radio', [])
       return true
 
     radio.send = (channels..., object) ->
+      console.log "called radio.send"
       return false unless _init # exit if we're not initialized
       return false unless object?
 
@@ -123,8 +124,31 @@ angular.module('daemon.radio', [])
         .replace(/chname/, channel)
       return true
 
-    radio.changeGameState = ->
-      console.log "It worked"
+    radio.changeGameState = (option = 'ID_CONTROL_SET_AUTON') ->
+      console.log "called changeGameState"
+      console.log _ndl3Radio
+      typpo_module = requireNode('ndl3radio/factory')
+      buffer = requireNode('buffer')
+      typpo = typpo_module.make()
+      RADIO_PROTOCOL_YAML_FILE = "./radio_protocol_ng.yaml"
+      typpo.set_target_type('ARM')
+      typpo.load_type_file(RADIO_PROTOCOL_YAML_FILE, false)
+      # typpo is initialized
+      id_param = typpo.get_const(option)
+      obj = {
+        id: id_param
+        data: {
+          nothing: 0
+        }
+      }
+
+      cmd = typpo.wrap(typpo.get_type('config_port'), obj)
+      buf = new buffer.Buffer(cmd.get_size())
+      cmd.write(buf)
+      console.log (_ndl3Radio.send(buf, 'config'))
+      console.log _ndl3Radio
+      console.log "Sent cmd on config port."
+
 
     return radio
 ])

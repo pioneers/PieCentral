@@ -75,5 +75,5 @@ angular.module("daemon.edit", ["ui.ace", "daemon.radio"])
     $scope.sendEditorData = ->
       editor = promised.editor
       value = editor.getValue()
-      radio.send('robotCode', value)
+      radio.sendCode(value)
 ]

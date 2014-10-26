@@ -51,7 +51,7 @@ angular.module('daemon.radio', [])
     _portPath = ''
     _serialPort = undefined
 
-    radio.init = (radioAddr = "0013A20040A580C4", portPath = "/dev/ttyUSB0") ->
+    radio.init = (radioAddr, portPath) ->
       _init = true
       _radioAddr = radioAddr
 
@@ -95,8 +95,6 @@ angular.module('daemon.radio', [])
         _serialPort.close() if _serialPort?
         _ndl3Radio = undefined
         _serialPort = undefined
-        _portPath = ''
-        _radioAddr = ''
       _init = false
       return true
 
@@ -112,11 +110,8 @@ angular.module('daemon.radio', [])
       return false unless object?
 
       if _ndl3Radio
-        if channel == 'robotCode'
-          _ndl3Radio.send(object, 'code')
-        else
-          object._channel = channel
-          _ndl3Radio.send(object)
+        object._channel = channel
+        _ndl3Radio.send(object)
       else
         console.log "_ndl3Radio not defined, not sending"
 
@@ -143,6 +138,10 @@ angular.module('daemon.radio', [])
         data:
           nothing: 0 # no extra payload data
       sendConfig(obj)
+
+    radio.sendCode = (str) ->
+      console.log "transmitting robot code: " + JSON.stringify(str, null, 4)
+      _ndl3Radio.send(str, 'code')
 
     radio.setAutonomous = ->
       this.setGameState('ID_CONTROL_SET_AUTON')

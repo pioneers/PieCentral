@@ -5,7 +5,7 @@ angular.module("daemon.configure", ["daemon.radio"])
     "radio"
     ($scope, $interval, radio) ->
       $scope.radio = radio
-      $scope.radioAddr = '0013A20040A580C4'
+      $scope.radioAddr = '0013A2004086336B'
       $scope.portPath = ''
 
       $scope.portPathList = []
@@ -20,7 +20,6 @@ angular.module("daemon.configure", ["daemon.radio"])
             $scope.portPathList = _.map(ports, (p) -> p.comName)
             $scope.$apply()
             )
-
       $scope.updatePortPathList()
       $interval($scope.updatePortPathList, 500)
   ]

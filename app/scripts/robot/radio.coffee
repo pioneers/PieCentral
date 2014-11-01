@@ -15,6 +15,15 @@ angular.module('daemon.radio', [])
     # thing
     _ndl3Radio = undefined
 
+    # initialize typpo
+
+    RADIO_PROTOCOL_YAML_FILE = "./radio_protocol_ng.yaml"
+    typpo_module = requireNode('ndl3radio/factory')
+
+    typpo = typpo_module.make()
+    typpo.set_target_type('ARM')
+    typpo.load_type_file(RADIO_PROTOCOL_YAML_FILE, false)
+
     # an object of arrays, where the keys are
     # the channel of events to repond to
     # and the values are arrays of callbacks
@@ -26,18 +35,14 @@ angular.module('daemon.radio', [])
       if _init and callbacks[channel]?
         callback(channel, update) for callback in callbacks[channel]
 
-    # fake radio event sent every 100 ms
+    ### MOCK RADIO STUFF
+    Sends a false mock event on channel 'mock' every 100 ms
+    ###
     mock = false
     mockPromise = undefined
     mockRadio = ->
-      now = new Date().getTime()
-      num = Math.random()
-      processUpdate('mock', {
-        id: '1234567890'
-        time: now
-        value: num
-        })
-    radio.enableMock = (millis = 100) ->
+      processUpdate('mock', {id: '123', time: _.now(), value: Math.random()})
+    setupMock = (millis = 100) ->
       unless mock
         mock = true
         mockPromise = $interval(mockRadio, millis)
@@ -46,18 +51,18 @@ angular.module('daemon.radio', [])
     _portPath = ''
     _serialPort = undefined
 
-    radio.init = (radioAddr = "0013A20040A580C4", portPath = "/dev/ttyUSB0") ->
+    radio.init = (radioAddr, portPath) ->
       _init = true
       _radioAddr = radioAddr
 
+      setupMock()
       _ndl3Radio.close() if _ndl3Radio?
       if requireNode?
-        radio = requireNode('ndl3radio')
+        ndl3 = requireNode('ndl3radio')
       else
-        radio.enableMock()
         return
 
-      _ndl3Radio = new radio.Radio()
+      _ndl3Radio = new ndl3.Radio()
 
       if _portPath != portPath
         _portPath = portPath
@@ -90,38 +95,62 @@ angular.module('daemon.radio', [])
         _serialPort.close() if _serialPort?
         _ndl3Radio = undefined
         _serialPort = undefined
-        _portPath = ''
-        _radioAddr = ''
       _init = false
       return true
 
-    radio.onReceive = (channels..., callback) ->
+    radio.onReceive = (channel, callback) ->
       return false unless _init # exit if we're not initialized
 
-      for channel in channels
-        callbacks[channel] = [] unless callbacks[channel]?
-        callbacks[channel].push callback
+      callbacks[channel] = [] unless callbacks[channel]?
+      callbacks[channel].push callback
       return true
 
-    radio.send = (channels..., object) ->
+    radio.send = (channel, object) ->
       return false unless _init # exit if we're not initialized
       return false unless object?
 
-      for channel in channels
+      if _ndl3Radio
+        object._channel = channel
+        _ndl3Radio.send(object)
+      else
+        console.log "_ndl3Radio not defined, not sending"
 
-        if _ndl3Radio
-          if channel == 'robotCode'
-            _ndl3Radio.send(object, 'code')
-          else
-            object._channel = channel
-            _ndl3Radio.send(object)
-        else
-          console.log "_ndl3Radio not defined, not sending"
+      console.log "radio channel 'chname': sent \nobject"
+      .replace(/object/, JSON.stringify(object, null, 4))
+      .replace(/chname/, channel)
 
-        console.log "radio channel 'chname': sent \nobject"
-        .replace(/object/, JSON.stringify(object, null, 4))
-        .replace(/chname/, channel)
-      return true
+    # sends an object with typpo
+    sendWithTyppo = (obj, type = 'config_port', port = 'config') ->
+      # wrap the object into binary command
+      cmd = typpo.wrap(typpo.get_type(type), obj)
+      # write binary command into buffer
+      buf = new requireNode('buffer').Buffer(cmd.get_size())
+      cmd.write(buf)
+      # send buffer
+      _ndl3Radio.send(buf, 'config')
+
+    # sends the yaml-specified object obj to the config port
+    sendConfig = (obj) -> sendWithTyppo(obj, 'config_port', 'config')
+
+    radio.setGameState = (option) ->
+      obj =
+        id: typpo.get_const(option)
+        data:
+          nothing: 0 # no extra payload data
+      sendConfig(obj)
+
+    radio.sendCode = (str) ->
+      console.log "transmitting robot code: " + JSON.stringify(str, null, 4)
+      _ndl3Radio.send(str, 'code')
+
+    radio.setAutonomous = ->
+      this.setGameState('ID_CONTROL_SET_AUTON')
+
+    radio.setTeleoperated = ->
+      this.setGameState('ID_CONTROL_SET_TELEOP')
+
+    radio.emergencyStop = ->
+      this.setGameState('ID_CONTROL_UNPOWERED')
 
     return radio
 ])

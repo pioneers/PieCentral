@@ -20,7 +20,7 @@
     "angular-route": "1.2.5",
     "angular-cookies": "1.2.5",
     "angular-mocks": "1.2.5",
-    "components-underscore": "~1.5.2",
+    "components-underscore": "~1.7.0",
     "angular-ui-ace": "~0.1.1",
     "angular-nvd3": "~0.0.8",
     "jquery-ui": "~1.11.0",

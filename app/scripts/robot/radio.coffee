@@ -98,6 +98,15 @@ angular.module('daemon.radio', [])
       _init = false
       return true
 
+    radio.obj_receiver = (data) ->
+      _ndl3Radio.on 'object', (obj)=>
+        data[objects] = [] unless data[objects]?
+        data[objects].push obj
+
+    radio.config_receiver = ->
+      raw = typpo.read 'config_port_data' 
+      device_list = raw.get_slot 'device_list'
+
     radio.onReceive = (channel, callback) ->
       return false unless _init # exit if we're not initialized
 
@@ -111,7 +120,11 @@ angular.module('daemon.radio', [])
 
       if _ndl3Radio
         object._channel = channel
-        _ndl3Radio.send(object)
+        prefix = channel.substring 0, 2
+        if prefix == 'gp'
+          _ndl3Radio.send(object, 'fast')
+        else
+          _ndl3Radio.send(object)
       else
         console.log "_ndl3Radio not defined, not sending"
 

@@ -24,29 +24,6 @@ angular.module('daemon.radio', [])
     typpo.set_target_type('ARM')
     typpo.load_type_file(RADIO_PROTOCOL_YAML_FILE, false)
 
-    # an object of arrays, where the keys are
-    # the channel of events to repond to
-    # and the values are arrays of callbacks
-    callbacks = {}
-
-    # send an update to each callback that has registered with us
-    # but only if the radio is initialized
-    processUpdate = (channel, update) ->
-      if _init and callbacks[channel]?
-        callback(channel, update) for callback in callbacks[channel]
-
-    ### MOCK RADIO STUFF
-    Sends a false mock event on channel 'mock' every 100 ms
-    ###
-    mock = false
-    mockPromise = undefined
-    mockRadio = ->
-      processUpdate('mock', {id: '123', time: _.now(), value: Math.random()})
-    setupMock = (millis = 100) ->
-      unless mock
-        mock = true
-        mockPromise = $interval(mockRadio, millis)
-
     _radioAddr = ''
     _portPath = ''
     _serialPort = undefined
@@ -55,7 +32,6 @@ angular.module('daemon.radio', [])
       _init = true
       _radioAddr = radioAddr
 
-      setupMock()
       _ndl3Radio.close() if _ndl3Radio?
       if requireNode?
         ndl3 = requireNode('ndl3radio')
@@ -99,21 +75,48 @@ angular.module('daemon.radio', [])
       _init = false
       return true
 
-    radio.obj_receiver = (data) ->
-      _ndl3Radio.on 'object', (obj)=>
-        data[objects] = [] unless data[objects]?
-        data[objects].push obj
+    radio.callbacks = {}
+    radio.sensorList = {}
+    radio.sensorCount = 0
 
-    radio.config_receiver = ->
-      raw = typpo.read 'config_port_data'
-      device_list = raw.get_slot 'device_list'
+    radio.setupListeners = () ->
+      #listener on the config port
+      _ndl3Radio.on 'config', (buf) =>
+        config_port = typpo.read 'config_port', buf
+        if config_port.get_slot('id').val == typpo.get_const 'ID_DEVICE_GET_LIST'
+          config_port_data = config_port.get_slot 'data'
+          device_list = config_port_data.get_slot 'device_list'
+          dids = device_list.get_slot('dids').unwrap()
+          console.log(dids)
+          radio.sensorCount = dids.length
+          for did in dids
+            radio.sensorList.did = ''
+            descObj =
+              id: typpo.get_const 'ID_DEVICE_READ_DESCRIPTOR'
+              data:
+                did: did  
+            sendConfig descObj
 
-    radio.onReceive = (channel, callback) ->
-      return false unless _init # exit if we're not initialized
+        else if config_port.get_slot('id').val == typpo.get_const 'ID_DEVICE_READ_DESCRIPTOR'
+          config_port_data = config_port.get_slot 'data'
+          description = config_port_data.get_slot('device_read_descriptor_resp').get_slot('data').unwrap()
+          did = config_port_data.get_slot('device_read_descriptor_resp').get_slot('did').unwrap()
+          radio.sensorList.did = description
+          radio.sensorCount = radio.sensorCount - 1
+          if radio.sensorCount == 0
+            radio.callbacks.enumerate radio.sensorList
+            radio.sensorList = {}
+            radio.sensorCount = 0            
 
-      callbacks[channel] = [] unless callbacks[channel]?
-      callbacks[channel].push callback
-      return true
+    radio.enumerateSensors = (callback) ->
+      radio.callbacks.enumerate = callback
+
+      obj =
+        id: typpo.get_const 'ID_DEVICE_GET_LIST'
+        data: 
+          nothing: 0
+
+      sendConfig obj
 
     radio.send = (channel, object) ->
       return false unless _init # exit if we're not initialized

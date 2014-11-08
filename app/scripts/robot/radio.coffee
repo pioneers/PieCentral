@@ -63,6 +63,7 @@ angular.module('daemon.radio', [])
         return
 
       _ndl3Radio = new ndl3.Radio()
+      this._ndl3Radio = _ndl3Radio
 
       if _portPath != portPath
         _portPath = portPath

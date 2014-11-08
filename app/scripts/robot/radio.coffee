@@ -135,6 +135,9 @@ angular.module('daemon.radio', [])
 
     # sends an object with typpo
     sendWithTyppo = (obj, type = 'config_port', port = 'config') ->
+      if not _ndl3Radio
+        console.log "ndl3radio not on, not sending with typpo"
+        return
       # wrap the object into binary command
       cmd = typpo.wrap(typpo.get_type(type), obj)
       # write binary command into buffer
@@ -147,6 +150,7 @@ angular.module('daemon.radio', [])
     sendConfig = (obj) -> sendWithTyppo(obj, 'config_port', 'config')
 
     radio.setGameState = (option) ->
+      console.log('setting gamestate to', option)
       obj =
         id: typpo.get_const(option)
         data:

@@ -1,10 +1,12 @@
-angular.module("daemon.configure", ["daemon.radio"])
+angular.module('daemon.configure', ['daemon.fieldcontrol', 'daemon.radio'])
   .controller "ConfigureCtrl", [
     "$scope"
     "$interval"
     "radio"
-    ($scope, $interval, radio) ->
+    "fieldcontrol"
+    ($scope, $interval, radio, fieldcontrol) ->
       $scope.radio = radio
+      $scope.fieldcontrol = fieldcontrol
       $scope.radioAddr = '0013A2004086336B'
       $scope.portPath = ''
 

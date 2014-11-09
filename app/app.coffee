@@ -12,8 +12,8 @@ App = angular.module('daemon', [
   'daemon.robot'
   'daemon.widget'
   'daemon.configure'
+  'daemon.menubar'
   'debug'
-  'menubar'
 ])
 
 App.config([

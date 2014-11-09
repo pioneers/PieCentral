@@ -105,7 +105,7 @@ angular.module('daemon.radio', [])
         data[objects].push obj
 
     radio.config_receiver = ->
-      raw = typpo.read 'config_port_data' 
+      raw = typpo.read 'config_port_data'
       device_list = raw.get_slot 'device_list'
 
     radio.onReceive = (channel, callback) ->
@@ -123,15 +123,12 @@ angular.module('daemon.radio', [])
         object._channel = channel
         prefix = channel.substring 0, 2
         if prefix == 'gp'
+          console.log "SENDING ON FAST PORT"
           _ndl3Radio.send(object, 'fast')
         else
           _ndl3Radio.send(object)
       else
         console.log "_ndl3Radio not defined, not sending"
-
-      console.log "radio channel 'chname': sent \nobject"
-      .replace(/object/, JSON.stringify(object, null, 4))
-      .replace(/chname/, channel)
 
     # sends an object with typpo
     sendWithTyppo = (obj, type = 'config_port', port = 'config') ->

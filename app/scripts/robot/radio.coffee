@@ -63,6 +63,7 @@ angular.module('daemon.radio', [])
         return
 
       _ndl3Radio = new ndl3.Radio()
+      this._ndl3Radio = _ndl3Radio
 
       if _portPath != portPath
         _portPath = portPath
@@ -98,6 +99,15 @@ angular.module('daemon.radio', [])
       _init = false
       return true
 
+    radio.obj_receiver = (data) ->
+      _ndl3Radio.on 'object', (obj)=>
+        data[objects] = [] unless data[objects]?
+        data[objects].push obj
+
+    radio.config_receiver = ->
+      raw = typpo.read 'config_port_data'
+      device_list = raw.get_slot 'device_list'
+
     radio.onReceive = (channel, callback) ->
       return false unless _init # exit if we're not initialized
 
@@ -111,16 +121,20 @@ angular.module('daemon.radio', [])
 
       if _ndl3Radio
         object._channel = channel
-        _ndl3Radio.send(object)
+        prefix = channel.substring 0, 2
+        if prefix == 'gp'
+          console.log "SENDING ON FAST PORT"
+          _ndl3Radio.send(object, 'fast')
+        else
+          _ndl3Radio.send(object)
       else
         console.log "_ndl3Radio not defined, not sending"
 
-      console.log "radio channel 'chname': sent \nobject"
-      .replace(/object/, JSON.stringify(object, null, 4))
-      .replace(/chname/, channel)
-
     # sends an object with typpo
     sendWithTyppo = (obj, type = 'config_port', port = 'config') ->
+      if not _ndl3Radio
+        console.log "ndl3radio not on, not sending with typpo"
+        return
       # wrap the object into binary command
       cmd = typpo.wrap(typpo.get_type(type), obj)
       # write binary command into buffer
@@ -133,6 +147,7 @@ angular.module('daemon.radio', [])
     sendConfig = (obj) -> sendWithTyppo(obj, 'config_port', 'config')
 
     radio.setGameState = (option) ->
+      console.log('setting gamestate to', option)
       obj =
         id: typpo.get_const(option)
         data:

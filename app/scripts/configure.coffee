@@ -1,4 +1,4 @@
-angular.module("daemon.configure", ["daemon.radio"])
+angular.module('daemon.configure', ['daemon.radio'])
   .controller "ConfigureCtrl", [
     "$scope"
     "$interval"

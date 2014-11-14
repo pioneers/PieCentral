@@ -75,25 +75,28 @@ angular.module('daemon.radio', [])
       _init = false
       return true
 
-    radio.callbacks = {}
+    radio.callbacks = {} #keep track of callbacks to be used by listeners
     radio.sensorList = {}
     radio.sensorCount = 0
 
+    #convert 64 bit data representation to a string
     readUInt64 = (buff, offset) ->
       return [i.toString(16) for i in buff.slice(offset, offset + 8)].join("")
 
+    #should be called once to set up all _ndl3Radio listeners
     radio.setupListeners = () ->
-      #listener on the config port
       _ndl3Radio.on 'config', (buf) =>
         config_port = typpo.read 'config_port', buf
         if config_port.get_slot('id').val == typpo.get_const 'ID_DEVICE_GET_LIST'
           config_port_data = config_port.get_slot 'data'
           device_list = config_port_data.get_slot 'device_list'
           dids_raw = device_list.get_slot('dids').unwrap()
+          #convert each raw did into a string
           dids = []
           for did_raw in dids_raw
             dids.push(readUInt64(did_raw.buffer, 0))
           radio.sensorCount = dids.length
+          #send a descriptor request for each did
           for did in dids
             radio.sensorList[did] = ''
             descObj =
@@ -109,11 +112,13 @@ angular.module('daemon.radio', [])
           did = readUInt64(did_raw.buffer, 0)
           radio.sensorList[did] = description
           radio.sensorCount = radio.sensorCount - 1
+          #if descriptions have been added for every sensor, apply callback
           if radio.sensorCount == 0
             radio.callbacks.enumerate radio.sensorList
             radio.sensorList = {}
             radio.sensorCount = 0            
 
+    #sends initial request for enumerating sensors 
     radio.enumerateSensors = (callback) ->
       radio.callbacks.enumerate = callback
 

@@ -87,7 +87,7 @@ angular.module('daemon.radio', [])
         console.log('failed to open: ' + error)
 
       _ndl3Radio.connectXBee(_radioAddr, _serialPort)
-      _ndl3Radio.on('string', (str) -> robotConsole._write(str))
+      _ndl3Radio.on('string', (str) -> robotConsole._print(str))
 
     radio.close = ->
       if _init
@@ -173,15 +173,22 @@ angular.module('daemon.radio', [])
 .service('robotConsole', [
   ->
     robotConsole = {}
+    eventEmitter = new EventEmitter();
     robotConsole.output = []
 
     # write to the robot console (doesn't write to robot)
-    robotConsole._write = (str) ->
+    robotConsole._print = (str) ->
       this.output.push str
       console.log "[Robot Print]", str
+      eventEmitter.trigger('print', [str])
 
     robotConsole.lastLines = (n = 10) ->
       _.last(this.output, n)
+
+    robotConsole.on = (callback) ->
+      eventEmitter.on('print', callback)
+    robotConsole.off = (callback) ->
+      eventEmitter.off('print', callback)
 
     return robotConsole
 ])

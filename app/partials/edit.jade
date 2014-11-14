@@ -6,6 +6,11 @@ div.container-fluid(ng-controller='EditCtrl')
     showGutter: true,\
     theme: 'monokai',\
     mode: 'lua' }")
-  div#buts.pull-left
-    button.btn.btn-danger Stop
-    button.btn.btn-success(ng-click="sendEditorData()") Play
+  div#buts.pull-right
+    button.btn.btn-success(ng-click="sendEditorData()") Deploy to Robot
+  div#console(ui-ace="{ \
+    useWrapMode : true,\
+    showGutter: false,\
+    theme: 'monokai'}",
+    readonly="true", ng-model="consoleOutput")
+

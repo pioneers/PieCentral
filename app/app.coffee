@@ -5,6 +5,7 @@ App = angular.module('daemon', [
   'ngCookies'
   'ngResource'
   'ngRoute'
+  'ngSanitize'
   'partials'
   'daemon.nav'
   'daemon.edit'
@@ -13,6 +14,7 @@ App = angular.module('daemon', [
   'daemon.widget'
   'daemon.configure'
   'daemon.menubar'
+  'daemon.sensors'
   'debug'
 ])
 

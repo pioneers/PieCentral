@@ -17,6 +17,7 @@ angular.module('daemon.peripheral', ['daemon.gamepad'])
       ###
 
       historyPairs = () ->
+        _updateHistory = [{time:Date.now(), value: 0}]
         return _updateHistory
 
       # update the Peripheral

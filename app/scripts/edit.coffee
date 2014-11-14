@@ -28,22 +28,34 @@ angular.module("daemon.edit", ["ui.ace", "daemon.radio"])
     promised = {}
 
     loadLocalSave = ->
+      storage = DataStore.create 'simple'
       editor = promised.editor
-      value = localStorage.edit__autosave_value || DEFAULT_VALUE
-      line = localStorage.edit__autosave_line || 0
-      column = localStorage.edit__autosave_column || 0
-      editor.setValue(value)
-      editor.gotoLine(line, column)
+      editor_state = storage.get 'student_code'
+      if editor_state?
+        editor.setValue editor_state.value || DEFAULT_VALUE
+        editor.gotoLine (editor_state.line || 0), (editor_state.column || 0)
+      else
+        editor.setValue DEFAULT_VALUE
+        editor.gotoLine 0, 0
+      #value = localStorage.edit__autosave_value || DEFAULT_VALUE
+      #line = localStorage.edit__autosave_line || 0
+      #column = localStorage.edit__autosave_column || 0
       
     doLocalSave = ->
+      storage = DataStore.create 'simple'
       editor = promised.editor
       value = editor.getValue()
       position = editor.getCursorPosition()
       line = position.row + 1
       column = position.column
-      localStorage.edit__autosave_value = value
-      localStorage.edit__autosave_line = line
-      localStorage.edit__autosave_column = column
+      editor_state = {}
+      editor_state.value = value
+      editor_state.line = line
+      editor_state.column = column
+      storage.set('student_code', editor_state)
+      #localStorage.edit__autosave_value = value
+      #localStorage.edit__autosave_line = line
+      #localStorage.edit__autosave_column = column
       console.log 'Autosaved'
 
     setupAce = ->

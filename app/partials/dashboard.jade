@@ -7,6 +7,16 @@ div(ng-app='ng-app', ng-controller='WidgetCtrl')
 
   div.col-sm-9
   div.col-sm-3
-    div.well Sensors / Peripherals
+    div.well(ng-controller='SensorCtrl') Sensors / Peripherals
+      div.sensorList(ng-repeat='sensor in sensors')
+        span(ng-if="sensor.properties.type == 'binary'")
+          a.sensor(href="", ng-click="SensorClick(sensor)", data-toggle="tooltip", data-placement="top", title="{{sensor.description}} did: {{sensor.did}}") {{sensor.name}}
+          span(ng-click="SensorClick(sensor)", ng-bind-html="getSensorImage(sensor)")
+        span(ng-if="sensor.properties.type == 'num'")
+          a.sensor(href="", style='padding-right:5px;float: left', ng-click="SensorClick(sensor)", data-toggle="tooltip", data-placement="top", title='{{sensor.description}} did: {{sensor.did}}') {{sensor.name}}
+          div.progress(ng-click="SensorClick(sensor)")
+            div.progress-bar(style='width: {{sensor.data_normalized}}%;')
+        
+      //button(ng-click="test()") magic btn 
     div.well Connection Status
 

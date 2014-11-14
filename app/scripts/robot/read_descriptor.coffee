@@ -1,4 +1,4 @@
-angular.module('daemon.read_descriptor.coffee', [])
+angular.module('daemon.read_descriptor', [])
 
 .service('read_descriptor', [
   ->

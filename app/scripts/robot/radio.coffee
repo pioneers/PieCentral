@@ -4,7 +4,8 @@ angular.module('daemon.radio', [])
 
 .service('radio', [
   '$interval'
-  ($interval) ->
+  'robotConsole'
+  ($interval, robotConsole) ->
     radio = {}
     # whether or not we've initialized
     _init = false
@@ -86,9 +87,7 @@ angular.module('daemon.radio', [])
         console.log('failed to open: ' + error)
 
       _ndl3Radio.connectXBee(_radioAddr, _serialPort)
-      _ndl3Radio.on('string', (str) ->
-        console.log('got string', str)
-        )
+      _ndl3Radio.on('string', (str) -> robotConsole._write(str))
 
     radio.close = ->
       if _init
@@ -168,4 +167,21 @@ angular.module('daemon.radio', [])
       this.setGameState('ID_CONTROL_UNPOWERED')
 
     return radio
+])
+
+# a service to remember things we got from the robot
+.service('robotConsole', [
+  ->
+    robotConsole = {}
+    robotConsole.output = []
+
+    # write to the robot console (doesn't write to robot)
+    robotConsole._write = (str) ->
+      this.output.push str
+      console.log "[Robot Print]", str
+
+    robotConsole.lastLines = (n = 10) ->
+      _.last(this.output, n)
+
+    return robotConsole
 ])

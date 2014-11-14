@@ -79,6 +79,9 @@ angular.module('daemon.radio', [])
     radio.sensorList = {}
     radio.sensorCount = 0
 
+    readUInt64 = (buff, offset) ->
+      return [i.toString(16) for i in buff.slice(offset, offset + 8)].join("")
+
     radio.setupListeners = () ->
       #listener on the config port
       _ndl3Radio.on 'config', (buf) =>
@@ -86,11 +89,13 @@ angular.module('daemon.radio', [])
         if config_port.get_slot('id').val == typpo.get_const 'ID_DEVICE_GET_LIST'
           config_port_data = config_port.get_slot 'data'
           device_list = config_port_data.get_slot 'device_list'
-          dids = device_list.get_slot('dids').unwrap()
-          console.log(dids)
+          dids_raw = device_list.get_slot('dids').unwrap()
+          dids = []
+          for did_raw in dids_raw
+            dids.push(readUInt64(did_raw.buffer, 0))
           radio.sensorCount = dids.length
           for did in dids
-            radio.sensorList.did = ''
+            radio.sensorList[did] = ''
             descObj =
               id: typpo.get_const 'ID_DEVICE_READ_DESCRIPTOR'
               data:
@@ -100,8 +105,9 @@ angular.module('daemon.radio', [])
         else if config_port.get_slot('id').val == typpo.get_const 'ID_DEVICE_READ_DESCRIPTOR'
           config_port_data = config_port.get_slot 'data'
           description = config_port_data.get_slot('device_read_descriptor_resp').get_slot('data').unwrap()
-          did = config_port_data.get_slot('device_read_descriptor_resp').get_slot('did').unwrap()
-          radio.sensorList.did = description
+          did_raw = config_port_data.get_slot('device_read_descriptor_resp').get_slot('did').unwrap()
+          did = readUInt64(did_raw.buffer, 0)
+          radio.sensorList[did] = description
           radio.sensorCount = radio.sensorCount - 1
           if radio.sensorCount == 0
             radio.callbacks.enumerate radio.sensorList

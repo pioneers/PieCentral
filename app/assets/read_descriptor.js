@@ -10,16 +10,16 @@ var readString = function(buf, startIndex) {
 }
 
 var readChannelDescriptor = function(buf, startIndex) {
-	var descriptors = []
 	var index = startIndex + 1 //skips over the number of channel
-	var numChannels = buf.readUInt8(startIndex) 
+	var numChannels = buf.readUInt8(startIndex)
+	var descriptors = [numChannels] 
 	for (var i = 0; i < numChannels; i++) {
 		var channelDescriptor = readString(buf, index + 1) 
 		//console.log(channelDescriptor)
 		var type = buf.readUInt8(channelDescriptor[1]) //not sure if this is off by one, reading the type
 		var typeData = typeChannel(buf, type, channelDescriptor[1] + 1) 
 		//console.log("Type: " + typeData[0] + " Num Add: " + typeData[1]);
-		descriptors.push([channelDescriptor, typeData[0]]) 
+		descriptors.push([channelDescriptor[0], typeData[0]]) 
 		index = typeData[1] 
 	}
 	return descriptors

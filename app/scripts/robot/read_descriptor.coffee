@@ -5,8 +5,6 @@ angular.module('daemon.read_descriptor', [])
     buffer = requireNode("buffer")
     readString = (buf, startIndex) ->
       length = buf.readUInt8(startIndex)
-      
-      #console.log(length)
       description = buf.slice(startIndex + 1, length + startIndex + 1)
       [
         description.toString("utf8")
@@ -14,11 +12,10 @@ angular.module('daemon.read_descriptor', [])
       ]
 
     readChannelDescriptor = (buf, startIndex) ->
-      descriptors = []
       index = startIndex + 1 
       numChannels = buf.readUInt8(startIndex)
+      descriptors = [numChannels]
       i = 0
-
       while i < numChannels
         channelDescriptor = readString(buf, index + 1)
         type = buf.readUInt8(channelDescriptor[1]) 

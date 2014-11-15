@@ -11,9 +11,9 @@ angular.module('daemon.read_descriptor', []).service('read_descriptor', [
     };
     readChannelDescriptor = function(buf, startIndex) {
       var channelDescriptor, descriptors, i, index, numChannels, type, typeData;
-      descriptors = [];
       index = startIndex + 1;
       numChannels = buf.readUInt8(startIndex);
+      descriptors = [numChannels];
       i = 0;
       while (i < numChannels) {
         channelDescriptor = readString(buf, index + 1);

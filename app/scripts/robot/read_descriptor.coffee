@@ -2,11 +2,9 @@ angular.module('daemon.read_descriptor', [])
 
 .service('read_descriptor', [
   ->
-    buffer = require("buffer")
+    buffer = requireNode("buffer")
     readString = (buf, startIndex) ->
       length = buf.readUInt8(startIndex)
-      
-      #console.log(length)
       description = buf.slice(startIndex + 1, length + startIndex + 1)
       [
         description.toString("utf8")
@@ -14,19 +12,14 @@ angular.module('daemon.read_descriptor', [])
       ]
 
     readChannelDescriptor = (buf, startIndex) ->
-      descriptors = []
-      index = startIndex + 1 #skips over the number of channel
+      index = startIndex + 1 
       numChannels = buf.readUInt8(startIndex)
+      descriptors = [numChannels]
       i = 0
-
       while i < numChannels
         channelDescriptor = readString(buf, index + 1)
-        
-        #console.log(channelDescriptor)
-        type = buf.readUInt8(channelDescriptor[1]) #not sure if this is off by one, reading the type
+        type = buf.readUInt8(channelDescriptor[1]) 
         typeData = typeChannel(buf, type, channelDescriptor[1] + 1)
-        
-        #console.log("Type: " + typeData[0] + " Num Add: " + typeData[1]);
         descriptors.push [
           channelDescriptor[0]
           typeData[0]
@@ -78,7 +71,6 @@ angular.module('daemon.read_descriptor', [])
           numTotal += FLAGS_LENGTH + SAMPLE_RATE_LENGTH
           typeString = "Team Flag"
         when 0xfe
-          
           # numTotal += MODE;
           # TODO(Matt Zhao): Uncomment previous line if firmware is fixed
           typeString = "Actuator Mode"

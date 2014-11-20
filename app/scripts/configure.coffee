@@ -4,8 +4,10 @@ angular.module('daemon.configure', ['daemon.radio'])
     "$interval"
     "radio"
     ($scope, $interval, radio) ->
+      #0013A2004086336B
+      storeR = DataStore.create('simple')
       $scope.radio = radio
-      $scope.radioAddr = '0013A2004086336B'
+      $scope.radioAddr = storeR.get('xbeeAddr')
       $scope.portPath = ''
 
       $scope.portPathList = []

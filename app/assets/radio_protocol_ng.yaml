@@ -157,7 +157,7 @@
     - name: count
       type: uint32_t
     - name: dids
-      type: uint16_t[]
+      type: uint64_t[]
 
 - name: device_read_descriptor_req_t
   kind: struct

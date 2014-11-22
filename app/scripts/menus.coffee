@@ -2,11 +2,12 @@
 # huge hack, needs to be kept outside of Angular
 require = window.requireNode
 
-angular.module('daemon.menubar', ['daemon.fieldcontrol'])
+angular.module('daemon.menubar', ['daemon.fieldcontrol', 'daemon.radio'])
 
 .service('menubar', [
   'fieldcontrol'
-  (fieldcontrol) ->
+  'radio'
+  (fieldcontrol, radio) ->
     gui = require('nw.gui')
     win = gui.Window.get()
     menubar = new gui.Menu(type: 'menubar')
@@ -16,6 +17,26 @@ angular.module('daemon.menubar', ['daemon.fieldcontrol'])
       menubar.createMacBuiltin('Daemon')
 
     fieldControlMenu = new gui.Menu()
+
+    fieldControlMenu.append new gui.MenuItem
+      label: 'Teleop'
+      click: -> radio.setTeleoperated()
+      key: '1'
+      modifiers: if onMac then 'cmd-shift' else 'ctrl-shift'
+
+    fieldControlMenu.append new gui.MenuItem
+      label: 'Autonomous'
+      click: -> radio.setAutonomous()
+      key: '2'
+      modifiers: if onMac then 'cmd-shift' else 'ctrl-shift'
+
+    fieldControlMenu.append new gui.MenuItem
+      label: 'Emergency Stop'
+      click: -> radio.emergencyStop()
+      key: 'e'
+      modifiers: if onMac then 'cmd' else 'ctrl'
+
+    fieldControlMenu.append new gui.MenuItem type: 'separator'
 
     fieldControlMenu.append new gui.MenuItem
       type: 'checkbox'
@@ -28,7 +49,7 @@ angular.module('daemon.menubar', ['daemon.fieldcontrol'])
       checked: false
 
     menubar.append new gui.MenuItem
-      label: 'Field Control'
+      label: 'Robot Control'
       submenu: fieldControlMenu
 
     debugMenu = new gui.Menu()

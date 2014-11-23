@@ -30,7 +30,7 @@ angular.module('daemon.configure', ['daemon.radio'])
       $interval($scope.updatePortPathList, 500)
 
       $scope.cancelClick = () ->
-        $modalInstance.dismiss 'cancel'
+        $modalInstance.close()
 
       $scope.saveClick = (form) ->
         console.log form

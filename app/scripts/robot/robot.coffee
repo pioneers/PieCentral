@@ -28,12 +28,6 @@ angular.module('daemon.robot', ['daemon.radio', 'daemon.peripheral', 'daemon.gam
         else # assume object
           _.findWhere(_peripherals, properties)
 
-
-    radio.onReceive('mock', (channel, update) ->
-      updateLastContact()
-      findPeripheral(-1).update channel, update
-    )
-
     return {
       lastContact: ->
         return _lastContact

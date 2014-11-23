@@ -22,8 +22,8 @@ angular.module('daemon.gamepad', ['daemon.radio'])
         gamepad = _gamepads[i]
         oldTimestamp = _currentTimestamps[i]
 
-        # if the gamepad isn't undefined and the timestamp is changed
-        if gamepad? and oldTimestamp != gamepad.timestamp
+        # if the gamepad isn't undefined
+        if gamepad?
           callCallbacksOnce()
           if radio.initialized()
             radio.send('gp' + String(gamepad.index),

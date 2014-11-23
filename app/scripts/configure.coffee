@@ -3,12 +3,13 @@ angular.module('daemon.configure', ['daemon.radio'])
     "$scope"
     "$interval"
     "radio"
-    ($scope, $interval, radio) ->
+    "$modalInstance"
+    ($scope, $interval, radio, $modalInstance) ->
       #0013A2004086336B
       storeR = DataStore.create('simple')
       $scope.radio = radio
       $scope.radioAddr = storeR.get('xbeeAddr')
-      $scope.portPath = ''
+      $scope.portPath = storeR.get('comPort')
 
       $scope.portPathList = []
 
@@ -23,5 +24,20 @@ angular.module('daemon.configure', ['daemon.radio'])
             $scope.$apply()
             )
       $scope.updatePortPathList()
+      if $scope.portPathList.indexOf $scope.portPath < 0
+        $scope.portPath = ''
+
       $interval($scope.updatePortPathList, 500)
+
+      $scope.cancelClick = () ->
+        $modalInstance.dismiss 'cancel'
+
+      $scope.saveClick = (form) ->
+        console.log form
+        if form.$valid
+          storeR.set('xbeeAddr', $scope.radioAddr)
+          storeR.set('comPort', $scope.portPath)
+          $modalInstance.dismiss 'save'
+        
+
   ]

@@ -7,6 +7,7 @@ App = angular.module('daemon', [
   'ngRoute'
   'ngSanitize'
   'partials'
+  'ui.bootstrap'
   'daemon.nav'
   'daemon.edit'
   'daemon.radio'

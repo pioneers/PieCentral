@@ -30,8 +30,6 @@ angular.module('daemon.radio', [])
     _serialPort = undefined
 
     radio.init = (radioAddr, portPath) ->
-      storeR = DataStore.create('simple')
-      storeR.set('xbeeAddr', radioAddr)
       _init = true
       _radioAddr = radioAddr
 

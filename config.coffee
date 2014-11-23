@@ -12,6 +12,7 @@ exports.config =
       joinTo:
         'js/app.js': /^app/
         'js/vendor.js': /^(bower_components|vendor)/
+        'js/tests.js': /^test/ # unneccessary, for surpressing errors
       order:
         before: [
           'bower_components/jquery/jquery.js'

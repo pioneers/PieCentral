@@ -26,8 +26,9 @@ angular.module('daemon.gamepad', ['daemon.radio'])
         if gamepad?
           callCallbacksOnce()
           if radio.initialized()
-            radio.send('gp' + String(gamepad.index),
-              {axes: gamepad.axes})
+            # radio.send('gp' + String(gamepad.index),
+            #  {axes: gamepad.axes})
+            radio.sendPiEMOS(gamepad)
           # update the timestamps
           _currentTimestamps[i] = gamepad.timestamp
 

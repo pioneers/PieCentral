@@ -20,6 +20,7 @@ angular.module('daemon.radio', [])
 
     RADIO_PROTOCOL_YAML_FILE = "./radio_protocol_ng.yaml"
     typpo_module = requireNode('ndl3radio/factory')
+    piemos = requireNode('ndl3radio/piemos')
 
     typpo = typpo_module.make()
     typpo.set_target_type('ARM')
@@ -144,6 +145,12 @@ angular.module('daemon.radio', [])
           _ndl3Radio.send(object)
       else
         console.log "_ndl3Radio not defined, not sending"
+
+    radio.sendPiEMOS = (gamepad) ->
+      buttons = []
+      for b in gamepad.buttons
+        buttons.push(b.value)
+      _ndl3Radio.emit('send_data', piemos.format_packet(_radioAddr, gamepad.axes, buttons))
 
     # sends an object with typpo
     sendWithTyppo = (obj, type = 'config_port', port = 'config') ->

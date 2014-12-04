@@ -1,11 +1,12 @@
-angular.module('daemon.nav', [])
+angular.module('daemon.nav', ['ui.bootstrap'])
 .controller('NavCtrl', [
   '$scope'
   '$location'
   '$resource'
   '$rootScope'
+  '$modal'
 
-($scope, $location, $resource, $rootScope) ->
+($scope, $location, $resource, $rootScope, $modal) ->
 
   # Uses the url to determine if the selected
   # menu item should have the class active.
@@ -27,5 +28,12 @@ angular.module('daemon.nav', [])
       return 'active'
     else
       return ''
+
+  $scope.openConfigureModal = () ->
+    modalInstance = $modal.open {
+      templateUrl: '/partials/configureModal.html',
+      controller: 'ConfigureCtrl'
+      size: 'lg'
+    }
 ])
 

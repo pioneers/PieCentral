@@ -16,7 +16,7 @@ mixin navigation
           li(ng-class="getClass('/debug')")
             a(href='#/debug') Debug
           li(ng-class="getClass('/configure')")
-            a(href='#/configure') Configure
+            a(href='javascript:;', ng-click='openConfigureModal()' ) Configure
 
 
 .navbar.navbar-main.navbar-fixed-top(role='navigation')

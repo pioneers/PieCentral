@@ -59,9 +59,9 @@
         "jquery-ui.js",
         "themes/ui-lightness/jquery-ui.css"
       ]
-    },
-    "resolutions": {
-      "d3": "~3.4"
     }
+  },
+  "resolutions": {
+    "d3": "~3.4"
   }
 }

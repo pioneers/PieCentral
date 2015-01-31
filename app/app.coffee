@@ -10,7 +10,6 @@ App = angular.module('daemon', [
   'ui.bootstrap'
   'daemon.nav'
   'daemon.edit'
-  'daemon.radio'
   'daemon.robot'
   'daemon.widget'
   'daemon.configure'

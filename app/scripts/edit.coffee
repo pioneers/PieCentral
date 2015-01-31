@@ -18,12 +18,11 @@ print(addto(4)(3))
 ]]
 '''
 
-angular.module("daemon.edit", ["ui.ace", "daemon.radio"])
+angular.module("daemon.edit", ["ui.ace"])
 .controller "EditCtrl", [
   "$scope"
-  "radio"
   "robotConsole"
-  ($scope, radio, robotConsole) ->
+  ($scope, robotConsole) ->
 
     promised = {}
 
@@ -88,7 +87,7 @@ angular.module("daemon.edit", ["ui.ace", "daemon.radio"])
     $scope.sendEditorData = ->
       editor = promised.editor
       value = editor.getValue()
-      radio.sendCode(value)
+      # radio.sendCode(value)
 
     $scope.robotConsole = robotConsole
     robotConsole.on ->

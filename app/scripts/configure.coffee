@@ -2,12 +2,10 @@ angular.module('daemon.configure', ['daemon.radio'])
   .controller "ConfigureCtrl", [
     "$scope"
     "$interval"
-    "radio"
     "$modalInstance"
-    ($scope, $interval, radio, $modalInstance) ->
+    ($scope, $interval, $modalInstance) ->
       #0013A2004086336B
       storeR = DataStore.create('simple')
-      $scope.radio = radio
       $scope.radioAddr = storeR.get('xbeeAddr')
       $scope.portPath = storeR.get('comPort')
 

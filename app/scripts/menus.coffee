@@ -2,12 +2,11 @@
 # huge hack, needs to be kept outside of Angular
 require = window.requireNode
 
-angular.module('daemon.menubar', ['daemon.fieldcontrol', 'daemon.radio'])
+angular.module('daemon.menubar', ['daemon.fieldcontrol'])
 
 .service('menubar', [
   'fieldcontrol'
-  'radio'
-  (fieldcontrol, radio) ->
+  (fieldcontrol) ->
     gui = require('nw.gui')
     win = gui.Window.get()
     menubar = new gui.Menu(type: 'menubar')
@@ -20,19 +19,19 @@ angular.module('daemon.menubar', ['daemon.fieldcontrol', 'daemon.radio'])
 
     fieldControlMenu.append new gui.MenuItem
       label: 'Teleop'
-      click: -> radio.setTeleoperated()
+      # click: -> radio.setTeleoperated()
       key: '1'
       modifiers: if onMac then 'cmd-shift' else 'ctrl-shift'
 
     fieldControlMenu.append new gui.MenuItem
       label: 'Autonomous'
-      click: -> radio.setAutonomous()
+      # click: -> radio.setAutonomous()
       key: '2'
       modifiers: if onMac then 'cmd-shift' else 'ctrl-shift'
 
     fieldControlMenu.append new gui.MenuItem
       label: 'Emergency Stop'
-      click: -> radio.emergencyStop()
+      # click: -> radio.emergencyStop()
       key: 'e'
       modifiers: if onMac then 'cmd' else 'ctrl'
 

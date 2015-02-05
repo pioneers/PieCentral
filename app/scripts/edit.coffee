@@ -86,6 +86,5 @@ angular.module("daemon.edit", ["ui.ace"])
     $scope.sendEditorData = ->
       editor = promised.editor
       value = editor.getValue()
-      # radio.sendCode(value)
 
 ]

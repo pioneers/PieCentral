@@ -8,7 +8,7 @@ angular.module('daemon.robot', ['daemon.peripheral', 'daemon.gamepad'])
   'Peripheral'
   'Gamepad'
 
-  ($interval, radio, gamepads, Peripheral, Gamepad) ->
+  ($interval, gamepads, Peripheral, Gamepad) ->
     _peripherals = []
     _peripherals.push(new Peripheral(-1, 'Mock Peripheral'))
 

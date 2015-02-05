@@ -4,9 +4,8 @@ angular.module('daemon.gamepad', [])
 
 .service('gamepads', [
   '$interval'
-  'radio'
 
-  ($interval, radio) ->
+  ($interval) ->
     _gamepads = [undefined, undefined, undefined, undefined]
     _callbacks = []
     _currentTimestamps = [0, 0, 0, 0]
@@ -31,6 +30,8 @@ angular.module('daemon.gamepad', [])
     $interval(update, 100)
 
     return {
+      active: ->
+        _.filter(_gamepads, (g) -> g?)
       all: ->
         _gamepads
       onUpdate: (func) ->

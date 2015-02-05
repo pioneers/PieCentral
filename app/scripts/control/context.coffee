@@ -1,15 +1,8 @@
-angular.module('daemon.context', ['daemon.radio'])
+angular.module('daemon.context', [])
 
 .controller('CanvasContextCtrl', [
   '$scope'
-  'radio'
-  ($scope, radio) ->
-
-    toggleRadio = ->
-      if radio.initialized()
-        radio.close()
-      else
-        radio.init()
+  ($scope) ->
 
     $scope.menuItems = [
       class: 'dropdown-header'
@@ -17,14 +10,6 @@ angular.module('daemon.context', ['daemon.radio'])
     ,
       label: 'Mock Peripheral'
       ngClick: $scope.addWidget
-    ,
-      class: 'divider'
-    ,
-      class: 'dropdown-header'
-      label: 'Radio'
-    ,
-      label: 'Toggle Radio'
-      ngClick: toggleRadio
     ,
       class: 'divider'
     ,

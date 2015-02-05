@@ -4,33 +4,7 @@ form(name='configure', novalidate='novalidate')
     h3.modal-title Configuration
   div.modal-body
     .panel
-      .input-group.input-group-sm
-        span.input-group-addon Radio Address
-        input.form-control(name='radioAddress', ng-model="radioAddr", ng-pattern=/[a-fA-F0-9]+/, ng-minlength=16, ng-maxlength=16, placeholder="Radio Address", required='required')
-      .input-group.input-group-sm
-        span.input-group-addon COM Port
-        div.dropdown
-          input(name='comport', style='display:none;', ng-model="portPath", required='required')
-          button#com-ports.btn.btn-default.droptown-toggle(type="button", data-toggle="dropdown") {{portPath || 'Select Available Port' }}
-            span.caret
-          ul.dropdown-menu(role="menu", aria-labelledby="com-ports")
-            li.disabled(role="presentation", ng-show="portPathList.length == 0")
-              a(role="menuitem", tabindex="-1") No Ports Detected
-            li(role="presentation", ng-repeat="port in portPathList")
-              a(role="menuitem", tabindex="-1", ng-click="assignPortPath(port)") {{port}}
-    div.error(ng-show="(configure.radioAddress.$dirty && configure.radioAddress.$invalid) || (configure.comport.$dirty && configure.comport.$invalid)")
-      small.error(ng-show="configure.radioAddress.$error.required") Radio address is required
-      small.error(ng-show="configure.radioAddress.$error.minlength") Radio address must be 16 characters
-      small.error(ng-show="configure.radioAddress.$error.maxlength") Radio address must be 16 characters
-      small.error(ng-show="configure.radioAddress.$error.pattern") Radio address must be hexadecimal characters
-      div
-        small.error(ng-show="configure.comport.$error.required") COM port is required
-    .input-group.input-group-sm
-      span.label.label-success(ng-show="radio.initialized()") Radio initialized
-      span.label.label-danger(ng-hide="radio.initialized()") Radio not initialized
-      button.btn.btn-success(ng-click="radio.init(radioAddr, portPath)") Init
-      button.btn.btn-danger(ng-click="radio.close()") Close Radio
-    
+      h3.modal-title rip radio
   div.modal-footer
     button.btn.btn-default(ng-click="cancelClick()") Cancel
     button.btn.btn-primary(ng-click="saveClick(configure)", type="submit", ng-disabled='configure.$invalid') Save Configuration

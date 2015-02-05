@@ -1,12 +1,11 @@
 'use strict'
 
-angular.module('daemon.gamepad', ['daemon.radio'])
+angular.module('daemon.gamepad', [])
 
 .service('gamepads', [
   '$interval'
-  'radio'
 
-  ($interval, radio) ->
+  ($interval) ->
     _gamepads = [undefined, undefined, undefined, undefined]
     _callbacks = []
     _currentTimestamps = [0, 0, 0, 0]
@@ -25,10 +24,6 @@ angular.module('daemon.gamepad', ['daemon.radio'])
         # if the gamepad isn't undefined
         if gamepad?
           callCallbacksOnce()
-          if radio.initialized()
-            # radio.send('gp' + String(gamepad.index),
-            #  {axes: gamepad.axes})
-            radio.sendPiEMOS(gamepad)
           # update the timestamps
           _currentTimestamps[i] = gamepad.timestamp
 
@@ -39,8 +34,6 @@ angular.module('daemon.gamepad', ['daemon.radio'])
         _.filter(_gamepads, (g) -> g?)
       all: ->
         _gamepads
-      count: ->
-        _.filter(_gamepads, (g) -> g?).length
       onUpdate: (func) ->
         _callbacks.push(func)
     }

@@ -1,9 +1,8 @@
 # the websocket slave for fieldcontrol
-angular.module('daemon.fieldcontrol', ['daemon.radio'])
+angular.module('daemon.fieldcontrol', [])
 
 .service('fieldcontrol', [
-  'radio',
-  (radio) ->
+  ->
     fieldcontrol = {}
     l = undefined
     sub = undefined
@@ -21,11 +20,11 @@ angular.module('daemon.fieldcontrol', ['daemon.radio'])
         state = newState
         if state.enabled
           if state.auton
-            radio.setAutonomous()
+            # radio.setAutonomous()
           else
-            radio.setTeleoperated()
+            # radio.setTeleoperated()
         else
-          radio.emergencyStop()
+          # radio.emergencyStop()
 
     fieldcontrol.init = (url = "ws://localhost:8000") ->
       l = new LCM(url)

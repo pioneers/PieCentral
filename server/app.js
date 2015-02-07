@@ -72,6 +72,14 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
+var io = require('socket.io').listen(server);
+
+io.on('connection', function(socket){
+  socket.on('gamepad', function(data){
+    console.dir(data);
+  })
+});
+
 /**
  * Listen on provided port, on all network interfaces.
  */

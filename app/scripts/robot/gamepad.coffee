@@ -31,7 +31,8 @@ angular.module('daemon.gamepad', [])
           callCallbacksOnce()
           # update the timestamps
           _currentTimestamps[i] = gamepad.timestamp
-          sendGamepadData(JSON.stringify(gamepad));
+
+      sendGamepadData(JSON.stringify(_gamepads))
 
     $interval(update, 100)
 

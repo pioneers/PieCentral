@@ -10,6 +10,11 @@ angular.module('daemon.gamepad', [])
     _callbacks = []
     _currentTimestamps = [0, 0, 0, 0]
 
+    socket = io.connect('http://localhost:3000')
+
+    sendGamepadData = (data)->
+      socket.emit('gamepad', {data: data})
+
     update = ->
       # call callbacks if we made change, but only once
       callCallbacksOnce = _.once( -> fn() for fn in _callbacks )
@@ -26,6 +31,8 @@ angular.module('daemon.gamepad', [])
           callCallbacksOnce()
           # update the timestamps
           _currentTimestamps[i] = gamepad.timestamp
+
+      sendGamepadData(JSON.stringify(_gamepads))
 
     $interval(update, 100)
 

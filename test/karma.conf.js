@@ -1,10 +1,15 @@
 // Karma configuration
 
 module.exports = function(karma) {
-  karma.configure({
+  karma.set({
 
     // base path, that will be used to resolve files and exclude
     basePath: '../',
+
+    // preprocessors
+    preprocessors: {
+      '**/*.coffee': ['coffee']
+    },
 
 
     // frameworks to use
@@ -68,6 +73,13 @@ module.exports = function(karma) {
     // - IE (only Windows)
     browsers: ['NodeWebkit'],
 
+    customLaunchers: {
+      'NodeWebkitTravis': {
+        base: 'NodeWebkit',
+        command: 'node_modules/nodewebkit/nodewebkit/node-webkit'
+      }
+    },
+
 
     // If browser does not capture in given timeout [ms], kill it
     captureTimeout: 60000,
@@ -77,7 +89,6 @@ module.exports = function(karma) {
     plugins: [
       'karma-jasmine',
       'karma-coffee-preprocessor',
-      'karma-chrome-launcher',
       'karma-nodewebkit-launcher'
     ],
 

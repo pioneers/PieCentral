@@ -2,17 +2,15 @@
 
 ### Graphing Widgets ###
 
-angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3', 'daemon.sensors'])
+angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3'])
 
 .controller('WidgetCtrl', [
   '$scope'
   'Widget'
-  'Linechart'
   'robot'
-  'SensorGraphData'
   '$rootScope'
 
-  ($scope, Widget, Linechart, robot, SensorGraphData, $rootScope) ->
+  ($scope, Widget, robot, $rootScope) ->
     $scope.widgets = []
     $scope.activeWidget = {}
 
@@ -21,15 +19,13 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3', 'daem
 
     $scope.addWidget = (type, properties) ->
       switch type
-        when 'linechart'
-          widget = new Linechart(properties)
+        when "linechart"
+          #nothing here yet
+          console.log "asdf"
         else
           widget = new Widget('default')
       $scope.widgets.push widget
       widget.update()
-
-    $scope.convertToDataObject = (data, key) ->
-      return [{values:data, key: key}]
 
     $scope.removeWidget = (widget) ->
       id = widget.id
@@ -50,10 +46,7 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3', 'daem
     saved_data = DataStore.create('simple').get 'widgets'
     if saved_data? and saved_data.length > 0
       for widget in saved_data
-        if widget.type == 'linechart'
-          properties = { did: widget.did, position: widget.position}
-          $scope.addWidget 'linechart', properties
-
+        $scope.addWidget widget
 
 ])
 .directive('draggable',
@@ -109,36 +102,3 @@ angular.module('daemon.widget', ['daemon.context', 'daemon.robot', 'nvd3', 'daem
       options: {}
     }
   )
-
-.factory('Linechart', ['Widget', 'SensorGraphData', '$rootScope'
-  (Widget, SensorGraphData, $rootScope) ->
-    (properties) ->
-      linechart = new Widget('linechart')
-      linechart.did = properties.did
-      linechart.position = properties.position
-      linechart.update = () ->
-        linechart.data = [{values: SensorGraphData.GetGraphData linechart.did}]
-        $rootScope.$emit 'widget_update'
-      linechart.options.chart = {
-        type: 'lineChart'
-        height: 180
-        margin : {
-          top: 20
-          right: 20
-          bottom: 40
-          left: 50
-        }
-        x: (d) -> d.x
-        y: (d) -> d.y
-        useInteractiveGuideline: true
-        transitionDuration: 1
-        yAxis: {
-          tickFormat: (d) -> d3.format('.01f')(d)
-        }
-        #yDomain: [0, 1]
-        tooltips: false
-        interpolate: 'basis'
-      }
-      return linechart
-    ]
-)

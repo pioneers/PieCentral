@@ -4,8 +4,8 @@
 
 var zmq = require('zmq')
   , responder = zmq.socket('rep');
-
-responder.connect('tcp://localhost:5556');
+console.log("Running the server...");
+responder.connect('tcp://localhost:5555');
 responder.on('message', function(msg) {
   console.log('received request:', msg.toString());
   setTimeout(function() {

@@ -1,5 +1,5 @@
 // Hello World client
-// Connects REQ socket to tcp://localhost:5556
+// Connects REQ socket to tcp://localhost:5555
 // Sends "Hello" to server.
 
 var zmq = require('zmq');
@@ -17,14 +17,12 @@ requester.on("message", function(reply) {
     process.exit(0);
   }
 });
-//binds the requester to an inprocess transport
-//requester.bind("tcp://localhost:5556");
-requester.connect("tcp://localhost:5556");
+
+requester.connect("tcp://localhost:5555");
 
 for (var i = 0; i < 10; i++) {
   console.log("Sending request", i, '…');
   requester.send("Hello");
-  requester
 }
 
 process.on('SIGINT', function() {

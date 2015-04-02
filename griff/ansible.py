@@ -48,14 +48,3 @@ def recv():
         return recv_queue.get_nowait()
     except Empty:
         return None
-
-if __name__ == '__main__':
-    import time
-    init()
-    x = 0
-    while True:
-        x += 1
-        send({'msg': 'server message ' + str(x)})
-        print recv()
-        time.sleep(1)
-

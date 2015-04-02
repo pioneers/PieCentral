@@ -11,7 +11,6 @@ App = angular.module('daemon', [
   'daemon.nav'
   'daemon.edit'
   'daemon.robot'
-  'daemon.widget'
   'daemon.configure'
   'daemon.menubar'
   'daemon.sensors'

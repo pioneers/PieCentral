@@ -1,3 +1,3 @@
-Griff is the connection between the client and the server on the local host of the robot. The client runs using Node (nodeclient.js) and the server runs in Python (pairserver.py). The client receives field commands and sends motion commands to the server. The client and server should have the same host address.
+YOU MUST HAVE ZMQ INSTALLED.
 
-pairclient.py and nodeserver.js are provided for sanity checks, so run the client/server files in Node or Python to check that a localhost connection can be created.
+Griff is the connection between the client and the server on the local host of the robot. The client runs using Node (nodeclient.js) and the server runs in Python (pairserver.py). The client receives field commands and sends motion commands to the server. The client and server should have the same host address.

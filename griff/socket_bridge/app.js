@@ -1,10 +1,8 @@
-var app = require('http').createServer(function () {});
-var io = require('socket.io')();
-
 PORT = 12345
-
-app.listen(PORT);
+var io = require('socket.io')(PORT);
 
 io.on('connection', function (socket) {
-    console.log('connected');
+  socket.on('message', function (data) {
+    console.log(data);
+  });
 });

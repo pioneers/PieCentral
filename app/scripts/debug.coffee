@@ -1,10 +1,11 @@
 window.angularGet = (name) -> angular.element(document).injector().get(name)
 
-angular.module('debug', [])
+angular.module('debug', ['ansible'])
 
 .controller('DebugInfoCtrl', [
   '$scope'
-  ($scope) ->
+  'ansible'
+  ($scope, ansible) ->
     $scope.debugProperties = [
         name: 'Platform'
         value: process.platform
@@ -12,4 +13,11 @@ angular.module('debug', [])
         name: 'Architecture'
         value: process.arch
       ]
+
+    $scope.lastMessage = 'None'
+    ansible.on('message', (msg) ->
+      console.log('ansible received messages')
+      $scope.lastMessage = msg
+      $scope.$apply()
+    )
 ])

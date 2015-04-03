@@ -13,6 +13,9 @@
         td {{property.name}}
         td {{property.value}}
       tr
+        td Last Received Ansible Message
+        td {{lastMessage}}
+      tr
         td Gamepads Connected
         td {{count()}}
       tr(ng-repeat="g in validGamepad()")

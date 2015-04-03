@@ -38,13 +38,12 @@ def init(send_port=12355, recv_port=12356):
 
 # Sends a message. Not blocking.
 def send(msg):
-    # todo make non-blocking
     send_queue.put_nowait(msg)
 
 # Receives a message, or None if there is no current message.
 def recv():
-    # todo make non-blocking
     try:
         return recv_queue.get_nowait()
     except Empty:
         return None
+

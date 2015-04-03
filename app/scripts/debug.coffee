@@ -1,11 +1,12 @@
 window.angularGet = (name) -> angular.element(document).injector().get(name)
 
-angular.module('debug', ['ansible'])
+angular.module('debug', ['ansible', 'daemon.gamepad'])
 
 .controller('DebugInfoCtrl', [
   '$scope'
   'ansible'
-  ($scope, ansible) ->
+  'gamepadReporter'
+  ($scope, ansible, gamepadReporter) ->
     $scope.debugProperties = [
         name: 'Platform'
         value: process.platform

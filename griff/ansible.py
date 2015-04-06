@@ -1,4 +1,4 @@
-import zmq
+import zmq, yaml
 from multiprocessing import Process, Queue
 from Queue import Empty
 
@@ -17,8 +17,9 @@ def receiver(port, recv_queue):
     socket = context.socket(zmq.PAIR)
     socket.bind("tcp://127.0.0.1:%d" % port)
     while True:
-        msg = socket.recv_json()
-        recv_queue.put(msg)
+        msg = socket.recv()
+        parsed = yaml.load(msg)
+        recv_queue.put(parsed)
 
 send_queue = None
 recv_queue = None

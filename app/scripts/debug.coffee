@@ -1,6 +1,6 @@
 window.angularGet = (name) -> angular.element(document).injector().get(name)
 
-angular.module('debug', ['ansible', 'daemon.gamepad'])
+angular.module('debug', ['ansible'])
 
 .controller('DebugInfoCtrl', [
   '$scope'

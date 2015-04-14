@@ -1,3 +1,5 @@
+# This file is capitalized so that it will be loaded before all other files
+# with the same module.
 angular.module('ansible', [])
 
 .service 'ansible', ->

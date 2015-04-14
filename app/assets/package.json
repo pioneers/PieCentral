@@ -28,8 +28,6 @@
     "fullscreen": false
   },
   "dependencies": {
-    "nedb": "~0.9.4",
-    "serialport": "~1.4.5",
-    "js-yaml": "3.1.0"
+    "nedb": "~0.9.4"
   }
 }

@@ -1,28 +1,34 @@
-DEFAULT_VALUE = '''
-# what will you create?
-'''
-
 angular.module('edit', ['ui.ace'])
 .controller 'EditCtrl', [
   '$scope'
   ($scope) ->
 
-    promised = {}
+    # editor is initially undefined
+    editor = undefined
 
-    loadLocalSave = ->
+    # Does several things, including defining the editor
+    setup = (ed) ->
+      editor = ed
+      editor.setShowPrintMargin(false)
+      loadState()
+      editor.focus()
+
+      editor.getSelection().on('changeCursor', saveStateDebounced)
+
+    # Loads the saved state data.
+    loadState = ->
       storage = DataStore.create 'simple'
-      editor = promised.editor
-      editor_state = storage.get 'student_code'
+      editor_state = storage.get 'editor_state'
       if editor_state?
         editor.setValue editor_state.value || DEFAULT_VALUE
         editor.gotoLine (editor_state.line || 0), (editor_state.column || 0)
       else
-        editor.setValue DEFAULT_VALUE
+        editor.setValue "# what will you create?"
         editor.gotoLine 0, 0
 
-    doLocalSave = ->
+    # Saves the state data.
+    saveState = ->
       storage = DataStore.create 'simple'
-      editor = promised.editor
       value = editor.getValue()
       position = editor.getCursorPosition()
       line = position.row + 1
@@ -32,33 +38,20 @@ angular.module('edit', ['ui.ace'])
         line: line
         column: column
       }
-      storage.set('student_code', editor_state)
-
-    setupAce = ->
-
-    aceChanged = ->
-      doLocalSave()
+      storage.set('editor_state', editor_state)
 
     AUTOSAVE_DELAY = 100
-    aceChangedDebounced = _.debounce(aceChanged, AUTOSAVE_DELAY, false)
-
-    setup = (editor) ->
-      promised.editor = editor
-      editor.setShowPrintMargin(false)
-      loadLocalSave()
-      editor.focus()
-
-      editor.getSelection().on('changeCursor', aceChangedDebounced)
+    saveStateDebounced = _.debounce(saveState, AUTOSAVE_DELAY, false)
 
     # Quick fix to prevent setup from being fired twice in quick succession.
     # Eventually we should figure out what's causing it to be fired in quick
     # succession in the first place.
     setupDebounced = _.debounce(setup, 100, true)
 
-    $scope.aceChanged = -> aceChangedDebounced()
+    $scope.aceChanged = -> saveStateDebounced()
     $scope.aceLoaded = (args...) -> setupDebounced(args...)
     $scope.sendEditorData = ->
-      editor = promised.editor
       value = editor.getValue()
+      # send this to Ansible
 
 ]

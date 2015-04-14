@@ -18,7 +18,7 @@ print(addto(4)(3))
 ]]
 '''
 
-angular.module("daemon.edit", ["ui.ace"])
+angular.module("edit", ["ui.ace"])
 .controller "EditCtrl", [
   "$scope"
   ($scope) ->

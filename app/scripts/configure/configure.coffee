@@ -1,4 +1,4 @@
-angular.module('daemon.configure', [])
+angular.module('configure', [])
   .controller "ConfigureCtrl", [
     "$scope"
     "$interval"

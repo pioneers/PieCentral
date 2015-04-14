@@ -1,4 +1,4 @@
-angular.module('daemon.context', [])
+angular.module('dashboard', [])
 
 .controller('CanvasContextCtrl', [
   '$scope'

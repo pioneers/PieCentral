@@ -2,7 +2,7 @@
 # huge hack, needs to be kept outside of Angular
 require = window.requireNode
 
-angular.module('daemon.menubar', ['daemon.fieldcontrol'])
+angular.module('navigation')
 
 .service('menubar', [
   'fieldcontrol'

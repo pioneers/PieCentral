@@ -1,4 +1,4 @@
-angular.module('daemon.nav', ['ui.bootstrap'])
+angular.module('navigation', ['ui.bootstrap', 'fieldcontrol'])
 .controller('NavCtrl', [
   '$scope'
   '$location'

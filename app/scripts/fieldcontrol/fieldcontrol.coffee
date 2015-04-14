@@ -1,5 +1,5 @@
 # the websocket slave for fieldcontrol
-angular.module('daemon.fieldcontrol', [])
+angular.module('fieldcontrol', [])
 
 .service('fieldcontrol', [
   ->

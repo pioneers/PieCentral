@@ -1,6 +1,4 @@
-'use strict'
-
-angular.module('daemon.sensors', [])
+angular.module('dashboard')
 
 .controller('SensorCtrl', [
     '$scope'

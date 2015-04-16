@@ -6,7 +6,8 @@ angular.module('ansible')
 # Automatically serializes into Ansible message format
 #
 # @example How to use
-# am = AMessage('message type', {key1: 'val1', key2: 'val2'})
+# message = new AMessage('message type', {key1: 'val1', key2: 'val2'})
+# ansible.send(message)
 #
 .factory 'AMessage', ->
 

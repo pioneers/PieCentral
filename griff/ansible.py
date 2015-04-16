@@ -24,18 +24,9 @@ def receiver(port, recv_queue):
 send_queue = None
 recv_queue = None
 
-# Initializer function. Must be called first.
-def init(send_port=12355, recv_port=12356):
-    global send_queue
-    global recv_queue
-
-    send_queue = Queue()
-    recv_queue = Queue()
-
-    send_process = Process(target=sender, args=(send_port, send_queue))
-    recv_process = Process(target=receiver, args=(recv_port, recv_queue))
-    send_process.start()
-    recv_process.start()
+# Doesn't do anything.
+def init():
+    pass
 
 # Sends a message. Not blocking.
 def send(msg):
@@ -48,3 +39,14 @@ def recv():
     except Empty:
         return None
 
+# Intialize on module import
+send_port = 12355
+recv_port = 12356
+
+send_queue = Queue()
+recv_queue = Queue()
+
+send_process = Process(target=sender, args=(send_port, send_queue))
+recv_process = Process(target=receiver, args=(recv_port, recv_queue))
+send_process.start()
+recv_process.start()

@@ -1,7 +1,9 @@
-angular.module('edit', ['ui.ace'])
+angular.module('edit', ['ui.ace', 'ansible'])
 .controller 'EditCtrl', [
+  'ansible'
+  'AMessage'
   '$scope'
-  ($scope) ->
+  (ansible, AMessage, $scope) ->
 
     # editor is initially undefined
     editor = undefined
@@ -53,5 +55,7 @@ angular.module('edit', ['ui.ace'])
     $scope.sendEditorData = ->
       value = editor.getValue()
       # send this to Ansible
+      message = new AMessage('code_python', code: value)
+      ansible.send(message)
 
 ]

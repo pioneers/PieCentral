@@ -5,6 +5,7 @@ module.exports = function(grunt) {
       options: {
         version: "0.10.0",
         build_dir: './dist',
+        downloadUrl: "http://dl.nwjs.io/",
         // specifiy what to build
         mac: true,
         win: true,

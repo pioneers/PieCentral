@@ -10,8 +10,7 @@
   },
   "scripts": {
     "compiler": "brunch watch -P",
-    "test": "karma start --single-run --browsers NodeWebkit test/karma.conf.js",
-    "wtest": "karma start test/karma.conf.js",
+    "test": "karma start test/karma.conf.js",
     "app": "nodewebkit _public",
     "deploy": "grunt"
   },

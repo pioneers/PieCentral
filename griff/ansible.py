@@ -2,6 +2,28 @@ import zmq, yaml
 from multiprocessing import Process, Queue
 from Queue import Empty
 
+class AMessage(object):
+    """Convenience class for sending Ansible Messages
+
+    import ansible
+    from ansible import AMessage
+
+    ansible.send(AMessage('msg_type', {}))
+
+    """
+
+    def __init__(self, msg_type, content):
+        assert isinstance(msg_type, basestring)
+        self.msg_type = msg_type
+        self.content = content
+
+    @property
+    def as_dict(self):
+        return {
+            'header': {'msg_type': self.msg_type},
+            'content': self.content
+        }
+
 # Sender process.
 def sender(port, send_queue):
     context = zmq.Context()
@@ -9,6 +31,8 @@ def sender(port, send_queue):
     socket.bind("tcp://127.0.0.1:%d" % port)
     while True:
         msg = send_queue.get()
+        if isinstance(msg, AMessage):
+            msg = msg.as_dict
         socket.send_json(msg)
 
 # Receiver process.

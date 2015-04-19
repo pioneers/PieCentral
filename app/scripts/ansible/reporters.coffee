@@ -6,10 +6,15 @@ angular.module('ansible')
   'ansible'
   'AMessage'
   ($interval, ansible, AMessage) ->
+
+    # used for not sending redundant gamepad state
+    previousTimestamp = 0
     update = ->
       g = navigator.getGamepads()[0]
-      if not g?
+      if not g? or g.timestamp == previousTimestamp
         return # we don't have anything to send
+
+      previousTimestamp = g.timestamp
 
       content =
         axes: g.axes
@@ -18,5 +23,5 @@ angular.module('ansible')
       message = new AMessage('gamepad', content)
       ansible.send(message)
 
-    $interval(update, 100)
+    $interval(update, 20) # fastest practical for gamepad api
   ]

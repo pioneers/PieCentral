@@ -15,6 +15,9 @@ angular.module('debug', ['ansible'])
         value: process.arch
       ]
 
+    $scope.validGamepad = ->
+      return _.filter(navigator.getGamepads(), (x) -> x?)
+
     $scope.lastMessage = 'None'
     ansible.on('message', (msg) ->
       console.log('ansible received messages')

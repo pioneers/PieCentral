@@ -57,11 +57,15 @@ def send(msg):
     send_queue.put_nowait(msg)
 
 # Receives a message, or None if there is no current message.
-def recv():
-    try:
-        return recv_queue.get_nowait()
-    except Empty:
-        return None
+# If block is True, blocks.
+def recv(block=False):
+    if block:
+        return recv_queue.get()
+    else:
+        try:
+            return recv_queue.get_nowait()
+        except Empty:
+            return None
 
 # Intialize on module import
 send_port = 12355

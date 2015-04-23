@@ -12,7 +12,7 @@ describe 'ansible/reporters', ->
 
   describe 'gamepadReporter, when gamepad connected', ->
     beforeEach ->
-      spyOn(navigator, 'getGamepads').andReturn([
+      spyOn(navigator, 'getGamepads').and.returnValue([
           axes: [0, 1, 0, 1]
           buttons: [{value: 0} for i in [0..17]]
         ])

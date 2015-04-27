@@ -10,7 +10,7 @@
   },
   "scripts": {
     "compiler": "brunch watch -P",
-    "test": "karma start test/karma.conf.js",
+    "test": "./node_modules/karma/bin/karma start test/karma.conf.js",
     "app": "nodewebkit _public",
     "deploy": "grunt"
   },
@@ -36,9 +36,9 @@
   },
   "devDependencies": {
     "jasmine-core": "^2.2.0",
-    "karma": "~0.10",
+    "karma": "^0.12.31",
     "karma-coffee-preprocessor": "~0.1",
-    "karma-jasmine": "~0.1.0",
+    "karma-jasmine": "^0.3.5",
     "karma-ng-scenario": "~0.1",
     "karma-nodewebkit-launcher": "~0.0.9"
   }

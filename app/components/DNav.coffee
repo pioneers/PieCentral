@@ -2,15 +2,16 @@ React = require('react')
 ReactBootstrap = require('react-bootstrap')
 Navbar = ReactBootstrap.Navbar
 Nav = ReactBootstrap.Nav
-NavItem = ReactBootstrap.NavItem
+ReactRouterBootstrap = require('react-router-bootstrap')
+NavItemLink = ReactRouterBootstrap.NavItemLink
 
 module.exports = React.createClass
   displayName: 'DNav'
   render: ->
     <Navbar brand="Daemon" toggleNavKey={0}>
       <Nav right eventKey={0}>
-        <NavItem eventKey={1} href='/dashboard'>Dashboard</NavItem>
-        <NavItem eventKey={2} href='/edit'>Edit</NavItem>
-        <NavItem eventKey={3} href='/debug'>Debug</NavItem>
+        <NavItemLink eventKey={1} to='dashboard'>Dashboard</NavItemLink>
+        <NavItemLink eventKey={2} to='edit'>Edit</NavItemLink>
+        <NavItemLink eventKey={3} to='debug'>Debug</NavItemLink>
       </Nav>
     </Navbar>

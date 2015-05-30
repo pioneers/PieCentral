@@ -2,13 +2,13 @@ React = require('react')
 Router = require('react-router')
 RouteHandler = Router.RouteHandler
 
-Nav = require('./Nav')
+DNav = require('./DNav')
 
 module.exports = Daemon = React.createClass
   displayName: 'Daemon'
 
   render: ->
     <div>
-      <Nav {...this.props}/>
+      <DNav {...this.props}/>
       <RouteHandler {...this.props}/>
     </div>

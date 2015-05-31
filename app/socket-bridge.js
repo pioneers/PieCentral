@@ -1,6 +1,5 @@
 module.exports = function socketBridge(app) {
-  var server = require('http').Server(app);
-  var io = require('socket.io')(server);
+  var io = require('socket.io')(app);
   var ansible = require('./ansible');
 
   io.on('connection', function (socket) {

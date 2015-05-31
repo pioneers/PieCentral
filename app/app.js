@@ -26,8 +26,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Use our primary router
 app.use('/', require('./controllers/routes'));
 
-var io = require('./socket-bridge');
-
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');

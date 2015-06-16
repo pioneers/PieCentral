@@ -33,7 +33,7 @@ With React components (with actions triggered in components)
 Or as the result of asynchronous calls that were initially triggered by calling
 Action Creators (and handled inside)
 ###
-if not Environment.isNode # check if we're running in the browser
+if Environment.isBrowser # check if we're running in the browser
   GamepadActionCreators = require('../actions/GamepadActionCreators')
   GamepadActionCreators.setUpdateInterval(70) # poll every 70 ms
 ### End Non-Flux part ###

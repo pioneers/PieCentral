@@ -14,7 +14,7 @@ module.exports = DebugGamepadItem = React.createClass
     buttons: _.map this.props.gamepad.buttons, (button) -> Math.round(button.value * 100) / 100
   render: ->
     if not this.props.gamepad?
-      return <Panel header={<h4> Gamepad {this.props.index}</h4>}>Disconnected.</Panel>
+      return <div/>
     <Panel header={<h4> Gamepad {this.props.index} </h4>}>
       <div>Axes: {String(this.roundedValues().axes)}</div>
       <div>Buttons: {String(this.roundedValues().buttons)}</div>

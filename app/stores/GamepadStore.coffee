@@ -33,18 +33,9 @@ With React components (with actions triggered in components)
 Or as the result of asynchronous calls that were initially triggered by calling
 Action Creators (and handled inside)
 ###
-GamepadActionCreators = require('../actions/GamepadActionCreators')
-
-timestamp = 0
-updateGamepadState = ->
-  newGamepads = navigator.getGamepads()
-  if newGamepads[0]? and newGamepads[0].timestamp > timestamp
-    timestamp = newGamepads[0].timestamp
-    GamepadActionCreators.updateGamepads(newGamepads)
-
 if not Environment.isNode # check if we're running in the browser
-  setInterval(updateGamepadState, 70) # poll every 70 ms
-
+  GamepadActionCreators = require('../actions/GamepadActionCreators')
+  GamepadActionCreators.setUpdateInterval(70) # poll every 70 ms
 ### End Non-Flux part ###
 
 module.exports = GamepadStore

@@ -28,6 +28,7 @@
     "lodash": "^3.7.0",
     "morgan": "~1.5.1",
     "node-jsx": "^0.13.3",
+    "numeral": "^1.5.3",
     "object-assign": "^3.0.0",
     "react": "^0.13.3",
     "react-bootstrap": "^0.23.0",

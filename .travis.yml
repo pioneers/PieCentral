@@ -5,9 +5,7 @@ before_install:
 - export DISPLAY=:99.0
 - sh -e /etc/init.d/xvfb start
 install:
-- npm install
-- bower install
-- node_modules/brunch/bin/brunch b
+- echo 'fake install'
 script:
 - ./run_tests.sh
 notifications:

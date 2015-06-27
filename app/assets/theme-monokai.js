@@ -1,1 +1,0 @@
-../../bower_components/ace-builds/src-min/theme-monokai.js

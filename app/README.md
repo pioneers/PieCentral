@@ -1,8 +1,7 @@
 Daemon Node
 ===========
-
 ## Developer Quickstart
-In the `app` directory, run:
+From this directory, run:
 
 1. `npm install`
 1. `gulp build`

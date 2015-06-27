@@ -3,7 +3,7 @@ router = express.Router()
 jsx = require('node-jsx').install()
 React = require('react')
 Router = require('react-router')
-routes = require('../routes')
+clientRoutes = require('../client/routes')
 
 # Delegate most things to the appropriate namespace
 router.use '/api', require('./api/api')
@@ -13,7 +13,7 @@ router.use (req, res, next) ->
 
   rootProps = {}
 
-  router = Router.create location: req.url, routes: routes
+  router = Router.create location: req.url, routes: clientRoutes
   router.run (Handler, state) ->
     if state.routes.length == 0
       return next() # we've gotten to an illegal path

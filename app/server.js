@@ -25,7 +25,7 @@ var server = http.createServer(app);
  * Create socket-io server.
  */
 
-var io = require('socket-bridge')(server);
+var io = require('./socket-bridge')(server);
 
 /**
  * Listen on provided port, on all network interfaces.

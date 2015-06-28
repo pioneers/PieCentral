@@ -2,6 +2,7 @@
 nbproject
 manifest.mf
 build.xml
+*.swp
 
 node_modules
 

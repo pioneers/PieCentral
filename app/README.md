@@ -1,10 +1,10 @@
-Daemon Node
+Dawn Node Application
 ===========
 ## Developer Quickstart
 From this directory, run:
 
 1. `npm install`
-1. `gulp build`
+1. `gulp build` ( or `gulp watch` to continuously watch for changes )
 1. `npm start`
 
 The application should be running on `http://localhost:3000`

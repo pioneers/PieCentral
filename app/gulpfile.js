@@ -11,7 +11,7 @@ gulp.task('build', ['scripts']);
 gulp.task('scripts', function () {
   return browserify({
     entries: ['./client/client.js'],
-    transform: [['coffee-reactify', {coffeeout: true}], 'coffeeify', 'reactify'],
+    transform: [['coffee-reactify', {coffeeout: true}], 'coffeeify', 'babelify'],
     extensions: ['.coffee'],
     cache: {}, packageCache: {}, fullPaths: true
   })
@@ -27,7 +27,7 @@ gulp.task('watchscripts', function () {
   // http://stackoverflow.com/questions/24190351/using-gulp-browserify-for-my-react-js-modules-im-getting-require-is-not-define
   var bundler = browserify({
     entries: ['./client/client.js'],
-    transform: [['coffee-reactify', {coffeeout: true}], 'coffeeify', 'reactify'],
+    transform: [['coffee-reactify', {coffeeout: true}], 'coffeeify', 'babelify'],
     extensions: ['.coffee'],
     debug: true,
     cache: {}, packageCache: {}, fullPaths: true

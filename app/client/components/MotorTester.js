@@ -3,14 +3,20 @@ import RobotActions from '../actions/RobotActions';
 import {Button, Panel} from 'react-bootstrap';
 
 var MotorTester = React.createClass({
-  onClick() {
-    var id = 'test id';
-    var speed = Math.random();
+  generateFakeData() {
+    var id = '1337beef';
+    var speed = Math.floor(Math.random() * 100);
     RobotActions.updateMotor(id, speed);
   },
+  componentDidMount() {
+    this.interval = setInterval(this.generateFakeData, 100);
+  },
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  },
   render() {
-    return <Panel header='Motor Tester'>
-      <Button onClick={this.onClick}>Click Me</Button>
+    return <Panel header='Motor Tester' bsStyle='primary'>
+      <Button bsStyle='success' onClick={this.generateFakeData}>Trigger Motor Update</Button>
     </Panel>;
   }
 });

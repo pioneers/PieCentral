@@ -18,9 +18,8 @@ var MotorList = React.createClass({
     this.onChange(); // call it once to refresh
   },
   render() {
-    return <Panel header='Motor List'>
-      This is a list of motors.
-      {_.map(this.state.motors, (motor) => <Motor key={motor.id} motor={motor}/>)}
+    return <Panel header='Motors' bsStyle='primary'>
+      {_.map(this.state.motors, (motor) => <Motor key={motor.id} {...motor}/>)}
     </Panel>;
   }
 });

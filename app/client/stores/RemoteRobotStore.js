@@ -16,12 +16,38 @@ var RemoteRobotStore = assign({}, EventEmitter.prototype, {
   }
 });
 
-/* Handles receiving an UPDATE_MOTOR action
+/**
+ * Remove the motor from the motors list. Helper for handleUpdateMotor.
+ */
+function reapMotor(id) {
+  delete motors[id];
+  RemoteRobotStore.emitChange();
+}
+
+/**
+ * Handles receiving an UPDATE_MOTOR action.
  */
 function handleUpdateMotor(action) {
-  var id = action.id;
-  var speed = action.speed;
-  motors[id] = {id, speed};
+  // Get the motor from the motors dictionary.
+  var motor = motors[action.id];
+
+  // Check if our motor exists and has a reaper.
+  // If so, stop the reaper.
+  // If not, make a new empty object and call that the motor.
+  if (motor != null && motor.reaper != null) {
+    clearTimeout(motor.reaper);
+  } else {
+    motor = {id: action.id};
+    motors[action.id] = motor;
+  }
+
+  // Assign properties from the action.
+  motor.speed = action.speed;
+
+  // Assign a new reaper, which will remove this motor if
+  // no updates are received after some number of milliseconds.
+  motor.reaper = setTimeout(reapMotor, 1500, action.id);
+  // Notify listeners that the motors have been updated.
   RemoteRobotStore.emitChange();
 }
 

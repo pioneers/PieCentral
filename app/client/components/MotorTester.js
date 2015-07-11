@@ -1,12 +1,16 @@
 import React from 'react';
 import RobotActions from '../actions/RobotActions';
-import {Button, Panel} from 'react-bootstrap';
+import {Button, ButtonGroup, Panel} from 'react-bootstrap';
 
 var MotorTester = React.createClass({
+  getInitialState() {
+    return {
+      id: '1337beef'
+    };
+  },
   generateFakeData() {
-    var id = '1337beef';
     var speed = Math.floor(Math.random() * 100);
-    RobotActions.updateMotor(id, speed);
+    RobotActions.updateMotor(this.state.id, speed);
   },
   componentDidMount() {
     this.interval = setInterval(this.generateFakeData, 100);
@@ -14,9 +18,15 @@ var MotorTester = React.createClass({
   componentWillUnmount() {
     clearInterval(this.interval);
   },
+  changeMotorName() {
+    this.setState({id: String(Math.floor(Math.random() * 100))});
+  },
   render() {
     return <Panel header='Motor Tester' bsStyle='primary'>
-      <Button bsStyle='success' onClick={this.generateFakeData}>Trigger Motor Update</Button>
+      <ButtonGroup>
+        <Button bsStyle='success' onClick={this.generateFakeData}>Trigger Motor Update</Button>
+        <Button bsStyle='success' onClick={this.changeMotorName}>Change Motor Name</Button>
+      </ButtonGroup>
     </Panel>;
   }
 });

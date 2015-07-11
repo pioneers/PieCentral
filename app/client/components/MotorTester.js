@@ -1,6 +1,6 @@
 import React from 'react';
 import RobotActions from '../actions/RobotActions';
-import {Button, ButtonGroup, Panel} from 'react-bootstrap';
+import {Button, Panel} from 'react-bootstrap';
 
 var MotorTester = React.createClass({
   getInitialState() {
@@ -22,12 +22,11 @@ var MotorTester = React.createClass({
     this.setState({id: String(Math.floor(Math.random() * 100))});
   },
   render() {
-    return <Panel header='Motor Tester' bsStyle='primary'>
-      <ButtonGroup>
-        <Button bsStyle='success' onClick={this.generateFakeData}>Trigger Motor Update</Button>
-        <Button bsStyle='success' onClick={this.changeMotorName}>Change Motor Name</Button>
-      </ButtonGroup>
-    </Panel>;
+    return (
+    <Panel header='Motor Tester' bsStyle='primary'>
+      <Button bsStyle='success' onClick={this.changeMotorName}>Change Motor Name</Button>
+    </Panel>
+    );
   }
 });
 

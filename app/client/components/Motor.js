@@ -1,5 +1,5 @@
 import React from 'react';
-import {ProgressBar} from 'react-bootstrap';
+import {Label, ProgressBar} from 'react-bootstrap';
 
 var Motor = React.createClass({
   propTypes: {
@@ -11,7 +11,13 @@ var Motor = React.createClass({
     <div style={{overflow: 'auto'}}>
       <div style={{overflow: 'auto', width: '100%'}}>
         <h4 style={{float: 'left'}}>Motor <small>{this.props.id}</small></h4>
-        <h4 style={{float: 'right'}}>{this.props.speed}</h4>
+        <h4 style={{float: 'right'}}>
+        {
+          this.props.disconnected
+          ? <Label bsStyle='danger'>Disconnected</Label>
+          : this.props.speed
+        }
+        </h4>
       </div>
       <ProgressBar now={this.props.speed}></ProgressBar>
     </div>

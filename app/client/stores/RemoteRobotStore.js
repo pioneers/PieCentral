@@ -20,7 +20,11 @@ var RemoteRobotStore = assign({}, EventEmitter.prototype, {
  * Remove the motor from the motors list. Helper for handleUpdateMotor.
  */
 function reapMotor(id) {
-  delete motors[id];
+  motors[id].disconnected = true;
+  motors[id].reaper = setTimeout(() => {
+    delete motors[id];
+    RemoteRobotStore.emitChange();
+  }, 3000);
   RemoteRobotStore.emitChange();
 }
 
@@ -41,12 +45,15 @@ function handleUpdateMotor(action) {
     motors[action.id] = motor;
   }
 
+  // Motor is not disconnected.
+  motor.disconnected = false;
+
   // Assign properties from the action.
   motor.speed = action.speed;
 
   // Assign a new reaper, which will remove this motor if
   // no updates are received after some number of milliseconds.
-  motor.reaper = setTimeout(reapMotor, 1500, action.id);
+  motor.reaper = setTimeout(reapMotor, 500, action.id);
   // Notify listeners that the motors have been updated.
   RemoteRobotStore.emitChange();
 }

@@ -9,13 +9,13 @@ MotorList = require('./MotorList')
 module.exports = Dashboard = React.createClass
   displayName: 'Dashboard'
   render: ->
-    <div className="container">
+    <div className="container-fluid">
       <Grid>
         <Row>
-          <Col md={6}>
+          <Col sm={6}>
             <MotorTester />
           </Col>
-          <Col md={6}>
+          <Col sm={6}>
             <MotorList />
           </Col>
         </Row>

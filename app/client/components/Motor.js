@@ -1,5 +1,5 @@
 import React from 'react';
-import {Panel, ProgressBar} from 'react-bootstrap';
+import {ProgressBar} from 'react-bootstrap';
 
 var Motor = React.createClass({
   propTypes: {
@@ -7,10 +7,15 @@ var Motor = React.createClass({
     speed: React.PropTypes.number
   },
   render() {
-    return <Panel header={this.props.id}>
-      <h3>{this.props.speed}</h3>
+    return (
+    <div style={{overflow: 'auto'}}>
+      <div style={{overflow: 'auto', width: '100%'}}>
+        <h4 style={{float: 'left'}}>Motor <small>{this.props.id}</small></h4>
+        <h4 style={{float: 'right'}}>{this.props.speed}</h4>
+      </div>
       <ProgressBar now={this.props.speed}></ProgressBar>
-    </Panel>;
+    </div>
+    );
   }
 });
 

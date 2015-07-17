@@ -128,6 +128,12 @@ integer which holds the status code of the error. A table of error codes is give
     +---------+---------------+
     | Status  |    Meaning    |
     +-------------------------+
+    |   0xFB  |    Invalid    |
+    |         | Message Type  |
+    +-------------------------+
+    |   0xFC  |   Malformed   |
+    |         |    Message    |
+    +-------------------------+
     |   0xFD  |    Invalid    |
     |         |   ArduinoID   |
     +-------------------------+

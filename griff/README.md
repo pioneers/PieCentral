@@ -1,15 +1,9 @@
 Ansible
 =======
 
-Ansible is a communication library for talking to Daemon.
+Ansible is a communication library for talking to Dawn.
 
-From this directory, run a socket_bridge:
-
-1. `cd socket_bridge`
-1. `npm install` (only need to do this once)
-1. `npm start`
-
-and then import the ansible library in your python program:
+To import the ansible library in your python program:
 
 1. `import ansible`
 1. `ansible.init() # initialize connection`
@@ -18,3 +12,6 @@ and then import the ansible library in your python program:
 1. `ansible.recv()`
 
 `ansible.recv()` is non-blocking, and will return `None` if there is no message currently in the mailbox.
+
+
+`test.py` is provided as a way to test communication with Dawn, it simply prints out any data it receives. Run it with `python test.py`.

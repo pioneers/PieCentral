@@ -1,6 +1,7 @@
 AppDispatcher = require('../dispatcher/AppDispatcher')
 Constants = require('../constants/Constants')
 ActionTypes = Constants.ActionTypes
+AnsibleClient = require('../utils/AnsibleClient')
 
 # state variable for debouncing gamepad updates
 _timestamps = [0, 0, 0, 0]
@@ -15,8 +16,10 @@ _needToUpdate = (newGamepads) ->
   return false
 
 # Private function that checks for updated Gamepad State
+# Also sends data to griff by emitting to socket-bridge
 _updateGamepadState = ->
   newGamepads = navigator.getGamepads()
+  AnsibleClient.sendMessage('gamepad', newGamepads)
   if _needToUpdate(newGamepads)
     GamepadActionCreators.updateGamepads(newGamepads)
 

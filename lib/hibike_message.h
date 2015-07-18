@@ -15,7 +15,9 @@ enum HIBIKE_MESSAGE {
 
 /**
  * Subscription Response status codes.
- */ enum SUBSCRIPTION_RESPONSE { SUCCESS,
+ */
+enum SUBSCRIPTION_RESPONSE {
+  SUCCESS,
   GENERIC_ERROR = 0xFF,
 };
 

@@ -76,14 +76,16 @@ void send_error(uint8_t error_code) {
 //
 // Receives an incoming hibike message.
 // Note that the pointer returned points to the rx_buffer.
-// Assumes that data is available.
-// (check to see if serial.available() before calling this)
+// Returns a null pointer if no data is on the serial port.
 //
 // Note that Arduino's Serial.readBytes function automatically
 // waits until either the given number of bytes are successfully
 // read or a timeout occurs (defaults to 1000ms).
 //
 hibike_message_t* receive_message() {
+  if (!Serial.available()) {
+    return nullptr;
+  }
   hibike_message_t *m = (*hibike_message_t) rx_buffer;
   Serial.readBytes(&m->message_id, sizeof(uint8_t));
   Serial.readBytes(&m->controller_id, sizeof(uint8_t));

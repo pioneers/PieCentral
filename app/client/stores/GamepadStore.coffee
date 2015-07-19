@@ -28,14 +28,15 @@ GamepadStore.dispatchToken = AppDispatcher.register (action) ->
 
 ### Non-Flux part
 This is the part of the program that isn't very Flux like.
-It's necessary because in a normal Flux program, all actions are result of interaction
+It's necessary because in a normal Flux program, all actions are
+result of interaction
 With React components (with actions triggered in components)
 Or as the result of asynchronous calls that were initially triggered by calling
 Action Creators (and handled inside)
 ###
 if Environment.isBrowser # check if we're running in the browser
   GamepadActionCreators = require('../actions/GamepadActionCreators')
-  GamepadActionCreators.setUpdateInterval(7) # poll every 7 ms (~140Hz)
+  GamepadActionCreators.setUpdateInterval(50) # poll every 50 ms (~20Hz)
 ### End Non-Flux part ###
 
 module.exports = GamepadStore

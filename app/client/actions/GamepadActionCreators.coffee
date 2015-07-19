@@ -19,8 +19,8 @@ _needToUpdate = (newGamepads) ->
 # Also sends data to griff by emitting to socket-bridge
 _updateGamepadState = ->
   newGamepads = navigator.getGamepads()
-  AnsibleClient.sendMessage('gamepad', newGamepads)
   if _needToUpdate(newGamepads)
+    AnsibleClient.sendMessage('gamepad', newGamepads)
     GamepadActionCreators.updateGamepads(newGamepads)
 
 module.exports = GamepadActionCreators =

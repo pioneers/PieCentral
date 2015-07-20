@@ -15,12 +15,21 @@ _needToUpdate = (newGamepads) ->
       # I'm doing this intentionally to reduce complexity.
   return false
 
+_formatGamepadsForJSON = (newGamepads) ->
+  formattedGamepads = {}
+  for gamepad in newGamepads
+    if gamepad?
+      formattedGamepads[gamepad.index] =
+        index: gamepad.index
+        axes: gamepad.axes
+  return formattedGamepads
+
 # Private function that checks for updated Gamepad State
 # Also sends data to griff by emitting to socket-bridge
 _updateGamepadState = ->
   newGamepads = navigator.getGamepads()
   if _needToUpdate(newGamepads)
-    AnsibleClient.sendMessage('gamepad', newGamepads)
+    AnsibleClient.sendMessage('gamepad', _formatGamepadsForJSON(newGamepads))
     GamepadActionCreators.updateGamepads(newGamepads)
 
 module.exports = GamepadActionCreators =

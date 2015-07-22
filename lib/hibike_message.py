@@ -50,7 +50,7 @@ using HibikeMessage.send().
 """
 class HibikeMessage:
     # the serial port this message should be sent over.
-    __port
+    __port 
 
     # an integer containing the message_id of this message
     # see the HibikeMessageType enum.
@@ -100,10 +100,28 @@ class HibikeMessage:
             raise HibikeMessageException('Message type currently unsupported.')
 
     def __calculateChecksum(self):
-        pass
+        checksum = 0
+        checksum ^= self.messageId
+        checksum ^= self.controllerId
+        if self.messageId == HibikeMessage.SubscriptionRequest:
+            checksum ^= self.payload & 0xFF
+        elif self.messageId == HibikeMessage.SensorUpdateRequest:
+            pass
+        else:
+            raise HibikeMessageExeption
+        self.checksum = checksum
 
     def sendMessage(self):
-        self.__calculateChecksum();
+        self.__calculateChecksum()
+        ser = serial.Serial()
+        ser.port = self.__port
+        ser.open()
+        ser.write(messageId)
+        ser.write(controllerId)
+        ser.write(payload)
+        ser.write(checksum)
+        ser.close()
+
 
 """
 Sends a subscriptionSensorRequest that requests new sensor
@@ -119,4 +137,20 @@ Receives a Hibike Message from the given serial port.
 Returns None if no data is available on the serial port.
 """
 def receiveHibikeMessage(port):
-    pass
+    ser = serial.Serial()
+    ser.port = port
+    ser.open
+    payload = 0
+    if ser.inWaiting() == 0:
+        return None
+    messageId = ser.read(1)
+    controllerId = ser.read(1)
+    if messageId == 1:
+        payload = ser.read(1)
+    elif messageId == 2 or messageId == 4:
+        payload = {}
+        payload[sensorTypeID] = ser.read(1)
+        payload[sensorReadingLength] = ser.read(2)
+        payload[reading] = ser.read(payload[sensorReadingLength])
+    checksum = ser.read(1)
+    return HibikeMessage(messageId, controllerId, payload, checksum)

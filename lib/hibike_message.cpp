@@ -135,7 +135,8 @@ void calculate_checksum(hibike_message_t *m) {
     case HIBIKE_MESSAGE.SUBSCRIPTION_RESPONSE:
     case HIBIKE_MESSAGE.ERROR:
       checksum ^= m->payload.error_code;
-      break; case HIBIKE_MESSAGE.SUBSCRIPTION_SENSOR_UPDATE:
+      break;
+    case HIBIKE_MESSAGE.SUBSCRIPTION_SENSOR_UPDATE:
       checksum ^= m->payload.sensor_data.sensor_type_id;
       checksum ^= m->payload.sensor_data.sensor_reading_length & 0xFF;
       checksum ^= (m->payload.sensor_data.sensor_reading_length >> 4) & 0xFF;
@@ -146,7 +147,7 @@ void calculate_checksum(hibike_message_t *m) {
       }
       break;
   }
-  m->checksum = checksum;
+  m->checksum = checksum
 }
 
 //

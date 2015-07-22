@@ -147,7 +147,7 @@ void calculate_checksum(hibike_message_t *m) {
       }
       break;
   }
-  m->checksum = checksum
+  m->checksum = checksum;
 }
 
 //

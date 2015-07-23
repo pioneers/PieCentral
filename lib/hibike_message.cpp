@@ -76,14 +76,16 @@ void send_error(uint8_t error_code) {
 //
 // Receives an incoming hibike message.
 // Note that the pointer returned points to the rx_buffer.
-// Assumes that data is available.
-// (check to see if serial.available() before calling this)
+// Returns a null pointer if no data is on the serial port.
 //
 // Note that Arduino's Serial.readBytes function automatically
 // waits until either the given number of bytes are successfully
 // read or a timeout occurs (defaults to 1000ms).
 //
 hibike_message_t* receive_message() {
+  if (!Serial.available()) {
+    return nullptr;
+  }
   hibike_message_t *m = (*hibike_message_t) rx_buffer;
   Serial.readBytes(&m->message_id, sizeof(uint8_t));
   Serial.readBytes(&m->controller_id, sizeof(uint8_t));
@@ -108,7 +110,7 @@ hibike_message_t* receive_message() {
   }
   Serial.readBytes(&m->checksum, sizeof(uint8_t));
   uint8_t checksum = calculate_checksum(m);
-  if (checksum != m->checksum) {
+  if (!(checksum^m->checksum)) {
     send_error(ERROR.CHECKSUM_MISMATCH);
   }
 }
@@ -117,6 +119,13 @@ hibike_message_t* receive_message() {
 // Calculates and sets the checksum for the given hibike_message
 //
 void calculate_checksum(hibike_message_t *m) {
+  //
+  // unsupported message types
+  //
+  if (m->message_id == HIBIKE_MESSAGE.SENSOR_UPDATE ||
+      m->message_id == HIBIKE_MESSAGE.SENSOR_UPDATE_REQUEST) {
+    return;
+  }
   uint8_t checksum = 0;
   checksum ^= m->message_id;
   checksum ^= m->controller_id;
@@ -125,18 +134,20 @@ void calculate_checksum(hibike_message_t *m) {
     // like above, have no need to consider these message types at
     // this time.
     //
-    case HIBIKE_MESSAGE.SUBSCRIPTION_RESPONSE:
-    case HIBIKE_MESSAGE.SUBSCRIPTION_SENSOR_UPDATE:
-    case HIBIKE_MESSAGE.SENSOR_UPDATE:
-    case HIBIKE_MESSAGE.SENSOR_UPDATE_REQUEST:
+    case HIBIKE_MESSAGE.SUBSCRIPTION_REQUEST:
+      checksum ^= m->payload.delay & 0xFF;
+      checksum ^= (m->payload.delay >> 8) & 0xFF;
+      checksum ^= (m->payload.delay >> 16) & 0xFF;
+      checksum ^= (m->payload.delay >> 24) & 0xFF;
       break;
     case HIBIKE_MESSAGE.SUBSCRIPTION_RESPONSE:
     case HIBIKE_MESSAGE.ERROR:
       checksum ^= m->payload.error_code;
-      break; case HIBIKE_MESSAGE.SUBSCRIPTION_SENSOR_UPDATE:
+      break;
+    case HIBIKE_MESSAGE.SUBSCRIPTION_SENSOR_UPDATE:
       checksum ^= m->payload.sensor_data.sensor_type_id;
       checksum ^= m->payload.sensor_data.sensor_reading_length & 0xFF;
-      checksum ^= (m->payload.sensor_data.sensor_reading_length >> 4) & 0xFF;
+      checksum ^= (m->payload.sensor_data.sensor_reading_length >> 8) & 0xFF;
       uint8_t len = m->payload.sensor_data.sensor_reading_length;
       uint8_t *data = m->payload.sensor_data.data;
       for (int i = 0; i < len; i++) {
@@ -157,18 +168,19 @@ void calculate_checksum(hibike_message_t *m) {
 // too lazy to implement this.
 // TODO(vincent): get this optimization done eventually.
 void send_message(hibike_message_t *m) {
+  //
+  // unsupported message types and messages that
+  // should never be sent from this endpoint
+  //
+  if (m->message_id == HIBIKE_MESSAGE.SUBSCRIPTION_REQUEST ||
+      m->message_id == HIBIKE_MESSAGE.SENSOR_UPDATE ||
+      m->message_id == HIBIKE_MESSAGE.SENSOR_UPDATE_REQUEST) {
+    return;
+  }
   calculate_checksum(message);
   Serial.write(&m->message_id, sizeof(uint8_t));
   Serial.write(&m->controller_id, sizeof(uint8_t));
   switch(m->message_id) {
-    //
-    // once again non-require message types.
-    //
-    case HIBIKE_MESSAGE.SUBSCRIPTION_RESPONSE:
-    case HIBIKE_MESSAGE.SUBSCRIPTION_SENSOR_UPDATE:
-    case HIBIKE_MESSAGE.SENSOR_UPDATE:
-    case HIBIKE_MESSAGE.SENSOR_UPDATE_REQUEST:
-      break;
     case HIBIKE_MESSAGE.SUBSCRIPTION_RESPONSE:
     case HIBIKE_MESSAGE.ERROR:
       Serial.write(&m->payload.error_code, sizeof(uint8_t));

@@ -116,8 +116,7 @@ def sendSubscriptionRequest(delay, controllerId, port):
 
 """
 Receives a Hibike Message from the given serial port.
-Assumes that there is already data waiting on the port
-when this function is called.
+Returns None if no data is available on the serial port.
 """
 def receiveHibikeMessage(port):
     pass

@@ -3,7 +3,7 @@ RouteHandler = require('react-router').RouteHandler
 Grid = require('react-bootstrap').Grid
 Row = require('react-bootstrap').Row
 Col = require('react-bootstrap').Col
-MotorTester = require('./MotorTester')
+MotorTester = require('./MotorList/MotorTester')
 MotorList = require('./MotorList')
 
 module.exports = Dashboard = React.createClass

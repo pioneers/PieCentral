@@ -1,5 +1,5 @@
 import React from 'react';
-import RemoteRobotStore from '../stores/RemoteRobotStore';
+import RemoteRobotStore from '../../stores/RemoteRobotStore';
 import Motor from './Motor';
 import {Panel} from 'react-bootstrap';
 import _ from 'lodash';
@@ -16,6 +16,9 @@ var MotorList = React.createClass({
   componentDidMount() {
     RemoteRobotStore.on('change', this.onChange);
     this.onChange(); // call it once to refresh
+  },
+  componentWillUnmount() {
+    RemoteRobotStore.removeListener('change', this.onChange);
   },
   render() {
     return <Panel header='Motors' bsStyle='primary'>

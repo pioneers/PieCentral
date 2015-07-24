@@ -6,7 +6,11 @@
   "parser": "babel-eslint",
   "env": {
     "browser": true,
+    "jasmine": true,
     "node": true
+  },
+  "globals": {
+    "jest": false,
   },
   "rules": {
     "quotes": [2, "single"],

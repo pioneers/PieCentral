@@ -1,5 +1,5 @@
 import React from 'react';
-import RobotActions from '../actions/RobotActions';
+import RobotActions from '../../actions/RobotActions';
 import {Button, Panel} from 'react-bootstrap';
 
 var MotorTester = React.createClass({

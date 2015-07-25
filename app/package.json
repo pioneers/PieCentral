@@ -10,6 +10,8 @@
     "start": "node ./server.js"
   },
   "dependencies": {
+    "babel": "^5.6.14",
+    "babelify": "^6.1.2",
     "body-parser": "~1.12.0",
     "browserify": "^9.0.8",
     "coffee-react": "^3.2.0",
@@ -27,7 +29,6 @@
     "keymirror": "^0.1.1",
     "lodash": "^3.7.0",
     "morgan": "~1.5.1",
-    "node-jsx": "^0.13.3",
     "numeral": "^1.5.3",
     "object-assign": "^3.0.0",
     "react": "^0.13.3",

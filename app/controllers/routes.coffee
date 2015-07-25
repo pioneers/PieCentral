@@ -1,6 +1,5 @@
 express = require('express')
 router = express.Router()
-jsx = require('node-jsx').install()
 React = require('react')
 Router = require('react-router')
 clientRoutes = require('../client/routes')

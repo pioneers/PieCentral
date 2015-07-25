@@ -111,6 +111,7 @@ hibike_message_t* receive_message() {
   Serial.readBytes(&m->checksum, sizeof(uint8_t));
   uint8_t checksum = calculate_checksum(m);
   if (!(checksum^m->checksum)) {
+    //TODO: implement message retries
     send_error(ERROR.CHECKSUM_MISMATCH);
   }
 }

@@ -6,12 +6,14 @@ import 'brace/theme/monokai';
 
 var Editor = React.createClass({
   render() {
-    return <AceEditor
-      mode="python"
-      theme="monokai"
-      width="100%"
-      name="CodeEditor"
-    />;
+    return (
+      <AceEditor
+        mode="python"
+        theme="monokai"
+        width="100%"
+        name="CodeEditor"
+      />
+    );
   }
 });
 

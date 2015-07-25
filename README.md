@@ -113,6 +113,17 @@ types of sensors provided in the kit are decided upon.
 SensorUpdates are formatted identically to SubscriptionSensorUpdates, but they are sent in response
 to SensorUpdate requests a single time and not periodically.
 
+A table of Sensor Types is given below.
+
+    +---------+---------------+
+    |  Code   |    Sensor     |
+    +-------------------------+
+    |    0    | Limit Switch  |
+    +-------------------------+
+    |    1    | Line Follower |
+    +-------------------------+
+
+
 ## Section 5: Sensor Update Requests
 SensorUpdateRequests essentially provide a method of requesting data from the Arduino as soon as
 possible as opposed to periodically. This message type has no payload.

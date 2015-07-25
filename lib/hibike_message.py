@@ -1,7 +1,5 @@
 import serial
 import struct
-import struct
-import json
 from enum import Enum
 
 """
@@ -19,13 +17,15 @@ class HibikeMessageType(Enum):
 SubscriptionResponse status codes.
 """
 class SubscriptionResponse(Enum):
+    Success = 0
     GenericError = 0xFF
 
 """
 Sensor Type IDs.
 """
 class SensorType(Enum):
-    PLACEHOLDER = 0
+    LimitSwitch = 0
+    LineFollower = 1
 
 """
 More specific error codes.
@@ -52,7 +52,7 @@ using HibikeMessage.send().
 """
 class HibikeMessage:
     # the serial port this message should be sent over.
-    __port 
+    __port
 
     # an integer containing the message_id of this message
     # see the HibikeMessageType enum.
@@ -82,11 +82,8 @@ class HibikeMessage:
     """
     def __verifyMessage(self):
         assert isinstance(self.messageId, HibikeMessageType)
-
-        #
-        # TODO(vincent): add more checks/asserts to ensure that the values of
-        #                payload are within possible ranges.
-        #
+        # TODO: add more checks/asserts to ensure that the values of
+        #       payload are within possible ranges.
         if self.messageId is HibikeMessageType.SubscriptionRequest:
             assert type(self.payload) is int
             # verify that self.payload can fit in a 32 bit uint
@@ -104,47 +101,40 @@ class HibikeMessage:
     def __calculateChecksum(self):
         checksum = 0
         checksum ^= self.messageId.value
-        checksum ^= self.controllerId.value
+        checksum ^= self.controllerId
         if self.messageId == HibikeMessage.SubscriptionRequest:
             checksum ^= (self.payload & 0xFF) ^ (self.payload>>8 & 0xFF) ^ \
                         (self.payload >>16 & 0xFF) ^ (self.payload >>24 & 0xFF)
         elif self.messageId == HibikeMessage.SensorUpdateRequest:
             pass
-        elif self.messageId == HibikeMessage.SubscriptionResponse or elif self.messageId == HibikeMessage.Error::
-            checksum ^= self.payload
+        elif self.messageId == HibikeMessage.SubscriptionResponse or \
+             self.messageId == HibikeMessage.Error:
+            checksum ^= self.payload & 0xFF
         elif self.messageId == HibikeMessage.SubscriptionSensorUpdate:
-            checksum ^= payload[sensorTypeId]
-            checksum ^= payload[sensorReadingLength] & 0xFF
-            checksum ^= (payload[sensorReadingLength] >> 8) & 0xFF
-            len = payload[sensor_reading_length]
-            data = payload[reading]
-            for i in range(len):
-                checksum ^= getByte(data,i)
+            checksum ^= payload['sensorTypeId']
+            checksum ^= payload['sensorReadingLength'] & 0xFF
+            checksum ^= (payload['sensorReadingLength'] >> 8) & 0xFF
+            length = payload['sensorReadingLength']
+            data = payload['reading']
+            for i in range(length):
+                checksum ^= __getByte(data, i)
         else:
-            checksum ^= HibikeMessageType.Error.value
             raise HibikeMessageExeption
-        self.checksum = checksum
+        return checksum
 
-    def getBit(value, index):
-        #big endian
-        return (value>>(index*8)) & 0xFF
+    def __getByte(value, index):
+        return (value >> (index*8)) & 0xFF
 
+    # kludged for now to only be able to send SubscriptionRequests
     def sendMessage(self):
-        try:
-            self.__calculateChecksum()
-        except HibikeMessageExeption:
-            self.payload = Hibike
+        self.checksum = self.__calculateChecksum()
         ser = serial.Serial()
         ser.port = self.__port
+        ser.baudrate = 57600
         ser.open()
-        messageId = struct.pack('Q', self.messageId)
-        controllerId = struct.pack('Q', self.controllerId)
-        payload = json.dumps(payload) + '\n'
-        checksum = struct.pack('Q', self.checksum)
-        ser.write(messageId)
-        ser.write(controllerId)
-        ser.write(payload)
-        ser.write(checksum)
+        message = struct.pack('<BBIB', self.messageId, self.controllerId,
+                              self.payload, self.checksum)
+        ser.write(message)
         ser.close()
 
 
@@ -164,26 +154,26 @@ Returns None if no data is available on the serial port.
 def receiveHibikeMessage(port):
     ser = serial.Serial()
     ser.port = port
-    ser.open
+    ser.open()
     payload = 0
     if ser.inWaiting() == 0:
         return None
-    messageId = struct.unpack('Q', ser.read(1))
-    controllerId = struct.unpack('Q', ser.read(1))
+    messageId = HibikeMessageType(struct.unpack('<B', ser.read(1)))
+    controllerId = struct.unpack('<B', ser.read(1))
     if messageId == HibikeMessageType.SubscriptionResponse.value or \
        messageId == HibikeMessageType.Error.value:
-        payload = json.loads(ser.read(1))
+        payload = struct.unpack('<B', ser.read(1))
     elif messageId == HibikeMessageType.SubscriptionSensorUpdate.value or \
          messageId == HibikeMessageType.SensorUpdate.value:
-        #payload = {}
-        #payload[sensorTypeID] = ser.read(1)
-        #payload[sensorReadingLength] = ser.read(2)
-        #payload[reading] = ser.read(payload[sensorReadingLength])
-        payload = json.reads(ser.readline())
-    checksum = ser.read(1)
+        payload = {}
+        payload['sensorTypeID'] = struct.unpack('<B', ser.read(1))
+        payload['sensorReadingLength'] = struct.unpack('<B', ser.read(2))
+        # figure out what to do with the still serialized data later
+        payload['reading'] = ser.read(payload['sensorReadingLength'])
+    checksum = struct.unpack('<B', ser.read(1))
     message = HibikeMessage(messageId, controllerId, payload, port)
     if message.__calculateChecksum() != message.checksum:
-        errorMessage = HibikeMessage(HibikeMessageType.Error.value, 0xFF, Error.ChecksumMismatch, port)
+        errorMessage = HibikeMessage(HibikeMessageType.Error, controllerId, Error.ChecksumMismatch, port)
         errorMessage.sendMessage()
         raise HibikeMessageExeption("incorrect checksum")
     return message

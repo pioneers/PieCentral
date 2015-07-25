@@ -25,6 +25,8 @@ enum SUBSCRIPTION_RESPONSE {
  * Sensor Type IDs
  */
 enum SENSOR_TYPE {
+  LIMIT_SWITCH = 0x01
+  LINE_FOLLOWER = 0x02
 };
 
 /**

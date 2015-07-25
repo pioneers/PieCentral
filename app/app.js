@@ -1,5 +1,6 @@
 require('coffee-script/register');
 require('coffee-react/register');
+require('babel/register');
 
 var express = require('express');
 var exphbs = require('express-handlebars');

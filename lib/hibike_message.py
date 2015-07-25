@@ -52,23 +52,23 @@ using HibikeMessage.send().
 """
 class HibikeMessage:
     # the serial port this message should be sent over.
-    __port
+    __port = None
 
     # an integer containing the message_id of this message
     # see the HibikeMessageType enum.
-    messageId
+    messageId = None
 
     # an integer containing either the controller_id this message
     # is being sent to (for an outgoing message), or the controller_id
     # of the controller this message is coming from (for an incoming message)
-    controllerId
+    controllerId = None
 
     # either an integer or dictionary containing the data for this message
-    payload
+    payload = None
 
     # an 8 bit integer calculated either right before sending a message or
     # immediately upon receiving one.
-    checksum
+    checksum = None
 
     def __init__(self, messageId, controllerId, payload, port):
         self.messageId = messageId
@@ -102,15 +102,15 @@ class HibikeMessage:
         checksum = 0
         checksum ^= self.messageId.value
         checksum ^= self.controllerId
-        if self.messageId == HibikeMessage.SubscriptionRequest:
+        if self.messageId == HibikeMessageType.SubscriptionRequest:
             checksum ^= (self.payload & 0xFF) ^ (self.payload>>8 & 0xFF) ^ \
                         (self.payload >>16 & 0xFF) ^ (self.payload >>24 & 0xFF)
-        elif self.messageId == HibikeMessage.SensorUpdateRequest:
+        elif self.messageId == HibikeMessageType.SensorUpdateRequest:
             pass
-        elif self.messageId == HibikeMessage.SubscriptionResponse or \
-             self.messageId == HibikeMessage.Error:
+        elif self.messageId == HibikeMessageType.SubscriptionResponse or \
+             self.messageId == HibikeMessageType.Error:
             checksum ^= self.payload & 0xFF
-        elif self.messageId == HibikeMessage.SubscriptionSensorUpdate:
+        elif self.messageId == HibikeMessageType.SubscriptionSensorUpdate:
             checksum ^= payload['sensorTypeId']
             checksum ^= payload['sensorReadingLength'] & 0xFF
             checksum ^= (payload['sensorReadingLength'] >> 8) & 0xFF
@@ -143,7 +143,7 @@ Sends a subscriptionSensorRequest that requests new sensor
 data every delay ms to controllerId over port.
 """
 def sendSubscriptionRequest(delay, controllerId, port):
-    message = HibikeMessage(HibikeMessage.SubscriptionRequest,
+    message = HibikeMessage(HibikeMessageType.SubscriptionRequest,
                             controllerId, delay, port)
     message.sendMessage()
 

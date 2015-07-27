@@ -5,7 +5,7 @@
 uint8_t data;
 uint64_t time_last_message_sent;
 
-bool subscribed;
+bool subscribed = false;
 uint32_t subscription_delay;
 
 hibike_message_t* m;

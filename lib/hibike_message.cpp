@@ -1,6 +1,4 @@
 #include "hibike_message.h"
-#include "Arduino.h"
-#include "assert.h"
 
 //
 // The controller_id of this hibike endpoint.
@@ -11,13 +9,14 @@ uint8_t controller_id;
 // helper function declarations. see function definitions for
 // more documentation
 //
-void send_message(*hibike_message_t);
-uint8_t calculate_checksum(*hibike_message_t);
+void send_message(hibike_message_t*);
+uint8_t calculate_checksum(hibike_message_t*);
 
 //
 // the rx buffer. max message limit of
 // 256 bytes was chosen more or less
-// arbitrarily
+// arbitrarily. we'll realistically never
+// need to send such a large message
 //
 uint8_t rx_buffer[256] = {0};
 
@@ -42,7 +41,7 @@ void hibike_init(uint8_t my_controller_id) {
 //
 void send_subscription_response(uint8_t error_code) {
   hibike_message_t m;
-  m.message_id = HIBIKE_MESSAGE.SUBSCRIPTION_RESPONSE;
+  m.message_id = SUBSCRIPTION_RESPONSE;
   m.controller_id = controller_id;
   m.payload.error_code = error_code;
   send_message(&m);
@@ -53,7 +52,7 @@ void send_subscription_response(uint8_t error_code) {
 //
 void send_subscription_sensor_update(uint8_t sensor_type_id, uint16_t len, uint8_t *data) {
   hibike_message_t m;
-  m.message_id = HIBIKE_MESSAGE.SUBSCRIPTION_SENSOR_UPDATE;
+  m.message_id = SUBSCRIPTION_SENSOR_UPDATE;
   m.controller_id = controller_id;
   m.payload.sensor_data.sensor_type_id = sensor_type_id;
   m.payload.sensor_data.sensor_reading_length = len;
@@ -67,7 +66,7 @@ void send_subscription_sensor_update(uint8_t sensor_type_id, uint16_t len, uint8
 //
 void send_error(uint8_t error_code) {
   hibike_message_t m;
-  m.message_id = HIBIKE_MESSAGE.ERROR;
+  m.message_id = ERROR;
   m.controller_id = controller_id;
   m.payload.error_code = error_code;
   send_message(&m);
@@ -84,9 +83,9 @@ void send_error(uint8_t error_code) {
 //
 hibike_message_t* receive_message() {
   if (!Serial.available()) {
-    return nullptr;
+    return NULL;
   }
-  hibike_message_t *m = (*hibike_message_t) rx_buffer;
+  hibike_message_t *m = (hibike_message_t*) rx_buffer;
   Serial.readBytes(&m->message_id, sizeof(uint8_t));
   Serial.readBytes(&m->controller_id, sizeof(uint8_t));
   switch(m->message_id) {
@@ -95,16 +94,16 @@ hibike_message_t* receive_message() {
     // or should never be sent to this type of endpoint. In
     // either case, send back an error.
     //
-    case HIBIKE_MESSAGE.SUBSCRIPTION_RESPONSE:
-    case HIBIKE_MESSAGE.SUBSCRIPTION_SENSOR_UPDATE:
-    case HIBIKE_MESSAGE.SENSOR_UPDATE:
-    case HIBIKE_MESSAGE.SENSOR_UPDATE_REQUEST:
-      send_error(ERROR.INVALID_MESSAGE_TYPE);
+    case SUBSCRIPTION_RESPONSE:
+    case SUBSCRIPTION_SENSOR_UPDATE:
+    case SENSOR_UPDATE:
+    case SENSOR_UPDATE_REQUEST:
+      send_error(INVALID_MESSAGE_TYPE);
       break;
-    case HIBIKE_MESSAGE.SUBSCRIPTION_REQUEST:
-      Serial.readBytes(&m->payload.delay, sizeof(uint32_t));
+    case SUBSCRIPTION_REQUEST:
+      Serial.readBytes((uint8_t *)&m->payload.delay, (size_t) sizeof(uint32_t));
       break;
-    case HIBIKE_MESSAGE.ERROR:
+    case ERROR:
       Serial.readBytes(&m->payload.error_code, sizeof(uint8_t));
       break;
   }
@@ -112,40 +111,36 @@ hibike_message_t* receive_message() {
   uint8_t checksum = calculate_checksum(m);
   if (!(checksum^m->checksum)) {
     //TODO: implement message retries
-    send_error(ERROR.CHECKSUM_MISMATCH);
+    send_error(CHECKSUM_MISMATCH);
   }
 }
 
 //
 // Calculates and sets the checksum for the given hibike_message
 //
-void calculate_checksum(hibike_message_t *m) {
+uint8_t calculate_checksum(hibike_message_t *m) {
   //
-  // unsupported message types
+  // (currently) unsupported message types
   //
-  if (m->message_id == HIBIKE_MESSAGE.SENSOR_UPDATE ||
-      m->message_id == HIBIKE_MESSAGE.SENSOR_UPDATE_REQUEST) {
-    return;
+  if (m->message_id == SENSOR_UPDATE ||
+      m->message_id == SENSOR_UPDATE_REQUEST) {
+    return 0;
   }
   uint8_t checksum = 0;
   checksum ^= m->message_id;
   checksum ^= m->controller_id;
   switch(m->message_id) {
-    //
-    // like above, have no need to consider these message types at
-    // this time.
-    //
-    case HIBIKE_MESSAGE.SUBSCRIPTION_REQUEST:
+    case SUBSCRIPTION_REQUEST:
       checksum ^= m->payload.delay & 0xFF;
       checksum ^= (m->payload.delay >> 8) & 0xFF;
       checksum ^= (m->payload.delay >> 16) & 0xFF;
       checksum ^= (m->payload.delay >> 24) & 0xFF;
       break;
-    case HIBIKE_MESSAGE.SUBSCRIPTION_RESPONSE:
-    case HIBIKE_MESSAGE.ERROR:
+    case SUBSCRIPTION_RESPONSE:
+    case ERROR:
       checksum ^= m->payload.error_code;
       break;
-    case HIBIKE_MESSAGE.SUBSCRIPTION_SENSOR_UPDATE:
+    case SUBSCRIPTION_SENSOR_UPDATE:
       checksum ^= m->payload.sensor_data.sensor_type_id;
       checksum ^= m->payload.sensor_data.sensor_reading_length & 0xFF;
       checksum ^= (m->payload.sensor_data.sensor_reading_length >> 8) & 0xFF;
@@ -156,7 +151,7 @@ void calculate_checksum(hibike_message_t *m) {
       }
       break;
   }
-  m->checksum = checksum;
+  return checksum;
 }
 
 //
@@ -173,23 +168,23 @@ void send_message(hibike_message_t *m) {
   // unsupported message types and messages that
   // should never be sent from this endpoint
   //
-  if (m->message_id == HIBIKE_MESSAGE.SUBSCRIPTION_REQUEST ||
-      m->message_id == HIBIKE_MESSAGE.SENSOR_UPDATE ||
-      m->message_id == HIBIKE_MESSAGE.SENSOR_UPDATE_REQUEST) {
+  if (m->message_id == SUBSCRIPTION_REQUEST ||
+      m->message_id == SENSOR_UPDATE ||
+      m->message_id == SENSOR_UPDATE_REQUEST) {
     return;
   }
-  calculate_checksum(message);
+  m->checksum = calculate_checksum(m);
   Serial.write(&m->message_id, sizeof(uint8_t));
   Serial.write(&m->controller_id, sizeof(uint8_t));
   switch(m->message_id) {
-    case HIBIKE_MESSAGE.SUBSCRIPTION_RESPONSE:
-    case HIBIKE_MESSAGE.ERROR:
+    case SUBSCRIPTION_RESPONSE:
+    case ERROR:
       Serial.write(&m->payload.error_code, sizeof(uint8_t));
       break;
-    case HIBIKE_MESSAGE.SUBSCRIPTION_SENSOR_UPDATE:
-      Serial.write(&m->payload.sensor_data.sensor_type_id, sizeof(uint8_t));
-      uint16_t len = m->payload.sensor_data.sensor_reading_length;
-      Serial.write(&len, sizeof(uint16_t));
+    case SUBSCRIPTION_SENSOR_UPDATE:
+      Serial.write(&m->payload.sensor_data.sensor_type_id, (size_t) sizeof(uint8_t));
+      size_t len = m->payload.sensor_data.sensor_reading_length;
+      Serial.write((uint8_t *) &len, (size_t) sizeof(uint16_t));
       Serial.write(m->payload.sensor_data.data, len);
       break;
   }

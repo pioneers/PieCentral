@@ -6,7 +6,7 @@ summer iteration of the PiE Robotics Kit, a.k.a Frank or "Kit Minimum" to some.
 ## Section 0: A Quick Introduction
 
 We make a few starting assumptions concerning the endpoints of communication. Namely, the device
-controlling a sensor is an Arduino of some sort (likely a Micro), and a Beaglebone Black is used as
+controlling a sensor is an Arduino of some sort (likely a Nano), and a Beaglebone Black is used as
 the central control board of each robot and thus is in charge of communicating with each Arduino.
 These two communicate with each other via serial: the Beaglebone running pySerial and the Arduino by
 using the built-in serial library. As each Arduino communicates with the Beaglebone on its own separate

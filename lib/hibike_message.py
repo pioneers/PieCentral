@@ -42,6 +42,9 @@ class HibikeMessageException(Exception):
     def __str__(self):
         return repr(self.value)
 
+def getByte(value, index):
+    return (value >> (index*8)) & 0xFF
+
 """
 A Hibike message.
 Each hibike message, aside from the properties defined in the spec
@@ -93,7 +96,7 @@ class HibikeMessage:
             # verify that self.payload contains sensorTypeId, sensorReadingLength,
             # and data and that each field is sensible.
         elif self.messageId is HibikeMessageType.Error:
-            assert isinstance(payload, Error)
+            assert isinstance(self.payload, Error)
         else:
             raise HibikeMessageException('Message type currently unsupported.')
 
@@ -108,30 +111,29 @@ class HibikeMessage:
             pass
         elif self.messageId == HibikeMessageType.SubscriptionResponse or \
              self.messageId == HibikeMessageType.Error:
-            checksum ^= self.payload & 0xFF
+            checksum ^= self.payload.value & 0xFF
         elif self.messageId == HibikeMessageType.SubscriptionSensorUpdate:
-            checksum ^= payload['sensorTypeId']
-            checksum ^= payload['sensorReadingLength'] & 0xFF
-            checksum ^= (payload['sensorReadingLength'] >> 8) & 0xFF
-            length = payload['sensorReadingLength']
-            data = payload['reading']
+            checksum ^= self.payload['sensorTypeId'].value & 0xFF
+            checksum ^= self.payload['sensorReadingLength'] & 0xFF
+            checksum ^= (self.payload['sensorReadingLength'] >> 8) & 0xFF
+            length = self.payload['sensorReadingLength']
+            data = self.payload['reading']
             for i in range(length):
-                checksum ^= __getByte(data, i)
+                checksum ^= getByte(data, i)
         else:
             raise HibikeMessageExeption
         return checksum
 
-    def __getByte(value, index):
-        return (value >> (index*8)) & 0xFF
-
-    # kludged for now to only be able to send SubscriptionRequests
     # TODO: fix to be able to send other message types too
     def sendMessage(self):
         self.checksum = self.calculateChecksum()
-        message = struct.pack('<BBIB', self.messageId.value, self.controllerId,
-                                       self.payload, self.checksum)
-        self.__port.write(message)
-
+        self.__port.write(struct.pack('<B', self.messageId.value))
+        self.__port.write(struct.pack('<B', self.controllerId))
+        if self.messageId == HibikeMessageType.SubscriptionRequest:
+            self.__port.write(struct.pack('<I', self.payload))
+        else:
+            self.__port.write(struct.pack('<B', self.payload.value))
+        self.__port.write(struct.pack('<B', self.checksum))
 
 """
 Sends a subscriptionSensorRequest that requests new sensor
@@ -147,16 +149,14 @@ Receives a Hibike Message from the given serial port.
 Returns None if no data is available on the serial port.
 """
 def receiveHibikeMessage(port):
-    payload = None
     if port.inWaiting() == 0:
         return None
+    payload = None
     messageId = HibikeMessageType(struct.unpack('<B', port.read(1))[0])
     controllerId = struct.unpack('<B', port.read(1))[0]
     if messageId == HibikeMessageType.SubscriptionResponse:
-        print('got subscription response');
         payload = SubscriptionResponse(struct.unpack('<B', port.read(1))[0])
     elif messageId == HibikeMessageType.Error:
-        print('got error')
         payload = Error(struct.unpack('<B', port.read(1))[0])
     elif messageId == HibikeMessageType.SubscriptionSensorUpdate or \
          messageId == HibikeMessageType.SensorUpdate:
@@ -169,7 +169,7 @@ def receiveHibikeMessage(port):
         payload['reading'] = struct.unpack('<B', port.read(payload['sensorReadingLength']))[0]
     checksum = struct.unpack('<B', port.read(1))[0]
     message = HibikeMessage(messageId, controllerId, payload, port)
-    if message.calculateChecksum() != message.checksum:
+    if message.calculateChecksum() != checksum:
         errorMessage = HibikeMessage(HibikeMessageType.Error, controllerId, Error.ChecksumMismatch, port)
         errorMessage.sendMessage()
         raise HibikeMessageExeption("incorrect checksum")

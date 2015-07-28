@@ -53,9 +53,6 @@ port it should be sent over, allowing it to essentially sent itself
 using HibikeMessage.send().
 """
 class HibikeMessage:
-    # the serial port this message should be sent over.
-    __port = None
-
     # an integer containing the message_id of this message
     # see the HibikeMessageType enum.
     messageId = None
@@ -72,12 +69,11 @@ class HibikeMessage:
     # immediately upon receiving one.
     checksum = None
 
-    def __init__(self, messageId, controllerId, payload, port):
+    def __init__(self, messageId, controllerId, payload):
         self.messageId = messageId
         self.controllerId = controllerId
         self.payload = payload
         self.__verifyMessage()
-        self.__port = port
 
     """
     Ensures that the message constructed appears to be sane.
@@ -124,25 +120,22 @@ class HibikeMessage:
             raise HibikeMessageExeption
         return checksum
 
-    # TODO: fix to be able to send other message types too
-    def sendMessage(self):
-        self.checksum = self.calculateChecksum()
-        self.__port.write(struct.pack('<B', self.messageId.value))
-        self.__port.write(struct.pack('<B', self.controllerId))
-        if self.messageId == HibikeMessageType.SubscriptionRequest:
-            self.__port.write(struct.pack('<I', self.payload))
-        else:
-            self.__port.write(struct.pack('<B', self.payload.value))
-        self.__port.write(struct.pack('<B', self.checksum))
-
 """
-Sends a subscriptionSensorRequest that requests new sensor
-data every delay ms to controllerId over port.
+Send HibikeMessage m over port
 """
-def sendSubscriptionRequest(delay, controllerId, port):
-    message = HibikeMessage(HibikeMessageType.SubscriptionRequest,
-                            controllerId, delay, port)
-    message.sendMessage()
+def sendHibikeMessage(m, port):
+    # TODO: fix to be able to send every message type.
+    #       it's also definitely better to send the entire message
+    #       at once as opposed to marshalling and sending off
+    #       small parts
+    m.checksum = m.calculateChecksum()
+    port.write(struct.pack('<B', m.messageId.value))
+    port.write(struct.pack('<B', m.controllerId))
+    if m.messageId == HibikeMessageType.SubscriptionRequest:
+        port.write(struct.pack('<I', m.payload))
+    else:
+        port.write(struct.pack('<B', m.payload.value))
+    port.write(struct.pack('<B', m.checksum))
 
 """
 Receives a Hibike Message from the given serial port.
@@ -174,3 +167,13 @@ def receiveHibikeMessage(port):
         errorMessage.sendMessage()
         raise HibikeMessageExeption("incorrect checksum")
     return message
+
+"""
+Sends a subscriptionSensorRequest that requests new sensor
+data every delay ms to controllerId over port.
+"""
+def sendSubscriptionRequest(delay, controllerId, port):
+    message = HibikeMessage(HibikeMessageType.SubscriptionRequest,
+                            controllerId, delay, port)
+    sendHibikeMessage(message, port);
+

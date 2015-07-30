@@ -3,7 +3,7 @@ import sys
 import serial
 import time
 
-sys.path.append(os.getcwd()+'/lib');
+sys.path.append(os.getcwd()+'/../lib');
 from hibike_message import *
 
 global sensorType

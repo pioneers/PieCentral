@@ -1,45 +1,47 @@
-#include "hibike_message.h"
+#include "../lib/hibike_message.h"
 
 #define IN_PIN 1
+#define CONTROLLER_ID 0 // arbitrarily chosen for now
 
 uint32_t data;
-uint64_t time_last_message_sent;
+uint64_t timeLastMessageSent;
 
-bool subscribed = false;
-uint32_t subscription_delay;
+uint32_t subscriptionDelay;
 
-hibike_message_t* m;
+std::unique_ptr<HibikeMessage> m;
 
 void setup() {
-  hibike_init(0); // ID arbitrarily chosen for now
+  Serial.begin(115200);
   pinMode(IN_PIN, INPUT);
 }
 
 void loop() {
-  data = analogRead(IN_PIN);
-  uint64_t curr_time = millis();
-  if (subscribed && curr_time - time_last_message_sent > subscription_delay) {
-    send_subscription_update(0x01, sizeof(data), &data);
-    time_last_message_sent = curr_time;
+  data = digitalRead(IN_PIN);
+
+  // uncomment the line below for fun data spoofing
+  // data = (uint8_t) millis() & 0xFF;
+
+  uint64_t currTime = millis();
+  if (subscriptionDelay && currTime - timeLastMessageSent > subscriptionDelay) {
+    SubscriptionSensorUpdate(CONTROLLER_ID, SensorType.LineFollower,
+                             sizeof(data), (uint8_t*) &data).send();
+    timeLastMessageSent = currTime;
   }
-  m = recieve_message();
+  m.reset(receiveHibikeMessage());
+  // need to check up on whether a unique_ptr containing null evaluates to false
   if (m) {
-    switch (m->message_id) {
-      case 0x00;
-        // TODO: actually validate the result and send back
-        //       descriptive errors if something failed
-        send_subscription_response(0x00);
-        if (m->payload.delay) {
-          subscribed = true;
-          subscription_delay = m->payload.delay;
-        } else {
-          subscribed = false;
-        }
+    switch (m->getMessageId()) {
+      case HibikeMessageType.SubscriptionRequest:
+        uint32_t sd = m->getSubscriptionDelay();
+        subscriptionDelay = sd;
+        SubscriptionResponse(CONTROLLER_ID).send();
         break;
-      case 0xFF:
-        // TODO: implement better error handling
+      case HibikeMessageType.Error:
+        // TODO: implement error handling and retries
         break;
-      // TODO: implement other message types
+      default:
+        // TODO: implement other message types
+        break;
     }
   }
 }

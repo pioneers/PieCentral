@@ -19,7 +19,6 @@ void SubscriptionResponse::calculateChecksum() {
   uint8_t cs = 0;
   cs ^= messageId;
   cs ^= controllerId;
-  cs ^= errorCode;
   checksum = cs;
   checksumCalculated = true;
 }
@@ -61,7 +60,6 @@ void SubscriptionRequest::send() {
 void SubscriptionResponse::send() {
   Serial.write(messageId);
   Serial.write(controllerId);
-  Serial.write(errorCode);
   Serial.write(checksum);
 }
 
@@ -117,12 +115,12 @@ std::unique_ptr<HibikeMessage> receiveHibikeMessage() {
       break;
     default:
       // TODO: implement missing message types
-      Error(controllerId, Error.InvalidMessageType).send();
+      Error(controllerId, ErrorCode.InvalidMessageType).send();
   }
   Serial.readBytes(&checksum, 1);
   if (checksum ^ m.getChecksum()) {
     // send an error back to the main controller if the checksums aren't identical
-    Error(controllerId, Error.ChecksumMismatch).send();
+    Error(controllerId, ErrorCode.ChecksumMismatch).send();
   }
   return unique_ptr<HibikeMessage>(m);
 }

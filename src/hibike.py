@@ -13,7 +13,7 @@ sensorType = None
 dataLength = None
 data = None
 
-port = serial.Serial('/dev/tty.usbmodem1411', 57600)
+port = serial.Serial('/dev/tty.usbmodem1411', 115200)
 last_time = time.time()
 
 

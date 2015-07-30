@@ -2,6 +2,7 @@
 #define HIBIKE_H
 #include "Arduino.h"
 #include "assert.h"
+#include <memory>
 
 enum class HibikeMessageType {
   SubscriptionRequest,
@@ -12,17 +13,12 @@ enum class HibikeMessageType {
   Error = 0xFF,
 }
 
-enum class SubscriptionResponse {
-  Success,
-  GenericError = 0xFF,
-}
-
 enum class SensorType {
   LimitSwitch,
   LineFollower,
 }
 
-enum class Error {
+enum class ErrorCode {
   InvalidMessageType = 0xFB,
   MalformedMessage = 0xFC,
   InvalidArduinoId = 0xFD,
@@ -72,18 +68,12 @@ class SubscriptionRequest : public HibikeMessage
 
 class SubscriptionResponse : public HibikeMessage
 {
-  private:
-    uint8_t errorCode;
-
   public:
-    SubscriptionResponse(uint8_t cId, uint8_t ec):
+    SubscriptionResponse(uint8_t cId):
       HibikeMessage(HibikeMessageType.SubscriptionResponse, cId),
-      errorCode(ec)
     {
       calculateChecksum();
     }
-
-    uint8_t getErrorCode() { return errorCode; }
 };
 
 class SubscriptionSensorUpdate : public HibikeMessage

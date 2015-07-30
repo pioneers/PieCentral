@@ -84,17 +84,8 @@ from the Arduino. The payload of a SubscriptionRequest is a single unsigned, 32-
 specifies the delay between sensor readings in milliseconds. Sending a 0 signals the receiving Arduino
 to stop sending sensor readings entirely.
 
-Upon receiving a Subscription Request, the Arduino sends back a Subscription Response, which has
-payload consisting only of a single 8-bit integer which is 0 upon success and otherwise holds some
-nonzero status code. A table of status codes is given below (more error codes will be added as needed).
-
-    +---------+---------------+
-    | Status  |    Meaning    |
-    +-------------------------+
-    |    0    |    SUCCESS    |
-    +-------------------------+
-    |   0xFF  | Generic Error |
-    +-------------------------+
+Upon receiving a Subscription Request, the Arduino sends back a Subscription Response, which has an
+empty payload and is sent only to signify proper receival of the SubscriptionRequest.
 
 ## Section 4: SubscriptionSensorUpdates and SensorUpdates
 The Subscription Sensor Update is sent periodically according to the specified delay between messages

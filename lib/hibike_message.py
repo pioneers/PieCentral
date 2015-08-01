@@ -52,6 +52,12 @@ class HibikeMessage:
         return self.__controllerId
     def getChecksum():
         return self.__checksum
+    # relatively ghetto way of forcing overrides of __calculateChecksum() and send()
+    # without using python's builtin abstract base class which has all sorts of weirdness
+    def __calculateChecksum():
+        raise HibikeMessageException("Must override the HibikeMessage __calculateChecksum method.");
+    def send():
+        raise HibikeMessageException("Must override the HibikeMessage send method.");
 
 class SubscriptionRequest(HibikeMessage):
     def __init__(self, controllerId, subscriptionDelay, serial):
@@ -63,7 +69,12 @@ class SubscriptionRequest(HibikeMessage):
     def getSubscriptionDelay():
         return self.__subscriptionDelay
     def __calculateChecksum():
-        pass
+        self.__checksum ^= self.__messageId.value
+        self.__checksum ^= self.__controllerId
+        self.__checksum ^= getByte(self.__subscriptionDelay, 0)
+        self.__checksum ^= getByte(self.__subscriptionDelay, 1)
+        self.__checksum ^= getByte(self.__subscriptionDelay, 2)
+        self.__checksum ^= getByte(self.__subscriptionDelay, 3)
     def send():
         pass
 
@@ -73,7 +84,8 @@ class SubscriptionResponse(HibikeMessage):
                                controllerId, serial)
         self.__calculateChecksum()
     def __calculateChecksum():
-        pass
+        self.__checksum ^= self.__messageId.value
+        self.__checksum ^= self.__controllerId
     def send():
         pass
 
@@ -96,7 +108,13 @@ class SubscriptionSensorUpdate(HibikeMessage):
     def getData():
         return self.__data
     def __calculateChecksum():
-        pass
+        self.__checksum ^= self.__messageId.value
+        self.__checksum ^= self.__controllerId
+        self.__checksum ^= self.__sensorTypeId.value
+        self.__checksum ^= getByte(self.__sensorReadingLength, 0)
+        self.__checksum ^= getByte(self.__sensorReadingLength, 1)
+        for i in range(self.__sensorReadingLength):
+            self.__checksum ^= getByte(self.__data, i)
     def send():
         pass
 
@@ -109,7 +127,9 @@ class Error(HibikeMessage):
     def getErrorCode():
         return self.__errorCode
     def __calculateChecksum():
-        pass
+        self.__checksum ^= self.__messageId.value
+        self.__checksum ^= self.__controllerId
+        self.__checksum ^= self.__errorCode.value
     def send():
         pass
 

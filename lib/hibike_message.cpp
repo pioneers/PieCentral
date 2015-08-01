@@ -3,46 +3,51 @@
 //// CLASS METHOD IMPLEMENTATIONS //////////////////////////////////////////////
 
 //// FUN WITH CHECKSUMS //////////////////////////////////////////////
+
 void SubscriptionRequest::calculateChecksum() {
-  uint8_t cs = 0;
-  cs ^= messageId;
-  cs ^= controllerId;
-  cs ^= subscriptionDelay & 0xFF;
-  cs ^= (subscriptionDelay >> 8) & 0xFF;
-  cs ^= (subscriptionDelay >> 16) & 0xFF;
-  cs ^= (subscriptionDelay >> 24) & 0xFF;
-  checksum = cs;
+  if (checksumCalculated) {
+    return;
+  }
+  checksum ^= messageId;
+  checksum ^= controllerId;
+  checksum ^= subscriptionDelay & 0xFF;
+  checksum ^= (subscriptionDelay >> 8) & 0xFF;
+  checksum ^= (subscriptionDelay >> 16) & 0xFF;
+  checksum ^= (subscriptionDelay >> 24) & 0xFF;
   checksumCalculated = true;
 }
 
 void SubscriptionResponse::calculateChecksum() {
-  uint8_t cs = 0;
-  cs ^= messageId;
-  cs ^= controllerId;
-  checksum = cs;
+  if (checksumCalculated) {
+    return;
+  }
+  checksum ^= messageId;
+  checksum ^= controllerId;
   checksumCalculated = true;
 }
 
 void SubscriptionSensorUpdate::calculateChecksum() {
-  uint8_t cs = 0;
-  cs ^= messageId;
-  cs ^= controllerId;
-  cs ^= sensorTypeId;
-  cs ^= sensorReadingLength & 0xFF
-  cs ^= (sensorReadingLength >> 8) & 0xFF
-  for (int i = 0; i < sensorReadingLength; i++) {
-    cs ^= *(dataPtr+i) & 0xFF;
+  if (checksumCalculated) {
+    return;
   }
-  checksum = cs;
+  checksum ^= messageId;
+  checksum ^= controllerId;
+  checksum ^= sensorTypeId;
+  checksum ^= sensorReadingLength & 0xFF
+  checksum ^= (sensorReadingLength >> 8) & 0xFF
+  for (int i = 0; i < sensorReadingLength; i++) {
+    checksum ^= *(dataPtr+i) & 0xFF;
+  }
   checksumCalculated = true;
 }
 
 void Error::calculateChecksum() {
-  uint8_t cs = 0;
-  cs ^= messageId;
-  cs ^= controllerId;
-  cs ^= errorCode
-  checksum = cs;
+  if (checksumCalculated) {
+    return;
+  }
+  checksum ^= messageId;
+  checksum ^= controllerId;
+  checksum ^= errorCode
   checksumCalculated = true;
 }
 
@@ -51,6 +56,7 @@ void Error::calculateChecksum() {
 // Note: we assume that Serial (from the Arduino libraries) has already
 // been imported
 void SubscriptionRequest::send() {
+  calculateChecksum()
   Serial.write(messageId);
   Serial.write(controllerId);
   Serial.write((uint8_t*) &subscriptionDelay, sizeof(uint32_t));
@@ -58,12 +64,14 @@ void SubscriptionRequest::send() {
 }
 
 void SubscriptionResponse::send() {
+  calculateChecksum()
   Serial.write(messageId);
   Serial.write(controllerId);
   Serial.write(checksum);
 }
 
 void SubscriptionSensorUpdate::send() {
+  calculateChecksum()
   Serial.write(messageId);
   Serial.write(controllerId);
 
@@ -75,6 +83,7 @@ void SubscriptionSensorUpdate::send() {
 }
 
 void Error::send() {
+  calculateChecksum()
   Serial.write(messageId);
   Serial.write(controllerId);
   Serial.write(errorCode);
@@ -88,8 +97,8 @@ void Error::send() {
 //
 // Note that Arduino's Serial.readBytes function automatically
 // waits until either the given number of bytes are successfully
-// read or a timeout occurs (defaults to 1000ms, but this is an 
-// eternity for our use case so we should probably change this to a 
+// read or a timeout occurs (defaults to 1000ms, but this is an
+// eternity for our use case so we should probably change this to a
 // few ms at most).
 //
 std::unique_ptr<HibikeMessage> receiveHibikeMessage() {

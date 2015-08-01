@@ -8,8 +8,6 @@ enum class HibikeMessageType {
   SubscriptionRequest,
   SubscriptionResponse,
   SubscriptionSensorUpdate,
-  SensorUpdateRequest,
-  SensorUpdate,
   Error = 0xFF,
 }
 

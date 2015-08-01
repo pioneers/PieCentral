@@ -8,8 +8,6 @@ class HibikeMessageType(Enum):
     SubscriptionRequest      = 0x00
     SubscriptionResponse     = 0x01
     SubscriptionSensorUpdate = 0x02
-    SensorUpdateRequest      = 0x03
-    SensorUpdate             = 0x04
     Error                    = 0xFF
 
 """
@@ -168,7 +166,7 @@ class Error(HibikeMessage):
 
 def receiveHibikeMessage(serial):
     assert serial is not None
-    if (serial.inWaiting() is 0):
+    if serial.inWaiting() is 0:
         return None
     m = None
     messageId = HibikeMessageType(struct.unpack('<B', serial.read(1))[0])

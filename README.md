@@ -66,14 +66,6 @@ Checksum   - An 8-bit checksum placed at the very end of every message. Really, 
     |    | SensorUpdate | Beaglebone at the frequency set by the most        |            |
     |    |              | recently received SubscriptionRequest.             |            |
     +------------------------------------------------------------------------+-------------
-    | 3  | SensorUpdate | Sent from Beaglebone->Arduino to essentially mean  |  Section 5 |
-    |    |   Request    | "drop everything that you're doing and give me a   |            |
-    |    |              | sensor update NOW"                                 |            |
-    +------------------------------------------------------------------------+-------------
-    | 4  | SensorUpdate | A response to the message type above. Essentially  |  Section 4 |
-    |    |              | identical to a SubscriptionSensorUpdate aside from |            |
-    |    |              | its message ID and high priority.                  |            |
-    +----+--------------+----------------------------------------------------+------------+
     |0xFF|    Error     | An error of some sort. More details given in the   |  Section 6 |
     |    |              | status code passed in the payload.                 |            |
     +----+--------------+----------------------------------------------------+------------+
@@ -87,7 +79,7 @@ to stop sending sensor readings entirely.
 Upon receiving a Subscription Request, the Arduino sends back a Subscription Response, which has an
 empty payload and is sent only to signify proper receival of the SubscriptionRequest.
 
-## Section 4: SubscriptionSensorUpdates and SensorUpdates
+## Section 4: SubscriptionSensorUpdates
 The Subscription Sensor Update is sent periodically according to the specified delay between messages
 given to an Arduino in a Subscription Request. Only one reading is sent per SubscriptionSensorUpdate,
 and the format of the payload of a SubscriptionSensorUpdate is as given in the diagram below.
@@ -101,9 +93,6 @@ What each of these types are for is self-explanatory. Interpretation of the data
 reading is out of the scope of this protocol, and a section on sensor types will be added in as the
 types of sensors provided in the kit are decided upon.
 
-SensorUpdates are formatted identically to SubscriptionSensorUpdates, but they are sent in response
-to SensorUpdate requests a single time and not periodically.
-
 A table of Sensor Types is given below.
 
     +---------+---------------+
@@ -113,15 +102,6 @@ A table of Sensor Types is given below.
     +-------------------------+
     |    1    | Line Follower |
     +-------------------------+
-
-
-## Section 5: Sensor Update Requests
-SensorUpdateRequests essentially provide a method of requesting data from the Arduino as soon as
-possible as opposed to periodically. This message type has no payload.
-
-Upon receiving a SensorUpdateRequest, an Arduino should respond with a SensorUpdate as quickly as
-possible. The formatting of a SensorUpdate is identical to that of a SubscriptionSensorUpdate
-described in the section above.
 
 ## Section 6: Errors
 What this message type is for should be self explanatory. The payload of an error is a simple 8-bit

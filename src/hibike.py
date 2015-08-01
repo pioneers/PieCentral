@@ -13,36 +13,33 @@ sensorType = None
 dataLength = None
 data = None
 
-port = serial.Serial('/dev/tty.usbmodem1411', 115200)
-last_time = time.time()
-
+# note that this has to be hard coded until enumeration works
+serial = serial.Serial('/dev/tty.usbmodem1411', 115200)
+lastTime = None
 
 raw_input('press enter to subscribe to sensor data...')
 
 while True:
     print('sending subscription request...')
-    sendSubscriptionRequest(10, 0, port)
+    SubscriptionRequest(0, 10, serial).send()
     time.sleep(.015);
-    m = receiveHibikeMessage(port)
-    if m is not None and \
-       m.messageId == HibikeMessageType.SubscriptionResponse and \
-       m.payload == SubscriptionResponse.Success:
+    m = receiveHibikeMessage(serial)
+    if m is not None and m.getMessageId() is HibikeMessageType.SubscriptionResponse:
         print('Successfully subscribed to receive sensor readings.')
+        lastTime = time.time()
         break
-    elif m is not None: #TODO: proper error handling
-        print(m.messageId)
-        print(m.payload)
+    elif m is not None: #TODO: write proper error handling
+        print(m.getMessageId())
 
 while True:
-    m = receiveHibikeMessage(port);
+    m = receiveHibikeMessage(serial);
     if m is not None:
-        if m.messageId == HibikeMessageType.SubscriptionSensorUpdate:
-            sensorType = m.payload['sensorTypeId']
-            dataLength = m.payload['sensorReadingLength']
-            data = m.payload['reading']
-
-            cur_time = time.time()
+        if m.getMessageId() is HibikeMessageType.SubscriptionSensorUpdate:
+            sensorType = m.getSensorTypeId()
+            dataLength = m.getSensorReadingLength()
+            data = m.getData()
+            curTime = time.time()
             print('sensor reading: ' + str(data))
-            print('time elapsed in ms since last reading: ' + str(1000*(cur_time - last_time)))
-            last_time = cur_time
+            print('time elapsed in ms since last reading: '+str(1000*(curTime-lastTime)))
+            lastTime = curTime
         #TODO: more proper error handling

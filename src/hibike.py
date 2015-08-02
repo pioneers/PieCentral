@@ -34,7 +34,7 @@ while True:
 while True:
     m = receiveHibikeMessage(serial);
     if m is not None:
-        if m.getMessageId() is HibikeMessageType.SubscriptionSensorUpdate:
+        if m.getMessageId() is HibikeMessageType.SensorUpdate:
             sensorType = m.getSensorTypeId()
             dataLength = m.getSensorReadingLength()
             data = m.getData()

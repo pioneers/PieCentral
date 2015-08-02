@@ -13,13 +13,10 @@ using the built-in serial library. As each Arduino communicates with the Beagleb
 port, we conveniently have no need to worry about any race conditions or other problems arising from
 concurrency.
 
-The hibike protocol works mostly using subscriptions. The Beaglebone begins communication by sending
+The hibike protocol works using subscriptions. The Beaglebone begins communication by sending
 a request to the Arduino, which then proceeds to periodically send sensor data to the  Beaglebone at
 intervals set by the request message. The latest sensor update received from an Arduino is stored, and
 a student polling for sensor data will be given this cached value.
-
-While hibike is designed to mostly use subscriptions, it does offer support for the controlling Beaglebone
-to explicitly request data from an Arduino to be returned ASAP.
 
 Finally, we note that code for a COBS-encoding scheme can and should be stolen from the preexisting
 Tenshi codebase and then never thought about again.
@@ -59,30 +56,30 @@ Checksum   - An 8-bit checksum placed at the very end of every message. Really, 
     |    |              | frequency.                                         |            |
     +------------------------------------------------------------------------+-------------
     | 1  | Subscription | Sent from Arduino->Beaglebone with either a        |  Section 3 |
-    |    |   Response   | confirmation of the received Subscription Request  |            |
+    |    |   Response   | confirmation of the received SubscriptionRequest   |            |
     |    |              | or an error code.                                  |            |
     +------------------------------------------------------------------------+-------------
-    | 2  | Subscription | A sensor reading update sent from Arduino to       |  Section 4 |
-    |    | SensorUpdate | Beaglebone at the frequency set by the most        |            |
+    | 2  | SensorUpdate | A sensor reading update sent from Arduino to       |  Section 4 |
+    |    |              | Beaglebone at the frequency set by the most        |            |
     |    |              | recently received SubscriptionRequest.             |            |
     +------------------------------------------------------------------------+-------------
     |0xFF|    Error     | An error of some sort. More details given in the   |  Section 6 |
     |    |              | status code passed in the payload.                 |            |
     +----+--------------+----------------------------------------------------+------------+
 
-## Section 3: Subscription Requests and Responses
-A Subscription Request is sent from BeagleBone->Arduino to set up periodic sensor reading updates
+## Section 3: SubscriptionRequests and SubscriptionResponses
+A SubscriptionRequest is sent from BeagleBone->Arduino to set up periodic sensor reading updates
 from the Arduino. The payload of a SubscriptionRequest is a single unsigned, 32-bit integer that
 specifies the delay between sensor readings in milliseconds. Sending a 0 signals the receiving Arduino
 to stop sending sensor readings entirely.
 
-Upon receiving a Subscription Request, the Arduino sends back a Subscription Response, which has an
+Upon receiving a SubscriptionRequest, the Arduino sends back a SubscriptionResponse, which has an
 empty payload and is sent only to signify proper receival of the SubscriptionRequest.
 
-## Section 4: SubscriptionSensorUpdates
-The Subscription Sensor Update is sent periodically according to the specified delay between messages
-given to an Arduino in a Subscription Request. Only one reading is sent per SubscriptionSensorUpdate,
-and the format of the payload of a SubscriptionSensorUpdate is as given in the diagram below.
+## Section 4: SensorUpdates
+The SensorUpdate is sent periodically according to the specified delay between messages
+given to an Arduino in a SubscriptionRequest. Only one reading is sent per SensorUpdate,
+and the format of the payload of a SensorUpdate is as given in the diagram below.
 
     +---------------+--------------------+------------------------------------+
     |  Sensor Type  |   Reading Length   |               Sensor               |
@@ -93,10 +90,10 @@ What each of these types are for is self-explanatory. Interpretation of the data
 reading is out of the scope of this protocol, and a section on sensor types will be added in as the
 types of sensors provided in the kit are decided upon.
 
-A table of Sensor Types is given below.
+A table of SensorTypes is given below.
 
     +---------+---------------+
-    |  Code   |    Sensor     |
+    |   ID    |    Sensor     |
     +-------------------------+
     |    0    | Limit Switch  |
     +-------------------------+

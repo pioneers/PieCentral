@@ -5,10 +5,10 @@ from enum import Enum
 Message IDs for each type of hibike message.
 """
 class HibikeMessageType(Enum):
-    SubscriptionRequest      = 0x00
-    SubscriptionResponse     = 0x01
-    SubscriptionSensorUpdate = 0x02
-    Error                    = 0xFF
+    SubscriptionRequest  = 0x00
+    SubscriptionResponse = 0x01
+    SensorUpdate         = 0x02
+    Error                = 0xFF
 
 """
 Sensor Type IDs.
@@ -103,10 +103,9 @@ class SubscriptionResponse(HibikeMessage):
         self.__serial.write(struct.pack('<B', self.__controllerId))
         self.__serial.write(struct.pack('<B', self.__checksum))
 
-class SubscriptionSensorUpdate(HibikeMessage):
+class SensorUpdate(HibikeMessage):
     def __init__(self, controllerId, sensorTypeId, sensorReadingLength, data, serial = None):
-        HibikeMessage.__init__(self, HibikeMessageType.SubscriptionSensorUpdate,
-                               controllerId, serial)
+        HibikeMessage.__init__(self, HibikeMessageType.SensorUpdate, controllerId, serial)
         assert isinstance(sensorTypeId, SensorType)
         # assert uint8
         self.__sensorTypeId = sensorTypeId
@@ -175,15 +174,14 @@ def receiveHibikeMessage(serial):
     if messageId is HibikeMessageType.SubscriptionResponse:
         m = SubscriptionResponse(controllerId, serial)
 
-    elif messageId is HibikeMessageType.SubscriptionSensorUpdate:
+    elif messageId is HibikeMessageType.SensorUpdate:
         sensorTypeId = SensorType(struct.unpack('<B', serial.read(1))[0])
         sensorReadingLength = struct.unpack('<H', serial.read(2))
         data = 0
         for i in range(sensorReadingLength):
             #FIXME: check on endianness
             data = data << 8 | struct.unpack('<B', serial.read(1))
-        m = SubscriptionSensorUpdate(controllerId, sensorTypeId,
-                                     sensorReadingLength, data, serial)
+        m = SensorUpdate(controllerId, sensorTypeId, sensorReadingLength, data, serial)
 
     elif messageId is HibikeMessageType.Error:
         errorCode = ErrorCode(struct.unpack('<B', serial.read(1))[0])

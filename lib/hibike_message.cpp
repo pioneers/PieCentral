@@ -26,7 +26,7 @@ void SubscriptionResponse::calculateChecksum() {
   checksumCalculated = true;
 }
 
-void SubscriptionSensorUpdate::calculateChecksum() {
+void SensorUpdate::calculateChecksum() {
   if (checksumCalculated) {
     return;
   }
@@ -70,7 +70,7 @@ void SubscriptionResponse::send() {
   Serial.write(checksum);
 }
 
-void SubscriptionSensorUpdate::send() {
+void SensorUpdate::send() {
   calculateChecksum()
   Serial.write(messageId);
   Serial.write(controllerId);

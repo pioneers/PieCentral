@@ -23,8 +23,8 @@ void loop() {
 
   uint64_t currTime = millis();
   if (subscriptionDelay && currTime - timeLastMessageSent > subscriptionDelay) {
-    SubscriptionSensorUpdate(CONTROLLER_ID, SensorType.LimitSwitch,
-                             sizeof(data), (uint8_t*) &data).send();
+    SensorUpdate(CONTROLLER_ID, SensorType.LimitSwitch,
+                 sizeof(data), (uint8_t*) &data).send();
     timeLastMessageSent = currTime;
   }
   m.reset(receiveHibikeMessage());

@@ -7,7 +7,7 @@
 enum class HibikeMessageType {
   SubscriptionRequest,
   SubscriptionResponse,
-  SubscriptionSensorUpdate,
+  SensorUpdate,
   Error = 0xFF,
 }
 
@@ -18,10 +18,10 @@ enum class SensorType {
 
 enum class ErrorCode {
   InvalidMessageType = 0xFB,
-  MalformedMessage = 0xFC,
-  InvalidArduinoId = 0xFD,
-  ChecksumMismatch = 0xFE,
-  GenericError = 0xFF,
+  MalformedMessage   = 0xFC,
+  InvalidArduinoId   = 0xFD,
+  ChecksumMismatch   = 0xFE,
+  GenericError       = 0xFF,
 }
 
 //// CLASS DEFINITIONS //////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ class SubscriptionResponse : public HibikeMessage
       HibikeMessage(HibikeMessageType.SubscriptionResponse, cId) {}
 };
 
-class SubscriptionSensorUpdate : public HibikeMessage
+class SensorUpdate : public HibikeMessage
 {
   private:
     uint8_t sensorTypeId;
@@ -78,8 +78,8 @@ class SubscriptionSensorUpdate : public HibikeMessage
     uint8_t *dataPtr;
 
   public:
-    SubscriptionSensorUpdate(uint8_t cId, uint8_t sId, uint16_t srl, uint8_t *p):
-      HibikeMessage(HibikeMessageType.SubscriptionSensorUpdate, cId),
+    SensorUpdate(uint8_t cId, uint8_t sId, uint16_t srl, uint8_t *p):
+      HibikeMessage(HibikeMessageType.SensorUpdate, cId),
       sensorTypeId(sId),
       sensorReadingLength(srl),
       dataPtr(p) {}

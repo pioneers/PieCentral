@@ -63,7 +63,7 @@ Checksum   - An 8-bit checksum placed at the very end of every message. Really, 
     |    |              | Beaglebone at the frequency set by the most        |            |
     |    |              | recently received SubscriptionRequest.             |            |
     +------------------------------------------------------------------------+-------------
-    |0xFF|    Error     | An error of some sort. More details given in the   |  Section 6 |
+    |0xFF|    Error     | An error of some sort. More details given in the   |  Section 5 |
     |    |              | status code passed in the payload.                 |            |
     +----+--------------+----------------------------------------------------+------------+
 
@@ -100,7 +100,7 @@ A table of SensorTypes is given below.
     |    1    | Line Follower |
     +-------------------------+
 
-## Section 6: Errors
+## Section 5: Errors
 What this message type is for should be self explanatory. The payload of an error is a simple 8-bit
 integer which holds the status code of the error. A table of error codes is given below.
 

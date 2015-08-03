@@ -1,3 +1,10 @@
+/**
+ * A component representing a motor.
+ * Props:
+ *   id: a unique id string
+ *   speed: the speed, from 0 to 100.
+ */
+
 import React from 'react';
 import {Label, ProgressBar} from 'react-bootstrap';
 

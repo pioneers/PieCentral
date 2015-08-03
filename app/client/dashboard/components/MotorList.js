@@ -1,7 +1,12 @@
+/**
+ * A self-contained component that displays all the currently
+ * connected motors from RemoteRobotStore.
+ */
+
 import React from 'react';
-import RemoteRobotStore from '../../stores/RemoteRobotStore';
+import RemoteRobotStore from '../stores/RemoteRobotStore';
 import Motor from './Motor';
-import {Panel} from 'react-bootstrap';
+import PeripheralList from './PeripheralList';
 import _ from 'lodash';
 
 var MotorList = React.createClass({
@@ -21,9 +26,9 @@ var MotorList = React.createClass({
     RemoteRobotStore.removeListener('change', this.onChange);
   },
   render() {
-    return <Panel header='Motors' bsStyle='primary'>
+    return <PeripheralList header='Motors'>
       {_.map(this.state.motors, (motor) => <Motor key={motor.id} {...motor}/>)}
-    </Panel>;
+    </PeripheralList>;
   }
 });
 

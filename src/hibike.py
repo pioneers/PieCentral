@@ -17,12 +17,14 @@ data = None
 serial = serial.Serial('/dev/tty.usbmodem1411', 115200)
 lastTime = None
 
+# for testing purposes only, of course
 raw_input('press enter to subscribe to sensor data...')
 
 while True:
     print('sending subscription request...')
+    # arduino id of 0 and sensor reading delay of 10ms chosen arbitrarily
     SubscriptionRequest(0, 10, serial).send()
-    time.sleep(.015);
+    time.sleep(.015); # try not to spam the arduino with subscription requests so much.
     m = receiveHibikeMessage(serial)
     if m is not None and m.getMessageId() is HibikeMessageType.SubscriptionResponse:
         print('Successfully subscribed to receive sensor readings.')
@@ -42,4 +44,4 @@ while True:
             print('sensor reading: ' + str(data))
             print('time elapsed in ms since last reading: '+str(1000*(curTime-lastTime)))
             lastTime = curTime
-        #TODO: more proper error handling
+        #TODO: more proper error handling and handling for other message types

@@ -42,9 +42,8 @@ class HibikeMessage:
         assert isinstance(messageId, HibikeMessageType)
         self.__messageId = messageId
         self.__controllerId = controllerId
-        self.__checksum = 0
+        self.__checksum = None
         self.__serial = serial
-        self.__checksumCalculated = False
     def getMessageId():
         return self.__messageId
     def getControllerId():
@@ -68,15 +67,14 @@ class SubscriptionRequest(HibikeMessage):
     def getSubscriptionDelay():
         return self.__subscriptionDelay
     def __calculateChecksum():
-        if self.__checksumCalculated:
+        if self.__checksum is not None:
             return
-        self.__checksum ^= self.__messageId.value
+        self.__checksum = self.__messageId.value
         self.__checksum ^= self.__controllerId
         self.__checksum ^= getByte(self.__subscriptionDelay, 0)
         self.__checksum ^= getByte(self.__subscriptionDelay, 1)
         self.__checksum ^= getByte(self.__subscriptionDelay, 2)
         self.__checksum ^= getByte(self.__subscriptionDelay, 3)
-        self.__checksumCalculated = True
     def send():
         assert serial is not None
         self.__calculateChecksum()
@@ -91,11 +89,10 @@ class SubscriptionResponse(HibikeMessage):
         HibikeMessage.__init__(self, HibikeMessageType.SubscriptionResponse,
                                controllerId, serial)
     def __calculateChecksum():
-        if self.__checksumCalculated:
+        if self.__checksum is not None:
             return
-        self.__checksum ^= self.__messageId.value
+        self.__checksum = self.__messageId.value
         self.__checksum ^= self.__controllerId
-        self.__checksumCalculated = True
     def send():
         assert serial is not None
         self.__calculateChecksum()
@@ -120,16 +117,15 @@ class SensorUpdate(HibikeMessage):
     def getData():
         return self.__data
     def __calculateChecksum():
-        if self.__checksumCalculated:
+        if self.__checksum is not None:
             return
-        self.__checksum ^= self.__messageId.value
+        self.__checksum = self.__messageId.value
         self.__checksum ^= self.__controllerId
         self.__checksum ^= self.__sensorTypeId.value
         self.__checksum ^= getByte(self.__sensorReadingLength, 0)
         self.__checksum ^= getByte(self.__sensorReadingLength, 1)
         for i in range(self.__sensorReadingLength):
             self.__checksum ^= getByte(self.__data, i)
-        self.__checksumCalculated = True
     def send():
         assert serial is not None
         self.__calculateChecksum()
@@ -149,12 +145,11 @@ class Error(HibikeMessage):
     def getErrorCode():
         return self.__errorCode
     def __calculateChecksum():
-        if self.__checksumCalculated:
+        if self.__checksum is not None:
             return
-        self.__checksum ^= self.__messageId.value
+        self.__checksum = self.__messageId.value
         self.__checksum ^= self.__controllerId
         self.__checksum ^= self.__errorCode.value
-        self.__checksumCalculated = True
     def send():
         assert serial is not None
         self.__calculateChecksum()

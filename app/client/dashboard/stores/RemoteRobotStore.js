@@ -1,3 +1,7 @@
+/**
+ * Stores data sourced from a physical remote robot.
+ * Includes motor and sensor data.
+ */
 import AppDispatcher from '../../dispatcher/AppDispatcher';
 import Constants from '../../constants/Constants';
 import {EventEmitter} from 'events';

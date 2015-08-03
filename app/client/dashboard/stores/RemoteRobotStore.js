@@ -1,5 +1,5 @@
-import AppDispatcher from '../dispatcher/AppDispatcher';
-import Constants from '../constants/Constants';
+import AppDispatcher from '../../dispatcher/AppDispatcher';
+import Constants from '../../constants/Constants';
 import {EventEmitter} from 'events';
 import assign from 'object-assign';
 var ActionTypes = Constants.ActionTypes;

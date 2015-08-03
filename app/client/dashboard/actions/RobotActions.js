@@ -1,5 +1,5 @@
-import AppDispatcher from '../dispatcher/AppDispatcher';
-import Constants from '../constants/Constants';
+import AppDispatcher from '../../dispatcher/AppDispatcher';
+import Constants from '../../constants/Constants';
 var ActionTypes = Constants.ActionTypes;
 
 export default {

@@ -6,6 +6,7 @@ import AppDispatcher from '../../dispatcher/AppDispatcher';
 import DashboardConstants from '../constants/DashboardConstants';
 import {EventEmitter} from 'events';
 import assign from 'object-assign';
+import _ from 'lodash';
 var ActionTypes = DashboardConstants.ActionTypes;
 
 // Private data.
@@ -17,10 +18,10 @@ var RemoteRobotStore = assign({}, EventEmitter.prototype, {
     this.emit('change');
   },
   getMotors() {
-    return motors;
+    return _.toArray(motors);
   },
   getPeripherals() {
-    return peripherals;
+    return _.toArray(peripherals); // not that efficient, rewrite if bottleneck.
   }
 });
 

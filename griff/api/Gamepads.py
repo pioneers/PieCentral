@@ -55,7 +55,7 @@ def update():
         try:
             gpads[index].update(gamepads[index])
         except:
-            gpads.append(gamepads[index])
+            gpads.append(Gamepad(gamepads[index]))
 
     threading.Timer(0.02, update).start()     
 

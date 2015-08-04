@@ -1,13 +1,13 @@
 import AppDispatcher from '../../dispatcher/AppDispatcher';
-import Constants from '../../constants/Constants';
-var ActionTypes = Constants.ActionTypes;
+import DashboardConstants from '../constants/DashboardConstants';
+var ActionTypes = DashboardConstants.ActionTypes;
 
 export default {
   updateMotor(id, speed) {
     AppDispatcher.dispatch({
       type: ActionTypes.UPDATE_MOTOR,
       id: id,
-      speed: speed
+      value: speed
     });
   }
 };

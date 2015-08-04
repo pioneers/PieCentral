@@ -5,7 +5,7 @@
 
 import React from 'react';
 import RemoteRobotStore from '../stores/RemoteRobotStore';
-import Motor from './Motor';
+import Motor from './peripherals/Motor';
 import PeripheralList from './PeripheralList';
 import _ from 'lodash';
 

@@ -11,7 +11,7 @@ Peripheral = require('./Peripheral')
 module.exports = Dashboard = React.createClass
   displayName: 'Dashboard'
   render: ->
-    <Grid fluid={true}>
+    <Grid fluid>
       <Row>
         <Col sm={8}>
           <MotorTester />
@@ -19,7 +19,9 @@ module.exports = Dashboard = React.createClass
         <Col sm={4}>
           <PeripheralList>
             <Peripheral peripheralType='MOTOR_SCALAR' id='testmotor' value={50}/>
-            <Peripheral peripheralType='SENSOR_BOOLEAN' />
+            <Peripheral peripheralType='SENSOR_BOOLEAN' id='testsensor' value={1}/>
+            <Peripheral peripheralType='SENSOR_BOOLEAN' id='testoff' value={0}/>
+            <Peripheral peripheralType='SENSOR_SCALAR' id='scalar' value={42}/>
           </PeripheralList>
           <MotorList />
         </Col>

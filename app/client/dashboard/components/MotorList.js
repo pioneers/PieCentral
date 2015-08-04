@@ -5,7 +5,7 @@
 
 import React from 'react';
 import RemoteRobotStore from '../stores/RemoteRobotStore';
-import Motor from './peripherals/Motor';
+import Peripheral from './Peripheral';
 import PeripheralList from './PeripheralList';
 import _ from 'lodash';
 
@@ -27,7 +27,7 @@ var MotorList = React.createClass({
   },
   render() {
     return <PeripheralList header='Motors'>
-      {_.map(this.state.motors, (motor) => <Motor key={motor.id} {...motor}/>)}
+      {_.map(this.state.motors, (motor) => <Peripheral key={motor.id} {...motor}/>)}
     </PeripheralList>;
   }
 });

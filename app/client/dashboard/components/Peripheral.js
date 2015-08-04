@@ -1,6 +1,9 @@
 /**
  * A component representing a particular peripheral.
  * A thin, discerning wrapper around the different periphal components.
+ *
+ * You should use this Peripheral class when handling any Peripheral whose subtype
+ * you don't necessarily know.
  */
 
 import React from 'react';
@@ -28,6 +31,9 @@ var Peripheral = React.createClass({
   determinePeripheralComponent() {
     return typesToComponents[this.props.peripheralType];
   },
+  /**
+   * We render the specific peripheral corrensponding to the peripheralType.
+   */
   render() {
     var SpecificPeripheralComponent = this.determinePeripheralComponent() || GenericPeripheral;
     return (

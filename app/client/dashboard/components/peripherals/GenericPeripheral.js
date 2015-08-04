@@ -1,7 +1,15 @@
+/**
+ * A generic peripheral, used when the peripheralType is unknown.
+ */
 import React from 'react';
 
 export default React.createClass({
+  getDefaultProps() {
+    return {
+      peripheralType: 'peripheralType was undefined'
+    };
+  },
   render() {
-    return <h3> Peripheral Not Found <small>{this.props.peripheralType}</small></h3>;
+    return <h4> Peripheral Type Unknown <small>{this.props.peripheralType}</small></h4>;
   }
 });

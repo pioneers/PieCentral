@@ -18,6 +18,7 @@ module.exports = Dashboard = React.createClass
         </Col>
         <Col sm={4}>
           <PeripheralList>
+            <Peripheral peripheralType='UNKNOWN_PERIPHERAL' id='idk' />
             <Peripheral peripheralType='MOTOR_SCALAR' id='testmotor' value={50}/>
             <Peripheral peripheralType='SENSOR_BOOLEAN' id='testsensor' value={1}/>
             <Peripheral peripheralType='SENSOR_BOOLEAN' id='testoff' value={0}/>

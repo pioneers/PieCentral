@@ -1,18 +1,27 @@
-import AppDispatcher from '../dispatcher/AppDispatcher';
-import Constants from '../constants/Constants';
+/**
+ * Stores data sourced from a physical remote robot.
+ * Includes motor and sensor data.
+ */
+import AppDispatcher from '../../dispatcher/AppDispatcher';
+import DashboardConstants from '../constants/DashboardConstants';
 import {EventEmitter} from 'events';
 import assign from 'object-assign';
-var ActionTypes = Constants.ActionTypes;
+import _ from 'lodash';
+var ActionTypes = DashboardConstants.ActionTypes;
 
 // Private data.
 var motors = {};
+var peripherals = {};
 
 var RemoteRobotStore = assign({}, EventEmitter.prototype, {
   emitChange() {
     this.emit('change');
   },
   getMotors() {
-    return motors;
+    return _.toArray(motors);
+  },
+  getPeripherals() {
+    return _.toArray(peripherals); // not that efficient, rewrite if bottleneck.
   }
 });
 
@@ -29,8 +38,7 @@ function reapMotor(id) {
 }
 
 /**
- * Handles receiving an UPDATE_MOTOR action.
- */
+ * Handles receiving an UPDATE_MOTOR action. */
 function handleUpdateMotor(action) {
   // Get the motor from the motors dictionary.
   var motor = motors[action.id];
@@ -41,7 +49,7 @@ function handleUpdateMotor(action) {
   if (motor != null && motor.reaper != null) {
     clearTimeout(motor.reaper);
   } else {
-    motor = {id: action.id};
+    motor = {id: action.id, peripheralType: DashboardConstants.PeripheralTypes.MOTOR_SCALAR};
     motors[action.id] = motor;
   }
 
@@ -49,7 +57,7 @@ function handleUpdateMotor(action) {
   motor.disconnected = false;
 
   // Assign properties from the action.
-  motor.speed = action.speed;
+  motor.value = action.value;
 
   // Assign a new reaper, which will remove this motor if
   // no updates are received after some number of milliseconds.
@@ -58,10 +66,22 @@ function handleUpdateMotor(action) {
   RemoteRobotStore.emitChange();
 }
 
+/**
+ * Handles receiving an UPDATE_PERIPHERAL action.
+ */
+function handleUpdatePeripheral(action) {
+  var peripheral = action.peripheral;
+  peripherals[peripheral.id] = peripheral;
+  RemoteRobotStore.emitChange();
+}
+
 RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.UPDATE_MOTOR:
       handleUpdateMotor(action);
+      break;
+    case ActionTypes.UPDATE_PERIPHERAL:
+      handleUpdatePeripheral(action);
       break;
   }
 });

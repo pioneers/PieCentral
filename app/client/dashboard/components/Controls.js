@@ -1,6 +1,5 @@
 import React from 'react';
 import {Panel, ButtonToolbar, Button} from 'react-bootstrap';
-import Environment from '../../utils/Environment';
 import AnsibleClient from '../../utils/AnsibleClient';
 
 var Controls = React.createClass({
@@ -11,18 +10,14 @@ var Controls = React.createClass({
     AnsibleClient.sendMessage('stop', {});
   },
   render() {
-    if(Environment.isBrowser){
-      return (
-        <Panel header="Controls" bsStyle="primary">
-          <ButtonToolbar>
-            <Button bsStyle="primary" onClick={ this.startRobot }>Start</Button>
-            <Button bsStyle="danger" onClick={ this.stopRobot }>Stop</Button>
-          </ButtonToolbar>
-        </Panel>
-      );
-    } else {
-      return (<p>Loading</p>);
-    }
+    return (
+      <Panel header="Controls" bsStyle="primary">
+        <ButtonToolbar>
+          <Button bsStyle="primary" onClick={ this.startRobot }>Start</Button>
+          <Button bsStyle="danger" onClick={ this.stopRobot }>Stop</Button>
+        </ButtonToolbar>
+      </Panel>
+    );
   }
 });
 

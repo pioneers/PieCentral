@@ -75,6 +75,24 @@ function handleUpdatePeripheral(action) {
   RemoteRobotStore.emitChange();
 }
 
+/**
+ * Final Competition kluge: interprets the raw python message on the client as an UPDATE_PERIPHERAL.
+ */
+function interpretPeripheralsMessage(action) {
+  var pythonPeripherals = action.content;
+  for (let peripheralName in pythonPeripherals) {
+    let peripheral = {
+      peripheralType: 'SENSOR_SCALAR',
+      id: peripheralName,
+      value: pythonPeripherals[peripheralName]
+    };
+    AppDispatcher.dispatch({
+      type: ActionTypes.UPDATE_PERIPHERAL,
+      peripheral: peripheral
+    });
+  }
+}
+
 RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.UPDATE_MOTOR:
@@ -82,6 +100,9 @@ RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
       break;
     case ActionTypes.UPDATE_PERIPHERAL:
       handleUpdatePeripheral(action);
+      break;
+    case 'peripherals':
+      interpretPeripheralsMessage(action);
       break;
   }
 });

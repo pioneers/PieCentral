@@ -5,6 +5,7 @@ Row = require('react-bootstrap').Row
 Col = require('react-bootstrap').Col
 MotorList = require('./MotorList')
 PeripheralList = require('./PeripheralList')
+FinalCompPeripheralList = require('./FinalCompPeripheralList')
 Peripheral = require('./Peripheral')
 Controls = require('./Controls')
 Environment = require('../../utils/Environment')
@@ -21,13 +22,7 @@ module.exports = Dashboard = React.createClass
             <Controls />
           </Col>
           <Col sm={4}>
-            <PeripheralList>
-              <Peripheral peripheralType='UNKNOWN_PERIPHERAL' id='idk' />
-              <Peripheral peripheralType='MOTOR_SCALAR' id='testmotor' value={50}/>
-              <Peripheral peripheralType='SENSOR_SCALAR' id='leftLineScan' value={42}/>
-              <Peripheral peripheralType='SENSOR_SCALAR' id='rightLineScan' value={42}/>
-            </PeripheralList>
-            <MotorList />
+            <FinalCompPeripheralList/>
           </Col>
         </Row>
       </Grid>

@@ -10,6 +10,12 @@ router.use '/api', require('./api/api')
 # Delegate all other routes to react-router
 router.use (req, res, next) ->
 
+  res.render 'home',
+    markup: "<div>Loading...</div>"
+    rootProps: "{}"
+
+  return
+
   rootProps = {}
 
   router = Router.create location: req.url, routes: clientRoutes

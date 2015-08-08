@@ -1,9 +1,7 @@
 import React from 'react';
 import {Panel, ButtonToolbar, Button} from 'react-bootstrap';
 import Environment from '../../utils/Environment';
-if(Environment.isBrowser){
-  var AnsibleClient = require('../../utils/AnsibleClient');
-}
+import AnsibleClient from '../../utils/AnsibleClient';
 
 var Controls = React.createClass({
   startRobot(){

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import PeripheralList from './PeripheralList';
-import Peripheral from './PeripheralList';
+import Peripheral from './Peripheral';
 import RemoteRobotStore from '../stores/RemoteRobotStore';
 import _ from 'lodash';
 

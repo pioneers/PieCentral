@@ -14,14 +14,11 @@ if Environment.isBrowser
 module.exports = Dashboard = React.createClass
   displayName: 'Dashboard'
   render: ->
-    controls = ''
-    if Environment.isBrowser
-      controls = <Controls />
     return (
       <Grid fluid>
         <Row>
           <Col sm={8}>
-            { controls }
+            <Controls />
           </Col>
           <Col sm={4}>
             <PeripheralList>

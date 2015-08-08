@@ -24,3 +24,6 @@ dist
 dist/*
 
 cache/
+
+griff/student_code/student_code.py
+griff/hibike/

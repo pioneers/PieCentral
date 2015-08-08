@@ -1,5 +1,5 @@
 {
-  "name": "Daemon",
+  "name": "Dawn",
   "version": "0.4.0",
   "private": true,
   "engines": {
@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "nodemon debug ./server.js",
-    "start": "node ./server.js"
+    "start": "node ./server.js",
+    "test": "jest"
   },
   "dependencies": {
     "babel": "^5.6.14",
@@ -44,7 +45,24 @@
     "zmq": "^2.11.1"
   },
   "devDependencies": {
+    "babel-jest": "^5.3.0",
+    "jest-cli": "^0.5.0",
     "nodemon": "^1.3.7",
     "watchify": "^3.2.1"
+  },
+  "jest": {
+    "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
+    "testFileExtensions": [
+      "es6",
+      "js"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "es6"
+    ],
+    "unmockedModulePathPatterns": [
+      "<rootDir>/node_modules/react"
+    ]
   }
 }

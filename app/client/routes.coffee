@@ -6,7 +6,7 @@ Route = Router.Route
 App = require('./components/App')
 Edit = require('./components/Edit')
 Debug = require('./components/Debug')
-Dashboard = require('./components/Dashboard')
+Dashboard = require('./dashboard/components/Dashboard')
 
 module.exports = routes =
   <Route handler={App} path='/'>

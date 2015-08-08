@@ -8,7 +8,7 @@ NavItemLink = ReactRouterBootstrap.NavItemLink
 module.exports = React.createClass
   displayName: 'DNav'
   render: ->
-    <Navbar brand="Daemon" toggleNavKey={0} fixedTop>
+    <Navbar brand="Daemon" toggleNavKey={0} fixedTop fluid>
       <Nav right eventKey={0}>
         <NavItemLink eventKey={1} to='dashboard'>Dashboard</NavItemLink>
         <NavItemLink eventKey={2} to='edit'>Edit</NavItemLink>

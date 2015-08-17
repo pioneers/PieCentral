@@ -7,7 +7,6 @@ MotorList = require('./MotorList')
 PeripheralList = require('./PeripheralList')
 FinalCompPeripheralList = require('./FinalCompPeripheralList')
 Peripheral = require('./Peripheral')
-Controls = require('./Controls')
 Environment = require('../../utils/Environment')
 if Environment.isBrowser
   RobotActions = require('../actions/RobotActions')
@@ -19,7 +18,6 @@ module.exports = Dashboard = React.createClass
       <Grid fluid>
         <Row>
           <Col sm={8}>
-            <Controls />
           </Col>
           <Col sm={4}>
             <FinalCompPeripheralList/>

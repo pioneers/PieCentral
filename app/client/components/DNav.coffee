@@ -9,7 +9,7 @@ Controls = require('./Controls')
 module.exports = React.createClass
   displayName: 'DNav'
   render: ->
-    <Navbar brand="Daemon" toggleNavKey={0} fixedTop fluid>
+    <Navbar brand="Dawn" toggleNavKey={0} fixedTop fluid>
       <Nav left style={{ marginTop: '8px' }}>
         <Controls/>
       </Nav>

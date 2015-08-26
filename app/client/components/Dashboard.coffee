@@ -22,12 +22,12 @@ module.exports = Dashboard = React.createClass
     return (
       <Grid fluid>
         <Row>
-          <Col sm={8}>
-            { editor }
-          </Col>
-          <Col sm={4}>
+          <Col smPush={8} sm={4}>
             <FinalCompPeripheralList/>
             <DebugGamepads/>
+          </Col>
+          <Col smPull={4} sm={8}>
+            { editor }
           </Col>
         </Row>
       </Grid>

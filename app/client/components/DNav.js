@@ -12,8 +12,8 @@ export default React.createClass({
   },
   render() {
     return (
-      <Navbar brand="Dawn" toggleNavKey={0} fixedTop fluid>
-        <Nav right style={{ marginTop: '8px', marginRight: '8px' }}>
+      <Navbar brand="Dawn" fixedTop fluid toggleNavKey={0}>
+        <Nav right eventKey={0} style={{ marginBottom: '4px', marginTop: '4px', marginRight: '4px'}}>
           <ButtonToolbar>
             <Button bsStyle="success" onClick={ this.startRobot }>Start</Button>
             <Button bsStyle="danger" onClick={ this.stopRobot }>Stop</Button>

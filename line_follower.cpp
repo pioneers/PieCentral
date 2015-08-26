@@ -4,7 +4,6 @@
 #define CONTROLLER_ID 0 // arbitrarily chosen for now
 
 uint32_t data;
-uint64_t timeLastMessageSent;
 
 uint32_t subscriptionDelay;
 
@@ -19,21 +18,20 @@ void loop() {
   data = digitalRead(IN_PIN);
 
   // uncomment the line below for fun data spoofing
-  // data = (uint8_t) millis() & 0xFF;
 
   uint64_t currTime = millis();
-  if (subscriptionDelay && currTime - timeLastMessageSent > subscriptionDelay) {
-    SensorUpdate(CONTROLLER_ID, SensorType::LineFollower,
-                 sizeof(data), (uint8_t*) &data).send();
-    timeLastMessageSent = currTime;
+  data = (uint32_t) (currTime) & 0xFFFFFFFF;
+
+  if (subscriptionDelay) {
+    SensorUpdate(CONTROLLER_ID, SensorType::LineFollower, sizeof(data), (uint8_t*) &data).send();
+    delay(subscriptionDelay);
   }
   m = receiveHibikeMessage();
   if (m) {
     switch (m->getMessageId()) {
       case HibikeMessageType::SubscriptionRequest:
         {
-          uint32_t sd = ((SubscriptionRequest*) m)->getSubscriptionDelay();
-          subscriptionDelay = sd;
+          subscriptionDelay = ((SubscriptionRequest*) m)->getSubscriptionDelay();
           SubscriptionResponse(CONTROLLER_ID).send();
           break;
         }

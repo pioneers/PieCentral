@@ -8,7 +8,7 @@
 
 # FIXME: for some reason the line below won't work on manjaro. see if it works elsewhere
 #PROJECT_DIR 			= $(git rev-parse --show-toplevel)
-PROJECT_DIR       = ~/Dropbox/projects/PiE/hibike
+PROJECT_DIR       = /home/vincent/Dropbox/projects/PiE/hibike
 
 ### AVR_GCC_VERSION
 ### Check if the version is equal or higher than 4.9
@@ -65,7 +65,7 @@ endif
 
 ### MONITOR_PORT
 ### The port your board is connected to. Using an '*' tries all the ports and finds the right one.
-MONITOR_PORT      = /dev/tty.usbmodem*
+MONITOR_PORT      = /dev/ttyUSB*
 
 ### don't touch this
 CURRENT_DIR       = $(shell basename $(CURDIR))

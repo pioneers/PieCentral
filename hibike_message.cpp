@@ -5,9 +5,7 @@
 //// FUN WITH CHECKSUMS //////////////////////////////////////////////
 
 void SubscriptionRequest::calculateChecksum() {
-  if (checksumCalculated) {
-    return;
-  }
+  if (checksumCalculated) return;
   checksum ^= (uint8_t) messageId;
   checksum ^= controllerId;
   checksum ^= subscriptionDelay & 0xFF;
@@ -18,18 +16,14 @@ void SubscriptionRequest::calculateChecksum() {
 }
 
 void SubscriptionResponse::calculateChecksum() {
-  if (checksumCalculated) {
-    return;
-  }
+  if (checksumCalculated) return;
   checksum ^= (uint8_t) messageId;
   checksum ^= controllerId;
   checksumCalculated = true;
 }
 
 void SensorUpdate::calculateChecksum() {
-  if (checksumCalculated) {
-    return;
-  }
+  if (checksumCalculated) return;
   checksum ^= (uint8_t) messageId;
   checksum ^= controllerId;
   checksum ^= (uint8_t) sensorTypeId;
@@ -42,9 +36,7 @@ void SensorUpdate::calculateChecksum() {
 }
 
 void Error::calculateChecksum() {
-  if (checksumCalculated) {
-    return;
-  }
+  if (checksumCalculated) return;
   checksum ^= (uint8_t) messageId;
   checksum ^= controllerId;
   checksum ^= (uint8_t) errorCode;

@@ -1,7 +1,6 @@
 #ifndef HIBIKE_H
 #define HIBIKE_H
 #include "Arduino.h"
-#include "assert.h"
 
 enum class HibikeMessageType {
   SubscriptionRequest,
@@ -41,7 +40,7 @@ class HibikeMessage
       checksumCalculated(false) {}
 
     // getter functions. We want to ensure that HibikeMessages cannot be further altered
-    // after construction, and thus we choose to have the class fields private and their
+    // after construction, and thus we choose to have the class fields protected and their
     // values accessible using getters. Note that depending
     HibikeMessageType getMessageId() { return messageId; }
     uint8_t getControllerId() { return controllerId; }
@@ -72,6 +71,7 @@ class SubscriptionResponse : public HibikeMessage
   public:
     SubscriptionResponse(uint8_t cId):
       HibikeMessage(HibikeMessageType::SubscriptionResponse, cId) {}
+
     void send();
 };
 

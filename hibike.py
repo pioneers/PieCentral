@@ -3,7 +3,7 @@ import sys
 import serial
 import time
 
-sys.path.append(os.getcwd()+'/../lib');
+sys.path.append(os.getcwd());
 from hibike_message import *
 
 global sensorType
@@ -14,17 +14,14 @@ dataLength = None
 data = None
 
 # note that this has to be hard coded until enumeration works
-serial = serial.Serial('/dev/tty.usbmodem1411', 115200)
-lastTime = None
-
-# for testing purposes only, of course
-raw_input('press enter to subscribe to sensor data...')
+serial = serial.Serial('/dev/ttyUSB0', 115200)
+lastTime = time.time()
 
 while True:
     print('sending subscription request...')
-    # arduino id of 0 and sensor reading delay of 10ms chosen arbitrarily
     SubscriptionRequest(0, 10, serial).send()
-    time.sleep(.015); # try not to spam the arduino with subscription requests so much.
+    # arduino id of 0 and sensor reading delay of 10ms chosen arbitrarily
+    time.sleep(.1); # try not to spam the arduino with subscription requests so much.
     m = receiveHibikeMessage(serial)
     if m is not None and m.getMessageId() is HibikeMessageType.SubscriptionResponse:
         print('Successfully subscribed to receive sensor readings.')

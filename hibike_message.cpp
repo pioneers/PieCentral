@@ -8,7 +8,7 @@ void SubscriptionRequest::calculateChecksum() {
   if (checksumCalculated) {
     return;
   }
-  checksum ^= messageId;
+  checksum ^= (uint8_t) messageId;
   checksum ^= controllerId;
   checksum ^= subscriptionDelay & 0xFF;
   checksum ^= (subscriptionDelay >> 8) & 0xFF;
@@ -21,7 +21,7 @@ void SubscriptionResponse::calculateChecksum() {
   if (checksumCalculated) {
     return;
   }
-  checksum ^= messageId;
+  checksum ^= (uint8_t) messageId;
   checksum ^= controllerId;
   checksumCalculated = true;
 }
@@ -30,12 +30,12 @@ void SensorUpdate::calculateChecksum() {
   if (checksumCalculated) {
     return;
   }
-  checksum ^= messageId;
+  checksum ^= (uint8_t) messageId;
   checksum ^= controllerId;
-  checksum ^= sensorTypeId;
-  checksum ^= sensorReadingLength & 0xFF
-  checksum ^= (sensorReadingLength >> 8) & 0xFF
-  for (int i = 0; i < sensorReadingLength; i++) {
+  checksum ^= (uint8_t) sensorTypeId;
+  checksum ^= sensorReadingLength & 0xFF;
+  checksum ^= (sensorReadingLength >> 8) & 0xFF;
+  for (uint16_t i = 0; i < sensorReadingLength; i++) {
     checksum ^= *(dataPtr+i) & 0xFF;
   }
   checksumCalculated = true;
@@ -45,9 +45,9 @@ void Error::calculateChecksum() {
   if (checksumCalculated) {
     return;
   }
-  checksum ^= messageId;
+  checksum ^= (uint8_t) messageId;
   checksum ^= controllerId;
-  checksum ^= errorCode
+  checksum ^= (uint8_t) errorCode;
   checksumCalculated = true;
 }
 
@@ -56,26 +56,26 @@ void Error::calculateChecksum() {
 // Note: we assume that Serial (from the Arduino libraries) has already
 // been imported
 void SubscriptionRequest::send() {
-  calculateChecksum()
-  Serial.write(messageId);
+  calculateChecksum();
+  Serial.write((uint8_t) messageId);
   Serial.write(controllerId);
   Serial.write((uint8_t*) &subscriptionDelay, sizeof(uint32_t));
   Serial.write(checksum);
 }
 
 void SubscriptionResponse::send() {
-  calculateChecksum()
-  Serial.write(messageId);
+  calculateChecksum();
+  Serial.write((uint8_t) messageId);
   Serial.write(controllerId);
   Serial.write(checksum);
 }
 
 void SensorUpdate::send() {
-  calculateChecksum()
-  Serial.write(messageId);
+  calculateChecksum();
+  Serial.write((uint8_t) messageId);
   Serial.write(controllerId);
 
-  Serial.write(sensorTypeId);
+  Serial.write((uint8_t) sensorTypeId);
   Serial.write((uint8_t*) &sensorReadingLength, sizeof(uint16_t));
   Serial.write(dataPtr, (size_t) sensorReadingLength);
 
@@ -83,10 +83,10 @@ void SensorUpdate::send() {
 }
 
 void Error::send() {
-  calculateChecksum()
-  Serial.write(messageId);
+  calculateChecksum();
+  Serial.write((uint8_t) messageId);
   Serial.write(controllerId);
-  Serial.write(errorCode);
+  Serial.write((uint8_t) errorCode);
   Serial.write(checksum);
 }
 
@@ -101,35 +101,36 @@ void Error::send() {
 // eternity for our use case so we should probably change this to a
 // few ms at most).
 //
-std::unique_ptr<HibikeMessage> receiveHibikeMessage() {
+HibikeMessage* receiveHibikeMessage() {
   if (!Serial.available()) {
     return nullptr;
   }
   //TODO: implement better error checking to detect/deal with possible failures
-  uint8_t messageId, controllerId, checksum;
-  HibikeMessage m;
-  Serial.readBytes(&messageId, 1);
-  Serial.readBytes(&controllerId, 1);
+  HibikeMessageType messageId;
+  uint8_t controllerId, checksum;
+  HibikeMessage *m;
+  Serial.readBytes((char*) &messageId, 1);
+  Serial.readBytes((char*) &controllerId, 1);
   switch (messageId) {
-    case HibikeMessageType.SubscriptionRequest:
+    case HibikeMessageType::SubscriptionRequest:
       uint32_t subscriptionDelay;
-      Serial.readBytes(&subscriptionDelay, 4);
+      Serial.readBytes((char*) &subscriptionDelay, 4);
       m = new SubscriptionRequest(controllerId, subscriptionDelay);
       break;
-    case Error:
+    case HibikeMessageType::Error:
       // TODO: add proper error handling dependant on errorCode
-      uint8_t errorCode;
-      Serial.readBytes(&errorCode, 1);
+      ErrorCode errorCode;
+      Serial.readBytes((char*) &errorCode, 1);
       m = new Error(controllerId, errorCode);
       break;
     default:
       // TODO: implement missing message types
-      Error(controllerId, ErrorCode.InvalidMessageType).send();
+      Error(controllerId, ErrorCode::InvalidMessageType).send();
   }
-  Serial.readBytes(&checksum, 1);
-  if (checksum ^ m.getChecksum()) {
+  Serial.readBytes((char*) &checksum, 1);
+  if (checksum ^ m->getChecksum()) {
     // send an error back to the main controller if the checksums aren't identical
-    Error(controllerId, ErrorCode.ChecksumMismatch).send();
+    Error(controllerId, ErrorCode::ChecksumMismatch).send();
   }
-  return unique_ptr<HibikeMessage>(m);
+  return m;
 }

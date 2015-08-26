@@ -5,7 +5,7 @@ import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
-import {Button, ButtonToolbar} from 'react-bootstrap';
+import {Button, ButtonToolbar, Panel} from 'react-bootstrap';
 
 var Editor = React.createClass({
   getInitialState() {
@@ -30,7 +30,10 @@ var Editor = React.createClass({
   },
   render() {
     return (
-      <div>
+      <Panel header="Code Editor" bsStyle="primary">
+        <ButtonToolbar>
+          <Button bsSize="small" bsStyle='default' onClick={this.uploadCode}>Upload</Button>
+        </ButtonToolbar>
         <AceEditor
           mode="python"
           theme="monokai"
@@ -39,10 +42,7 @@ var Editor = React.createClass({
           name="CodeEditor"
           value = { this.state.code }
         />
-        <ButtonToolbar>
-          <Button bsStyle='primary' onClick={this.uploadCode}>Upload</Button>
-        </ButtonToolbar>
-      </div>
+      </Panel>
     );
   }
 });

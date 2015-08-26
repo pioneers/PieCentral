@@ -2,12 +2,11 @@
  * Stores data sourced from a physical remote robot.
  * Includes motor and sensor data.
  */
-import AppDispatcher from '../../dispatcher/AppDispatcher';
-import DashboardConstants from '../constants/DashboardConstants';
+import AppDispatcher from '../dispatcher/AppDispatcher';
+import {ActionTypes, PeripheralTypes} from '../constants/Constants';
 import {EventEmitter} from 'events';
 import assign from 'object-assign';
 import _ from 'lodash';
-var ActionTypes = DashboardConstants.ActionTypes;
 
 // Private data.
 var motors = {};
@@ -49,7 +48,7 @@ function handleUpdateMotor(action) {
   if (motor != null && motor.reaper != null) {
     clearTimeout(motor.reaper);
   } else {
-    motor = {id: action.id, peripheralType: DashboardConstants.PeripheralTypes.MOTOR_SCALAR};
+    motor = {id: action.id, peripheralType: PeripheralTypes.MOTOR_SCALAR};
     motors[action.id] = motor;
   }
 

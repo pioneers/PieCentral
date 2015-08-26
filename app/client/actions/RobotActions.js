@@ -1,7 +1,6 @@
-import AppDispatcher from '../../dispatcher/AppDispatcher';
-import DashboardConstants from '../constants/DashboardConstants';
-import AnsibleClient from '../../utils/AnsibleClient';
-var ActionTypes = DashboardConstants.ActionTypes;
+import AppDispatcher from '../dispatcher/AppDispatcher';
+import {ActionTypes} from '../constants/Constants';
+import AnsibleClient from '../utils/AnsibleClient';
 
 var RobotActions = {
   updateMotor(id, speed) {

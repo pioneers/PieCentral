@@ -6,9 +6,7 @@
 ### PROJECT_DIR
 ### This is the path to where you have created/cloned your project
 
-# FIXME: for some reason the line below won't work on manjaro. see if it works elsewhere
-#PROJECT_DIR 			= $(git rev-parse --show-toplevel)
-PROJECT_DIR       = /home/vincent/Dropbox/projects/PiE/hibike
+PROJECT_DIR       = $(PWD)
 
 ### AVR_GCC_VERSION
 ### Check if the version is equal or higher than 4.9

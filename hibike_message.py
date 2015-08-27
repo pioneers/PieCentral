@@ -170,11 +170,14 @@ def receiveHibikeMessage(serial):
     elif messageId is HibikeMessageType.SensorUpdate:
         sensorTypeId = SensorType(struct.unpack('<B', serial.read(1))[0])
         sensorReadingLength = struct.unpack('<H', serial.read(2))[0]
+        # FIXME: this is currently hardcoded to only work with reading lengths
+        # FIXME: that are four bytes long. Changing this to be more general
+        # FIXME: should be more or less the code in the docstring below, but
+        # FIXME: the endianness is a little bit tricky
         data = struct.unpack('<I', serial.read(4))[0]
         """
         data = 0
         for i in range(sensorReadingLength):
-            #FIXME: check on endianness
             data = data << 8 | struct.unpack('<B', serial.read(1))[0]
         """
         m = SensorUpdate(controllerId, sensorTypeId, sensorReadingLength, data, serial)

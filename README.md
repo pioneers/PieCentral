@@ -15,6 +15,9 @@ Dawn is divided into two parts with their own subfolders:
   a python based platform for executing
   student code and controlling the hardware.
 
+A diagram of Dawn's structure:
+![Dawn Architecture Diagram](https://github.com/pioneers/daemon/wiki/images/DawnArchitecture.png)
+
 ## Quickstart
 This assumes you have all the required tools installed.
 

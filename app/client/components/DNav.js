@@ -1,6 +1,7 @@
 import React from 'react';
 import {Navbar, Nav, ButtonToolbar, Button} from 'react-bootstrap';
 import ReactRouterBootstrap from 'react-router-bootstrap';
+import AnsibleClient from '../utils/AnsibleClient';
 
 export default React.createClass({
   displayName: 'DNav',

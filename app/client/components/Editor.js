@@ -19,6 +19,7 @@ var Editor = React.createClass({
     });
   },
   componentDidMount() {
+    EditorActionCreators.getCode('student_code.py');
     EditorStore.on('change', this.updateEditor);
   },
   componentWillUnmount() {
@@ -41,6 +42,7 @@ var Editor = React.createClass({
           ref="CodeEditor"
           name="CodeEditor"
           value = { this.state.code }
+          editorProps={{$blockScrolling: Infinity}}
         />
       </Panel>
     );

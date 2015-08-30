@@ -17,7 +17,7 @@ router.get '/editor/load', (req, res) ->
     if err?
       console.log err
       res.status(500).end()
-    res.send(data)
+    res.status(200).send(data)
   )
 
 module.exports = router

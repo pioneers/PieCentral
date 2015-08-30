@@ -6,6 +6,9 @@ var ActionTypes = Constants.ActionTypes;
 
 var code = '';
 var EditorStore = assign({}, EventEmitter.prototype, {
+  emitLoadError() {
+    this.emit('loadError');
+  },
   emitChange() {
     this.emit('change');
   },
@@ -14,6 +17,15 @@ var EditorStore = assign({}, EventEmitter.prototype, {
   }
 });
 
+
+function receive(successful, receivedCode) {
+  if(successful) {
+    update(receivedCode);
+  } else {
+    EditorStore.emitLoadError();
+  }
+}
+
 function update(receivedCode) {
   code = receivedCode;
   EditorStore.emitChange();
@@ -21,8 +33,10 @@ function update(receivedCode) {
 
 EditorStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
-    case ActionTypes.UPLOAD_CODE:
+    case ActionTypes.SEND_CODE:
       update(action.code);
+    case ActionTypes.RECEIVE_CODE:
+      receive(action.success, action.code);
   }
 });
 

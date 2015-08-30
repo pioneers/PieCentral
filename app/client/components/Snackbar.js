@@ -17,6 +17,13 @@ var Snackbar = React.createClass({
       message: err
     });
   },
+  saveSuccessNotification(){
+    this.setState({
+      ...this.state,
+      isActive: true,
+      message: 'Save successful!'
+    });
+  },
   handleClick() {
     this.setState({
       ...this.state,
@@ -25,13 +32,13 @@ var Snackbar = React.createClass({
     });
   },
   componentDidMount() {
-    EditorStore.on('error', this.errorNotification)
+    EditorStore.on('error', this.errorNotification);
+    EditorStore.on('success', this.saveSuccessNotification);
   },
   render() {
     return (
       <Notification
         {...this.state}
-        dismissAfter={ 6000 }
         onClick={ this.handleClick }
         onDismiss={ this.handleClick }
       />

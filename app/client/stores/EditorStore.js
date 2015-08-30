@@ -4,22 +4,29 @@ import {EventEmitter} from 'events';
 import assign from 'object-assign';
 var ActionTypes = Constants.ActionTypes;
 
-var code = '';
+//TODO: make filename not hard-coded in
+var file = {filename: 'student_code.py', code: ''};
 var EditorStore = assign({}, EventEmitter.prototype, {
   emitError(err) {
     this.emit('error', err);
   },
+  emitSuccess() {
+    this.emit('success');
+  },
   emitChange() {
     this.emit('change');
   },
-  getCode() {
-    return code;
+  getFile() {
+    return file;
   }
 });
 
 
 function receive(type, successful, receivedCode) {
   if(successful) {
+    if(type == ActionTypes.SEND_CODE) {
+      EditorStore.emitSuccess();
+    }
     update(receivedCode);
   } else {
     let error_msg = (type == ActionTypes.SEND_CODE) 
@@ -30,7 +37,7 @@ function receive(type, successful, receivedCode) {
 }
 
 function update(receivedCode) {
-  code = receivedCode;
+  file.code = receivedCode;
   EditorStore.emitChange();
 }
 

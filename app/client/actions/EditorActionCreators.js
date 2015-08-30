@@ -1,11 +1,10 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
 import Constants from '../constants/Constants';
-import Api from '../utils/API';
 var ActionTypes = Constants.ActionTypes;
 
 var EditorActionCreators = {
   getCode(filename) {
-    Api
+    AppDispatcher
       .get('/api/editor/load?filename=' + filename)
       .then(function(code) {
         AppDispatcher.dispatch({
@@ -23,7 +22,7 @@ var EditorActionCreators = {
       });
   },
   sendCode(filename, code) {
-    Api
+    AppDispatcher
       .post('/api/editor/save', {filename: filename, code: code})
       .then(function() {
         AppDispatcher.dispatch({

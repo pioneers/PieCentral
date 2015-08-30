@@ -5,7 +5,8 @@ refer to the [wiki](https://github.com/pioneers/daemon/wiki).**
 This repo currently contains **Dawn** and **Runtime** in the `app/` and `runtime/` folders, respectively.
 
 ## Dawn
-Dawn is a cross-platform frontend for the [PiE](pioneers.berkeley.edu) robotics control system.
+[Dawn](https://github.com/pioneers/daemon/wiki/Dawn) is a cross-platform frontend for the [PiE](pioneers.berkeley.edu)
+robotics control system.
 It's also ~~the future~~ a dish soap. It is the applications students will see and use when
 programming and testing their robots. Dawn is divided into two components:
   - The **server**, which will be running on the robot. Developed with NodeJS.
@@ -23,7 +24,7 @@ From the 'app' directory, run:
 The application should be running on `http://localhost:3000`
 
 ## Runtime
-[Runtime](https://github.com/pioneers/daemon/wiki/Dawn-Runtime)
+[Runtime](https://github.com/pioneers/daemon/wiki/Runtime)
 (formerly griff) is a python based platform for executing student code
 and controlling the robot hardware.
 

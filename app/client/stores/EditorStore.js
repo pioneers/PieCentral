@@ -6,8 +6,8 @@ var ActionTypes = Constants.ActionTypes;
 
 var code = '';
 var EditorStore = assign({}, EventEmitter.prototype, {
-  emitLoadError() {
-    this.emit('loadError');
+  emitError(err) {
+    this.emit('error', err);
   },
   emitChange() {
     this.emit('change');
@@ -18,11 +18,14 @@ var EditorStore = assign({}, EventEmitter.prototype, {
 });
 
 
-function receive(successful, receivedCode) {
+function receive(type, successful, receivedCode) {
   if(successful) {
     update(receivedCode);
   } else {
-    EditorStore.emitLoadError();
+    let error_msg = (type == ActionTypes.SEND_CODE) 
+      ? 'Failed to save code'
+      : 'Failed to receive code';
+    EditorStore.emitError(error_msg);
   }
 }
 
@@ -34,9 +37,8 @@ function update(receivedCode) {
 EditorStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.SEND_CODE:
-      update(action.code);
-    case ActionTypes.RECEIVE_CODE:
-      receive(action.success, action.code);
+    case ActionTypes.GET_CODE:
+      receive(action.type, action.success, action.code);
   }
 });
 

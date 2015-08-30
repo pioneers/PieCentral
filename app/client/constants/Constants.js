@@ -7,7 +7,7 @@ module.exports = {
     UPDATE_MOTOR: null,
     UPDATE_PERIPHERAL: null,
     SEND_CODE: null,
-    RECEIVE_CODE: null
+    GET_CODE: null
   }),
   PeripheralTypes: keyMirror({
     MOTOR_SCALAR: null,

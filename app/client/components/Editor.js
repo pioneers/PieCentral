@@ -25,15 +25,15 @@ var Editor = React.createClass({
   componentWillUnmount() {
     EditorStore.removeListener('change', this.updateEditor);
   },
-  uploadCode() {
+  saveCode() {
     var currentVal = this.refs.CodeEditor.editor.getValue();
-    EditorActionCreators.uploadCode(currentVal);
+    EditorActionCreators.sendCode('student_code.py', currentVal);
   },
   render() {
     return (
       <Panel header="Code Editor" bsStyle="primary">
         <ButtonToolbar>
-          <Button bsSize="small" bsStyle='default' onClick={this.uploadCode}>Upload</Button>
+          <Button bsSize="small" bsStyle='default' onClick={this.saveCode}>Save</Button>
         </ButtonToolbar>
         <AceEditor
           mode="python"

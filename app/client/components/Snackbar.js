@@ -8,14 +8,13 @@ var Snackbar = React.createClass({
       isActive: false,
       message: '',
       action: 'Dismiss',
-      dismissAfter: 4000
     }
   },
-  loadError(){
+  errorNotification(err){
     this.setState({
       ...this.state,
       isActive: true,
-      message: 'Failed to load file from robot.',
+      message: err
     });
   },
   handleClick() {
@@ -26,12 +25,13 @@ var Snackbar = React.createClass({
     });
   },
   componentDidMount() {
-    EditorStore.on('loadError', this.loadError)
+    EditorStore.on('error', this.errorNotification)
   },
   render() {
     return (
       <Notification
         {...this.state}
+        dismissAfter={ 6000 }
         onClick={ this.handleClick }
         onDismiss={ this.handleClick }
       />

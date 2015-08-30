@@ -1,19 +1,43 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
 import Constants from '../constants/Constants';
-import AnsibleClient from '../utils/AnsibleClient';
 var ActionTypes = Constants.ActionTypes;
 
-function uploadCode(code) {
-  AnsibleClient.sendMessage('code', code);
-}
-
 var EditorActionCreators = {
-  uploadCode(code) {
-    uploadCode(code);
-    AppDispatcher.dispatch({
-      type: ActionTypes.UPLOAD_CODE,
-      code: code
-    });
+  getCode(filename) {
+    AppDispatcher
+      .get('/api/editor/load?filename=' + filename)
+      .then(function(code) {
+        AppDispatcher.dispatch({
+          type: ActionTypes.GET_CODE,
+          success: true,
+          code: code
+        })
+      })
+      .catch(function(reason) {
+        AppDispatcher.dispatch({
+          type: ActionTypes.GET_CODE,
+          success: false,
+          code: ''
+        });
+      });
+  },
+  sendCode(filename, code) {
+    AppDispatcher
+      .post('/api/editor/save', {filename: filename, code: code})
+      .then(function() {
+        AppDispatcher.dispatch({
+          type: ActionTypes.SEND_CODE,
+          success: true,
+          code: code
+        });
+      })
+      .catch(function(reason) {
+        AppDispatcher.dispatch({
+          type: ActionTypes.SEND_CODE,
+          success: false,
+          code: ''
+        });
+      })
   }
 };
 

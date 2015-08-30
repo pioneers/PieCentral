@@ -5,34 +5,36 @@ import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
-import {Button, ButtonToolbar, Panel} from 'react-bootstrap';
+import {Button, ButtonGroup, ButtonToolbar, Panel, DropdownButton} from 'react-bootstrap';
 
 var Editor = React.createClass({
   getInitialState() {
-    return {
-      code: EditorStore.getCode()
-    };
+    return EditorStore.getFile();
   },
   updateEditor() {
-    this.setState({
-      code: EditorStore.getCode()
-    });
+    this.setState(EditorStore.getFile());
   },
   componentDidMount() {
+    EditorActionCreators.getCode(this.state.filename);
     EditorStore.on('change', this.updateEditor);
   },
   componentWillUnmount() {
     EditorStore.removeListener('change', this.updateEditor);
   },
-  uploadCode() {
+  saveCode() {
     var currentVal = this.refs.CodeEditor.editor.getValue();
-    EditorActionCreators.uploadCode(currentVal);
+    EditorActionCreators.sendCode(this.state.filename, currentVal);
   },
   render() {
     return (
       <Panel header="Code Editor" bsStyle="primary">
         <ButtonToolbar>
-          <Button bsSize="small" bsStyle='default' onClick={this.uploadCode}>Upload</Button>
+          <ButtonGroup>
+            <DropdownButton bsSize="small" title={this.state.filename}></DropdownButton>
+          </ButtonGroup>
+          <ButtonGroup>
+            <Button bsSize="small" bsStyle='default' onClick={this.saveCode}>Save</Button>
+          </ButtonGroup>
         </ButtonToolbar>
         <AceEditor
           mode="python"
@@ -41,6 +43,7 @@ var Editor = React.createClass({
           ref="CodeEditor"
           name="CodeEditor"
           value = { this.state.code }
+          editorProps={{$blockScrolling: Infinity}}
         />
       </Panel>
     );

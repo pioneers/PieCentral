@@ -4,6 +4,14 @@ module.exports = {
   VERSION: '0.4.0',
   ActionTypes: keyMirror({
     UPDATE_GAMEPADS: null,
-    UPLOAD_CODE: null
+    UPDATE_MOTOR: null,
+    UPDATE_PERIPHERAL: null,
+    SEND_CODE: null,
+    GET_CODE: null
+  }),
+  PeripheralTypes: keyMirror({
+    MOTOR_SCALAR: null,
+    SENSOR_BOOLEAN: null,
+    SENSOR_SCALAR: null
   })
 };

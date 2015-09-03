@@ -7,12 +7,11 @@
  */
 
 import React from 'react';
-import DashboardConstants from '../constants/DashboardConstants';
+import {PeripheralTypes} from '../constants/Constants';
 import GenericPeripheral from './peripherals/GenericPeripheral';
 import Motor from './peripherals/Motor';
 import BooleanSensor from './peripherals/BooleanSensor';
 import ScalarSensor from './peripherals/ScalarSensor';
-var PeripheralTypes = DashboardConstants.PeripheralTypes;
 
 // Mapping between peripheral types and components
 var typesToComponents = {};

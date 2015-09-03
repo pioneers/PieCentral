@@ -2,7 +2,9 @@ import ansible
 import threading
 import time
 import student_code.student_code as StudentCode
-import hibike.hibike as sensors
+# import hibike.hibike as sensors
+from api import Robot
+from api import Gamepads
 
 def execute_student_code(stop_event):
     reload(StudentCode)

@@ -2,7 +2,7 @@ from grizzly import *
 
 class Motors:
     # initializes Grizzly motor to use default settings
-    def __init__(self, addr)
+    def __init__(self, addr, name)
         self.g = Grizzly(addr)
         self.set_settings_default()        
 

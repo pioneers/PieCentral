@@ -4,6 +4,7 @@ module.exports = {
   VERSION: '0.4.0',
   ActionTypes: keyMirror({
     UPDATE_GAMEPADS: null,
+    UPDATE_EDITOR: null,
     UPDATE_MOTOR: null,
     UPDATE_PERIPHERAL: null,
     SEND_CODE: null,

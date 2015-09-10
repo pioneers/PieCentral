@@ -5,19 +5,22 @@ import assign from 'object-assign';
 var ActionTypes = Constants.ActionTypes;
 
 //TODO: make filename not hard-coded in
-var file = {filename: 'student_code.py', code: ''};
+var editorData = {
+  filename: 'student_code.py',
+  latestSaveCode: '',
+  editorCode: ''
+};
+
 var EditorStore = assign({}, EventEmitter.prototype, {
   emitError(err) {
     this.emit('error', err);
   },
-  emitSuccess() {
-    this.emit('success');
-  },
   emitChange() {
-    this.emit('change');
+    process.nextTick(() => this.emit('change'));
+    //this.emit('change');
   },
-  getFile() {
-    return file;
+  getEditorData() {
+    return editorData;
   }
 });
 
@@ -29,23 +32,40 @@ function receive(type, successful, receivedCode) {
     }
     update(receivedCode);
   } else {
-    let error_msg = (type == ActionTypes.SEND_CODE) 
+    let error_msg = (type == ActionTypes.SEND_CODE)
       ? 'Failed to save code'
       : 'Failed to receive code';
     EditorStore.emitError(error_msg);
   }
 }
 
-function update(receivedCode) {
-  file.code = receivedCode;
+function getCodeUpdate(success, receivedCode) {
+  editorData.latestSaveCode = receivedCode;
+  EditorStore.emitChange();
+  setTimeout(function(){
+    editorData.editorCode = receivedCode;
+    EditorStore.emitChange();
+  }, 1);
+}
+
+function sendCodeUpdate(success, sentCode) {
+  editorData.latestSaveCode = sentCode;
+  EditorStore.emitChange();
+}
+
+function editorUpdate(newCode) {
+  editorData.editorCode = newCode;
   EditorStore.emitChange();
 }
 
 EditorStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.SEND_CODE:
+      sendCodeUpdate(action.success, action.code);
     case ActionTypes.GET_CODE:
-      receive(action.type, action.success, action.code);
+      getCodeUpdate(action.success, action.code);
+    case ActionTypes.UPDATE_EDITOR:
+      editorUpdate(action.newCode);
   }
 });
 

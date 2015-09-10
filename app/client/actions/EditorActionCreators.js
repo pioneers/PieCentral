@@ -11,7 +11,7 @@ var EditorActionCreators = {
           type: ActionTypes.GET_CODE,
           success: true,
           code: code
-        })
+        });
       })
       .catch(function(reason) {
         AppDispatcher.dispatch({
@@ -38,6 +38,12 @@ var EditorActionCreators = {
           code: ''
         });
       })
+  },
+  editorUpdate(newVal) {
+    AppDispatcher.dispatch({
+      type: ActionTypes.UPDATE_EDITOR,
+      newCode: newVal
+    });
   }
 };
 

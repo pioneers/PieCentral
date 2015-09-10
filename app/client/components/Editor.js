@@ -5,32 +5,45 @@ import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
-import {Button, ButtonGroup, ButtonToolbar, Panel, DropdownButton} from 'react-bootstrap';
+import {
+  Button,
+  ButtonGroup,
+  ButtonToolbar,
+  Panel,
+  DropdownButton
+} from 'react-bootstrap';
 
 var Editor = React.createClass({
   getInitialState() {
-    return EditorStore.getFile();
+    return EditorStore.getEditorData();
   },
-  updateEditor() {
-    this.setState(EditorStore.getFile());
+  updateEditorData() {
+    console.log('test');
+    this.setState(EditorStore.getEditorData());
   },
   componentDidMount() {
+    EditorStore.on('change', this.updateEditorData);
     EditorActionCreators.getCode(this.state.filename);
-    EditorStore.on('change', this.updateEditor);
   },
   componentWillUnmount() {
-    EditorStore.removeListener('change', this.updateEditor);
+    EditorStore.removeListener('change', this.updateEditorData);
   },
   saveCode() {
-    var currentVal = this.refs.CodeEditor.editor.getValue();
-    EditorActionCreators.sendCode(this.state.filename, currentVal);
+    EditorActionCreators.sendCode(this.state.filename, this.state.editorCode);
+  },
+  editorUpdate(newVal) {
+    EditorActionCreators.editorUpdate(newVal);
   },
   render() {
+    var filenameLabel = (this.state.latestSaveCode == this.state.editorCode)
+      ? this.state.filename
+      : this.state.filename + '*';
     return (
-      <Panel header="Code Editor" bsStyle="primary">
+      <div>
         <ButtonToolbar>
           <ButtonGroup>
-            <DropdownButton bsSize="small" title={this.state.filename}></DropdownButton>
+            <DropdownButton bsSize="small" title={ filenameLabel }>
+            </DropdownButton>
           </ButtonGroup>
           <ButtonGroup>
             <Button bsSize="small" bsStyle='default' onClick={this.saveCode}>Save</Button>
@@ -42,10 +55,11 @@ var Editor = React.createClass({
           width="100%"
           ref="CodeEditor"
           name="CodeEditor"
-          value = { this.state.code }
+          value = { this.state.editorCode }
+          onChange={ this.editorUpdate }
           editorProps={{$blockScrolling: Infinity}}
         />
-      </Panel>
+      </div>
     );
   }
 });

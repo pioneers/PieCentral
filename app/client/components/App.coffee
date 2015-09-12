@@ -3,7 +3,6 @@ Router = require('react-router')
 RouteHandler = Router.RouteHandler
 
 DNav = require('./DNav')
-Snackbar = require('./Snackbar')
 
 module.exports = Dawn = React.createClass
   displayName: 'Dawn'
@@ -13,5 +12,4 @@ module.exports = Dawn = React.createClass
       <DNav {...this.props}/>
       <div style={height: '60px', marginBottom: '21px'}/>
       <RouteHandler {...this.props}/>
-      <Snackbar/>
     </div>

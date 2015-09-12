@@ -16,8 +16,7 @@ var EditorStore = assign({}, EventEmitter.prototype, {
     this.emit('error', err);
   },
   emitChange() {
-    process.nextTick(() => this.emit('change'));
-    //this.emit('change');
+    this.emit('change');
   },
   getEditorData() {
     return editorData;
@@ -40,17 +39,28 @@ function receive(type, successful, receivedCode) {
 }
 
 function getCodeUpdate(success, receivedCode) {
-  editorData.latestSaveCode = receivedCode;
-  EditorStore.emitChange();
-  setTimeout(function(){
-    editorData.editorCode = receivedCode;
-    EditorStore.emitChange();
-  }, 1);
+  if (success) {
+    editorData.latestSaveCode = receivedCode;
+    // Setting editorCode will be considered a
+    // change and will fire an editorUpdate action.
+    // We need to wait in order not to conflict with
+    // the original getCode dispatch. Hacky.
+    process.nextTick(() => {
+      editorData.editorCode = receivedCode;
+      EditorStore.emitChange();
+    });
+  } else {
+    EditorStore.emitError('Failed to load code');
+  }
 }
 
 function sendCodeUpdate(success, sentCode) {
-  editorData.latestSaveCode = sentCode;
-  EditorStore.emitChange();
+  if (success) {
+    editorData.latestSaveCode = sentCode;
+    EditorStore.emitChange();
+  } else {
+    EditorStore.emitError('Failed to save code.');
+  }
 }
 
 function editorUpdate(newCode) {
@@ -62,10 +72,13 @@ EditorStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.SEND_CODE:
       sendCodeUpdate(action.success, action.code);
+      break;
     case ActionTypes.GET_CODE:
       getCodeUpdate(action.success, action.code);
+      break;
     case ActionTypes.UPDATE_EDITOR:
       editorUpdate(action.newCode);
+      break;
   }
 });
 

@@ -18,15 +18,19 @@ var Editor = React.createClass({
     return EditorStore.getEditorData();
   },
   updateEditorData() {
-    console.log('test');
     this.setState(EditorStore.getEditorData());
   },
   componentDidMount() {
     EditorStore.on('change', this.updateEditorData);
+    EditorStore.on('error', this.alertError);
     EditorActionCreators.getCode(this.state.filename);
   },
   componentWillUnmount() {
     EditorStore.removeListener('change', this.updateEditorData);
+    EditorStore.removeListener('error', this.alertError);
+  },
+  alertError(err) {
+    alert(err);
   },
   saveCode() {
     EditorActionCreators.sendCode(this.state.filename, this.state.editorCode);
@@ -46,7 +50,9 @@ var Editor = React.createClass({
             </DropdownButton>
           </ButtonGroup>
           <ButtonGroup>
-            <Button bsSize="small" bsStyle='default' onClick={this.saveCode}>Save</Button>
+            <Button bsSize="small" bsStyle='default' onClick={this.saveCode}>
+              Save
+            </Button>
           </ButtonGroup>
         </ButtonToolbar>
         <AceEditor

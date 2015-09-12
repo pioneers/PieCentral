@@ -2,7 +2,10 @@ import AppDispatcher from '../dispatcher/AppDispatcher';
 var AnsibleClient = null;
 
 if (process.browser) {
-  var socket = require('socket.io-client')();
+  var socket = require('socket.io-client')(window.location.origin + '/ansible');
+  // window.location.origin is an awful hack because
+  // open source sucks sometimes.
+  // https://github.com/socketio/socket.io-client/issues/812
 
   socket.sendMessage = (msgType, content) => {
     var msg = {

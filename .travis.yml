@@ -1,15 +1,16 @@
 language: node_js
 node_js:
-- 'iojs'
+- 'iojs-v2.4.0'
+sudo: true
 addons:
   apt:
     packages:
+    - build-essential
     - libzmq-dev
 before_install:
 - cd app
 install:
 - npm install
-- npm install facebook/jest#0.5.x
 notifications:
   slack:
     secure: gcPvQOCwtvw4nUm9PaR5ztgGsXOdNB0MGNshhLkgX/TXAJUWj+6BgrrWi5NkptaOMrvM+2MrDDHW1XqSx2WOpS334EIYIW1gG82QByY9lR5hC9Id4Gqd3BT9Dl9eo3ev5nA1ffMXvgXGgP/VMd7Xjn/OC1iYNCud8dGPSDdzG5s=

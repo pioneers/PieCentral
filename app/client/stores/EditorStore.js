@@ -5,19 +5,21 @@ import assign from 'object-assign';
 var ActionTypes = Constants.ActionTypes;
 
 //TODO: make filename not hard-coded in
-var file = {filename: 'student_code.py', code: ''};
+var editorData = {
+  filename: 'student_code.py',
+  latestSaveCode: '',
+  editorCode: ''
+};
+
 var EditorStore = assign({}, EventEmitter.prototype, {
   emitError(err) {
     this.emit('error', err);
   },
-  emitSuccess() {
-    this.emit('success');
-  },
   emitChange() {
     this.emit('change');
   },
-  getFile() {
-    return file;
+  getEditorData() {
+    return editorData;
   }
 });
 
@@ -29,23 +31,54 @@ function receive(type, successful, receivedCode) {
     }
     update(receivedCode);
   } else {
-    let error_msg = (type == ActionTypes.SEND_CODE) 
+    let error_msg = (type == ActionTypes.SEND_CODE)
       ? 'Failed to save code'
       : 'Failed to receive code';
     EditorStore.emitError(error_msg);
   }
 }
 
-function update(receivedCode) {
-  file.code = receivedCode;
+function getCodeUpdate(success, receivedCode) {
+  if (success) {
+    editorData.latestSaveCode = receivedCode;
+    // Setting editorCode will be considered a
+    // change and will fire an editorUpdate action.
+    // We need to wait in order not to conflict with
+    // the original getCode dispatch. Hacky.
+    process.nextTick(() => {
+      editorData.editorCode = receivedCode;
+      EditorStore.emitChange();
+    });
+  } else {
+    EditorStore.emitError('Failed to load code');
+  }
+}
+
+function sendCodeUpdate(success, sentCode) {
+  if (success) {
+    editorData.latestSaveCode = sentCode;
+    EditorStore.emitChange();
+  } else {
+    EditorStore.emitError('Failed to save code.');
+  }
+}
+
+function editorUpdate(newCode) {
+  editorData.editorCode = newCode;
   EditorStore.emitChange();
 }
 
 EditorStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.SEND_CODE:
+      sendCodeUpdate(action.success, action.code);
+      break;
     case ActionTypes.GET_CODE:
-      receive(action.type, action.success, action.code);
+      getCodeUpdate(action.success, action.code);
+      break;
+    case ActionTypes.UPDATE_EDITOR:
+      editorUpdate(action.newCode);
+      break;
   }
 });
 

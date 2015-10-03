@@ -34,7 +34,7 @@ while True:
             studentCode = open('student_code/student_code.py','w')
             studentCode.write(content)
             studentCode.close()
-            with open("TeleOp.py", "a") as myfile:
+            with open("student_code/student_code.py", "a") as myfile:
                 myfile.write("\n\tdef main(stop_event):\n\t\twhile not stop_event.is_set():\n\t\t\trun()")
         elif msg_type == 'execute':
             if not runningCode:

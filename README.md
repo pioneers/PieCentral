@@ -1,108 +1,111 @@
 # hibike!
-hibike is a lightweight communications protocol designed for the passing of sensor data for the
-summer iteration of the PiE Robotics Kit, a.k.a Frank or "Kit Minimum" to some.
+Hibike is a lightweight communications protocol designed for the passing of sensor data for the 
+PiE Robotics Kit, a.k.a Frank or "Kit Minimum" to some.
 
 
 ## Section 0: A Quick Introduction
 
 We make a few starting assumptions concerning the endpoints of communication. Namely, the device
-controlling a sensor is an Arduino of some sort (likely a Nano), and a Beaglebone Black is used as
-the central control board of each robot and thus is in charge of communicating with each Arduino.
-These two communicate with each other via serial: the Beaglebone running pySerial and the Arduino by
-using the built-in serial library. As each Arduino communicates with the Beaglebone on its own separate
-port, we conveniently have no need to worry about any race conditions or other problems arising from
-concurrency.
+controlling a sensor is a Smart Device (SD), and a Beaglebone Black (BBB) is used as
+the central control board of each robot and thus is in charge of communicating with each Smart Device.
+These two communicate with each other via serial: the Beaglebone running pySerial and the Smart Device 
+by using the built-in serial library. As each Smart Device communicates with the Beaglebone on its own 
+separate port, we conveniently have no need to worry about any race conditions or other problems 
+arising from concurrency.
 
-The hibike protocol works using subscriptions. The Beaglebone begins communication by sending
-a request to the Arduino, which then proceeds to periodically send sensor data to the  Beaglebone at
-intervals set by the request message. The latest sensor update received from an Arduino is stored, and
-a student polling for sensor data will be given this cached value.
+Refer to Section 5 for an outline of the general behavior of the Hibike protocol.
 
-Finally, we note that code for a COBS-encoding scheme can and should be stolen from the preexisting
+Finally, note that code for a COBS-encoding scheme can and should be stolen from the preexisting
 Tenshi codebase and then never thought about again.
 
 ## Section 1: General Message Structure
-All messages have the relatively simple structure of MessageID, ArduinoID, Payload, and checksum as
+All messages have the relatively simple structure of Message ID, Payload, and Checksum as
 depicted below. A more complete description of each field is given below the diagram.
 
-    +------------+---------------+---------------------+------------+
-    | Message ID | Controller ID |       Payload       |  Checksum  |
-    |  (8 bits)  |    (8 bits)   |   (length varies)   |  (8 bits)  |
-    +------------+---------------+---------------------+------------+
+    +------------+---------------------+------------+
+    | Message ID |       Payload       |  Checksum  |
+    |  (8 bits)  |   (length varies)   |  (8 bits)  |
+    +------------+---------------------+------------+
 
 Message ID - an 8-bit ID specifying the type of message being sent or received. More information
              about each message type is specified in the following sections.
 
-Arduino ID - A UID assigned to each Arduino distributed as part of Kit Minimum. Messages sent from
-             the Beaglebone have this field populated with the ID of the Arduino the message is being
-             directed to. Messages sent to the Beaglebone have the field populated with the ID of the
-             Arduino the message is coming from.
-
 Payload    - Varies wildly depending on the type of message being sent. This will, of course, be
-             described in more detail in later sections.
+             described in more detail in Section 4.
 
 Checksum   - An 8-bit checksum placed at the very end of every message. Really, any checksum scheme
              appending 8-bits to the end of the message will do, but an exceedingly simple one
              recommended exactly for its simplicity is making the checksum the XOR of every other
              byte in the message.
 
-## Section 2: Table summary of message types
+## Section 2: UID Format
+Each Smart Device will be assigned an 88-bit UID with the following data.
 
-    +----+--------------+----------------------------------------------------+------------+
-    | ID | Message Type |                     Description                    | Refer to...|
-    +------------------------------------------------------------------------+-------------
-    | 0  | Subscription | A request for the specified Arduino to return      |  Section 3 |
-    |    |   Request    | sensor updates to the Beaglebone at a certain      |            |
-    |    |              | frequency.                                         |            |
-    +------------------------------------------------------------------------+-------------
-    | 1  | Subscription | Sent from Arduino->Beaglebone with either a        |  Section 3 |
-    |    |   Response   | confirmation of the received SubscriptionRequest   |            |
-    |    |              | or an error code.                                  |            |
-    +------------------------------------------------------------------------+-------------
-    | 2  | SensorUpdate | A sensor reading update sent from Arduino to       |  Section 4 |
-    |    |              | Beaglebone at the frequency set by the most        |            |
-    |    |              | recently received SubscriptionRequest.             |            |
-    +------------------------------------------------------------------------+-------------
-    |0xFF|    Error     | An error of some sort. More details given in the   |  Section 5 |
-    |    |              | status code passed in the payload.                 |            |
-    +----+--------------+----------------------------------------------------+------------+
+    +-------------------+--------------+-----------------------------+
+    |     Device Type   |     Year     |             ID              |
+    |      (16 bits)    |   (8 bits)   |          (64 bits)          |
+    +-------------------+--------------+-----------------------------+
 
-## Section 3: SubscriptionRequests and SubscriptionResponses
-A SubscriptionRequest is sent from BeagleBone->Arduino to set up periodic sensor reading updates
-from the Arduino. The payload of a SubscriptionRequest is a single unsigned, 32-bit integer that
-specifies the delay between sensor readings in milliseconds. Sending a 0 signals the receiving Arduino
-to stop sending sensor readings entirely.
+Device Type - 16-bit ID specifying the type device the Smart Device controller is attached to.
+              Device types are enumerated in Section 4
 
-Upon receiving a SubscriptionRequest, the Arduino sends back a SubscriptionResponse, which has an
-empty payload and is sent only to signify proper receival of the SubscriptionRequest.
+Year        - 8-bit ID corresponding to the competition year that the Smart Device was manufactured
+              for. The 2015-2016 season will correspond to 0x00
 
-## Section 4: SensorUpdates
-The SensorUpdate is sent periodically according to the specified delay between messages
-given to an Arduino in a SubscriptionRequest. Only one reading is sent per SensorUpdate,
-and the format of the payload of a SensorUpdate is as given in the diagram below.
+ID          - Randomly generated 64-bit number that will uniquely identify each Smart Device within
+              a specific device type and year. With 64-bit IDs, the probability of a hash collision 
+              with 1000 of 1 type of device per year is roughly 0.05%
 
-    +---------------+--------------------+------------------------------------+
-    |  Sensor Type  |   Reading Length   |               Sensor               |
-    |    (8 bits)   |     (16 bits)      |               Reading              |
-    +---------------+--------------------+------------------------------------+
+## Section 3: Enumerations
 
-What each of these types are for is self-explanatory. Interpretation of the data in each sensor
-reading is out of the scope of this protocol, and a section on sensor types will be added in as the
-types of sensors provided in the kit are decided upon.
+Message ID Enumeration:
 
-A table of SensorTypes is given below.
+    +---------+--------------------------+
+    |   ID    |       Message Type       |
+    +------------------------------------+
+    |  0x00   |   Subscription Request   |
+    +------------------------------------+
+    |  0x01   |   Subscription Response  |
+    +------------------------------------+
+    |  0x02   |        Data Update       |
+    +------------------------------------+
+    |  0x03   |       Device Update      |
+    +------------------------------------+
+    |  0x04   |       Device Status      |
+    +------------------------------------+
+    |  0x05   |      Device Response     |
+    +------------------------------------+
+    |  0xFF   |           Error          |
+    +------------------------------------+
+
+Device Type Enumeration:
 
     +---------+---------------+
     |   ID    |    Sensor     |
     +-------------------------+
-    |    0    | Limit Switch  |
+    |  0x00   | Limit Switch  |
     +-------------------------+
-    |    1    | Line Follower |
+    |  0x01   | Line Follower |
     +-------------------------+
+    |  0x02   | Potentiometer |
+    +-------------------------+
+    |  0x03   |    Encoder    |
+    +-------------------------+
+    |  0x04   | Battery Buzzer|
+    +-------------------------+
+    |  0x05   |   Team Flag   |
+    +-------------------------+
+    |  0x06   |    Grizzly    |
+    +-------------------------+
+    |  0x07   | Servo Control |
+    +-------------------------+
+    |  0x08   |Linear Actuator|
+    +---------+---------------+ 
+Note: These assignments are totally random as of now. We need to figure
+      out exactly what devices we are supporting.
 
-## Section 5: Errors
-What this message type is for should be self explanatory. The payload of an error is a simple 8-bit
-integer which holds the status code of the error. A table of error codes is given below.
+
+Error ID Enumeration:
 
     +---------+---------------+
     | Status  |    Meaning    |
@@ -113,10 +116,139 @@ integer which holds the status code of the error. A table of error codes is give
     |   0xFC  |   Malformed   |
     |         |    Message    |
     +-------------------------+
-    |   0xFD  |    Invalid    |
-    |         |   ArduinoID   |
+    |   0xFD  |  Invalid UID  |
     +-------------------------+
     |   0xFE  | Checksum Error|
     +-------------------------+
     |   0xFF  | Generic Error |
     +-------------------------+
+Note: These assignments are also fairly random and may not all even be
+      needed.
+
+## Section 4: Message Descriptions
+1. Sub Request: BBB requests data to be returned at a given interval. 
+                The SD will respond with a Sub Response packet.
+    Payload format:
+
+        +---------------+
+        |     Delay     |
+        |    (8 bits)   |
+        +---------------+
+
+    Direction:
+    BBB --> SD
+
+2. Sub Response: SD sends (essentially) an ACK packet with the UID and 
+                 delay state
+    Payload format:
+
+        +--------------------------+--------------------+
+        |          UID             |       Delay        |
+        |       (88 bits)          |      (8 bits)      |
+        +--------------------------+--------------------+
+
+    Direction:
+    BBB <-- SD
+
+3. Data Update: SD sends its state values based on the given delay 
+                (refresh rate). BBB does not send an ACK packet back.
+    Payload format:
+
+        +-----------------+------------------------+
+        |  Reading Length |        Reading         |
+        |    (16 bits)    |       (variable)       |
+        +-----------------+------------------------+
+
+    Direction:
+    BBB <-- SD
+
+4. Device Update: BBB writes a value to the SD state. SD responds with
+                  a Device Response packet.
+    Payload format:
+
+        +---------------+--------------------+
+        |     Param     |       Value        |
+        |    (8 bits)   |     (32 bits)      |
+        +---------------+--------------------+
+
+    Direction:
+    BBB --> SD
+
+5. Device Status: BBB polls a value from the SD state. SD responds with
+                  a Device Response packet.
+    Payload format:
+
+        +---------------+--------------------+
+        |     Param     |       Value        |
+        |    (8 bits)   |     (32 bits)      |
+        +---------------+--------------------+
+
+    Direction:
+    BBB --> SD
+
+6. Device Response: SD returns the (possibly updated) value of the 
+                    param changed/polled earlier.
+    Payload format:
+
+        +---------------+--------------------+
+        |     Param     |       Value        |
+        |    (8 bits)   |     (32 bits)      |
+        +---------------+--------------------+
+
+    Direction:
+    BBB <-- SD
+
+7. Error Packet: Not planned as of yet. May only be useful for 
+                 debugging. See "Behavior" section for a higher-level
+                 description of how error-handling will work.
+    Payload format:
+
+        +----------------+
+        |   Error Code   |
+        |    (8 bits)    |
+        +----------------+
+
+    Direction:
+    BBB ??? SD
+
+## Section 5: General Behavior
+Setup
+
+  1. The BBB must be able to determine what sensors are connected
+     on startup. This means Hibike supports any combination of devices
+     but not hot-plugging.
+  2. The BBB will send Subscription Request Packets to every detectable 
+     serial port with a delay value of 0, and determines the type of 
+     sensor based on the Subscription Response payload sent back
+  3. The BBB must then allocate bandwidth (refresh rate) based on the 
+     type and number of each device connected
+
+Sensor Communication (Reading values)
+
+  1. After setup the BBB sends the approrpiate Subscription Request 
+     Packet is sent to each device.
+  2. The SD will then return values at regular intervals specified by
+     the Subscription Request (delay field)
+  3. Hibike also allows for the BBB to poll certain fields from the
+     state of a SD, using a Device Status Packet.
+  4. The SD will respond by returning a Device Response Packet with 
+     the value of the field specified.
+
+Actuator Communication (Writing values)
+
+  1. For devices that will have configurable states (like the 
+     Grizzly), the BBB can write data to a specfied parameter of the
+     SD with a Device Update Packet
+  2. The SD will then return a Sensor Response Packet with the newly
+     written value of the specified param in the payload.
+
+Error handling
+
+  1. Still kind of up in the air, but in general, only the BBB will
+     have error handling behavior
+  2. Every packet sent from the BBB will have a timout for recieving
+     the appopriate ACK packet back. If the packet does not come
+     within the time limit, or the recieved packet is invalid, the 
+     BBB will try to resend the packet.
+  3. If a SD recieves an invalid packet, it will simply not respond.
+     This can change if need be.

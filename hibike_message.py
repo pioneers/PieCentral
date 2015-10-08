@@ -54,17 +54,17 @@ class HibikeMessage:
 
     # return the top 16 bits of controllerID
     def getDeviceType(self):
-        return int(getControllerId >> 72)
+        return int(self.getControllerId() >> 72)
 
     # return bits [71: 64]
     def getYear(self):
-        temp = getControllerId >> 64
-        return int(getControllerId & 0xff)
+        temp = self.getControllerId() >> 64
+        return int(temp & 0xff)
 
     # return bits[63: 0]
     def getID(self):
-        temp = getControllerId << 24
-        return int(temp >> 64)
+        temp = self.getControllerId() << 24
+        return int(temp >> 24)
 
     def getChecksum(self):
         self._calculateChecksum()

@@ -7,7 +7,10 @@ Message IDs for each type of hibike message.
 class HibikeMessageType(Enum):
     SubscriptionRequest  = 0x00
     SubscriptionResponse = 0x01
-    SensorUpdate         = 0x02
+    DataUpdate           = 0x02
+    DeviceUpdate         = 0x03
+    DeviceStatus         = 0x04
+    DeviceResponse       = 0x05
     Error                = 0xFF
 
 """
@@ -48,6 +51,21 @@ class HibikeMessage:
         return self._messageId
     def getControllerId(self):
         return self._controllerId
+
+    # return the top 16 bits of controllerID
+    def getDeviceType(self):
+        return int(self.getControllerId() >> 72)
+
+    # return bits [71: 64]
+    def getYear(self):
+        temp = self.getControllerId() >> 64
+        return int(temp & 0xff)
+
+    # return bits[63: 0]
+    def getID(self):
+        temp = self.getControllerId() << 24
+        return int(temp >> 24)
+
     def getChecksum(self):
         self._calculateChecksum()
         return self._checksum
@@ -98,9 +116,9 @@ class SubscriptionResponse(HibikeMessage):
         self._serial.write(struct.pack('<B', self._controllerId))
         self._serial.write(struct.pack('<B', self._checksum))
 
-class SensorUpdate(HibikeMessage):
+class DataUpdate(HibikeMessage):
     def __init__(self, controllerId, sensorTypeId, sensorReadingLength, data, serial = None):
-        HibikeMessage.__init__(self, HibikeMessageType.SensorUpdate, controllerId, serial)
+        HibikeMessage.__init__(self, HibikeMessageType.DataUpdate, controllerId, serial)
         assert isinstance(sensorTypeId, SensorType)
         # assert uint8
         self._sensorTypeId = sensorTypeId
@@ -167,7 +185,7 @@ def receiveHibikeMessage(serial):
     if messageId is HibikeMessageType.SubscriptionResponse:
         m = SubscriptionResponse(controllerId, serial)
 
-    elif messageId is HibikeMessageType.SensorUpdate:
+    elif messageId is HibikeMessageType.DataUpdate:
         sensorTypeId = SensorType(struct.unpack('<B', serial.read(1))[0])
         sensorReadingLength = struct.unpack('<H', serial.read(2))[0]
         # FIXME: this is currently hardcoded to only work with reading lengths
@@ -180,7 +198,7 @@ def receiveHibikeMessage(serial):
         for i in range(sensorReadingLength):
             data = data << 8 | struct.unpack('<B', serial.read(1))[0]
         """
-        m = SensorUpdate(controllerId, sensorTypeId, sensorReadingLength, data, serial)
+        m = DataUpdate(controllerId, sensorTypeId, sensorReadingLength, data, serial)
 
     elif messageId is HibikeMessageType.Error:
         errorCode = ErrorCode(struct.unpack('<B', serial.read(1))[0])

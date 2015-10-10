@@ -152,12 +152,13 @@ Note: These assignments are also fairly random and may not all even be
 
 3. Data Update: SD sends its state values based on the given delay 
                 (refresh rate). BBB does not send an ACK packet back.
+                Reading length determined by Device Type.
     Payload format:
 
-        +-----------------+------------------------+
-        |  Reading Length |        Reading         |
-        |    (16 bits)    |       (variable)       |
-        +-----------------+------------------------+
+        +------------------------+
+        |        Reading         |
+        |       (variable)       |
+        +------------------------+
 
     Direction:
     BBB <-- SD
@@ -222,6 +223,8 @@ Setup
      sensor based on the Subscription Response payload sent back
   3. The BBB must then allocate bandwidth (refresh rate) based on the 
      type and number of each device connected
+  4. Each supported device will have an associated data file that
+     lists its reading length, parameters enumerations, etc...
 
 Sensor Communication (Reading values)
 

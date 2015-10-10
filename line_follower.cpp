@@ -5,7 +5,7 @@
 
 uint32_t data;
 
-uint32_t subscriptionDelay;
+uint32_t subscriptionDelay = 0;
 
 HibikeMessage* m;
 
@@ -17,15 +17,15 @@ void setup() {
 void loop() {
   data = digitalRead(IN_PIN);
 
-  // uncomment the line below for fun data spoofing
 
   uint64_t currTime = millis();
+  // uncomment the line below for fun data spoofing
   data = (uint32_t) (currTime) & 0xFFFFFFFF;
 
-  if (subscriptionDelay) {
+  if (subscriptionDelay && (currTime > subscriptionDelay)) {
     SensorUpdate(CONTROLLER_ID, SensorType::LineFollower, sizeof(data), (uint8_t*) &data).send();
-    delay(subscriptionDelay);
   }
+  
   m = receiveHibikeMessage();
   if (m) {
     switch (m->getMessageId()) {

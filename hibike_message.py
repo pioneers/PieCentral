@@ -14,11 +14,18 @@ class HibikeMessageType(Enum):
     Error                = 0xFF
 
 """
-Sensor Type IDs.
+Device Type IDs.
 """
-class SensorType(Enum):
-    LimitSwitch  = 0x00
-    LineFollower = 0x01
+class DeviceType(Enum):
+    LimitSwitch    = 0x00
+    LineFollower   = 0x01
+    Potentiometer  = 0x02
+    Encoder        = 0x03
+    BatteryBuzzer  = 0x04
+    TeamFlag       = 0x05
+    Grizzly        = 0x06
+    Servo          = 0x07
+    LinearActuator = 0x08
 
 """
 More specific error codes.
@@ -63,8 +70,7 @@ class HibikeMessage:
 
     # return bits[63: 0]
     def getID(self):
-        temp = self.getControllerId() << 24
-        return int(temp >> 24)
+        return self.getControllerId() & 0xffffffffffffffff
 
     def getChecksum(self):
         self._calculateChecksum()
@@ -117,19 +123,19 @@ class SubscriptionResponse(HibikeMessage):
         self._serial.write(struct.pack('<B', self._checksum))
 
 class DataUpdate(HibikeMessage):
-    def __init__(self, controllerId, sensorTypeId, sensorReadingLength, data, serial = None):
+    def __init__(self, controllerId, DeviceTypeId, deviceReadingLength, data, serial = None):
         HibikeMessage.__init__(self, HibikeMessageType.DataUpdate, controllerId, serial)
-        assert isinstance(sensorTypeId, SensorType)
+        assert isinstance(DeviceTypeId, DeviceType)
         # assert uint8
-        self._sensorTypeId = sensorTypeId
+        self._DeviceTypeId = DeviceTypeId
         # assert uint16
-        self._sensorReadingLength = sensorReadingLength
-        # assert size in bytes is consistent with sensorReadingLength
+        self._deviceReadingLength = deviceReadingLength
+        # assert size in bytes is consistent with deviceReadingLength
         self._data = data
-    def getSensorTypeId(self):
-        return self._sensorTypeId
-    def getSensorReadingLength(self):
-        return self._sensorReadingLength
+    def getDeviceTypeId(self):
+        return self._DeviceTypeId
+    def getdeviceReadingLength(self):
+        return self._deviceReadingLength
     def getData(self):
         return self._data
     def _calculateChecksum(self):
@@ -137,19 +143,19 @@ class DataUpdate(HibikeMessage):
             return
         self._checksum = self._messageId.value
         self._checksum ^= self._controllerId
-        self._checksum ^= self._sensorTypeId.value
-        self._checksum ^= getByte(self._sensorReadingLength, 0)
-        self._checksum ^= getByte(self._sensorReadingLength, 1)
-        for i in range(self._sensorReadingLength):
+        self._checksum ^= self._DeviceTypeId.value
+        self._checksum ^= getByte(self._deviceReadingLength, 0)
+        self._checksum ^= getByte(self._deviceReadingLength, 1)
+        for i in range(self._deviceReadingLength):
             self._checksum ^= getByte(self._data, i)
     def send(self):
         assert self._serial is not None
         self._calculateChecksum()
         self._serial.write(struct.pack('<B', self._messageId.value))
         self._serial.write(struct.pack('<B', self._controllerId))
-        self._serial.write(struct.pack('<B', self._sensorTypeId.value))
-        self._serial.write(struct.pack('<H', self._sensorReadingLength))
-        for i in range(self._sensorReadingLength):
+        self._serial.write(struct.pack('<B', self._DeviceTypeId.value))
+        self._serial.write(struct.pack('<H', self._deviceReadingLength))
+        for i in range(self._deviceReadingLength):
             self._serial.write(struct.pack('<B', getByte(self._data, i)))
         self._serial.write(struct.pack('<B', self._checksum))
 
@@ -186,8 +192,8 @@ def receiveHibikeMessage(serial):
         m = SubscriptionResponse(controllerId, serial)
 
     elif messageId is HibikeMessageType.DataUpdate:
-        sensorTypeId = SensorType(struct.unpack('<B', serial.read(1))[0])
-        sensorReadingLength = struct.unpack('<H', serial.read(2))[0]
+        DeviceTypeId = DeviceType(struct.unpack('<B', serial.read(1))[0])
+        deviceReadingLength = struct.unpack('<H', serial.read(2))[0]
         # FIXME: this is currently hardcoded to only work with reading lengths
         # FIXME: that are four bytes long. Changing this to be more general
         # FIXME: should be more or less the code in the docstring below, but
@@ -195,10 +201,10 @@ def receiveHibikeMessage(serial):
         data = struct.unpack('<I', serial.read(4))[0]
         """
         data = 0
-        for i in range(sensorReadingLength):
+        for i in range(deviceReadingLength):
             data = data << 8 | struct.unpack('<B', serial.read(1))[0]
         """
-        m = DataUpdate(controllerId, sensorTypeId, sensorReadingLength, data, serial)
+        m = DataUpdate(controllerId, DeviceTypeId, deviceReadingLength, data, serial)
 
     elif messageId is HibikeMessageType.Error:
         errorCode = ErrorCode(struct.unpack('<B', serial.read(1))[0])

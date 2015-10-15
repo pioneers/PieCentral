@@ -126,3 +126,14 @@ HibikeMessage* receiveHibikeMessage() {
   }
   return m;
 }
+
+
+// Caclulates the checksum of the first length bytes in data
+// Checksum is the XOR of every other byte in data
+uint8_t calculateChecksum(char *data, int length) {
+  uint8_t checksum = data[0];
+  for (int counter = 2; counter < length; counter += 2) {
+    checksum ^= data[counter];
+  }
+  data[length] = checksum;
+}

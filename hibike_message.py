@@ -215,3 +215,28 @@ def receiveHibikeMessage(serial):
         Error(controllerId, ErrorCode.ChecksumMismatch, serial).send()
         return None
     return m
+
+
+
+
+# Single class Message
+# contains the various fields, message id, controller id, payload
+
+
+# computeChecksum(message)
+# Given a message, computes the checksum
+
+
+# send(Message) 
+# Sends this message
+# Computes the checksum
+# Then sends each byte of the message, and finally sends the checksum byte
+
+
+# read()
+# constructs a new object Message by continually reading from input
+# Uses dictionary to figure out length of data to know how many bytes to read
+
+
+# Dictionary that maps from message type to length of payload (possibly 0)
+# Should be the only "message definitions" we need

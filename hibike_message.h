@@ -113,4 +113,15 @@ class Error : public HibikeMessage
 
 //// MESSAGE RECEIVING /////////////////////////////////////////////////////////
 HibikeMessage* receiveHibikeMessage();
+
+
+
+
+//////////// New Stuff ///////////////
+struct message
+{
+  uint8_t messageId;
+  uint8_t controllerId;
+  
+} message_t;
 #endif /* HIBIKE_H */

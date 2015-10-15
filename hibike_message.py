@@ -37,6 +37,16 @@ class ErrorCode(Enum):
     ChecksumMismatch   = 0xFE
     GenericError       = 0xFF
 
+"""
+Lengths of Various Message Types
+"""
+class ErrorCode(Enum):
+    InvalidMessageType = 0xFB
+    MalformedMessage   = 0xFC
+    InvalidArduinoId   = 0xFD
+    ChecksumMismatch   = 0xFE
+    GenericError       = 0xFF
+
 class HibikeMessageException(Exception):
     def __init__(self, value):
         self.value = value

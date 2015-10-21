@@ -2,6 +2,8 @@
 #define HIBIKE_H
 #include "Arduino.h"
 
+#define MAX_PAYLOAD_SIZE 12
+
 // Enumerations
 typedef enum {
     SUBCRIPTION_REQUEST     = 0x01,
@@ -16,25 +18,29 @@ typedef enum {
 // TODO: fill out the rest of these enumerations
 // TODO: find a clean way to enumerate payload length;
 //       should be easier on the device side
+#define SUBSCRIPTION_REQUEST_PAYLOAD 1
+#define SUBSCRIPTION_RESPONSE_PAYLOAD 12
+#define DATA_UPDATE_PAYLOAD 1
+
 typedef enum {
     LIMIT_SWITCH    = 0x01,
-} deviceType
+} deviceID
 
 typedef enum {
     GENERIC_ERROR   = 0xFF,
-}
+} errorID
 
 // Struct definitions
 struct hibikeMessage {
-    uint8_t messageID;
-    uint8_t payload;
-    uint8_t checksum;
+    uint8_t  messageID;
+    uint8_t* payload;
+    uint8_t  checksum;
 } message_t;
 
 // Function prototypes
 uint8_t checksum(message_t*);
-void send(message_t*);
-message_t* readPort(void);
-uint8_t readSensor(void);
+int getPayloadLength(message_t*);
+void writeMessage(message_t*);
+void readMessage(message_t*);
 
 #endif /* HIBIKE_H */

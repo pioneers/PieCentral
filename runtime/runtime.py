@@ -2,7 +2,6 @@ import subprocess, signal, sys
 import ansible
 import threading
 import time
-#import student_code.student_code as StudentCode
 import grizzly
 #from api import Robot
 
@@ -20,7 +19,7 @@ import grizzly
 #peripheral_thread.daemon = True
 #peripheral_thread.start()
 
-runningCode = False
+running_code = False
 
 
 pobs = set() # set of all active processes
@@ -51,24 +50,24 @@ def p_watch(p):
 while True:
     command = ansible.recv() 
     if command:
-        print("recv msg from ansible")
+        print("Message received from ansible!")
         msg_type, content = command['header']['msg_type'], command['content']
         if msg_type == 'execute':
-            print("exec")
-            if not runningCode:
-                p = subprocess.Popen('student_code/student_code.py') #may need to change python version
+			print("Ansible said to start the code")
+            if not running_code:
+                p = subprocess.Popen(['python', 'student_code/student_code.py'])
                 with pobslock:
                     pobs.add(p)
                 #makes a deamon thread to supervise the process
                 t = threading.Thread(target=p_watch, args=(p))
-                t.daemon=True
+                t.daemon = True
                 t.start()
-                runningCode = True
+                running_code = True
         elif msg_type == 'stop':
-            print("STAPH")
-            if runningCode:
+			print("Ansible said to stop the code")
+            if running_code:
                 with pobslock:
-                    print 'killed'
+                    print("killed")
                     for p in pobs: p.kill()
                 #kill all motor values 
-                runningCode = False
+                running_code = False

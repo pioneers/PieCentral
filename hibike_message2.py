@@ -56,6 +56,14 @@ class HibikeMessage:
         message.append(b)
       return message
 
+    def mes_to_byte(self):
+      m_buff = bytearray()
+      m_buff.append(getmessageID())
+      m_buff.append(getPayload())
+      return m_buff
+
+
+
 
 # return the top 16 bits of UID
 def getDeviceType(uid):
@@ -87,14 +95,8 @@ def checksum(data):
 def send(message):
   # Remove this later after development
   assert type(message) == bytearray, "message must be a bytearray"
-
-  m_buff = bytearray()
-  m_buff.append(message.getmessageID())
-  m_buff.append(message.getPayload())
-
-
+  m_buff = message.mes_to_byte()
   chk = checksum(m_buff)
-  m_buff.append(chk)
   serial.write(m_buff)
   serial.write(chr(chk))
 

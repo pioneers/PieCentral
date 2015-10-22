@@ -1,76 +1,64 @@
 #include "hibike_message2.h"
 
-message_t hibikeMessage;
-uint8_t payloadArray[MAX_PAYLOAD_SIZE] = {};
-
-
-uint8_t checksum(message_t* msg) {
-  uint8_t chk = msg->messageID;
-  int payload_length = getPayloadLength(msg);
-  if (payload_length < 0) {
-    // TODO: throw temper tantrum here
+uint8_t checksum(uint8_t *data, int length) {
+  uint8_t chk = data[0];
+  for (int i=2; i<length, i++) {
+    chk ^= data[i];
   }
-
-  for (int i=0; i<payload_length; i++) {
-    chk ^= msg->payload[i];
-  }
-
   return chk;
 }
 
 
-int getPayloadLength(message_t* msg) {
-  int payload_length;
-
-  switch (msg->messageID) {
-    case SUBSCRIPTION_REQUEST:
-      payload_length = SUBSCRIPTION_REQUEST_PAYLOAD;
-      break;
-
-    case SUBSCRIPTION_RESPONSE:
-      payload_length = SUBSCRIPTION_RESPONSE_PAYLOAD;
-      break;
-
-    case DATA_UPDATE:
-      payload_length = DATA_UPDATE_PAYLOAD;
-      break;
-
-    default:
-      payload_length = -1;
+int send_message(message_t *msg) {
+  uint8_t data[msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES];
+  message_to_byte(data, msg);
+  data[msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES] = checksum(&data, msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
+  uint8_t written = Serial.write(data, msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES);
+  if (written != msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES) {
+    return -1;
   }
-
-  return payload_length;
+  return 0
 }
 
 
-void writeMessage(message_t* msg) {
-  msg->checksum = checksum(msg);
+// Returns 0 on success, -1 on error (ex. no message)
+// If checksum does not match, empties the incoming buffer. 
+int read_message(message_t *msg) {
+  if (!Serial.available()) {
+    return -1;
+  }
 
-  Serial.write(msg->messageID);
-  Serial.write(msg->payload, getPayloadLength(msg));
-  Serial.write(msg->checksum);
+  uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES]; 
+  Serial.readBytes(&data, MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
+  int length = data[MESSAGEID_BYTES];
+  Serial.readBytes(&data+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES, length);
+
+  uint8_t chk = checksum(data, length+
+    MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES);
+  uint8_t expected_chk = Serial.read();
+
+  if (expected_chk == -1 or chk != expected_chk) {
+    // Empty incoming buffer
+    while (Serial.available() > 0) {
+      Serial.read();
+    }
+    return -1;
+  }
+
+  msg->messageID = data[0];
+  msg->payload_length = data[MESSAGEID_BYTES];
+  for (int i = 0; i < length; i++){
+    msg->payload[i] = data[i+2s];
+  }
+
+  return 0;
 }
 
 
-void readMessage(message_t* msg) {
-  if (!Serial.available()) return;
-  memset(msg->payload, 0, MAX_PAYLOAD_SIZE);
-
-  messageID msgID;
-  Serial.readBytes((char*) &msgID, 4);
-  msg->messageID = (uint8_t) msgID;
-
-  switch (msgID) {
-    case SUBSCRIPTION_REQUEST:
-      Serial.readBytes(msg->payload, );
-      Serial.readBytes(&(msg->checksum), 1);
-      break;
-
-    default:
-      return;
-  }
-
-  if (checksum(msg) != msg->checksum) {
-    // TODO: throw temper tantrum here
+void message_to_byte(uint8_t *data, message_t *msg) {
+  data[0] = msg->messageID;
+  data[1] = msg->payload_length;
+  for (int i = 0; i < length; i++){
+    data[i+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES] = msg->payload[i];
   }
 }

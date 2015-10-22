@@ -37,46 +37,47 @@ errorCodes = {
 }
 
 class HibikeMessage:
-    def __init__(self, messageID, payload):
-        assert messageID in messageTypes.values()
-        self._messageID = messageID
-        self._payload = payload[:]
+  def __init__(self, messageID, payload):
+    assert messageID in messageTypes.values()
+    self._messageID = messageID
+    self._payload = payload[:]
+    self.length = len(payload)
 
-    def getmessageID(self):
-        return self._messageID
+  def getmessageID(self):
+    return self._messageID
 
-    # Returns a copy of payload as a bytearray
-    def getPayload(self):
-      return self._payload[:]
+  # Returns a copy of payload as a bytearray
+  def getPayload(self):
+    return self._payload[:]
 
-    def serialize(self):
-      message = bytearray()
-      message.append(_messageID)
-      for b in self._payload:
-        message.append(b)
-      return message
+  def serialize(self):
+    message = bytearray()
+    message.append(_messageID)
+    for b in self._payload:
+      message.append(b)
+    return message
 
-    def mes_to_byte(self):
-      m_buff = bytearray()
-      m_buff.append(getmessageID())
-      m_buff.append(getPayload())
-      return m_buff
+  def toByte(self):
+    m_buff = bytearray()
+    m_buff.append(getmessageID())
+    m_buff.append(getPayload())
+    return m_buff
 
 
 
 
 # return the top 16 bits of UID
 def getDeviceType(uid):
-    return int(uid >> 72)
+  return int(uid >> 72)
 
 # return bits [71: 64] of the UID
 def getYear(uid):
-    temp = uid >> 64
-    return int(temp & 0xff)
+  temp = uid >> 64
+  return int(temp & 0xff)
 
 # return bits[63: 0] of the UID
 def getID(uid):
-    return uid & 0xffffffffffffffff
+  return uid & 0xffffffffffffffff
 
 
 # Given a message, computes the checksum
@@ -93,9 +94,7 @@ def checksum(data):
 # Computes the checksum
 # Then sends each byte of the message, and finally sends the checksum byte
 def send(message, serial_conn):
-  # Remove this later after development
-  assert type(message) == bytearray, "message must be a bytearray"
-  m_buff = message.mes_to_byte()
+  m_buff = message.toByte()
   chk = checksum(m_buff)
   serial_conn.write(m_buff)
   serial_conn.write(chr(chk))

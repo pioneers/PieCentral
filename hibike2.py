@@ -11,6 +11,8 @@ from hibike_message2 import *
 # uids - {port: uid}
 # devices - {port : devicetype}
 # data - {port : data}
+# connections - {port : Serial}
+# ports - {uid: port}
 
 class Hibike():
     def __init__(self):
@@ -18,6 +20,7 @@ class Hibike():
         self._devices = dict()
         self._data = dict()
         self._connections = dict()
+        self._ports = dict()
 
         self._enumerateSerialPorts()
 
@@ -25,10 +28,29 @@ class Hibike():
     def getEnumeratedDevices(self):
         return dict(self._devices)
 
-    # TODO
+    # TODO decide on how to handle failures
+    # devices = [(UID, delay)]
     def subToDevices(self, devices):
-        for device in devices:
-            pass
+        errors = []
+        for UID, delay in devices:
+            subReq = HibikeMessage(messageTypes['SubscriptionRequest'], 
+                                bytearray([delay]))
+            serial_conn = self._connections[self._ports[UID]]
+            send(subReq, serial_conn)
+            time.sleep(0.1)
+            subRes = read(serial_conn)
+            if subRes == None or subRes == -1:
+                # TODO
+                errors.append(((UID, delay), subRes))
+                continue
+            response_UID = subRes.getPayload()[:11]
+            response_delay = subRes.getPayload()[11:]
+            if UID == response_UID and delay == response_delay:
+                pass
+            else:
+                # TODO
+                errors.append(((UID, delay), (response_UID, response_delay)))
+        return errors
 
 
     # returns the latest device reading, given its port
@@ -61,6 +83,7 @@ class Hibike():
             self._devices[p] = getDeviceType(uid)
             self._data[p] = 0
             self._connections[p] = serial_conns[p]
+            self._ports[uid] = p
 
 
     def _spawnHibikeThread(self):
@@ -69,8 +92,14 @@ class Hibike():
 
 # TODO: implement multithreading :)
 class HibikeThread():
-    def __init__(self):
-        pass
+    def __init__(self, hibike):
+        self.hibike = hibike
 
     def checkSerialPorts(self):
-        pass
+        for port, serial_conn in self.hibike._connections.items():
+            msg = read(serial_conn)
+            if msg == None or msg == -1:
+                continue
+            if msg.getMessageID() == messageTypes["DataUpdate"]:
+                self.hibike._data[port] = msg.getPayload()
+

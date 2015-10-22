@@ -2,7 +2,7 @@ from grizzly import *
 
 class Motors:
     # initializes Grizzly motor to use default settings
-    def __init__(self, addr, name)
+    def __init__(self, addr):
         self.g = Grizzly(addr)
         self.set_settings_default()        
 
@@ -18,6 +18,7 @@ class Motors:
     
     def set_mode_PID(self):
         # TODO: figure out what ControlMode and DriveMode do        
+        return
 
     def set_speed(self, speed):
         if speed > 100 or speed < -100:

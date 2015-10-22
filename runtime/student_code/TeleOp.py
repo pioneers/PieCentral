@@ -3,6 +3,11 @@
 # Student run this class. 
 # -------
 
+from griff.api import Robot
+from griff.api import Gamepad
+from griff.api import Sensors
+
+class TeleOp:
     
     # Use this method to write any setup items that
     # need to occur before you run teleop 
@@ -11,6 +16,7 @@
         self.gamepads = Gamepads.get_gamepads()
         self.sensors = Sensors()       
 
+    def run(self):
         # Example
         motor0 = robot.motors[0]
         motor1 = robot.motors[1]
@@ -20,8 +26,8 @@
             
             left_motor = gamepad.axes(0)[1]
             right_motor = gamepad.axes(0)[3]
-            set_motor('motor1', left_motor * 100);
-            set_motor('motor3', right_motor * 100);
+            motor0.set_speed_from_controller(left_motor)
+            motor1.set_neg_speed_from_controller(right_motor)
             # motor2.set_speed(75)
             # motor3.set_speed(10)
      

@@ -1,5 +1,5 @@
-#ifndef HIBIKE_H
-#define HIBIKE_H
+#ifndef HIBIKE2_H
+#define HIBIKE2_H
 #include "Arduino.h"
 
 #define MAX_PAYLOAD_SIZE    25
@@ -16,26 +16,28 @@ typedef enum {
   DEVICE_STATUS           = 0x05,
   DEVICE_RESPONSE         = 0x06,
   ERROR                   = 0xFF
-} messageID
+} messageID;
 
 typedef enum {
   LIMIT_SWITCH = 0x01,
-} deviceID
+} deviceID;
 
 typedef enum {
   GENERIC_ERROR   = 0xFF,
-} errorID
+} errorID;
 
 // Struct definitions
-struct hibikeMessage {
+typedef struct hibikeMessage {
   uint8_t messageID;
   uint8_t payload[MAX_PAYLOAD_SIZE];
   uint8_t payload_length;
 } message_t;
 
 // Function prototypes
-uint8_t checksum(uint8_t *data, int length);
-void send_message(message_t*);
-void read_message(message_t*);
+uint8_t checksum(uint8_t* data, int length);
+int send_message(message_t* msg);
+int read_message(message_t* msg);
+void message_to_byte(uint8_t* data, message_t* msg);
 
-#endif /* HIBIKE_H */
+
+#endif /* HIBIKE2_H */

@@ -35,6 +35,9 @@ class Hibike():
     def getData(self, port):
         return self._data[port]
 
+    def writeData(self, port):
+        raise NotImplementedError
+
     def _getPorts(self):
         return ['/dev/%s' % port for port in os.listdir("/dev/") 
                 if port[:6] == "ttyUSB"]

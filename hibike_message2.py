@@ -84,7 +84,7 @@ def checksum(data):
 # Sends this message
 # Computes the checksum
 # Then sends each byte of the message, and finally sends the checksum byte
-def send(message):
+def send(message, serial_conn):
   # Remove this later after development
   assert type(message) == bytearray, "message must be a bytearray"
 
@@ -95,8 +95,8 @@ def send(message):
 
   chk = checksum(m_buff)
   m_buff.append(chk)
-  serial.write(m_buff)
-  serial.write(chr(chk))
+  serial_conn.write(m_buff)
+  serial_conn.write(chr(chk))
 
 # constructs a new object Message by continually reading from input
 # Uses dictionary to figure out length of data to know how many bytes to read
@@ -104,19 +104,19 @@ def send(message):
     # None if no message
     # -1 if checksum does not match
     # Otherwise returns a new HibikeMessage with message contents
-def read(port):
-  if port.inWaiting() == 0:
+def read(serial_conn):
+  if serial_conn.inWaiting() == 0:
     return None
   message = bytearray()
 
-  messageID = port.read()
+  messageID = serial_conn.read()
   message.append(messageID)
 
   payloadLength = messagePayloadLengths[messageID]
-  payload = port.read(payloadLength)
+  payload = serial_conn.read(payloadLength)
   message.append(payload)
 
-  chk = port.read()
+  chk = serial_conn.read()
   if chk != checksum(message):
     return -1
 

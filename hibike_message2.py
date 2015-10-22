@@ -72,13 +72,13 @@ def getID(uid):
 
 
 # Given a message, computes the checksum
-def checksum(message):
+def checksum(data):
   # Remove this later after development
-  assert type(message) == bytearray, "message must be a bytearray"
+  assert type(data) == bytearray, "data must be a bytearray"
 
-  chk = message[0]
-  for i in range(2, len(message), 2):
-    chk ^= message[i]
+  chk = data[0]
+  for i in range(2, len(data), 2):
+    chk ^= data[i]
   return chk
 
 # Sends this message
@@ -88,8 +88,14 @@ def send(message):
   # Remove this later after development
   assert type(message) == bytearray, "message must be a bytearray"
 
-  chk = checksum(message)
-  serial.write(message)
+  m_buff = bytearray()
+  m_buff.append(message.getmessageID())
+  m_buff.append(message.getPayload())
+
+
+  chk = checksum(m_buff)
+  m_buff.append(chk)
+  serial.write(m_buff)
   serial.write(chr(chk))
 
 # constructs a new object Message by continually reading from input

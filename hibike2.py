@@ -92,8 +92,14 @@ class Hibike():
 
 # TODO: implement multithreading :)
 class HibikeThread():
-    def __init__(self):
-        pass
+    def __init__(self, hibike):
+        self.hibike = hibike
 
     def checkSerialPorts(self):
-        pass
+        for port, serial_conn in self.hibike._connections.items():
+            msg = read(serial_conn)
+            if msg == None or msg == -1:
+                continue
+            if msg.getMessageID() == messageTypes["DataUpdate"]:
+                self.hibike._data[port] = msg.getPayload()
+

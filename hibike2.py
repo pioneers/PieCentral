@@ -31,8 +31,8 @@ class Hibike():
         return self._data[port]
 
     def _getPorts(self):
-        # TODO: find and return all active USB ports
-        return ['/dev/ttyUSB0']
+        return ['/dev/%s' % port for port in os.listdir("/dev/") 
+                if port[:6] == "ttyUSB"]
 
     def _enumerateSerialPorts(self):
         ports = self._getPorts()

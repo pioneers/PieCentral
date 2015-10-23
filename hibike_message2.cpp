@@ -29,13 +29,13 @@ int read_message(message_t *msg) {
   }
 
   uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES]; 
-  Serial.readBytes(&data, MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
+  Serial.readBytes((char*) &data, MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
   int length = data[MESSAGEID_BYTES];
-  Serial.readBytes(&data+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES, length);
+  Serial.readBytes((char*) &data+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES, length);
 
   uint8_t chk = checksum(data, length+
     MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES);
-  uint8_t expected_chk = Serial.read();
+  int expected_chk = Serial.read();
 
   if ((expected_chk == -1) || (chk != expected_chk)) {
     // Empty incoming buffer

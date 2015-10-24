@@ -26,7 +26,7 @@ class Hibike():
 
 
     def getEnumeratedDevices(self):
-        return dict(self._devices)
+        return {self._uids[port]: self._devices[port] for port in self._uids}
 
     # TODO decide on how to handle failures
     # devices = [(UID, delay)]

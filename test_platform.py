@@ -3,7 +3,7 @@ import time
 import pdb
 
 h = Hibike()
-dev = h.getEnumeratedDevices()
+dev = [(uid, 0) for uid in h.getEnumeratedDevices()]
 print(dev)
 time.sleep(0.5)
 pdb.set_trace()

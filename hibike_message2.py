@@ -17,8 +17,8 @@ messageTypes = {
 
 # Dictionary of message types: payload length
 messagePayloadLengths = {
-  messageTypes["SubscriptionRequest"] :  1,
-  messageTypes["SubscriptionResponse"] : 12,
+  messageTypes["SubscriptionRequest"] :  2,
+  messageTypes["SubscriptionResponse"] : 13,
   # TODO: find a clean way to not hardcode this
   messageTypes["DataUpdate"] :           1,
   messageTypes["DeviceUpdate"] :         5,

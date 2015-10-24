@@ -132,7 +132,7 @@ Note: These assignments are also fairly random and may not all even be
 
         +---------------+
         |     Delay     |
-        |    (8 bits)   |
+        |   (16 bits)   |
         +---------------+
 
     Direction:
@@ -144,7 +144,7 @@ Note: These assignments are also fairly random and may not all even be
 
         +--------------------------+--------------------+
         |          UID             |       Delay        |
-        |       (88 bits)          |      (8 bits)      |
+        |       (88 bits)          |     (16 bits)      |
         +--------------------------+--------------------+
 
     Direction:

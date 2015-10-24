@@ -1,139 +1,64 @@
 #include "hibike_message.h"
 
-//// CLASS METHOD IMPLEMENTATIONS //////////////////////////////////////////////
-
-//// FUN WITH CHECKSUMS //////////////////////////////////////////////
-
-void SubscriptionRequest::calculateChecksum() {
-  if (checksumCalculated) return;
-  checksum ^= (uint8_t) messageId;
-  checksum ^= controllerId;
-  checksum ^= subscriptionDelay & 0xFF;
-  checksum ^= (subscriptionDelay >> 8) & 0xFF;
-  checksum ^= (subscriptionDelay >> 16) & 0xFF;
-  checksum ^= (subscriptionDelay >> 24) & 0xFF;
-  checksumCalculated = true;
-}
-
-void SubscriptionResponse::calculateChecksum() {
-  if (checksumCalculated) return;
-  checksum ^= (uint8_t) messageId;
-  checksum ^= controllerId;
-  checksumCalculated = true;
-}
-
-void SensorUpdate::calculateChecksum() {
-  if (checksumCalculated) return;
-  checksum ^= (uint8_t) messageId;
-  checksum ^= controllerId;
-  checksum ^= (uint8_t) sensorTypeId;
-  checksum ^= sensorReadingLength & 0xFF;
-  checksum ^= (sensorReadingLength >> 8) & 0xFF;
-  for (uint16_t i = 0; i < sensorReadingLength; i++) {
-    checksum ^= *(dataPtr+i) & 0xFF;
+uint8_t checksum(uint8_t data[], int length) {
+  uint8_t chk = data[0];
+  for (int i=2; i<length; i++) {
+    chk ^= data[i];
   }
-  checksumCalculated = true;
+  return chk;
 }
 
-void Error::calculateChecksum() {
-  if (checksumCalculated) return;
-  checksum ^= (uint8_t) messageId;
-  checksum ^= controllerId;
-  checksum ^= (uint8_t) errorCode;
-  checksumCalculated = true;
+
+int send_message(message_t *msg) {
+  uint8_t data[msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES];
+  message_to_byte(data, msg);
+  data[msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES] = checksum(data, msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
+  uint8_t written = Serial.write(data, msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES);
+  if (written != msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES) {
+    return -1;
+  }
+  return 0;
 }
 
-//// MESSAGE SENDING /////////////////////////////////////////////////
 
-// Note: we assume that Serial (from the Arduino libraries) has already
-// been imported
-void SubscriptionRequest::send() {
-  calculateChecksum();
-  Serial.write((uint8_t) messageId);
-  Serial.write(controllerId);
-  Serial.write((uint8_t*) &subscriptionDelay, sizeof(uint32_t));
-  Serial.write(checksum);
-}
-
-void SubscriptionResponse::send() {
-  calculateChecksum();
-  Serial.write((uint8_t) messageId);
-  Serial.write(controllerId);
-  Serial.write(checksum);
-}
-
-void SensorUpdate::send() {
-  calculateChecksum();
-  Serial.write((uint8_t) messageId);
-  Serial.write(controllerId);
-
-  Serial.write((uint8_t) sensorTypeId);
-  Serial.write((uint8_t*) &sensorReadingLength, sizeof(uint16_t));
-  Serial.write(dataPtr, (size_t) sensorReadingLength);
-
-  Serial.write(checksum);
-}
-
-void Error::send() {
-  calculateChecksum();
-  Serial.write((uint8_t) messageId);
-  Serial.write(controllerId);
-  Serial.write((uint8_t) errorCode);
-  Serial.write(checksum);
-}
-
-//// MESSAGE RECEIVING /////////////////////////////////////////////////////////
-//
-// Receives an incoming hibike message.
-// Returns a null pointer if no data is on the serial port.
-//
-// Note that Arduino's Serial.readBytes function automatically
-// waits until either the given number of bytes are successfully
-// read or a timeout occurs (defaults to 1000ms, but this is an
-// eternity for our use case so we should probably change this to a
-// few ms at most).
-//
-HibikeMessage* receiveHibikeMessage() {
+// Returns 0 on success, -1 on error (ex. no message)
+// If checksum does not match, empties the incoming buffer. 
+int read_message(message_t *msg) {
   if (!Serial.available()) {
-    return nullptr;
+    return -1;
   }
-  //TODO: implement better error checking to detect/deal with possible failures
-  HibikeMessageType messageId;
-  uint8_t controllerId, checksum;
-  HibikeMessage *m;
-  Serial.readBytes((char*) &messageId, 1);
-  Serial.readBytes((char*) &controllerId, 1);
-  switch (messageId) {
-    case HibikeMessageType::SubscriptionRequest:
-      uint32_t subscriptionDelay;
-      Serial.readBytes((char*) &subscriptionDelay, 4);
-      m = new SubscriptionRequest(controllerId, subscriptionDelay);
-      break;
-    case HibikeMessageType::Error:
-      // TODO: add proper error handling dependant on errorCode
-      ErrorCode errorCode;
-      Serial.readBytes((char*) &errorCode, 1);
-      m = new Error(controllerId, errorCode);
-      break;
-    default:
-      // TODO: implement missing message types
-      Error(controllerId, ErrorCode::InvalidMessageType).send();
+
+  uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES]; 
+  Serial.readBytes((char*) &data, MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
+  int length = data[MESSAGEID_BYTES];
+  Serial.readBytes((char*) &data+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES, length);
+
+  uint8_t chk = checksum(data, length+
+    MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES);
+  int expected_chk = Serial.read();
+
+  if ((expected_chk == -1) || (chk != expected_chk)) {
+    // Empty incoming buffer
+    while (Serial.available() > 0) {
+      Serial.read();
+    }
+    return -1;
   }
-  Serial.readBytes((char*) &checksum, 1);
-  if (checksum ^ m->getChecksum()) {
-    // send an error back to the main controller if the checksums aren't identical
-    Error(controllerId, ErrorCode::ChecksumMismatch).send();
+
+  msg->messageID = data[0];
+  msg->payload_length = data[MESSAGEID_BYTES];
+  for (int i = 0; i < length; i++){
+    msg->payload[i] = data[i+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES];
   }
-  return m;
+
+  return 0;
 }
 
 
-// Caclulates the checksum of the first length bytes in data
-// Checksum is the XOR of every other byte in data
-uint8_t calculateChecksum(char *data, int length) {
-  uint8_t checksum = data[0];
-  for (int counter = 2; counter < length; counter += 2) {
-    checksum ^= data[counter];
+void message_to_byte(uint8_t *data, message_t *msg) {
+  data[0] = msg->messageID;
+  data[1] = msg->payload_length;
+  for (int i = 0; i < msg->payload_length; i++){
+    data[i+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES] = msg->payload[i];
   }
-  data[length] = checksum;
 }

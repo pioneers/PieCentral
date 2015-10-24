@@ -1,4 +1,4 @@
-#include "hibike_message2.h"
+#include "example_device.h"
 
 #define IN_PIN 10
 #define LED_PIN 13
@@ -6,13 +6,14 @@
 message_t hibikeRecieveBuff = {};
 message_t hibikeSendBuff = {};
 uint64_t prevTime, currTime;
-uint16_t delay = 0;
+uint16_t subDelay;
 uint8_t data;
 bool led_enabled;
 
 void setup() {
     Serial.begin(115200);
     prevTime = millis();
+    subDelay = 0;
 
     // Setup Error LED
     pinMode(LED_PIN, OUTPUT);
@@ -32,13 +33,13 @@ void loop() {
     if (read_message(&hibikeRecieveBuff) != -1) {
         switch (hibikeRecieveBuff.messageID) {
             case SUBSCRIPTION_REQUEST:
-                // change delay and send SUB_RESP
-                delay = payload_to_uint16(hibikeRecieveBuff.payload);
+                // change subDelay and send SUB_RESP
+                subDelay = payload_to_uint16(hibikeRecieveBuff.payload);
 
                 // this should really be managed by a sub-function
                 memset(&hibikeRecieveBuff, 0, sizeof(message_t));
                 hibikeRecieveBuff.messageID = SUBSCRIPTION_RESPONSE;
-                uint16_to_payload(hibikeRecieveBuff.payload, delay);
+                uint16_to_payload(subDelay, hibikeRecieveBuff.payload);
                 hibikeRecieveBuff.payload_length = 2;
                 send_message(&hibikeRecieveBuff);
                 break;
@@ -55,19 +56,19 @@ void loop() {
 
             default:
                 // Uh oh...
-                toggleLED()
+                toggleLED();
         }
     }
 
     // Send data update
     currTime = millis();
-    if (currTime - prevTime >= delay) {
+    if (currTime - prevTime >= subDelay) {
         prevTime = currTime;
 
         // This should really be managed by a sub-function
         memset(&hibikeSendBuff, 0, sizeof(message_t));
         hibikeSendBuff.messageID = SUBSCRIPTION_RESPONSE;
-        hibikeSendBuff.payload* = data;
+        *hibikeSendBuff.payload = data;
         hibikeSendBuff.payload_length = 1;
         send_message(&hibikeSendBuff);
     }

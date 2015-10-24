@@ -5,7 +5,7 @@
 # ------
 from grizzly import *
 #import hibike.hibike as sensors
-import Motors
+#import Motors
 
 addrs = Grizzly.get_all_ids()
 motor = {}
@@ -14,7 +14,7 @@ name_to_grizzly = {}
 # Brute force to find all 
 for index in range(len(addrs)):
     # default name for motors is motor0, motor1, motor2, etc 
-    grizzly_motor = Grizzly(index)
+    grizzly_motor = Grizzly(addrs[index])
     grizzly_motor.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_COAST)
     grizzly_motor.limit_acceleration(142)
     grizzly_motor.limit_current(10)

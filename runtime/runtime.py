@@ -53,7 +53,7 @@ while True:
         print("Message received from ansible!")
         msg_type, content = command['header']['msg_type'], command['content']
         if msg_type == 'execute':
-			print("Ansible said to start the code")
+	    print("Ansible said to start the code")
             if not running_code:
                 p = subprocess.Popen(['python', 'student_code/student_code.py'])
                 with pobslock:
@@ -64,7 +64,7 @@ while True:
                 t.start()
                 running_code = True
         elif msg_type == 'stop':
-			print("Ansible said to stop the code")
+	    print("Ansible said to stop the code")
             if running_code:
                 with pobslock:
                     print("killed")

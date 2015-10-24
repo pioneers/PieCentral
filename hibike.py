@@ -66,7 +66,7 @@ class Hibike():
 
     def _enumerateSerialPorts(self):
         ports = self._getPorts()
-        serial_conns = {p: Serial.serial(p, 115200) for p in ports}
+        serial_conns = {p: serial.Serial(p, 115200) for p in ports}
         pingMsg = HibikeMessage(messageTypes['SubscriptionRequest'], 
                                 bytearray([0]))
 

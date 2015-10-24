@@ -22,13 +22,15 @@ Tenshi codebase and then never thought about again.
 All messages have the relatively simple structure of Message ID, Payload, and Checksum as
 depicted below. A more complete description of each field is given below the diagram.
 
-    +------------+---------------------+------------+
-    | Message ID |       Payload       |  Checksum  |
-    |  (8 bits)  |   (length varies)   |  (8 bits)  |
-    +------------+---------------------+------------+
+    +------------+--------------------+---------------------+------------+
+    | Message ID |  Payload Length    |       Payload       |  Checksum  |
+    |  (8 bits)  |      (8 bits)      |   (length varies)   |  (8 bits)  |
+    +------------+--------------------+---------------------+------------+
 
 Message ID - an 8-bit ID specifying the type of message being sent or received. More information
              about each message type is specified in the following sections.
+
+Payload Length - an 8-bit unsigned integer specifying the number of bytes in the payload
 
 Payload    - Varies wildly depending on the type of message being sent. This will, of course, be
              described in more detail in Section 4.
@@ -152,7 +154,6 @@ Note: These assignments are also fairly random and may not all even be
 
 3. Data Update: SD sends its state values based on the given delay 
                 (refresh rate). BBB does not send an ACK packet back.
-                Reading length determined by Device Type.
     Payload format:
 
         +------------------------+

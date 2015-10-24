@@ -1,5 +1,7 @@
 # Rewritten because Python.__version__ != 3
 import serial
+import struct
+import pdb
 
 # Dictionary of message types: message id
 messageTypes = {
@@ -49,15 +51,15 @@ class HibikeMessage:
 
   def serialize(self):
     message = bytearray()
-    message.append(_messageID)
+    message.append(self._messageID)
     for b in self._payload:
       message.append(b)
     return message
 
   def toByte(self):
     m_buff = bytearray()
-    m_buff.append(getmessageID())
-    m_buff.append(getPayload())
+    m_buff.append(self._messageID)
+    m_buff.extend(self.getPayload())
     return m_buff
 
 
@@ -108,9 +110,10 @@ def read(serial_conn):
     return None
   message = bytearray()
 
-  messageID = serial_conn.read()
+  messageID = struct.unpack('<B', serial_conn.read())[0]
   message.append(messageID)
 
+  pdb.set_trace()
   payloadLength = messagePayloadLengths[messageID]
   payload = serial_conn.read(payloadLength)
   message.append(payload)

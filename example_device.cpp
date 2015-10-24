@@ -1,8 +1,5 @@
 #include "example_device.h"
 
-#define IN_PIN 10
-#define LED_PIN 13
-
 message_t hibikeRecieveBuff = {};
 message_t hibikeSendBuff = {};
 uint64_t prevTime, currTime;

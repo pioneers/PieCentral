@@ -9,6 +9,6 @@ while True:
         'peripheral': {
             'id': 1234,
             'peripheralType': 'SENSOR_SCALAR',
-            'value': random.rand_int(0, 100)
+            'value': random.randint(0, 100)
         }
     })

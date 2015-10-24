@@ -97,9 +97,6 @@ RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
     case ActionTypes.UPDATE_PERIPHERAL:
       handleUpdatePeripheral(action);
       break;
-    case 'peripherals':
-      interpretPeripheralsMessage(action);
-      break;
   }
 });
 

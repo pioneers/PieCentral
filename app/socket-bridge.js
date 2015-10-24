@@ -18,7 +18,7 @@ export default function socketBridge(app) {
       if (data.header != null &&
         data.header.msg_type != null) {
         // socket.emit(data.header.msg_type, data);
-        unpackedMessage = data.content;
+        var unpackedMessage = data.content;
         unpackedMessage.type = data.header.msg_type;
         socket.send(unpackedMessage);
         debug('Passing data to client on event ' + data.header.msg_type + ':');

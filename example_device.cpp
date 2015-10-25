@@ -25,50 +25,70 @@ void setup() {
 void loop() {
     // Read sensor
     data = digitalRead(IN_PIN);
+    currTime = millis();
 
     // Check for Hibike packets
-    if (read_message(&hibikeRecieveBuff) != -1) {
+    if (Serial.available()) {
+        if (read_message(&hibikeRecieveBuff) == -1) {
+            toggleLED();
+        }
+
         switch (hibikeRecieveBuff.messageID) {
             case SUBSCRIPTION_REQUEST:
                 // change subDelay and send SUB_RESP
                 subDelay = payload_to_uint16(hibikeRecieveBuff.payload);
+                memset(&hibikeRecieveBuff, 0, sizeof(message_t));
 
                 // this should really be managed by a sub-function
-                memset(&hibikeRecieveBuff, 0, sizeof(message_t));
-                hibikeRecieveBuff.messageID = SUBSCRIPTION_RESPONSE;
-                uint16_to_payload(subDelay, hibikeRecieveBuff.payload);
-                hibikeRecieveBuff.payload_length = 2;
-                send_message(&hibikeRecieveBuff);
+                memset(&hibikeSendBuff, 0, sizeof(message_t));
+                hibikeSendBuff.messageID = SUBSCRIPTION_RESPONSE;
+                uint16_to_payload(subDelay, hibikeSendBuff.payload);
+                hibikeSendBuff.payload_length = 2;
+                send_message(&hibikeSendBuff);
                 break;
 
             case SUBSCRIPTION_RESPONSE:
                 // Unsupported packet
+                while (Serial.available() > 0) {
+                    Serial.read();
+                }
                 toggleLED();
                 break;
 
             case DATA_UPDATE:
                 // Unsupported packet
+                while (Serial.available() > 0) {
+                    Serial.read();
+                }
                 toggleLED();
                 break;
 
             default:
                 // Uh oh...
+                while (Serial.available() > 0) {
+                    Serial.read();
+                }
                 toggleLED();
         }
     }
 
-    // Send data update
-    currTime = millis();
-    if (currTime - prevTime >= subDelay) {
+    if (currTime - prevTime >= 1000) {
         prevTime = currTime;
-
-        // This should really be managed by a sub-function
-        memset(&hibikeSendBuff, 0, sizeof(message_t));
-        hibikeSendBuff.messageID = SUBSCRIPTION_RESPONSE;
-        *hibikeSendBuff.payload = data;
-        hibikeSendBuff.payload_length = 1;
-        send_message(&hibikeSendBuff);
+        toggleLED();
     }
+
+    // Send data update
+    // currTime = millis();
+    // if (subDelay != 0 && currTime - prevTime >= subDelay) {
+    //     prevTime = currTime;
+
+    //     // This should really be managed by a sub-function
+    //     memset(&hibikeSendBuff, 0, sizeof(message_t));
+    //     hibikeSendBuff.messageID = SUBSCRIPTION_RESPONSE;
+    //     *hibikeSendBuff.payload = data;
+    //     hibikeSendBuff.payload_length = 1;
+    //     send_message(&hibikeSendBuff);
+    // }
 }
 
 // Assumes payload is little endian

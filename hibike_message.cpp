@@ -2,7 +2,7 @@
 
 uint8_t checksum(uint8_t data[], int length) {
   uint8_t chk = data[0];
-  for (int i=2; i<length; i++) {
+  for (int i=1; i<length; i++) {
     chk ^= data[i];
   }
   return chk;
@@ -29,15 +29,16 @@ int read_message(message_t *msg) {
   }
 
   uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES]; 
-  Serial.readBytes((char*) &data, MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
-  int length = data[MESSAGEID_BYTES];
-  Serial.readBytes((char*) &data+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES, length);
+  Serial.readBytes((char*) data, MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
+  uint8_t length = data[MESSAGEID_BYTES];
+  Serial.readBytes((char*) data+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES, length);
 
   uint8_t chk = checksum(data, length+
     MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES);
-  int expected_chk = Serial.read();
+  int expected_chk_ind = MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+length;
+  Serial.readBytes((char*) data+expected_chk_ind, 1);
 
-  if ((expected_chk == -1) || (chk != expected_chk)) {
+  if (chk != data[expected_chk_ind]) {
     // Empty incoming buffer
     while (Serial.available() > 0) {
       Serial.read();

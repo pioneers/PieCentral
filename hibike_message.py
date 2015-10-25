@@ -40,7 +40,7 @@ class HibikeMessage:
     assert messageID in messageTypes.values()
     self._messageID = messageID
     self._payload = payload[:]
-    self.length = len(payload)
+    self._length = len(payload)
 
   def getmessageID(self):
     return self._messageID
@@ -59,6 +59,7 @@ class HibikeMessage:
   def toByte(self):
     m_buff = bytearray()
     m_buff.append(self._messageID)
+    m_buff.append(self._length)
     m_buff.extend(self.getPayload())
     return m_buff
 
@@ -85,7 +86,7 @@ def checksum(data):
   assert type(data) == bytearray, "data must be a bytearray"
 
   chk = data[0]
-  for i in range(2, len(data), 2):
+  for i in range(1, len(data)):
     chk ^= data[i]
   return chk
 
@@ -113,9 +114,15 @@ def read(serial_conn):
   messageID = struct.unpack('<B', serial_conn.read())[0]
   message.append(messageID)
 
-  pdb.set_trace()
-  payloadLength = messagePayloadLengths[messageID]
-  payload = serial_conn.read(payloadLength)
+  payloadLength = struct.unpack('<B', serial_conn.read())[0]
+  print "payload is: "+str(payloadLength)
+  print "messageID is: "+str(messageID)
+  
+  if payloadLength != 2:
+    print "not parsing payload correctly!"
+
+  rawPayload = serial_conn.read(payloadLength)
+  payload = struct.unpack('<H', rawPayload)[0]
   message.append(payload)
 
   chk = serial_conn.read()

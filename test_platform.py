@@ -14,11 +14,11 @@ import pdb
 # for e in errors:
 # 	print(e)
 
-s = serial.Serial('/dev/ttyUSB5', 115200)
+s = serial.Serial('/dev/ttyUSB1', 115200)
 
-pay = bytearray()
-pay.append(0)
-msg = HibikeMessage(1, pay)
+pay = struct.pack("<H", 100)
+
+msg = HibikeMessage(0, pay)
 
 time.sleep(0.5)
 
@@ -27,3 +27,10 @@ def do():
 	send(msg, s)
 	time.sleep(0.01)
 	print(s.inWaiting())
+
+def show():
+	cache = 0
+	while(1):
+		while(s.inWaiting()):
+			cache = struct.unpack("<B",read(s).getPayload())[0]
+		print cache

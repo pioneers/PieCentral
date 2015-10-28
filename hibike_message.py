@@ -115,12 +115,13 @@ def read(serial_conn):
   message.append(messageID)
 
   payloadLength = struct.unpack('<B', serial_conn.read())[0]
-
+  message.append(payloadLength)
   payload = serial_conn.read(payloadLength)
-  message.append(payload)
+  message.extend(payload)
 
-  chk = serial_conn.read()
+  chk = struct.unpack('<B', serial_conn.read())[0]
   if chk != checksum(message):
+    print(chk, checksum(message), message)
     return -1
 
   return HibikeMessage(messageID, payload)

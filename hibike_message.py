@@ -115,14 +115,8 @@ def read(serial_conn):
   message.append(messageID)
 
   payloadLength = struct.unpack('<B', serial_conn.read())[0]
-  print "payload is: "+str(payloadLength)
-  print "messageID is: "+str(messageID)
-  
-  if payloadLength != 2:
-    print "not parsing payload correctly!"
 
-  rawPayload = serial_conn.read(payloadLength)
-  payload = struct.unpack('<H', rawPayload)[0]
+  payload = serial_conn.read(payloadLength)
   message.append(payload)
 
   chk = serial_conn.read()

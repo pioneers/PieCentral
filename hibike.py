@@ -11,19 +11,21 @@ from hibike_message import *
 
 # connections - {uid: (port, Serial)}
 # data - {uid, data}
+# devices - {uid : devicetype}
 
 
 class Hibike():
     def __init__(self):
         self._data = dict()
         self._connections = dict()
+        self._devices = dict()
 
         self._enumerateSerialPorts()
 
 
     def getEnumeratedDevices(self):
-        #TODO:  this needs to be updated with the new dictionaries!!!!
-        return {self._uids[port]: self._devices[port] for port in self._uids}
+        return self._devices
+        #return {self._uids[port]: self._devices[port] for port in self._uids}
 
     # TODO decide on how to handle failures
     # devices = [(UID, delay)]
@@ -50,10 +52,10 @@ class Hibike():
         return errors
 
 
-    # returns the latest device reading, given its port
-    def getData(self, port):
-        #TODO: modify to fit the new dictionaries!
-        return self._data[port]
+    # returns the latest device reading, given its uid
+    # Liza: not sure if we still want to keep the access via port, since each uid is anyway mapped to the (port, Serial) tuple
+    def getData(self, uid):
+        return self._data[uid]
 
     def writeData(self, port):
         raise NotImplementedError
@@ -65,8 +67,8 @@ class Hibike():
     def _getDeviceReadings(self):
         errors = []
         for uid in self._connections:
-            mes = self._connections[uid]
-            out = read(tup[1])
+            tup = self._connections[uid]
+            mes = read(tup[1])
             if mes ==  -1:
                 print "Checksum doesn't match"
             #parse the message
@@ -113,11 +115,7 @@ class HibikeThread(threading.Thread):
     def run(self):
         while 1:
             try:
-                dev = [(uid, 0) for uid in h.getEnumeratedDevices()]
-                self.hibike.subToDevices(dev)
-                for p in dev:
-                    getData(self, port)
-
+                hibike._getDeviceReadings()
             except:
                 print "Error in Hibike thread."
 

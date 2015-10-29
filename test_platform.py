@@ -14,11 +14,12 @@ import pdb
 # for e in errors:
 # 	print(e)
 
-s = serial.Serial('/dev/ttyUSB5', 115200)
+s = serial.Serial('/dev/ttyUSB0', 115200)
 
 pay = bytearray()
 pay.append(0)
-msg = HibikeMessage(1, pay)
+pay.append(0)
+msg = HibikeMessage(0, pay)
 
 time.sleep(0.5)
 

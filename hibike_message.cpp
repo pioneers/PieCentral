@@ -34,7 +34,7 @@ int read_message(message_t *msg) {
   Serial.readBytes((char*) data+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES, length);
 
   uint8_t chk = checksum(data, length+
-    MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES);
+    MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
   int expected_chk_ind = MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+length;
   Serial.readBytes((char*) data+expected_chk_ind, 1);
 

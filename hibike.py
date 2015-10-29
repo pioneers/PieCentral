@@ -3,29 +3,26 @@ import sys
 import serial
 import binascii
 import time
+import threading
 
 sys.path.append(os.getcwd())
 
 from hibike_message import *
 
-# uids - {port: uid}
-# devices - {port : devicetype}
-# data - {port : data}
-# connections - {port : Serial}
-# ports - {uid: port}
+# connections - {uid: (port, Serial)}
+# data - {uid, data}
+
 
 class Hibike():
     def __init__(self):
-        self._uids = dict()
-        self._devices = dict()
         self._data = dict()
         self._connections = dict()
-        self._ports = dict()
 
         self._enumerateSerialPorts()
 
 
     def getEnumeratedDevices(self):
+        #TODO:  this needs to be updated with the new dictionaries!!!!
         return {self._uids[port]: self._devices[port] for port in self._uids}
 
     # TODO decide on how to handle failures
@@ -55,6 +52,7 @@ class Hibike():
 
     # returns the latest device reading, given its port
     def getData(self, port):
+        #TODO: modify to fit the new dictionaries!
         return self._data[port]
 
     def writeData(self, port):
@@ -63,6 +61,21 @@ class Hibike():
     def _getPorts(self):
         return ['/dev/%s' % port for port in os.listdir("/dev/") 
                 if port[:6] == "ttyUSB"]
+
+    def _getDeviceReadings(self):
+        errors = []
+        for uid in self._connections:
+            mes = self._connections[uid]
+            out = read(tup[1])
+            if mes ==  -1:
+                print "Checksum doesn't match"
+            #parse the message
+            else if mes != None:
+                if mes.getMessageID() == messageTypes["DataUpdate"]:
+                    data[uid] = mes.getPayload()
+                else:
+                    print "Wrong message type sent"
+
 
     def _enumerateSerialPorts(self):
         ports = self._getPorts()
@@ -87,13 +100,27 @@ class Hibike():
 
 
     def _spawnHibikeThread(self):
-        pass
+        h_thread = HibikeThread(self)
+        h_thread.start()
 
 
 # TODO: implement multithreading :)
-class HibikeThread():
+class HibikeThread(threading.Thread):
     def __init__(self, hibike):
+        threading.Thread.__init__(self)
         self.hibike = hibike
+
+    def run(self):
+        while 1:
+            try:
+                dev = [(uid, 0) for uid in h.getEnumeratedDevices()]
+                self.hibike.subToDevices(dev)
+                for p in dev:
+                    getData(self, port)
+
+            except:
+                print "Error in Hibike thread."
+
 
     def checkSerialPorts(self):
         for port, serial_conn in self.hibike._connections.items():

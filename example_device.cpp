@@ -5,7 +5,7 @@ message_t hibikeSendBuff = {};
 const hibike_uid_t UID = {0, 0, 123456789};
 uint64_t prevTime, currTime, heartbeat;
 uint16_t subDelay;
-uint8_t data;
+uint8_t data, reading_offset;
 bool led_enabled;
 
 void setup() {
@@ -37,7 +37,8 @@ void loop() {
         switch (hibikeRecieveBuff.messageID) {
             case SUBSCRIPTION_REQUEST:
                 // change subDelay and send SUB_RESP
-                subDelay = payload_to_uint16(hibikeRecieveBuff.payload);
+                reading_offset = 0;
+                subDelay = uint16_from_message(&hibikeRecieveBuff, &reading_offset);
                 memset(&hibikeRecieveBuff, 0, sizeof(message_t));
                 subscription_response(&hibikeSendBuff, UID, subDelay);
                 send_message(&hibikeSendBuff);

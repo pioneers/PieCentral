@@ -62,6 +62,8 @@ class HibikeMessage:
     m_buff.append(self._length)
     m_buff.extend(self.getPayload())
     return m_buff
+  def __str__(self):
+    return str([self._messageID] + [self._length] + list(self._payload))
 
 
 

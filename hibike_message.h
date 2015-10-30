@@ -6,6 +6,7 @@
 #define MESSAGEID_BYTES     1
 #define PAYLOAD_SIZE_BYTES  1
 #define CHECKSUM_BYTES      1
+#define UID_BYTES           11
 
 // Enumerations
 typedef enum {
@@ -33,10 +34,23 @@ typedef struct hibikeMessage {
   uint8_t payload_length;
 } message_t;
 
+typedef struct hibike_uid {
+  uint16_t device_type;
+  uint8_t year;
+  uint64_t id;
+} hibike_uid_t;
+
 // Function prototypes
 uint8_t checksum(uint8_t* data, int length);
 int send_message(message_t* msg);
 int read_message(message_t* msg);
+void subscription_response(message_t* msg, hibike_uid_t* uid, uint16_t delay);
+void data_update(message_t* msg, uint8_t* data, uint8_t payload_length);
+
+void uid_to_byte(uint8_t* data, hibike_uid_t* uid);
+uint16_t payload_to_uint16(uint8_t* payload);
+void uint16_to_payload(uint16_t data, uint8_t* payload);
+
 void message_to_byte(uint8_t* data, message_t* msg);
 
 

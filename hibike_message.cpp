@@ -55,9 +55,14 @@ int read_message(message_t *msg) {
   return 0;
 }
 
-void subscription_response(message_t* msg, hibike_uid_t* uid, uint16_t delay) {
+void send_subscription_response(hibike_uid_t* uid, uint16_t delay) {
+  msg = message_t;
   msg->messageID = SUBSCRIPTION_RESPONSE;
   msg->payload_length = UID_BYTES;
+
+  msg->payload = (uint8_t) uid->device_type;
+  msg->payload + UID_DEVICE_BYTES = (uint8_t) uid->
+
   uid_to_byte(msg->payload, uid);
   uint16_to_payload(delay, &msg->payload[msg->payload_length]);
   msg->payload_length += sizeof(delay);
@@ -81,12 +86,12 @@ void data_update(message_t* msg, uint8_t* data, uint8_t payload_length) {
 
 // Assumes payload is little endian
 uint16_t payload_to_uint16(uint8_t* payload) {
-    return ((uint16_t) payload[0]) + (((uint16_t) payload[1]) << 8);
+  return ((uint16_t) payload[0]) + (((uint16_t) payload[1]) << 8);
 }
 // Assumes payload is little endian
 void uint16_to_payload(uint16_t data, uint8_t* payload) {
-    payload[0] = (uint8_t) (data & 0xFF);
-    payload[1] = (uint8_t) (data >> 8);
+  payload[0] = (uint8_t) (data & 0xFF);
+  payload[1] = (uint8_t) (data >> 8);
 }
 void message_to_byte(uint8_t *data, message_t *msg) {
   data[0] = msg->messageID;

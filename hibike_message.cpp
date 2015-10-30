@@ -55,27 +55,54 @@ int read_message(message_t *msg) {
   return 0;
 }
 
+
+
+// message constructors
+void subscription_request(message_t* msg, uint16_t delay) {
+  msg->messageID = SUBSCRIPTION_REQUEST;
+  msg->payload_length = 0;
+  uint16_to_message(msg, delay);
+}
 void subscription_response(message_t* msg, hibike_uid_t* uid, uint16_t delay) {
   msg->messageID = SUBSCRIPTION_RESPONSE;
-  msg->payload_length = UID_BYTES;
-  uid_to_byte(msg->payload, uid);
-  uint16_to_payload(delay, &msg->payload[msg->payload_length]);
-  msg->payload_length += sizeof(delay);
+  msg->payload_length = 0;
+  uid_to_message(msg, uid);
+  uint16_to_message(msg, delay);
 }
 
-void uid_to_byte(uint8_t* data, hibike_uid_t* uid) {
-  data[0] = (uint8_t) (uid->device_type & 0xFF);
-  data[1] = (uint8_t) (uid->device_type >> 8);
-  data[2] = uid->year;
-  for (int i = 0; i < sizeof(uid->id); i++) {
-    data[3 + i] = (uint8_t) ((uid->device_type >> (8 * i)) & 0xFF);
-  }
-}
 void data_update(message_t* msg, uint8_t* data, uint8_t payload_length) {
   msg->messageID = DATA_UPDATE;
   msg->payload_length = payload_length;
   memcpy(msg->payload, data, payload_length);
 }
+
+void device_update(message_t* msg, uint8_t param, uint32_t value) {
+  msg->messageID = DEVICE_UPDATE;
+  msg->payload_length = 0;
+  uint8_to_message(msg, param);
+  uint32_to_message(msg, value);
+
+}
+void device_status(message_t* msg, uint8_t param, uint32_t value) {
+  msg->messageID = DEVICE_STATUS;
+  msg->payload_length = 0;
+  uint8_to_message(msg, param);
+  uint32_to_message(msg, value);
+}
+void device_response(message_t* msg, uint8_t param, uint32_t value) {
+  msg->messageID = DEVICE_RESPONSE;
+  msg->payload_length = 0;
+  uint8_to_message(msg, param);
+  uint32_to_message(msg, value);
+}
+void error_message(message_t* msg, uint8_t error_code) {
+  msg->messageID = ERROR;
+  msg->payload_length = 0;
+  uint8_to_message(msg, error_code); 
+}
+
+
+
 
 
 
@@ -88,6 +115,43 @@ void uint16_to_payload(uint16_t data, uint8_t* payload) {
     payload[0] = (uint8_t) (data & 0xFF);
     payload[1] = (uint8_t) (data >> 8);
 }
+
+
+// these functions add to the message payload and increment the payload length
+void uint8_to_message(message_t* msg, uint8_t data) {
+  msg->payload[msg->payload_length] = data;
+  msg->payload_length += sizeof(data);
+}
+void uint16_to_message(message_t* msg, uint16_t data) {
+  msg->payload[msg->payload_length + 0] = (uint8_t) (data & 0xFF);
+  msg->payload[msg->payload_length + 1] = (uint8_t) ((data >> 8) & 0xFF);
+  msg->payload_length += sizeof(data);
+}
+void uint32_to_message(message_t* msg, uint32_t data) {
+  msg->payload[msg->payload_length + 0] = (uint8_t) (data & 0xFF);
+  msg->payload[msg->payload_length + 1] = (uint8_t) ((data >> 8) & 0xFF);
+  msg->payload[msg->payload_length + 2] = (uint8_t) ((data >> 16) & 0xFF);
+  msg->payload[msg->payload_length + 3] = (uint8_t) ((data >> 24) & 0xFF);
+  msg->payload_length += sizeof(data);
+}
+// what's a for loop?
+void uint64_to_message(message_t* msg, uint64_t data) {
+  msg->payload[msg->payload_length + 0] = (uint8_t) (data & 0xFF);
+  msg->payload[msg->payload_length + 1] = (uint8_t) ((data >> 8) & 0xFF);
+  msg->payload[msg->payload_length + 2] = (uint8_t) ((data >> 16) & 0xFF);
+  msg->payload[msg->payload_length + 3] = (uint8_t) ((data >> 24) & 0xFF);
+  msg->payload[msg->payload_length + 4] = (uint8_t) ((data >> 32) & 0xFF);
+  msg->payload[msg->payload_length + 5] = (uint8_t) ((data >> 40) & 0xFF);
+  msg->payload[msg->payload_length + 6] = (uint8_t) ((data >> 48) & 0xFF);
+  msg->payload[msg->payload_length + 7] = (uint8_t) ((data >> 56) & 0xFF);
+  msg->payload_length += sizeof(data); 
+}
+void uid_to_message(message_t* msg, hibike_uid_t* uid) {
+  uint16_to_message(msg, uid->device_type);
+  uint8_to_message(msg, uid->year);
+  uint64_to_message(msg, uid->id);
+}
+
 void message_to_byte(uint8_t *data, message_t *msg) {
   data[0] = msg->messageID;
   data[1] = msg->payload_length;

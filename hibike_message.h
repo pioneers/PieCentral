@@ -44,12 +44,21 @@ typedef struct hibike_uid {
 uint8_t checksum(uint8_t* data, int length);
 int send_message(message_t* msg);
 int read_message(message_t* msg);
+void subscription_request(message_t* msg, uint16_t delay);
 void subscription_response(message_t* msg, hibike_uid_t* uid, uint16_t delay);
 void data_update(message_t* msg, uint8_t* data, uint8_t payload_length);
+void device_update(message_t* msg, uint8_t param, uint32_t value);
+void device_status(message_t* msg, uint8_t param, uint32_t value);
+void device_response(message_t* msg, uint8_t param, uint32_t value);
+void error_message(message_t* msg, uint8_t error_code);
 
-void uid_to_byte(uint8_t* data, hibike_uid_t* uid);
 uint16_t payload_to_uint16(uint8_t* payload);
 void uint16_to_payload(uint16_t data, uint8_t* payload);
+void uint8_to_message(message_t* msg, uint8_t data);
+void uint16_to_message(message_t* msg, uint16_t data);
+void uint32_to_message(message_t* msg, uint32_t data);
+void uint64_to_message(message_t* msg, uint64_t data);
+void uid_to_message(message_t* msg, hibike_uid_t* uid);
 
 void message_to_byte(uint8_t* data, message_t* msg);
 

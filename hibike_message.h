@@ -12,6 +12,10 @@
 #define UID_ID_BYTES        8
 #define UID_BYTES           UID_DEVICE_BYTES+UID_YEAR_BYTES+UID_ID_BYTES
 
+#define DEVICE_PARAM_BYTES   1
+#define DEVICE_VALUE_BYTES   4
+#define DEVICE_BYTES         DEVICE_PARAM_BYTES+DEVICE_VALUE_BYTES
+
 // Enumerations
 typedef enum {
   SUBSCRIPTION_REQUEST    = 0x00,
@@ -48,8 +52,13 @@ typedef struct hibike_uid {
 uint8_t checksum(uint8_t* data, int length);
 int send_message(message_t* msg);
 int read_message(message_t* msg);
-void send_subscription_response(hibike_uid_t* uid, uint16_t delay);
-void data_update(message_t* msg, uint8_t* data, uint8_t payload_length);
+
+int send_subscription_response(hibike_uid_t* uid, uint16_t delay);
+int send_data_update(uint8_t* data, uint8_t payload_length);
+int send_device_response(uint8_t param, uint32_t value);
+
+int append_payload(message_t* msg, uint8_t* data, uint8_t length);
+
 
 void uid_to_byte(uint8_t* data, hibike_uid_t* uid);
 uint16_t payload_to_uint16(uint8_t* payload);

@@ -55,31 +55,73 @@ int read_message(message_t *msg) {
   return 0;
 }
 
-void send_subscription_response(hibike_uid_t* uid, uint16_t delay) {
-  msg = message_t;
-  msg->messageID = SUBSCRIPTION_RESPONSE;
-  msg->payload_length = UID_BYTES;
+int send_subscription_response(hibike_uid_t* uid, uint16_t delay) {
+  message_t msg;
+  msg.messageID = SUBSCRIPTION_RESPONSE;
+  msg.payload_length = 0;
 
-  msg->payload = (uint8_t) uid->device_type;
-  msg->payload + UID_DEVICE_BYTES = (uint8_t) uid->
+  int status = 0;
+  status += append_payload(&msg, (uint8_t*) &uid->device_type, UID_DEVICE_BYTES);
+  status += append_payload(&msg, (uint8_t*) &uid->year, UID_YEAR_BYTES);
+  status += append_payload(&msg, (uint8_t*) &uid->id, UID_ID_BYTES);
 
-  uid_to_byte(msg->payload, uid);
-  uint16_to_payload(delay, &msg->payload[msg->payload_length]);
-  msg->payload_length += sizeof(delay);
+  status += append_payload(&msg, (uint8_t*) &delay, sizeof(delay));
+
+  if (status != 0) {
+    return -1;
+  }
+  return send_message(&msg); 
 }
+
+
+int send_data_update(uint8_t* data, uint8_t payload_length) {
+  message_t msg;
+  msg.messageID = DATA_UPDATE;
+  msg.payload_length = 0;
+  int status = append_payload(&msg, data, payload_length);
+  
+  if (status != 0) {
+    return -1;
+  }
+  return send_message(&msg); 
+}
+
+
+int send_device_response(uint8_t param, uint32_t value) {
+  message_t msg;
+  msg.messageID = DEVICE_RESPONSE;
+  msg.payload_length = 0;
+
+  int status = 0;
+  status += append_payload(&msg, &param, DEVICE_PARAM_BYTES);
+  status += append_payload(&msg, (uint8_t*) &value, DEVICE_VALUE_BYTES);
+
+  if (status != 0) {
+    return -1;
+  }
+  return send_message(&msg);
+}
+
+
+
+
+int append_payload(message_t* msg, uint8_t* data, uint8_t length) {
+  memcpy(&(msg->payload[msg->payload_length]), data, length);
+  msg->payload_length += length;
+  if (msg->payload_length > MAX_PAYLOAD_SIZE) {
+    return -1;
+  }
+  return 0;
+}
+
 
 void uid_to_byte(uint8_t* data, hibike_uid_t* uid) {
   data[0] = (uint8_t) (uid->device_type & 0xFF);
   data[1] = (uint8_t) (uid->device_type >> 8);
   data[2] = uid->year;
-  for (int i = 0; i < sizeof(uid->id); i++) {
-    data[3 + i] = (uint8_t) ((uid->device_type >> (8 * i)) & 0xFF);
+  for (size_t i = 0; i < sizeof(uid->id); i++) {
+    data[3 + i] = (uint8_t) ((uid->id >> (8 * i)) & 0xFF);
   }
-}
-void data_update(message_t* msg, uint8_t* data, uint8_t payload_length) {
-  msg->messageID = DATA_UPDATE;
-  msg->payload_length = payload_length;
-  memcpy(msg->payload, data, payload_length);
 }
 
 

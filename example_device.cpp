@@ -43,7 +43,7 @@ void loop() {
           // change subDelay and send SUB_RESP
           subDelay = payload_to_uint16(hibikeRecieveBuff.payload);
           memset(&hibikeRecieveBuff, 0, sizeof(message_t));
-          subscription_response(&hibikeSendBuff, UID, subDelay);
+          // subscription_response(&hibikeSendBuff, UID, subDelay);
           send_message(&hibikeSendBuff);
           break;
 
@@ -82,7 +82,7 @@ void loop() {
   currTime = millis();
   if (subDelay != 0 && currTime - prevTime >= subDelay) {
     prevTime = currTime;
-    data_update(&hibikeSendBuff, &data, 1);
+    // data_update(&hibikeSendBuff, &data, 1);
     send_message(&hibikeSendBuff);
   }
 }

@@ -1,7 +1,6 @@
 #include "example_device.h"
 
 message_t hibikeRecieveBuff;
-message_t hibikeSendBuff;
 const hibike_uid_t UID = {
   0,        // Device Type
   0,        // Year
@@ -42,9 +41,7 @@ void loop() {
         case SUBSCRIPTION_REQUEST:
           // change subDelay and send SUB_RESP
           subDelay = payload_to_uint16(hibikeRecieveBuff.payload);
-          memset(&hibikeRecieveBuff, 0, sizeof(message_t));
-          // subscription_response(&hibikeSendBuff, UID, subDelay);
-          send_message(&hibikeSendBuff);
+          send_subscription_response(*UID, subDelay);
           break;
 
         case SUBSCRIPTION_RESPONSE:
@@ -83,7 +80,7 @@ void loop() {
   if (subDelay != 0 && currTime - prevTime >= subDelay) {
     prevTime = currTime;
     // data_update(&hibikeSendBuff, &data, 1);
-    send_message(&hibikeSendBuff);
+    send_data_update(&data, 1);
   }
 }
 

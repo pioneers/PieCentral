@@ -124,7 +124,36 @@ void uid_to_byte(uint8_t* data, hibike_uid_t* uid) {
   }
 }
 
+void device_update(message_t* msg, uint8_t param, uint32_t value) {
+  msg->messageID = DEVICE_UPDATE;
+  msg->payload_length = 0;
+  uint8_to_message(msg, param);
+  uint32_to_message(msg, value);
 
+}
+void device_status(message_t* msg, uint8_t param, uint32_t value) {
+  msg->messageID = DEVICE_STATUS;
+  msg->payload_length = 0;
+  uint8_to_message(msg, param);
+  uint32_to_message(msg, value);
+}
+void device_response(message_t* msg, uint8_t param, uint32_t value) {
+  msg->messageID = DEVICE_RESPONSE;
+  msg->payload_length = 0;
+  uint8_to_message(msg, param);
+  uint32_to_message(msg, value);
+}
+void error_message(message_t* msg, uint8_t error_code) {
+  msg->messageID = ERROR;
+  msg->payload_length = 0;
+  uint8_to_message(msg, error_code); 
+}
+
+
+
+
+
+// TODO decide whether to use these methods or the ones that deal with messages
 
 // Assumes payload is little endian
 uint16_t payload_to_uint16(uint8_t* payload) {
@@ -135,6 +164,75 @@ void uint16_to_payload(uint16_t data, uint8_t* payload) {
   payload[0] = (uint8_t) (data & 0xFF);
   payload[1] = (uint8_t) (data >> 8);
 }
+
+
+// these functions add to the message payload and increment the payload length
+void uint8_to_message(message_t* msg, uint8_t data) {
+  msg->payload[msg->payload_length] = data;
+  msg->payload_length += sizeof(data);
+}
+void uint16_to_message(message_t* msg, uint16_t data) {
+  msg->payload[msg->payload_length + 0] = (uint8_t) (data & 0xFF);
+  msg->payload[msg->payload_length + 1] = (uint8_t) ((data >> 8) & 0xFF);
+  msg->payload_length += sizeof(data);
+}
+void uint32_to_message(message_t* msg, uint32_t data) {
+  msg->payload[msg->payload_length + 0] = (uint8_t) (data & 0xFF);
+  msg->payload[msg->payload_length + 1] = (uint8_t) ((data >> 8) & 0xFF);
+  msg->payload[msg->payload_length + 2] = (uint8_t) ((data >> 16) & 0xFF);
+  msg->payload[msg->payload_length + 3] = (uint8_t) ((data >> 24) & 0xFF);
+  msg->payload_length += sizeof(data);
+}
+// what's a for loop?
+void uint64_to_message(message_t* msg, uint64_t data) {
+  msg->payload[msg->payload_length + 0] = (uint8_t) (data & 0xFF);
+  msg->payload[msg->payload_length + 1] = (uint8_t) ((data >> 8) & 0xFF);
+  msg->payload[msg->payload_length + 2] = (uint8_t) ((data >> 16) & 0xFF);
+  msg->payload[msg->payload_length + 3] = (uint8_t) ((data >> 24) & 0xFF);
+  msg->payload[msg->payload_length + 4] = (uint8_t) ((data >> 32) & 0xFF);
+  msg->payload[msg->payload_length + 5] = (uint8_t) ((data >> 40) & 0xFF);
+  msg->payload[msg->payload_length + 6] = (uint8_t) ((data >> 48) & 0xFF);
+  msg->payload[msg->payload_length + 7] = (uint8_t) ((data >> 56) & 0xFF);
+  msg->payload_length += sizeof(data); 
+}
+void uid_to_message(message_t* msg, hibike_uid_t* uid) {
+  uint16_to_message(msg, uid->device_type);
+  uint8_to_message(msg, uid->year);
+  uint64_to_message(msg, uid->id);
+}
+
+uint8_t uint8_from_message(message_t* msg, uint8_t* offset) {
+  uint8_t res = msg->payload[*offset];
+  *offset += sizeof(res);
+  return res;
+}
+uint16_t uint16_from_message(message_t* msg, uint8_t* offset) {
+  uint16_t res = (msg->payload[*offset + 0] & 0xFF) << 0;
+  res |= (msg->payload[*offset + 1] & 0xFF) << 8;
+  *offset += sizeof(res);
+  return res;
+}
+uint32_t uint32_from_message(message_t* msg, uint8_t* offset) {
+  uint32_t res = (msg->payload[*offset + 0] & 0xFF) << 0;
+  res |= (msg->payload[*offset + 1] & 0xFF) << 8;
+  res |= (msg->payload[*offset + 2] & 0xFF) << 16;
+  res |= (msg->payload[*offset + 3] & 0xFF) << 24;
+  *offset += sizeof(res);
+  return res;
+}
+uint64_t uint64_from_message(message_t* msg, uint8_t* offset) {
+  uint64_t res = (msg->payload[*offset + 0] & 0xFF) << 0;
+  res |= (msg->payload[*offset + 1] & 0xFF) << 8;
+  res |= (msg->payload[*offset + 2] & 0xFF) << 16;
+  res |= (msg->payload[*offset + 3] & 0xFF) << 24;
+  res |= (msg->payload[*offset + 4] & 0xFF) << 32;
+  res |= (msg->payload[*offset + 5] & 0xFF) << 40;
+  res |= (msg->payload[*offset + 6] & 0xFF) << 48;
+  res |= (msg->payload[*offset + 7] & 0xFF) << 56;
+  *offset += sizeof(res);
+  return res;  
+}
+
 void message_to_byte(uint8_t *data, message_t *msg) {
   data[0] = msg->messageID;
   data[1] = msg->payload_length;

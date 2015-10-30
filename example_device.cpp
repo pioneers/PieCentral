@@ -10,7 +10,7 @@ const hibike_uid_t UID = {
 
 uint64_t prevTime, currTime, heartbeat;
 uint16_t subDelay;
-uint8_t data;
+uint8_t data, reading_offset;
 bool led_enabled;
 
 void setup() {

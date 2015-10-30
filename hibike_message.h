@@ -59,10 +59,17 @@ int send_device_response(uint8_t param, uint32_t value);
 
 int append_payload(message_t* msg, uint8_t* data, uint8_t length);
 
-
-void uid_to_byte(uint8_t* data, hibike_uid_t* uid);
 uint16_t payload_to_uint16(uint8_t* payload);
 void uint16_to_payload(uint16_t data, uint8_t* payload);
+void uint8_to_message(message_t* msg, uint8_t data);
+void uint16_to_message(message_t* msg, uint16_t data);
+void uint32_to_message(message_t* msg, uint32_t data);
+void uint64_to_message(message_t* msg, uint64_t data);
+void uid_to_message(message_t* msg, hibike_uid_t* uid);
+uint8_t uint8_from_message(message_t* msg, uint8_t* offset);
+uint16_t uint16_from_message(message_t* msg, uint8_t* offset);
+uint32_t uint32_from_message(message_t* msg, uint8_t* offset);
+uint64_t uint64_from_message(message_t* msg, uint8_t* offset);
 
 void message_to_byte(uint8_t* data, message_t* msg);
 

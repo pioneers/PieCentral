@@ -3,7 +3,7 @@ from hibike_message import *
 import time
 import serial
 import pdb
-
+import os
 # h = Hibike()
 # dev = [(uid, 0) for uid in h.getEnumeratedDevices()]
 # print(dev)
@@ -13,8 +13,9 @@ import pdb
 # errors = h.subToDevices(dev)
 # for e in errors:
 # 	print(e)
-
-s = serial.Serial('/dev/ttyUSB1', 115200)
+ports = ['/dev/%s' % port for port in os.listdir("/dev/") 
+                if port[:6] == "ttyUSB"]
+s = serial.Serial(ports[0], 115200)
 
 pay = struct.pack("<H", 100)
 
@@ -29,6 +30,7 @@ def do():
 	print(s.inWaiting())
 
 def show():
+    print(read(s))
 	cache = 0
 	while(1):
 		while(s.inWaiting()):

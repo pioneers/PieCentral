@@ -57,7 +57,7 @@ class Hibike():
     def getData(self, uid):
         return self._data[uid]
 
-    def writeData(self, port):
+    def writeData(self, uid):
         raise NotImplementedError
 
     def _getPorts(self):

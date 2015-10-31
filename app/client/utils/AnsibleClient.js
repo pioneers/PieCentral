@@ -22,11 +22,7 @@ if (process.browser) {
   socket.on('message', (message) => {
     // Also emits the specific ansible msg_type, with no filtering.
     // We'll have to figure out later if this is what we want to do.
-    AppDispatcher.dispatch({
-      type: message.header.msg_type,
-      ansible: true,
-      content: message.content
-    });
+    AppDispatcher.dispatch(message);
 
   });
 

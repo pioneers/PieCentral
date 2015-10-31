@@ -4,7 +4,7 @@ message_t hibikeBuff;
 hibike_uid_t UID = {
   1,        // Device Type
   0,        // Year
-  123456789,    // ID
+  0xBEEFBEEF,    // ID
 };
 Servo servo;
 int params[NUM_PARAMS];
@@ -27,7 +27,7 @@ void setup() {
   led_enabled = false;
 
   // Setup sensor input
-  pinMode(IN_PIN, INPUT);
+  pinMode(IN_PIN, INPUT_PULLUP);
   subDelay = 0;
   heartbeat = 0;
 

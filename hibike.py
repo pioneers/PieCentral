@@ -4,6 +4,8 @@ import serial
 import binascii
 import time
 import threading
+import struct
+import pdb
 
 sys.path.append(os.getcwd())
 
@@ -57,12 +59,20 @@ class Hibike():
     def getData(self, uid):
         return self._data[uid]
 
-    def writeData(self, uid):
-        raise NotImplementedError
+    def writeValue(self, uid, param, value):
+        payload = struct.pack("<BI", param, value)
+        send(HibikeMessage(messageTypes['DeviceUpdate'], payload),
+            self._connections[uid])
+        time.sleep(0.1)
+        while(self._connections[uid].inWaiting()):
+            curr = read(self._connections[uid])
+            if curr.getmessageID() == messageTypes['DeviceResponse']:
+                return 0 if (param, value) == struct.unpack("<BI", curr.getPayload()) else 1
+        return 1
 
     def _getPorts(self):
         return ['/dev/%s' % port for port in os.listdir("/dev/") 
-                if port[:6] == "ttyUSB"]
+                if port[:6] in ("ttyUSB", "tty.us")]
 
     def _getDeviceReadings(self):
         errors = []
@@ -72,7 +82,7 @@ class Hibike():
             if mes ==  -1:
                 print "Checksum doesn't match"
             #parse the message
-            else if mes != None:
+            elif mes != None:
                 if mes.getMessageID() == messageTypes["DataUpdate"]:
                     data[uid] = mes.getPayload()
                 else:
@@ -83,22 +93,23 @@ class Hibike():
         ports = self._getPorts()
         serial_conns = {p: serial.Serial(p, 115200) for p in ports}
         pingMsg = HibikeMessage(messageTypes['SubscriptionRequest'], 
-                                bytearray([0]))
+                                struct.pack("<H", 0))
+        time.sleep(5)
 
-        for p in ports: send(pingMsg, serial_conns[p])
-        time.sleep(0.1)
+        for p in ports:
+            send(pingMsg, serial_conns[p])
+        time.sleep(1.1)
         for p in ports:
             msg = read(serial_conns[p])
             if msg == None or msg == -1:
                 print("ping response failed.")
                 continue
 
-            uid = int(binascii.hexlify(msg.getPayload(), 16))
-            self._uids[p] = uid
-            self._devices[p] = getDeviceType(uid)
-            self._data[p] = 0
-            self._connections[p] = serial_conns[p]
-            self._ports[uid] = p
+            res = struct.unpack("<HBQH", msg.getPayload())
+            uid = (res[0] << 72) | (res[1] << 64) | (res[2])
+            self._devices[uid] = getDeviceType(uid)
+            self._data[uid] = 0
+            self._connections[uid] = serial_conns[p]
 
 
     def _spawnHibikeThread(self):

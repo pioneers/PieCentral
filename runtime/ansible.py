@@ -4,12 +4,7 @@ from Queue import Empty
 
 class AMessage(object):
     """Convenience class for sending Ansible Messages
-
-    import ansible
-    from ansible import AMessage
-
-    ansible.send(AMessage('msg_type', {}))
-
+    DEPRECATED DON'T USE THIS
     """
 
     def __init__(self, msg_type, content):
@@ -45,16 +40,21 @@ def receiver(port, recv_queue):
         parsed = yaml.load(msg)
         recv_queue.put(parsed)
 
-send_queue = None
-recv_queue = None
-
 # Doesn't do anything.
 def init():
     pass
 
-# Sends a message. Not blocking.
+# DON'T USE THIS UNLESS YOU KNOW WHAT YOU'RE DOING
+# Low level message sending. For high level messaging, use send_msg.
 def send(msg):
     send_queue.put_nowait(msg)
+
+# Use this one instead of send
+def send_message(msg_type, content):
+    send({
+        'header': {'msg_type': msg_type},
+        'content': content
+    })
 
 # Receives a message, or None if there is no current message.
 # If block is True, blocks.

@@ -34,9 +34,11 @@ class Hibike():
     def subToDevices(self, devices):
         errors = []
         for UID, delay in devices:
+            # TODO: delay can be values higher than 256, though that needs
+            # additional processing before adding it to the bytearray
             subReq = HibikeMessage(messageTypes['SubscriptionRequest'], 
                                 bytearray([delay]))
-            serial_conn = self._connections[self._ports[UID]]
+            serial_conn = self._connections[UID][1]
             send(subReq, serial_conn)
             time.sleep(0.1)
             subRes = read(serial_conn)
@@ -51,7 +53,7 @@ class Hibike():
             else:
                 # TODO
                 errors.append(((UID, delay), (response_UID, response_delay)))
-        return errors
+        print errors
 
 
     # returns the latest device reading, given its uid
@@ -94,11 +96,11 @@ class Hibike():
         serial_conns = {p: serial.Serial(p, 115200) for p in ports}
         pingMsg = HibikeMessage(messageTypes['SubscriptionRequest'], 
                                 struct.pack("<H", 0))
-        time.sleep(5)
+        time.sleep(0.5)
 
         for p in ports:
             send(pingMsg, serial_conns[p])
-        time.sleep(1.1)
+        time.sleep(0.5)
         for p in ports:
             msg = read(serial_conns[p])
             if msg == None or msg == -1:
@@ -109,7 +111,7 @@ class Hibike():
             uid = (res[0] << 72) | (res[1] << 64) | (res[2])
             self._devices[uid] = getDeviceType(uid)
             self._data[uid] = 0
-            self._connections[uid] = serial_conns[p]
+            self._connections[uid] = (p, serial_conns[p])
 
 
     def _spawnHibikeThread(self):

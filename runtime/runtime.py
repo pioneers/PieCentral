@@ -2,7 +2,7 @@ import subprocess, signal, sys
 import ansible
 import threading
 import time
-import grizzly
+from grizzly import *
 from api import Robot
 from api import Gamepads
 
@@ -53,7 +53,7 @@ def p_watch(p):
 while True:
     command = ansible.recv() 
     if command:
-        print("Message received from ansible!")
+        print("Message received from ansible! " + command['header']['msg_type'])
         msg_type, content = command['header']['msg_type'], command['content']
         if msg_type == 'execute':
 	    print("Ansible said to start the code")
@@ -73,6 +73,6 @@ while True:
                     print("killed")
                     for p in pobs: p.kill()
                 #kill all motor values
-                Robot.set_motor('motor0', 0)
-                Robot.set_motor('motor1', 0) 
+                for addr in Grizzly.get_all_ids():
+                    Grizzly(addr).set_target(0)
                 running_code = False

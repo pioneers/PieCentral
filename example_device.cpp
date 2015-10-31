@@ -1,12 +1,12 @@
 #include "example_device.h"
-
+#include <Servo.h>
 message_t hibikeBuff;
 hibike_uid_t UID = {
-  0,        // Device Type
+  1,        // Device Type
   0,        // Year
   123456789,    // ID
 };
-
+Servo servo;
 int params[NUM_PARAMS];
 
 uint64_t prevTime, currTime, heartbeat;
@@ -30,6 +30,8 @@ void setup() {
   pinMode(IN_PIN, INPUT);
   subDelay = 0;
   heartbeat = 0;
+
+  servo.attach(6);
 }
 
 void loop() {
@@ -61,9 +63,14 @@ void loop() {
 
         case DEVICE_UPDATE:
           param = hibikeBuff.payload[0];
-          value = *(uint32_t*) &hibikeBuff.payload[DEVICE_PARAM_BYTES];
+          value = *((uint32_t*) &hibikeBuff.payload[DEVICE_PARAM_BYTES]);
           update_param(param, value);
           send_device_response(param, params[param]);
+
+          // REMOVE!!!
+          if (param == 6) {
+            servo.write(value);
+          }
           break;
 
         case DEVICE_STATUS:

@@ -8,8 +8,8 @@ messageTypes = {
   "SubscriptionRequest" :  0x00,
   "SubscriptionResponse" : 0x01,
   "DataUpdate" :           0x02,
-  "DeviceStatus" :         0x03,
-  "DeviceUpdate" :         0x04,
+  "DeviceUpdate" :         0x03,
+  "DeviceStatus" :         0x04,
   "DeviceResponse" :       0x05,
   "Error" :                0xff
 }

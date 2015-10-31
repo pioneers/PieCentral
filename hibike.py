@@ -17,7 +17,9 @@ from hibike_message import *
 
 
 class Hibike():
+
     def __init__(self):
+        self._dataLock = threading.Lock()
         self._data = dict()
         self._connections = dict()
         self._devices = dict()
@@ -36,7 +38,7 @@ class Hibike():
         for UID, delay in device_delays:
             subReq = HibikeMessage(messageTypes['SubscriptionRequest'], 
                                 bytearray([delay]))
-            serial_conn = self._connections[self._ports[UID]]
+            serial_conn = self._connections[UID][1]
             send(subReq, serial_conn)
             time.sleep(0.1)
             subRes = read(serial_conn)
@@ -51,12 +53,17 @@ class Hibike():
             else:
                 # TODO
                 errors.append(((UID, delay), (response_UID, response_delay)))
-        return errors
+        print errors
 
 
     # returns the latest device reading, given its uid
     def getData(self, uid):
-        return self._data[uid]
+        try:
+            self._dataLock.acquire()
+            value = self._data[uid]
+        finally:
+            self._dataLock.release()
+        return value
 
     def writeValue(self, uid, param, value):
         payload = struct.pack("<BI", param, value)
@@ -79,11 +86,11 @@ class Hibike():
         serial_conns = {p: serial.Serial(p, 115200) for p in ports}
         pingMsg = HibikeMessage(messageTypes['SubscriptionRequest'], 
                                 struct.pack("<H", 0))
-        time.sleep(5)
+        time.sleep(0.5)
 
         for p in ports:
             send(pingMsg, serial_conns[p])
-        time.sleep(1.1)
+        time.sleep(0.5)
         for p in ports:
             msg = read(serial_conns[p])
             if msg == None or msg == -1:
@@ -94,7 +101,7 @@ class Hibike():
             uid = (res[0] << 72) | (res[1] << 64) | (res[2])
             self._devices[uid] = getDeviceType(uid)
             self._data[uid] = 0
-            self._connections[uid] = serial_conns[p]
+            self._connections[uid] = (p, serial_conns[p])
 
 
     def _spawnHibikeThread(self):
@@ -104,11 +111,11 @@ class Hibike():
 
 # TODO: implement multithreading :)
 class HibikeThread(threading.Thread):
-    lock = threading.Lock()
     def __init__(self, hibike):
         threading.Thread.__init__(self)
         self.hibike = hibike
         self.connections = dict(hibike._connections)
+        self._dataLock = hibike._dataLock
 
     def run(self):
         while 1:
@@ -117,7 +124,7 @@ class HibikeThread(threading.Thread):
             except:
                 print "Error in Hibike thread."
 
-    def _getDeviceReadings(self):
+    def getDeviceReadings(self):
         errors = []
         for uid in self.connections:
             tup = self.connections[uid]
@@ -127,9 +134,11 @@ class HibikeThread(threading.Thread):
             #parse the message
             elif mes != None:
                 if mes.getMessageID() == messageTypes["DataUpdate"]:
-                    HibikeThread.lock.acquire()
-                    self.hibike.data[uid] = mes.getPayload()
-                    HibikeThread.lock.release()
+                    try:
+                        self._dataLock.acquire()
+                        self.hibike.data[uid] = mes.getPayload()
+                    finally:
+                        self._dataLock.release()
                 else:
                     print "Wrong message type sent"
 

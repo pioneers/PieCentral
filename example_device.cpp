@@ -1,21 +1,25 @@
 #include "example_device.h"
 
-message_t hibikeRecieveBuff;
-const hibike_uid_t UID = {
+message_t hibikeBuff;
+hibike_uid_t UID = {
   0,        // Device Type
   0,        // Year
   123456789,    // ID
 };
 
+int params[NUM_PARAMS];
+
 uint64_t prevTime, currTime, heartbeat;
+uint32_t value;
 uint16_t subDelay;
-uint8_t data, reading_offset;
+uint8_t data, reading_offset, param;
 bool led_enabled;
 
 void setup() {
   Serial.begin(115200);
   prevTime = millis();
   subDelay = 0;
+  memset(&params, 0, sizeof(params[0])*NUM_PARAMS);
 
   // Setup Error LED
   pinMode(LED_PIN, OUTPUT);
@@ -24,7 +28,8 @@ void setup() {
 
   // Setup sensor input
   pinMode(IN_PIN, INPUT);
-
+  subDelay = 0;
+  heartbeat = 0;
 }
 
 void loop() {
@@ -34,37 +39,47 @@ void loop() {
 
   // Check for Hibike packets
   if (Serial.available()) {
-    if (read_message(&hibikeRecieveBuff) == -1) {
+    if (read_message(&hibikeBuff) == -1) {
       toggleLED();
     } else {
-      switch (hibikeRecieveBuff.messageID) {
+      switch (hibikeBuff.messageID) {
         case SUBSCRIPTION_REQUEST:
           // change subDelay and send SUB_RESP
-          subDelay = payload_to_uint16(hibikeRecieveBuff.payload);
-          send_subscription_response(*UID, subDelay);
+          subDelay = payload_to_uint16(hibikeBuff.payload);
+          send_subscription_response(&UID, subDelay);
           break;
 
         case SUBSCRIPTION_RESPONSE:
           // Unsupported packet
-          while (Serial.available() > 0) {
-            Serial.read();
-          }
           toggleLED();
           break;
 
         case DATA_UPDATE:
           // Unsupported packet
-          while (Serial.available() > 0) {
-            Serial.read();
-          }
+          toggleLED();
+          break;
+
+        case DEVICE_UPDATE:
+          param = hibikeBuff.payload[0];
+          value = *(uint32_t*) &hibikeBuff.payload[DEVICE_PARAM_BYTES];
+          update_param(param, value);
+          send_device_response(param, params[param]);
+          break;
+
+        case DEVICE_STATUS:
+          // Unsupported packet
+          param = hibikeBuff.payload[0];
+          send_device_response(param, params[param]);
+          toggleLED();
+          break;
+
+        case DEVICE_RESPONSE:
+          // Unsupported packet
           toggleLED();
           break;
 
         default:
           // Uh oh...
-          while (Serial.available() > 0) {
-            Serial.read();
-          }
           toggleLED();
       }
     }
@@ -77,13 +92,17 @@ void loop() {
 
   //Send data update
   currTime = millis();
-  if (subDelay != 0 && currTime - prevTime >= subDelay) {
+  if ((subDelay > 0) && (currTime - prevTime >= subDelay)) {
     prevTime = currTime;
-    // data_update(&hibikeSendBuff, &data, 1);
-    send_data_update(&data, 1);
+    uint8_t _data[1] = {data};
+    send_data_update(_data, 1);
   }
 }
 
+
+void update_param(uint8_t param, uint32_t value) {
+  params[param] = value;
+}
 
 
 

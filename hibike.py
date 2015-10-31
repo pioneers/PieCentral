@@ -30,10 +30,10 @@ class Hibike():
         #return {self._uids[port]: self._devices[port] for port in self._uids}
 
     # TODO decide on how to handle failures
-    # devices = [(UID, delay)]
-    def subToDevices(self, devices):
+    # device_delays = [(UID, delay)]
+    def subToDevices(self, device_delays):
         errors = []
-        for UID, delay in devices:
+        for UID, delay in device_delays:
             subReq = HibikeMessage(messageTypes['SubscriptionRequest'], 
                                 bytearray([delay]))
             serial_conn = self._connections[self._ports[UID]]

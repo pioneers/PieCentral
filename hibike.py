@@ -65,12 +65,13 @@ class Hibike():
         while(self._connections[uid].inWaiting()):
             curr = read(self._connections[uid])
             if curr.getMessageID() == messageTypes['DeviceResponse']:
+                print(struct.unpack("<BI", curr.getPayload()))
                 return 0 if (param, value) == struct.unpack("<BI", curr.getPayload()) else 1
         return 1
 
     def _getPorts(self):
         return ['/dev/%s' % port for port in os.listdir("/dev/") 
-                if port[:6] == "ttyUSB"]
+                if port[:6] in ("ttyUSB", "tty.us")]
 
     def _getDeviceReadings(self):
         errors = []
@@ -80,7 +81,7 @@ class Hibike():
             if mes ==  -1:
                 print "Checksum doesn't match"
             #parse the message
-            else if mes != None:
+            elif mes != None:
                 if mes.getMessageID() == messageTypes["DataUpdate"]:
                     data[uid] = mes.getPayload()
                 else:

@@ -57,7 +57,6 @@ class Hibike():
 
 
     # returns the latest device reading, given its uid
-    # Liza: not sure if we still want to keep the access via port, since each uid is anyway mapped to the (port, Serial) tuple
     def getData(self, uid):
         return self._data[uid]
 
@@ -75,20 +74,6 @@ class Hibike():
     def _getPorts(self):
         return ['/dev/%s' % port for port in os.listdir("/dev/") 
                 if port[:6] in ("ttyUSB", "tty.us")]
-
-    def _getDeviceReadings(self):
-        errors = []
-        for uid in self._connections:
-            tup = self._connections[uid]
-            mes = read(tup[1])
-            if mes ==  -1:
-                print "Checksum doesn't match"
-            #parse the message
-            elif mes != None:
-                if mes.getMessageID() == messageTypes["DataUpdate"]:
-                    data[uid] = mes.getPayload()
-                else:
-                    print "Wrong message type sent"
 
 
     def _enumerateSerialPorts(self):
@@ -121,18 +106,36 @@ class Hibike():
 
 # TODO: implement multithreading :)
 class HibikeThread(threading.Thread):
+    lock = threading.Lock()
     def __init__(self, hibike):
         threading.Thread.__init__(self)
         self.hibike = hibike
+        self.connections = dict(hibike._connections)
 
     def run(self):
         while 1:
             try:
-                hibike._getDeviceReadings()
+                getDeviceReadings(self)
             except:
                 print "Error in Hibike thread."
 
+    def _getDeviceReadings(self):
+        errors = []
+        for uid in self.connections:
+            tup = self.connections[uid]
+            mes = read(tup[1])
+            if mes ==  -1:
+                print "Checksum doesn't match"
+            #parse the message
+            elif mes != None:
+                if mes.getMessageID() == messageTypes["DataUpdate"]:
+                    HibikeThread.lock.acquire()
+                    self.hibike.data[uid] = mes.getPayload()
+                    HibikeThread.lock.release()
+                else:
+                    print "Wrong message type sent"
 
+   
     def checkSerialPorts(self):
         for port, serial_conn in self.hibike._connections.items():
             msg = read(serial_conn)

@@ -17,7 +17,9 @@ from hibike_message import *
 
 
 class Hibike():
+
     def __init__(self):
+        self._dataLock = threading.Lock()
         self._data = dict()
         self._connections = dict()
         self._devices = dict()
@@ -58,7 +60,12 @@ class Hibike():
 
     # returns the latest device reading, given its uid
     def getData(self, uid):
-        return self._data[uid]
+        try:
+            self._dataLock.acquire()
+            value = self._data[uid]
+        finally:
+            self._dataLock.release()
+        return value
 
     def writeValue(self, uid, param, value):
         payload = struct.pack("<BI", param, value)
@@ -106,11 +113,11 @@ class Hibike():
 
 # TODO: implement multithreading :)
 class HibikeThread(threading.Thread):
-    lock = threading.Lock()
     def __init__(self, hibike):
         threading.Thread.__init__(self)
         self.hibike = hibike
         self.connections = dict(hibike._connections)
+        self._dataLock = hibike._dataLock
 
     def run(self):
         while 1:
@@ -119,7 +126,7 @@ class HibikeThread(threading.Thread):
             except:
                 print "Error in Hibike thread."
 
-    def _getDeviceReadings(self):
+    def getDeviceReadings(self):
         errors = []
         for uid in self.connections:
             tup = self.connections[uid]
@@ -129,9 +136,11 @@ class HibikeThread(threading.Thread):
             #parse the message
             elif mes != None:
                 if mes.getMessageID() == messageTypes["DataUpdate"]:
-                    HibikeThread.lock.acquire()
-                    self.hibike.data[uid] = mes.getPayload()
-                    HibikeThread.lock.release()
+                    try:
+                        self._dataLock.acquire()
+                        self.hibike.data[uid] = mes.getPayload()
+                    finally:
+                        self._dataLock.release()
                 else:
                     print "Wrong message type sent"
 

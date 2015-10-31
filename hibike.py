@@ -4,6 +4,7 @@ import serial
 import binascii
 import time
 import threading
+import struct
 
 sys.path.append(os.getcwd())
 
@@ -57,8 +58,15 @@ class Hibike():
     def getData(self, uid):
         return self._data[uid]
 
-    def writeData(self, port):
-        raise NotImplementedError
+    def writeValue(self, uid, param, value):
+        payload = struct.pack("<BI", param, value)
+        send(HibikeMessage(messageTypes['DeviceUpdate'], payload))
+        time.sleep(0.1)
+        while(self._connections[uid].inWaiting()):
+            curr = read(self._connections[uid])
+            if curr.getMessageID() == messageTypes['DeviceResponse']:
+                return 0 if (param, value) == struct.unpack("<BI", curr.getPayload()) else 1
+        return 1
 
     def _getPorts(self):
         return ['/dev/%s' % port for port in os.listdir("/dev/") 

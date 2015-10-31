@@ -3,7 +3,10 @@ import ansible
 import threading
 import time
 import grizzly
-#from api import Robot
+from api import Robot
+from api import Gamepads
+
+#Robot.init()
 
 #def get_peripherals():
 #    while True:
@@ -69,5 +72,7 @@ while True:
                 with pobslock:
                     print("killed")
                     for p in pobs: p.kill()
-                #kill all motor values 
+                #kill all motor values
+                Robot.set_motor('motor0', 0)
+                Robot.set_motor('motor1', 0) 
                 running_code = False

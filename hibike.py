@@ -65,8 +65,8 @@ class Hibike():
         while(self._connections[uid].inWaiting()):
             curr = read(self._connections[uid])
             if curr.getMessageID() == messageTypes['DeviceResponse']:
-                return (param, value) == struct.unpack("<BI", curr.getPayload())
-        return false
+                return 0 if (param, value) == struct.unpack("<BI", curr.getPayload()) else 1
+        return 1
 
     def _getPorts(self):
         return ['/dev/%s' % port for port in os.listdir("/dev/") 

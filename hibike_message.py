@@ -102,9 +102,39 @@ def send(message, serial_conn):
   serial_conn.write(chr(chk))
 
 
+def send_sub_request(delay, serial_conn):
+    """
+    Delay in ms, serial_conn = serial_conn. Sends dat message.
+    """
+    temp_delay = struct.pack('<H', delay)
+    payload = bytearray(temp_delay)
+    message = HibikeMessage(messageTypes["SubscriptionRequest"], payload)
+    send(message, serial_conn)
+
+
+
+def send_deviceStatus(param, value, serial_conn):
+    """
+    give a param (8 bits) and value (32 bits) (integers); I gotta make structz
+    struct pack/unpack
+
+    pack into compact datatype
+        byte, short 2bytes, int 4bytes, long 8bytes
+    struct.pack('<BH', param, value)
+
+    bytearray() -- converts to bytes, like a list but byte repz
+    b.append(), b.append(joint)
+
+    CALL send on
+
+
+    """
+
+
+
 # constructs a new object Message by continually reading from input
 # Uses dictionary to figure out length of data to know how many bytes to read
-# Returns: 
+# Returns:
     # None if no message
     # -1 if checksum does not match
     # Otherwise returns a new HibikeMessage with message contents

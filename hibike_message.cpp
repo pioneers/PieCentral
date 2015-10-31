@@ -164,6 +164,10 @@ void uint16_to_payload(uint16_t data, uint8_t* payload) {
   payload[0] = (uint8_t) (data & 0xFF);
   payload[1] = (uint8_t) (data >> 8);
 }
+// Assumes payload is little endian
+uint16_t payload_to_uint32(uint8_t* payload) {
+  return ((uint16_t) payload[0]) + (((uint16_t) payload[1]) << 8);
+}
 
 
 // these functions add to the message payload and increment the payload length
@@ -239,4 +243,9 @@ void message_to_byte(uint8_t *data, message_t *msg) {
   for (int i = 0; i < msg->payload_length; i++){
     data[i+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES] = msg->payload[i];
   }
+}
+
+void param_value_to_byte(uint8_t *data, uint8_t param, uint32_t value) {
+  memcpy(data, &param, DEVICE_PARAM_BYTES);
+  memcpy(data+DEVICE_PARAM_BYTES, &value, DEVICE_VALUE_BYTES);
 }

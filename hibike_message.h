@@ -1,6 +1,7 @@
 #ifndef HIBIKE_H
 #define HIBIKE_H
 #include "Arduino.h"
+#include "devices.h"
 
 #define MAX_PAYLOAD_SIZE    25
 #define MESSAGEID_BYTES     1
@@ -24,12 +25,8 @@ typedef enum {
   DEVICE_UPDATE           = 0x03,
   DEVICE_STATUS           = 0x04,
   DEVICE_RESPONSE         = 0x05,
-  ERROR                   = 0xFF
+  ERROR                   = 0xFF,
 } messageID;
-
-typedef enum {
-  LIMIT_SWITCH = 0x01,
-} deviceID;
 
 typedef enum {
   GENERIC_ERROR   = 0xFF,
@@ -60,6 +57,7 @@ int send_device_response(uint8_t param, uint32_t value);
 int append_payload(message_t* msg, uint8_t* data, uint8_t length);
 
 uint16_t payload_to_uint16(uint8_t* payload);
+uint16_t payload_to_uint32(uint8_t* payload);
 void uint16_to_payload(uint16_t data, uint8_t* payload);
 void uint8_to_message(message_t* msg, uint8_t data);
 void uint16_to_message(message_t* msg, uint16_t data);
@@ -72,6 +70,6 @@ uint32_t uint32_from_message(message_t* msg, uint8_t* offset);
 uint64_t uint64_from_message(message_t* msg, uint8_t* offset);
 
 void message_to_byte(uint8_t* data, message_t* msg);
-
+void param_value_to_byte(uint8_t *data, uint8_t param, uint32_t value);
 
 #endif /* HIBIKE_H */

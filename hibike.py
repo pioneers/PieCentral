@@ -20,11 +20,16 @@ class Hibike():
 
     def __init__(self):
         self._dataLock = threading.Lock()
+        self._sendLock = threading.Lock()
+        self._readLock = threading.Lock()
+
+        self._portList = self._getPorts()
         self._data = dict()
         self._connections = dict()
         self._devices = dict()
 
         self._enumerateSerialPorts()
+        self._spawnHibikeThread()
 
 
     def getEnumeratedDevices(self):
@@ -35,24 +40,36 @@ class Hibike():
     # device_delays = [(UID, delay)]
     def subToDevices(self, device_delays):
         errors = []
+
         for UID, delay in device_delays:
+            payload = bytearray()
+            payload.extend(struct.pack("<H", delay))
             subReq = HibikeMessage(messageTypes['SubscriptionRequest'], 
-                                bytearray([delay]))
+                                    payload)
             serial_conn = self._connections[UID][1]
             send(subReq, serial_conn)
             time.sleep(0.1)
-            subRes = read(serial_conn)
-            if subRes == None or subRes == -1:
-                # TODO
-                errors.append(((UID, delay), subRes))
-                continue
-            response_UID = subRes.getPayload()[:11]
-            response_delay = subRes.getPayload()[11:]
-            if UID == response_UID and delay == response_delay:
-                pass
-            else:
-                # TODO
-                errors.append(((UID, delay), (response_UID, response_delay)))
+
+            try:
+                self._readLock.acquire()
+                subRes = read(serial_conn)
+                # pdb.set_trace()
+                if subRes == None or subRes == -1:
+                    # TODO
+                    print("failed with subResponse")
+                    errors.append(((UID, delay), subRes))
+                    continue
+                response_UID = subRes.getPayload()[:11]
+                response_delay = subRes.getPayload()[11:]
+                if payload == response_delay:
+                    pass
+                else:
+                    # TODO
+                    errors.append(((UID, delay), (response_UID, response_delay)))
+            
+            finally:
+                self._readLock.release()
+        
         print errors
 
 
@@ -82,20 +99,24 @@ class Hibike():
 
 
     def _enumerateSerialPorts(self):
-        ports = self._getPorts()
-        serial_conns = {p: serial.Serial(p, 115200) for p in ports}
+        serial_conns = {p: serial.Serial(p, 115200) for p in self._portList}
+        payload = bytearray()
+        payload.extend(struct.pack("<H", 0))
         pingMsg = HibikeMessage(messageTypes['SubscriptionRequest'], 
-                                struct.pack("<H", 0))
-        time.sleep(0.5)
+                                payload)
+        time.sleep(3)
 
-        for p in ports:
+        for p in self._portList:
             send(pingMsg, serial_conns[p])
-        time.sleep(0.5)
-        for p in ports:
+        time.sleep(0.2)
+        for p in self._portList:
             msg = read(serial_conns[p])
+            # pdb.set_trace()
             if msg == None or msg == -1:
-                print("ping response failed.")
+                print("ping response.")
                 continue
+            if msg.getmessageID() != messageTypes["SubscriptionResponse"]:
+                print("wrong message back: "+str(msg))
 
             res = struct.unpack("<HBQH", msg.getPayload())
             uid = (res[0] << 72) | (res[1] << 64) | (res[2])
@@ -106,6 +127,7 @@ class Hibike():
 
     def _spawnHibikeThread(self):
         h_thread = HibikeThread(self)
+        h_thread.daemon = True
         h_thread.start()
 
 
@@ -116,31 +138,39 @@ class HibikeThread(threading.Thread):
         self.hibike = hibike
         self.connections = dict(hibike._connections)
         self._dataLock = hibike._dataLock
+        self._readLock = hibike._readLock
 
     def run(self):
         while 1:
-            try:
-                getDeviceReadings(self)
-            except:
-                print "Error in Hibike thread."
+            # try:
+            self.getDeviceReadings()
+            # except:
+                # print "Error in Hibike thread."
 
     def getDeviceReadings(self):
         errors = []
         for uid in self.connections:
             tup = self.connections[uid]
-            mes = read(tup[1])
+
+            try:
+                self._readLock.acquire()
+                mes = read(tup[1])
+            finally:
+                self._readLock.release()
+            
             if mes ==  -1:
                 print "Checksum doesn't match"
             #parse the message
             elif mes != None:
-                if mes.getMessageID() == messageTypes["DataUpdate"]:
+                if mes.getmessageID() == messageTypes["DataUpdate"]:
                     try:
                         self._dataLock.acquire()
-                        self.hibike.data[uid] = mes.getPayload()
+                        self.hibike._data[uid] = mes.getPayload()
                     finally:
                         self._dataLock.release()
                 else:
                     print "Wrong message type sent"
+                    print mes
 
    
     def checkSerialPorts(self):
@@ -148,6 +178,6 @@ class HibikeThread(threading.Thread):
             msg = read(serial_conn)
             if msg == None or msg == -1:
                 continue
-            if msg.getMessageID() == messageTypes["DataUpdate"]:
+            if msg.getmessageID() == messageTypes["DataUpdate"]:
                 self.hibike._data[port] = msg.getPayload()
 

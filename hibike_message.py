@@ -107,19 +107,19 @@ def send(message, serial_conn):
 
 
 def send_sub_request(delay, serial_conn):
-    """ Delay in ms, serial_conn = serial_conn. Sends dat message. """
-    temp_delay = struct.pack('<H', delay)
-    payload = bytearray(temp_delay)
-    message = HibikeMessage(messageTypes["SubscriptionRequest"], payload)
-    send(message, serial_conn)
+  """ Delay in ms, serial_conn = serial_conn. Sends dat message. """
+  temp_delay = struct.pack('<H', delay)
+  payload = bytearray(temp_delay)
+  message = HibikeMessage(messageTypes["SubscriptionRequest"], payload)
+  send(message, serial_conn)
 
 
 def send_device_status(param, value, serial_conn):
-    """ You can figure it out. """
-    temp_payload = struct.pack('<BI', param, value)
-    payload = bytearray(temp_payload)
-    message = HibikeMessage(messageTypes["DeviceStatus"], payload)
-    send(message, serial_conn)
+  """ You can figure it out. """
+  temp_payload = struct.pack('<BI', param, value)
+  payload = bytearray(temp_payload)
+  message = HibikeMessage(messageTypes["DeviceStatus"], payload)
+  send(message, serial_conn)
 
 
 # constructs a new object Message by continually reading from input

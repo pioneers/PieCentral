@@ -23,8 +23,8 @@ class Hibike():
         self._serialLock = threading.Lock()
 
         self._portList = self._getPorts()
-        self._data = dict()
         self._connections = dict()
+        self._data = dict()
         self._devices = dict()
 
         self._enumerateSerialPorts()
@@ -68,8 +68,7 @@ class Hibike():
                     if subRes.getmessageID() == messageTypes["SubscriptionResponse"]:
                         break
 
-                if type(subres) != HibikeMessage or 
-                   subRes != messageTypes["SubscriptionResponse"]:
+                if type(subres) != HibikeMessage or subRes != messageTypes["SubscriptionResponse"]:
                     print("read() failed for subResponse entirely")
                     errors.append((UID, delay), subRes)
                     continue
@@ -81,7 +80,7 @@ class Hibike():
                 if uid != res_uid or delay != res_delay:
                     # TODO: Better error handling (retries+timeout)
                     print("unexpected subResponse values")
-                    errors.append(((UID, delay), (res_uid, res_delay))
+                    errors.append(((UID, delay), (res_uid, res_delay)))
             
             finally:
                 self._serialLock.release()
@@ -121,20 +120,15 @@ class Hibike():
 
     def _enumerateSerialPorts(self):
         serial_conns = {p: serial.Serial(p, 115200) for p in self._portList}
-        payload = bytearray()
-        payload.extend(struct.pack("<H", 0))
-        pingMsg = HibikeMessage(messageTypes['SubscriptionRequest'], 
-                                payload)
         time.sleep(3)
 
         for p in self._portList:
-            send(pingMsg, serial_conns[p])
+            send_sub_request(0, serial_conns[p])
         time.sleep(0.2)
         for p in self._portList:
             msg = read(serial_conns[p])
-            # pdb.set_trace()
             if msg == None or msg == -1:
-                print("ping response.")
+                print("read() failed for ping response.")
                 continue
             if msg.getmessageID() != messageTypes["SubscriptionResponse"]:
                 print("wrong message back: "+str(msg))

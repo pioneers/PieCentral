@@ -53,7 +53,7 @@ class Hibike():
                 prevTime = time.time()
                 currTime = prevTime
 
-                while serial_conn.inWaiting() and currTime - prevTime < timout:
+                while currTime - prevTime < timout:
                     subRes = read(serial_conn)
                     currTime = time.time()
 
@@ -68,16 +68,16 @@ class Hibike():
                     if subRes.getmessageID() == messageTypes["SubscriptionResponse"]:
                         break
 
-                if type(subres) != HibikeMessage or subRes != messageTypes["SubscriptionResponse"]:
+                if subRes == None or type(subRes) == int or subRes.getmessageID() != messageTypes["SubscriptionResponse"]:
                     print("read() failed for subResponse entirely")
-                    errors.append((UID, delay), subRes)
+                    errors.append(((UID, delay), subRes))
                     continue
 
-                res_uid_tuple = struct.unpack("<HBQH", subRes.getPayload()[:11])
-                res_uid = (res_uid_tuple[0] << 72) | (res_uid_tuple[1] << 64) | (res_uid_tuple[2])
-                res_delay = struct.unpack("<H", subRes.getPayload()[11:])
+                payload_tuple = struct.unpack("<HBQH", subRes.getPayload())
+                res_uid = (payload_tuple[0] << 72) | (payload_tuple[1] << 64) | (payload_tuple[2])
+                res_delay = payload_tuple[3]
 
-                if uid != res_uid or delay != res_delay:
+                if UID != res_uid or delay != res_delay:
                     # TODO: Better error handling (retries+timeout)
                     print("unexpected subResponse values")
                     errors.append(((UID, delay), (res_uid, res_delay)))
@@ -123,14 +123,16 @@ class Hibike():
         time.sleep(3)
 
         for p in self._portList:
+            serial_conns[p].flushInput()
             send_sub_request(0, serial_conns[p])
-        time.sleep(0.2)
+        time.sleep(2)
         for p in self._portList:
             msg = read(serial_conns[p])
             if msg == None or msg == -1:
                 print("read() failed for ping response.")
                 continue
             if msg.getmessageID() != messageTypes["SubscriptionResponse"]:
+                pdb.set_trace()
                 print("wrong message back: "+str(msg))
 
             res = struct.unpack("<HBQH", msg.getPayload())

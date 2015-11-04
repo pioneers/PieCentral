@@ -4,7 +4,7 @@ message_t hibikeBuff;
 hibike_uid_t UID = {
   1,        // Device Type
   0,        // Year
-  0xBEEFBEEF,    // ID
+  0x1234BEEF5678BEEF,    // ID
 };
 Servo servo;
 int params[NUM_PARAMS];

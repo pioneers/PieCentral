@@ -7,9 +7,10 @@ while True:
 
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
-            'id': 1234,
+            'name': 'somethingElse',
             'peripheralType': 'SENSOR_SCALAR',
-            'value': random.randint(0, 100)
+            'value': random.randint(0, 100),
+            'id': 1236
         }
     })
     ansible.send_message('UPDATE_BATTERY', {
@@ -24,15 +25,17 @@ while True:
     })
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
-            'id': 1235,
+            'name': 'myMotor',
             'peripheralType': 'MOTOR_SCALAR',
-            'value': random.randint(0, 100)
+            'value': random.randint(0, 100),
+            'id': 1234
         }
     })
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
-            'id': 1236,
+            'name': 'something',
             'peripheralType': 'SENSOR_BOOLEAN',
-            'value': random.randint(0, 1)
+            'value': random.randint(0, 1),
+            'id': 1235
         }
     })

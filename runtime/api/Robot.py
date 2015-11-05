@@ -5,16 +5,20 @@
 # ------
 from grizzly import *
 #import hibike.hibike as sensors
+import hibike
 #import Motors
+
 
 motor = {}
 name_to_grizzly = {}
-
-
+h = None
 
 def init():
     addrs = Grizzly.get_all_ids()
     addrs = Grizzly.get_all_ids()
+    h = hibike.Hibike()
+    connectedDevices = h.getEnumeratedDevices() #get list of devices
+    h.subscribeToDevices(connectedDevices) #subscribe to devices
 
     # Brute force to find all 
     for index in range(len(addrs)):
@@ -42,7 +46,7 @@ def set_motor(name, value):
 
 # TODO: implement
 def get_sensor(name):
-    return None
+  return h.getData(name) #return latest sensor value
 
 def get_all_motors():
     return motors

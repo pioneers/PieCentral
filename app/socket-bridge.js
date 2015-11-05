@@ -17,6 +17,10 @@ export default function socketBridge(app) {
       // Send on particular msg_type channel.
       if (data.header != null &&
         data.header.msg_type != null) {
+        if (data.header.msg_type == "UPDATE_PERIPHERAL"){
+          console.log("test");};
+        if (data.header.msg_type == "UPDATE_BATTERY") {
+          console.log("test2");};
         // socket.emit(data.header.msg_type, data);
         var unpackedMessage = data.content;
         unpackedMessage.type = data.header.msg_type;

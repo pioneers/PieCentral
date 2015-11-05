@@ -19,17 +19,17 @@ from hibike_message import *
 class Hibike():
 
     def __init__(self):
-        self._dataLock = threading.Lock()
-        self._serialLock = threading.Lock()
-
         self._portList = self._getPorts()
         self._connections = dict()
         self._data = dict()
         self._devices = dict()
 
+        self._dataLock = threading.Lock()
+        self._serialLock = threading.Lock()
+        self._sendQueueLock = threading.Lock()
+        
         self._enumerateSerialPorts()
-        self._spawnHibikeThread()
-
+        self.thread = self._spawnHibikeThread()
 
     def getEnumeratedDevices(self):
         return self._devices
@@ -58,7 +58,7 @@ class Hibike():
                     currTime = time.time()
 
                     # Check if read() failed
-                    if subRes == None or subRes == -1:
+                    if subRes == None or type(subRes) == int:
                         # TODO: Better error handling (retries+timeout)
                         print("read() failed for subResponse")
                         errors.append(((UID, delay), subRes))
@@ -115,7 +115,7 @@ class Hibike():
 
     def _getPorts(self):
         return ['/dev/%s' % port for port in os.listdir("/dev/") 
-                if port[:6] in ("ttyUSB", "tty.us")]
+                if port[:6] in ("ttyUSB", "tty.us", "ttyACM")]
 
 
     def _enumerateSerialPorts(self):
@@ -146,6 +146,7 @@ class Hibike():
         h_thread = HibikeThread(self)
         h_thread.daemon = True
         h_thread.start()
+        return h_thread
 
 
 # TODO: implement multithreading :)
@@ -154,12 +155,16 @@ class HibikeThread(threading.Thread):
         threading.Thread.__init__(self)
         self.hibike = hibike
         self.connections = dict(hibike._connections)
+        self.writeQueue = list()
+
         self._dataLock = hibike._dataLock
         self._serialLock = hibike._serialLock
+        self._sendQueueLock = hibike._sendQueueLock
 
     def run(self):
         while 1:
             self.getDeviceReadings()
+            self.sendDeviceRequests()
 
     def getDeviceReadings(self):
         errors = []
@@ -187,11 +192,59 @@ class HibikeThread(threading.Thread):
                     print mes
 
    
-    def checkSerialPorts(self):
-        for port, serial_conn in self.hibike._connections.items():
-            msg = read(serial_conn)
-            if msg == None or msg == -1:
-                continue
-            if msg.getmessageID() == messageTypes["DataUpdate"]:
-                self.hibike._data[port] = msg.getPayload()
+    def sendDeviceRequests(self):
+        timout = 1
+        errors = []
 
+        self._sendQueueLock.acquire()
+        self._serialLock.acquire()
+        try:
+            if not self.writeQueue:
+                return
+
+            while self.writeQueue:
+                msgType, uid, param, val = self.writeQueue.popleft()
+                serial_conn = self.connections[uid][0]
+
+                serial_conn.flush()
+                send_device_request(msgType, uid, param, val, serial_conn)
+                
+                prevTime = time.time()
+                currTime = prevTime
+                time.sleep(0.1)
+
+                while currTime - prevTime < timout:
+                    res = read(serial_conn)
+                    currTime = time.time()
+
+                    # Check if read() failed
+                    if res == None or res == -1:
+                        # TODO: Better error handling (retries+timeout)
+                        print("read() failed for DeviceRequest")
+                        errors.append(((msgType, uid, param, val), res))
+                        continue
+
+                    # Check if read() returned the right type of packet
+                    if res.getmessageID() == msgType:
+                        break
+
+                if subRes == None or type(subRes) == int or subRes.getmessageID() != msgType:
+                    print("read() failed for DeviceRequest entirely")
+                    errors.append(((msgType, uid, param, val), res))
+                    continue
+
+                if msgType == messageTypes["DeviceUpdate"]:
+                    res_val = struct.unpack("<I", res.getPayload()[1:])
+                    if val != res_val:
+                        print("unexpected value back for DeviceUpdate")
+                        errors.append(((msgType, uid, param, val), res_val))
+
+                if msgType == messageTypes["DeviceStatus"]:
+                    print(str((uid, param, res_val)))
+
+
+        return errors
+
+        finally:
+            self._sendQueueLock.release()
+            self._serialLock.release()

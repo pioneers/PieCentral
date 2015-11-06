@@ -54,6 +54,12 @@ var Editor = React.createClass({
               Save
             </Button>
           </ButtonGroup>
+          <ButtonGroup>
+            <Button bsSize="small"
+              href={'/api/editor/download?filename=' + this.state.filename} >
+              Download
+            </Button>
+          </ButtonGroup>
         </ButtonToolbar>
         <AceEditor
           mode="python"

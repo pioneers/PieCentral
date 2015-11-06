@@ -20,4 +20,7 @@ router.get '/editor/load', (req, res) ->
     res.status(200).send(data)
   )
 
+router.get '/editor/download', (req, res) ->
+  res.download('../runtime/student_code/' + req.query.filename)
+
 module.exports = router

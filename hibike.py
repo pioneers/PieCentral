@@ -120,7 +120,7 @@ class HibikeThread(threading.Thread):
     def run(self):
         while 1:
             try:
-                getDeviceReadings(self)
+                self.getDeviceReadings()
             except:
                 print "Error in Hibike thread."
 

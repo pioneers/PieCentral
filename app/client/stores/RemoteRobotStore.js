@@ -11,6 +11,7 @@ import _ from 'lodash';
 // Private data.
 var motors = {};
 var peripherals = {};
+var robotStatus = false;
 
 var RemoteRobotStore = assign({}, EventEmitter.prototype, {
   emitChange() {
@@ -21,6 +22,9 @@ var RemoteRobotStore = assign({}, EventEmitter.prototype, {
   },
   getPeripherals() {
     return _.toArray(peripherals); // not that efficient, rewrite if bottleneck.
+  },
+  getRobotStatus() {
+    return robotStatus;
   }
 });
 
@@ -74,6 +78,11 @@ function handleUpdatePeripheral(action) {
   RemoteRobotStore.emitChange();
 }
 
+function handleUpdateStatus(action) {
+  robotStatus = (action.status.value == 1);
+  RemoteRobotStore.emitChange();
+}
+
 /**
  * Hacking more.
  */
@@ -97,6 +106,8 @@ RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
     case ActionTypes.UPDATE_PERIPHERAL:
       handleUpdatePeripheral(action);
       break;
+    case ActionTypes.UPDATE_STATUS:
+      handleUpdateStatus(action);
   }
 });
 

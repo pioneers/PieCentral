@@ -2,9 +2,16 @@ import ansible
 import time
 import random
 
+robotStatus = 0
 while True:
     time.sleep(0.5)
-
+    msg = ansible.recv()
+    if msg:
+        msg_type = msg['header']['msg_type']
+        if msg_type == 'execute' and not robotStatus:
+            robotStatus = 1
+        elif msg_type == 'stop' and robotStatus:
+            robotStatus = 0
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
             'name': 'somethingElse',
@@ -20,7 +27,7 @@ while True:
     })
     ansible.send_message('UPDATE_STATUS', {
         'status': {
-            'value': random.randint(0,1)
+            'value': robotStatus
         }
     })
     ansible.send_message('UPDATE_PERIPHERAL', {

@@ -60,6 +60,7 @@ class Ansible(object):
             self.send_port = 12357
             self.recv_port = 12358
         elif (role == 'student_code'):
+            print('student code')
             self.send_port = 12358
             self.recv_port = 12357
         else:

@@ -1,10 +1,14 @@
 import subprocess, signal, sys
-import ansible
+from ansible import Ansible
 import threading
 import time
 from grizzly import *
-from api import Robot
-from api import Gamepads
+#from api import Robot
+#from api import Gamepads
+
+
+dawn_ansible = Ansible('dawn')
+runtime_ansible = Ansible('runtime')
 
 #Robot.init()
 
@@ -51,7 +55,7 @@ def p_watch(p):
 
 
 while True:
-    command = ansible.recv() 
+    command = dawn_ansible.recv() 
     if command:
         print("Message received from ansible! " + command['header']['msg_type'])
         msg_type, content = command['header']['msg_type'], command['content']
@@ -71,8 +75,11 @@ while True:
             if running_code:
                 with pobslock:
                     print("killed")
-                    for p in pobs: p.kill()
+                    for p in pobs: p.terminate() #ideal way to shut down
+                    for p in pobs: p.kill() #brut force stuck processes
                 #kill all motor values
                 for addr in Grizzly.get_all_ids():
                     Grizzly(addr).set_target(0)
                 running_code = False
+        elif msg_type == 'gamepad':
+            runtime_ansible.send(command)

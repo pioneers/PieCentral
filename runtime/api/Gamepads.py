@@ -8,7 +8,6 @@ import time, threading
 student_ansible = Ansible('student_code')
 
 def get_all():
-    print('getall called')
     update()
     return gpads
 
@@ -42,18 +41,20 @@ gpads = [{'axes':[0.0, 0.0, 0.0, 0.0], 'buttons':[0.00,0.00,0.00,0.00,0.00,0.00,
 
 
 def update():
-    print('called')
     command = student_ansible.recv()
+    print(str(command) + ' revieced from runtime')
     gamepads = {}
     if command:
+        print(command)
         header = command['header']
         content = command['content']
         if header['msg_type'] == 'gamepad' and content:
             gamepads = content
-
+    print('this is the gamepad')
+    print(gamepads)
     for index in range(len(gamepads)):
         try:
-            gpads[index] = gamepads[index]
+            gpads[index] = gamepads[str(index)]
         except:
-            gpads.append(gamepads[index])
+            gpads.append(gamepads[str(index)])
 

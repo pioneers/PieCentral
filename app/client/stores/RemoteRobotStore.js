@@ -108,6 +108,7 @@ RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
       break;
     case ActionTypes.UPDATE_STATUS:
       handleUpdateStatus(action);
+      break;
   }
 });
 

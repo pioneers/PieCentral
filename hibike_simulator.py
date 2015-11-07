@@ -38,7 +38,7 @@ class Hibike:
             self.subscribedto[UID]['data'] +=  #rewrites sensor data with random num
         elif curr_time - delay < flip_time and curr_time - delay > last_time:
             self.subscribedto[UID]['time'] = curr_time
-            self.subscribedto[UID]['data'] += self.calculateChange(UID, False)
+            self.subscribedto[UID]['data'] += self.calculateChange(UID, False) CHANGE THIS!!!
         return self.subscribedto[UID]['data'] #returns sensor data
 
 

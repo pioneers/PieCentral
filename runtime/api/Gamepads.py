@@ -2,8 +2,10 @@
 # Gamepad.py class. 
 # Copyright 2015. Pioneers in Engineering
 # ------
-import ansible
+from ansible import Ansible
 import time, threading
+
+student_ansible = Ansible('student_code')
 
 def get_all():
     print('getall called')
@@ -41,7 +43,7 @@ gpads = [{'axes':[0.0, 0.0, 0.0, 0.0], 'buttons':[0.00,0.00,0.00,0.00,0.00,0.00,
 
 def update():
     print('called')
-    command = ansible.recv()
+    command = student_ansible.recv()
     gamepads = {}
     if command:
         header = command['header']

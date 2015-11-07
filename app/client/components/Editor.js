@@ -3,6 +3,7 @@ import AceEditor from 'react-ace';
 import brace from 'brace';
 import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
+import EditorFileTransfer from './EditorFileTransfer';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
 import {
@@ -54,12 +55,7 @@ var Editor = React.createClass({
               Save
             </Button>
           </ButtonGroup>
-          <ButtonGroup>
-            <Button bsSize="small"
-              href={'/api/editor/download?filename=' + this.state.filename} >
-              Download
-            </Button>
-          </ButtonGroup>
+          <EditorFileTransfer filename={this.state.filename} />
         </ButtonToolbar>
         <AceEditor
           mode="python"

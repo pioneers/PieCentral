@@ -1,6 +1,7 @@
 express = require('express')
 router = express.Router()
 fs = require('fs')
+require('connect-busboy')
 
 router.post '/editor/save', (req, res) ->
   filename = req.body.filename
@@ -22,5 +23,15 @@ router.get '/editor/load', (req, res) ->
 
 router.get '/editor/download', (req, res) ->
   res.download('../runtime/student_code/' + req.query.filename)
+
+router.post '/editor/upload', (req, res) ->
+  if req.busboy
+    req.busboy.on('file', (fieldname, file, filename, encoding, mimetype) ->
+      file.pipe(fs.createWriteStream('../runtime/student_code/' + filename))
+    )
+    req.busboy.on('finish', () ->
+      res.status(200).end()
+    )
+    req.pipe(req.busboy)
 
 module.exports = router

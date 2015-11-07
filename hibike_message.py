@@ -62,8 +62,12 @@ class HibikeMessage:
     m_buff.append(self._length)
     m_buff.extend(self.getPayload())
     return m_buff
+
   def __str__(self):
     return str([self._messageID] + [self._length] + list(self._payload))
+
+  def __repr__(self):
+    return str(self)
 
 
 
@@ -102,9 +106,25 @@ def send(message, serial_conn):
   serial_conn.write(chr(chk))
 
 
+def send_sub_request(delay, serial_conn):
+  """ Delay in ms, serial_conn = serial_conn. Sends dat message. """
+  temp_delay = struct.pack('<H', delay)
+  payload = bytearray(temp_delay)
+  message = HibikeMessage(messageTypes["SubscriptionRequest"], payload)
+  send(message, serial_conn)
+
+
+def send_device_status(param, value, serial_conn):
+  """ You can figure it out. """
+  temp_payload = struct.pack('<BI', param, value)
+  payload = bytearray(temp_payload)
+  message = HibikeMessage(messageTypes["DeviceStatus"], payload)
+  send(message, serial_conn)
+
+
 # constructs a new object Message by continually reading from input
 # Uses dictionary to figure out length of data to know how many bytes to read
-# Returns: 
+# Returns:
     # None if no message
     # -1 if checksum does not match
     # Otherwise returns a new HibikeMessage with message contents

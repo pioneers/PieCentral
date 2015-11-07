@@ -37,7 +37,7 @@ def do():
 do()
 
 def show():
-  period = 500
+  period = 1
   send(HibikeMessage(0, struct.pack("<H", period)), s)
   time.sleep(0.1)
   read(s)

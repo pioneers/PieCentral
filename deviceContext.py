@@ -3,10 +3,12 @@ class DeviceContext():
 		#contextData = {uid: {field: (value, timestamp)}, delay, timestamp) } 
 		self.contextData = dict()
 
-	getData(uid, field)
+	def getData(uid, field):
 
-	getDelay(uid)
+	def getDelay(uid):
 
-	subToDevices((uid, delay))
-	subDevice(uid)
-	writeValue(uid, field, value)
+	def subToDevices(deviceTupeles):
+
+	def subDevice(uid):
+
+	def writeValue(uid, field, value):

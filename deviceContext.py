@@ -1,3 +1,5 @@
+import hibike_message as hm
+
 class DeviceContext():
     def __init__(self, deviceParams):
         #contextData = {uid: {field: (value, timestamp)}, delay, timestamp) } 
@@ -21,13 +23,19 @@ class DeviceContext():
 
     def subDevice(self, uid, delay):
         assert self.hibike is not None, "DeviceContext needs a pointer to Hibike!"
-        self.hibike.sendSubRequest(uid, delay)
+        assert uid in self.contextData, "Invalid UID: {}".format(uid)
+        assert 0 <= delay < 65535, "Invalid delay: {}".format(delay)
+
+        msg = hm.make_sub_request(uid, delay)
+        self.hibike.sendBuffer.put((msg, self.hibike.connections[uid][1]))
 
     def writeValue(self, uid, param, value):
         assert self.hibike is not None, "DeviceContext needs a pointer to Hibike!"
-        assert param in self.deviceParams[getDevice(uid)], "Invalid param for {}".format(getDevice(uid))
+        assert uid in self.contextData, "Invalid UID: {}".format(uid)
+        assert param in self.deviceParams[hm.getDeviceType(uid)], "Invalid param for {}".format(hm.getDeviceType(uid))
         
-        self.hibike.sendDeviceUpdate(uid, field, value)
+        msg = hm.make_device_update(param, value)
+        self.hibike.sendBuffer.put((msg, self.hibike.connections[uid][1]))
 
     def getDelay(self, uid):
         if uid in self.contextData:

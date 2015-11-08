@@ -180,10 +180,10 @@ Note: These assignments are also fairly random and may not all even be
                   a Device Response packet.
     Payload format:
 
-        +---------------+--------------------+
-        |     Param     |       Value        |
-        |    (8 bits)   |     (32 bits)      |
-        +---------------+--------------------+
+        +---------------+
+        |     Param     |
+        |    (8 bits)   |
+        +---------------+
 
     Direction:
     BBB --> SD

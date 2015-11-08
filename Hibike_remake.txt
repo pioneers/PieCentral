@@ -1,16 +1,16 @@
 Config file: Devices: field names
 
 ->Runtime Call
-con = new DeviceContext)
+con = new DeviceContext()
 hibike = new Hibike(con)
 con.sub(dev)
 con.getSub(dev)
 
 
 class DeviceContext:
-contextData = {uid: ({field: (value, timestamp)}, delay, timestamp)} 
+contextData = {uid: ({param: (value, timestamp)}, delay, timestamp)}
 
-getData(uid, field):
+getData(uid, param):
     returns (value, timestamp); None if not Sub
 getDelay(uid):
     returns (delay, timestamp); None if not Sub
@@ -18,5 +18,4 @@ getDelay(uid):
 ->These return immediately, runtime must check if the value has been updated
 subToDevices(list(uid, delay)):
 subDevice(uid):
-writeValue(uid, field, value):
-
+writeValue(uid, param, value):

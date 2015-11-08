@@ -49,13 +49,6 @@ class HibikeMessage:
   def getPayload(self):
     return self._payload[:]
 
-  def serialize(self):
-    message = bytearray()
-    message.append(self._messageID)
-    for b in self._payload:
-      message.append(b)
-    return message
-
   def toByte(self):
     m_buff = bytearray()
     m_buff.append(self._messageID)

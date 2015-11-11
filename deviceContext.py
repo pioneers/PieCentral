@@ -1,11 +1,43 @@
 import hibike_message as hm
 
 class DeviceContext():
-    def __init__(self, deviceParams):
-        #contextData = {uid: {field: (value, timestamp)}, delay, timestamp) } 
-        self.contextData = dict()
-        self.deviceParams = deviceParams
+    def __init__(self, configFile='hibikeDevices.config'):
+        #contextData = {uid: {param: (value, timestamp)}, delay, timestamp) }
+        self.conntextData = dict()
+        self.deviceParams = dict()
+        self.version = None
         self.hibike = None
+
+        self.readConfig(configFile)
+
+    def readConfig(self, filename):
+        """
+        Read the configuration information given in 'filename'
+        Handle all IO Exceptions
+        Fill out self.deviceParams and self.version
+
+        Config file format:
+            version info
+            # of devices
+            deviceID1, deviceName1, param1, param2, ...
+            deviceID2, deviceName2, param1, param2, ...
+
+        self.deviceParams format:
+            self.deviceParams = {deviceID : (param1, param2, ...)}
+
+        self.version format:
+            self.version = <string repr of version info> 
+            
+        """
+
+
+    def addDeviceToContext(self, uid):
+        """
+        Add given device to self.contextData, adding params specified 
+        by self.deviceParams based on the UID
+        Handle invalid UIDs
+        """
+        
 
     def getData(self, uid, param):
         if uid in self.contextData:

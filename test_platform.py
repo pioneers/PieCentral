@@ -28,8 +28,8 @@ time.sleep(2)
 def do():
   print("sending ping and device update with param, value = 8, 5")
   #print(s.inWaiting())
-  send(msg, s)
-  send(msg2, s)
+  send(s, msg)
+  send(s, msg2)
   time.sleep(0.01)
   #print(s.inWaiting())
   print "sub response (should be 0):", struct.unpack("<HBQH", read(s).getPayload())[3]

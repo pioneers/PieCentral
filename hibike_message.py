@@ -14,6 +14,20 @@ messageTypes = {
   "Error" :                0xff
 }
 
+# Dictionary of device types: enumeration
+deviceTypes = {
+  "Limit Switch" :         0x00
+  "Line Follower" :        0x01
+  "Potentiometer" :        0x02
+  "Encoder" :              0x03
+  "Battery Buzzer" :       0x04
+  "Team Flag" :            0x05
+  "Grizzly" :              0x06
+  "Servo Control" :        0x07
+  "Linear Actuator" :      0x08
+}
+
+
 # Dictionary of message types: payload length
 messagePayloadLengths = {
   messageTypes["SubscriptionRequest"] :  2,
@@ -92,7 +106,7 @@ def checksum(data):
 # Sends this message
 # Computes the checksum
 # Then sends each byte of the message, and finally sends the checksum byte
-def send(message, serial_conn):
+def send(serial_conn, message):
   m_buff = message.toByte()
   chk = checksum(m_buff)
   serial_conn.write(m_buff)

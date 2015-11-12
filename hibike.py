@@ -27,7 +27,7 @@ class Hibike():
         self._dataLock = threading.Lock()
         self._serialLock = threading.Lock()
         self._sendQueueLock = threading.Lock()
-        
+
         self._enumerateSerialPorts()
         self.thread = self._spawnHibikeThread()
 
@@ -81,10 +81,10 @@ class Hibike():
                     # TODO: Better error handling (retries+timeout)
                     print("unexpected subResponse values")
                     errors.append(((UID, delay), (res_uid, res_delay)))
-            
+
             finally:
                 self._serialLock.release()
-        
+
         print errors
 
 
@@ -114,7 +114,7 @@ class Hibike():
         return 1
 
     def _getPorts(self):
-        return ['/dev/%s' % port for port in os.listdir("/dev/") 
+        return ['/dev/%s' % port for port in os.listdir("/dev/")
                 if port[:6] in ("ttyUSB", "tty.us", "ttyACM")]
 
 
@@ -176,7 +176,7 @@ class HibikeThread(threading.Thread):
                 mes = read(tup[1])
             finally:
                 self._serialLock.release()
-            
+
             if mes ==  -1:
                 print "Checksum doesn't match"
             #parse the message
@@ -191,7 +191,7 @@ class HibikeThread(threading.Thread):
                     print "Wrong message type sent"
                     print mes
 
-   
+
     def sendDeviceRequests(self):
         timout = 1
         errors = []
@@ -208,7 +208,7 @@ class HibikeThread(threading.Thread):
 
                 serial_conn.flush()
                 send_device_request(msgType, uid, param, val, serial_conn)
-                
+
                 prevTime = time.time()
                 currTime = prevTime
                 time.sleep(0.1)

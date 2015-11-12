@@ -92,7 +92,7 @@ def checksum(data):
 # Sends this message
 # Computes the checksum
 # Then sends each byte of the message, and finally sends the checksum byte
-def send(message, serial_conn):
+def send(serial_conn, message):
   m_buff = message.toByte()
   chk = checksum(m_buff)
   serial_conn.write(m_buff)

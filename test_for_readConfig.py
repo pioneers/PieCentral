@@ -1,6 +1,6 @@
 import csv
 
-def r(filename):
+def r():
     """
     Read the configuration information given in 'filename'
     Handle all IO Exceptions
@@ -19,8 +19,11 @@ def r(filename):
     csv_file = open('hibikeDevices.csv', 'r')
     reader = csv.reader(csv_file, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
     list_of_rows = [row for row in reader]
-    #print(list_of_rows)
+    list_of_rows.pop(0)
     csv_file.close()
+    # self.deviceParams =
     return {lst[0]: [elem for elem in lst[1:] if elem != ''] for lst in list_of_rows}
 
 print(r())
+print()
+print(r().keys())

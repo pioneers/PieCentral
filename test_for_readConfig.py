@@ -22,7 +22,7 @@ def r():
     list_of_rows.pop(0)
     csv_file.close()
     # self.deviceParams =
-    return {lst[0]: [elem for elem in lst[1:] if elem != ''] for lst in list_of_rows}
+    return {int(lst[0], 16): [elem for elem in lst[2:] if elem != ''] for lst in list_of_rows}
 
 print(r())
 print()

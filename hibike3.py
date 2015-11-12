@@ -6,6 +6,7 @@ import time
 import threading
 import struct
 import pdb
+from Queue import Queue
 
 sys.path.append(os.getcwd())
 
@@ -17,7 +18,6 @@ class Hibike():
         Update self.context as we iterate through with devices
         Build a list self.serialPorts of (uid, port, serial) tuples
         Make context.hibike point to this
-        Initialize self.sendBuffer to an empty Queue
         Spawn new thread
         """
         self.context = context
@@ -25,7 +25,6 @@ class Hibike():
         self.serialPorts = self._enumerateSerialPorts()
 
         self.thread = self._spawnHibikeThread()
-        self.sendBuffer = Queue()
 
 
     def _spawnHibikeThread(self):
@@ -33,6 +32,10 @@ class Hibike():
         h_thread.daemon = True
         h_thread.start()
         return h_thread
+
+    def _getPorts(self):
+        return ['/dev/%s' % port for port in os.listdir("/dev/") 
+                if port[:6] in ("ttyUSB", "tty.us", "ttyACM")]
 
     #TODO: get rid of locking and change to fit changes!
     def _enumerateSerialPorts(self):
@@ -63,6 +66,7 @@ class HibikeThread(threading.Thread):
     def __init__(self, hibike):
         threading.Thread.__init__(self)
         self.hibike = hibike
+        self.sendBuffer = Queue()
 
     def run(self):
         while 1:
@@ -70,7 +74,7 @@ class HibikeThread(threading.Thread):
             self.handleOutput(y)
 
 
-    def handleInput(n):
+    def handleInput(self, n):
         """Processes a single packet, if one is available, from the next 
         n devices, or the number of devices, whichever is smaller. 
 
@@ -79,7 +83,7 @@ class HibikeThread(threading.Thread):
         If n==0, iterate through all devices. 
         """
 
-    def processPacket(uid):
+    def processPacket(self, uid):
         """Finds the correct serial port, then reads a packet from it, if 
         a packet is available. 
         If a packet is not available, return None.
@@ -103,24 +107,52 @@ class HibikeThread(threading.Thread):
             self.hibike.context.contextData[uid][0][param] = (value, timestamp)        
 
 
-    def updateParam(uid, param, value):
+    def updateParam(self, uid, param, value):
         """Updates the param of the device corresponding with uid to be 
         value, with the timestamp of the current time. 
         """
 
 
 
-    def handleOutput(n):
+    def handleOutput(self, n):
         """Processes the next n packets, or the number of packets, whichever 
         is smaller, in the sendBuffer queue. 
 
         sendBuffer should have tuples of (serial, packet)
         """
+        for _ in range(n):
+            if self.sendBuffer.empty():
+                break
+            serial, packet = self.sendBuffer.get()
+            hibike_message.send(serial, packet)
 
-    def subRequest(uid, delay):
+
+    def addToBuffer(self, uid, msg):
+        filtered = filter(lambda x: x[0] == uid, self.hibike.serialPorts)
+        if not filtered:
+            print "subRequest() failed... uid not in serialPorts"
+            return
+        _, __, serial = filtered[0]
+        self.sendBuffer.put((serial, msg))
+
+    def subRequest(self, uid, delay):
         """Creates packet and adds (serial, packet) to sendBuffer)"""
-    def deviceUpdate(uid, param, value):
+
+        msg = hibike_message.make_sub_request(delay)
+        self.addToBuffer(uid, msg)
+
+
+    def deviceUpdate(self, uid, param, value):
         """Creates packet and adds (serial, packet) to sendBuffer)"""
-    def deviceStatus(uid, param):
+        msg = hibike_message.make_device_update(param, value)
+        self.addToBuffer(uid, msg)
+
+    def deviceStatus(self, uid, param):
         """Creates packet and adds (serial, packet) to sendBuffer)"""
+        msg = hibike_message.make_device_status(delay)
+        self.addToBuffer(uid, msg)
+
+    def error(self, error_code):
+        msg = hibike_message.make_error(error_code)
+        self.addToBuffer(uid, msg)
 

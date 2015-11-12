@@ -9,7 +9,7 @@ import pdb
 
 sys.path.append(os.getcwd())
 
-from hibike_message import *
+from hibike_message
 
 class Hibike():
     def __init__(self, context):
@@ -63,6 +63,7 @@ class HibikeThread(threading.Thread):
     def __init__(self, hibike):
         threading.Thread.__init__(self)
         self.hibike = hibike
+        self.serialPortIndex = 0
 
     def run(self):
         while 1:
@@ -70,7 +71,7 @@ class HibikeThread(threading.Thread):
             self.handleOutput(y)
 
 
-    def handleInput(n):
+    def handleInput(self, n):
         """Processes a single packet, if one is available, from the next 
         n devices, or the number of devices, whichever is smaller. 
 
@@ -78,49 +79,52 @@ class HibikeThread(threading.Thread):
 
         If n==0, iterate through all devices. 
         """
+        numDevices = len(self.hibike.serialPorts)
+        for _ in n:
+            serialPort = self.hibike.serialPorts[self.serialPortIndex]
+            self.processPacket(serial)
+            self.serialPortIndex += 1
+            self.serialPortIndex %= numDevices
 
-    def processPacket(uid):
-        """Finds the correct serial port, then reads a packet from it, if 
-        a packet is available. 
+
+    def processPacket(self, serialPort):
+        """Reads a packet from serial, if a packet is available. 
         If a packet is not available, return None.
 
         Updates corresponding param in context.
+        Returns msgID
         """
+        uid, port, serial = serialPort
 
-        conn = None # TODO
-        msg = read(conn)
+        msg = hibike_message.read(serial)
         if msg == None or msg == -1:
-            return
+            return None
 
-        if msg.getmessageID() == messageTypes["DataUpdate"]:
+        msgID = msg.getmessageID()
+        if msgID == hibike_message.messageTypes["DataUpdate"]:
             payload = msg.getPayload()
-            self.hibike.context.contextData[uid][2] = payload
-            self.hibike.context.contextData[uid][3] = time.time()
-
-        elif msg.getmessageID() == messageTypes["DeviceResponse"]:
-            param, value = struct.unpack("<BI", msg)
-            timestamp = time.time()
-            self.hibike.context.contextData[uid][0][param] = (value, timestamp)        
-
-
-    def updateParam(uid, param, value):
-        """Updates the param of the device corresponding with uid to be 
-        value, with the timestamp of the current time. 
-        """
+            self.hibike.context.updateParam(uid, 0, payload, time.time())
+        elif msgID == messageTypes["DeviceResponse"]:
+            param, value = struct.unpack("<BI", msg.getPayload())
+            self.hibike.context.contextData[uid][0][param] = (value, timestamp)
+        elif msgID == messageTypes["SubscriptionResponse"]:
+            self.hibike.context.updateSubscription(uid, delay, time.time())
+        
+        return msgID
 
 
 
-    def handleOutput(n):
+    def handleOutput(self, n):
         """Processes the next n packets, or the number of packets, whichever 
         is smaller, in the sendBuffer queue. 
 
         sendBuffer should have tuples of (serial, packet)
         """
 
-    def subRequest(uid, delay):
+    def subRequest(self, uid, delay):
         """Creates packet and adds (serial, packet) to sendBuffer)"""
-    def deviceUpdate(uid, param, value):
+    def deviceUpdate(self, uid, param, value):
         """Creates packet and adds (serial, packet) to sendBuffer)"""
-    def deviceStatus(uid, param):
+    def deviceStatus(self, uid, param):
         """Creates packet and adds (serial, packet) to sendBuffer)"""
 

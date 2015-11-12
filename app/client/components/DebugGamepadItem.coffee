@@ -1,5 +1,8 @@
 React = require('react')
 Panel = require('react-bootstrap').Panel
+Modal = require('react-bootstrap').Modal
+Button = require('react-bootstrap').Button
+ListGroupItem = require('react-bootstrap').ListGroupItem
 Table = require('react-bootstrap').Table
 _ = require('lodash')
 numeral = require('numeral')
@@ -20,16 +23,40 @@ module.exports = DebugGamepadItem = React.createClass
   renderHeader: ->
     <div>
       <h4 style={display: 'inline'}> Gamepad {this.props.index} </h4>
-      <span style={float: 'right'}> {this.props.gamepad.id}</span>
     </div>
+
+  getInitialState: ->
+    showModal: false
+
+  closeModal: ->
+    this.setState({ showModal: false })
+
+  openModal: ->
+    this.setState({ showModal: true })
 
   render: ->
     if not this.props.gamepad?
       return <div/>
-    <Panel header={this.renderHeader()}>
-      <div>Timestamp: {this.props.gamepad.timestamp}</div>
-      <div>Mapping: {this.props.gamepad.mapping}</div>
-      <div>Axes: {String(this.roundedValues().axes)}</div>
-      <div>Buttons: {String(this.roundedValues().buttons)}</div>
-    </Panel>
+    <ListGroupItem>
+      <div style={{overflow: 'auto', width: '100%'}}>
+        <span style={{float: 'left'}}>{this.renderHeader()}</span>
+        <Button bsSize="small" onClick={this.openModal} style={{float: 'right'}}>More</Button>
+      </div>
+      <Modal show={this.state.showModal} onHide={this.closeModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>{this.renderHeader()}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div>Timestamp: {this.props.gamepad.timestamp}</div>
+          <div>Mapping: {this.props.gamepad.mapping}</div>
+          <div>Axes: {String(this.roundedValues().axes)}</div>
+          <div>Buttons: {String(this.roundedValues().buttons)}</div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={this.closeModal}>Close</Button>
+        </Modal.Footer>
+      </Modal>
+    </ListGroupItem>
+
+
 

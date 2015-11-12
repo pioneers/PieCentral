@@ -1,0 +1,8 @@
+deviceID,deviceName,param0,param1,param2,param3
+0x00,LimitSwitch,value,,,
+0x01,LineFollower,value,,,
+0x02,Potentiometer,value,,,
+0x03,Encoder,value,,,
+0x04,BatteryBuzzer,value,,,
+0x05,TeamFlag,status,,,
+0x07,ServoControl,servo0,servo1,servo2,servo3

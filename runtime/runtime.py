@@ -3,12 +3,14 @@ from ansible import Ansible
 import threading
 import time
 from grizzly import *
+import hibike
 #from api import Robot
 #from api import Gamepads
 
-
+h = hibike.Hibike()
 dawn_ansible = Ansible('dawn')
 runtime_ansible = Ansible('runtime')
+student_ansible = Ansible('student_code')
 
 #Robot.init()
 
@@ -83,3 +85,12 @@ while True:
                 running_code = False
         elif msg_type == 'gamepad':
             runtime_ansible.send(command)
+
+connectedDevices = h.getEnumeratedDevices() #get list of devices
+h.subscribeToDevices(connectedDevices)
+while True:
+    command = student_ansible.recv()
+    if command:
+         msg_type, content = command['header']['msg_type'], command['content']
+         if msg_type == "sensor_value":
+            runtime_ansible.sendMessage("sensor_value",h.getData(content)) 

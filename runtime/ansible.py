@@ -56,10 +56,10 @@ class Ansible(object):
         if (role == 'dawn'):
             self.send_port = 12355
             self.recv_port = 12356
-        elif (role == 'runtime'):
+        elif (role == 'runtime'): # used for hibike (getting motor/sensor values, gamepad)
             self.send_port = 12357
             self.recv_port = 12358
-        elif (role == 'student_code'):
+        elif (role == 'student_code'): # only used for setting motor values and sending to Runtime
             print('student code')
             self.send_port = 12358
             self.recv_port = 12357

@@ -1,14 +1,15 @@
 import hibike_message as hm
+import csv
 
 class DeviceContext():
-    def __init__(self, configFile='hibikeDevices.config'):
+    def __init__(self, configFile='hibikeDevices.csv'):
         #contextData = {uid: {param: (value, timestamp)}, delay, timestamp) }
-        self.conntextData = dict()
+        self.contextData = dict()
         self.deviceParams = dict()
         self.version = None
         self.hibike = None
-
         self.readConfig(configFile)
+
 
     def readConfig(self, filename):
         """
@@ -17,27 +18,33 @@ class DeviceContext():
         Fill out self.deviceParams and self.version
 
         Config file format:
-            version info
-            # of devices
-            deviceID1, deviceName1, param1, param2, ...
-            deviceID2, deviceName2, param1, param2, ...
+        deviceID1, deviceName1, param1, param2, ...
+        deviceID2, deviceName2, param1, param2, ...
 
         self.deviceParams format:
-            self.deviceParams = {deviceID : (param1, param2, ...)}
+        self.deviceParams = {deviceID : (param1, param2, ...)}
 
         self.version format:
-            self.version = <string repr of version info> 
-            
+        self.version = <string repr of version info>
         """
+        csv_file = open(filename, 'r')
+        reader = csv.reader(csv_file, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
+        list_of_rows = [row for row in reader]
+        list_of_rows.pop(0)
+        csv_file.close()
+        self.deviceParams = {lst[0]: [elem for elem in lst[1:] if elem != ''] for lst in list_of_rows}
 
 
     def addDeviceToContext(self, uid):
         """
-        Add given device to self.contextData, adding params specified 
+        Add given device to self.contextData, adding params specified
         by self.deviceParams based on the UID
         Handle invalid UIDs
         """
-        
+
+
+
+
 
     def getData(self, uid, param):
         if uid in self.contextData:
@@ -65,7 +72,7 @@ class DeviceContext():
         assert self.hibike is not None, "DeviceContext needs a pointer to Hibike!"
         assert uid in self.contextData, "Invalid UID: {}".format(uid)
         assert param in self.deviceParams[hm.getDeviceType(uid)], "Invalid param for {}".format(hm.getDeviceType(uid))
-        
+
         msg = hm.make_device_update(param, value)
         self.hibike.sendBuffer.put((msg, self.hibike.connections[uid][1]))
 

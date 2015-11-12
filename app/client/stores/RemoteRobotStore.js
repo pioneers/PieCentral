@@ -12,6 +12,7 @@ import _ from 'lodash';
 var motors = {};
 var peripherals = {};
 var robotStatus = false;
+var batteryLevel = 0;
 
 var RemoteRobotStore = assign({}, EventEmitter.prototype, {
   emitChange() {
@@ -25,6 +26,9 @@ var RemoteRobotStore = assign({}, EventEmitter.prototype, {
   },
   getRobotStatus() {
     return robotStatus;
+  },
+  getBatteryLevel() {
+    return batteryLevel
   }
 });
 
@@ -83,6 +87,11 @@ function handleUpdateStatus(action) {
   RemoteRobotStore.emitChange();
 }
 
+function handleUpdateBattery(action){
+ batteryLevel = action.battery.value;
+ RemoteRobotStore.emitChange();
+}
+
 /**
  * Hacking more.
  */
@@ -109,6 +118,9 @@ RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
     case ActionTypes.UPDATE_STATUS:
       handleUpdateStatus(action);
       break;
+    case ActionTypes.UPDATE_BATTERY:
+      handleUpdateBattery(action);
+      break;  
   }
 });
 

@@ -87,6 +87,22 @@ class HibikeThread(threading.Thread):
         Updates corresponding param in context.
         """
 
+        conn = None # TODO
+        msg = read(conn)
+        if msg == None or msg == -1:
+            return
+
+        if msg.getmessageID() == messageTypes["DataUpdate"]:
+            payload = msg.getPayload()
+            self.hibike.context.contextData[uid][2] = payload
+            self.hibike.context.contextData[uid][3] = time.time()
+
+        elif msg.getmessageID() == messageTypes["DeviceResponse"]:
+            param, value = struct.unpack("<BI", msg)
+            timestamp = time.time()
+            self.hibike.context.contextData[uid][0][param] = (value, timestamp)        
+
+
     def updateParam(uid, param, value):
         """Updates the param of the device corresponding with uid to be 
         value, with the timestamp of the current time. 

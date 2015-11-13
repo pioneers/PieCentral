@@ -128,5 +128,6 @@ class Hibike:
 ## TESTING ##
 #############
 
-hi = Hibike()
-hi.subscribeToDevices([('0x000100FFFFFFFFFFFFFFFF', 1)])
+if __name__ == "__main__":
+    hi = Hibike()
+    hi.subToDevices([('0x000100FFFFFFFFFFFFFFFF', 1)])

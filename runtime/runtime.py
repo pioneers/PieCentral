@@ -6,6 +6,7 @@ from api import Robot
 from api import Gamepads
 
 robot_status = 0 # a boolean for whether or not the robot is executing code
+student_proc, console_proc = None, None
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
 
@@ -20,7 +21,8 @@ def log_output(stream):
         time.sleep(0.5) # need delay to prevent flooding ansible
 
 def msg_handling(msg):
-    msg_type, content = command['header']['msg_type'], command['content']
+    global robot_status, student_proc, console_proc
+    msg_type, content = msg['header']['msg_type'], msg['content']
     if msg_type == 'execute' and not robot_status:
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)

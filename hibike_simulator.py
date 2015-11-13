@@ -99,6 +99,8 @@ class Hibike:
 
         device_type = UID[:6]
         low, high, noise = sensor_values[device_type]
+        if low is None or high is None or noise is None:
+            return 0 # TODO: what to do with these device types?
         if is_low:
             return high + (random.random() - .5) * noise
         else:

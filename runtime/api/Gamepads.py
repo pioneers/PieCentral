@@ -2,10 +2,14 @@
 # Gamepad.py class.
 # Copyright 2015. Pioneers in Engineering
 # ------
+#from ansible import Ansible
+#import time, threading
 import memcache
 
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
+
+#student_ansible = Ansible('student_code')
 
 def get_all():
     return mc.get('gamepad')
@@ -17,8 +21,8 @@ def get_all():
 # axes[3] is negative up, positive down on that same other
  # Takes in gamepad index
 def get_joysticks(index):
+   #return gpads[index]['axes']
     return mc.get('gamepad')[index]['axes']
-
 
 # Refer to https://w3c.github.io/gamepad/#remapping for standard gamepad buttons
 # An array of gamepadButton objects representing the buttons present on the device.
@@ -34,3 +38,29 @@ def get_is_connected(index):
 # Layout, then the mapping should be set to standard. Otherwise set mapping property to empty string
 def get_mapping(index):
     return mc.get('gamepad')[index]['mapping']
+
+
+    #return gpads[index]['mapping']
+
+# Array of Gamepad objects
+#gpads = [{'axes':[0.0, 0.0, 0.0, 0.0], 'buttons':[0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00], 'mapping':'standard'}]
+
+
+#def update():
+#    command = student_ansible.recv()
+#    print(str(command) + ' revieced from runtime')
+#    gamepads = {}
+#    if command:
+#        print(command)
+#        header = command['header']
+#        content = command['content']
+#        if header['msg_type'] == 'gamepad' and content:
+#            gamepads = content
+#    print('this is the gamepad')
+#    print(gamepads)
+#    for index in range(len(gamepads)):
+#        try:
+#            gpads[index] = gamepads[str(index)]
+#        except:
+#            gpads.append(gamepads[str(index)])
+

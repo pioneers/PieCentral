@@ -1,6 +1,7 @@
 import subprocess, multiprocessing, time
 import memcache, ansible, hibike
 from grizzly import *
+import usb
 
 # Useful motor mappings
 name_to_grizzly, name_to_values, name_to_ids = {}, {}, {}
@@ -23,7 +24,12 @@ def get_all_data(connectedDevices):
 
 # Called on start of student code, finds and configures all the connected motors
 def initialize_motors():
-    addrs = Grizzly.get_all_ids()
+    try:
+        addrs = Grizzly.get_all_ids()
+    except usb.USBError:
+        print("WARNING: no Grizzly Bear devices found")
+        addrs = []
+
     # Brute force to find all
     for index in range(len(addrs)):
         # default name for motors is motor0, motor1, motor2, etc

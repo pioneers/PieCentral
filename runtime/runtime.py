@@ -2,14 +2,21 @@ import subprocess, multiprocessing, time
 import memcache, ansible, hibike
 from grizzly import *
 import usb
+import os
 
 # Useful motor mappings
 name_to_grizzly, name_to_values, name_to_ids = {}, {}, {}
 student_proc, console_proc = None, None
 robot_status = 0 # a boolean for whether or not the robot is executing code
 
-h = hibike.Hibike()
+if 'HIBIKE_SIMULATOR' in os.environ and os.environ['HIBIKE_SIMULATOR'] in ['1', 'True', 'true']:
+    import hibike_simulator
+    h = hibike_simulator.Hibike()
+else:
+    h = hibike.Hibike()
 connectedDevices = h.getEnumeratedDevices()
+# TODO: delay should not always be 20
+connectedDevices = [(device, 20) for (device, device_type) in connectedDevices]
 h.subToDevices(connectedDevices)
 
 # connect to memcache
@@ -84,9 +91,25 @@ def msg_handling(msg):
     elif msg_type == 'gamepad':
         mc.set('gamepad', content)
 
+sensor_data_last_sent = 0
 def send_sensor_data(data):
-    # TODO: Send hibike sensor data to UI, see fake_runtime.py UPDATE_PERIPHERAL for syntax
-    pass
+    global sensor_data_last_sent
+    # HACK to avoid spamming UI. Should really send only when sensors update
+    if time.time() < sensor_data_last_sent + 1:
+        return
+    sensor_data_last_sent = time.time()
+
+    for device_id, value in all_sensor_data.items():
+        ansible.send_message('UPDATE_PERIPHERAL', {
+            'peripheral': {
+                'name': 'sensor_{}'.format(device_id),
+                'peripheralType':'SENSOR_SCALAR',
+                'value': value,
+                'id': device_id
+                }
+            })
+
+
 
 while True:
     msg = ansible.recv()

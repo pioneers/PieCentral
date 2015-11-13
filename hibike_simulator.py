@@ -40,7 +40,7 @@ class Hibike:
             enum_devices.append((UID, UID[:6])) # (UID - in hex, Device type - in hex)
         return enum_devices
 
-    def subscribeToDevices(self, deviceList):
+    def subToDevices(self, deviceList):
         """ deviceList - List of tuples of UIDs and delays. Creates a dictionary
         storing UID, delay, time created (ms), previous data, whether data is
         low and flip times (the next time the data should flip). Flip is when
@@ -59,11 +59,13 @@ class Hibike:
                 self.subscribedTo[UID]['delay'] = delay
         return 0
 
-    def getData(self, UID):
+    def getData(self, UID, param):
         """ Extracts all data for specific UID. Checks whether to update data,
         flip data, or return previous data, and returns correct appropriate
         data.
         """
+
+        #TODO: param is currently unused
 
         delay = self.subscribedTo[UID]['delay']
         last_time = self.subscribedTo[UID]['time']

@@ -113,11 +113,11 @@ while True:
 
     # Send motor values to UI, if the robot is running
     if robot_status:
-        name_to_value = mc.get('motor_values')
+        name_to_value = mc.get('motor_values') or {}
         for name in name_to_value:
             grizzly = name_to_grizzly[name]
             grizzly.set_target(name_to_value[name])
-	    ansible.send_message('UPDATE_PERIPHERAL', {
+            ansible.send_message('UPDATE_PERIPHERAL', {
                 'peripheral': {
                     'name': name,
                     'peripheralType':'MOTOR_SCALAR',

@@ -1,18 +1,38 @@
 import hibike_message as hm
 import csv
 
+ZeroTime = -1.0
+
 class Device():
     # [{param: (value, timestamp)}, delay, timestamp]
+    #timestamp is the last time any field was modified in this device!
     # NOT TOUCHED BY USER?!
     # user
-    def __init__(self):
-        # string name to param id, param to string name
-        self.params =
-        self.delay =
-        self.timestamp =
-        self.nameToID = {paramName: paramID} # <in a different config file, indexed [???]>
-        self.IDToName = {paramID: paramName}
+    def __init__(self, UID, deviceParams):
+        # nameToID = {paramName: paramIndex}
+        # IDToName = {paramIndex: paramName}
+        # params - internal dictionary {paramIndex: (value, timestamp)}
+        dID = hm.getDeviceType(UID)
+        UIDparams = deviceParams[dID] #list that stores the parameters by name for a given UID
+        for param in UIDparams:
+            paramIndex = UIDparams.index(param)
+            self.params[paramIndex] = (0, ZeroTime)
+            self.nameToID[param] = paramIndex #set the param name to paramID mapping
+            self.IDToName[paramIndex] = param #set the paramID to param name mapping
+        self.delay = 0
+        self.timestamp = ZeroTime
 
+    def getTimestamp(self, paramID):
+        return self.params[paramID][1]
+
+    def setParam(self, paramID, value, time):
+        self.params[paramID][0] = value
+        self.params[paramID][1] = time
+        self.timestamp = time
+
+    def updateSub(delay, time):
+        self.delay = delay
+        self.timestamp = time
 
 class DeviceContext():
     def __init__(self, configFile='hibikeDevices.csv'):
@@ -23,6 +43,10 @@ class DeviceContext():
         self.hibike = None
         self.readConfig(configFile)
 
+   #for each device in the list of UIDs, list out its paramters by name
+    def getParams(self, UIDs):
+        for UID in UIDs:
+            self.contextData[UID].nameToID.keys()
 
     def readConfig(self, filename):
         """
@@ -57,6 +81,8 @@ class DeviceContext():
         by self.deviceParams based on the UID
         Handle invalid UIDs
         """
+        #check for valid UID in the HibikeMessage class!!
+        self.contextData[uid] = Device(UID, self.deviceParams)
 
     def getData(self, uid, param):
         """
@@ -79,7 +105,15 @@ class DeviceContext():
         Get Device
         If timestamp given > timestamp original, replace old tuple with new value & timestamp
         """
+        if self.contextData[UID].getTimestamp(paramID) < timestamp:
+            self.contextData[UID].setParam(paramID, timestamp)
 
+    def updateSubscription(uid, delay, timestamp):
+        """
+        Ack packet
+        Update the delay and timestamp for given device
+        """
+        self.contextData[UID].updateSub(delay, timestamp)
 
     def subToDevices(self, deviceTuples):
         for devTup in deviceTuples:

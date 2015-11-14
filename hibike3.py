@@ -37,7 +37,6 @@ class Hibike():
         return ['/dev/%s' % port for port in os.listdir("/dev/") 
                 if port[:6] in ("ttyUSB", "tty.us", "ttyACM")]
 
-    #TODO: get rid of locking and change to fit changes!
     def _enumerateSerialPorts(self):
         serial_conns = {p: serial.Serial(p, 115200) for p in self._portList}
         time.sleep(3)
@@ -81,9 +80,11 @@ class HibikeThread(threading.Thread):
 
         Where we are in our list of devices is maintained across calls. 
 
-        If n==0, iterate through all devices. 
+        If n==0, set n = numDevices to iterate through all devices. 
         """
         numDevices = len(self.hibike.serialPorts)
+        if n==0:
+            n = num
         for _ in n:
             serialPort = self.hibike.serialPorts[self.serialPortIndex]
             self.processPacket(serial)

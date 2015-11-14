@@ -1,6 +1,77 @@
 # Hibike API
 
-## Constructor Summary
+## DeviceContext
+### Constructor Summary
+
+**DeviceContext([configFile])**
+
+Initializes a deviceContext instance, which will store the most up-to-date information on each SmartDevice. 
+
+Input Parameters: 
+- configFile, with default value 'hibikeDevices.csv'
+
+Return Value: DeviceContext instance
+
+Blocks: No
+
+### Method Summary
+
+**getData(UID, param)**
+
+Gets the most recently recieved data from the specified device.
+
+Input Parameters:
+- UID = "UID string"
+
+Return Value: int
+- latest device reading of param
+
+Blocks: No
+
+
+**writeValue(UID, param, value)**
+
+Writes a value to the parameter of a particular device, specified by the UID.
+
+Input Parameters:
+- UID = integer value of UID
+- param = String value of param. List of params for a specfied device can be accessed from getDeviceParams()
+- value = unsigned integer value to be written
+
+Return Value: None
+
+Blocks: No
+
+**getDelay(UID)**
+
+
+
+**subToDevice(UID, delay)**
+
+Subscribes to the specified with the given delay, an int specifying the time between subscriptions in milliseconds. Will fail if a requested UID has not been found active during initialization.
+
+Input Parameters:
+- UID = integer representation of device UID
+- delay = integer between 0 and 65535
+
+Return Value: None
+
+Blocks: No
+
+**subToDevices(deviceTuples)**
+
+Subscribes to a list of devices. Will fail if a requested UID has not been found active during initialization.
+
+Input Parameters:
+- deviceTuples = [(UID_0, delay_0), (UID_1, delay_1), ...]
+
+Return Value: None
+
+Blocks: No
+
+
+## Hibike
+### Constructor Summary
 
 **Hibike()**
 
@@ -8,10 +79,12 @@ Initializes the hibike instance and pings all connected devices for UID info.
 *Note that Hibike should be treated as a singleton class.*
 
 Input Parameters: None
-Return Value: None
+
+Return Value: Hibike instance
+
 Blocks: **Yes**
 
-## Method Summary
+### Method Summary
 
 **getEnumeratedDevices()**
 
@@ -23,59 +96,6 @@ Return Value: list
 
 Blocks: No
 
-**subscribeToDevices(deviceList)**
-
-Subscribes to all specified devices with the given delay, an int specifying the subscription rate in milliseconds. Will fail if a requested UID has not been found active during initialization. May also fail if subscription requests fail.
-
-Input Parameters: 
-- deviceList = [(UID, delay), ...]
-
-Return Value: int
-- 0 = operation successful
-- 1 = failed to subscribe to a device
-- 2 = given an unrecognized UID
-
-Blocks: **Yes**
-
-**getData(UID)**
-
-Gets the most recently recieved data from the specified device.
-
-Input Parameters:
-- UID = "UID string"
-
-Return Value: int
-- latest device reading
-
-Blocks: No
-
-**readValue(UID, param)**
-
-Looks up the specified parameter from the state of the specified device. Note that these values are not cached and must be looked up on demand.
-
-Input Parameters:
-- UID = "UID string"
-- param = int specfying which parameter (enumerated elsewhere)
-
-Return Value: int
-- current parameter value
-
-Blocks: **Yes**
-
-**writeValue(UID, param, value)**
-
-Writes a specified value to the given parameter of a the given device.
-
-Input Parameters:
-- UID = "UID string"
-- param = in specifying which parameter (enumerated elsewhere)
-- value = int of the data to be written to the parameter
-
-Return Value: int
-- 0 = operation successful
-- 1 = operation failed
-
-Blocks: **Yes**
 
 ## Usage:
 

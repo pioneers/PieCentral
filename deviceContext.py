@@ -48,7 +48,7 @@ class DeviceContext():
         for UID in UIDs:
             self.contextData[UID].nameToID.keys()
 
-    def readConfig(self, filename):
+    def _readConfig(self, filename):
         """
         Read the configuration information given in 'filename'
         Handle all IO Exceptions
@@ -75,7 +75,7 @@ class DeviceContext():
         finally:
             csv_file.close()
 
-    def addDeviceToContext(self, uid):
+    def _addDeviceToContext(self, uid):
         """
         Add given device to self.contextData, adding params specified
         by self.deviceParams based on the UID
@@ -100,7 +100,7 @@ class DeviceContext():
         else:
             return "You have not specified a valid device. Check your UID."
 
-    def updateParam(self, UID, paramID, value, timestamp): # Hibike calling this?
+    def _updateParam(self, UID, paramID, value, timestamp): # Hibike calling this?
         """
         Get Device
         If timestamp given > timestamp original, replace old tuple with new value & timestamp
@@ -108,7 +108,7 @@ class DeviceContext():
         if self.contextData[UID].getTimestamp(paramID) < timestamp:
             self.contextData[UID].setParam(paramID, timestamp)
 
-    def updateSubscription(uid, delay, timestamp):
+    def _updateSubscription(uid, delay, timestamp):
         """
         Ack packet
         Update the delay and timestamp for given device

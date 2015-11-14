@@ -40,13 +40,14 @@ module.exports = DebugGamepadItem = React.createClass
     <ListGroupItem>
       <div style={{overflow: 'auto', width: '100%'}}>
         <span style={{float: 'left'}}>{this.renderHeader()}</span>
-        <Button bsSize="small" onClick={this.openModal} style={{float: 'right'}}>More</Button>
+        <Button bsSize="small" onClick={this.openModal} style={{float: 'right'}}>Details</Button>
       </div>
       <Modal show={this.state.showModal} onHide={this.closeModal}>
         <Modal.Header closeButton>
           <Modal.Title>{this.renderHeader()}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <img src={'/assets/gamepad.png'} style={{width: '100%'}}/>
           <div>Timestamp: {this.props.gamepad.timestamp}</div>
           <div>Mapping: {this.props.gamepad.mapping}</div>
           <div>Axes: {String(this.roundedValues().axes)}</div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Navbar, Nav, ButtonToolbar, Button, Label, ButtonGroup} from 'react-bootstrap';
+import {Navbar, Nav, ButtonToolbar, Button, Label} from 'react-bootstrap';
 import ReactRouterBootstrap from 'react-router-bootstrap';
 import AnsibleClient from '../utils/AnsibleClient';
 import RemoteRobotStore from '../stores/RemoteRobotStore';
@@ -35,13 +35,9 @@ export default React.createClass({
       <Navbar brand="Dawn" fixedTop fluid toggleNavKey={0}>
         <Nav right eventKey={0} style={{ marginBottom: '4px', marginTop: '4px', marginRight: '4px'}}>
           <ButtonToolbar>
-            <ButtonGroup>
-            <Button bsStyle="success"> Battery Level: {this.state.battery}</Button>
-            </ButtonGroup>
-            <ButtonGroup>
+            <Label bsStyle="success" style={{ marginTop: '12px', marginRight: '15px'}}> Battery Level: {this.state.battery}</Label>
             <Button bsStyle="success" onClick={ this.startRobot } disabled={this.state.status}>Start</Button>
             <Button bsStyle="danger" onClick={ this.stopRobot } disabled={!this.state.status}>Stop</Button>
-            </ButtonGroup>
           </ButtonToolbar>
 
         </Nav>

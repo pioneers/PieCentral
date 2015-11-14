@@ -1,5 +1,14 @@
 import time, random
+
+cutoffs = [0.05, 0.13, 0.15, 0.27, 0.5, 0.73, 0.85, 0.95, 0.99, 1.0]
+sensor_values = {'0x0000': (0, 1, 0), '0x0001': (200, 800, 100),
+'0x0002': (None, None, None), '0x0003': (-256, 256, 10), '0x0004': (0, 1, 0),
+'0x0005': (0, 1, 0), '0x0006': (None, None, None), '0x0007': (None, None, None),
+'0x0008': (None, None, None)}
+
 class Hibike:
+
+
     def __init__(self):
         self.UIDs = [
             '0x000000FFFFFFFFFFFFFFFF', '0x000100FFFFFFFFFFFFFFFF',
@@ -12,6 +21,7 @@ class Hibike:
         self.subscribedto = {}
         self.sensors = []
 
+
     def getEnumeratedDevices(self):
 
         enum_devices = []
@@ -23,7 +33,7 @@ class Hibike:
         for UID, delay in deviceList:
             if UID in self.UIDs and UID not in self.subscribedto:
                 last_time = time.time()*1000
-                self.subscribedto[UID] = {'delay': delay, 'time': last_time, 'data':(random.random() *100)//1} # (delay, last time sensor data was updated, sensor data)
+                self.subscribedto[UID] = {'delay': delay, 'time': last_time, 'data': self.getRandomData(UID, 0, False)} # (delay, last time sensor data was updated, sensor data)
                 self.subscribedto[UID]['flip_time'] = self.calculateFlipTime(UID)
             elif UID in self.UIDs and  UID in self.subscribedto:
                 self.subscribedto[UID]['delay'] = delay
@@ -35,10 +45,11 @@ class Hibike:
         curr_time = time.time()*1000
         if curr_time - delay >= flip_time:
             self.subscribedto[UID]['time'] = curr_time #updates last time sensor data was updated to current system time
-            self.subscribedto[UID]['data'] +=  #rewrites sensor data with random num
+            self.subscribedto[UID]['data'] =  self.getRandomData(UID, 0, True)#rewrites sensor data with random num
+            self.subscribedto[UID]['flip_time'] = self.calculateFlipTime(UID)
         elif curr_time - delay < flip_time and curr_time - delay > last_time:
             self.subscribedto[UID]['time'] = curr_time
-            self.subscribedto[UID]['data'] += self.calculateChange(UID, False) CHANGE THIS!!!
+            self.subscribedto[UID]['data'] = self.getRandomData(UID, self.subscribedto[UID]['data'], False)
         return self.subscribedto[UID]['data'] #returns sensor data
 
 
@@ -59,16 +70,31 @@ class Hibike:
 
 
     def calculateFlipTime(self, UID):
-        random, last_time = random.random(), self.subscribedto[UID]['time']
+        rand, last_time = random.random(), self.subscribedto[UID]['time']
         noise = random.random()
         for i in range(len(cutoffs)):
-            if random < cuttofs[i]:
-                return last_time + noise + i
+            if rand < cutoffs[i]:
+                return time.time() + noise + i
 
-    cutoffs = [0.05, 0.13, 0.15, 0.27, 0.5, 0.73, 0.85, 0.95, 0.99, 1.0]
-    sensor_values =
+
+
+    def getRandomData(self, UID, current_data, flip):
+        device_type = UID[:6]
+        low, high, noise = sensor_values[device_type]
+        average = (low + high) / 2
+        if current_data < average:
+            if flip:
+                return high + (random.random() - .5) * noise
+            else:
+                return low + (random.random() - .5) * noise
+        else:
+            if flip:
+                return low + (random.random() - .5) * noise
+            else:
+                return high + (random.random() - .5) * noise
+
 
 
 hi = Hibike()
-hi.subscribeToDevices([('0x000800FFFFFFFFFFFFFFFF', 1)])
+hi.subscribeToDevices([('0x000100FFFFFFFFFFFFFFFF', 1)])
 print(hi.subscribedto)

@@ -1,13 +1,19 @@
 import time, random
 
 cutoffs = [0.05, 0.13, 0.15, 0.27, 0.5, 0.73, 0.85, 0.95, 0.99, 1.0]
-sensor_values = {'0x0000': (0, 1, 0), '0x0001': (200, 800, 100),
-'0x0002': (None, None, None), '0x0003': (-256, 256, 10), '0x0004': (0, 1, 0),
-'0x0005': (0, 1, 0), '0x0006': (None, None, None), '0x0007': (None, None, None),
-'0x0008': (None, None, None)}
+sensor_values = {
+    '0x0000': (0, 1, 0),
+    '0x0001': (200, 800, 100),
+    '0x0002': (None, None, None),
+    '0x0003': (-256, 256, 10),
+    '0x0004': (0, 1, 0),
+    '0x0005': (0, 1, 0),
+    '0x0006': (None, None, None),
+    '0x0007': (None, None, None),
+    '0x0008': (None, None, None)
+}
 
 class Hibike:
-
 
     def __init__(self):
         self.UIDs = [

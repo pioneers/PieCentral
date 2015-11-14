@@ -5,27 +5,25 @@ PiE Robotics Kit, a.k.a Frank or "Kit Minimum" to some.
 
 ## Section 0: A Quick Introduction
 
-We make a few starting assumptions concerning the endpoints of communication. Namely, the device
-controlling a sensor is a Smart Device (SD), and a Beaglebone Black (BBB) is used as
-the central control board of each robot and thus is in charge of communicating with each Smart Device.
-These two communicate with each other via serial: the Beaglebone running pySerial and the Smart Device 
-by using the built-in serial library. As each Smart Device communicates with the Beaglebone on its own 
-separate port, we conveniently have no need to worry about any race conditions or other problems 
-arising from concurrency.
+We make a few starting assumptions concerning the endpoints of communication: the device controlling 
+a sensor is a Smart Device (SD), and a Beaglebone Black (BBB) is used as the central control board 
+of each robot and thus is in charge of communicating with each Smart Device. These two communicate 
+with each other via serial: the Beaglebone running pySerial and the Smart Device by using the 
+built-in serial library. As each Smart Device communicates with the Beaglebone on its own separate 
+port, we conveniently have no need to worry about any race conditions or other problems arising from 
+concurrency.
 
 Refer to Section 5 for an outline of the general behavior of the Hibike protocol.
 
-Finally, note that code for a COBS-encoding scheme can and should be stolen from the preexisting
-Tenshi codebase and then never thought about again.
 
 ## Section 1: General Message Structure
 All messages have the relatively simple structure of Message ID, Payload, and Checksum as
 depicted below. A more complete description of each field is given below the diagram.
 
-    +------------+--------------------+---------------------+------------+
-    | Message ID |  Payload Length    |       Payload       |  Checksum  |
-    |  (8 bits)  |      (8 bits)      |   (length varies)   |  (8 bits)  |
-    +------------+--------------------+---------------------+------------+
+    +------------+------------------+---------------------+------------+
+    | Message ID |  Payload Length  |       Payload       |  Checksum  |
+    |  (8 bits)  |      (8 bits)    |   (length varies)   |  (8 bits)  |
+    +------------+------------------+---------------------+------------+
 
 Message ID - an 8-bit ID specifying the type of message being sent or received. More information
              about each message type is specified in the following sections.
@@ -82,30 +80,32 @@ Message ID Enumeration:
 
 Device Type Enumeration:
 
-    +---------+---------------+
-    |   ID    |    Sensor     |
-    +-------------------------+
-    |  0x00   | Limit Switch  |
-    +-------------------------+
-    |  0x01   | Line Follower |
-    +-------------------------+
-    |  0x02   | Potentiometer |
-    +-------------------------+
-    |  0x03   |    Encoder    |
-    +-------------------------+
-    |  0x04   | Battery Buzzer|
-    +-------------------------+
-    |  0x05   |   Team Flag   |
-    +-------------------------+
-    |  0x06   |    Grizzly    |
-    +-------------------------+
-    |  0x07   | Servo Control |
-    +-------------------------+
-    |  0x08   |Linear Actuator|
-    +---------+---------------+ 
+    +---------+----------------+
+    |   ID    |    Sensor      |
+    +--------------------------+
+    |  0x00   | LimitSwitch    |
+    +--------------------------+
+    |  0x01   | LineFollower   |
+    +--------------------------+
+    |  0x02   | Potentiometer  |
+    +--------------------------+
+    |  0x03   | Encoder        |
+    +--------------------------+
+    |  0x04   | BatteryBuzzer  |
+    +--------------------------+
+    |  0x05   | TeamFlag       |
+    +--------------------------+
+    |  0x06   | Grizzly        |
+    +--------------------------+
+    |  0x07   | ServoControl   |
+    +--------------------------+
+    |  0x08   | LinearActuator |
+    +---------+----------------+ 
 Note: These assignments are totally random as of now. We need to figure
       out exactly what devices we are supporting.
-
+Note: As of now, Grizzlies are not supported by Hibike (pyGrizzly should 
+      be used instead) But they should be in the near future, to preserve 
+      the idea of treating every peripheral as a SmartDevice.
 
 Error ID Enumeration:
 
@@ -194,7 +194,7 @@ Note: These assignments are also fairly random and may not all even be
 
         +---------------+--------------------+
         |     Param     |       Value        |
-        |    (8 bits)   |     (32 bits)      |
+        |    (8 bits)   |      (32 bits)     |
         +---------------+--------------------+
 
     Direction:

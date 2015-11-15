@@ -118,7 +118,7 @@ class HibikeThread(threading.Thread):
         numDevices = len(self.hibike.serialPorts)
         if (n == 0):
             n = numDevices
-        for _ in n:
+        for _ in range(n):
             serialPort = self.hibike.serialPorts[self.serialPortIndex]
             self.processPacket(serialPort)
             self.serialPortIndex += 1

@@ -1,11 +1,11 @@
 # Hibike API
 
-There have been some small updates. Sorry :(
+There have been some small changes. Sorry :(
 
 Couple things:
-1. There are 2 classes to instantiate for Hibike - Hibike and DeviceContext. Hibike handles interfacing with sensors, while DeviceContext handles sending/recieving data from the user. As such, expect to be working with DeviceContext for the most part.
-2. All setter methods are non-blocking, meaning its up to the user to check if the write methods were successful. This can be accomplished by comparing timestamps. Timestamps are initialized as -1, and will be updated for every new value read from the ACK packet returned for the given write request. See Usage for details.
-3. All devices will have a specified parameter "dataUpdate" that will correspond to the data written via subscriptions. All other parameters are updated on request. See Usage and Method Summary for getData() for more details.
+* There are 2 classes to instantiate for Hibike - Hibike and DeviceContext. Hibike handles interfacing with sensors, while DeviceContext handles sending/recieving data from the user. As such, expect to be working with DeviceContext for the most part.
+* All setter methods are non-blocking, meaning its up to the user to check if the write methods were successful. This can be accomplished by comparing timestamps. Timestamps are initialized as -1, and will be updated for every new value read from the ACK packet returned for the given write request. See Usage for details.
+* All devices will have a specified parameter "dataUpdate" that will correspond to the data written via subscriptions. All other parameters are updated on request. See Usage and Method Summary for getData() for more details.
 
 ## DeviceContext
 ### Constructor Summary

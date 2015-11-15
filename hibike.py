@@ -100,6 +100,7 @@ class HibikeThread(threading.Thread):
         self.hibike = hibike
         self.serialPortIndex = 0
         self.sendBuffer = hibike.sendBuffer
+        self.pacekts_read = 0
 
     def run(self):
         while 1:
@@ -150,7 +151,7 @@ class HibikeThread(threading.Thread):
         elif msgID == hm.messageTypes["SubscriptionResponse"]:
             uid0, uid1, uid2, delay = struct.unpack("<HBQH", msg.getPayload())
             self.hibike.context._updateSubscription(uid, delay, time.time())
-        
+        self.pacekts_read = self.pacekts_read + 1
         return msgID
 
 

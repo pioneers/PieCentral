@@ -80,6 +80,7 @@ class DeviceContext():
         self.version = None
         self.hibike = None
         self._readConfig(configFile)
+        self.log
 
    #for each device in the list of UIDs, list out its paramters by name
     def getParams(self, uids):

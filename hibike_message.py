@@ -16,14 +16,14 @@ messageTypes = {
 
 # Dictionary of device types: enumeration
 deviceTypes = {
-  "Limit Switch" :         0x00
-  "Line Follower" :        0x01
-  "Potentiometer" :        0x02
-  "Encoder" :              0x03
-  "Battery Buzzer" :       0x04
-  "Team Flag" :            0x05
-  "Grizzly" :              0x06
-  "Servo Control" :        0x07
+  "Limit Switch" :         0x00,
+  "Line Follower" :        0x01,
+  "Potentiometer" :        0x02,
+  "Encoder" :              0x03,
+  "Battery Buzzer" :       0x04,
+  "Team Flag" :            0x05,
+  "Grizzly" :              0x06,
+  "Servo Control" :        0x07,
   "Linear Actuator" :      0x08
 }
 

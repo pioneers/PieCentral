@@ -116,7 +116,9 @@ class HibikeThread(threading.Thread):
         If n==0, iterate through all devices. 
         """
         numDevices = len(self.hibike.serialPorts)
-        for _ in range(n):
+        if (n == 0):
+            n = numDevices
+        for _ in n:
             serialPort = self.hibike.serialPorts[self.serialPortIndex]
             self.processPacket(serialPort)
             self.serialPortIndex += 1
@@ -158,6 +160,7 @@ class HibikeThread(threading.Thread):
 
         sendBuffer should have tuples of (serial, packet)
         """
+
         for _ in range(n):
             if self.sendBuffer.empty():
                 break

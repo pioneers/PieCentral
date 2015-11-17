@@ -9,23 +9,22 @@ class Device():
     # NOT TOUCHED BY USER?!
     # user
     def __init__(self, uid, deviceParams, context):
-        # self.params, self.IDToName, self.nameToID = {}, {}, {}
-        # nameToID = {paramName: paramIndex}
-        # IDToName = {paramIndex: paramName}
         # params - internal dictionary {paramIndex: (value, timestamp)}
         self.uid = uid
         dID = hm.getDeviceType(uid)
         self.deviceType = context.deviceTypes[dID]
         self.params = [(0, ZeroTime) for _ in self.deviceType.params]
-            # self.nameToID[param] = paramIndex #set the param name to paramID mapping
-            # self.IDToName[paramIndex] = param #set the paramID to param name mapping
-
+        self._context = context
         self.delay = 0
         self.timestamp = ZeroTime
+
+    def __contains__(self, item):
+        return item in self.deviceType
+
     def __str__(self):
         deviceStr  = "Device %d: %s\n" % (self.uid
             , self.deviceType.deviceName)
-        deviceStr += "    subcription: %dms @ %d\n" % (self.delay
+        deviceStr += "    subcription: %dms @ %f\n" % (self.delay
             , self.timestamp)
         for i in range(len(self.params)):
             value = self.params[i][0]
@@ -33,31 +32,48 @@ class Device():
                 value = binascii.hexlify(value)
             else:
                 value = str(value)
-            deviceStr += "    %s: %s @ %d\n" % (self.deviceType.params[i]
+            deviceStr += "    %s: %s @ %f\n" % (self.deviceType.params[i]
                 , value, self.params[i][1])
         return deviceStr
 
-    def getParam(self, param):
-        if type(param) is str:
-            param = self.deviceType.paramIDs[param]
-        return self.params[param][0]
+    # user exposed methods
+    def getData(self, param):
+        return self._getParam(param)
+    def writeValue(self, param, value):
+        self._context.writeValue(self.uid, param, value)
+    def readValue(self, param, value):
+        self._context.writeValue(self.uid, param, value)
+    def subToDevice(self, delay):
+        self._context.subToDevice(self.uid, delay)
 
-    def getTimestamp(self, param):
+
+    # not user exposed
+    def _getParam(self, param):
         if type(param) is str:
+            assert param in self.deviceType.paramIDs, "The parameter {0} does not exist for your specified device.".format(param)
             param = self.deviceType.paramIDs[param]
+        assert param < len(self.params), "The parameter {0} does not exist for your specified device.".format(param)
+        return self.params[param]
+
+    def _getTimestamp(self, param):
+        if type(param) is str:
+            assert param in self.deviceType.paramIDs, "The parameter {0} does not exist for your specified device.".format(param)
+            param = self.deviceType.paramIDs[param]
+        assert param < len(self.params), "The parameter {0} does not exist for your specified device.".format(param)
         return self.params[param][1]
 
-    def setParam(self, param, value, time):
+    def _setParam(self, param, value, time):
         if type(param) is str:
+            assert param in self.deviceType.paramIDs, "The parameter {0} does not exist for your specified device.".format(param)
             param = self.deviceType.paramIDs[param]
+        assert param < len(self.params), "The parameter {0} does not exist for your specified device.".format(param)
         self.params[param] = (value, time)
-        #self.timestamp = time
 
-    def updateSub(self, delay, time):
+    def _updateSub(self, delay, time):
         self.delay = delay
         self.timestamp = time
 
-# karthik: let's use this :D
+# devicetype object. constructor takes in a row from the csv
 class DeviceType():
 
     def __init__(self, csv_row):
@@ -65,6 +81,9 @@ class DeviceType():
         self.deviceName = csv_row[1]
         self.params = [param for param in csv_row[2:] if param != '']
         self.paramIDs   = {self.params[index]: index for index in range(len(self.params))}
+
+    def __contains__(self, item):
+        return item < len(self.params) or item in self.paramIDs
 
     def __str__(self):
         deviceType = "DeviceType %d: %s\n" % (self.deviceID, self.deviceName)
@@ -81,12 +100,12 @@ class DeviceContext():
         self.hibike = None
         self._readConfig(configFile)
 
+        # just for testing
+        self.log = ([], [], [])
+
    #for each device in the list of UIDs, list out its paramters by name
     def getParams(self, uids):
         return [self.devices(uid).deviceType.params for uid in uids]
-        #return [self.devices(uid).nameToID.keys() for uid in UIDs]
-        # for UID in UIDs:
-        #     self.devices[UID].nameToID.keys()
 
     def _readConfig(self, filename):
         """
@@ -133,28 +152,23 @@ class DeviceContext():
         Queries Device w/ that paramID
         Returns that parameter
         """
-        if uid in self.devices:
-            if param in self.devices[uid]:
-                return self.devices[uid][param]
-            else:
-                return "The parameter {0} does not exist for your specified device.".format(param)
-        else:
-            return "You have not specified a valid device. Check your UID."
+        assert uid in self.devices, "You have not specified a valid device. Check your UID."
+        return self.devices[uid]._getParam(param)
 
     def _updateParam(self, uid, paramID, value, timestamp): # Hibike calling this?
         """
         Get Device
         If timestamp given > timestamp original, replace old tuple with new value & timestamp
         """
-        if self.devices[uid].getTimestamp(paramID) < timestamp:
-            self.devices[uid].setParam(paramID, value, timestamp)
+        if self.devices[uid]._getTimestamp(paramID) < timestamp:
+            self.devices[uid]._setParam(paramID, value, timestamp)
 
     def _updateSubscription(self, uid, delay, timestamp):
         """
         Ack packet
         Update the delay and timestamp for given device
         """
-        self.devices[uid].updateSub(delay, timestamp)
+        self.devices[uid]._updateSub(delay, timestamp)
 
     def subToDevices(self, deviceTuples):
         for devTup in deviceTuples:
@@ -163,21 +177,23 @@ class DeviceContext():
     def subToDevice(self, uid, delay):
         assert self.hibike is not None, "DeviceContext needs a pointer to Hibike!"
         assert uid in self.devices, "Invalid UID: {}".format(uid)
-        assert 0 <= delay < 65535, "Invalid delay: {}".format(delay)
+        assert 0 <= delay <= 65535, "Invalid delay: {}".format(delay)
         self.hibike.subRequest(uid, delay)
-        # msg = hm.make_sub_request(uid, delay)
-        # self.hibike.sendBuffer.put((msg, self.hibike.connections[uid][1]))
 
     def writeValue(self, uid, param, value):
         assert self.hibike is not None, "DeviceContext needs a pointer to Hibike!"
         assert uid in self.devices, "Invalid UID: {}".format(uid)
-        assert param in self.deviceParams[hm.getDeviceType(uid)], "Invalid param for {}".format(hm.getDeviceType(uid))
+        assert param in self.devices[uid], "Invalid param for {}".format(hm.getDeviceType(uid))
         self.hibike.deviceUpdate(uid, param, value)
-        # msg = hm.make_device_update(param, value)
-        # self.hibike.sendBuffer.put((msg, self.hibike.connections[uid][1]))
+    
+    def readValue(self, uid, param):
+        assert self.hibike is not None, "DeviceContext needs a pointer to Hibike!"
+        assert uid in self.devices, "Invalid UID: {}".format(uid)
+        assert param in self.devices[uid], "Invalid param for {}".format(hm.getDeviceType(uid))
+        self.hibike.deviceStatus(uid, param)
 
     def getDelay(self, uid):
         if uid in self.devices:
-            return (self.devices[uid][1], self.devices[uid][2])
+            return self.devices[uid].delay
         else:
             return "You have not specified a valid device. Check your UID."

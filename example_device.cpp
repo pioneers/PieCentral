@@ -2,9 +2,9 @@
 #include <Servo.h>
 message_t hibikeBuff;
 hibike_uid_t UID = {
-  1,        // Device Type
+  0xFFFF,        // Device Type
   0,        // Year
-  0x1234BEEF5678BEEF,    // ID
+  0x1234BEEF5678BEEE,    // ID
 };
 Servo servo;
 int params[NUM_PARAMS];

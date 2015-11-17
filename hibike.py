@@ -59,6 +59,7 @@ class Hibike():
 
             res = struct.unpack("<HBQH", msg.getPayload())
             uid = (res[0] << 72) | (res[1] << 64) | (res[2])
+            assert uid not in self.context.devices, "UID conflict for id {}".format(uid)
             serialPorts.append((uid, p, serial_conns[p]))
             # self._devices[uid] = hm.getDeviceType(uid)
             # self._data[uid] = 0
@@ -87,7 +88,7 @@ class Hibike():
 
     def deviceStatus(self, uid, param):
         """Creates packet and adds (serial, packet) to sendBuffer)"""
-        msg = hm.make_device_status(delay)
+        msg = hm.make_device_status(param)
         self._addToBuffer(uid, msg)
 
     def error(self, error_code):
@@ -100,6 +101,7 @@ class HibikeThread(threading.Thread):
         self.hibike = hibike
         self.serialPortIndex = 0
         self.sendBuffer = hibike.sendBuffer
+        self.packets_read = 0
 
     def run(self):
         while 1:
@@ -143,14 +145,19 @@ class HibikeThread(threading.Thread):
         if msgID == hm.messageTypes["DataUpdate"]:
             payload = msg.getPayload()
             self.hibike.context._updateParam(uid, 0, payload, time.time())
+            
+            # testing
+            self.packets_read = self.packets_read + 1
+            self.hibike.context.log[0].append(time.time())
+            self.hibike.context.log[1].append(self.packets_read)
+            self.hibike.context.log[2].append(int(binascii.hexlify(payload), 16))
         elif msgID == hm.messageTypes["DeviceResponse"]:
             param, value = struct.unpack("<BI", msg.getPayload())
-            self.hibike.context._updateParam(uid, paran, value, time.time())
+            self.hibike.context._updateParam(uid, param, value, time.time())
             #self.hibike.context.contextData[uid][0][param] = (value, timestamp)
         elif msgID == hm.messageTypes["SubscriptionResponse"]:
             uid0, uid1, uid2, delay = struct.unpack("<HBQH", msg.getPayload())
             self.hibike.context._updateSubscription(uid, delay, time.time())
-        
         return msgID
 
 

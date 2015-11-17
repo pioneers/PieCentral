@@ -66,17 +66,20 @@ while True:
                 with pobslock:
                     pobs.add(p)
                 #makes a deamon thread to supervise the process
-                t = threading.Thread(target=p_watch, args=(p))
-                t.daemon = True
-                t.start()
+                #t = threading.Thread(target=p_watch, args=(p,))
+                #t.daemon = True
+                #t.start()
                 running_code = True
         elif msg_type == 'stop':
 	    print("Ansible said to stop the code")
             if running_code:
                 with pobslock:
                     print("killed")
-                    for p in pobs: p.terminate() #ideal way to shut down
-                    for p in pobs: p.kill() #brut force stuck processes
+                    for p in pobs: 
+                        p.terminate() #ideal way to shut down
+                        #p.kill()
+                    pobs.clear()
+                    #for p in pobs: p.kill() #brut force stuck processes
                 #kill all motor values
                 for addr in Grizzly.get_all_ids():
                     Grizzly(addr).set_target(0)

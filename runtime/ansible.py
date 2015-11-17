@@ -1,6 +1,8 @@
-import zmq, yaml
-from multiprocessing import Process, Queue
+import zmq, yaml, signal, time, sys, os
+from multiprocessing import *
 from Queue import Empty
+
+
 
 class AMessage(object):
     """Convenience class for sending Ansible Messages
@@ -76,6 +78,22 @@ class Ansible(object):
         self.send_process.start()
         self.recv_process.start()
 
+    #signal handlers
+    def sigterm_handler(signal1, fram):
+        for p in active_children():
+            print(p.pid, "PID")
+            os.kill(p.pid, signal.SIGTERM)
+            print(p, 'Before')
+            #p.terminate()
+#            time.sleep(0.1)
+            print(p, 'After')
+#        sys.exit(0)
+
+    def sigint_handler(signal, fram):
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, sigint_handler)
+    signal.signal(signal.SIGTERM, sigterm_handler)
 
     # DON'T USE THIS UNLESS YOU KNOW WHAT YOU'RE DOING
     # Low level message sending. For high level messaging, use send_msg.

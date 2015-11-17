@@ -107,6 +107,9 @@ class DeviceContext():
     def getParams(self, uids):
         return [self.devices(uid).deviceType.params for uid in uids]
 
+    def getDeviceName(self, deviceType):
+        return hm.deviceTypes[deviceType]
+
     def _readConfig(self, filename):
         """
         Read the configuration information given in 'filename'

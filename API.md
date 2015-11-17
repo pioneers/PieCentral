@@ -1,11 +1,11 @@
 # Hibike API
 
-There have been some small changes. Sorry :(
+There have been some changes. Sorry :(
 
 Couple things:
 * There are 2 classes to instantiate for Hibike - Hibike and DeviceContext. Hibike handles interfacing with sensors, while DeviceContext handles sending/recieving data from the user. As such, expect to be working with DeviceContext for the most part.
 * All setter methods are non-blocking, meaning its up to the user to check if the write methods were successful. This can be accomplished by comparing timestamps. Timestamps are initialized as -1, and will be updated for every new value read from the ACK packet returned for the given write request. See Usage for details.
-* All devices will have a specified parameter "dataUpdate" that will correspond to the data written via subscriptions. All other parameters are updated on request. See Usage and Method Summary for getData() for more details.
+* All devices will have a specified parameter "dataUpdate" that will correspond to the data written via subscriptions. All other parameters are updated on request. See Usage and Method Summary for getData() for more details. Note that for devices like servos, dataUpdate will never be written to.
 
 ## DeviceContext
 ### Constructor Summary
@@ -97,6 +97,17 @@ Return Value: list
 
 Blocks: No
 
+**getDeviceName(deviceType)**
+
+Returns a string name of a device enum (given in hibike.getEnumeratedDevices). See Usage for details
+
+Input Parameters:
+- deviceType = integer enum of a Smart Device
+
+Return Value: String
+- String repr of a device, eg: "LimitSwitch", "ServoControl", "Potentiometer"
+
+Blocks: No
 
 
 ## Hibike
@@ -122,7 +133,7 @@ Returns a list of all active devices detected on setup. Returned list has tuple 
 
 Input Parameters: None
 Return Value: list
-- [(UID, deviceType), ...]
+- [(UID, deviceType), ...] where UIDs and deviceTypes are integer values. DeviceType mappings to string names can be accessed via deviceContext.getDeviceName(). See usage section for details.
 
 Blocks: No
 
@@ -140,6 +151,9 @@ Blocks: No
 
     ### Organize the UIDs however you want ###
     connectedDevices = h.getEnumeratedDevices()
+    
+    # device0_name would equal "LimitSwitch"
+    device0_name = comtext.getDeviceTypes[connectedDevices[0][1]]	
 
 
     ### Subscribe to devices as needed ###
@@ -147,7 +161,7 @@ Blocks: No
     subList = zip(deviceUIDs, deviceDelays)
     context.subToDevices(subList)
     
-    time.sleep(1)
+    time.sleep(1)	# handle wait-times a needed
     
     for i in range(len(deviceUIDs)):
         if context.getDelay(deviceUIDs[i]) != deviceUIDs[i]:
@@ -156,7 +170,6 @@ Blocks: No
     
     context.subToDevice(Potentiometer3_UID, 50)
     while(context.getDelay(Potentiometer3_UID) != 50):
-        # handle wait-times as needed
         time.sleep(0.001)
         
         
@@ -177,18 +190,19 @@ Blocks: No
 
 
     ### Need to write multiple values to a device? ###
-    _, old_time1 = context.getData(servo_UID, "servo1")
-    _, old_time2 = context.getData(servo_UID, servo_params[2])
-    servo_time1 = old_time1
-    servo_time2 = old_time2
+    _, old_time0 = context.getData(servo_UID, "servo0")
+    _, old_time1 = context.getData(servo_UID, servo_params[2])
+    servo_time0 = old_time1
+    servo_time1 = old_time2
     timeout = time.time() + 1                           # in seconds
     
-    context.writeValue(servo_UID, "servo1", 45)         # write 45 to servo 1
-    context.writeValue(servo_UID, servo_params[2], 119) # write 119 to servo 2
+    context.writeValue(servo_UID, "servo1", 45)         # write 45 to servo 0
+    context.writeValue(servo_UID, servo_params[2], 119) # write 119 to servo 1
     
-    # Check if values have been written. Kinda optional, can be run in the background
-    while (servo_time1 == old_time1) or (servo_time2 == old_time2):
-        servo_val1, servo_time2 = getData(servo_UID, "servo1")
-        servo_val2, servo_time2 = getData(servo_UID, "servo2")
+    # Check if values have been written. Kinda optional, 
+    # Can be run in the background and or checked at a later time
+    while (servo_time0 == old_time0) or (servo_time1 == old_time1):
+        servo_val0, servo_time0 = getData(servo_UID, "servo0")
+        servo_val1, servo_time1 = getData(servo_UID, "servo1")
         if time.time() > timeout:
             # handle retries as needed

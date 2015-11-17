@@ -67,6 +67,9 @@ class Hibike():
             self.context._addDeviceToContext(uid)
         return serialPorts
 
+    def getEnumeratedSerialPorts(self):
+        return [(val[0], hm.getDeviceType(val[0])) for val in self.serialPorts]
+
     def _addToBuffer(self, uid, msg):
         filtered = filter(lambda x: x[0] == uid, self.serialPorts)
         if not filtered:

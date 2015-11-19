@@ -120,10 +120,94 @@ class Hibike():
         return uid >> 72
 
 
+    def getEnumeratedDevices(self):
+        return [(uid, self.getDeviceType(uid)) for uid in self.getUIDs()]
+    def getData(self, uid, param): 
+        """Returns the data associated with param of device with uid 
+        Returns None if bad uid or bad param
+        """
+        if uid not in self.getUids():
+            print "Bad UID"
+            return None
+        if param not in self.config[self.getDeviceType(uid)].keys():
+            print "Bad param"
+            return None
+        paramIndex = self.config[self.getDeviceType(uid)][param]
+        return self.context[uid].getData(self.config[)
+
+
     def getDeviceName(self, devicetype):
         """Returns the name of the device associated with deviceType 
         """
+        if deviceType not in self.config.keys():
+            print "Bad deviceType of uid"
+            return None
         return self.config[deviceType]["deviceName"]
+
+
+    def getDelay(self, uid):
+        """Gets the delay rate for the specified uid 
+        Returns None if bad uid 
+        """
+        if uid not in self.getUids():
+            print "Bad UID"
+            return None
+        return self.context[uid].delay
+
+
+    def getParams(self, uid):
+        """Returns a list of strings for all parameter names of the 
+        specified uid. 
+        Returns none if deviceType of uid is invalid 
+        """
+        deviceType = self.getDeviceType(uid)
+        if deviceType not in self.config.keys():
+            print "Bad deviceType of uid"
+            return None
+        params = self.config[deviceType].keys()
+        params.remove["deviceName"]
+        return params
+
+
+    def writeValue(self, uid, param, value):
+        """Writes a value to the parameter of a particular device, 
+        specified by uid
+        """
+        if uid not in self.getUids():
+            print "Bad UID"
+            return None
+        if param not in self.config[self.getDeviceType(uid)].keys():
+            print "Bad param"
+            return None
+        paramIndex = self.config[self.getDeviceType(uid)].keys()
+        self.deviceUpdate(uid, param, value)
+
+
+    def subToDevice(uid, delay):
+        """Subscribes to the specified uid with the given delay. 
+        Returns None if bad uid
+        Otherwise returns delay
+        """
+        if uid not in self.getUids():
+            print "Bad UID"
+            return None
+        self.subRequest(uid, delay)
+        return delay
+
+
+    def subToDevices(deviceTuples):
+        """Subscribes to a list of (uid, delay) tuples. Will fail if 
+        any uid has not been found. 
+        Returns 1 on success
+        """
+        uids = self.getUIDs()
+        for device in deviceTuples:
+            if device[0] not in uids:
+                print "Bad uid"
+                return None
+        for device in deviceTuples:
+            subToDevice(device[0], device[1])
+        return 1
 
 
     def _addToBuffer(self, uid, msg):
@@ -132,7 +216,7 @@ class Hibike():
         if uid not in self.getUIDs():
             print "subRequest() failed... uid not in serialPorts"
             return None            
-        self.sendBuffer.put((serial, msg))
+        self.sendBuffer.put((self.uidToSerial[uid], msg))
         return msg.getmessageID()
 
 
@@ -226,6 +310,9 @@ class HibikeThread(threading.Thread):
             self.uidToSerial[uid] = serialPort
 
             if uid not in self.context.keys():
+                if deviceType not in self.config.keys():
+                    print "Unknown Device Type: %s" % (str(deviceType),)
+                    return msgID
                 self.context[uid] = HibikeDevice(deviceType, self.config[deviceType]['deviceName'], len(self.config[deviceType])-1)
             self.context[uid].updateDelay(delay)
         else:
@@ -272,3 +359,6 @@ class HibikeDevice:
 
     def deviceResponse(self, param, value):
         self.params[param] = value
+
+    def getData(self, param):
+        return self.params[param][0]

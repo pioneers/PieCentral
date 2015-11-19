@@ -1,31 +1,104 @@
 import os
 import sys
 import serial
+import serial.tools.list_ports
 import binascii
 import time
 import threading
 import struct
 import pdb
+import random
 from Queue import Queue
 
 sys.path.append(os.getcwd())
 
 import hibike_message as hm
 
+# Global meta variables
+smartDeviceBoards = ['Sparkfun Pro Micro']
+
+
 class Hibike():
-    def __init__(self, context):
+    def __init__(self, contextFile, timeout=5.0):
         """Enumerate through serial ports with subRequest(0)
         Update self.context as we iterate through with devices
         Build a list self.serialPorts of (uid, port, serial) tuples
         Make context.hibike point to this
         Spawn new thread
         """
-        self.context = context
-        self.context.hibike = self
-        self._portList = self._getPorts()
-        self.serialPorts = self._enumerateSerialPorts()
+        self.config = self._readContextFile(contextFile)
+        self.context = {}
+        self.uidToSerial = {}
+        self.serialToUID = {}
+        self.timeout = timeout
         self.sendBuffer = Queue()
+        
         self.thread = self._spawnHibikeThread()
+        self._enumerateSerialPorts()
+
+
+    def _readContextFile(self, contextFile):
+        """contextFile is the name to a csv containing information of devices 
+        deviceID, deviceName, param0, param1, ...
+        paramX are the names of the parameters that the user refers to 
+        param0 is always "dataUpdate", and is updated via subscription 
+        We need to map every param name to a param value
+        This implies a dictionary of dictionaries. The first dictionary is 
+        keyed on deviceID. 
+        The second dictionary is keyed on paramX, value as X, and has an 
+        additional (key, value) pair of ("deviceName", deviceName)
+        """
+        raise NotImplementedError("_readContextFile not implemented")
+        try:
+            csv_file = open(contextFile, 'r')
+            reader = csv.reader(csv_file, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
+            list_of_rows = [row for row in reader]
+            list_of_rows.pop(0)
+            for row in list_of_rows:
+                self.config[row[0]] = {row[i]:i-2 for i in range(len(row))[2:]}
+                self.config[row[0]]["deviceName"] = row[1]
+        except IOError:
+            return "The file does not exist."
+        finally:
+            csv_file.close()
+
+
+    def _enumerateSerialPorts(self):
+        """Enumerates all devices that have a Smart Device attached. 
+        Correct ports are identified by matching to port descriptors 
+        contained in smartDeviceBoards. 
+        modifies self.serialPorts to include any devices that are newly 
+        enumerated. 
+        Sub responses will be caught by HibikeThread
+        If devices are dropping and reconnecting too often, consider sending 
+        the sub request and sub response messages multiple times. 
+        #TODO any device that is no longer enumerated should be assumed 
+        unplugged, and either removed from self.serialPorts, or a flag set 
+        to denote that said device is no longer valid.
+
+        """
+        portInfo = serial.tools.list_ports.comport()
+        for port, desc, hwid in portInfo:
+            if desc in smartDeviceBoards:
+                # TODO
+                # send sub request with delay 0
+                pass
+        t = timer(self.timeout, _cleanSerialPorts)
+        t.start()
+
+
+    def _cleanSerialPorts(self):
+        """Removes all devices from self.context that are stale.
+        A device is stale if its subscription delay was last updated longer 
+        thatn self.timeout ago. 
+        Enumerates serial ports again when finished. 
+        """
+        curTime = time.time()
+        for uid in self.getUIDs():
+            if self.context[uid].lastUpdate + self.timeout < curTime:
+                del self.context[uid]
+        self._enumerateSerialPorts()
+
 
 
     def _spawnHibikeThread(self):
@@ -34,49 +107,34 @@ class Hibike():
         h_thread.start()
         return h_thread
 
-    def _getPorts(self):
-        return ['/dev/%s' % port for port in os.listdir("/dev/") 
-                if port[:6] in ("ttyUSB", "tty.us", "ttyACM")]
 
-    #TODO: get rid of locking and change to fit changes!
-    def _enumerateSerialPorts(self):
-        serialPorts = []
-        serial_conns = {p: serial.Serial(p, 115200) for p in self._portList}
-        time.sleep(3)
+    def getUIDs(self):
+        """Returns a list of UID's of all current enumerated devices 
+        """
+        return self.context.keys()
 
-        for p in self._portList:
-            serial_conns[p].flushInput()
-            hm.send(serial_conns[p], hm.make_sub_request(0))
-        time.sleep(2)
-        for p in self._portList:
-            msg = hm.read(serial_conns[p])
-            if msg == None or msg == -1:
-                print("read() failed for ping response.")
-                continue
-            if msg.getmessageID() != hm.messageTypes["SubscriptionResponse"]:
-                pdb.set_trace()
-                print("wrong message back: "+str(msg))
 
-            res = struct.unpack("<HBQH", msg.getPayload())
-            uid = (res[0] << 72) | (res[1] << 64) | (res[2])
-            assert uid not in self.context.devices, "UID conflict for id {}".format(uid)
-            serialPorts.append((uid, p, serial_conns[p]))
-            # self._devices[uid] = hm.getDeviceType(uid)
-            # self._data[uid] = 0
-            # self._connections[uid] = (p, serial_conns[p])
-            self.context._addDeviceToContext(uid)
-        return serialPorts
+    def getDeviceType(self, uid):
+        """Returns the devicetype of a given UID 
+        """
+        return uid >> 72
 
-    def getEnumeratedSerialPorts(self):
-        return [(val[0], hm.getDeviceType(val[0])) for val in self.serialPorts]
+
+    def getDeviceName(self, devicetype):
+        """Returns the name of the device associated with deviceType 
+        """
+        return self.config[deviceType]["deviceName"]
+
 
     def _addToBuffer(self, uid, msg):
-        filtered = filter(lambda x: x[0] == uid, self.serialPorts)
-        if not filtered:
+        """Returns the msgID if successful, None otherwise 
+        """
+        if uid not in self.getUIDs():
             print "subRequest() failed... uid not in serialPorts"
-            return
-        _, __, serial = filtered[0]
+            return None            
         self.sendBuffer.put((serial, msg))
+        return msg.getmessageID()
+
 
     def subRequest(self, uid, delay):
         """Creates packet and adds (serial, packet) to sendBuffer)"""
@@ -89,24 +147,30 @@ class Hibike():
         msg = hm.make_device_update(param, value)
         self._addToBuffer(uid, msg)
 
+
     def deviceStatus(self, uid, param):
         """Creates packet and adds (serial, packet) to sendBuffer)"""
         msg = hm.make_device_status(param)
         self._addToBuffer(uid, msg)
 
+
     def error(self, error_code):
         msg = hm.make_error(error_code)
         self._addToBuffer(uid, msg)
+
+
 
 class HibikeThread(threading.Thread):
     def __init__(self, hibike):
         threading.Thread.__init__(self)
         self.hibike = hibike
-        self.serialPortIndex = 0
         self.sendBuffer = hibike.sendBuffer
         self.packets_read = 0
 
+
     def run(self):
+        # TODO
+        # Optimize to only wake on something triggering
         while 1:
             self.handleInput(5)
             self.handleOutput(5)
@@ -116,21 +180,24 @@ class HibikeThread(threading.Thread):
         """Processes a single packet, if one is available, from the next 
         n devices, or the number of devices, whichever is smaller. 
 
-        Where we are in our list of devices is maintained across calls. 
+        Which device we service next is determined randomly. On average, 
+        this should work. 
 
         If n==0, iterate through all devices. 
         """
-        numDevices = len(self.hibike.serialPorts)
+        numDevices = len(self.hibike.getUIDs())
         if (n == 0):
             n = numDevices
-        for _ in range(n):
-            serialPort = self.hibike.serialPorts[self.serialPortIndex]
-            self.processPacket(serialPort)
-            self.serialPortIndex += 1
-            self.serialPortIndex %= numDevices
+        counter = 0
+        for serial in random.shuffle(self.hibike.serialToUID.keys()):
+            packet = self.processPacket(serial)
+            if packet:
+                counter += 1
+            if counter >= n:
+                break
 
 
-    def processPacket(self, serialPort):
+    def processPacket(self, serial):
         """Reads a packet from serial, if a packet is available. 
 
         If a packet is not available, return None.
@@ -138,7 +205,7 @@ class HibikeThread(threading.Thread):
         Updates corresponding param in context.
         Returns msgID
         """
-        uid, port, serial = serialPort
+        uid = self.hibike.serialToUID[serial]
 
         msg = hm.read(serial)
         if msg == None or msg == -1:
@@ -147,20 +214,22 @@ class HibikeThread(threading.Thread):
         msgID = msg.getmessageID()
         if msgID == hm.messageTypes["DataUpdate"]:
             payload = msg.getPayload()
-            self.hibike.context._updateParam(uid, 0, payload, time.time())
-            
-            # testing
-            self.packets_read = self.packets_read + 1
-            self.hibike.context.log[0].append(time.time())
-            self.hibike.context.log[1].append(self.packets_read)
-            self.hibike.context.log[2].append(int(binascii.hexlify(payload), 16))
+            self.hibike.context[uid].dataUpdate(payload)            
         elif msgID == hm.messageTypes["DeviceResponse"]:
             param, value = struct.unpack("<BI", msg.getPayload())
-            self.hibike.context._updateParam(uid, param, value, time.time())
-            #self.hibike.context.contextData[uid][0][param] = (value, timestamp)
+            self.hibike.context[uid].deviceResponse(param, value)
         elif msgID == hm.messageTypes["SubscriptionResponse"]:
-            uid0, uid1, uid2, delay = struct.unpack("<HBQH", msg.getPayload())
-            self.hibike.context._updateSubscription(uid, delay, time.time())
+            deviceType, year, ID, delay = struct.unpack("<HBQH", msg.getPayload())
+            uid = deviceType << 72 + year << 64 + ID
+
+            self.serialToUID[serialPort] = uid
+            self.uidToSerial[uid] = serialPort
+
+            if uid not in self.context.keys():
+                self.context[uid] = HibikeDevice(deviceType, self.config[deviceType]['deviceName'], len(self.config[deviceType])-1)
+            self.context[uid].updateDelay(delay)
+        else:
+            print "Unexpected message type received"
         return msgID
 
 
@@ -178,5 +247,28 @@ class HibikeThread(threading.Thread):
             hm.send(serial, packet)
 
 
+class HibikeDevice:
+    """Not exposed to the user. 
+    Class used to represent devices internally 
+    """
+    def __init__(self, deviceID, deviceName, numParams):
+        self.delay = 0
+        self.lastUpdate = 0
+        self.params = [0]*numParams
+        self.deviceName = deviceName
+        self.deviceID = deviceID
 
 
+    def updateDelay(self, delay):
+        """Updates delay of this subscription to delay
+        """
+        self.delay = delay
+        self.lastUpdate = time.time()
+
+
+    def dataUpdate(self, payload):
+        self.params[0] = (payload, time.time())
+
+
+    def deviceResponse(self, param, value):
+        self.params[param] = value

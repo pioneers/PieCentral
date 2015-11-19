@@ -33,3 +33,22 @@ Wrapper class for data transfer between Python and C. Constructed with a message
 Contains send method that take in a serial port and a hibikeMessage, append a checksum and send the entire packet
 read method takes in a serial port and returns a hibikeMessage, if a message is available and the checksum matches. If the checksum is not correct, drop the message and flush the buffer on this serial port. 
 
+
+
+Sample user usage:
+import random
+
+contextfile = "deviceConfig.txt"
+h = Hibike(contextFile)
+uids = h.getEnumeratedDevices()
+toSubscribe = [(uid[0], random.randrange(1000, 10000, 1000)) for uid in uids]
+while(!h.subscribe(toSubscribe)):
+  pass
+
+uid = uids[0]
+paramNames = h.getParams(uid)
+defaultValue = h.getData(uid, "defaultValue")
+paramName = paramNames[1]
+firstParam = h.getData(uid, paramName)
+
+h.writeValue(uid, paramName, 3)

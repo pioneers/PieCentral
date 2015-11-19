@@ -35,6 +35,7 @@ class Hibike():
         
         self.thread = self._spawnHibikeThread()
         self._enumerateSerialPorts()
+        time.sleep(self.timeout*1.5)
 
 
     def _readContextFile(self, contextFile):

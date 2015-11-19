@@ -67,8 +67,6 @@ class Hibike():
         """Enumerates all devices that have a Smart Device attached. 
         Correct ports are identified by matching to port descriptors 
         contained in smartDeviceBoards. 
-        modifies self.serialPorts to include any devices that are newly 
-        enumerated. 
         Sub responses will be caught by HibikeThread
         If devices are dropping and reconnecting too often, consider sending 
         the sub request and sub response messages multiple times. 
@@ -78,11 +76,10 @@ class Hibike():
 
         """
         portInfo = serial.tools.list_ports.comport()
-        for port, desc, hwid in portInfo:
+        for serial, desc, hwid in portInfo:
             if desc in smartDeviceBoards:
-                # TODO
-                # send sub request with delay 0
-                pass
+                msg = hm.make_sub_request(0)
+                hm.send(serial, msg)
         t = timer(self.timeout, _cleanSerialPorts)
         t.start()
 

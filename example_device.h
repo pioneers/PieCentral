@@ -1,15 +1,13 @@
 #ifndef EX_DEVICE_H
 #define EX_DEVICE_H
+
 #include "hibike_message.h"
-#include "devices.h"
+#include "Servo.h"
 
-#define IN_PIN 10
+#define NUM_PARAMS 5
+
+#define IN_PIN 14
 #define LED_PIN 13
-
-#define NUM_PARAMS 1
-typedef enum {
-  TEST_PARAM      = 0x00,
-}param_index;
 
 // function prototypes
 void setup();

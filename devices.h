@@ -3,6 +3,7 @@
 
 typedef enum {
   LIMIT_SWITCH = 0x01,
+  SERVO_CONTROL = 0x07
 } deviceID;
 
 

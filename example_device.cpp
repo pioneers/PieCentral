@@ -1,12 +1,18 @@
 #include "example_device.h"
 #include <Servo.h>
-message_t hibikeBuff;
+
+//////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
-  0xFFFF,        // Device Type
-  0,        // Year
-  0x1234BEEF5678BEEE,    // ID
+  7,                      // Device Type
+  0,                      // Year
+  0xFEED1337DEADBEEF,     // ID
 };
-Servo servo;
+///////////////////////////////////////////////
+
+message_t hibikeBuff;
+Servo servo0, servo1, servo2, servo3;
+
+Servo servos[] = {servo0, servo1, servo2, servo3};
 int params[NUM_PARAMS];
 
 uint64_t prevTime, currTime, heartbeat;
@@ -31,7 +37,11 @@ void setup() {
   subDelay = 0;
   heartbeat = 0;
 
-  servo.attach(6);
+  // Setup servo outputs
+  servo0.attach(6);
+  servo1.attach(9);
+  servo2.attach(10);
+  servo3.attach(11);
 }
 
 void loop() {
@@ -65,18 +75,13 @@ void loop() {
           param = hibikeBuff.payload[0];
           value = *((uint32_t*) &hibikeBuff.payload[DEVICE_PARAM_BYTES]);
           update_param(param, value);
-          send_device_response(param, params[param]);
-
-          // REMOVE!!!
-          if (param == 6) {
-            servo.write(value);
-          }
+          send_device_response(param, params[param-1]);
           break;
 
         case DEVICE_STATUS:
           // Unsupported packet
           param = hibikeBuff.payload[0];
-          send_device_response(param, params[param]);
+          send_device_response(param, params[param-1]);
           toggleLED();
           break;
 
@@ -108,7 +113,13 @@ void loop() {
 
 
 void update_param(uint8_t param, uint32_t value) {
-  params[param] = value;
+  if (param == 0 || param > 4) {
+    toggleLED();
+    return;
+  }
+
+  params[param-1] = value;
+  servos[param-1].write(value);
 }
 
 

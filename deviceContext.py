@@ -155,8 +155,14 @@ class DeviceContext():
         Queries Device w/ that paramID
         Returns that parameter
         """
-        assert uid in self.devices, "You have not specified a valid device. Check your UID."
-        return self.devices[uid]._getParam(param)
+        if uid in self.devices:
+            if param in self.deviceTypes[hm.getDeviceType(uid)].params:
+                index = self.deviceTypes[hm.getDeviceType(uid)].params.index(param)
+                return self.devices[uid].params[index]
+            else:
+                return "The parameter {0} does not exist for your specified device.".format(param)
+        else:
+            return "You have not specified a valid device. Check your UID."
 
     def _updateParam(self, uid, paramID, value, timestamp): # Hibike calling this?
         """
@@ -186,14 +192,18 @@ class DeviceContext():
     def writeValue(self, uid, param, value):
         assert self.hibike is not None, "DeviceContext needs a pointer to Hibike!"
         assert uid in self.devices, "Invalid UID: {}".format(uid)
-        assert param in self.devices[uid], "Invalid param for {}".format(hm.getDeviceType(uid))
-        self.hibike.deviceUpdate(uid, param, value)
+        assert param in self.deviceParams[hm.getDeviceType(uid)], "Invalid param for {}".format(hm.getDeviceType(uid))
+        
+        paramID = self.deviceTypes[hm.getDeviceType(uid)].params.index(param)
+        self.hibike.deviceUpdate(uid, paramID, value)
     
     def readValue(self, uid, param):
         assert self.hibike is not None, "DeviceContext needs a pointer to Hibike!"
         assert uid in self.devices, "Invalid UID: {}".format(uid)
-        assert param in self.devices[uid], "Invalid param for {}".format(hm.getDeviceType(uid))
-        self.hibike.deviceStatus(uid, param)
+        assert param in self.deviceParams[hm.getDeviceType(uid)], "Invalid param for {}".format(hm.getDeviceType(uid))
+        
+        paramID = self.deviceTypes[hm.getDeviceType(uid)].params.index(param)
+        self.hibike.deviceUpdate(uid, paramID, value)
 
     def getDelay(self, uid):
         if uid in self.devices:

@@ -194,7 +194,8 @@ class DeviceContext():
         assert uid in self.devices, "Invalid UID: {}".format(uid)
         assert param in self.deviceParams[hm.getDeviceType(uid)], "Invalid param for {}".format(hm.getDeviceType(uid))
         
-        self.hibike.deviceUpdate(uid, param, value)
+        paramID = self.deviceTypes[hm.getDeviceType(uid)].params.index(param)
+        self.hibike.deviceUpdate(uid, paramID, value)
     
     def readValue(self, uid, param):
         assert self.hibike is not None, "DeviceContext needs a pointer to Hibike!"

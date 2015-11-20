@@ -109,8 +109,8 @@ def checksum(data):
 def send(serial_conn, message):
   m_buff = message.toByte()
   chk = checksum(m_buff)
+  m_buff.append(chr(chk))
   serial_conn.write(m_buff)
-  serial_conn.write(chr(chk))
 
 
 def make_sub_request(delay):

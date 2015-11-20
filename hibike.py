@@ -79,7 +79,12 @@ class Hibike():
         portInfo = serial.tools.list_ports.comport()
         for serial, desc, hwid in portInfo:
             if desc in smartDeviceBoards:
-                msg = hm.make_sub_request(0)
+                delay = 0
+                if serial in self.serialToUID.keys():
+                  uid = self.serialToUID[serial]
+                  if uid in self.context.keys():
+                    delay = self.context.delay
+                msg = hm.make_sub_request(delay)
                 hm.send(serial, msg)
         t = timer(self.timeout, _cleanSerialPorts)
         t.start()

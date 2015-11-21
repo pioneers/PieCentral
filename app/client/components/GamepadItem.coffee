@@ -4,11 +4,14 @@ Modal = require('react-bootstrap').Modal
 Button = require('react-bootstrap').Button
 ListGroupItem = require('react-bootstrap').ListGroupItem
 Table = require('react-bootstrap').Table
+Grid = require('react-bootstrap').Grid
+Row = require('react-bootstrap').Row
+Col = require('react-bootstrap').Col
 _ = require('lodash')
 numeral = require('numeral')
 
-module.exports = DebugGamepadItem = React.createClass
-  displayName: 'DebugGamepadItem'
+module.exports = GamepadItem = React.createClass
+  displayName: 'GamepadItem'
   propTypes:
     gamepad: React.PropTypes.object
     index: React.PropTypes.number
@@ -42,20 +45,23 @@ module.exports = DebugGamepadItem = React.createClass
         <span style={{float: 'left'}}>{this.renderHeader()}</span>
         <Button bsSize="small" onClick={this.openModal} style={{float: 'right'}}>Details</Button>
       </div>
-      <Modal show={this.state.showModal} onHide={this.closeModal}>
+      <Modal show={this.state.showModal} onHide={this.closeModal} bsSize="large">
         <Modal.Header closeButton>
           <Modal.Title>{this.renderHeader()}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <img src={'/assets/gamepad.png'} style={{width: '100%'}}/>
-          <div>Timestamp: {this.props.gamepad.timestamp}</div>
-          <div>Mapping: {this.props.gamepad.mapping}</div>
-          <div>Axes: {String(this.roundedValues().axes)}</div>
-          <div>Buttons: {String(this.roundedValues().buttons)}</div>
+          <Grid fluid={true}>
+            <Row>
+              <Col lg={9} md={12}>
+                <img src={'/assets/gamepad.png'} style={{width: '100%'}}/>
+              </Col>
+              <Col lg={3} md={12}>
+                  <p>Axes: {String(this.roundedValues().axes)}</p>
+                  <p>Buttons: {String(this.roundedValues().buttons)}</p>
+              </Col>
+            </Row>
+          </Grid>
         </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={this.closeModal}>Close</Button>
-        </Modal.Footer>
       </Modal>
     </ListGroupItem>
 

@@ -40,6 +40,7 @@ module.exports = GamepadItem = React.createClass
   render: ->
     if not this.props.gamepad?
       return <div/>
+    values = this.roundedValues()
     <ListGroupItem>
       <div style={{overflow: 'auto', width: '100%'}}>
         <span style={{float: 'left'}}>{this.renderHeader()}</span>
@@ -56,8 +57,73 @@ module.exports = GamepadItem = React.createClass
                 <img src={'/assets/gamepad.png'} style={{width: '100%'}}/>
               </Col>
               <Col lg={3} md={12}>
-                  <p>Axes: {String(this.roundedValues().axes)}</p>
-                  <p>Buttons: {String(this.roundedValues().buttons)}</p>
+                  <table>
+                      <tbody class="table">
+                          <tr>
+                              <td>Button 0: {values.buttons[0]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 1: {values.buttons[1]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 2: {values.buttons[2]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 3: {values.buttons[3]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 4: {values.buttons[4]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 5: {values.buttons[5]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 6: {values.buttons[6]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 7: {values.buttons[7]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 8: {values.buttons[8]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 9: {values.buttons[9]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 10: {values.buttons[10]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 11: {values.buttons[11]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 12: {values.buttons[12]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 13: {values.buttons[13]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 14: {values.buttons[14]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 15: {values.buttons[15]}</td>
+                          </tr>
+                          <tr>
+                              <td>Button 16: {values.buttons[16]}</td>
+                          </tr>
+                           <tr>
+                              <td>Axis 0: {values.axes[0]}</td>
+                          </tr>
+                          <tr>
+                              <td>Axis 1: {values.axes[1]}</td>
+                          </tr>
+                          <tr>
+                              <td>Axis 2: {values.axes[2]}</td>
+                          </tr>
+                          <tr>
+                              <td>Axis 3: {values.axes[3]}</td>
+                          </tr>
+                      </tbody>
+                  </table>
               </Col>
             </Row>
           </Grid>

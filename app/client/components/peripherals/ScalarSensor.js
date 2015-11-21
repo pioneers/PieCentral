@@ -10,14 +10,14 @@ import {ProgressBar} from 'react-bootstrap';
 
 var Motor = React.createClass({
   propTypes: {
-    id: React.PropTypes.string,
+    name: React.PropTypes.string,
     value: React.PropTypes.number
   },
   render() {
     return (
     <div style={{overflow: 'auto'}}>
       <div style={{overflow: 'auto', width: '100%'}}>
-        <h4 style={{float: 'left'}}>Scalar Sensor <small>{this.props.id}</small></h4>
+        <h4 style={{float: 'left'}}>{this.props.name}<small> Scalar Sensor</small></h4>
         <h4 style={{float: 'right'}}> {this.props.value} </h4>
       </div>
       <ProgressBar now={this.props.value}></ProgressBar>

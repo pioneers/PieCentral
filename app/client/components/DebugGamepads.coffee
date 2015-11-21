@@ -1,5 +1,6 @@
 React = require('react')
 Panel = require('react-bootstrap').Panel
+ListGroup = require('react-bootstrap').ListGroup
 _ = require('lodash')
 GamepadStore = require('../stores/GamepadStore')
 DebugGamepadItem = require('./DebugGamepadItem')
@@ -30,6 +31,8 @@ module.exports = DebugGamepads = React.createClass
         Connect a gamepad and press any button on it.
       </p>
   render: ->
-    <Panel header={<h3>Gamepads</h3>} bsStyle='primary'>
-      {this.renderInterior()}
+    <Panel header={<h3>Gamepads</h3>} bsStyle='primary' defaultExpanded>
+      <ListGroup fill style={{marginBottom: '5px'}}>
+        {this.renderInterior()}
+      </ListGroup>
     </Panel>

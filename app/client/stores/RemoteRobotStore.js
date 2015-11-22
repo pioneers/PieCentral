@@ -125,21 +125,25 @@ function handleStopCheck(action) {
 RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.UPDATE_MOTOR:
+      previousActionType = action.type;
       handleUpdateMotor(action);
       break;
     case ActionTypes.UPDATE_PERIPHERAL:
+      previousActionType = action.type;
       handleUpdatePeripheral(action);
       break;
     case ActionTypes.UPDATE_STATUS:
+      previousActionType = action.type;
       handleUpdateStatus(action);
       break;
     case ActionTypes.UPDATE_BATTERY:
+      previousActionType = action.type;
       handleUpdateBattery(action);
       break;
     case 'StopCheck':
+      previousActionType = action.type;
       handleStopCheck(action);
   }
-  previousActionType = action.type;
 });
 
 export default RemoteRobotStore;

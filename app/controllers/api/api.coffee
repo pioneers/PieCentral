@@ -21,6 +21,10 @@ router.get '/editor/load', (req, res) ->
     res.status(200).send(data)
   )
 
+router.get '/editor/list', (req, res) ->
+  filenames = fs.readdirSync('../runtime/student_code/')
+  res.status(200).send({filenames: filenames})
+
 router.get '/editor/download', (req, res) ->
   res.download('../runtime/student_code/' + req.query.filename)
 

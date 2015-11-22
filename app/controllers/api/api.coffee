@@ -12,6 +12,22 @@ router.post '/editor/save', (req, res) ->
     res.status(200).end()
   )
 
+router.post '/editor/create', (req, res) ->
+  filename = req.body.filename
+  fs.writeFile('../runtime/student_code/' + filename, '', (err) ->
+    if err?
+      res.status(500).end()
+    res.status(200).end()
+  )
+
+router.delete '/editor/delete/:filename', (req, res) ->
+  filename = req.params.filename
+  if filename != 'student_code.py'
+    fs.unlinkSync('../runtime/student_code/' + filename)
+    res.status(200).end()
+  else
+    res.status(401).end()
+
 router.get '/editor/load', (req, res) ->
   filename = req.query.filename
   fs.readFile('../runtime/student_code/' + filename, (err, data) ->

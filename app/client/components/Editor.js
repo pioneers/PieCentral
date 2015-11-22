@@ -4,6 +4,7 @@ import brace from 'brace';
 import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
 import EditorFileTransfer from './EditorFileTransfer';
+import EditorFileCreateDelete from './EditorFileCreateDelete';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
 import {
@@ -72,6 +73,7 @@ var Editor = React.createClass({
               Save
             </Button>
           </ButtonGroup>
+          <EditorFileCreateDelete filename={this.state.filename}/>
           <EditorFileTransfer filename={this.state.filename} />
         </ButtonToolbar>
         <AceEditor

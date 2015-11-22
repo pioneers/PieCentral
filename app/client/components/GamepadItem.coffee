@@ -21,7 +21,7 @@ module.exports = GamepadItem = React.createClass
     axes: _.map this.props.gamepad.axes, (axis) ->
       numeral(axis).format('0.00000')
     buttons: _.map this.props.gamepad.buttons, (button) ->
-      numeral(button.value).format('0.00')
+      numeral(button.value).format('0')
 
   renderHeader: ->
     <div>
@@ -46,87 +46,70 @@ module.exports = GamepadItem = React.createClass
         <span style={{float: 'left'}}>{this.renderHeader()}</span>
         <Button bsSize="small" onClick={this.openModal} style={{float: 'right'}}>Details</Button>
       </div>
-      <Modal show={this.state.showModal} onHide={this.closeModal} bsSize="large">
+      <Modal show={this.state.showModal} onHide={this.closeModal}>
         <Modal.Header closeButton>
           <Modal.Title>{this.renderHeader()}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Grid fluid={true}>
-            <Row>
-              <Col lg={9} md={12}>
-                <img src={'/assets/gamepad.png'} style={{width: '100%'}}/>
-              </Col>
-              <Col lg={3} md={12}>
-                  <table>
-                      <tbody class="table">
-                          <tr>
-                              <td>Button 0: {values.buttons[0]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 1: {values.buttons[1]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 2: {values.buttons[2]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 3: {values.buttons[3]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 4: {values.buttons[4]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 5: {values.buttons[5]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 6: {values.buttons[6]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 7: {values.buttons[7]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 8: {values.buttons[8]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 9: {values.buttons[9]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 10: {values.buttons[10]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 11: {values.buttons[11]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 12: {values.buttons[12]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 13: {values.buttons[13]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 14: {values.buttons[14]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 15: {values.buttons[15]}</td>
-                          </tr>
-                          <tr>
-                              <td>Button 16: {values.buttons[16]}</td>
-                          </tr>
-                           <tr>
-                              <td>Axis 0: {values.axes[0]}</td>
-                          </tr>
-                          <tr>
-                              <td>Axis 1: {values.axes[1]}</td>
-                          </tr>
-                          <tr>
-                              <td>Axis 2: {values.axes[2]}</td>
-                          </tr>
-                          <tr>
-                              <td>Axis 3: {values.axes[3]}</td>
-                          </tr>
-                      </tbody>
-                  </table>
-              </Col>
-            </Row>
-          </Grid>
+          <img src={'/assets/gamepad.png'} style={{width: '100%'}}/>
+            <Table bordered>
+              <tr>
+                <th>Button</th>
+                <td>0</td>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
+                <td>9</td>
+                <td>10</td>
+                <td>11</td>
+                <td>12</td>
+                <td>13</td>
+                <td>14</td>
+                <td>15</td>
+                <td>16</td>
+              </tr>
+              <tr>
+                <th>Value</th>
+                <td>{values.buttons[0]}</td>
+                <td>{values.buttons[1]}</td>
+                <td>{values.buttons[2]}</td>
+                <td>{values.buttons[3]}</td>
+                <td>{values.buttons[4]}</td>
+                <td>{values.buttons[5]}</td>
+                <td>{values.buttons[6]}</td>
+                <td>{values.buttons[7]}</td>
+                <td>{values.buttons[8]}</td>
+                <td>{values.buttons[9]}</td>
+                <td>{values.buttons[10]}</td>
+                <td>{values.buttons[11]}</td>
+                <td>{values.buttons[12]}</td>
+                <td>{values.buttons[13]}</td>
+                <td>{values.buttons[14]}</td>
+                <td>{values.buttons[15]}</td>
+                <td>{values.buttons[16]}</td>
+              </tr>
+            </Table>
+            <Table bordered>
+              <tr>
+                <th>Axis</th>
+                <td>0</td>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <th>Value</th>
+                <td>{values.axes[0]}</td>
+                <td>{values.axes[1]}</td>
+                <td>{values.axes[2]}</td>
+                <td>{values.axes[3]}</td>
+              </tr>
+            </Table>
         </Modal.Body>
       </Modal>
     </ListGroupItem>

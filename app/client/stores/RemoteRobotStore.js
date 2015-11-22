@@ -13,6 +13,7 @@ var motors = {};
 var peripherals = {};
 var robotStatus = false;
 var batteryLevel = 0;
+var connectionStatus = true;
 
 var RemoteRobotStore = assign({}, EventEmitter.prototype, {
   emitChange() {
@@ -28,7 +29,10 @@ var RemoteRobotStore = assign({}, EventEmitter.prototype, {
     return robotStatus;
   },
   getBatteryLevel() {
-    return batteryLevel
+    return batteryLevel;
+  },
+  getConnectionStatus() {
+    return connectionStatus;
   }
 });
 
@@ -96,15 +100,26 @@ function handleUpdateBattery(action){
  * Hacking more.
  */
 
+var previousActionType = null;
 if (process.browser) {
   setInterval(() => {
     AppDispatcher.dispatch({
-      type: 'peripherals',
-      content: {
-        testPeripheralHack: 5
-      }
+      type: 'StopCheck',
+      content: {}
     });
   }, 1000);
+}
+
+function handleStopCheck(action) {
+  var old = connectionStatus;
+  if (previousActionType === 'StopCheck') {
+    connectionStatus = false;
+  } else {
+    connectionStatus = true;
+  }
+  if (old !== connectionStatus) {
+    RemoteRobotStore.emitChange();
+  }
 }
 
 RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
@@ -120,8 +135,11 @@ RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
       break;
     case ActionTypes.UPDATE_BATTERY:
       handleUpdateBattery(action);
-      break;  
+      break;
+    case 'StopCheck':
+      handleStopCheck(action);
   }
+  previousActionType = action.type;
 });
 
 export default RemoteRobotStore;

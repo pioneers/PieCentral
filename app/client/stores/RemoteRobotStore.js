@@ -14,6 +14,7 @@ var peripherals = {};
 var robotStatus = false;
 var batteryLevel = 0;
 var connectionStatus = true;
+var consoleData = [];
 
 var RemoteRobotStore = assign({}, EventEmitter.prototype, {
   emitChange() {
@@ -33,6 +34,9 @@ var RemoteRobotStore = assign({}, EventEmitter.prototype, {
   },
   getConnectionStatus() {
     return connectionStatus;
+  },
+  getConsoleData() {
+    return consoleData;
   }
 });
 
@@ -92,8 +96,8 @@ function handleUpdateStatus(action) {
 }
 
 function handleUpdateBattery(action){
- batteryLevel = action.battery.value;
- RemoteRobotStore.emitChange();
+  batteryLevel = action.battery.value;
+  RemoteRobotStore.emitChange();
 }
 
 /**
@@ -122,6 +126,13 @@ function handleStopCheck(action) {
   }
 }
 
+function handleConsoleUpdate(action) {
+  consoleData.push(action.console_output.value);
+  // keep the length of console output less than 20 lines
+  if (consoleData.length > 20)
+    consoleData.shift();
+}
+
 RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.UPDATE_MOTOR:
@@ -138,6 +149,10 @@ RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
       break;
     case ActionTypes.UPDATE_BATTERY:
       handleUpdateBattery(action);
+      previousActionType = action.type;
+      break;
+    case ActionTypes.UPDATE_CONSOLE:
+      handleConsoleUpdate(action);
       previousActionType = action.type;
       break;
     case 'StopCheck':

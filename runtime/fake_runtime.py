@@ -46,3 +46,9 @@ while True:
             'id': 1235
         }
     })
+    if robotStatus == 1:
+        ansible.send_message('UPDATE_CONSOLE', {
+            'console_output': {
+                'value': 'ERROR on line 195 this is a fake runtime script\n'
+            }
+        })

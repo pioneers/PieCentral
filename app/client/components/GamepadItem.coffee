@@ -70,8 +70,6 @@ module.exports = GamepadItem = React.createClass
                 <td>12</td>
                 <td>13</td>
                 <td>14</td>
-                <td>15</td>
-                <td>16</td>
               </tr>
               <tr>
                 <th>Value</th>
@@ -90,8 +88,6 @@ module.exports = GamepadItem = React.createClass
                 <td>{values.buttons[12]}</td>
                 <td>{values.buttons[13]}</td>
                 <td>{values.buttons[14]}</td>
-                <td>{values.buttons[15]}</td>
-                <td>{values.buttons[16]}</td>
               </tr>
             </Table>
             <Table bordered>
@@ -101,6 +97,8 @@ module.exports = GamepadItem = React.createClass
                 <td>1</td>
                 <td>2</td>
                 <td>3</td>
+                <td>4</td>
+                <td>5</td>
               </tr>
               <tr>
                 <th>Value</th>
@@ -108,6 +106,8 @@ module.exports = GamepadItem = React.createClass
                 <td>{values.axes[1]}</td>
                 <td>{values.axes[2]}</td>
                 <td>{values.axes[3]}</td>
+                <td>{values.axes[4]}</td>
+                <td>{values.axes[5]}</td>
               </tr>
             </Table>
         </Modal.Body>

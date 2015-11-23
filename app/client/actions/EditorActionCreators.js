@@ -45,6 +45,28 @@ var EditorActionCreators = {
       type: ActionTypes.UPDATE_EDITOR,
       newCode: newVal
     });
+  },
+  getFilenames() {
+    async.get('/api/editor/list').then(function(data) {
+      AppDispatcher.dispatch({
+        type: ActionTypes.UPDATE_FILENAMES,
+        success: true,
+        filenames: JSON.parse(data).filenames
+      });
+    }).catch(function(reason) {
+      console.log(reason);
+      AppDispatcher.dispatch({
+        type: ActionTypes.UPDATE_FILENAMES,
+        success: false,
+        filenames: null
+      });
+    });
+  },
+  setFilename(filename) {
+    AppDispatcher.dispatch({
+      type: ActionTypes.UPDATE_FILENAME,
+      filename: filename
+    });
   }
 };
 

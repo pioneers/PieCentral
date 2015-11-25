@@ -1,78 +1,58 @@
-import subprocess, signal, sys
-import ansible
-import threading
+import subprocess, multiprocessing
+import memcache, ansible
 import time
 import grizzly
 from api import Robot
 from api import Gamepads
 
-#Robot.init()
+robot_status = 0 # a boolean for whether or not the robot is executing code
+memcache_port = 12357
+mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
 
-#def get_peripherals():
-#    while True:
-#        peripherals = {}
-#        peripherals['rightLineSensor'] = sensors.getRightLineSensorReading()
-#        peripherals['leftLineSensor'] = sensors.getLeftLineSensorReading()
-#        peripheral_readings = ansible.AMessage(
-#                'peripherals', peripherals)
-#        ansible.send(peripheral_readings)
-#        time.sleep(0.05)
+# A process for sending the output of student code to the UI
+def log_output(stream):
+    for line in stream:
+        ansible.send_message('UPDATE_CONSOLE', {
+            'console_output': {
+                'value': line
+            }
+        })
+        time.sleep(0.5) # need delay to prevent flooding ansible
 
-#peripheral_thread = threading.Thread(target=get_peripherals)
-#peripheral_thread.daemon = True
-#peripheral_thread.start()
-
-running_code = False
-
-
-pobs = set() # set of all active processes
-pobslock = threading.Lock()  # Ensures that only one processs modifies pobs at a time
-
-def numpobs():
-    with pobslock:
-        return len(pobs)
-
-#signal handlers
-def sigterm_handler(signal, fram):
-    with pobslock:
-        for p in pobs: p,kill()
-
-def sigint_handler(signal, fram):
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, sigint_handler)
-signal.signal(signal.SIGTERM, sigterm_handler)
-
-
-#function to watch processes
-def p_watch(p):
-    with pobslock:
-        pobs.remove(p)
-
+def msg_handling(msg):
+    msg_type, content = command['header']['msg_type'], command['content']
+    if msg_type == 'execute' and not robot_status:
+        student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        # turns student process stdout into a stream for sending to frontend
+        lines_iter = iter(student_proc.stdout.readline, b'')
+        # start process for watching for student code output
+        console_proc = multiprocessing.Process(target=log_output, args=(lines_iter,))
+        console_proc.start()
+        robot_status= 1
+    elif msg_type == 'stop' and robot_status:
+        student_proc.terminate()
+        console_proc.terminate()
+        robot_status = 0
+    elif msg_type == 'gamepad':
+        mc.set('gamepad', content)
 
 while True:
-    command = ansible.recv() 
-    if command:
-        print("Message received from ansible!")
-        msg_type, content = command['header']['msg_type'], command['content']
-        if msg_type == 'execute':
-	    print("Ansible said to start the code")
-            if not running_code:
-                p = subprocess.Popen(['python', 'student_code/student_code.py'])
-                with pobslock:
-                    pobs.add(p)
-                #makes a deamon thread to supervise the process
-                t = threading.Thread(target=p_watch, args=(p))
-                t.daemon = True
-                t.start()
-                running_code = True
-        elif msg_type == 'stop':
-	    print("Ansible said to stop the code")
-            if running_code:
-                with pobslock:
-                    print("killed")
-                    for p in pobs: p.kill()
-                #kill all motor values
-                Robot.set_motor('motor0', 0)
-                Robot.set_motor('motor1', 0) 
-                running_code = False
+    msg = ansible.recv()
+    if msg:
+        msg_handling(msg)
+
+    # Send whether or not robot is executing code
+    ansible.send_message('UPDATE_STATUS', {
+        'status': {'value': robot_status}
+    })
+
+    # Send battery level
+    ansible.send_message('UPDATE_BATTERY', {
+        'battery': {
+            'value': 100 # TODO: Make this not a lie
+        }
+    })
+
+    # TODO: Handle updating readings from Hibike, motor updates, etc
+    time.sleep(0.05)

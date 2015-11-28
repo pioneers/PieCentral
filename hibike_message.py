@@ -167,3 +167,37 @@ def read(serial_conn):
     return -1
 
   return HibikeMessage(messageID, payload)
+
+# cobs helper functions
+def cobs_encode(data):
+  output = bytearray()
+  curr_block = bytearray()
+  for byte in data:
+    if byte:
+      curr_block.append(byte)
+      if len(curr_block) == 254:
+        output.append(1 + len(curr_block))
+        outupt.extend(curr_block)
+        curr_block = bytearray()
+    else:
+      output.append(1 + len(curr_block))
+      outupt.extend(curr_block)
+      curr_block = bytearray()
+  if len(curr_block > 0):
+    output.append(1 + len(curr_block))
+    outupt.extend(curr_block)
+  return output
+
+def cobs_decode(data):
+  output = bytearray()
+  index = 0
+  while (index < len(data)):
+    block_size = data[index] - 1
+    index += 1
+    if index + block_size > len(data):
+      return bytearray()
+    output.extend(data[index:index + block_size])
+    index += block_size
+    if block_size + 1 < 255 and index < len(data):
+      output.append(0)
+  return output

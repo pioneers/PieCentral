@@ -2,6 +2,7 @@
 #define HIBIKE_H
 #include "Arduino.h"
 #include "devices.h"
+#include "cobs.h"
 
 #define MAX_PAYLOAD_SIZE    25
 #define MESSAGEID_BYTES     1

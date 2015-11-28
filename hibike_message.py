@@ -110,7 +110,8 @@ def send(serial_conn, message):
   m_buff = message.toByte()
   chk = checksum(m_buff)
   m_buff.append(chr(chk))
-  serial_conn.write(m_buff)
+  encoded = cobs_encode(m_buff)
+  serial_conn.write(bytearray([0x00, len(encoded)] + m_buff))
 
 
 def make_sub_request(delay):
@@ -149,19 +150,29 @@ def make_error(error_code):
     # -1 if checksum does not match
     # Otherwise returns a new HibikeMessage with message contents
 def read(serial_conn):
-  if serial_conn.inWaiting() == 0:
+  
+  # deal with cobs encoding
+  while serial_conn.inWaiting() > 0:
+    if struct.unpack('<B', serial_conn.read())[0] == 0:
+      break
+  else:
     return None
-  message = bytearray()
+  message_size = struct.unpack('<B', serial_conn.read())[0]
+  encoded_message = serial_conn.read(message_size)
+  message = cobs_decode(encoded_message)
+  
 
-  messageID = struct.unpack('<B', serial_conn.read())[0]
+  if len(message) < 2:
+    return None
+  messageID, payloadLength = struct.unpack('<BB', message[:2])
   message.append(messageID)
-
-  payloadLength = struct.unpack('<B', serial_conn.read())[0]
   message.append(payloadLength)
-  payload = serial_conn.read(payloadLength)
+  if len(message) < 2 + payloadLength + 1:
+    return None
+  payload = message[2:2 + payloadLength]
   message.extend(payload)
 
-  chk = struct.unpack('<B', serial_conn.read())[0]
+  chk = struct.unpack('<B', message[2 + payloadLength])[0]
   if chk != checksum(message):
     print(chk, checksum(message), message)
     return -1

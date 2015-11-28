@@ -188,15 +188,14 @@ def cobs_encode(data):
       curr_block.append(byte)
       if len(curr_block) == 254:
         output.append(1 + len(curr_block))
-        outupt.extend(curr_block)
+        output.extend(curr_block)
         curr_block = bytearray()
     else:
       output.append(1 + len(curr_block))
-      outupt.extend(curr_block)
+      output.extend(curr_block)
       curr_block = bytearray()
-  if len(curr_block > 0):
-    output.append(1 + len(curr_block))
-    outupt.extend(curr_block)
+  output.append(1 + len(curr_block))
+  output.extend(curr_block)
   return output
 
 def cobs_decode(data):

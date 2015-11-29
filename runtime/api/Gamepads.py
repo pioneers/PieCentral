@@ -9,7 +9,7 @@ import memcache
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
 
-student_ansible = Ansible('student_code')
+#student_ansible = Ansible('student_code')
 
 def get_all():
     return mc.get('gamepad')

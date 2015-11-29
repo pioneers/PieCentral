@@ -67,6 +67,7 @@ class Hibike():
         additional (key, value) pair of ("deviceName", deviceName)
         """
         try:
+            csv_file = None
             csv_file = open(contextFile, 'r')
             reader = csv.reader(csv_file, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
             list_of_rows = [row for row in reader]
@@ -78,7 +79,8 @@ class Hibike():
         except IOError:
             return "ERROR: Hibike config filed does not exist."
         finally:
-            csv_file.close()
+            if csv_file is not None:
+                csv_file.close()
 
 
     def _enumerateSerialPorts(self):

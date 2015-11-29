@@ -1,8 +1,8 @@
+from __future__ import print_function
 # Rewritten because Python.__version__ != 3
 import serial
 import struct
 import pdb
-
 # Dictionary of message types: message id
 messageTypes = {
   "SubscriptionRequest" :  0x00,

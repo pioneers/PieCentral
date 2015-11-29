@@ -22,7 +22,7 @@ smartDeviceBoards = ['Sparkfun Pro Micro', 'Intel Corp. None ', 'ttyACM0']
 
 
 class Hibike():
-    def __init__(self, contextFile='hibikeDevices.csv', timeout=5.0):
+    def __init__(self, contextFile=os.path.join(os.path.dirname(__file__), 'hibikeDevices.csv'), timeout=5.0):
         """Enumerate through serial ports with subRequest(0)
         Update self.context as we iterate through with devices
         Build a list self.serialPorts of (uid, port, serial) tuples
@@ -77,7 +77,7 @@ class Hibike():
                 self.config[int(row[0], 16)]["deviceName"] = row[1]
                 self.deviceTypes[int(row[0], 16)] = DeviceType(row)
         except IOError:
-            return "ERROR: Hibike config filed does not exist."
+            print "ERROR: Hibike config filed does not exist."
         finally:
             if csv_file is not None:
                 csv_file.close()

@@ -7,6 +7,7 @@ var ActionTypes = Constants.ActionTypes;
 //TODO: make filename not hard-coded in
 var editorData = {
   filename: 'student_code.py',
+  filenames: [],
   latestSaveCode: '',
   editorCode: ''
 };
@@ -68,6 +69,16 @@ function editorUpdate(newCode) {
   EditorStore.emitChange();
 }
 
+function filenamesListUpdate(action) {
+  editorData.filenames = action.filenames;
+  EditorStore.emitChange();
+}
+
+function filenameUpdate(action) {
+  editorData.filename = action.filename;
+  EditorStore.emitChange();
+}
+
 EditorStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.SEND_CODE:
@@ -78,6 +89,12 @@ EditorStore.dispatchToken = AppDispatcher.register((action) => {
       break;
     case ActionTypes.UPDATE_EDITOR:
       editorUpdate(action.newCode);
+      break;
+    case ActionTypes.UPDATE_FILENAMES:
+      filenamesListUpdate(action);
+      break;
+    case ActionTypes.UPDATE_FILENAME:
+      filenameUpdate(action);
       break;
   }
 });

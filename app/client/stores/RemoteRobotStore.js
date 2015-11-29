@@ -13,6 +13,8 @@ var motors = {};
 var peripherals = {};
 var robotStatus = false;
 var batteryLevel = 0;
+var connectionStatus = true;
+var consoleData = [];
 
 var RemoteRobotStore = assign({}, EventEmitter.prototype, {
   emitChange() {
@@ -28,7 +30,13 @@ var RemoteRobotStore = assign({}, EventEmitter.prototype, {
     return robotStatus;
   },
   getBatteryLevel() {
-    return batteryLevel
+    return batteryLevel;
+  },
+  getConnectionStatus() {
+    return connectionStatus;
+  },
+  getConsoleData() {
+    return consoleData;
   }
 });
 
@@ -88,39 +96,69 @@ function handleUpdateStatus(action) {
 }
 
 function handleUpdateBattery(action){
- batteryLevel = action.battery.value;
- RemoteRobotStore.emitChange();
+  batteryLevel = action.battery.value;
+  RemoteRobotStore.emitChange();
 }
 
 /**
  * Hacking more.
  */
 
+var previousActionType = null;
 if (process.browser) {
   setInterval(() => {
     AppDispatcher.dispatch({
-      type: 'peripherals',
-      content: {
-        testPeripheralHack: 5
-      }
+      type: 'StopCheck',
+      content: {}
     });
   }, 1000);
+}
+
+function handleStopCheck(action) {
+  var old = connectionStatus;
+  if (previousActionType === 'StopCheck') {
+    connectionStatus = false;
+  } else {
+    connectionStatus = true;
+  }
+  if (old !== connectionStatus) {
+    RemoteRobotStore.emitChange();
+  }
+}
+
+function handleConsoleUpdate(action) {
+  consoleData.push(action.console_output.value);
+  // keep the length of console output less than 20 lines
+  if (consoleData.length > 20)
+    consoleData.shift();
 }
 
 RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.UPDATE_MOTOR:
       handleUpdateMotor(action);
+      previousActionType = action.type;
       break;
     case ActionTypes.UPDATE_PERIPHERAL:
       handleUpdatePeripheral(action);
+      previousActionType = action.type;
       break;
     case ActionTypes.UPDATE_STATUS:
       handleUpdateStatus(action);
+      previousActionType = action.type;
       break;
     case ActionTypes.UPDATE_BATTERY:
       handleUpdateBattery(action);
-      break;  
+      previousActionType = action.type;
+      break;
+    case ActionTypes.UPDATE_CONSOLE:
+      handleConsoleUpdate(action);
+      previousActionType = action.type;
+      break;
+    case 'StopCheck':
+      handleStopCheck(action);
+      previousActionType = action.type;
+      break;
   }
 });
 

@@ -3,10 +3,10 @@ Panel = require('react-bootstrap').Panel
 ListGroup = require('react-bootstrap').ListGroup
 _ = require('lodash')
 GamepadStore = require('../stores/GamepadStore')
-DebugGamepadItem = require('./DebugGamepadItem')
+GamepadItem = require('./GamepadItem')
 
-module.exports = DebugGamepads = React.createClass
-  displayName: 'DebugGamepads'
+module.exports = Gamepads = React.createClass
+  displayName: 'Gamepads'
 
   getInitialState: ->
     gamepads: GamepadStore.getGamepads()
@@ -24,7 +24,7 @@ module.exports = DebugGamepads = React.createClass
     # if there are any gamepads
     if _.any(this.state.gamepads, (gamepad) -> gamepad?)
       return _.map this.state.gamepads, (gamepad, index) ->
-        <DebugGamepadItem key={index} index={index} gamepad={gamepad} />
+        <GamepadItem key={index} index={index} gamepad={gamepad} />
     else # assume they haven't connected any
       <p>
         There don't seem to be any gamepads connected.

@@ -8,7 +8,8 @@ PeripheralList = require('./PeripheralList')
 FinalCompPeripheralList = require('./FinalCompPeripheralList')
 Peripheral = require('./Peripheral')
 Environment = require('../utils/Environment')
-DebugGamepads = require('./DebugGamepads')
+Gamepads = require('./Gamepads')
+ConsoleOutput = require('./ConsoleOutput')
 if Environment.isBrowser
   Editor = require('./Editor')
   RobotActions = require('../actions/RobotActions')
@@ -24,10 +25,15 @@ module.exports = Dashboard = React.createClass
         <Row>
           <Col smPush={8} sm={4}>
             <FinalCompPeripheralList/>
-            <DebugGamepads/>
+            <Gamepads/>
           </Col>
           <Col smPull={4} sm={8}>
             { editor }
+          </Col>
+        </Row>
+        <Row>
+          <Col sm={12}>
+            <ConsoleOutput/>
           </Col>
         </Row>
       </Grid>

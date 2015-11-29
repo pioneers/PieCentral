@@ -165,14 +165,11 @@ def read(serial_conn):
   if len(message) < 2:
     return None
   messageID, payloadLength = struct.unpack('<BB', message[:2])
-  message.append(messageID)
-  message.append(payloadLength)
   if len(message) < 2 + payloadLength + 1:
     return None
   payload = message[2:2 + payloadLength]
-  message.extend(payload)
 
-  chk = struct.unpack('<B', message[2 + payloadLength])[0]
+  chk = struct.unpack('<B', message[2+payloadLength:2+payloadLength+1])[0]
   if chk != checksum(message):
     print(chk, checksum(message), message)
     return -1

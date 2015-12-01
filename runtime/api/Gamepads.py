@@ -4,8 +4,9 @@
 # ------
 import memcache
 
+# Connect to memcache
 memcache_port = 12357
-mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
+mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 
 def get_all():
     return mc.get('gamepad')
@@ -34,29 +35,4 @@ def get_is_connected(index):
 # Layout, then the mapping should be set to standard. Otherwise set mapping property to empty string
 def get_mapping(index):
     return mc.get('gamepad')[index]['mapping']
-
-
-    #return gpads[index]['mapping']
-
-# Array of Gamepad objects
-#gpads = [{'axes':[0.0, 0.0, 0.0, 0.0], 'buttons':[0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00], 'mapping':'standard'}]
-
-
-#def update():
-#    command = student_ansible.recv()
-#    print(str(command) + ' revieced from runtime')
-#    gamepads = {}
-#    if command:
-#        print(command)
-#        header = command['header']
-#        content = command['content']
-#        if header['msg_type'] == 'gamepad' and content:
-#            gamepads = content
-#    print('this is the gamepad')
-#    print(gamepads)
-#    for index in range(len(gamepads)):
-#        try:
-#            gpads[index] = gamepads[str(index)]
-#        except:
-#            gpads.append(gamepads[str(index)])
 

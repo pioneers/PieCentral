@@ -32,6 +32,7 @@ and controlling the robot hardware.
 From the 'runtime' directory, run:
 
 1. `python runtime.py`
+2. `memcached -p 12357` (from another terminal window)
  
 
 ## Structure Diagram:

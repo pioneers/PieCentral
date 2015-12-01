@@ -20,14 +20,20 @@ def get_all():
     """
     return mc.get('gamepad')
 
-# An array representing the controls with axes present on the device
-# On a standard gamepad, axes[0] is negative left, positive right on one
-# axes[1] is negative up, positive down on that same one
-# axes[2] is negative left, positive right on another
-# axes[3] is negative up, positive down on that same other
- # Takes in gamepad index
 def get_joysticks(index):
     """Returns a list of axes values corresponding to the specified gamepad.
+
+    Each returned value is between -1 and 1, which represents where the joystick
+    is along that axis. For example, if axes[0] is -1, then the left joystick
+    has been pushed all the way to the left. In order to get a better sense of
+    the joystick mappings, click the 'Details' button next to a gamepad in Dawn
+    or refer to https://w3c.github.io/gamepad/#remapping.
+
+    On a standard gamepad:
+    - axes[0] represents the horizontal axis of the left joystick.
+    - axes[1] represents the vertical axis of the left joystick
+    - axes[2] represents the horizontal axis of the right joystick
+    - axes[3] represent the vertical axis of the right joystick
 
     :param index: The index of the gamepad, usually 0, 1, 2, or 3
     :returns: A list of 4 decimal values, each corresponding to a joystick axis.
@@ -38,11 +44,13 @@ def get_joysticks(index):
     """
     return mc.get('gamepad')[index]['axes']
 
-# Refer to https://w3c.github.io/gamepad/#remapping for standard gamepad buttons
-# An array of gamepadButton objects representing the buttons present on the device.
-# Takes in gamepad index
 def get_buttons(index):
     """Returns a list of button values corresponding to the specified gamepad.
+
+    Each button value is either a 0 (not pressed) or a 1 (pressed). Unlike
+    joysticks, there are no in-between values--it can only be a 0 or a 1. To
+    see the exact mapping, click on the 'Details' button next to a gamepad in
+    Dawn, or refer to https://w3c.github.io/gamepad/#remapping.
 
     :param index: The index of the gamepad, usually 0, 1, 2, or 3
     :returns: A list of 0's and 1's, each corresponding to a button
@@ -61,7 +69,7 @@ def get_is_connected(index):
 # If the user knows the layout of the device and it corresponds to the Standard Gamepad
 # Layout, then the mapping should be set to standard. Otherwise set mapping property to empty string
 def get_mapping(index):
-    """Returns the mapping of the specified gamepad.
+    """Returns the mapping of the specified gamepad. Usually this value will be 'standard.'
     """
     return mc.get('gamepad')[index]['mapping']
 

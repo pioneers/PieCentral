@@ -1,22 +1,27 @@
-import subprocess, multiprocessing
-import memcache, ansible
-import time
+import subprocess, multiprocessing, time
+import memcache, ansible, hibike
 from grizzly import *
-import hibike
-#import deviceContext
+import usb
+import os
 
-name_to_grizzly = {}
-name_to_values = {}
-name_to_ids = {}
-h = hibike.Hibike()
+# Useful motor mappings
+name_to_grizzly, name_to_values, name_to_ids = {}, {}, {}
+student_proc, console_proc = None, None
+robot_status = 0 # a boolean for whether or not the robot is executing code
+
+if 'HIBIKE_SIMULATOR' in os.environ and os.environ['HIBIKE_SIMULATOR'] in ['1', 'True', 'true']:
+    import hibike_simulator
+    h = hibike_simulator.Hibike()
+else:
+    h = hibike.Hibike()
 connectedDevices = h.getEnumeratedDevices()
+# TODO: delay should not always be 20
+connectedDevices = [(device, 20) for (device, device_type) in connectedDevices]
 h.subToDevices(connectedDevices)
 
-robot_status = 0 # a boolean for whether or not the robot is executing code
-student_proc, console_proc = None, None
+# connect to memcache
 memcache_port = 12357
-mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
-addrs = None
+mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 
 def get_all_data(connectedDevices):
     all_data = {}
@@ -24,12 +29,17 @@ def get_all_data(connectedDevices):
         all_data[t[0]] = h.getData(t[0],"dataUpdate")
     return all_data
 
-def init():
-    global addrs
-    addrs = Grizzly.get_all_ids()
-    # Brute force to find all 
+# Called on start of student code, finds and configures all the connected motors
+def initialize_motors():
+    try:
+        addrs = Grizzly.get_all_ids()
+    except usb.USBError:
+        print("WARNING: no Grizzly Bear devices found")
+        addrs = []
+
+    # Brute force to find all
     for index in range(len(addrs)):
-        # default name for motors is motor0, motor1, motor2, etc 
+        # default name for motors is motor0, motor1, motor2, etc
         grizzly_motor = Grizzly(addrs[index])
         grizzly_motor.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_COAST)
         grizzly_motor.limit_acceleration(142)
@@ -42,8 +52,8 @@ def init():
 
     mc.set('motor_values', name_to_values)
 
-# used to non Emergency stop the robot
-def clear():
+# Called on end of student code, sets all motor values to zero
+def stop_motors():
     for name, grizzly in name_to_grizzly.iteritems():
         grizzly.set_target(0)
         name_to_values[name] = 0
@@ -71,18 +81,53 @@ def msg_handling(msg):
         # start process for watching for student code output
         console_proc = multiprocessing.Process(target=log_output, args=(lines_iter,))
         console_proc.start()
-        init()
+        initialize_motors()
         robot_status= 1
     elif msg_type == 'stop' and robot_status:
         student_proc.terminate()
         console_proc.terminate()
-        clear()
+        stop_motors()
         robot_status = 0
     elif msg_type == 'gamepad':
         mc.set('gamepad', content)
 
+peripheral_data_last_sent = 0
+def send_peripheral_data(data):
+    global peripheral_data_last_sent
+    # TODO: This is a hack. Should put this into a separate process
+    if time.time() < peripheral_data_last_sent + 1:
+        return
+    peripheral_data_last_sent = time.time()
+
+    # Send sensor data
+    for device_id, value in all_sensor_data.items():
+        ansible.send_message('UPDATE_PERIPHERAL', {
+            'peripheral': {
+                'name': 'sensor_{}'.format(device_id),
+                'peripheralType':'SENSOR_SCALAR',
+                'value': value,
+                'id': device_id
+                }
+            })
+
+    # Send motor values to UI, if the robot is running
+    if robot_status:
+        name_to_value = mc.get('motor_values') or {}
+        for name in name_to_value:
+            grizzly = name_to_grizzly[name]
+            grizzly.set_target(name_to_value[name])
+            ansible.send_message('UPDATE_PERIPHERAL', {
+                'peripheral': {
+                    'name': name,
+                    'peripheralType':'MOTOR_SCALAR',
+                    'value': name_to_value[name],
+                    'id': name_to_ids[name]
+                }
+            })
+
 while True:
     msg = ansible.recv()
+    # Handle any incoming commands from the UI
     if msg:
         msg_handling(msg)
 
@@ -98,29 +143,10 @@ while True:
         }
     })
 
+    # Update sensor values, and send to UI
     all_sensor_data = get_all_data(connectedDevices)
-    # TODO: Don't know if UI is ready to receive this yet
-    #ansible.send_message('UPDATE_SENSOR', {
-    #    'sensor': {'value': all_sensor_data }
-    #})
-
-    # TODO: Handle updating readings from Hibike, motor updates, etc
+    send_peripheral_data(all_sensor_data)
     mc.set('sensor_values', all_sensor_data)
-    # This could cause problems, esp with latency
-    # but since grizzlies are going to be integrated with hibike, 
-    # we may as well run everything from the main process anyway
-    name_to_value = mc.get('motor_values')
-    if robot_status:
-        for name in name_to_value:
-            grizzly = name_to_grizzly[name]
-            grizzly.set_target(name_to_value[name])
-	    ansible.send_message('UPDATE_PERIPHERAL', {
-                'peripheral': {'name': name, 'peripheralType':'MOTOR_SCALAR', 'value': name_to_value[name], 'id': name_to_ids[name]}
-            })
 
-    # TODO: Don't know if UI is ready to receive this yet
-    #ansible.send_message('UPDATE_MOTORS', {
-    #    'motors': {'value': name_to_value}
-    #})
     time.sleep(0.05)
 

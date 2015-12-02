@@ -5,7 +5,7 @@
 hibike_uid_t UID = {
   7,                      // Device Type
   0,                      // Year
-  0xFEED1337DEADBEEF,     // ID
+  0xFEED1337DEADBEAD,     // ID
 };
 ///////////////////////////////////////////////
 

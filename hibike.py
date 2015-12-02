@@ -22,7 +22,7 @@ sys.path.append(os.getcwd())
 import hibike_message as hm
 
 # Global meta variables
-smartDeviceBoards = ['Sparkfun Pro Micro', 'Intel Corp. None ', 'ttyACM0']
+smartDeviceBoards = ['Sparkfun Pro Micro', 'Intel Corp. None ', 'ttyACM0', 'ttyACM2']
 
 
 class Hibike():
@@ -101,19 +101,22 @@ class Hibike():
         """
         portInfo = serialtools.comports()
         for ser, desc, hwid in portInfo:
-            if desc in smartDeviceBoards:
-                delay = 0
-                if ser in self.serialToUID.keys():
-                    uid = self.serialToUID[ser][0]
-                    if uid in self.context.keys():
-                        delay = self.context[uid].delay
-                else:
-                    self.serialToUID[ser] = (None, serial.Serial(ser, 115200))
-                #msg = hm.make_sub_request(delay)
-                print("enumerating something")
-                self.sendBuffer.put((self.serialToUID[ser][1], hm.make_sub_request(delay)))
-                #hm.send(self.serialToUID[ser][1], msg)
-        t = Timer(self.timeout, self._cleanSerialPorts)
+            if desc in smartDeviceBoards or 1:
+                try:
+                    delay = 0
+                    if ser in self.serialToUID.keys():
+                        uid = self.serialToUID[ser][0]
+                        if uid in self.context.keys():
+                            delay = self.context[uid].delay
+                    else:
+                        self.serialToUID[ser] = (None, serial.Serial(ser, 115200))
+                    #msg = hm.make_sub_request(delay)
+                    #print("enumerating something")
+                    self.sendBuffer.put((self.serialToUID[ser][1], hm.make_sub_request(delay)))
+                    #hm.send(self.serialToUID[ser][1], msg)
+                except serial.serialutil.SerialException:
+                    pass
+        t = Timer(self.timeout, self._enumerateSerialPorts)
         t.start()
 
 
@@ -342,7 +345,7 @@ class HibikeThread(threading.Thread):
             self.hibike.context[uid].deviceResponse(param, value)
         elif msgID == hm.messageTypes["SubscriptionResponse"]:
             deviceType, year, ID, delay = struct.unpack("<HBQH", msg.getPayload())
-            print(deviceType, year, ID, delay)
+            #print(deviceType, year, ID, delay)
             uid = (deviceType << 72) | (year << 64) | ID
             self.hibike.serialToUID[serialPort] = (uid, serial)
             self.hibike.uidToSerial[uid] = serialPort
@@ -369,7 +372,6 @@ class HibikeThread(threading.Thread):
             if self.sendBuffer.empty():
                 break
             serial, packet = self.sendBuffer.get()
-            print(packet)
             hm.send(serial, packet)
 
 class DeviceType():

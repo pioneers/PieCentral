@@ -17,6 +17,11 @@ var RobotActions = {
       id: id,
       value: value
     });
+  },
+  clearConsole() {
+    AppDispatcher.dispatch({
+      type: ActionTypes.CLEAR_CONSOLE,
+    });
   }
 };
 

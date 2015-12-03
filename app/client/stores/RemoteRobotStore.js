@@ -133,6 +133,10 @@ function handleConsoleUpdate(action) {
     consoleData.shift();
 }
 
+function handleClearConsole(action) {
+  consoleData.length = 0;
+}
+
 RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.UPDATE_MOTOR:
@@ -155,6 +159,10 @@ RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
       handleConsoleUpdate(action);
       previousActionType = action.type;
       break;
+    case ActionTypes.CLEAR_CONSOLE:
+      handleClearConsole(action);
+      previousActionType = action.type;
+      break;  
     case 'StopCheck':
       handleStopCheck(action);
       previousActionType = action.type;

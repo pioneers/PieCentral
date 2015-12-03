@@ -458,5 +458,12 @@ class HibikeDevice:
     def deviceResponse(self, param, value):
         self.params[param] = (value, time.time())
 
+    # casts dataupdate from bytearray to int
     def getData(self, param):
-        return self.params[param][0]
+        data = self.params[param][0]
+        if type(data) in (str, bytes, bytearray):
+            total = 0
+            for byte in data:
+                total = (total << 8) | ord(byte)
+            data = total
+        return data

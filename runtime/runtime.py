@@ -91,14 +91,15 @@ def msg_handling(msg):
     elif msg_type == 'gamepad':
         mc.set('gamepad', content)
 
-sensor_data_last_sent = 0
-def send_sensor_data(data):
-    global sensor_data_last_sent
-    # HACK to avoid spamming UI. Should really send only when sensors update
-    if time.time() < sensor_data_last_sent + 1:
+peripheral_data_last_sent = 0
+def send_peripheral_data(data):
+    global peripheral_data_last_sent
+    # TODO: This is a hack. Should put this into a separate process
+    if time.time() < peripheral_data_last_sent + 1:
         return
-    sensor_data_last_sent = time.time()
+    peripheral_data_last_sent = time.time()
 
+    # Send sensor data
     for device_id, value in all_sensor_data.items():
         ansible.send_message('UPDATE_PERIPHERAL', {
             'peripheral': {
@@ -109,7 +110,20 @@ def send_sensor_data(data):
                 }
             })
 
-
+    # Send motor values to UI, if the robot is running
+    if robot_status:
+        name_to_value = mc.get('motor_values') or {}
+        for name in name_to_value:
+            grizzly = name_to_grizzly[name]
+            grizzly.set_target(name_to_value[name])
+            ansible.send_message('UPDATE_PERIPHERAL', {
+                'peripheral': {
+                    'name': name,
+                    'peripheralType':'MOTOR_SCALAR',
+                    'value': name_to_value[name],
+                    'id': name_to_ids[name]
+                }
+            })
 
 while True:
     msg = ansible.recv()
@@ -131,23 +145,8 @@ while True:
 
     # Update sensor values, and send to UI
     all_sensor_data = get_all_data(connectedDevices)
-    send_sensor_data(all_sensor_data)
+    send_peripheral_data(all_sensor_data)
     mc.set('sensor_values', all_sensor_data)
-
-    # Send motor values to UI, if the robot is running
-    if robot_status:
-        name_to_value = mc.get('motor_values') or {}
-        for name in name_to_value:
-            grizzly = name_to_grizzly[name]
-            grizzly.set_target(name_to_value[name])
-            ansible.send_message('UPDATE_PERIPHERAL', {
-                'peripheral': {
-                    'name': name,
-                    'peripheralType':'MOTOR_SCALAR',
-                    'value': name_to_value[name],
-                    'id': name_to_ids[name]
-                }
-            })
 
     time.sleep(0.05)
 

@@ -62,13 +62,14 @@ def stop_motors():
 
 # A process for sending the output of student code to the UI
 def log_output(stream):
+    #TODO: figure out a way to limit speed of sending messages, so
+    # ansible is not overflowed by printing too fast
     for line in stream:
         ansible.send_message('UPDATE_CONSOLE', {
             'console_output': {
                 'value': line
             }
         })
-        time.sleep(0.5) # need delay to prevent flooding ansible
 
 def msg_handling(msg):
     global robot_status, student_proc, console_proc

@@ -34,6 +34,7 @@ USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
 BOARD_TAG         = uno
 BOARD_SUB         = atmega328
 
+
 ### MONITOR_BAUDRATE
 ### It must be set to Serial baudrate value you are using.
 MONITOR_BAUDRATE  = 115200

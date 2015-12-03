@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import serial
@@ -9,7 +10,10 @@ import struct
 import pdb
 import random
 from threading import Timer
-from Queue import Queue
+try:
+    from Queue import Queue
+except ImportError:
+    from queue import Queue
 import csv
 import pdb
 
@@ -18,11 +22,11 @@ sys.path.append(os.getcwd())
 import hibike_message as hm
 
 # Global meta variables
-smartDeviceBoards = ['Sparkfun Pro Micro', 'Intel Corp. None ', 'ttyACM0']
+smartDeviceBoards = ['Sparkfun Pro Micro', 'Intel Corp. None ', 'ttyACM0', 'ttyACM2']
 
 
 class Hibike():
-    def __init__(self, contextFile='hibikeDevices.csv', timeout=5.0):
+    def __init__(self, contextFile=os.path.join(os.path.dirname(__file__), 'hibikeDevices.csv'), timeout=5.0):
         """Enumerate through serial ports with subRequest(0)
         Update self.context as we iterate through with devices
         Build a list self.serialPorts of (uid, port, serial) tuples
@@ -55,6 +59,9 @@ class Hibike():
             hibike_str += "    %s\n" % device
         return hibike_str
 
+    def __repr__(self):
+        return self.__str__()
+
     def _readContextFile(self, contextFile):
         """contextFile is the name to a csv containing information of devices 
         deviceID, deviceName, param0, param1, ...
@@ -67,6 +74,7 @@ class Hibike():
         additional (key, value) pair of ("deviceName", deviceName)
         """
         try:
+            csv_file = None
             csv_file = open(contextFile, 'r')
             reader = csv.reader(csv_file, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
             list_of_rows = [row for row in reader]
@@ -76,9 +84,10 @@ class Hibike():
                 self.config[int(row[0], 16)]["deviceName"] = row[1]
                 self.deviceTypes[int(row[0], 16)] = DeviceType(row)
         except IOError:
-            return "ERROR: Hibike config filed does not exist."
+            print("ERROR: Hibike config filed does not exist.")
         finally:
-            csv_file.close()
+            if csv_file is not None:
+                csv_file.close()
 
 
     def _enumerateSerialPorts(self):
@@ -93,9 +102,9 @@ class Hibike():
         to denote that said device is no longer valid.
 
         """
-        portInfo = serialtools.comports()
+        portInfo = serialtools.grep('ttyACM')
         for ser, desc, hwid in portInfo:
-            if desc in smartDeviceBoards:
+            try:
                 delay = 0
                 if ser in self.serialToUID.keys():
                     uid = self.serialToUID[ser][0]
@@ -104,10 +113,14 @@ class Hibike():
                 else:
                     self.serialToUID[ser] = (None, serial.Serial(ser, 115200))
                 #msg = hm.make_sub_request(delay)
-                print "enumerating something"
+                #print("enumerating something")
                 self.sendBuffer.put((self.serialToUID[ser][1], hm.make_sub_request(delay)))
                 #hm.send(self.serialToUID[ser][1], msg)
-        t = Timer(self.timeout, self._cleanSerialPorts)
+            except (serial.serialutil.SerialException, OSError):
+                pass
+            except:
+                print("Unexpected error", sys.exc_info()[0])
+        t = Timer(self.timeout, self._enumerateSerialPorts)
         t.start()
 
 
@@ -152,20 +165,21 @@ class Hibike():
         Returns None if bad uid or bad param
         """
         if uid not in self.getUIDs():
-            print "Bad UID"
+            print("Bad UID")
             return None
-        if param not in self.config[self.getDeviceType(uid)].keys():
-            print "Bad param"
-            return None
-        paramIndex = self.config[self.getDeviceType(uid)][param]
-        return self.context[uid].getData(paramIndex)
+        if type(param) is str:
+            if param not in self.config[self.getDeviceType(uid)].keys():
+                print("Bad param")
+                return None
+            param = self.config[self.getDeviceType(uid)][param]
+        return self.context[uid].getData(param)
 
 
     def getDeviceName(self, devicetype):
         """Returns the name of the device associated with deviceType 
         """
         if deviceType not in self.config.keys():
-            print "Bad deviceType of uid"
+            print("Bad deviceType of uid")
             return None
         return self.config[deviceType]["deviceName"]
 
@@ -175,7 +189,7 @@ class Hibike():
         Returns None if bad uid 
         """
         if uid not in self.getUIDs():
-            print "Bad UID"
+            print("Bad UID")
             return None
         return self.context[uid].delay
 
@@ -187,7 +201,7 @@ class Hibike():
         """
         deviceType = self.getDeviceType(uid)
         if deviceType not in self.config.keys():
-            print "Bad deviceType of uid"
+            print("Bad deviceType of uid")
             return None
         params = self.config[deviceType].keys()
         params.remove["deviceName"]
@@ -199,13 +213,14 @@ class Hibike():
         specified by uid
         """
         if uid not in self.getUIDs():
-            print "Bad UID"
+            print("Bad UID")
             return None
-        if param not in self.config[self.getDeviceType(uid)].keys():
-            print "Bad param"
-            return None
-        paramIndex = self.context[uid].deviceType.paramIDs[param]
-        self.deviceUpdate(uid, paramIndex, value)
+        if type(param) is str:
+            if param not in self.config[self.getDeviceType(uid)].keys():
+                print("Bad param")
+                return None
+            param = self.config[self.getDeviceType(uid)][param]
+        self.deviceUpdate(uid, param, value)
 
 
     def subToDevice(self, uid, delay):
@@ -214,7 +229,7 @@ class Hibike():
         Otherwise returns delay
         """
         if uid not in self.getUIDs():
-            print "Bad UID"
+            print("Bad UID")
             return None
         self.subRequest(uid, delay)
         return delay
@@ -228,10 +243,10 @@ class Hibike():
         uids = self.getUIDs()
         for device in deviceTuples:
             if device[0] not in uids:
-                print "Bad uid"
+                print("Bad uid")
                 return None
         for device in deviceTuples:
-            subToDevice(device[0], device[1])
+            self.subToDevice(device[0], device[1])
         return 1
 
 
@@ -239,7 +254,7 @@ class Hibike():
         """Returns the msgID if successful, None otherwise 
         """
         if uid not in self.getUIDs():
-            print "subRequest() failed... uid not in serialPorts"
+            print("subRequest() failed... uid not in serialPorts")
             return None            
         self.sendBuffer.put((self.serialToUID[self.uidToSerial[uid]][1], msg))
         return msg.getmessageID()
@@ -322,33 +337,47 @@ class HibikeThread(threading.Thread):
         uid, serial = self.hibike.serialToUID[serialPort]
         if serial == None:
             return
-        #print serial
-        msg = hm.read(serial)
+        #print(serial)
+        try:
+            msg = hm.read(serial)
+        except IOError:
+            #denumerate the port
+            if uid:
+                del self.hibike.context[uid]
+                del self.hibike.uidToSerial[uid]
+            del self.hibike.serialToUID[serialPort]
+            return
         if msg == None or msg == -1:
-            #print serial
+            #print(serial)
             return None
         msgID = msg.getmessageID()
         if msgID == hm.messageTypes["DataUpdate"]:
-            payload = msg.getPayload()
-            self.hibike.context[uid].dataUpdate(payload)            
+            if uid in self.context:
+                payload = msg.getPayload()
+                self.hibike.context[uid].dataUpdate(payload)            
         elif msgID == hm.messageTypes["DeviceResponse"]:
-            param, value = struct.unpack("<BI", msg.getPayload())
-            self.hibike.context[uid].deviceResponse(param, value)
+            if uid in self.context and len(msg.getPayload()) == 5:
+                param, value = struct.unpack("<BI", msg.getPayload())
+                self.hibike.context[uid].deviceResponse(param, value)
         elif msgID == hm.messageTypes["SubscriptionResponse"]:
-            deviceType, year, ID, delay = struct.unpack("<HBQH", msg.getPayload())
-            print deviceType, year, ID, delay
-            uid = (deviceType << 72) | (year << 64) | ID
-            self.hibike.serialToUID[serialPort] = (uid, serial)
-            self.hibike.uidToSerial[uid] = serialPort
+            if len(msg.getPayload()) == 13:
+                deviceType, year, ID, delay = struct.unpack("<HBQH", msg.getPayload())
+                #print(deviceType, year, ID, delay)
+                uid = (deviceType << 72) | (year << 64) | ID
+                cur_ser = self.hibike.uidToSerial.get(uid, None)
+                if cur_ser and cur_ser != serialPort:
+                    print("UID CONFLICT!!!")
+                self.hibike.serialToUID[serialPort] = (uid, serial)
+                self.hibike.uidToSerial[uid] = serialPort
 
-            if uid not in self.context.keys():
-                if deviceType not in self.hibike.config.keys():
-                    print "Unknown Device Type: %s" % (str(deviceType),)
-                    return msgID
-                self.context[uid] = HibikeDevice(uid, self.hibike.deviceTypes[deviceType])
-            self.context[uid].updateDelay(delay)
+                if uid not in self.context:
+                    if deviceType not in self.hibike.config.keys():
+                        print("Unknown Device Type: %s" % (str(deviceType),))
+                        return msgID
+                    self.context[uid] = HibikeDevice(uid, self.hibike.deviceTypes[deviceType])
+                self.context[uid].updateDelay(delay)
         else:
-            print "Unexpected message type received"
+            print("Unexpected message type received")
         return msgID
 
 
@@ -363,7 +392,6 @@ class HibikeThread(threading.Thread):
             if self.sendBuffer.empty():
                 break
             serial, packet = self.sendBuffer.get()
-            print packet
             hm.send(serial, packet)
 
 class DeviceType():

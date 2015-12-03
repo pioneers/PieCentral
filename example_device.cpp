@@ -1,11 +1,10 @@
 #include "example_device.h"
 #include <Servo.h>
-
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
-  7,                      // Device Type
+  0,                      // Device Type
   0,                      // Year
-  0xFEED1337DEADBEEF,     // ID
+  UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
 

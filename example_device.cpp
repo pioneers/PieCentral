@@ -23,7 +23,7 @@ bool led_enabled;
 void setup() {
   Serial.begin(115200);
   prevTime = millis();
-  subDelay = 666;
+  subDelay = 0;
   memset(&params, 0, sizeof(params[0])*NUM_PARAMS);
 
 

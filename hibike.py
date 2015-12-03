@@ -463,7 +463,7 @@ class HibikeDevice:
         data = self.params[param][0]
         if type(data) in (str, bytes, bytearray):
             total = 0
-            for byte in data:
-                total = (total << 8) | ord(str(byte))
+            for byte in list(bytearray(data)):
+                total = (total << 8) | byte
             data = total
         return data

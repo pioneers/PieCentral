@@ -2,7 +2,7 @@
 #include <Servo.h>
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
-  0,                      // Device Type
+  7,                      // Device Type
   0,                      // Year
   UID_RANDOM,     // ID
 };
@@ -23,8 +23,9 @@ bool led_enabled;
 void setup() {
   Serial.begin(115200);
   prevTime = millis();
-  subDelay = 0;
+  subDelay = 666;
   memset(&params, 0, sizeof(params[0])*NUM_PARAMS);
+
 
   // Setup Error LED
   pinMode(LED_PIN, OUTPUT);
@@ -49,7 +50,7 @@ void loop() {
   currTime = millis();
 
   // Check for Hibike packets
-  if (Serial.available()) {
+  if (Serial.available() > 1) {
     if (read_message(&hibikeBuff) == -1) {
       toggleLED();
     } else {
@@ -62,12 +63,12 @@ void loop() {
 
         case SUBSCRIPTION_RESPONSE:
           // Unsupported packet
-          //toggleLED();
+          toggleLED();
           break;
 
         case DATA_UPDATE:
           // Unsupported packet
-          //toggleLED();
+          toggleLED();
           break;
 
         case DEVICE_UPDATE:
@@ -81,18 +82,21 @@ void loop() {
           // Unsupported packet
           param = hibikeBuff.payload[0];
           send_device_response(param, params[param-1]);
-          //toggleLED();
+          toggleLED();
           break;
 
         case DEVICE_RESPONSE:
           // Unsupported packet
-          //toggleLED();
+          toggleLED();
+          break;
+        case PING_:
+          send_subscription_response(&UID, subDelay);
           break;
 
         default:
-        ;
+        
           // Uh oh...
-          //toggleLED();
+          toggleLED();
       }
     }
   }

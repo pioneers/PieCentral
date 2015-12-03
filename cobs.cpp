@@ -38,7 +38,7 @@ size_t cobs_decode(uint8_t *dst, const uint8_t *src, size_t src_len) {
     for (uint8_t i = 1; i < code; i++) {
       *dst++ = *src++;
       out_len++;
-      if (src >= end) return 0;  // Bad packet
+      if (src > end) return 0;  // Bad packet
     }
     if (code < 0xFF && src != end) {
       *dst++ = 0;

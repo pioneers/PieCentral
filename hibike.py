@@ -114,7 +114,7 @@ class Hibike():
                     self.serialToUID[ser] = (None, serial.Serial(ser, 115200))
                 #msg = hm.make_sub_request(delay)
                 #print("enumerating something")
-                self.sendBuffer.put((self.serialToUID[ser][1], hm.make_sub_request(delay)))
+                self.sendBuffer.put((self.serialToUID[ser][1], hm.make_ping()))
                 #hm.send(self.serialToUID[ser][1], msg)
             except (serial.serialutil.SerialException, OSError):
                 pass
@@ -278,8 +278,12 @@ class Hibike():
         self._addToBuffer(uid, msg)
 
 
-    def error(self, error_code):
+    def error(self, uid, error_code):
         msg = hm.make_error(error_code)
+        self._addToBuffer(uid, msg)
+
+    def ping(self, uid):
+        msg = hm.make_ping()
         self._addToBuffer(uid, msg)
 
 
@@ -432,7 +436,7 @@ class HibikeDevice:
             , self.lastUpdate)
         for i in range(len(self.params)):
             value = self.params[i][0]
-            if type(value) is str:
+            if type(value) in (str, bytes, bytearray):
                 value = binascii.hexlify(value)
             else:
                 value = str(value)

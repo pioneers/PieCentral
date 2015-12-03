@@ -36,7 +36,7 @@ int read_message(message_t *msg) {
   int last_byte_read = -1;
   while (Serial.available()) {
     last_byte_read = Serial.read();
-    //Serial.write(last_byte_read);
+    // Serial.write(last_byte_read);
     if (last_byte_read == 0) {
       break;
     }
@@ -48,13 +48,21 @@ int read_message(message_t *msg) {
   }
 
   // no packet length found
-  if (!Serial.available() || !Serial.peek()) {
-    return 0;
+  if (Serial.available() == 0 || Serial.peek() == 0) {
+    // Serial.write(69 + Serial.peek());
+    return -1;
   }
   size_t cobs_len = Serial.read();
   size_t read_len = Serial.readBytesUntil(0x00, (char *)cobs_buf, cobs_len);
   if (cobs_len != read_len || cobs_decode(data, cobs_buf, cobs_len) < 3) {
-    return 0;
+    // Serial.write(99);
+    // Serial.write(cobs_len);
+    // Serial.write(read_len);
+    // Serial.write(cobs_decode(data, cobs_buf, cobs_len));
+    // Serial.write(cobs_buf, cobs_len);
+    // Serial.write(data, cobs_len-1);
+
+    return -1;
   }
   uint8_t messageID = data[0];
   uint8_t payload_length = data[1];
@@ -63,7 +71,8 @@ int read_message(message_t *msg) {
   
   // no need to empty the buffer with cobs
   if (received_chk != expected_chk) {
-    return 0;
+    // Serial.write(88);
+    return -1;
   }
   msg->messageID = messageID;
   msg->payload_length = payload_length;

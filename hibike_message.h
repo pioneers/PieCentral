@@ -26,6 +26,7 @@ typedef enum {
   DEVICE_UPDATE           = 0x03,
   DEVICE_STATUS           = 0x04,
   DEVICE_RESPONSE         = 0x05,
+  PING_                   = 0x06,
   ERROR                   = 0xFF,
 } messageID;
 

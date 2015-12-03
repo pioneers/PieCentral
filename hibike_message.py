@@ -11,6 +11,7 @@ messageTypes = {
   "DeviceUpdate" :         0x03,
   "DeviceStatus" :         0x04,
   "DeviceResponse" :       0x05,
+  "Ping" :                 0x06,
   "Error" :                0xff
 }
 
@@ -112,7 +113,6 @@ def send(serial_conn, message):
   m_buff.append(chr(chk))
   encoded = cobs_encode(m_buff)
   out_buf = bytearray([0x00, len(encoded)]) + encoded
-  print(list(out_buf))
   serial_conn.write(out_buf)
 
 
@@ -142,6 +142,12 @@ def make_error(error_code):
   temp_payload = struct.pack('<B', error_code)
   payload = bytearray(temp_payload)
   message = HibikeMessage(messageTypes["Error"], payload)
+  return message
+
+def make_ping():
+  """ Makes and returns Ping message."""
+  payload = bytearray()
+  message = HibikeMessage(messageTypes["Ping"], payload)
   return message
 
 

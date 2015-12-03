@@ -6,7 +6,7 @@
 
 #define NUM_PARAMS 5
 
-#define IN_PIN 14
+#define IN_PIN A0
 #define LED_PIN 13
 
 // function prototypes

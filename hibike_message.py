@@ -111,7 +111,9 @@ def send(serial_conn, message):
   chk = checksum(m_buff)
   m_buff.append(chr(chk))
   encoded = cobs_encode(m_buff)
-  serial_conn.write(bytearray([0x00, len(encoded)] + m_buff))
+  out_buf = bytearray([0x00, len(encoded)]) + encoded
+  print(list(out_buf))
+  serial_conn.write(out_buf)
 
 
 def make_sub_request(delay):
@@ -170,8 +172,8 @@ def read(serial_conn):
   payload = message[2:2 + payloadLength]
 
   chk = struct.unpack('<B', message[2+payloadLength:2+payloadLength+1])[0]
-  if chk != checksum(message):
-    print(chk, checksum(message), message)
+  if chk != checksum(message[:-1]):
+    print(chk, checksum(message[:-1]), list(message))
     return -1
 
   return HibikeMessage(messageID, payload)
@@ -199,7 +201,7 @@ def cobs_decode(data):
   output = bytearray()
   index = 0
   while (index < len(data)):
-    block_size = data[index] - 1
+    block_size = ord(data[index]) - 1
     index += 1
     if index + block_size > len(data):
       return bytearray()

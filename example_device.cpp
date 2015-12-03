@@ -63,12 +63,12 @@ void loop() {
 
         case SUBSCRIPTION_RESPONSE:
           // Unsupported packet
-          toggleLED();
+          //toggleLED();
           break;
 
         case DATA_UPDATE:
           // Unsupported packet
-          toggleLED();
+          //toggleLED();
           break;
 
         case DEVICE_UPDATE:
@@ -82,17 +82,18 @@ void loop() {
           // Unsupported packet
           param = hibikeBuff.payload[0];
           send_device_response(param, params[param-1]);
-          toggleLED();
+          //toggleLED();
           break;
 
         case DEVICE_RESPONSE:
           // Unsupported packet
-          toggleLED();
+          //toggleLED();
           break;
 
         default:
+        ;
           // Uh oh...
-          toggleLED();
+          //toggleLED();
       }
     }
   }

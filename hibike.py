@@ -464,6 +464,6 @@ class HibikeDevice:
         if type(data) in (str, bytes, bytearray):
             total = 0
             for byte in data:
-                total = (total << 8) | ord(byte)
+                total = (total << 8) | ord(str(byte))
             data = total
         return data

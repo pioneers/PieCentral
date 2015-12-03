@@ -111,21 +111,6 @@ def send_peripheral_data(data):
                 }
             })
 
-    # Send motor values to UI, if the robot is running
-    if robot_status:
-        name_to_value = mc.get('motor_values') or {}
-        for name in name_to_value:
-            grizzly = name_to_grizzly[name]
-            grizzly.set_target(name_to_value[name])
-            ansible.send_message('UPDATE_PERIPHERAL', {
-                'peripheral': {
-                    'name': name,
-                    'peripheralType':'MOTOR_SCALAR',
-                    'value': name_to_value[name],
-                    'id': name_to_ids[name]
-                }
-            })
-
 while True:
     msg = ansible.recv()
     # Handle any incoming commands from the UI
@@ -148,6 +133,21 @@ while True:
     all_sensor_data = get_all_data(connectedDevices)
     send_peripheral_data(all_sensor_data)
     mc.set('sensor_values', all_sensor_data)
+
+    # Send motor values to UI, if the robot is running
+    if robot_status:
+        name_to_value = mc.get('motor_values') or {}
+        for name in name_to_value:
+            grizzly = name_to_grizzly[name]
+            grizzly.set_target(name_to_value[name])
+            ansible.send_message('UPDATE_PERIPHERAL', {
+                'peripheral': {
+                    'name': name,
+                    'peripheralType':'MOTOR_SCALAR',
+                    'value': name_to_value[name],
+                    'id': name_to_ids[name]
+                }
+            })
 
     time.sleep(0.05)
 

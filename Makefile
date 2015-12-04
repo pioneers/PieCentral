@@ -62,6 +62,9 @@ ifeq "$(AVR_GCC_VERSION)" "1"
     CXXFLAGS += -fdiagnostics-color
 endif
 
+### random uid
+RANDOM := 0x$(shell head -c 8 /dev/urandom | xxd -p)
+CXXFLAGS += -D UID_RANDOM=$(RANDOM)
 ### MONITOR_PORT
 ### The port your board is connected to. Using an '*' tries all the ports and finds the right one.
 MONITOR_PORT      = /dev/ttyACM*

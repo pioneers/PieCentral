@@ -1015,9 +1015,7 @@ ifndef MCU_FLAG_NAME
 else
     $(call show_config_variable,MCU_FLAG_NAME,[USER])
 endif
-# KARTHIK SHANMUGAM RANDOM UID
-RANDOM := $(shell /bin/bash -c 'echo $$RANDOM')
-CPPFLAGS += -D UID_RANDOM=$(RANDOM)
+
 # Using += instead of =, so that CPPFLAGS can be set per sketch level
 CPPFLAGS      += -$(MCU_FLAG_NAME)=$(MCU) -DF_CPU=$(F_CPU) -DARDUINO=$(ARDUINO_VERSION) $(ARDUINO_ARCH_FLAG) -D__PROG_TYPES_COMPAT__ \
         -I$(ARDUINO_CORE_PATH) -I$(ARDUINO_VAR_PATH)/$(VARIANT) \

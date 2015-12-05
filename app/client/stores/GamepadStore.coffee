@@ -36,7 +36,7 @@ Action Creators (and handled inside)
 ###
 if Environment.isBrowser # check if we're running in the browser
   GamepadActionCreators = require('../actions/GamepadActionCreators')
-  GamepadActionCreators.setUpdateInterval(200) # poll every 200 ms (~5Hz)
+  GamepadActionCreators.setUpdateInterval(50) # poll every 50 ms (~20Hz)
 ### End Non-Flux part ###
 
 module.exports = GamepadStore

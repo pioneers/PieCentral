@@ -15,6 +15,7 @@ if 'HIBIKE_SIMULATOR' in os.environ and os.environ['HIBIKE_SIMULATOR'] in ['1', 
 else:
     h = hibike.Hibike()
 connectedDevices = h.getEnumeratedDevices()
+print connectedDevices
 # TODO: delay should not always be 20
 connectedDevices = [(device, 20) for (device, device_type) in connectedDevices]
 h.subToDevices(connectedDevices)
@@ -26,7 +27,7 @@ mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 def get_all_data(connectedDevices):
     all_data = {}
     for t in connectedDevices:
-        all_data[t[0]] = h.getData(t[0],"dataUpdate")
+        all_data[str(t[0])] = h.getData(t[0],"dataUpdate")
     return all_data
 
 # Called on start of student code, finds and configures all the connected motors
@@ -42,8 +43,6 @@ def initialize_motors():
         # default name for motors is motor0, motor1, motor2, etc
         grizzly_motor = Grizzly(addrs[index])
         grizzly_motor.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_COAST)
-        grizzly_motor.limit_acceleration(142)
-        grizzly_motor.limit_current(10)
         grizzly_motor.set_target(0)
 
         name_to_grizzly['motor' + str(index)] = grizzly_motor
@@ -62,13 +61,14 @@ def stop_motors():
 
 # A process for sending the output of student code to the UI
 def log_output(stream):
+    #TODO: figure out a way to limit speed of sending messages, so
+    # ansible is not overflowed by printing too fast
     for line in stream:
         ansible.send_message('UPDATE_CONSOLE', {
             'console_output': {
                 'value': line
             }
         })
-        time.sleep(0.5) # need delay to prevent flooding ansible
 
 def msg_handling(msg):
     global robot_status, student_proc, console_proc
@@ -91,15 +91,16 @@ def msg_handling(msg):
     elif msg_type == 'gamepad':
         mc.set('gamepad', content)
 
-sensor_data_last_sent = 0
-def send_sensor_data(data):
-    global sensor_data_last_sent
-    # HACK to avoid spamming UI. Should really send only when sensors update
-    if time.time() < sensor_data_last_sent + 1:
+peripheral_data_last_sent = 0
+def send_peripheral_data(data):
+    global peripheral_data_last_sent
+    # TODO: This is a hack. Should put this into a separate process
+    if time.time() < peripheral_data_last_sent + 1:
         return
-    sensor_data_last_sent = time.time()
+    peripheral_data_last_sent = time.time()
 
-    for device_id, value in all_sensor_data.items():
+    # Send sensor data
+    for device_id, value in data.items():
         ansible.send_message('UPDATE_PERIPHERAL', {
             'peripheral': {
                 'name': 'sensor_{}'.format(device_id),
@@ -108,8 +109,6 @@ def send_sensor_data(data):
                 'id': device_id
                 }
             })
-
-
 
 while True:
     msg = ansible.recv()
@@ -131,7 +130,7 @@ while True:
 
     # Update sensor values, and send to UI
     all_sensor_data = get_all_data(connectedDevices)
-    send_sensor_data(all_sensor_data)
+    send_peripheral_data(all_sensor_data)
     mc.set('sensor_values', all_sensor_data)
 
     # Send motor values to UI, if the robot is running
@@ -139,7 +138,10 @@ while True:
         name_to_value = mc.get('motor_values') or {}
         for name in name_to_value:
             grizzly = name_to_grizzly[name]
-            grizzly.set_target(name_to_value[name])
+            try:
+                grizzly.set_target(name_to_value[name])
+            except:
+                stop_motors()
             ansible.send_message('UPDATE_PERIPHERAL', {
                 'peripheral': {
                     'name': name,
@@ -149,5 +151,4 @@ while True:
                 }
             })
 
-    time.sleep(0.05)
-
+    time.sleep(0.02)

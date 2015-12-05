@@ -9,6 +9,7 @@ import threading
 import struct
 import pdb
 import random
+from collections import namedtuple
 from threading import Timer
 try:
     from Queue import Queue
@@ -80,8 +81,6 @@ class Hibike():
             list_of_rows = [row for row in reader]
             list_of_rows.pop(0)
             for row in list_of_rows:
-                self.config[int(row[0], 16)] = {row[i]:i-2 for i in range(len(row))[2:] if row[i]}
-                self.config[int(row[0], 16)]["deviceName"] = row[1]
                 self.deviceTypes[int(row[0], 16)] = DeviceType(row)
         except IOError:
             print("ERROR: Hibike config filed does not exist.")
@@ -168,20 +167,20 @@ class Hibike():
             print("Bad UID")
             return None
         if type(param) is str:
-            if param not in self.config[self.getDeviceType(uid)].keys():
+            if param not in self.deviceTypes[self.getDeviceType(uid)]:
                 print("Bad param")
                 return None
-            param = self.config[self.getDeviceType(uid)][param]
+            param = self.deviceTypes[self.getDeviceType(uid)].paramIDs[param]
         return self.context[uid].getData(param)
 
 
     def getDeviceName(self, devicetype):
         """Returns the name of the device associated with deviceType 
         """
-        if deviceType not in self.config.keys():
+        if deviceType not in self.deviceTypes:
             print("Bad deviceType of uid")
             return None
-        return self.config[deviceType]["deviceName"]
+        return self.devicetypes[deviceType].deviceName
 
 
     def getDelay(self, uid):
@@ -200,11 +199,10 @@ class Hibike():
         Returns none if deviceType of uid is invalid 
         """
         deviceType = self.getDeviceType(uid)
-        if deviceType not in self.config.keys():
+        if deviceType not in self.devicetypes:
             print("Bad deviceType of uid")
             return None
-        params = self.config[deviceType].keys()
-        params.remove["deviceName"]
+        params = self.devicetypes[deviceType].params
         return params
 
 
@@ -216,10 +214,10 @@ class Hibike():
             print("Bad UID")
             return None
         if type(param) is str:
-            if param not in self.config[self.getDeviceType(uid)].keys():
+            if param not in self.deviceTypes[self.getDeviceType(uid)]:
                 print("Bad param")
                 return None
-            param = self.config[self.getDeviceType(uid)][param]
+            param = self.deviceTypes[self.getDeviceType(uid)].paramIDs[param]
         self.deviceUpdate(uid, param, value)
 
 
@@ -375,7 +373,7 @@ class HibikeThread(threading.Thread):
                 self.hibike.uidToSerial[uid] = serialPort
 
                 if uid not in self.context:
-                    if deviceType not in self.hibike.config.keys():
+                    if deviceType not in self.hibike.deviceTypes:
                         print("Unknown Device Type: %s" % (str(deviceType),))
                         return msgID
                     self.context[uid] = HibikeDevice(uid, self.hibike.deviceTypes[deviceType])
@@ -404,16 +402,26 @@ class DeviceType():
     """
 
     def __init__(self, csv_row):
-        self.deviceID   = int(csv_row[0], 16)
-        self.deviceName = csv_row[1]
-        self.params     = [param for param in csv_row[2:] if param != '']
-        self.paramIDs   = {self.params[index]: index for index in range(len(self.params))}
+        self.deviceID       = int(csv_row[0], 16)
+        self.deviceName     = csv_row[1]
+        self.dataFormat     = csv_row[2]
+        self.scalingFactors = [float(item.strip()) for item in csv_row[3].split(",") if item.strip()]
+        self.machineNames   = [item.strip() for item in csv_row[4].split(",") if item.strip()]
+        
+        self.dataTuple = namedtuple(self.deviceName, self.machineNames)
+
+        self.humanNames     = [item.strip() for item in csv_row[5].split(",") if item.strip()]
+        self.params         = [param for param in csv_row[6:] if param != '']
+        self.paramIDs       = {self.params[index]: index for index in range(len(self.params))}
 
     def __contains__(self, item):
         return item < len(self.params) or item in self.paramIDs
 
     def __str__(self):
         deviceType = "DeviceType %d: %s\n" % (self.deviceID, self.deviceName)
+        deviceType += "  Data Format:\n"
+        deviceType += "    '%s'\n    %s\n    %s\n    %s\n" % (self.dataFormat, self.scalingFactors, self.machineNames, self.humanNames)
+        deviceType += "  Params:\n"
         deviceType += "\n".join(["    %s" % param for param in self.params])
         return deviceType
 
@@ -435,7 +443,7 @@ class HibikeDevice:
         deviceStr += "    subcription: %dms @ %f\n" % (self.delay
             , self.lastUpdate)
         for i in range(len(self.params)):
-            value = self.params[i][0]
+            value = self.getData(i)
             if type(value) in (str, bytes, bytearray):
                 value = binascii.hexlify(value)
             else:
@@ -462,8 +470,17 @@ class HibikeDevice:
     def getData(self, param):
         data = self.params[param][0]
         if type(data) in (str, bytes, bytearray):
-            total = 0
-            for byte in list(bytearray(data)):
-                total = (total << 8) | byte
-            data = total
+            data = self.dataToTuple(data)
         return data
+
+    def dataToTuple(self, data):
+        unpacked = struct.unpack(self.deviceType.dataFormat, data)
+        scaled = [field / scale if scale != 1 else field for field, scale in zip(unpacked, self.deviceType.scalingFactors)]
+        return self.deviceType.dataTuple(*scaled)
+
+
+    def dataToInt(self, data):
+        total = 0
+        for byte in list(bytearray(data)):
+            total = (total << 8) | byte
+        return total

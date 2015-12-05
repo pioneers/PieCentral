@@ -3,6 +3,7 @@ import memcache, ansible, hibike
 from grizzly import *
 import usb
 import os
+<<<<<<< HEAD
 import hashlib
 from shutil import copyfile
 
@@ -12,6 +13,9 @@ fileName_old = "CustomID_Old.txt"
 txt = open(fileName) 
 txt_old = open(fileName_old)
 idName ={} #dictionary of [custom name] : ID
+=======
+import datetime
+>>>>>>> 6f8f68fd160db0fd86311694e394bc0f42f3b19d
 
 # Useful motor mappings
 name_to_grizzly, name_to_values, name_to_ids = {}, {}, {}
@@ -24,6 +28,7 @@ if 'HIBIKE_SIMULATOR' in os.environ and os.environ['HIBIKE_SIMULATOR'] in ['1', 
 else:
     h = hibike.Hibike()
 connectedDevices = h.getEnumeratedDevices()
+print connectedDevices
 # TODO: delay should not always be 20
 connectedDevices = [(device, 20) for (device, device_type) in connectedDevices]
 h.subToDevices(connectedDevices)
@@ -35,7 +40,7 @@ mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 def get_all_data(connectedDevices):
     all_data = {}
     for t in connectedDevices:
-        all_data[t[0]] = h.getData(t[0],"dataUpdate")
+        all_data[str(t[0])] = h.getData(t[0],"dataUpdate")
     return all_data
 
 # Called on start of student code, finds and configures all the connected motors
@@ -51,8 +56,6 @@ def initialize_motors():
         # default name for motors is motor0, motor1, motor2, etc
         grizzly_motor = Grizzly(addrs[index])
         grizzly_motor.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_COAST)
-        grizzly_motor.limit_acceleration(142)
-        grizzly_motor.limit_current(10)
         grizzly_motor.set_target(0)
 
         name_to_grizzly['motor' + str(index)] = grizzly_motor
@@ -99,6 +102,7 @@ def msg_handling(msg):
         stop_motors()
         robot_status = 0
     elif msg_type == 'gamepad':
+        mc.set('time', {'time': datetime.datetime.now()})
         mc.set('gamepad', content)
 
 peripheral_data_last_sent = 0
@@ -110,7 +114,7 @@ def send_peripheral_data(data):
     peripheral_data_last_sent = time.time()
 
     # Send sensor data
-    for device_id, value in all_sensor_data.items():
+    for device_id, value in data.items():
         ansible.send_message('UPDATE_PERIPHERAL', {
             'peripheral': {
                 'name': 'sensor_{}'.format(device_id),
@@ -125,7 +129,7 @@ while True:
     # Handle any incoming commands from the UI
     if msg:
         msg_handling(msg)
-
+    
     # Send whether or not robot is executing code
     ansible.send_message('UPDATE_STATUS', {
         'status': {'value': robot_status}
@@ -148,7 +152,10 @@ while True:
         name_to_value = mc.get('motor_values') or {}
         for name in name_to_value:
             grizzly = name_to_grizzly[name]
-            grizzly.set_target(name_to_value[name])
+            try:
+                grizzly.set_target(name_to_value[name])
+            except:
+                stop_motors()
             ansible.send_message('UPDATE_PERIPHERAL', {
                 'peripheral': {
                     'name': name,
@@ -196,5 +203,4 @@ while True:
 
 
 
-    time.sleep(0.05)
-
+    time.sleep(0.02)

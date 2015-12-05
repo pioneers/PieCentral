@@ -2,12 +2,13 @@
  * A component representing a motor.
  * Props:
  *   id: a unique id string
- *   value: the speed, from 0 to 100.
+ *   value: the speed, from -100 to 100.
  *   disconnected: Boolean indicator if this motor is disconnected
  */
 
 import React from 'react';
 import {Label, ProgressBar} from 'react-bootstrap';
+// https://react-bootstrap.github.io/components.html
 
 var Motor = React.createClass({
   propTypes: {
@@ -27,7 +28,8 @@ var Motor = React.createClass({
         }
         </h4>
       </div>
-      <ProgressBar now={this.props.value}></ProgressBar>
+      <ProgressBar now={(this.props.value+100)/2} />
+      // Center Bar at 0
     </div>
     );
   }

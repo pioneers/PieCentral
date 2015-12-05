@@ -12,9 +12,9 @@ import random
 from collections import namedtuple
 from threading import Timer
 try:
-    from Queue import Queue
+    from Queue import Queue, Full
 except ImportError:
-    from queue import Queue
+    from queue import Queue, Full
 import csv
 import pdb
 
@@ -27,7 +27,7 @@ smartDeviceBoards = ['Sparkfun Pro Micro', 'Intel Corp. None ', 'ttyACM0', 'ttyA
 
 
 class Hibike():
-    def __init__(self, contextFile=os.path.join(os.path.dirname(__file__), 'hibikeDevices.csv'), timeout=5.0):
+    def __init__(self, contextFile=os.path.join(os.path.dirname(__file__), 'hibikeDevices.csv'), timeout=5.0, maxsize=100):
         """Enumerate through serial ports with subRequest(0)
         Update self.context as we iterate through with devices
         Build a list self.serialPorts of (uid, port, serial) tuples
@@ -40,8 +40,7 @@ class Hibike():
         self.uidToSerial = {}     # {uid: serPort}
         self.serialToUID = {}     # {serPort: (uid, serialObj)}
         self.timeout = timeout
-        self.sendBuffer = Queue()
-        
+        self.sendBuffer = Queue(maxsize=maxsize)
         self._readContextFile(contextFile)
         self.thread = self._spawnHibikeThread()
         self._enumerateSerialPorts()
@@ -113,7 +112,11 @@ class Hibike():
                     self.serialToUID[ser] = (None, serial.Serial(ser, 115200))
                 #msg = hm.make_sub_request(delay)
                 #print("enumerating something")
-                self.sendBuffer.put((self.serialToUID[ser][1], hm.make_ping()))
+                try:
+                    self.sendBuffer.put((self.serialToUID[ser][1], hm.make_ping()), block=False)
+                except Full:
+                    print("QUEUE FULL!!! FLUSHING")
+                    self.sendBuffer.queue.clear()
                 #hm.send(self.serialToUID[ser][1], msg)
             except (serial.serialutil.SerialException, OSError):
                 pass
@@ -174,13 +177,13 @@ class Hibike():
         return self.context[uid].getData(param)
 
 
-    def getDeviceName(self, devicetype):
+    def getDeviceName(self, deviceType):
         """Returns the name of the device associated with deviceType 
         """
         if deviceType not in self.deviceTypes:
             print("Bad deviceType of uid")
             return None
-        return self.devicetypes[deviceType].deviceName
+        return self.deviceTypes[deviceType].deviceName
 
 
     def getDelay(self, uid):
@@ -253,8 +256,12 @@ class Hibike():
         """
         if uid not in self.getUIDs():
             print("subRequest() failed... uid not in serialPorts")
-            return None            
-        self.sendBuffer.put((self.serialToUID[self.uidToSerial[uid]][1], msg))
+            return None
+        try:         
+            self.sendBuffer.put((self.serialToUID[self.uidToSerial[uid]][1], msg), block=False)
+        except Full:
+            print("QUEUE FULL!!! FLUSHING")
+            self.sendBuffer.queue.clear()
         return msg.getmessageID()
 
 
@@ -300,7 +307,7 @@ class HibikeThread(threading.Thread):
         # Optimize to only wake on something triggering
         while 1:
             self.handleInput(5)
-            self.handleOutput(5)
+            self.handleOutput(20)
             time.sleep(0.001)
 
     def handleInput(self, n):
@@ -433,8 +440,9 @@ class HibikeDevice:
     def __init__(self, deviceID, deviceType):
         self.delay = 0
         self.lastUpdate = 0
-        self.params = [(0, -1)]*len(deviceType.params)
         self.deviceType = deviceType
+        emptyTuple = self.deviceType.dataTuple(*([0] * len(self.deviceType.dataTuple._fields)))
+        self.params = [(emptyTuple, -1)] + [(0, -1)]*(len(deviceType.params) - 1)
         self.deviceID = deviceID
 
     def __str__(self):

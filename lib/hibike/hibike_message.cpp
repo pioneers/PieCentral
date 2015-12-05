@@ -11,48 +11,74 @@ uint8_t checksum(uint8_t data[], int length) {
 
 int send_message(message_t *msg) {
   uint8_t data[msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES];
+  // TODO karthik-shanmugam: check buffer size
+  uint8_t cobs_buf[2 + msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES + 1];
   message_to_byte(data, msg);
   data[msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES] = checksum(data, msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
-  uint8_t written = Serial.write(data, msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES);
-  if (written != msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES) {
+  
+  // cobs encoding, leading 0 to signal start of packet and then a length byte
+  cobs_buf[0] = 0x00;
+  size_t cobs_len = cobs_encode(&cobs_buf[2], data, msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES);
+  cobs_buf[1] = (byte) cobs_len;
+  uint8_t written = Serial.write(cobs_buf, 2 + cobs_len);
+  if (written != 2 + cobs_len) {
     return -1;
   }
   return 0;
 }
 
-
-// Returns 0 on success, -1 on error (ex. no message)
-// If checksum does not match, empties the incoming buffer. 
 int read_message(message_t *msg) {
-  if (!Serial.available()) {
-    return -1;
-  }
+  uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES];
+  // TODO karthik-shanmugam: check buffer size
+  uint8_t cobs_buf[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES + 1];
 
-  uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES]; 
-  Serial.readBytes((char*) data, MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
-  uint8_t length = data[MESSAGEID_BYTES];
-  Serial.readBytes((char*) data+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES, length);
-
-  uint8_t chk = checksum(data, length+
-    MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
-  int expected_chk_ind = MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+length;
-  Serial.readBytes((char*) data+expected_chk_ind, 1);
-
-  if (chk != data[expected_chk_ind]) {
-    // Empty incoming buffer
-    while (Serial.available() > 0) {
-      Serial.read();
+  // find the start of packet
+  int last_byte_read = -1;
+  while (Serial.available()) {
+    last_byte_read = Serial.read();
+    // Serial.write(last_byte_read);
+    if (last_byte_read == 0) {
+      break;
     }
+  }
+
+  // no start of packet found
+  if (last_byte_read != 0) {
     return -1;
   }
 
-  msg->messageID = data[0];
-  msg->payload_length = data[MESSAGEID_BYTES];
-  for (int i = 0; i < length; i++){
-    msg->payload[i] = data[i+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES];
+  // no packet length found
+  if (Serial.available() == 0 || Serial.peek() == 0) {
+    // Serial.write(69 + Serial.peek());
+    return -1;
   }
+  size_t cobs_len = Serial.read();
+  size_t read_len = Serial.readBytesUntil(0x00, (char *)cobs_buf, cobs_len);
+  if (cobs_len != read_len || cobs_decode(data, cobs_buf, cobs_len) < 3) {
+    // Serial.write(99);
+    // Serial.write(cobs_len);
+    // Serial.write(read_len);
+    // Serial.write(cobs_decode(data, cobs_buf, cobs_len));
+    // Serial.write(cobs_buf, cobs_len);
+    // Serial.write(data, cobs_len-1);
 
+    return -1;
+  }
+  uint8_t messageID = data[0];
+  uint8_t payload_length = data[1];
+  uint8_t expected_chk = checksum(data, payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
+  uint8_t received_chk = data[MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+payload_length];
+  
+  // no need to empty the buffer with cobs
+  if (received_chk != expected_chk) {
+    // Serial.write(88);
+    return -1;
+  }
+  msg->messageID = messageID;
+  msg->payload_length = payload_length;
+  memcpy(msg->payload, &data[MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES], payload_length);
   return 0;
+
 }
 
 int send_subscription_response(hibike_uid_t* uid, uint16_t delay) {

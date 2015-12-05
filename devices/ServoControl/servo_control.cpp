@@ -1,30 +1,30 @@
-#include "example_device.h"
+#include "servo_control.h"
 #include <Servo.h>
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
-  7,                      // Device Type
+  SERVO_CONTROL,                      // Device Type
   0,                      // Year
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
 
 message_t hibikeBuff;
-Servo servo0, servo1, servo2, servo3;
 
-Servo servos[] = {servo0, servo1, servo2, servo3};
-int params[NUM_PARAMS];
+//int params[NUM_PARAMS];
+Servo servos[NUM_PINS];
+
 
 uint64_t prevTime, currTime, heartbeat;
+uint8_t param, servo;
 uint32_t value;
 uint16_t subDelay;
-uint8_t data, reading_offset, param;
+uint8_t pins[NUM_PINS] = {IN_0, IN_1, IN_2, IN_3};
 bool led_enabled;
 
 void setup() {
   Serial.begin(115200);
   prevTime = millis();
   subDelay = 0;
-  memset(&params, 0, sizeof(params[0])*NUM_PARAMS);
 
 
   // Setup Error LED
@@ -33,20 +33,17 @@ void setup() {
   led_enabled = false;
 
   // Setup sensor input
-  pinMode(IN_PIN, INPUT_PULLUP);
+  for (int i = 0; i < NUM_PINS; i++) {
+    servos[i].attach(pins[i]);
+  }
+
   subDelay = 0;
   heartbeat = 0;
-
-  // Setup servo outputs
-  servo0.attach(6);
-  servo1.attach(9);
-  servo2.attach(10);
-  servo3.attach(11);
 }
+
 
 void loop() {
   // Read sensor
-  data = digitalRead(IN_PIN);
   currTime = millis();
 
   // Check for Hibike packets
@@ -56,9 +53,8 @@ void loop() {
     } else {
       switch (hibikeBuff.messageID) {
         case SUBSCRIPTION_REQUEST:
-          // change subDelay and send SUB_RESP
-          subDelay = payload_to_uint16(hibikeBuff.payload);
-          send_subscription_response(&UID, subDelay);
+          // Unsupported packet
+          toggleLED();
           break;
 
         case SUBSCRIPTION_RESPONSE:
@@ -73,16 +69,24 @@ void loop() {
 
         case DEVICE_UPDATE:
           param = hibikeBuff.payload[0];
+          servo = param - 1;
           value = *((uint32_t*) &hibikeBuff.payload[DEVICE_PARAM_BYTES]);
-          update_param(param, value);
-          send_device_response(param, params[param-1]);
+          if (servo < NUM_PINS) {
+            servos[servo].write(value);
+            send_device_response(param, servos[servo].read());
+          } else {
+            toggleLED();
+          }
           break;
 
         case DEVICE_STATUS:
-          // Unsupported packet
           param = hibikeBuff.payload[0];
-          send_device_response(param, params[param-1]);
-          toggleLED();
+          servo = param -1;
+          if (servo < NUM_PINS) {
+            send_device_response(param, servos[servo].read());
+          } else {
+            toggleLED();
+          }
           break;
 
         case DEVICE_RESPONSE:
@@ -94,7 +98,6 @@ void loop() {
           break;
 
         default:
-        
           // Uh oh...
           toggleLED();
       }
@@ -105,26 +108,9 @@ void loop() {
     heartbeat = currTime;
     toggleLED();
   }
-
-  //Send data update
-  currTime = millis();
-  if ((subDelay > 0) && (currTime - prevTime >= subDelay)) {
-    prevTime = currTime;
-    uint8_t _data[1] = {data};
-    send_data_update(_data, 1);
-  }
 }
 
 
-void update_param(uint8_t param, uint32_t value) {
-  if (param == 0 || param > 4) {
-    toggleLED();
-    return;
-  }
-
-  params[param-1] = value;
-  servos[param-1].write(value);
-}
 
 
 

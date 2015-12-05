@@ -6,7 +6,7 @@
 ### PROJECT_DIR
 ### This is the path to where you have created/cloned your project
 
-PROJECT_DIR       = $(PWD)
+PROJECT_DIR       = $(PWD)/../..
 
 ### AVR_GCC_VERSION
 ### Check if the version is equal or higher than 4.9
@@ -22,6 +22,7 @@ ARDUINO_DIR       = /usr/share/arduino
 
 ### USER_LIB_PATH
 ### Path to where the your project's libraries are stored.
+SKETCH_LIBS = hibike
 USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
 
 ### BOARD_TAG & BOARD_SUB
@@ -31,7 +32,7 @@ USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
 ### For Arduino IDE 1.6.x
 ### Both BOARD_TAG and BOARD_SUB are needed. They must be set to the board you are currently using. (i.e BOARD_TAG = uno, mega, etc. & BOARD_SUB = atmega2560, etc.)
 ### Note: for the Arduino Uno, only BOARD_TAG is mandatory and BOARD_SUB can be equal to anything
-BOARD_TAG         = uno
+BOARD_TAG         = mega2560
 BOARD_SUB         = atmega328
 
 
@@ -61,7 +62,6 @@ CXXFLAGS         = -pedantic -Wall -Wextra
 ifeq "$(AVR_GCC_VERSION)" "1"
     CXXFLAGS += -fdiagnostics-color
 endif
-
 ### random uid
 RANDOM := 0x$(shell head -c 8 /dev/urandom | xxd -p)
 CXXFLAGS += -D UID_RANDOM=$(RANDOM)

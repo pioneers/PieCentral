@@ -11,6 +11,7 @@ messageTypes = {
   "DeviceUpdate" :         0x03,
   "DeviceStatus" :         0x04,
   "DeviceResponse" :       0x05,
+  "Ping" :                 0x06,
   "Error" :                0xff
 }
 
@@ -110,7 +111,9 @@ def send(serial_conn, message):
   m_buff = message.toByte()
   chk = checksum(m_buff)
   m_buff.append(chr(chk))
-  serial_conn.write(m_buff)
+  encoded = cobs_encode(m_buff)
+  out_buf = bytearray([0x00, len(encoded)]) + encoded
+  serial_conn.write(out_buf)
 
 
 def make_sub_request(delay):
@@ -141,6 +144,12 @@ def make_error(error_code):
   message = HibikeMessage(messageTypes["Error"], payload)
   return message
 
+def make_ping():
+  """ Makes and returns Ping message."""
+  payload = bytearray()
+  message = HibikeMessage(messageTypes["Ping"], payload)
+  return message
+
 
 # constructs a new object Message by continually reading from input
 # Uses dictionary to figure out length of data to know how many bytes to read
@@ -149,21 +158,61 @@ def make_error(error_code):
     # -1 if checksum does not match
     # Otherwise returns a new HibikeMessage with message contents
 def read(serial_conn):
-  if serial_conn.inWaiting() == 0:
+  
+  # deal with cobs encoding
+  while serial_conn.inWaiting() > 0:
+    if struct.unpack('<B', serial_conn.read())[0] == 0:
+      break
+  else:
     return None
-  message = bytearray()
+  message_size = struct.unpack('<B', serial_conn.read())[0]
+  encoded_message = serial_conn.read(message_size)
+  message = cobs_decode(encoded_message)
+  
 
-  messageID = struct.unpack('<B', serial_conn.read())[0]
-  message.append(messageID)
+  if len(message) < 2:
+    return None
+  messageID, payloadLength = struct.unpack('<BB', message[:2])
+  if len(message) < 2 + payloadLength + 1:
+    return None
+  payload = message[2:2 + payloadLength]
 
-  payloadLength = struct.unpack('<B', serial_conn.read())[0]
-  message.append(payloadLength)
-  payload = serial_conn.read(payloadLength)
-  message.extend(payload)
-
-  chk = struct.unpack('<B', serial_conn.read())[0]
-  if chk != checksum(message):
-    print(chk, checksum(message), message)
+  chk = struct.unpack('<B', message[2+payloadLength:2+payloadLength+1])[0]
+  if chk != checksum(message[:-1]):
+    print(chk, checksum(message[:-1]), list(message))
     return -1
 
   return HibikeMessage(messageID, payload)
+
+# cobs helper functions
+def cobs_encode(data):
+  output = bytearray()
+  curr_block = bytearray()
+  for byte in data:
+    if byte:
+      curr_block.append(byte)
+      if len(curr_block) == 254:
+        output.append(1 + len(curr_block))
+        output.extend(curr_block)
+        curr_block = bytearray()
+    else:
+      output.append(1 + len(curr_block))
+      output.extend(curr_block)
+      curr_block = bytearray()
+  output.append(1 + len(curr_block))
+  output.extend(curr_block)
+  return output
+
+def cobs_decode(data):
+  output = bytearray()
+  index = 0
+  while (index < len(data)):
+    block_size = ord(data[index]) - 1
+    index += 1
+    if index + block_size > len(data):
+      return bytearray()
+    output.extend(data[index:index + block_size])
+    index += block_size
+    if block_size + 1 < 255 and index < len(data):
+      output.append(0)
+  return output

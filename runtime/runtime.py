@@ -3,19 +3,15 @@ import memcache, ansible, hibike
 from grizzly import *
 import usb
 import os
-<<<<<<< HEAD
 import hashlib
 from shutil import copyfile
+import datetime
 
-#for custom name
 fileName = "CustomId.txt"
 fileName_old = "CustomID_Old.txt"
 txt = open(fileName) 
 txt_old = open(fileName_old)
 idName ={} #dictionary of [custom name] : ID
-=======
-import datetime
->>>>>>> 6f8f68fd160db0fd86311694e394bc0f42f3b19d
 
 # Useful motor mappings
 name_to_grizzly, name_to_values, name_to_ids = {}, {}, {}

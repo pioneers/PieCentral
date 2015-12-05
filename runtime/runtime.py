@@ -44,8 +44,6 @@ def initialize_motors():
         # default name for motors is motor0, motor1, motor2, etc
         grizzly_motor = Grizzly(addrs[index])
         grizzly_motor.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_COAST)
-        #grizzly_motor.limit_acceleration(142)
-        #grizzly_motor.limit_current(2)
         grizzly_motor.set_target(0)
 
         name_to_grizzly['motor' + str(index)] = grizzly_motor

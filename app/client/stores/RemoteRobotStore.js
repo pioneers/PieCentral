@@ -161,8 +161,7 @@ RemoteRobotStore.dispatchToken = AppDispatcher.register((action) => {
       break;
     case ActionTypes.CLEAR_CONSOLE:
       handleClearConsole(action);
-      previousActionType = action.type;
-      break;  
+      break;
     case 'StopCheck':
       handleStopCheck(action);
       previousActionType = action.type;

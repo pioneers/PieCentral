@@ -28,9 +28,18 @@ var ConsoleOutput = React.createClass({
           </ButtonGroup>
         </ButtonToolbar>
         <Panel collapsible expanded={this.state.open}>
-          <div style={{maxHeight: '300px', overflowY: 'auto'}}>
-          { this.state.output.map((line, index)=><pre><code>{line}</code></pre>) }
-          </div>
+          <pre style={{position: 'relative', height: '300px'}}>
+            <div style={{
+                position: 'absolute',
+                bottom: '0',
+                maxHeight: '300px',
+                overflowY: 'auto',
+                padding: '5px',
+                width: '99%'
+            }}>
+              { this.state.output.map((line, index)=><code key={index}>{line}</code>) }
+            </div>
+          </pre>
         </Panel>
       </div>
     );

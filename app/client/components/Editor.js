@@ -5,6 +5,7 @@ import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
 import EditorFileTransfer from './EditorFileTransfer';
 import EditorFileCreateDelete from './EditorFileCreateDelete';
+import Mousetrap from 'mousetrap';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
 import {
@@ -25,11 +26,21 @@ var Editor = React.createClass({
     this.setState(EditorStore.getEditorData());
   },
   componentDidMount() {
+    Mousetrap.prototype.stopCallback = function(e, element, combo) {
+      return false; // Always respond to keyboard combos
+    };
+    Mousetrap.bind(['mod+s'], (e)=>{
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+      this.saveCode();
+    });
     EditorStore.on('change', this.updateEditorData);
     EditorStore.on('error', this.alertError);
     EditorActionCreators.getCode(this.state.filename);
   },
   componentWillUnmount() {
+    Mousetrap.unbind(['mod+s']);
     EditorStore.removeListener('change', this.updateEditorData);
     EditorStore.removeListener('error', this.alertError);
   },

@@ -42,7 +42,7 @@ export default React.createClass({
         </Navbar.Header>
         <Navbar.Collapse>
           <Navbar.Text>
-            <Label bsStyle="success">
+            <Label bsStyle="success" id="battery-indicator">
               Battery Level: {this.state.battery}
             </Label>
           </Navbar.Text>
@@ -51,7 +51,8 @@ export default React.createClass({
             <ButtonToolbar>
               <Button
                 bsStyle="info"
-                onClick={ this.props.startTour }>
+                onClick={ this.props.startTour }
+                id="tour-button">
                 <Glyphicon glyph="info-sign" />
               </Button>
             </ButtonToolbar>

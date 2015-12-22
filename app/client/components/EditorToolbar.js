@@ -142,15 +142,17 @@ var EditorToolbar = React.createClass({
             </Button>
           </Modal.Footer>
         </Modal>
-        <ButtonToolbar>
-          <ButtonGroup>
+        <ButtonToolbar id="editor-toolbar">
+          <ButtonGroup id="choose-file-button">
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip>Choose file.</Tooltip>}>
+              overlay={
+                <Tooltip id="choose-file-tooltip">Choose file</Tooltip>}>
               <DropdownButton
                 id="FileSelectorDropdown"
                 bsSize="small"
-                title={this.props.filename}
+                title={
+                  this.props.filename + (this.props.unsavedChanges ? '*' : '')}
                 onClick={EditorActionCreators.getFilenames}>
                 {_.map(this.props.filenames, (fname)=>{
                   return (
@@ -164,38 +166,38 @@ var EditorToolbar = React.createClass({
               </DropdownButton>
             </OverlayTrigger>
           </ButtonGroup>
-          <ButtonGroup>
+          <ButtonGroup id="file-operations-buttons">
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip>Save.</Tooltip>}>
+              overlay={<Tooltip id="save-tooltip">Save</Tooltip>}>
               <Button onClick={this.props.saveCode} bsSize="small">
                 <Glyphicon glyph="floppy-disk" />
               </Button>
             </OverlayTrigger>
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip>Open.</Tooltip>}>
+              overlay={<Tooltip id="open-tooltip">Open</Tooltip>}>
               <Button onClick={this.openCreateModal} bsSize="small">
                 <Glyphicon glyph="file" />
               </Button>
             </OverlayTrigger>
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip>Delete.</Tooltip>}>
+              overlay={<Tooltip id="delete-tooltip">Delete</Tooltip>}>
               <Button onClick={this.deleteFile} bsSize="small">
                 <Glyphicon glyph="trash" />
               </Button>
             </OverlayTrigger>
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip>Upload.</Tooltip>}>
+              overlay={<Tooltip id="upload-tooltip">Upload</Tooltip>}>
               <Button onClick={this.openUploadModal} bsSize="small">
                 <Glyphicon glyph="upload" />
               </Button>
             </OverlayTrigger>
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip>Download.</Tooltip>}>
+              overlay={<Tooltip id="download-tooltip">Download</Tooltip>}>
               <Button
                 href={'/api/editor/download?filename=' + this.props.filename}
                 bsSize="small">
@@ -203,10 +205,10 @@ var EditorToolbar = React.createClass({
               </Button>
             </OverlayTrigger>
           </ButtonGroup>
-          <ButtonGroup>
+          <ButtonGroup id="code-execution-buttons">
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip>Run</Tooltip>}>
+              overlay={<Tooltip id="run-tooltip">Run</Tooltip>}>
               <Button
                 onClick={this.startRobot}
                 bsSize="small"
@@ -217,7 +219,7 @@ var EditorToolbar = React.createClass({
             </OverlayTrigger>
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip>Stop</Tooltip>}>
+              overlay={<Tooltip id="stop-tooltip">Stop</Tooltip>}>
               <Button
                 onClick={this.stopRobot}
                 bsSize="small"
@@ -228,7 +230,7 @@ var EditorToolbar = React.createClass({
             </OverlayTrigger>
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip>Toggle Console</Tooltip>}>
+              overlay={<Tooltip id="toggle-tooltip">Toggle Console</Tooltip>}>
               <Button
                 onClick={this.props.toggleConsole}
                 bsSize="small">
@@ -237,7 +239,7 @@ var EditorToolbar = React.createClass({
             </OverlayTrigger>
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip>Clear Console</Tooltip>}>
+              overlay={<Tooltip id="clear-tooltip">Clear Console</Tooltip>}>
               <Button
                 onClick={this.props.clearConsole}
                 bsSize="small">

@@ -15,7 +15,9 @@ import {
   Input,
   ListGroup,
   ListGroupItem,
-  Glyphicon
+  Glyphicon,
+  OverlayTrigger,
+  Tooltip
 } from 'react-bootstrap';
 import _ from 'lodash';
 
@@ -142,56 +144,88 @@ var EditorToolbar = React.createClass({
         </Modal>
         <ButtonToolbar>
           <ButtonGroup>
-            <DropdownButton
-              id="FileSelectorDropdown"
-              bsSize="small"
-              title={this.props.filename}
-              onClick={EditorActionCreators.getFilenames}>
-              {_.map(this.props.filenames, (fname)=>{
-                return (
-                  <MenuItem key={fname} onClick={()=>{
-                    this.props.changeFile(fname);
-                  }}>
-                    {fname}
-                  </MenuItem>
-                );
-              })}
-            </DropdownButton>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>Choose file.</Tooltip>}>
+              <DropdownButton
+                id="FileSelectorDropdown"
+                bsSize="small"
+                title={this.props.filename}
+                onClick={EditorActionCreators.getFilenames}>
+                {_.map(this.props.filenames, (fname)=>{
+                  return (
+                    <MenuItem key={fname} onClick={()=>{
+                      this.props.changeFile(fname);
+                    }}>
+                      {fname}
+                    </MenuItem>
+                  );
+                })}
+              </DropdownButton>
+            </OverlayTrigger>
           </ButtonGroup>
           <ButtonGroup>
-            <Button onClick={this.props.saveCode} bsSize="small">
-              <Glyphicon glyph="floppy-disk" />
-            </Button>
-            <Button onClick={this.openCreateModal} bsSize="small">
-              <Glyphicon glyph="file" />
-            </Button>
-            <Button onClick={this.deleteFile} bsSize="small">
-              <Glyphicon glyph="trash" />
-            </Button>
-            <Button onClick={this.openUploadModal} bsSize="small">
-              <Glyphicon glyph="upload" />
-            </Button>
-            <Button
-              href={'/api/editor/download?filename=' + this.props.filename}
-              bsSize="small">
-              <Glyphicon glyph="download" />
-            </Button>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>Save.</Tooltip>}>
+              <Button onClick={this.props.saveCode} bsSize="small">
+                <Glyphicon glyph="floppy-disk" />
+              </Button>
+            </OverlayTrigger>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>Open.</Tooltip>}>
+              <Button onClick={this.openCreateModal} bsSize="small">
+                <Glyphicon glyph="file" />
+              </Button>
+            </OverlayTrigger>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>Delete.</Tooltip>}>
+              <Button onClick={this.deleteFile} bsSize="small">
+                <Glyphicon glyph="trash" />
+              </Button>
+            </OverlayTrigger>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>Upload.</Tooltip>}>
+              <Button onClick={this.openUploadModal} bsSize="small">
+                <Glyphicon glyph="upload" />
+              </Button>
+            </OverlayTrigger>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>Download.</Tooltip>}>
+              <Button
+                href={'/api/editor/download?filename=' + this.props.filename}
+                bsSize="small">
+                <Glyphicon glyph="download" />
+              </Button>
+            </OverlayTrigger>
           </ButtonGroup>
           <ButtonGroup>
-            <Button
-              onClick={this.startRobot}
-              bsSize="small"
-              disabled={this.state.status || !this.state.connection}
-              bsStyle="success">
-              <Glyphicon glyph="play" />
-            </Button>
-            <Button
-              onClick={this.stopRobot}
-              bsSize="small"
-              disabled={!this.state.status || !this.state.connection}
-              bsStyle="danger">
-              <Glyphicon glyph="stop" />
-            </Button>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>Run</Tooltip>}>
+              <Button
+                onClick={this.startRobot}
+                bsSize="small"
+                disabled={this.state.status || !this.state.connection}
+                bsStyle="success">
+                <Glyphicon glyph="play" />
+              </Button>
+            </OverlayTrigger>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>Stop</Tooltip>}>
+              <Button
+                onClick={this.stopRobot}
+                bsSize="small"
+                disabled={!this.state.status || !this.state.connection}
+                bsStyle="danger">
+                <Glyphicon glyph="stop" />
+              </Button>
+            </OverlayTrigger>
           </ButtonGroup>
         </ButtonToolbar>
       </div>

@@ -7,10 +7,16 @@ import EditorToolbar from './EditorToolbar';
 import Mousetrap from 'mousetrap';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
+import _ from 'lodash';
+import ConsoleOutput from './ConsoleOutput';
+import RemoteRobotStore from '../stores/RemoteRobotStore';
+import RobotActions from '../actions/RobotActions';
 
 var Editor = React.createClass({
   getInitialState() {
-    return EditorStore.getEditorData();
+    var initState = {showConsole: false, consoleOutput: []};
+    _.merge(initState, EditorStore.getEditorData());
+    return initState;
   },
   updateEditorData() {
     this.setState(EditorStore.getEditorData());
@@ -27,12 +33,14 @@ var Editor = React.createClass({
     });
 
     EditorStore.on('change', this.updateEditorData);
+    RemoteRobotStore.on('change', this.updateConsole);
     EditorStore.on('error', this.alertError);
     EditorActionCreators.getCode(this.state.filename);
   },
   componentWillUnmount() {
     Mousetrap.unbind(['mod+s']);
     EditorStore.removeListener('change', this.updateEditorData);
+    RemoteRobotStore.removeListener('change', this.updateConsole);
     EditorStore.removeListener('error', this.alertError);
   },
   alertError(err) {
@@ -48,8 +56,18 @@ var Editor = React.createClass({
     EditorActionCreators.setFilename(filename);
     EditorActionCreators.getCode(filename);
   },
+  toggleConsole() {
+    this.setState({showConsole: !this.state.showConsole});
+  },
+  updateConsole() {
+    this.setState({consoleOutput: RemoteRobotStore.getConsoleData()});
+  },
+  clearConsole() {
+    RobotActions.clearConsole();
+  },
   render() {
     var unsavedChanges = (this.state.latestSaveCode !== this.state.editorCode);
+    var consoleHeight = 250;
     return (
       <div>
         <EditorToolbar
@@ -58,6 +76,8 @@ var Editor = React.createClass({
           filenames={this.state.filenames}
           changeFile={this.changeFile}
           saveCode={this.saveCode}
+          toggleConsole={this.toggleConsole}
+          clearConsole={this.clearConsole}
         />
         <AceEditor
           mode="python"
@@ -65,10 +85,15 @@ var Editor = React.createClass({
           width="100%"
           ref="CodeEditor"
           name="CodeEditor"
+          height={String(500 - this.state.showConsole * consoleHeight) + 'px'}
           value = { this.state.editorCode }
           onChange={ this.editorUpdate }
           editorProps={{$blockScrolling: Infinity}}
         />
+        <ConsoleOutput
+          show={this.state.showConsole}
+          height={String(consoleHeight) + 'px'}
+          output={this.state.consoleOutput}/>
       </div>
     );
   }

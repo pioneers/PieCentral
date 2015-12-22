@@ -226,6 +226,24 @@ var EditorToolbar = React.createClass({
                 <Glyphicon glyph="stop" />
               </Button>
             </OverlayTrigger>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>Toggle Console</Tooltip>}>
+              <Button
+                onClick={this.props.toggleConsole}
+                bsSize="small">
+                <Glyphicon glyph="console" />
+              </Button>
+            </OverlayTrigger>
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip>Clear Console</Tooltip>}>
+              <Button
+                onClick={this.props.clearConsole}
+                bsSize="small">
+                <Glyphicon glyph="remove" />
+              </Button>
+            </OverlayTrigger>
           </ButtonGroup>
         </ButtonToolbar>
       </div>

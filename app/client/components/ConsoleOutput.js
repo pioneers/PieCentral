@@ -1,5 +1,12 @@
 import React from 'react';
-import { Panel, Accordion, Button, ButtonGroup, ButtonToolbar } from 'react-bootstrap';
+import {
+  Panel,
+  Accordion,
+  Button,
+  ButtonGroup,
+  ButtonToolbar
+} from 'react-bootstrap';
+import _ from 'lodash';
 import RemoteRobotStore from '../stores/RemoteRobotStore';
 import RobotActions from '../actions/RobotActions';
 
@@ -21,10 +28,20 @@ var ConsoleOutput = React.createClass({
       <div>
         <ButtonToolbar>
           <ButtonGroup>
-            <Button bsSize="small" bsStyle='default' onClick={ ()=> this.setState({ open: !this.state.open })}>Click to Show Output</Button>
+            <Button
+              bsSize="small"
+              bsStyle='default'
+              onClick={ ()=> this.setState({ open: !this.state.open })}>
+              Click to Show Output
+            </Button>
           </ButtonGroup>
           <ButtonGroup>
-            <Button bsSize="small" bsStyle='default' onClick={this.clearConsole}>Clear</Button>
+            <Button
+              bsSize="small"
+              bsStyle='default'
+              onClick={this.clearConsole}>
+              Clear
+            </Button>
           </ButtonGroup>
         </ButtonToolbar>
         <Panel collapsible expanded={this.state.open}>
@@ -37,7 +54,9 @@ var ConsoleOutput = React.createClass({
                 padding: '5px',
                 width: '99%'
             }}>
-              { this.state.output.map((line, index)=><code key={index}>{line}</code>) }
+            {_.map(this.state.output, (line, index)=>{
+              return (<code key={index}>{line}</code>);
+            })}
             </div>
           </pre>
         </Panel>

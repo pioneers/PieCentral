@@ -3,20 +3,10 @@ import AceEditor from 'react-ace';
 import brace from 'brace';
 import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
-import EditorFileTransfer from './EditorFileTransfer';
-import EditorFileCreateDelete from './EditorFileCreateDelete';
+import EditorToolbar from './EditorToolbar';
 import Mousetrap from 'mousetrap';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
-import {
-  Button,
-  ButtonGroup,
-  ButtonToolbar,
-  Panel,
-  DropdownButton,
-  MenuItem
-} from 'react-bootstrap';
-import _ from 'lodash';
 
 var Editor = React.createClass({
   getInitialState() {
@@ -53,46 +43,21 @@ var Editor = React.createClass({
   editorUpdate(newVal) {
     EditorActionCreators.editorUpdate(newVal);
   },
-  loadFilenames() {
-    EditorActionCreators.getFilenames();
-  },
-  changeFile(event, eventKey) {
-    EditorActionCreators.setFilename(this.state.filenames[event]);
-    EditorActionCreators.getCode(this.state.filenames[event]);
+  changeFile(filename) {
+    EditorActionCreators.setFilename(filename);
+    EditorActionCreators.getCode(filename);
   },
   render() {
-    var filenameLabel = (this.state.latestSaveCode == this.state.editorCode)
-      ? this.state.filename
-      : this.state.filename + '*';
+    var unsavedChanges = (this.state.latestSaveCode !== this.state.editorCode);
     return (
       <div>
-        <ButtonToolbar>
-          <ButtonGroup>
-            <DropdownButton
-              id="FilenameDropdown"
-              bsSize="small"
-              title={ filenameLabel }
-              onClick={this.loadFilenames}
-              onSelect={this.changeFile}>
-              {this.state.filenames.map((filename, index)=> {
-                if (filename !== this.state.filename)
-                  return (
-                    <MenuItem
-                      key={index}
-                      eventKey={String(index)}>
-                      {filename}
-                    </MenuItem>);
-              })}
-            </DropdownButton>
-          </ButtonGroup>
-          <ButtonGroup>
-            <Button bsSize="small" bsStyle='default' onClick={this.saveCode}>
-              Save
-            </Button>
-          </ButtonGroup>
-          <EditorFileCreateDelete filename={this.state.filename}/>
-          <EditorFileTransfer filename={this.state.filename} />
-        </ButtonToolbar>
+        <EditorToolbar
+          unsavedChanges={unsavedChanges}
+          filename={this.state.filename}
+          filenames={this.state.filenames}
+          changeFile={this.changeFile}
+          saveCode={this.saveCode}
+        />
         <AceEditor
           mode="python"
           theme="monokai"

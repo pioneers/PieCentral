@@ -42,14 +42,13 @@ export default React.createClass({
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
-          <Nav style={{ marginTop: '20px'}}>
+          <Navbar.Text>
             <Label bsStyle="success">
               Battery Level: {this.state.battery}
             </Label>
-          </Nav>
-          <Nav
-            pullRight={true}
-            style={{ marginBottom: '4px', marginTop: '4px', marginRight: '4px'}}>
+          </Navbar.Text>
+          <Navbar.Form
+            pullRight={true}>
             <ButtonToolbar>
               <Button
                 bsStyle="success"
@@ -64,7 +63,7 @@ export default React.createClass({
                 Stop
               </Button>
             </ButtonToolbar>
-          </Nav>
+          </Navbar.Form>
         </Navbar.Collapse>
       </Navbar>
     );

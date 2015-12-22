@@ -34,16 +34,38 @@ export default React.createClass({
   },
   render() {
     return (
-      <Navbar
-        brand={"Dawn" + (this.state.connection ? "" : " (disconnected)")}
-        fixedTop fluid toggleNavKey={0}>
-        <Nav right eventKey={0} style={{ marginBottom: '4px', marginTop: '4px', marginRight: '4px'}}>
-          <ButtonToolbar>
-            <Label bsStyle="success" style={{ marginTop: '12px', marginRight: '15px'}}> Battery Level: {this.state.battery}</Label>
-            <Button bsStyle="success" onClick={ this.startRobot } disabled={this.state.status || !this.state.connection}>Start</Button>
-            <Button bsStyle="danger" onClick={ this.stopRobot } disabled={!this.state.status || !this.state.connection}>Stop</Button>
-          </ButtonToolbar>
-        </Nav>
+      <Navbar fixedTop fluid>
+        <Navbar.Header>
+          <Navbar.Brand>
+            {"Dawn" + (this.state.connection ? "" : " (disconnected)")}
+          </Navbar.Brand>
+          <Navbar.Toggle />
+        </Navbar.Header>
+        <Navbar.Collapse>
+          <Nav style={{ marginTop: '20px'}}>
+            <Label bsStyle="success">
+              Battery Level: {this.state.battery}
+            </Label>
+          </Nav>
+          <Nav
+            pullRight={true}
+            style={{ marginBottom: '4px', marginTop: '4px', marginRight: '4px'}}>
+            <ButtonToolbar>
+              <Button
+                bsStyle="success"
+                onClick={ this.startRobot }
+                disabled={this.state.status || !this.state.connection}>
+                Start
+              </Button>
+              <Button
+                bsStyle="danger"
+                onClick={ this.stopRobot }
+                disabled={!this.state.status || !this.state.connection}>
+                Stop
+              </Button>
+            </ButtonToolbar>
+          </Nav>
+        </Navbar.Collapse>
       </Navbar>
     );
   }

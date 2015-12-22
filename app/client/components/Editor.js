@@ -69,13 +69,19 @@ var Editor = React.createClass({
         <ButtonToolbar>
           <ButtonGroup>
             <DropdownButton
+              id="FilenameDropdown"
               bsSize="small"
               title={ filenameLabel }
               onClick={this.loadFilenames}
               onSelect={this.changeFile}>
               {this.state.filenames.map((filename, index)=> {
                 if (filename !== this.state.filename)
-                  return <MenuItem key={index} eventKey={String(index)}>{filename}</MenuItem>;
+                  return (
+                    <MenuItem
+                      key={index}
+                      eventKey={String(index)}>
+                      {filename}
+                    </MenuItem>);
               })}
             </DropdownButton>
           </ButtonGroup>

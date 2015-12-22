@@ -1,8 +1,8 @@
 React = require('react')
 Router = require('react-router')
-RouteHandler = Router.RouteHandler
 
 DNav = require('./DNav')
+Dashboard = require('./Dashboard')
 
 module.exports = Dawn = React.createClass
   displayName: 'Dawn'
@@ -11,5 +11,5 @@ module.exports = Dawn = React.createClass
     <div>
       <DNav {...this.props}/>
       <div style={height: '60px', marginBottom: '21px'}/>
-      <RouteHandler {...this.props}/>
+      {this.props.children}
     </div>

@@ -13,11 +13,10 @@ import RemoteRobotStore from '../stores/RemoteRobotStore';
 export default React.createClass({
   displayName: 'DNav',
   getInitialState() {
-    return { status: false , battery : 0, connection: true };
+    return { battery : 0, connection: true };
   },
-  updateStatus() {
+  updateConnection() {
     this.setState({
-      status: RemoteRobotStore.getRobotStatus(),
       connection: RemoteRobotStore.getConnectionStatus()
     });
   },
@@ -25,18 +24,12 @@ export default React.createClass({
     this.setState({ battery: RemoteRobotStore.getBatteryLevel()});
   },
   componentDidMount() {
-    RemoteRobotStore.on('change', this.updateStatus);
+    RemoteRobotStore.on('change', this.updateConnection);
     RemoteRobotStore.on('change', this.updateBattery);
   },
   componentWillUnmount() {
-    RemoteRobotStore.removeListener('change', this.updateStatus);
+    RemoteRobotStore.removeListener('change', this.updateConnection);
     RemoteRobotStore.removeListener('change', this.updateBattery);
-  },
-  startRobot() {
-    AnsibleClient.sendMessage('execute', {});
-  },
-  stopRobot() {
-    AnsibleClient.sendMessage('stop', {});
   },
   render() {
     return (
@@ -56,18 +49,6 @@ export default React.createClass({
           <Navbar.Form
             pullRight={true}>
             <ButtonToolbar>
-              <Button
-                bsStyle="success"
-                onClick={ this.startRobot }
-                disabled={this.state.status || !this.state.connection}>
-                Start
-              </Button>
-              <Button
-                bsStyle="danger"
-                onClick={ this.stopRobot }
-                disabled={!this.state.status || !this.state.connection}>
-                Stop
-              </Button>
               <Button
                 bsStyle="info"
                 onClick={ this.props.startTour }>

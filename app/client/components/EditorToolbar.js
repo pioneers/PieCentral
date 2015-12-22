@@ -1,7 +1,9 @@
 import React from 'react';
 import Dropzone from 'react-dropzone';
 import request from 'superagent';
+import AnsibleClient from '../utils/AnsibleClient';
 import EditorActionCreators from '../actions/EditorActionCreators';
+import RemoteRobotStore from '../stores/RemoteRobotStore';
 import {
   Button,
   ButtonGroup,
@@ -12,7 +14,8 @@ import {
   Modal,
   Input,
   ListGroup,
-  ListGroupItem
+  ListGroupItem,
+  Glyphicon
 } from 'react-bootstrap';
 import _ from 'lodash';
 
@@ -21,8 +24,27 @@ var EditorToolbar = React.createClass({
     return {
       showCreateModal: false,
       showUploadModal: false,
-      showOpenModal: false
+      status: false,
+      connection: true
     };
+  },
+  componentDidMount() {
+    RemoteRobotStore.on('change', this.updateStatus);
+  },
+  componentWillUnmount() {
+    RemoteRobotStore.removeListener('change', this.updateStatus);
+  },
+  startRobot() {
+    AnsibleClient.sendMessage('execute', {});
+  },
+  stopRobot() {
+    AnsibleClient.sendMessage('stop', {});
+  },
+  updateStatus() {
+    this.setState({
+      status: RemoteRobotStore.getRobotStatus(),
+      connection: RemoteRobotStore.getConnectionStatus()
+    });
   },
   openUploadModal() {
     this.setState({showUploadModal: true});
@@ -71,13 +93,6 @@ var EditorToolbar = React.createClass({
       });
     }
   },
-  openOpenModal() {
-    EditorActionCreators.getFilenames();
-    this.setState({showOpenModal: true});
-  },
-  closeOpenModal() {
-    this.setState({showOpenModal: false});
-  },
   render() {
     return (
       <div>
@@ -125,44 +140,58 @@ var EditorToolbar = React.createClass({
             </Button>
           </Modal.Footer>
         </Modal>
-        <Modal show={this.state.showOpenModal} onHide={this.closeOpenModal}>
-          <Modal.Header closeButton>
-            <div>Open file...</div>
-          </Modal.Header>
-          <Modal.Body>
-            <ListGroup>
-              {_.map(this.props.filenames, (fname)=>{
-                return (
-                  <ListGroupItem
-                    style={{width: '100%'}} key={fname} onClick={()=>{
-                    this.props.changeFile(fname);
-                    this.closeOpenModal();
-                  }}>
-                    {fname}
-                  </ListGroupItem>
-                );
-              })}
-            </ListGroup>
-          </Modal.Body>
-        </Modal>
         <ButtonToolbar>
           <ButtonGroup>
             <DropdownButton
-              id="FileDropdown"
+              id="FileSelectorDropdown"
               bsSize="small"
-              title="File">
-              <MenuItem onSelect={this.openOpenModal}>Open...</MenuItem>
-              <MenuItem onSelect={this.props.saveCode}>Save</MenuItem>
-              <MenuItem divider />
-              <MenuItem onSelect={this.openCreateModal}>Create</MenuItem>
-              <MenuItem onSelect={this.deleteFile}>Delete</MenuItem>
-              <MenuItem divider />
-              <MenuItem onSelect={this.openUploadModal}>Upload</MenuItem>
-              <MenuItem
-                href={'/api/editor/download?filename=' + this.props.filename}>
-                Download
-              </MenuItem>
+              title={this.props.filename}
+              onClick={EditorActionCreators.getFilenames}>
+              {_.map(this.props.filenames, (fname)=>{
+                return (
+                  <MenuItem key={fname} onClick={()=>{
+                    this.props.changeFile(fname);
+                  }}>
+                    {fname}
+                  </MenuItem>
+                );
+              })}
             </DropdownButton>
+          </ButtonGroup>
+          <ButtonGroup>
+            <Button onClick={this.props.saveCode} bsSize="small">
+              <Glyphicon glyph="floppy-disk" />
+            </Button>
+            <Button onClick={this.openCreateModal} bsSize="small">
+              <Glyphicon glyph="file" />
+            </Button>
+            <Button onClick={this.deleteFile} bsSize="small">
+              <Glyphicon glyph="trash" />
+            </Button>
+            <Button onClick={this.openUploadModal} bsSize="small">
+              <Glyphicon glyph="upload" />
+            </Button>
+            <Button
+              href={'/api/editor/download?filename=' + this.props.filename}
+              bsSize="small">
+              <Glyphicon glyph="download" />
+            </Button>
+          </ButtonGroup>
+          <ButtonGroup>
+            <Button
+              onClick={this.startRobot}
+              bsSize="small"
+              disabled={this.state.status || !this.state.connection}
+              bsStyle="success">
+              <Glyphicon glyph="play" />
+            </Button>
+            <Button
+              onClick={this.stopRobot}
+              bsSize="small"
+              disabled={!this.state.status || !this.state.connection}
+              bsStyle="danger">
+              <Glyphicon glyph="stop" />
+            </Button>
           </ButtonGroup>
         </ButtonToolbar>
       </div>

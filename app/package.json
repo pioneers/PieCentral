@@ -39,6 +39,7 @@
     "react-ace": "^3.0.0",
     "react-bootstrap": "^0.28.1",
     "react-dropzone": "^2.2.4",
+    "react-joyride": "^1.1.1",
     "react-router": "^1.0.2",
     "react-router-bootstrap": "^0.19.3",
     "reactify": "^1.1.1",

@@ -16,16 +16,17 @@ if Environment.isBrowser
 
 module.exports = Dashboard = React.createClass
   displayName: 'Dashboard'
+
   render: ->
     editor = 'Loading...'
     if Editor?
-      editor = <Editor/>
+      editor = <Editor {...this.props} />
     return (
       <Grid fluid>
         <Row>
           <Col smPush={8} sm={4}>
-            <FinalCompPeripheralList/>
-            <Gamepads/>
+            <FinalCompPeripheralList {...this.props} />
+            <Gamepads {...this.props} />
           </Col>
           <Col smPull={4} sm={8}>
             { editor }
@@ -33,7 +34,7 @@ module.exports = Dashboard = React.createClass
         </Row>
         <Row>
           <Col sm={12}>
-            <ConsoleOutput/>
+            <ConsoleOutput {...this.props} />
           </Col>
         </Row>
       </Grid>

@@ -25,6 +25,7 @@ var Editor = React.createClass({
       }
       this.saveCode();
     });
+
     EditorStore.on('change', this.updateEditorData);
     EditorStore.on('error', this.alertError);
     EditorActionCreators.getCode(this.state.filename);

@@ -1,5 +1,11 @@
 import React from 'react';
-import {Navbar, Nav, ButtonToolbar, Button, Label} from 'react-bootstrap';
+import {
+  Navbar,
+  Nav,
+  ButtonToolbar,
+  Button,
+  Label,
+  Glyphicon} from 'react-bootstrap';
 import ReactRouterBootstrap from 'react-router-bootstrap';
 import AnsibleClient from '../utils/AnsibleClient';
 import RemoteRobotStore from '../stores/RemoteRobotStore';
@@ -61,6 +67,11 @@ export default React.createClass({
                 onClick={ this.stopRobot }
                 disabled={!this.state.status || !this.state.connection}>
                 Stop
+              </Button>
+              <Button
+                bsStyle="info"
+                onClick={ this.props.startTour }>
+                <Glyphicon glyph="info-sign" />
               </Button>
             </ButtonToolbar>
           </Navbar.Form>

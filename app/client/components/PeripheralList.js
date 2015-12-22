@@ -13,7 +13,10 @@ var PeripheralList = React.createClass({
   },
   render() {
     return (
-      <Panel header={this.props.header} bsStyle='primary'>
+      <Panel
+        id="peripherals-panel"
+        header={this.props.header}
+        bsStyle="primary">
         {this.props.children}
       </Panel>
     );

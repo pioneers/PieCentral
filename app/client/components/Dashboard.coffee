@@ -9,9 +9,9 @@ FinalCompPeripheralList = require('./FinalCompPeripheralList')
 Peripheral = require('./Peripheral')
 Environment = require('../utils/Environment')
 Gamepads = require('./Gamepads')
+RobotActions = require('../actions/RobotActions')
 if Environment.isBrowser
   Editor = require('./Editor')
-  RobotActions = require('../actions/RobotActions')
 
 module.exports = Dashboard = React.createClass
   displayName: 'Dashboard'

@@ -1,5 +1,7 @@
 React = require('react')
-Joyride = require('react-joyride')
+Environment = require('../utils/Environment')
+if Environment.isBrowser
+  Joyride = require('react-joyride')
 Router = require('react-router')
 DNav = require('./DNav')
 Dashboard = require('./Dashboard')
@@ -82,12 +84,15 @@ module.exports = Dawn = React.createClass
     }])
 
   render: ->
-    <div>
-      <Joyride ref="joyride" steps={this.state.steps} />
+    joyride = null
+    if Joyride?
+      joyride = <Joyride ref="joyride" steps={this.state.steps} />
+    return (<div>
       <DNav {...this.props} startTour={this.startTour}/>
+      {joyride}
       <div style={height: '60px', marginBottom: '21px'}/>
       {React.cloneElement(this.props.children, {
         addSteps: this.addSteps,
         addTooltip: this.addTooltip
       })}
-    </div>
+    </div>)

@@ -11,11 +11,15 @@ import _ from 'lodash';
 var FinalCompPeripheralList = React.createClass({
   getInitialState() {
     return {
-      peripherals: []
+      peripherals: [],
+      connection: true
     };
   },
   onChange() {
-    this.setState({peripherals: RemoteRobotStore.getPeripherals()});
+    this.setState({
+      peripherals: RemoteRobotStore.getPeripherals(),
+      connection: RemoteRobotStore.getConnectionStatus()
+    });
   },
   componentDidMount() {
     RemoteRobotStore.on('change', this.onChange);
@@ -26,8 +30,10 @@ var FinalCompPeripheralList = React.createClass({
   },
   render() {
     return (
-      <PeripheralList header='Connected Components'>
-        {_.map(this.state.peripherals, (peripheral) => <Peripheral key={peripheral.id} {...peripheral}/>)}
+      <PeripheralList header='Peripherals'>
+        {this.state.connection
+          ? _.map(this.state.peripherals, (peripheral) => <Peripheral key={peripheral.id} {...peripheral}/>)
+          : 'You are currently disconnected from the robot.'}
       </PeripheralList>
     );
   }

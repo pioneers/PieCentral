@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import {Label, ProgressBar} from 'react-bootstrap';
+import {Label} from 'react-bootstrap';
 
 var Motor = React.createClass({
   propTypes: {
@@ -27,7 +27,6 @@ var Motor = React.createClass({
         }
         </h4>
       </div>
-      <ProgressBar now={this.props.value}></ProgressBar>
     </div>
     );
   }

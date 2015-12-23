@@ -1,9 +1,7 @@
 import React from 'react';
 import Dropzone from 'react-dropzone';
 import request from 'superagent';
-import AnsibleClient from '../utils/AnsibleClient';
 import EditorActionCreators from '../actions/EditorActionCreators';
-import RemoteRobotStore from '../stores/RemoteRobotStore';
 import {
   Button,
   ButtonGroup,
@@ -26,27 +24,7 @@ var EditorToolbar = React.createClass({
     return {
       showCreateModal: false,
       showUploadModal: false,
-      status: false,
-      connection: true
     };
-  },
-  componentDidMount() {
-    RemoteRobotStore.on('change', this.updateStatus);
-  },
-  componentWillUnmount() {
-    RemoteRobotStore.removeListener('change', this.updateStatus);
-  },
-  startRobot() {
-    AnsibleClient.sendMessage('execute', {});
-  },
-  stopRobot() {
-    AnsibleClient.sendMessage('stop', {});
-  },
-  updateStatus() {
-    this.setState({
-      status: RemoteRobotStore.getRobotStatus(),
-      connection: RemoteRobotStore.getConnectionStatus()
-    });
   },
   openUploadModal() {
     this.setState({showUploadModal: true});
@@ -176,7 +154,7 @@ var EditorToolbar = React.createClass({
             </OverlayTrigger>
             <OverlayTrigger
               placement="top"
-              overlay={<Tooltip id="open-tooltip">Open</Tooltip>}>
+              overlay={<Tooltip id="open-tooltip">Create</Tooltip>}>
               <Button onClick={this.openCreateModal} bsSize="small">
                 <Glyphicon glyph="file" />
               </Button>
@@ -210,9 +188,9 @@ var EditorToolbar = React.createClass({
               placement="top"
               overlay={<Tooltip id="run-tooltip">Run</Tooltip>}>
               <Button
-                onClick={this.startRobot}
+                onClick={this.props.startRobot}
                 bsSize="small"
-                disabled={this.state.status || !this.state.connection}
+                disabled={this.props.status || !this.props.connection}
                 bsStyle="success">
                 <Glyphicon glyph="play" />
               </Button>
@@ -221,9 +199,9 @@ var EditorToolbar = React.createClass({
               placement="top"
               overlay={<Tooltip id="stop-tooltip">Stop</Tooltip>}>
               <Button
-                onClick={this.stopRobot}
+                onClick={this.props.stopRobot}
                 bsSize="small"
-                disabled={!this.state.status || !this.state.connection}
+                disabled={!this.props.status || !this.props.connection}
                 bsStyle="danger">
                 <Glyphicon glyph="stop" />
               </Button>

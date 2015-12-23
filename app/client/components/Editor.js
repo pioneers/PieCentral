@@ -7,19 +7,22 @@ import EditorToolbar from './EditorToolbar';
 import Mousetrap from 'mousetrap';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
-import _ from 'lodash';
 import ConsoleOutput from './ConsoleOutput';
 import RemoteRobotStore from '../stores/RemoteRobotStore';
 import RobotActions from '../actions/RobotActions';
+import AnsibleClient from '../utils/AnsibleClient';
+import _ from 'lodash';
 
 var Editor = React.createClass({
   getInitialState() {
-    var initState = {showConsole: false, consoleOutput: []};
+    var initState = {
+      showConsole: false,
+      consoleOutput: [],
+      status: false,
+      connection: true
+    };
     _.merge(initState, EditorStore.getEditorData());
     return initState;
-  },
-  updateEditorData() {
-    this.setState(EditorStore.getEditorData());
   },
   componentDidMount() {
     Mousetrap.prototype.stopCallback = function(e, element, combo) {
@@ -33,15 +36,25 @@ var Editor = React.createClass({
     });
 
     EditorStore.on('change', this.updateEditorData);
-    RemoteRobotStore.on('change', this.updateConsole);
+    RemoteRobotStore.on('change', this.updateRemoteRobotData);
     EditorStore.on('error', this.alertError);
     EditorActionCreators.getCode(this.state.filename);
   },
   componentWillUnmount() {
     Mousetrap.unbind(['mod+s']);
     EditorStore.removeListener('change', this.updateEditorData);
-    RemoteRobotStore.removeListener('change', this.updateConsole);
+    RemoteRobotStore.removeListener('change', this.updateRemoteRobotData);
     EditorStore.removeListener('error', this.alertError);
+  },
+  updateEditorData() {
+    this.setState(EditorStore.getEditorData());
+  },
+  updateRemoteRobotData() {
+    this.setState({
+      consoleOutput: RemoteRobotStore.getConsoleData(),
+      status: RemoteRobotStore.getRobotStatus(),
+      connection: RemoteRobotStore.getConnectionStatus()
+    });
   },
   alertError(err) {
     alert(err);
@@ -58,12 +71,17 @@ var Editor = React.createClass({
   },
   toggleConsole() {
     this.setState({showConsole: !this.state.showConsole});
-  },
-  updateConsole() {
-    this.setState({consoleOutput: RemoteRobotStore.getConsoleData()});
+    // must call resize method after changing height of ace editor
+    setTimeout(()=>this.refs.CodeEditor.editor.resize(), 0.1);
   },
   clearConsole() {
     RobotActions.clearConsole();
+  },
+  startRobot() {
+    AnsibleClient.sendMessage('execute', {});
+  },
+  stopRobot() {
+    AnsibleClient.sendMessage('stop', {});
   },
   render() {
     var unsavedChanges = (this.state.latestSaveCode !== this.state.editorCode);
@@ -78,6 +96,10 @@ var Editor = React.createClass({
           saveCode={this.saveCode}
           toggleConsole={this.toggleConsole}
           clearConsole={this.clearConsole}
+          startRobot={this.startRobot}
+          stopRobot={this.stopRobot}
+          status={this.state.status}
+          connection={this.state.connection}
         />
         <AceEditor
           mode="python"

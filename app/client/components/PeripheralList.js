@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {Panel} from 'react-bootstrap';
+import {Panel, ListGroup} from 'react-bootstrap';
 
 var PeripheralList = React.createClass({
   getDefaultProps: function() {
@@ -13,8 +13,13 @@ var PeripheralList = React.createClass({
   },
   render() {
     return (
-      <Panel header={this.props.header} bsStyle='primary'>
-        {this.props.children}
+      <Panel
+        id="peripherals-panel"
+        header={this.props.header}
+        bsStyle="primary">
+        <ListGroup fill style={{marginBottom: '5px'}}>
+          {this.props.children}
+        </ListGroup>
       </Panel>
     );
   }

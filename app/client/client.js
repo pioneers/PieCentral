@@ -1,13 +1,12 @@
-var React = require('react');
-var Router = require('react-router');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {Router, Route, IndexRoute} from 'react-router';
+import App from './components/App';
+import Dashboard from './components/Dashboard';
+import Routes from './routes';
 
-var routes = require('./routes');
-
-var rootProps = JSON.parse(document.getElementById('root-props').innerHTML)
-
-Router.run(routes, Router.HistoryLocation, function (Handler, state) {
-  React.render(
-    <Handler {...rootProps} />,
-    document.getElementById('react-app')
-  );
-});
+ReactDOM.render((
+  <Router>
+    {Routes}
+  </Router>
+), document.getElementById('react-app'));

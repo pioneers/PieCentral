@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+import {ListGroupItem} from 'react-bootstrap';
 import {PeripheralTypes} from '../constants/Constants';
 import GenericPeripheral from './peripherals/GenericPeripheral';
 import Motor from './peripherals/Motor';
@@ -36,8 +37,10 @@ var Peripheral = React.createClass({
   render() {
     var SpecificPeripheralComponent = this.determinePeripheralComponent() || GenericPeripheral;
     return (
-      <SpecificPeripheralComponent {...this.props}/>
-      );
+      <ListGroupItem>
+        <SpecificPeripheralComponent {...this.props}/>
+      </ListGroupItem>
+    );
   }
 });
 

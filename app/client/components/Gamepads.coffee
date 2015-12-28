@@ -31,7 +31,11 @@ module.exports = Gamepads = React.createClass
         Connect a gamepad and press any button on it.
       </p>
   render: ->
-    <Panel header={<h3>Gamepads</h3>} bsStyle='primary' defaultExpanded>
+    <Panel
+      header={<h3>Gamepads</h3>}
+      bsStyle="primary"
+      id="gamepads-panel"
+      defaultExpanded>
       <ListGroup fill style={{marginBottom: '5px'}}>
         {this.renderInterior()}
       </ListGroup>

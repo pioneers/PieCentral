@@ -427,20 +427,16 @@ class DeviceType():
 
     def __init__(self, config, config_format):
         if config_format == 'json':
-            json_dict = config
-            self.deviceID = int(str(json_dict["deviceID"]), 16)
-            self.deviceName = str(json_dict["deviceName"])
-            self.dataFormat = str(json_dict["dataFormat"]["formatString"])
-            parameters = json_dict["dataFormat"]["parameters"]
+            json_dict           = config
+            self.deviceID       = int(str(json_dict["deviceID"]), 16)
+            self.deviceName     = str(json_dict["deviceName"])
+            self.dataFormat     = str(json_dict["dataFormat"]["formatString"])
+            parameters          = json_dict["dataFormat"]["parameters"]
             self.scalingFactors = [float(param['scalingFactor']) for param in parameters]
-            self.machineNames = [str(param['machineName']) for param in parameters]
-            self.humanNames = [str(param['humanName']) for param in parameters]
-            self.dataTuple = namedtuple(self.deviceName, self.machineNames)
-
-            def dict_factory(*values):
-                return {field: value for field, value in zip(self.machineNames, values)}
-            self.dict_factory = dict_factory
-            self.params = map(str, json_dict["params"])
+            self.machineNames   = [str(param['machineName']) for param in parameters]
+            self.humanNames     = [str(param['humanName']) for param in parameters]
+            self.dataTuple      = namedtuple(self.deviceName, self.machineNames)
+            self.params         = map(str, json_dict["params"])
             self.paramIDs       = {self.params[index]: index for index in range(len(self.params))}
         else:
             csv_row = config
@@ -449,14 +445,8 @@ class DeviceType():
             self.dataFormat     = csv_row[2]
             self.scalingFactors = [float(item.strip()) for item in csv_row[3].split(",") if item.strip()]
             self.machineNames   = [item.strip() for item in csv_row[4].split(",") if item.strip()]
-            
-            self.dataTuple = namedtuple(self.deviceName, self.machineNames)
-
-            def dict_factory(*values):
-                return {field: value for field, value in zip(self.machineNames, values)}
-            self.dict_factory = dict_factory
-
             self.humanNames     = [item.strip() for item in csv_row[5].split(",") if item.strip()]
+            self.dataTuple      = namedtuple(self.deviceName, self.machineNames)
             self.params         = [param for param in csv_row[6:] if param != '']
             self.paramIDs       = {self.params[index]: index for index in range(len(self.params))}
 
@@ -470,6 +460,9 @@ class DeviceType():
         deviceType += "  Params:\n"
         deviceType += "\n".join(["    %s" % param for param in self.params])
         return deviceType
+
+    def dict_factory(self, *values):
+        return {field: value for field, value in zip(self.machineNames, values)}
 
 
 class HibikeDevice:

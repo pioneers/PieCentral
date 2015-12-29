@@ -1,0 +1,219 @@
+{
+    "devices": [
+        {
+            "deviceID": "0x00",
+            "deviceName": "LimitSwitch",
+            "dataFormat": {
+                "formatString": "<????",
+                "parameters": [
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value0",
+                        "humanName": "Switch 0"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value1",
+                        "humanName": "Switch 1"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value2",
+                        "humanName": "Switch 2"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value3",
+                        "humanName": "Switch 3"
+                    }
+                ]
+            },
+            "params": [
+                "dataUpdate"
+            ]
+        },
+        {
+            "deviceID": "0x01",
+            "deviceName": "LineFollower",
+            "dataFormat": {
+                "formatString": "<????",
+                "parameters": [
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value0",
+                        "humanName": "Switch 0"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value1",
+                        "humanName": "Switch 1"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value2",
+                        "humanName": "Switch 2"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value3",
+                        "humanName": "Switch 3"
+                    }
+                ]
+            },
+            "params": [
+                "dataUpdate"
+            ]
+        },
+        {
+            "deviceID": "0x02",
+            "deviceName": "Potentiometer",
+            "dataFormat": {
+                "formatString": "<HHHH",
+                "parameters": [
+                    {
+                        "scalingFactor": 1023.0,
+                        "machineName": "value0",
+                        "humanName": "Potentiometer 0"
+                    },
+                    {
+                        "scalingFactor": 1023.0,
+                        "machineName": "value1",
+                        "humanName": "Potentiometer 1"
+                    },
+                    {
+                        "scalingFactor": 1023.0,
+                        "machineName": "value2",
+                        "humanName": "Potentiometer 2"
+                    },
+                    {
+                        "scalingFactor": 1023.0,
+                        "machineName": "value3",
+                        "humanName": "Potentiometer 3"
+                    }
+                ]
+            },
+            "params": [
+                "dataUpdate"
+            ]
+        },
+        {
+            "deviceID": "0x03",
+            "deviceName": "Encoder",
+            "dataFormat": {
+                "formatString": "<H",
+                "parameters": [
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value0",
+                        "humanName": "Rotation"
+                    }
+                ]
+            },
+            "params": [
+                "dataUpdate"
+            ]
+        },
+        {
+            "deviceID": "0x04",
+            "deviceName": "BatteryBuzzer",
+            "dataFormat": {
+                "formatString": "<H??",
+                "parameters": [
+                    {
+                        "scalingFactor": 1023.0,
+                        "machineName": "value0",
+                        "humanName": "Voltage"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value1",
+                        "humanName": "Safe"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value2",
+                        "humanName": "Connected"
+                    }
+                ]
+            },
+            "params": [
+                "dataUpdate"
+            ]
+        },
+        {
+            "deviceID": "0x05",
+            "deviceName": "TeamFlag",
+            "dataFormat": {
+                "formatString": "",
+                "parameters": []
+            },
+            "params": [
+                "dataUpdate",
+                "blue",
+                "yellow",
+                "s1",
+                "s2",
+                "s3",
+                "s4"
+            ]
+        },
+        {
+            "deviceID": "0x07",
+            "deviceName": "ServoControl",
+            "dataFormat": {
+                "formatString": "",
+                "parameters": []
+            },
+            "params": [
+                "dataUpdate",
+                "servo0",
+                "servo1",
+                "servo2",
+                "servo3"
+            ]
+        },
+        {
+            "deviceID": "0xFFFF",
+            "deviceName": "ExampleDevice",
+            "dataFormat": {
+                "formatString": "<?BHIQ",
+                "parameters": [
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value0",
+                        "humanName": "Example 0"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value1",
+                        "humanName": "Example 1"
+                    },
+                    {
+                        "scalingFactor": 2.0,
+                        "machineName": "value2",
+                        "humanName": "Example 2"
+                    },
+                    {
+                        "scalingFactor": 3.0,
+                        "machineName": "value3",
+                        "humanName": "Example 3"
+                    },
+                    {
+                        "scalingFactor": 0.25,
+                        "machineName": "value4",
+                        "humanName": "Example 4"
+                    }
+                ]
+            },
+            "params": [
+                "dataUpdate",
+                "test0",
+                "test1",
+                "test2",
+                "test3",
+                "test4",
+                "test5"
+            ]
+        }
+    ]
+}

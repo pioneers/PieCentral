@@ -16,6 +16,7 @@ try:
 except ImportError:
     from queue import Queue, Full
 import csv
+import json
 import pdb
 
 sys.path.append(os.getcwd())
@@ -27,7 +28,7 @@ smartDeviceBoards = ['Sparkfun Pro Micro', 'Intel Corp. None ', 'ttyACM0', 'ttyA
 
 
 class Hibike():
-    def __init__(self, contextFile=os.path.join(os.path.dirname(__file__), 'hibikeDevices.csv'), timeout=5.0, maxsize=100):
+    def __init__(self, contextFile=os.path.join(os.path.dirname(__file__), 'hibikeDevices.json'), timeout=5.0, maxsize=100):
         """Enumerate through serial ports with subRequest(0)
         Update self.context as we iterate through with devices
         Build a list self.serialPorts of (uid, port, serial) tuples
@@ -75,17 +76,33 @@ class Hibike():
         """
         try:
             csv_file = None
-            csv_file = open(contextFile, 'r')
-            reader = csv.reader(csv_file, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
-            list_of_rows = [row for row in reader]
-            list_of_rows.pop(0)
-            for row in list_of_rows:
-                self.deviceTypes[int(row[0], 16)] = DeviceType(row)
+            json_file = None
+            ext = os.path.splitext(contextFile)[1]
+            if  ext == '.csv':
+                csv_file = open(contextFile, 'r')
+                reader = csv.reader(csv_file, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
+                list_of_rows = [row for row in reader]
+                list_of_rows.pop(0)
+                for row in list_of_rows:
+                    self.deviceTypes[int(row[0], 16)] = DeviceType(row, 'csv')
+            elif ext == '.json':
+                json_file = open(contextFile, 'r')
+                def as_device(dct):
+                    if 'deviceID' in dct:
+                        return DeviceType(dct, 'json')
+                    else:
+                        return dct
+                json_deviceTypes = json.load(json_file, object_hook=as_device)
+                self.deviceTypes = {deviceType.deviceID: deviceType for deviceType in json_deviceTypes['devices']}
+            else:
+                print("Bad Config: config file must be .csv or .json")
         except IOError:
             print("ERROR: Hibike config filed does not exist.")
         finally:
             if csv_file is not None:
                 csv_file.close()
+            if json_file is not None:
+                json_file.close()
 
 
     def _enumerateSerialPorts(self):
@@ -162,7 +179,7 @@ class Hibike():
 
     def getEnumeratedDevices(self):
         return [(uid, self.getDeviceType(uid)) for uid in self.getUIDs()]
-    def getData(self, uid, param): 
+    def getData(self, uid, param, data_format='dict'):
         """Returns the data associated with param of device with uid 
         Returns None if bad uid or bad param
         """
@@ -174,7 +191,7 @@ class Hibike():
                 print("Bad param")
                 return None
             param = self.deviceTypes[self.getDeviceType(uid)].paramIDs[param]
-        return self.context[uid].getData(param)
+        return self.context[uid].getData(param, data_format)
 
 
     def getDeviceName(self, deviceType):
@@ -408,24 +425,46 @@ class DeviceType():
     Class used to represent device types internally
     """
 
-    def __init__(self, csv_row):
-        self.deviceID       = int(csv_row[0], 16)
-        self.deviceName     = csv_row[1]
-        self.dataFormat     = csv_row[2]
-        self.scalingFactors = [float(item.strip()) for item in csv_row[3].split(",") if item.strip()]
-        self.machineNames   = [item.strip() for item in csv_row[4].split(",") if item.strip()]
-        
-        self.dataTuple = namedtuple(self.deviceName, self.machineNames)
+    def __init__(self, config, config_format):
+        if config_format == 'json':
+            json_dict = config
+            self.deviceID = int(str(json_dict["deviceID"]), 16)
+            self.deviceName = str(json_dict["deviceName"])
+            self.dataFormat = str(json_dict["dataFormat"]["formatString"])
+            parameters = json_dict["dataFormat"]["parameters"]
+            self.scalingFactors = [float(param['scalingFactor']) for param in parameters]
+            self.machineNames = [str(param['machineName']) for param in parameters]
+            self.humanNames = [str(param['humanName']) for param in parameters]
+            self.dataTuple = namedtuple(self.deviceName, self.machineNames)
 
-        self.humanNames     = [item.strip() for item in csv_row[5].split(",") if item.strip()]
-        self.params         = [param for param in csv_row[6:] if param != '']
-        self.paramIDs       = {self.params[index]: index for index in range(len(self.params))}
+            def dict_factory(*values):
+                return {field: value for field, value in zip(self.machineNames, values)}
+            self.dict_factory = dict_factory
+            self.params = map(str, json_dict["params"])
+            self.paramIDs       = {self.params[index]: index for index in range(len(self.params))}
+        else:
+            csv_row = config
+            self.deviceID       = int(csv_row[0], 16)
+            self.deviceName     = csv_row[1]
+            self.dataFormat     = csv_row[2]
+            self.scalingFactors = [float(item.strip()) for item in csv_row[3].split(",") if item.strip()]
+            self.machineNames   = [item.strip() for item in csv_row[4].split(",") if item.strip()]
+            
+            self.dataTuple = namedtuple(self.deviceName, self.machineNames)
+
+            def dict_factory(*values):
+                return {field: value for field, value in zip(self.machineNames, values)}
+            self.dict_factory = dict_factory
+
+            self.humanNames     = [item.strip() for item in csv_row[5].split(",") if item.strip()]
+            self.params         = [param for param in csv_row[6:] if param != '']
+            self.paramIDs       = {self.params[index]: index for index in range(len(self.params))}
 
     def __contains__(self, item):
         return item < len(self.params) or item in self.paramIDs
 
     def __str__(self):
-        deviceType = "DeviceType %d: %s\n" % (self.deviceID, self.deviceName)
+        deviceType = "DeviceType 0x%04x: %s\n" % (self.deviceID, self.deviceName)
         deviceType += "  Data Format:\n"
         deviceType += "    '%s'\n    %s\n    %s\n    %s\n" % (self.dataFormat, self.scalingFactors, self.machineNames, self.humanNames)
         deviceType += "  Params:\n"
@@ -446,12 +485,12 @@ class HibikeDevice:
         self.deviceID = deviceID
 
     def __str__(self):
-        deviceStr  = "Device %d: %s\n" % (self.deviceID
+        deviceStr  = "Device 0x%011x: %s\n" % (self.deviceID
             , self.deviceType.deviceName)
         deviceStr += "    subcription: %dms @ %f\n" % (self.delay
             , self.lastUpdate)
         for i in range(len(self.params)):
-            value = self.getData(i)
+            value = self.getData(i, 'dict')
             if type(value) in (str, bytes, bytearray):
                 value = binascii.hexlify(value)
             else:
@@ -474,12 +513,18 @@ class HibikeDevice:
     def deviceResponse(self, param, value):
         self.params[param] = (value, time.time())
 
-    # casts dataupdate from bytearray to int
-    def getData(self, param):
+    # converts dataupdate from bytearray to specified format
+    def getData(self, param, data_format="dict"):
+        formats = {"dict": self.dataToDict, "tuple": self.dataToTuple, "int": self.dataToInt}
         data = self.params[param][0]
         if type(data) in (str, bytes, bytearray):
-            data = self.dataToTuple(data)
+            data = formats[data_format](data)
         return data
+
+    def dataToDict(self, data):
+        unpacked = struct.unpack(self.deviceType.dataFormat, data)
+        scaled = [field / scale if scale != 1 else field for field, scale in zip(unpacked, self.deviceType.scalingFactors)]
+        return self.deviceType.dict_factory(*scaled)
 
     def dataToTuple(self, data):
         unpacked = struct.unpack(self.deviceType.dataFormat, data)

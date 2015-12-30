@@ -1,4 +1,4 @@
-#include "potentiometer.h"
+#include \"potentiometer.h"
 #include <Servo.h>
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
@@ -7,6 +7,39 @@ hibike_uid_t UID = {
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
+char *DESCRIPTION = 
+"{"
+"    \"deviceID\": \"0x02\","
+"    \"deviceName\": \"Potentiometer\","
+"    \"dataFormat\": {"
+"        \"formatString\": \"<HHHH\","
+"        \"parameters\": ["
+"            {"
+"                \"scalingFactor\": 1023.0,"
+"                \"machineName\": \"value0\","
+"                \"humanName\": \"Potentiometer 0\""
+"            },"
+"            {"
+"                \"scalingFactor\": 1023.0,"
+"                \"machineName\": \"value1\","
+"                \"humanName\": \"Potentiometer 1\""
+"            },"
+"            {"
+"                \"scalingFactor\": 1023.0,"
+"                \"machineName\": \"value2\","
+"                \"humanName\": \"Potentiometer 2\""
+"            },"
+"            {"
+"                \"scalingFactor\": 1023.0,"
+"                \"machineName\": \"value3\","
+"                \"humanName\": \"Potentiometer 3\""
+"            }"
+"        ]"
+"    },"
+"    \"params\": ["
+"        \"dataUpdate\""
+"    ]"
+"}";
 
 message_t hibikeBuff;
 
@@ -85,6 +118,9 @@ void loop() {
           break;
         case PING_:
           send_subscription_response(&UID, subDelay);
+          break;
+        case DESCRIPTION_REQUEST:
+          send_description_response(DESCRIPTION);
           break;
 
         default:

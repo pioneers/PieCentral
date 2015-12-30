@@ -4,10 +4,12 @@
 #include "devices.h"
 #include "cobs.h"
 
-#define MAX_PAYLOAD_SIZE    25
+#define MAX_PAYLOAD_SIZE    200
 #define MESSAGEID_BYTES     1
 #define PAYLOAD_SIZE_BYTES  1
 #define CHECKSUM_BYTES      1
+
+#define MAX_FRAGMENT_SIZE   199
 
 #define UID_DEVICE_BYTES    2
 #define UID_YEAR_BYTES      1
@@ -27,6 +29,9 @@ typedef enum {
   DEVICE_STATUS           = 0x04,
   DEVICE_RESPONSE         = 0x05,
   PING_                   = 0x06,
+  DESCRIPTION_REQUEST     = 0x08,
+  DESCRIPTION_RESPONSE    = 0x09,
+
   ERROR                   = 0xFF,
 } messageID;
 
@@ -55,7 +60,7 @@ int read_message(message_t* msg);
 int send_subscription_response(hibike_uid_t* uid, uint16_t delay);
 int send_data_update(uint8_t* data, uint8_t payload_length);
 int send_device_response(uint8_t param, uint32_t value);
-
+int send_description_response(char* description);
 int append_payload(message_t* msg, uint8_t* data, uint8_t length);
 
 uint16_t payload_to_uint16(uint8_t* payload);

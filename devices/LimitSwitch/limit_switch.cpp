@@ -3,14 +3,46 @@
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
   LIMIT_SWITCH,                      // Device Type
-  0,                      // Year
-  UID_RANDOM,     // ID
+  0,                                 // Year
+  UID_RANDOM,                        // ID
 };
 ///////////////////////////////////////////////
+char *DESCRIPTION = 
+"{"
+"    \"deviceID\": \"0x00\","
+"    \"deviceName\": \"LimitSwitch\","
+"    \"dataFormat\": {"
+"        \"formatString\": \"<????\","
+"        \"parameters\": ["
+"            {"
+"                \"scalingFactor\": 1.0,"
+"                \"machineName\": \"value0\","
+"                \"humanName\": \"Switch 0\""
+"            },"
+"            {"
+"                \"scalingFactor\": 1.0,"
+"                \"machineName\": \"value1\","
+"                \"humanName\": \"Switch 1\""
+"            },"
+"            {"
+"                \"scalingFactor\": 1.0,"
+"                \"machineName\": \"value2\","
+"                \"humanName\": \"Switch 2\""
+"            },"
+"            {"
+"                \"scalingFactor\": 1.0,"
+"                \"machineName\": \"value3\","
+"                \"humanName\": \"Switch 3\""
+"            }"
+"        ]"
+"    },"
+"    \"params\": ["
+"        \"dataUpdate\""
+"    ]"
+"}";
 
 message_t hibikeBuff;
 
-//int params[NUM_PARAMS];
 
 uint64_t prevTime, currTime, heartbeat;
 uint32_t value;
@@ -85,6 +117,9 @@ void loop() {
           break;
         case PING_:
           send_subscription_response(&UID, subDelay);
+          break;
+        case DESCRIPTION_REQUEST:
+          send_description_response(DESCRIPTION);
           break;
 
         default:

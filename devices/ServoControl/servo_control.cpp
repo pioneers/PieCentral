@@ -7,6 +7,22 @@ hibike_uid_t UID = {
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
+char *DESCRIPTION = 
+"{"
+"    \"deviceID\": \"0x07\","
+"    \"deviceName\": \"ServoControl\","
+"    \"dataFormat\": {"
+"        \"formatString\": \"\","
+"        \"parameters\": []"
+"    },"
+"    \"params\": ["
+"        \"dataUpdate\","
+"        \"servo0\","
+"        \"servo1\","
+"        \"servo2\","
+"        \"servo3\""
+"    ]"
+"}";
 
 message_t hibikeBuff;
 
@@ -95,6 +111,9 @@ void loop() {
           break;
         case PING_:
           send_subscription_response(&UID, subDelay);
+          break;
+        case DESCRIPTION_REQUEST:
+          send_description_response(DESCRIPTION);
           break;
 
         default:

@@ -128,6 +128,40 @@ int send_device_response(uint8_t param, uint32_t value) {
   return send_message(&msg);
 }
 
+// fragments the description
+int send_description_response(char* description) {
+  message_t msg;
+  msg.messageID = DESCRIPTION_RESPONSE;
+  int i;
+  int description_size = strlen(description) + 1;
+  int status = 0;
+  uint8_t packet_index = 0;
+  for (i = 0; i < description_size / MAX_FRAGMENT_SIZE * MAX_FRAGMENT_SIZE; i+= MAX_FRAGMENT_SIZE) {
+    msg.payload_length = 0;
+    status += append_payload(&msg, &packet_index, sizeof(packet_index));
+    status += append_payload(&msg, (uint8_t*) &description[i], MAX_FRAGMENT_SIZE);
+    if (status != 0) {
+      return -1;
+    }
+    status += send_message(&msg);
+    packet_index++;
+  }
+
+  if (i < description_size) {
+    msg.payload_length = 0;
+    status += append_payload(&msg, &packet_index, sizeof(packet_index));
+    status += append_payload(&msg, (uint8_t *) &description[i], description_size - i);
+    if (status != 0) {
+      return -1;
+    }
+    return send_message(&msg);
+  } else {
+    return status;
+  }
+
+
+}
+
 
 
 

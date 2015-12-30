@@ -2,6 +2,7 @@
 #define INC_HIBIKE_DEVICE
 
 #include "hibike_message.h"
+#include "devices.h"
 #include <stdint.h>
 // For size_t
 #include <string.h>

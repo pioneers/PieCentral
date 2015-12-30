@@ -1,74 +1,18 @@
 #include "limit_switch.h"
 #include <Servo.h>
-//////////////// DEVICE UID ///////////////////
-hibike_uid_t UID = {
-  LIMIT_SWITCH,                      // Device Type
-  0,                                 // Year
-  UID_RANDOM,                        // ID
-};
-///////////////////////////////////////////////
-char *DESCRIPTION = 
-"{"
-"    \"deviceID\": \"0x00\","
-"    \"deviceName\": \"LimitSwitch\","
-"    \"dataFormat\": {"
-"        \"formatString\": \"<????\","
-"        \"parameters\": ["
-"            {"
-"                \"scalingFactor\": 1.0,"
-"                \"machineName\": \"value0\","
-"                \"humanName\": \"Switch 0\""
-"            },"
-"            {"
-"                \"scalingFactor\": 1.0,"
-"                \"machineName\": \"value1\","
-"                \"humanName\": \"Switch 1\""
-"            },"
-"            {"
-"                \"scalingFactor\": 1.0,"
-"                \"machineName\": \"value2\","
-"                \"humanName\": \"Switch 2\""
-"            },"
-"            {"
-"                \"scalingFactor\": 1.0,"
-"                \"machineName\": \"value3\","
-"                \"humanName\": \"Switch 3\""
-"            }"
-"        ]"
-"    },"
-"    \"params\": ["
-"        \"dataUpdate\""
-"    ]"
-"}";
-
-message_t hibikeBuff;
 
 
-uint64_t prevTime, currTime, heartbeat;
-uint32_t value;
-uint16_t subDelay;
+
 uint8_t  data[NUM_SWITCHES];
 uint8_t pins[NUM_SWITCHES] = {IN_0, IN_1, IN_2, IN_3};
-bool led_enabled;
 
 void setup() {
-  Serial.begin(115200);
-  prevTime = millis();
-  subDelay = 0;
-
-
-  // Setup Error LED
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
-  led_enabled = false;
-
+  hibike_setup();
   // Setup sensor input
   for (int i = 0; i < NUM_SWITCHES; i++) {
     pinMode(pins[i], INPUT_PULLUP);
   }
 
-  subDelay = 0;
-  heartbeat = 0;
 }
 
 
@@ -77,83 +21,30 @@ void loop() {
   for (int i = 0; i < NUM_SWITCHES; i++) {
       data[i] = 1 - digitalRead(pins[i]);  
   }
-  currTime = millis();
+  hibike_loop();
+}
 
-  // Check for Hibike packets
-  if (Serial.available() > 1) {
-    if (read_message(&hibikeBuff) == -1) {
-      toggleLED();
-    } else {
-      switch (hibikeBuff.messageID) {
-        case SUBSCRIPTION_REQUEST:
-          // change subDelay and send SUB_RESP
-          subDelay = payload_to_uint16(hibikeBuff.payload);
-          send_subscription_response(&UID, subDelay);
-          break;
+// you must implement this function. It is called when the device receives a DeviceUpdate packet.
+// the return value is the value field of the DeviceRespond packet hibike will respond with
+uint32_t device_update(uint8_t param, uint32_t value) {
+  return ~((uint32_t) 0);
+}
 
-        case SUBSCRIPTION_RESPONSE:
-          // Unsupported packet
-          toggleLED();
-          break;
-
-        case DATA_UPDATE:
-          // Unsupported packet
-          toggleLED();
-          break;
-
-        case DEVICE_UPDATE:
-          // Unsupported packet
-          toggleLED();
-          break;
-
-        case DEVICE_STATUS:
-          // Unsupported packet
-          toggleLED();
-          break;
-
-        case DEVICE_RESPONSE:
-          // Unsupported packet
-          toggleLED();
-          break;
-        case PING_:
-          send_subscription_response(&UID, subDelay);
-          break;
-        case DESCRIPTION_REQUEST:
-          send_description_response(DESCRIPTION);
-          break;
-
-        default:
-        
-          // Uh oh...
-          toggleLED();
-      }
-    }
-  }
-
-  if (currTime - heartbeat >= 1000) {
-    heartbeat = currTime;
-    toggleLED();
-  }
-
-  //Send data update
-  currTime = millis();
-  if ((subDelay > 0) && (currTime - prevTime >= subDelay)) {
-    prevTime = currTime;
-    send_data_update(data, NUM_SWITCHES);
-  }
+// you must implement this function. It is called when the devie receives a DeviceStatus packet.
+// the return value is the value field of the DeviceRespond packet hibike will respond with
+uint32_t device_status(uint8_t param) {
+  return ~((uint32_t) 0);
 }
 
 
-
-
-
-
-void toggleLED() {
-  if (led_enabled) {
-    digitalWrite(LED_PIN, LOW);
-    led_enabled = false;
-  } else {
-    digitalWrite(LED_PIN, HIGH);
-    led_enabled = true;
-  }
+// you must implement this function. It is called with a buffer and a maximum buffer size.
+// The buffer should be filled with appropriate data for a DataUpdate packer, and the number of bytes
+// added to the buffer should be returned. 
+//
+// You can use the helper function append_buf.
+// append_buf copies the specified amount data into the dst buffer and increments the offset
+uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
+  uint8_t offset = 0;
+  append_buf(data_update_buf, &offset, (uint8_t *)&data, sizeof(data));
+  return offset;
 }

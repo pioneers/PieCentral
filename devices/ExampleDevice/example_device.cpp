@@ -13,7 +13,6 @@ uint64_t value4;
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
   hibike_setup();
-  memset(&params, 0, sizeof(params[0])*NUM_PARAMS);
 }
 
 // normal arduino loop function, you must call hibike_loop() here
@@ -35,7 +34,6 @@ void loop() {
 // you must implement this function. It is called when the device receives a DeviceUpdate packet.
 // the return value is the value field of the DeviceRespond packet hibike will respond with
 uint32_t device_update(uint8_t param, uint32_t value) {
-  param -= 1;
   if (param < NUM_PARAMS) {
     params[param] = value;
     return params[param];
@@ -46,7 +44,6 @@ uint32_t device_update(uint8_t param, uint32_t value) {
 // you must implement this function. It is called when the devie receives a DeviceStatus packet.
 // the return value is the value field of the DeviceRespond packet hibike will respond with
 uint32_t device_status(uint8_t param) {
-  param -= 1;
   if (param < NUM_PARAMS) {
     return params[param];
   }

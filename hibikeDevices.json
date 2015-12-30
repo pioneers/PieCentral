@@ -1,7 +1,7 @@
 {
     "devices": [
         {
-            "deviceID": "0x00",
+            "deviceID": "0x0000",
             "deviceName": "LimitSwitch",
             "dataFormat": {
                 "formatString": "<????",
@@ -65,7 +65,7 @@
             ]
         },
         {
-            "deviceID": "0x02",
+            "deviceID": "0x0002",
             "deviceName": "Potentiometer",
             "dataFormat": {
                 "formatString": "<HHHH",

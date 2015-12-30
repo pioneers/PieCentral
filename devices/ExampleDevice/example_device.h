@@ -6,7 +6,7 @@
 
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
-  0xFFFF,                      // Device Type
+  EXAMPLE_DEVICE,                      // Device Type
   0,                      // Year
   UID_RANDOM,     // ID
 };

@@ -1,11 +1,7 @@
 #ifndef EX_DEVICE_H
 #define EX_DEVICE_H
 
-#include "hibike_message.h"
-#include "devices.h"
-#include <Servo.h>
-
-#define NUM_PARAMS 5
+#include "hibike_device.h"
 
 #define NUM_PINS 4
 #define IN_0 A0
@@ -14,15 +10,32 @@
 #define IN_3 A3
 
 #define LED_PIN 13
-
+//////////////// DEVICE UID ///////////////////
+hibike_uid_t UID = {
+  SERVO_CONTROL,                      // Device Type
+  0,                      // Year
+  UID_RANDOM,     // ID
+};
+///////////////////////////////////////////////
+char *DESCRIPTION = 
+"{"
+"    \"deviceID\": \"0x07\","
+"    \"deviceName\": \"ServoControl\","
+"    \"dataFormat\": {"
+"        \"formatString\": \"\","
+"        \"parameters\": []"
+"    },"
+"    \"params\": ["
+"        \"dataUpdate\","
+"        \"servo0\","
+"        \"servo1\","
+"        \"servo2\","
+"        \"servo3\""
+"    ]"
+"}";
 // function prototypes
 void setup();
 void loop();
 
-// Parameter Update 
-void update_param(uint8_t param, uint32_t value);
-
-// functions to control this device
-void toggleLED();
 
 #endif /* EX_DEVICE_H */

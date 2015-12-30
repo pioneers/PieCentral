@@ -1,4 +1,4 @@
-#include \"potentiometer.h"
+#include "potentiometer.h"
 #include <Servo.h>
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {

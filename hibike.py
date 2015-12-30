@@ -599,7 +599,8 @@ class HibikeDevice:
     def getData(self, param, data_format="dict"):
         formats = {"dict": self.dataToDict, "tuple": self.dataToTuple, "int": self.dataToInt}
         data = self.params[param][0]
-        data = formats[data_format](data)
+        if param == 0:
+            data = formats[data_format](data)
         return data
 
     def dataToDict(self, data):

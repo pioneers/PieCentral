@@ -29,11 +29,10 @@ void hibike_loop() {
     if (read_message(&hibikeBuff) == -1) {
       toggleLED();
     } else {
-      //send_data_update(&hibikeBuff.messageID, sizeof(hibikeBuff.messageID));
       switch (hibikeBuff.messageID) {
         case SUBSCRIPTION_REQUEST:
           // change subDelay and send SUB_RESP
-          subDelay = payload_to_uint16(hibikeBuff.payload);
+          subDelay = *((uint16_t*) &hibikeBuff.payload[0]);
           send_subscription_response(&UID, subDelay);
           break;
 
@@ -65,17 +64,13 @@ void hibike_loop() {
         case PING_:
           send_subscription_response(&UID, subDelay);
           break;
-        case 8:
+        case DESCRIPTION_REQUEST:
           {
-          //send_data_update(&hibikeBuff.messageID, sizeof(hibikeBuff.messageID));
           send_description_response(DESCRIPTION);
-          //send_data_update((uint8_t *)&x, sizeof(x));
           break;
           }
 
         default:
-          //send_data_update(&hibikeBuff.messageID, sizeof(hibikeBuff.messageID));
-
           // Uh oh...
           toggleLED();
       }

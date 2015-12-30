@@ -459,12 +459,17 @@ class HibikeThread(threading.Thread):
                         break
                 else:
                     fullDescriptor = fullDescriptor[:-1]
-                    newDeviceType = DeviceType(fullDescriptor, 'json', True)
-                    self.hibike.deviceTypes[newDeviceType.deviceID] = newDeviceType
-                    print("new device type:")
-                    print(newDeviceType)
-                    self.context[uid] = HibikeDevice(uid, newDeviceType)
-                    self.hibike._updateContextFile(self.hibike.contextFile, newDeviceType)
+                    print("descriptor:", fullDescriptor)
+                    try:
+                        newDeviceType = DeviceType(fullDescriptor, 'json', True)
+                    except:
+                        print("Bad descriptor:", fullDescriptor)
+                    else:
+                        self.hibike.deviceTypes[newDeviceType.deviceID] = newDeviceType
+                        print("new device type:")
+                        print(newDeviceType)
+                        self.context[uid] = HibikeDevice(uid, newDeviceType)
+                        self.hibike._updateContextFile(self.hibike.contextFile, newDeviceType)
         else:
             print("Unexpected message type received")
         return msgID
@@ -494,6 +499,7 @@ class DeviceType():
             self.deviceID       = int(str(json_dict["deviceID"]), 16)
             self.deviceName     = str(json_dict["deviceName"])
             self.dataFormat     = str(json_dict["dataFormat"]["formatString"])
+            struct.calcsize(self.dataFormat)
             parameters          = json_dict["dataFormat"]["parameters"]
             self.scalingFactors = [float(param['scalingFactor']) for param in parameters]
             self.machineNames   = [str(param['machineName']) for param in parameters]

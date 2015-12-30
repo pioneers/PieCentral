@@ -5,10 +5,17 @@
 #include <stdint.h>
 // For size_t
 #include <string.h>
-
 #define LED_PIN 13
+
+typedef enum {
+  RESTING,
+  FIRST_BEAT,
+  BREAK,
+  SECOND_BEAT
+} led_state;
+
 extern hibike_uid_t UID;
-extern char* DESCRIPTION;
+extern char *DESCRIPTION;
 void hibike_setup();
 void hibike_loop();
 void toggleLED();

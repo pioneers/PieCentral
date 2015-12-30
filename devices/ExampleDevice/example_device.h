@@ -11,6 +11,8 @@ hibike_uid_t UID = {
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
+
+//////////////// DEVICE DESCRIPTOR ////////////
 char* DESCRIPTION = "{"
 "    \"deviceID\": \"0xFFFF\","
 "    \"deviceName\": \"ExampleDevice\","
@@ -54,14 +56,12 @@ char* DESCRIPTION = "{"
 "        \"test5\""
 "    ]"
 "}";
-
+///////////////////////////////////////////////
 
 
 #define NUM_PARAMS 6
 
-#define LED_PIN 13
 
-//extern hibike_uid_t UID;
 // function prototypes
 void setup();
 void loop();

@@ -441,6 +441,7 @@ class HibikeThread(threading.Thread):
                         return msgID
                     self.context[uid] = HibikeDevice(uid, self.hibike.deviceTypes[deviceType])
                 self.context[uid].updateDelay(delay)
+        # reassembles fragmented descriptor string
         elif msgID == hm.messageTypes["DescriptionResponse"]:
             index, data = msg.getPayload()[:1], msg.getPayload()[1:]
             (index, )= struct.unpack("<B", index)
@@ -458,21 +459,12 @@ class HibikeThread(threading.Thread):
                         break
                 else:
                     fullDescriptor = fullDescriptor[:-1]
-                    print("descriptor", fullDescriptor)
                     newDeviceType = DeviceType(fullDescriptor, 'json', True)
                     self.hibike.deviceTypes[newDeviceType.deviceID] = newDeviceType
                     print("new device type:")
                     print(newDeviceType)
                     self.context[uid] = HibikeDevice(uid, newDeviceType)
                     self.hibike._updateContextFile(self.hibike.contextFile, newDeviceType)
-
-            # print("format:", bytearray(msg.getPayload()))
-            # description = str(msg.getPayload())
-            # reader = csv.reader([description], delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
-            # newDeviceType = DeviceType(reader.next(), 'csv')
-            # self.hibike.deviceTypes[newDeviceType.deviceID] = newDeviceType
-            # print("new device type:")
-            # print(newDeviceType)
         else:
             print("Unexpected message type received")
         return msgID
@@ -545,7 +537,7 @@ class DeviceType():
 
     def to_json(self):
         deviceTypeDict = OrderedDict()
-        deviceTypeDict["deviceID"] = "0x%04x" % self.deviceID
+        deviceTypeDict["deviceID"] = "0x%04X" % self.deviceID
         deviceTypeDict["deviceName"] = self.deviceName
         deviceTypeDict["dataFormat"] = OrderedDict()
         deviceTypeDict["dataFormat"]["formatString"] = self.dataFormat

@@ -4,21 +4,21 @@
 #include "devices.h"
 #include "cobs.h"
 
-#define MAX_PAYLOAD_SIZE    200
+#define MAX_PAYLOAD_SIZE    100
 #define MESSAGEID_BYTES     1
 #define PAYLOAD_SIZE_BYTES  1
 #define CHECKSUM_BYTES      1
 
-#define MAX_FRAGMENT_SIZE   199
+#define MAX_FRAGMENT_SIZE   (MAX_PAYLOAD_SIZE - 1)
 
 #define UID_DEVICE_BYTES    2
 #define UID_YEAR_BYTES      1
 #define UID_ID_BYTES        8
-#define UID_BYTES           UID_DEVICE_BYTES+UID_YEAR_BYTES+UID_ID_BYTES
+#define UID_BYTES           (UID_DEVICE_BYTES+UID_YEAR_BYTES+UID_ID_BYTES)
 
 #define DEVICE_PARAM_BYTES   1
 #define DEVICE_VALUE_BYTES   4
-#define DEVICE_BYTES         DEVICE_PARAM_BYTES+DEVICE_VALUE_BYTES
+#define DEVICE_BYTES         (DEVICE_PARAM_BYTES+DEVICE_VALUE_BYTES)
 
 // Enumerations
 typedef enum {
@@ -62,6 +62,7 @@ int send_data_update(uint8_t* data, uint8_t payload_length);
 int send_device_response(uint8_t param, uint32_t value);
 int send_description_response(char* description);
 int append_payload(message_t* msg, uint8_t* data, uint8_t length);
+void append_buf(uint8_t* buf, uint8_t* offset, uint8_t* data, uint8_t length);
 
 uint16_t payload_to_uint16(uint8_t* payload);
 uint16_t payload_to_uint32(uint8_t* payload);

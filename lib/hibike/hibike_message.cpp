@@ -174,6 +174,11 @@ int append_payload(message_t* msg, uint8_t* data, uint8_t length) {
   return 0;
 }
 
+void append_buf(uint8_t* buf, uint8_t* offset, uint8_t* data, uint8_t length) {
+  memcpy(&(buf[*offset]), data, length);
+  *offset += length;
+}
+
 
 void uid_to_byte(uint8_t* data, hibike_uid_t* uid) {
   data[0] = (uint8_t) (uid->device_type & 0xFF);
@@ -184,30 +189,30 @@ void uid_to_byte(uint8_t* data, hibike_uid_t* uid) {
   }
 }
 
-void device_update(message_t* msg, uint8_t param, uint32_t value) {
-  msg->messageID = DEVICE_UPDATE;
-  msg->payload_length = 0;
-  uint8_to_message(msg, param);
-  uint32_to_message(msg, value);
+// void device_update(message_t* msg, uint8_t param, uint32_t value) {
+//   msg->messageID = DEVICE_UPDATE;
+//   msg->payload_length = 0;
+//   uint8_to_message(msg, param);
+//   uint32_to_message(msg, value);
 
-}
-void device_status(message_t* msg, uint8_t param, uint32_t value) {
-  msg->messageID = DEVICE_STATUS;
-  msg->payload_length = 0;
-  uint8_to_message(msg, param);
-  uint32_to_message(msg, value);
-}
-void device_response(message_t* msg, uint8_t param, uint32_t value) {
-  msg->messageID = DEVICE_RESPONSE;
-  msg->payload_length = 0;
-  uint8_to_message(msg, param);
-  uint32_to_message(msg, value);
-}
-void error_message(message_t* msg, uint8_t error_code) {
-  msg->messageID = ERROR;
-  msg->payload_length = 0;
-  uint8_to_message(msg, error_code); 
-}
+// }
+// void device_status(message_t* msg, uint8_t param, uint32_t value) {
+//   msg->messageID = DEVICE_STATUS;
+//   msg->payload_length = 0;
+//   uint8_to_message(msg, param);
+//   uint32_to_message(msg, value);
+// }
+// void device_response(message_t* msg, uint8_t param, uint32_t value) {
+//   msg->messageID = DEVICE_RESPONSE;
+//   msg->payload_length = 0;
+//   uint8_to_message(msg, param);
+//   uint32_to_message(msg, value);
+// }
+// void error_message(message_t* msg, uint8_t error_code) {
+//   msg->messageID = ERROR;
+//   msg->payload_length = 0;
+//   uint8_to_message(msg, error_code); 
+// }
 
 
 

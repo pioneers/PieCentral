@@ -1,5 +1,4 @@
 #include "servo_control.h"
-#include <Servo.h>
 
 Servo servos[NUM_PINS];
 

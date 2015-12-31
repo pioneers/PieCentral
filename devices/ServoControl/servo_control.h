@@ -2,6 +2,7 @@
 #define EX_DEVICE_H
 
 #include "hibike_device.h"
+#include <Servo.h>
 
 #define NUM_PINS 4
 #define IN_0 A0

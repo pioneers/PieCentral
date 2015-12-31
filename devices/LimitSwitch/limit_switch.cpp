@@ -1,9 +1,7 @@
 #include "limit_switch.h"
-#include <Servo.h>
 
 
 
-uint8_t  data[NUM_SWITCHES];
 uint8_t pins[NUM_SWITCHES] = {IN_0, IN_1, IN_2, IN_3};
 
 void setup() {
@@ -17,10 +15,6 @@ void setup() {
 
 
 void loop() {
-  // Read sensor
-  for (int i = 0; i < NUM_SWITCHES; i++) {
-      data[i] = 1 - digitalRead(pins[i]);  
-  }
   hibike_loop();
 }
 
@@ -44,7 +38,16 @@ uint32_t device_status(uint8_t param) {
 // You can use the helper function append_buf.
 // append_buf copies the specified amount data into the dst buffer and increments the offset
 uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
-  uint8_t offset = 0;
-  append_buf(data_update_buf, &offset, (uint8_t *)&data, sizeof(data));
-  return offset;
+
+  if (buf_len < sizeof(uint8_t) * NUM_SWITCHES) {
+    return 0;
+  }
+
+  uint8_t *data = (uint8_t *) data_update_buf;
+  // Read sensor
+  for (int i = 0; i < NUM_SWITCHES; i++) {
+      data[i] = 1 - digitalRead(pins[i]);  
+  }
+  return sizeof(uint8_t) * NUM_SWITCHES;
+
 }

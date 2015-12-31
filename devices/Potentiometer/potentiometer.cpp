@@ -3,7 +3,6 @@
 
 
 
-uint16_t data[NUM_PINS];
 uint8_t pins[NUM_PINS] = {IN_0, IN_1, IN_2, IN_3};
 
 void setup() {
@@ -18,10 +17,6 @@ void setup() {
 
 
 void loop() {
-  // Read sensor
-  for (int i = 0; i < NUM_PINS; i++) {
-      data[i] = analogRead(pins[i]);  
-  }
   hibike_loop();
 }
 
@@ -45,7 +40,13 @@ uint32_t device_status(uint8_t param) {
 // You can use the helper function append_buf.
 // append_buf copies the specified amount data into the dst buffer and increments the offset
 uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
-  uint8_t offset = 0;
-  append_buf(data_update_buf, &offset, (uint8_t *)&data, sizeof(data));
-  return offset;
+  // Read sensor
+  if (buf_len < sizeof(uint16_t) * NUM_PINS) {
+    return 0;
+  }
+  uint16_t *data = (uint16_t *) data_update_buf;
+  for (int i = 0; i < NUM_PINS; i++) {
+      data[i] = analogRead(pins[i]);  
+  }
+  return sizeof(uint16_t) * NUM_PINS;
 }

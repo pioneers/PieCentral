@@ -1,7 +1,7 @@
 {
     "devices": [
         {
-            "deviceID": "0x0000",
+            "deviceID": "0x00",
             "deviceName": "LimitSwitch",
             "dataFormat": {
                 "formatString": "<????",
@@ -65,7 +65,7 @@
             ]
         },
         {
-            "deviceID": "0x0002",
+            "deviceID": "0x02",
             "deviceName": "Potentiometer",
             "dataFormat": {
                 "formatString": "<HHHH",
@@ -149,6 +149,8 @@
             },
             "params": [
                 "dataUpdate",
+                "team",
+                "mode",
                 "blue",
                 "yellow",
                 "s1",

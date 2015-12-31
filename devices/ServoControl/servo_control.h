@@ -17,22 +17,7 @@ hibike_uid_t UID = {
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
-char *DESCRIPTION = 
-"{"
-"    \"deviceID\": \"0x07\","
-"    \"deviceName\": \"ServoControl\","
-"    \"dataFormat\": {"
-"        \"formatString\": \"\","
-"        \"parameters\": []"
-"    },"
-"    \"params\": ["
-"        \"dataUpdate\","
-"        \"servo0\","
-"        \"servo1\","
-"        \"servo2\","
-"        \"servo3\""
-"    ]"
-"}";
+
 // function prototypes
 void setup();
 void loop();

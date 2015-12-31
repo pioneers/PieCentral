@@ -19,39 +19,7 @@ hibike_uid_t UID = {
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
-char *DESCRIPTION = 
-"{"
-"    \"deviceID\": \"0x02\","
-"    \"deviceName\": \"Potentiometer\","
-"    \"dataFormat\": {"
-"        \"formatString\": \"<HHHH\","
-"        \"parameters\": ["
-"            {"
-"                \"scalingFactor\": 1023.0,"
-"                \"machineName\": \"value0\","
-"                \"humanName\": \"Potentiometer 0\""
-"            },"
-"            {"
-"                \"scalingFactor\": 1023.0,"
-"                \"machineName\": \"value1\","
-"                \"humanName\": \"Potentiometer 1\""
-"            },"
-"            {"
-"                \"scalingFactor\": 1023.0,"
-"                \"machineName\": \"value2\","
-"                \"humanName\": \"Potentiometer 2\""
-"            },"
-"            {"
-"                \"scalingFactor\": 1023.0,"
-"                \"machineName\": \"value3\","
-"                \"humanName\": \"Potentiometer 3\""
-"            }"
-"        ]"
-"    },"
-"    \"params\": ["
-"        \"dataUpdate\""
-"    ]"
-"}";
+
 // function prototypes
 void setup();
 void loop();

@@ -65,6 +65,9 @@ endif
 ### random uid
 RANDOM := 0x$(shell head -c 8 /dev/urandom | xxd -p)
 CXXFLAGS += -D UID_RANDOM=$(RANDOM)
+
+CXXFLAGS += -D DESCRIPTOR=$(shell python escape_json.py $(PROJECT_DIR)/devices/$(DEVICE)/*.json)
+
 LOCAL_CPP_SRCS := $(PROJECT_DIR)/devices/$(DEVICE)/*.cpp
 
 ### MONITOR_PORT

@@ -1,5 +1,7 @@
 #include "hibike_device.h"
 
+char *DESCRIPTION = DESCRIPTOR;
+
 message_t hibikeBuff;
 
 uint64_t prevTime, currTime, heartbeatTime;

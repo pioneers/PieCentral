@@ -23,26 +23,6 @@ hibike_uid_t UID = {
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
-char *DESCRIPTION =         
-"{"
-"    \"deviceID\": \"0x05\","
-"    \"deviceName\": \"TeamFlag\","
-"    \"dataFormat\": {"
-"        \"formatString\": \"\","
-"        \"parameters\": []"
-"    },"
-"    \"params\": ["
-"        \"dataUpdate\","
-"        \"team\","
-"        \"mode\","
-"        \"blue\","
-"        \"yellow\","
-"        \"s1\","
-"        \"s2\","
-"        \"s3\","
-"        \"s4\""
-"    ]"
-"}";
 
 enum {
   MODE_INITIAL = 0,  // Initial mode

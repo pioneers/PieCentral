@@ -10,39 +10,7 @@ hibike_uid_t UID = {
   UID_RANDOM,                        // ID
 };
 ///////////////////////////////////////////////
-char *DESCRIPTION = 
-"{"
-"    \"deviceID\": \"0x00\","
-"    \"deviceName\": \"LimitSwitch\","
-"    \"dataFormat\": {"
-"        \"formatString\": \"<????\","
-"        \"parameters\": ["
-"            {"
-"                \"scalingFactor\": 1.0,"
-"                \"machineName\": \"value0\","
-"                \"humanName\": \"Switch 0\""
-"            },"
-"            {"
-"                \"scalingFactor\": 1.0,"
-"                \"machineName\": \"value1\","
-"                \"humanName\": \"Switch 1\""
-"            },"
-"            {"
-"                \"scalingFactor\": 1.0,"
-"                \"machineName\": \"value2\","
-"                \"humanName\": \"Switch 2\""
-"            },"
-"            {"
-"                \"scalingFactor\": 1.0,"
-"                \"machineName\": \"value3\","
-"                \"humanName\": \"Switch 3\""
-"            }"
-"        ]"
-"    },"
-"    \"params\": ["
-"        \"dataUpdate\""
-"    ]"
-"}";
+
 #define NUM_SWITCHES 4
 #define IN_0 A0
 #define IN_1 A1

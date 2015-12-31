@@ -1,7 +1,7 @@
 {
     "devices": [
         {
-            "deviceID": "0x00",
+            "deviceID": "0x0000",
             "deviceName": "LimitSwitch",
             "dataFormat": {
                 "formatString": "<????",
@@ -33,7 +33,7 @@
             ]
         },
         {
-            "deviceID": "0x01",
+            "deviceID": "0x0001",
             "deviceName": "LineFollower",
             "dataFormat": {
                 "formatString": "<????",
@@ -65,7 +65,7 @@
             ]
         },
         {
-            "deviceID": "0x02",
+            "deviceID": "0x0002",
             "deviceName": "Potentiometer",
             "dataFormat": {
                 "formatString": "<HHHH",
@@ -97,7 +97,7 @@
             ]
         },
         {
-            "deviceID": "0x03",
+            "deviceID": "0x0003",
             "deviceName": "Encoder",
             "dataFormat": {
                 "formatString": "<H",
@@ -114,7 +114,7 @@
             ]
         },
         {
-            "deviceID": "0x04",
+            "deviceID": "0x0004",
             "deviceName": "BatteryBuzzer",
             "dataFormat": {
                 "formatString": "<H??",
@@ -141,7 +141,7 @@
             ]
         },
         {
-            "deviceID": "0x05",
+            "deviceID": "0x0005",
             "deviceName": "TeamFlag",
             "dataFormat": {
                 "formatString": "",
@@ -160,7 +160,7 @@
             ]
         },
         {
-            "deviceID": "0x07",
+            "deviceID": "0x0007",
             "deviceName": "ServoControl",
             "dataFormat": {
                 "formatString": "",

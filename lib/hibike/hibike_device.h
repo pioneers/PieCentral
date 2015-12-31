@@ -16,7 +16,6 @@ typedef enum {
 } led_state;
 
 extern hibike_uid_t UID;
-extern char *DESCRIPTION;
 void hibike_setup();
 void hibike_loop();
 void toggleLED();

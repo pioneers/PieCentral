@@ -175,6 +175,40 @@
             ]
         },
         {
+            "deviceID": "0x0009",
+            "deviceName": "ColorSensor",
+            "dataFormat": {
+                "formatString": "<HHHH",
+                "parameters": [
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value0",
+                        "humanName": "Red"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value1",
+                        "humanName": "Green"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value2",
+                        "humanName": "Blue"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value3",
+                        "humanName": "Clear"
+                    }
+                ]
+            },
+            "params": [
+                "dataUpdate",
+                "IntegrationTime",
+                "Gain"
+            ]
+        },
+        {
             "deviceID": "0xFFFF",
             "deviceName": "ExampleDevice",
             "dataFormat": {

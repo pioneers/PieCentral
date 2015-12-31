@@ -248,10 +248,10 @@ class Hibike():
         Returns none if deviceType of uid is invalid 
         """
         deviceType = self.getDeviceType(uid)
-        if deviceType not in self.devicetypes:
+        if deviceType not in self.deviceTypes:
             print("Bad deviceType of uid")
             return None
-        params = self.devicetypes[deviceType].params
+        params = self.deviceTypes[deviceType].params
         return params
 
 
@@ -268,6 +268,20 @@ class Hibike():
                 return None
             param = self.deviceTypes[self.getDeviceType(uid)].paramIDs[param]
         self.deviceUpdate(uid, param, value)
+
+    def readValue(self, uid, param):
+        """Writes a value to the parameter of a particular device, 
+        specified by uid
+        """
+        if uid not in self.getUIDs():
+            print("Bad UID")
+            return None
+        if type(param) is str:
+            if param not in self.deviceTypes[self.getDeviceType(uid)]:
+                print("Bad param")
+                return None
+            param = self.deviceTypes[self.getDeviceType(uid)].paramIDs[param]
+        self.deviceStatus(uid, param)
 
 
     def subToDevice(self, uid, delay):

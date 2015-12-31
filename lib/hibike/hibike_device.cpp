@@ -52,12 +52,12 @@ void hibike_loop() {
         case DEVICE_UPDATE:
           param = hibikeBuff.payload[0] - 1;
           value = *((uint32_t*) &hibikeBuff.payload[DEVICE_PARAM_BYTES]);
-          send_device_response(param, device_update(param, value));
+          send_device_response(param + 1, device_update(param, value));
           break;
 
         case DEVICE_STATUS:
           param = hibikeBuff.payload[0] - 1;
-          send_device_response(param, device_status(param));
+          send_device_response(param + 1, device_status(param));
           break;
 
         case DEVICE_RESPONSE:

@@ -20,9 +20,11 @@ ARDMK_DIR         = $(PROJECT_DIR)/Arduino-Makefile
 ### Path to the Arduino application and ressources directory.
 ARDUINO_DIR       = /usr/share/arduino
 
+ARDUINO_LIBS = Wire
+
 ### USER_LIB_PATH
 ### Path to where the your project's libraries are stored.
-SKETCH_LIBS = hibike
+SKETCH_LIBS = hibike Adafruit_TCS34725
 USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
 
 ### BOARD_TAG & BOARD_SUB

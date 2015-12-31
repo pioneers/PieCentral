@@ -107,6 +107,8 @@ Device Type Enumeration:
     +--------------------------+
     |  0x08   | LinearActuator |
     +--------------------------+
+    |  0x09   | ColorSensor    |
+    +--------------------------+
     |  0xFFFF | ExampleDevice  |
     +---------+----------------+ 
 Note: These assignments are totally random as of now. We need to figure

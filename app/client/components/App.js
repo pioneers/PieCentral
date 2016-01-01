@@ -1,38 +1,34 @@
-React = require('react')
-Environment = require('../utils/Environment')
-if Environment.isBrowser
-  Joyride = require('react-joyride')
-Router = require('react-router')
-DNav = require('./DNav')
-Dashboard = require('./Dashboard')
+import React from 'react';
+import Joyride from 'react-joyride';
+import Router from 'react-router';
+import DNav from './DNav';
+import Dashboard from './Dashboard';
 
-module.exports = Dawn = React.createClass
-  displayName: 'Dawn'
-
-  getInitialState: ->
-    steps: []
-
-  addSteps: (steps) ->
-    joyride = this.refs.joyride
-
-    if not Array.isArray(steps)
-      steps = [steps]
-
-    if not steps.length
-      return false
-
-    this.setState((currentState) ->
-      currentState.steps = currentState.steps.concat(joyride.parseSteps(steps))
-      return currentState
-    )
-
-  addTooltip: (data) ->
-    this.refs.joyride.addTooltip(data)
-
-  startTour: ->
-    this.refs.joyride.start(false)
-
-  componentDidMount: ->
+export default React.createClass({
+  displayName: 'Dawn',
+  getInitialState() {
+    return {steps: []};
+  },
+  addSteps(steps) {
+    let joyride = this.refs.joyride;
+    if (!Array.isArray(steps)) {
+      steps = [ steps ];
+    }
+    if (!steps.length) {
+      return false;
+    }
+    this.setState((currentState) => {
+      currentState.steps = currentState.steps.concat(joyride.parseSteps(steps));
+      return currentState;
+    });
+  },
+  addTooltip(data) {
+    this.refs.joyride.addTooltip(data);
+  },
+  startTour() {
+    this.refs.joyride.start(false);
+  },
+  componentDidMount() {
     this.addSteps([{
       title: 'Battery Indicator',
       text: 'This displays your robot\'s current battery level. Keep an eye on the battery level and charge the battery whenever it is nearly drained.',
@@ -81,18 +77,23 @@ module.exports = Dawn = React.createClass
       selector: '#tour-button',
       position: 'left',
       type: 'hover'
-    }])
-
-  render: ->
-    joyride = null
-    if Joyride?
-      joyride = <Joyride ref="joyride" steps={this.state.steps} />
-    return (<div>
-      <DNav {...this.props} startTour={this.startTour}/>
-      {joyride}
-      <div style={height: '60px', marginBottom: '21px'}/>
-      {React.cloneElement(this.props.children, {
-        addSteps: this.addSteps,
-        addTooltip: this.addTooltip
-      })}
-    </div>)
+    }]);
+  },
+  render() {
+    let joyride = null;
+    if(Joyride !== null) {
+      joyride = (<Joyride ref="joyride" steps={this.state.steps} />);
+    }
+    return (
+      <div>
+        <DNav {...this.props} startTour={this.startTour}/>
+        { joyride }
+        <div style={{ height: '60px', marginBottom: '21px' }}/>
+        {React.cloneElement(this.props.children, {
+          addSteps: this.addSteps,
+          addTooltip: this.addTooltip
+        })}
+      </div>
+    );
+  }
+});

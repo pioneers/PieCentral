@@ -114,6 +114,43 @@
             ]
         },
         {
+            "deviceID": "0x0004",
+            "deviceName": "BatteryBuzzer",
+            "dataFormat": {
+                "formatString": "<??hhh",
+                "parameters": [
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value0",
+                        "humanName": "Safe"
+                    },
+                    {
+                        "scalingFactor": 1.0,
+                        "machineName": "value1",
+                        "humanName": "Connected"
+                    },
+                    {
+                        "scalingFactor": 204.6,
+                        "machineName": "value2",
+                        "humanName": "Cell1"
+                    },
+                    {
+                        "scalingFactor": 204.6,
+                        "machineName": "value3",
+                        "humanName": "Cell2"
+                    },
+                    {
+                        "scalingFactor": 204.6,
+                        "machineName": "value4",
+                        "humanName": "Cell3"
+                    }
+                ]
+            },
+            "params": [
+                "dataUpdate"
+            ]
+        },
+        {
             "deviceID": "0x0005",
             "deviceName": "TeamFlag",
             "dataFormat": {

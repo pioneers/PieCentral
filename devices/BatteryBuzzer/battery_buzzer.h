@@ -24,7 +24,7 @@
 
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
-  EXAMPLE_DEVICE,                      // Device Type
+  BATTERY_BUZZER,                      // Device Type
   0,                      // Year
   UID_RANDOM,     // ID
 };

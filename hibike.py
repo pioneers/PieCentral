@@ -473,7 +473,7 @@ class HibikeThread(threading.Thread):
                         break
                 else:
                     fullDescriptor = fullDescriptor[:-1]
-                    print("descriptor:", fullDescriptor)
+                    #print("descriptor:", fullDescriptor)
                     try:
                         newDeviceType = DeviceType(fullDescriptor, 'json', True)
                     except:

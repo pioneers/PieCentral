@@ -1,12 +1,12 @@
 #include "battery_buzzer.h"
 
 uint8_t safe, connected;
-uint16_t v0, v1, v2;
+int16_t v0, v1, v2;
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
-  pinMode(CELL_0, INPUT_PULLUP);
-  pinMode(CELL_1, INPUT_PULLUP);
-  pinMode(CELL_2, INPUT_PULLUP);
+  pinMode(CELL_0, INPUT);
+  pinMode(CELL_1, INPUT);
+  pinMode(CELL_2, INPUT);
   pinMode(READ_ENABLE_PIN, OUTPUT);
   read_voltage();
   hibike_setup();
@@ -26,9 +26,9 @@ void loop() {
 
 void read_voltage() {
   digitalWrite(READ_ENABLE_PIN, HIGH);
-  uint16_t cell_0 = analogRead(CELL_0);
-  uint16_t cell_1 = analogRead(CELL_1);
-  uint16_t cell_2 = analogRead(CELL_2);
+  int16_t cell_0 = analogRead(CELL_0);
+  int16_t cell_1 = analogRead(CELL_1);
+  int16_t cell_2 = analogRead(CELL_2);
   digitalWrite(READ_ENABLE_PIN, LOW);
   v0 = cell_0 * 2;
   v1 = cell_1 * 4 - v0;

@@ -1,0 +1,32 @@
+{
+  "name": "electron-quick-start",
+  "version": "1.0.0",
+  "description": "A minimal Electron application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js",
+    "watch": "./node_modules/.bin/webpack-dev-server"
+  },
+  "devDependencies": {
+    "babel": "^6.3.26",
+    "babel-core": "^6.3.26",
+    "babel-loader": "^6.2.0",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "webpack": "^1.12.9",
+    "webpack-dev-server": "^1.14.0"
+  },
+  "dependencies": {
+    "brace": "^0.7.0",
+    "react": "^0.14.5",
+    "react-ace": "^3.0.0",
+    "react-bootstrap": "^0.28.1",
+    "react-dom": "^0.14.5",
+    "react-dropzone": "^3.3.0",
+    "react-joyride": "^1.1.1",
+    "socket.io": "^1.3.7",
+    "socket.io-client": "^1.3.7",
+    "superagent": "^1.6.1",
+    "zmq": "^2.14.0"
+  }
+}

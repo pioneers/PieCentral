@@ -114,33 +114,6 @@
             ]
         },
         {
-            "deviceID": "0x0004",
-            "deviceName": "BatteryBuzzer",
-            "dataFormat": {
-                "formatString": "<H??",
-                "parameters": [
-                    {
-                        "scalingFactor": 1023.0,
-                        "machineName": "value0",
-                        "humanName": "Voltage"
-                    },
-                    {
-                        "scalingFactor": 1.0,
-                        "machineName": "value1",
-                        "humanName": "Safe"
-                    },
-                    {
-                        "scalingFactor": 1.0,
-                        "machineName": "value2",
-                        "humanName": "Connected"
-                    }
-                ]
-            },
-            "params": [
-                "dataUpdate"
-            ]
-        },
-        {
             "deviceID": "0x0005",
             "deviceName": "TeamFlag",
             "dataFormat": {

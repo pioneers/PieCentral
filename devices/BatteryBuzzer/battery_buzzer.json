@@ -1,0 +1,37 @@
+{
+    "deviceID": "0x0004",
+    "deviceName": "BatteryBuzzer",
+    "dataFormat": {
+        "formatString": "<??HHH",
+        "parameters": [
+            {
+                "scalingFactor": 1.0,
+                "machineName": "value0",
+                "humanName": "Safe"
+            },
+            {
+                "scalingFactor": 1.0,
+                "machineName": "value1",
+                "humanName": "Connected"
+            },
+            {
+                "scalingFactor": 1.0,
+                "machineName": "value2",
+                "humanName": "Cell1"
+            },
+            {
+                "scalingFactor": 1.0,
+                "machineName": "value3",
+                "humanName": "Cell1"
+            },
+            {
+                "scalingFactor": 1.0,
+                "machineName": "value4",
+                "humanName": "Cell1"
+            }
+        ]
+    },
+    "params": [
+        "dataUpdate"
+    ]
+},

@@ -4,13 +4,6 @@ import {
   Button,
   ButtonGroup,
   ButtonToolbar,
-  Panel,
-  DropdownButton,
-  MenuItem,
-  Modal,
-  Input,
-  ListGroup,
-  ListGroupItem,
   Glyphicon,
   OverlayTrigger,
   Tooltip
@@ -35,7 +28,11 @@ export default React.createClass({
                   overlay={<Tooltip id="{button.name.toLowerCase()}-tooltip">
                     {button.name}
                   </Tooltip>}>
-                  <Button onClick={button.onClick} bsSize="small">
+                  <Button
+                    onClick={button.onClick}
+                    bsSize="small"
+                    disabled={button.disabled || false}
+                    >
                     <Glyphicon glyph={button.glyph} />
                   </Button>
                 </OverlayTrigger>

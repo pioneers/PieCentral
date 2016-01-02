@@ -12,7 +12,6 @@ import RemoteRobotStore from '../stores/RemoteRobotStore';
 import RobotActions from '../actions/RobotActions';
 import AnsibleClient from '../utils/AnsibleClient';
 import _ from 'lodash';
-import {dialog} from 'electron';
 
 var Editor = React.createClass({
   getInitialState() {
@@ -85,28 +84,32 @@ var Editor = React.createClass({
     return [
       [
         {
-          name: 'Open',
+          name: 'open',
+          text: 'Open',
           onClick() {
             alert('test');
           },
           glyph: 'folder-open'
         },
         {
-          name: 'Save',
+          name: 'save',
+          text: 'Save',
           onClick() {
             alert('test');
           },
           glyph: 'floppy-disk'
         },
         {
-          name: 'Create',
+          name: 'create',
+          text: 'Create',
           onClick() {
             alert('test');
           },
           glyph: 'file'
         },
         {
-          name: 'Delete',
+          name: 'delete',
+          text: 'Delete',
           onClick() {
             alert('test');
           },
@@ -115,27 +118,29 @@ var Editor = React.createClass({
       ],
       [
         {
-          name: 'Run',
+          name: 'run',
+          text: 'Run',
           onClick: this.startRobot,
-          glyph: 'play'
+          glyph: 'play',
+          disabled: (this.state.status || !this.state.connection)
         },
         {
-          name: 'Stop',
+          name: 'stop',
+          text: 'Stop',
           onClick: this.stopRobot,
-          glyph: 'stop'
+          glyph: 'stop',
+          disabled: !(this.state.status && this.state.connection)
         },
         {
-          name: 'Toggle Console',
-          onClick() {
-            alert('test');
-          },
+          name: 'toggle-console',
+          text: 'Toggle Console',
+          onClick: this.toggleConsole,
           glyph: 'console'
         },
         {
-          name: 'Clear Console',
-          onClick() {
-            alert('test');
-          },
+          name: 'clear-console',
+          text: 'Clear Console',
+          onClick: this.clearConsole,
           glyph: 'remove'
         }
       ]

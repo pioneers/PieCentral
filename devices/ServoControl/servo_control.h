@@ -8,10 +8,10 @@
 #define NUM_PARAMS 5
 
 #define NUM_PINS 4
-#define IN_0 A0
-#define IN_1 A1
-#define IN_2 A2
-#define IN_3 A3
+#define SERVO_0 6
+#define SERVO_1 9
+#define SERVO_2 10
+#define SERVO_3 11
 
 #define LED_PIN 13
 

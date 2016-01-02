@@ -7,20 +7,21 @@
 #define BUZZER_PIN 10
 #define BUZZER_FREQ 1000
 
-#define CELL_0 A0
-#define CELL_1 A1
-#define CELL_2 A2
-// units all voltages are recorded in
-#define VREF 1023
+#define BATT_0 A0
+#define BATT_1 A1
+#define BATT_2 A2
+
+// units analogRead() uses
+#define VOLTS_PER_UNIT (5.0/1023.0)
 
 // 3.5V
-#define SAFE_THRESHOLD 716
+#define SAFE_THRESHOLD 3.5
 
-// TBD
-#define CONNECTED_THRESHOLD 100
+// connectivity is checked on raw values, not computed voltages
+#define CONNECTED_THRESHOLD 200
 
 // 1.0V
-#define BALANCE_THRESHOLD 204
+#define BALANCE_THRESHOLD 1.0
 
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
@@ -32,9 +33,8 @@ hibike_uid_t UID = {
 
 void read_voltage();
 
-uint16_t abs_diff(uint16_t a, uint16_t b);
+float abs_diff(float a, float b);
 
-#define NUM_PARAMS 6
 
 
 // function prototypes

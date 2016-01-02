@@ -94,9 +94,7 @@ var Editor = React.createClass({
         {
           name: 'save',
           text: 'Save',
-          onClick() {
-            alert('test');
-          },
+          onClick: this.saveFile,
           glyph: 'floppy-disk'
         },
         {

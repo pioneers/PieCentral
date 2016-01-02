@@ -37,59 +37,39 @@ function receive(type, successful, receivedCode) {
   }
 }
 
-function getCodeUpdate(success, receivedCode) {
-  if (success) {
-    editorData.latestSaveCode = receivedCode;
-    // Setting editorCode will be considered a
-    // change and will fire an editorUpdate action.
-    // We need to wait in order not to conflict with
-    // the original getCode dispatch. Hacky.
-    process.nextTick(() => {
-      editorData.editorCode = receivedCode;
-      EditorStore.emitChange();
-    });
-  } else {
-    EditorStore.emitError('Failed to load code');
-  }
-}
-
-function sendCodeUpdate(success, sentCode) {
-  if (success) {
-    editorData.latestSaveCode = sentCode;
+function openFile(payload) {
+  editorData.latestSaveCode = payload.code;
+  // Setting editorCode will be considered a
+  // change and will fire an editorUpdate action.
+  // We need to wait in order not to conflict with
+  // the original getCode dispatch. 
+  process.nextTick(() => {
+    editorData.editorCode = payload.code;
+    editorData.filePath = payload.filePath;
     EditorStore.emitChange();
-  } else {
-    EditorStore.emitError('Failed to save code.');
-  }
+  });
 }
 
-function editorUpdate(newCode) {
-  editorData.editorCode = newCode;
+function saveFile(payload) {
+  editorData.latestSaveCode = payload.code;
   EditorStore.emitChange();
 }
 
-function filenamesListUpdate(action) {
-  editorData.filenames = action.filenames;
-  EditorStore.emitChange();
-}
-
-function filenameUpdate(action) {
-  editorData.filename = action.filename;
+function editorUpdate(payload) {
+  editorData.editorCode = payload.code;
   EditorStore.emitChange();
 }
 
 EditorStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
-    case ActionTypes.SEND_CODE:
-      sendCodeUpdate(action.success, action.code);
+    case ActionTypes.SAVE_FILE:
+      saveFile(action.payload);
       break;
-    case ActionTypes.GET_CODE:
-      getCodeUpdate(action.success, action.code);
+    case ActionTypes.OPEN_FILE:
+      openFile(action.payload);
       break;
     case ActionTypes.UPDATE_EDITOR:
-      editorUpdate(action.newCode);
-      break;
-    case ActionTypes.UPDATE_FILENAME:
-      filenameUpdate(action);
+      editorUpdate(action.payload);
       break;
   }
 });

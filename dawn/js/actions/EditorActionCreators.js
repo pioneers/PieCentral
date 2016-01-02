@@ -8,20 +8,18 @@ var EditorActionCreators = {
   openFile() {
     dialog.showOpenDialog({
       filters: [{ name: 'python', extensions: ['py']}]
-    }, function(filenames) {
-      if (filenames.length === undefined) return;
-      fs.readFile(filenames[0], 'utf8', function(err, data) {
+    }, function(filepaths) {
+      if (filepaths === undefined) return;
+      fs.readFile(filepaths[0], 'utf8', function(err, data) {
         if (err) {
-          AppDispatcher.dispatch({
-            type: ActionTypes.GET_CODE,
-            success: false,
-            code: null
-          });
+          console.log('error');
         } else {
           AppDispatcher.dispatch({
-            type: ActionTypes.GET_CODE,
-            success: true,
-            code: data
+            type: ActionTypes.OPEN_FILE,
+            payload: {
+              filePath: filepaths[0],
+              code: data
+            }
           });
         }
       });
@@ -30,16 +28,13 @@ var EditorActionCreators = {
   saveFile(filePath, code) {
     fs.writeFile(filePath, code, function(err) {
       if (err) {
-        AppDispatcher.dispatch({
-          type: ActionTypes.SAVE_CODE,
-          success: false,
-          code: null
-        });
+        console.log(err);
       } else {
         AppDispatcher.dispatch({
           type: ActionTypes.SAVE_CODE,
-          success: true,
-          code: code
+          payload: {
+            code: code
+          }
         });
       }
     });
@@ -47,7 +42,9 @@ var EditorActionCreators = {
   editorUpdate(newVal) {
     AppDispatcher.dispatch({
       type: ActionTypes.UPDATE_EDITOR,
-      newCode: newVal
+      payload: {
+        code: newVal
+      }
     });
   }
 };

@@ -11,8 +11,8 @@ module.exports = {
     UPDATE_MOTOR: null,
     UPDATE_PERIPHERAL: null,
     UPDATE_STATUS: null,
-    SEND_CODE: null,
-    GET_CODE: null,
+    SAVE_FILE: null,
+    OPEN_FILE: null,
     UPDATE_CONSOLE: null
   }),
   PeripheralTypes: keyMirror({

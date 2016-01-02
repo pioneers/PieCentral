@@ -1,19 +1,15 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
-import Constants from '../constants/Constants';
+import { ActionTypes } from '../constants/Constants';
 import {EventEmitter} from 'events';
 import assign from 'object-assign';
-var ActionTypes = Constants.ActionTypes;
 
 var editorData = {
-  filePath: null,
+  filepath: null,
   latestSaveCode: '',
   editorCode: ''
 };
 
 var EditorStore = assign({}, EventEmitter.prototype, {
-  emitError(err) {
-    this.emit('error', err);
-  },
   emitChange() {
     this.emit('change');
   },
@@ -21,21 +17,6 @@ var EditorStore = assign({}, EventEmitter.prototype, {
     return editorData;
   }
 });
-
-
-function receive(type, successful, receivedCode) {
-  if(successful) {
-    if(type == ActionTypes.SEND_CODE) {
-      EditorStore.emitSuccess();
-    }
-    update(receivedCode);
-  } else {
-    let error_msg = (type == ActionTypes.SEND_CODE)
-      ? 'Failed to save code'
-      : 'Failed to receive code';
-    EditorStore.emitError(error_msg);
-  }
-}
 
 function openFile(payload) {
   editorData.latestSaveCode = payload.code;
@@ -45,13 +26,15 @@ function openFile(payload) {
   // the original getCode dispatch. 
   process.nextTick(() => {
     editorData.editorCode = payload.code;
-    editorData.filePath = payload.filePath;
+    editorData.filepath = payload.filepath;
     EditorStore.emitChange();
   });
 }
 
 function saveFile(payload) {
   editorData.latestSaveCode = payload.code;
+  editorData.filepath = payload.filepath;
+  console.log(editorData);
   EditorStore.emitChange();
 }
 

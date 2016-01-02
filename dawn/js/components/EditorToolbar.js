@@ -12,8 +12,9 @@ import _ from 'lodash';
 
 export default React.createClass({
   propTypes: {
-    currentFilePath: React.PropTypes.string,
-    buttons: React.PropTypes.array.isRequired
+    currentFilename: React.PropTypes.string.isRequired,
+    buttons: React.PropTypes.array.isRequired,
+    unsavedChanges: React.PropTypes.bool.isRequired
   },
   renderToolbar() {
     return (
@@ -26,7 +27,7 @@ export default React.createClass({
                   key={String(buttonIndex)}
                   placement="top"
                   overlay={<Tooltip id="{button.name.toLowerCase()}-tooltip">
-                    {button.name}
+                    {button.text}
                   </Tooltip>}>
                   <Button
                     onClick={button.onClick}
@@ -48,7 +49,8 @@ export default React.createClass({
       <div>
         <ButtonToolbar id="editor-toolbar">
           <ButtonGroup>
-            { this.props.currentFilePath || "[ New File ]" }
+            { this.props.currentFilename +
+              (this.props.unsavedChanges ? '*' : '') }
           </ButtonGroup>
           { this.renderToolbar() }
         </ButtonToolbar>

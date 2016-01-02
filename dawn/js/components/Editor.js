@@ -15,7 +15,7 @@ import _ from 'lodash';
 
 var Editor = React.createClass({
   getInitialState() {
-    var initState = {
+    let initState = {
       showConsole: false,
       consoleOutput: [],
       status: false,
@@ -37,13 +37,11 @@ var Editor = React.createClass({
 
     EditorStore.on('change', this.updateEditorData);
     RemoteRobotStore.on('change', this.updateRemoteRobotData);
-    EditorStore.on('error', this.alertError);
   },
   componentWillUnmount() {
     Mousetrap.unbind(['mod+s']);
     EditorStore.removeListener('change', this.updateEditorData);
     RemoteRobotStore.removeListener('change', this.updateRemoteRobotData);
-    EditorStore.removeListener('error', this.alertError);
   },
   updateEditorData() {
     this.setState(EditorStore.getEditorData());
@@ -55,14 +53,11 @@ var Editor = React.createClass({
       connection: RemoteRobotStore.getConnectionStatus()
     });
   },
-  alertError(err) {
-    alert(err);
-  },
   openFile() {
     EditorActionCreators.openFile();
   },
   saveFile() {
-    EditorActionCreators.saveFile(this.state.filePath, this.state.editorCode);
+    EditorActionCreators.saveFile(this.state.filepath, this.state.editorCode);
   },
   editorUpdate(newVal) {
     EditorActionCreators.editorUpdate(newVal);
@@ -144,14 +139,22 @@ var Editor = React.createClass({
       ]
     ];
   },
+  pathToName(filepath) {
+    if (filepath !== null) {
+      return filepath.split('/').pop();
+    } else {
+      return '[ New File ]';
+    }
+  },
   render() {
-    var unsavedChanges = (this.state.latestSaveCode !== this.state.editorCode);
-    var consoleHeight = 250;
+    let unsavedChanges = (this.state.latestSaveCode !== this.state.editorCode);
+    let consoleHeight = 250;
     return (
       <div>
         <EditorToolbar
-          currentFilePath={this.state.filePath}
-          buttons={this.generateButtons()}
+          currentFilename={ this.pathToName(this.state.filepath) }
+          buttons={ this.generateButtons() }
+          unsavedChanges={ unsavedChanges }
         />
         <AceEditor
           mode="python"

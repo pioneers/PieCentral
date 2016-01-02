@@ -17,7 +17,7 @@ var EditorActionCreators = {
           AppDispatcher.dispatch({
             type: ActionTypes.OPEN_FILE,
             payload: {
-              filePath: filepaths[0],
+              filepath: filepaths[0],
               code: data
             }
           });
@@ -25,19 +25,31 @@ var EditorActionCreators = {
       });
     });
   },
-  saveFile(filePath, code) {
-    fs.writeFile(filePath, code, function(err) {
-      if (err) {
-        console.log(err);
-      } else {
-        AppDispatcher.dispatch({
-          type: ActionTypes.SAVE_CODE,
-          payload: {
-            code: code
-          }
-        });
-      }
-    });
+  saveFile(filepath, code) {
+    function writeContents(filepath) {
+      fs.writeFile(filepath, code, function(err) {
+        if (err) {
+          console.log(err);
+        } else {
+          AppDispatcher.dispatch({
+            type: ActionTypes.SAVE_FILE,
+            payload: {
+              code: code,
+              filepath: filepath
+            }
+          });
+        }
+      });
+    };
+
+    if (filepath === null) {
+      dialog.showSaveDialog(function(filepath) {
+        if (filepath === undefined) return;
+        writeContents(filepath);
+      });
+    } else {
+      writeContents(filepath);
+    }
   },
   editorUpdate(newVal) {
     AppDispatcher.dispatch({

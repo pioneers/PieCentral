@@ -23,6 +23,6 @@ export default React.createClass({
           </Col>
         </Row>
       </Grid>
-    )
+    );
   }
 });

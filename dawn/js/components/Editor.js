@@ -12,6 +12,7 @@ import RemoteRobotStore from '../stores/RemoteRobotStore';
 import RobotActions from '../actions/RobotActions';
 import AnsibleClient from '../utils/AnsibleClient';
 import _ from 'lodash';
+import {dialog} from 'electron';
 
 var Editor = React.createClass({
   getInitialState() {
@@ -65,10 +66,6 @@ var Editor = React.createClass({
   editorUpdate(newVal) {
     EditorActionCreators.editorUpdate(newVal);
   },
-  changeFile(filename) {
-    EditorActionCreators.setFilename(filename);
-    EditorActionCreators.getCode(filename);
-  },
   toggleConsole() {
     this.setState({showConsole: !this.state.showConsole});
     // must call resize method after changing height of ace editor
@@ -83,23 +80,75 @@ var Editor = React.createClass({
   stopRobot() {
     AnsibleClient.sendMessage('stop', {});
   },
+  generateButtons() {
+    // The buttons which will be in the button toolbar
+    return [
+      [
+        {
+          name: 'Open',
+          onClick() {
+            alert('test');
+          },
+          glyph: 'folder-open'
+        },
+        {
+          name: 'Save',
+          onClick() {
+            alert('test');
+          },
+          glyph: 'floppy-disk'
+        },
+        {
+          name: 'Create',
+          onClick() {
+            alert('test');
+          },
+          glyph: 'file'
+        },
+        {
+          name: 'Delete',
+          onClick() {
+            alert('test');
+          },
+          glyph: 'trash'
+        }
+      ],
+      [
+        {
+          name: 'Run',
+          onClick: this.startRobot,
+          glyph: 'play'
+        },
+        {
+          name: 'Stop',
+          onClick: this.stopRobot,
+          glyph: 'stop'
+        },
+        {
+          name: 'Toggle Console',
+          onClick() {
+            alert('test');
+          },
+          glyph: 'console'
+        },
+        {
+          name: 'Clear Console',
+          onClick() {
+            alert('test');
+          },
+          glyph: 'remove'
+        }
+      ]
+    ];
+  },
   render() {
     var unsavedChanges = (this.state.latestSaveCode !== this.state.editorCode);
     var consoleHeight = 250;
     return (
       <div>
         <EditorToolbar
-          unsavedChanges={unsavedChanges}
-          filename={this.state.filename}
-          filenames={this.state.filenames}
-          changeFile={this.changeFile}
-          saveCode={this.saveCode}
-          toggleConsole={this.toggleConsole}
-          clearConsole={this.clearConsole}
-          startRobot={this.startRobot}
-          stopRobot={this.stopRobot}
-          status={this.state.status}
-          connection={this.state.connection}
+          currentFilePath={this.state.filePath}
+          buttons={this.generateButtons()}
         />
         <AceEditor
           mode="python"

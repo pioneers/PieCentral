@@ -4,10 +4,8 @@ import {EventEmitter} from 'events';
 import assign from 'object-assign';
 var ActionTypes = Constants.ActionTypes;
 
-//TODO: make filename not hard-coded in
 var editorData = {
-  filename: 'student_code.py',
-  filenames: [],
+  filePath: null,
   latestSaveCode: '',
   editorCode: ''
 };
@@ -89,9 +87,6 @@ EditorStore.dispatchToken = AppDispatcher.register((action) => {
       break;
     case ActionTypes.UPDATE_EDITOR:
       editorUpdate(action.newCode);
-      break;
-    case ActionTypes.UPDATE_FILENAMES:
-      filenamesListUpdate(action);
       break;
     case ActionTypes.UPDATE_FILENAME:
       filenameUpdate(action);

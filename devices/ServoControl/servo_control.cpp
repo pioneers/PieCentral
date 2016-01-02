@@ -18,7 +18,7 @@ uint64_t prevTime, currTime, heartbeat;
 uint8_t param, servo;
 uint32_t value;
 uint16_t subDelay;
-uint8_t pins[NUM_PINS] = {IN_0, IN_1, IN_2, IN_3};
+uint8_t pins[NUM_PINS] = {SERVO_0, SERVO_1, SERVO_2, SERVO_3};
 bool led_enabled;
 
 void setup() {

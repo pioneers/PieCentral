@@ -1,11 +1,10 @@
 {
-  "name": "electron-quick-start",
+  "name": "Dawn",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
-  "main": "main.js",
+  "description": "Frontend for PIE Robotics System",
+  "main": "bootstrapper.js",
   "scripts": {
-    "start": "electron main.js",
-    "watch": "./node_modules/.bin/webpack-dev-server"
+    "start": "electron main.js"
   },
   "devDependencies": {
     "babel": "^6.3.26",
@@ -13,8 +12,7 @@
     "babel-loader": "^6.2.0",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-react": "^6.3.13",
-    "webpack": "^1.12.9",
-    "webpack-dev-server": "^1.14.0"
+    "babel-register": "^6.3.13"
   },
   "dependencies": {
     "brace": "^0.7.0",
@@ -27,7 +25,6 @@
     "react-bootstrap": "^0.28.1",
     "react-dom": "^0.14.5",
     "react-dropzone": "^3.3.0",
-    "react-joyride": "^1.1.1",
-    "zmq": "^2.14.0"
+    "react-joyride": "^1.1.1"
   }
 }

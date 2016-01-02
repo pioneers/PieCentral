@@ -42,7 +42,7 @@ void read_voltage() {
 
 
   // battery is disconnected and therefor unsafe if all inputs are low. This works on raw input values
-  if (in0 < CONNECTED_THRESHOLD && in1 < CONNECTED_THRESHOLD && in2 < CONNECTED_THRESHOLD) {
+  if (in0 < CONNECTED_THRESHOLD || in1 < CONNECTED_THRESHOLD || in2 < CONNECTED_THRESHOLD) {
     connected = 0;
     safe = 0;
 
@@ -91,7 +91,7 @@ uint32_t device_status(uint8_t param) {
 // You can use the helper function append_buf.
 // append_buf copies the specified amount data into the dst buffer and increments the offset
 uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
-  if (buf_len < (sizeof(safe) + sizeof(connected) + sizeof(v_0) + sizeof(v_1) + sizeof(v_2))) {
+  if (buf_len < (sizeof(safe) + sizeof(connected) + sizeof(v_0) + sizeof(v_1) + sizeof(v_2) + sizeof(v_total))) {
     return 0;
   }
   uint8_t offset = 0;

@@ -18,7 +18,7 @@
 #define SAFE_THRESHOLD 3.5
 
 // connectivity is checked on raw values, not computed voltages
-#define CONNECTED_THRESHOLD 200
+#define CONNECTED_THRESHOLD 50
 
 // 1.0V
 #define BALANCE_THRESHOLD 1.0

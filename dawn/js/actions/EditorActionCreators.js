@@ -1,7 +1,5 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
-import Constants from '../constants/Constants';
-import async from '../utils/Async';
-var ActionTypes = Constants.ActionTypes;
+import { ActionTypes } from '../constants/Constants';
 
 var EditorActionCreators = {
   getCode(filename) {

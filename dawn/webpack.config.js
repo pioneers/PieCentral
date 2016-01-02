@@ -12,19 +12,20 @@ module.exports = {
     contentBase: './public',
     publicPath: 'http://localhost:8080/built/'
   },
+  target: 'atom',
   module: {
    loaders: [
      {
        test: /\.js$/,
        loader: 'babel-loader',
        query: {
-         presets: ['es2015', 'react']
+         presets: ['es2015', 'react'] // handle ES6 and transform JSX -> JS
        },
        exclude: /node_modules/
-     },
+     }
    ]
   },
   plugins: [
-   new webpack.HotModuleReplacementPlugin()
- ]
+   new webpack.HotModuleReplacementPlugin(),
+  ]
 }

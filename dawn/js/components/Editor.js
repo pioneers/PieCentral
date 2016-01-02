@@ -32,13 +32,12 @@ var Editor = React.createClass({
       if (e.preventDefault) {
         e.preventDefault();
       }
-      this.saveCode();
+      this.saveFile();
     });
 
     EditorStore.on('change', this.updateEditorData);
     RemoteRobotStore.on('change', this.updateRemoteRobotData);
     EditorStore.on('error', this.alertError);
-    EditorActionCreators.getCode(this.state.filename);
   },
   componentWillUnmount() {
     Mousetrap.unbind(['mod+s']);
@@ -59,8 +58,11 @@ var Editor = React.createClass({
   alertError(err) {
     alert(err);
   },
-  saveCode() {
-    EditorActionCreators.sendCode(this.state.filename, this.state.editorCode);
+  openFile() {
+    EditorActionCreators.openFile();
+  },
+  saveFile() {
+    EditorActionCreators.saveFile(this.state.filePath, this.state.editorCode);
   },
   editorUpdate(newVal) {
     EditorActionCreators.editorUpdate(newVal);
@@ -86,9 +88,7 @@ var Editor = React.createClass({
         {
           name: 'open',
           text: 'Open',
-          onClick() {
-            alert('test');
-          },
+          onClick: this.openFile,
           glyph: 'folder-open'
         },
         {

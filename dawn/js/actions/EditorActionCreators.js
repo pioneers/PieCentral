@@ -1,69 +1,53 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
 import { ActionTypes } from '../constants/Constants';
+import fs from 'fs';
+import { remote } from 'electron';
+const dialog = remote.dialog;
 
 var EditorActionCreators = {
-  getCode(filename) {
-    async
-      .get('/api/editor/load?filename=' + filename)
-      .then(function(code) {
-        AppDispatcher.dispatch({
-          type: ActionTypes.GET_CODE,
-          success: true,
-          code: code
-        });
-      })
-      .catch(function(reason) {
-        AppDispatcher.dispatch({
-          type: ActionTypes.GET_CODE,
-          success: false,
-          code: null
-        });
+  openFile() {
+    dialog.showOpenDialog({
+      filters: [{ name: 'python', extensions: ['py']}]
+    }, function(filenames) {
+      if (filenames.length === undefined) return;
+      fs.readFile(filenames[0], 'utf8', function(err, data) {
+        if (err) {
+          AppDispatcher.dispatch({
+            type: ActionTypes.GET_CODE,
+            success: false,
+            code: null
+          });
+        } else {
+          AppDispatcher.dispatch({
+            type: ActionTypes.GET_CODE,
+            success: true,
+            code: data
+          });
+        }
       });
+    });
   },
-  sendCode(filename, code) {
-    async
-      .post('/api/editor/save', {filename: filename, code: code})
-      .then(function() {
+  saveFile(filePath, code) {
+    fs.writeFile(filePath, code, function(err) {
+      if (err) {
         AppDispatcher.dispatch({
-          type: ActionTypes.SEND_CODE,
-          success: true,
-          code: code
-        });
-      })
-      .catch(function(reason) {
-        AppDispatcher.dispatch({
-          type: ActionTypes.SEND_CODE,
+          type: ActionTypes.SAVE_CODE,
           success: false,
           code: null
         });
-      })
+      } else {
+        AppDispatcher.dispatch({
+          type: ActionTypes.SAVE_CODE,
+          success: true,
+          code: code
+        });
+      }
+    });
   },
   editorUpdate(newVal) {
     AppDispatcher.dispatch({
       type: ActionTypes.UPDATE_EDITOR,
       newCode: newVal
-    });
-  },
-  getFilenames() {
-    async.get('/api/editor/list').then(function(data) {
-      AppDispatcher.dispatch({
-        type: ActionTypes.UPDATE_FILENAMES,
-        success: true,
-        filenames: JSON.parse(data).filenames
-      });
-    }).catch(function(reason) {
-      console.log(reason);
-      AppDispatcher.dispatch({
-        type: ActionTypes.UPDATE_FILENAMES,
-        success: false,
-        filenames: null
-      });
-    });
-  },
-  setFilename(filename) {
-    AppDispatcher.dispatch({
-      type: ActionTypes.UPDATE_FILENAME,
-      filename: filename
     });
   }
 };

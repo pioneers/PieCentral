@@ -13,7 +13,7 @@ module.exports = {
     UPDATE_STATUS: null,
     SAVE_FILE: null,
     OPEN_FILE: null,
-    CREATE_NEW: null,
+    CLEAR_EDITOR: null,
     UPDATE_CONSOLE: null
   }),
   PeripheralTypes: keyMirror({

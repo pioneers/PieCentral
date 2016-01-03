@@ -3,13 +3,13 @@ import { ActionTypes } from '../constants/Constants';
 import {EventEmitter} from 'events';
 import assign from 'object-assign';
 
-var editorData = {
+let editorData = {
   filepath: null,
   latestSaveCode: '',
   editorCode: ''
 };
 
-var EditorStore = assign({}, EventEmitter.prototype, {
+let EditorStore = assign({}, EventEmitter.prototype, {
   emitChange() {
     this.emit('change');
   },
@@ -38,7 +38,7 @@ function saveFile(payload) {
   EditorStore.emitChange();
 }
 
-function createFile() {
+function clearEditor() {
   editorData.latestSaveCode = '';
   editorData.editorCode = '';
   editorData.filepath = null;
@@ -58,8 +58,8 @@ EditorStore.dispatchToken = AppDispatcher.register((action) => {
     case ActionTypes.OPEN_FILE:
       openFile(action.payload);
       break;
-    case ActionTypes.CREATE_NEW:
-      createFile();
+    case ActionTypes.CLEAR_EDITOR:
+      clearEditor();
       break;
     case ActionTypes.UPDATE_EDITOR:
       editorUpdate(action.payload);

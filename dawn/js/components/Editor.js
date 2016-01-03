@@ -13,7 +13,7 @@ import RobotActions from '../actions/RobotActions';
 import AnsibleClient from '../utils/AnsibleClient';
 import _ from 'lodash';
 
-var Editor = React.createClass({
+export default React.createClass({
   getInitialState() {
     let initState = {
       showConsole: false,
@@ -54,16 +54,25 @@ var Editor = React.createClass({
     });
   },
   openFile() {
-    EditorActionCreators.openFile();
+    if (this.hasUnsavedChanges()) {
+      alert('Please discard or save your current changes.')
+    } else {
+      EditorActionCreators.openFile();
+    }
   },
   saveFile() {
     EditorActionCreators.saveFile(this.state.filepath, this.state.editorCode);
   },
   createNewFile() {
-    if (this.state.editorCode === this.state.latestSaveCode) {
-      EditorActionCreators.createNewFile();
+    if (this.hasUnsavedChanges()) {
+      alert('Please discard or save your current changes.');
     } else {
-      alert('Please save your current changes before creating a new one.');
+      EditorActionCreators.createNewFile();
+    }
+  },
+  deleteFile() {
+    if(confirm('Warning: This will delete your file!')) {
+      EditorActionCreators.deleteFile(this.state.filepath);
     }
   },
   editorUpdate(newVal) {
@@ -108,9 +117,7 @@ var Editor = React.createClass({
         {
           name: 'delete',
           text: 'Delete',
-          onClick() {
-            alert('test');
-          },
+          onClick: this.deleteFile,
           glyph: 'trash'
         }
       ],
@@ -151,8 +158,10 @@ var Editor = React.createClass({
       return '[ New File ]';
     }
   },
+  hasUnsavedChanges() {
+    return (this.state.latestSaveCode !== this.state.editorCode);
+  },
   render() {
-    let unsavedChanges = (this.state.latestSaveCode !== this.state.editorCode);
     let consoleHeight = 250;
     let editorHeight = 600;
     return (
@@ -160,7 +169,7 @@ var Editor = React.createClass({
         <EditorToolbar
           currentFilename={ this.pathToName(this.state.filepath) }
           buttons={ this.generateButtons() }
-          unsavedChanges={ unsavedChanges }
+          unsavedChanges={ this.hasUnsavedChanges() }
         />
         <AceEditor
           mode="python"
@@ -182,5 +191,3 @@ var Editor = React.createClass({
     );
   }
 });
-
-export default Editor;

@@ -4,7 +4,7 @@ import fs from 'fs';
 import { remote } from 'electron';
 const dialog = remote.dialog;
 
-var EditorActionCreators = {
+let EditorActionCreators = {
   openFile() {
     dialog.showOpenDialog({
       filters: [{ name: 'python', extensions: ['py']}]
@@ -53,8 +53,15 @@ var EditorActionCreators = {
   },
   createNewFile() {
     AppDispatcher.dispatch({
-      type: ActionTypes.CREATE_NEW
-    })
+      type: ActionTypes.CLEAR_EDITOR
+    });
+  },
+  deleteFile(filepath) {
+    fs.unlink(filepath, function() {
+      AppDispatcher.dispatch({
+        type: ActionTypes.CLEAR_EDITOR
+      });
+    });
   },
   editorUpdate(newVal) {
     AppDispatcher.dispatch({

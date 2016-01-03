@@ -12,7 +12,6 @@ import _ from 'lodash';
 
 export default React.createClass({
   propTypes: {
-    currentFilename: React.PropTypes.string.isRequired,
     buttons: React.PropTypes.array.isRequired,
     unsavedChanges: React.PropTypes.bool.isRequired
   },
@@ -48,10 +47,6 @@ export default React.createClass({
     return (
       <div>
         <ButtonToolbar id="editor-toolbar">
-          <ButtonGroup>
-            { this.props.currentFilename +
-              (this.props.unsavedChanges ? '*' : '') }
-          </ButtonGroup>
           { this.renderToolbar() }
         </ButtonToolbar>
       </div>

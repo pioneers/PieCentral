@@ -10,6 +10,7 @@ import 'brace/theme/monokai';
 import ConsoleOutput from './ConsoleOutput';
 import RobotActions from '../actions/RobotActions';
 import AnsibleClient from '../utils/AnsibleClient';
+import {Panel} from 'react-bootstrap';
 
 export default React.createClass({
   getInitialState() {
@@ -161,11 +162,13 @@ export default React.createClass({
   },
   render() {
     let consoleHeight = 250;
-    let editorHeight = 600;
+    let editorHeight = 530;
     return (
-      <div>
+      <Panel
+        header={'Editing: ' + this.pathToName(this.state.filepath) +
+          (this.hasUnsavedChanges() ? '*' : '')}
+        bsStyle="primary">
         <EditorToolbar
-          currentFilename={ this.pathToName(this.state.filepath) }
           buttons={ this.generateButtons() }
           unsavedChanges={ this.hasUnsavedChanges() }
         />
@@ -185,7 +188,7 @@ export default React.createClass({
           show={this.state.showConsole}
           height={String(consoleHeight) + 'px'}
           output={this.props.consoleData}/>
-      </div>
+      </Panel>
     );
   }
 });

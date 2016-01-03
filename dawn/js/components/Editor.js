@@ -8,21 +8,17 @@ import Mousetrap from 'mousetrap';
 import 'brace/mode/python';
 import 'brace/theme/monokai';
 import ConsoleOutput from './ConsoleOutput';
-import RemoteRobotStore from '../stores/RemoteRobotStore';
 import RobotActions from '../actions/RobotActions';
 import AnsibleClient from '../utils/AnsibleClient';
-import _ from 'lodash';
 
 export default React.createClass({
   getInitialState() {
-    let initState = {
+    return {
       showConsole: false,
-      consoleOutput: [],
-      status: false,
-      connection: true
+      filepath: null,
+      latestSaveCode: '',
+      editorCode: ''
     };
-    _.merge(initState, EditorStore.getEditorData());
-    return initState;
   },
   componentDidMount() {
     Mousetrap.prototype.stopCallback = function(e, element, combo) {
@@ -36,21 +32,16 @@ export default React.createClass({
     });
 
     EditorStore.on('change', this.updateEditorData);
-    RemoteRobotStore.on('change', this.updateRemoteRobotData);
   },
   componentWillUnmount() {
     Mousetrap.unbind(['mod+s']);
     EditorStore.removeListener('change', this.updateEditorData);
-    RemoteRobotStore.removeListener('change', this.updateRemoteRobotData);
   },
   updateEditorData() {
-    this.setState(EditorStore.getEditorData());
-  },
-  updateRemoteRobotData() {
     this.setState({
-      consoleOutput: RemoteRobotStore.getConsoleData(),
-      status: RemoteRobotStore.getRobotStatus(),
-      connection: RemoteRobotStore.getConnectionStatus()
+      filepath: EditorStore.getFilepath(),
+      latestSaveCode: EditorStore.getLatestSaveCode(),
+      editorCode: EditorStore.getEditorCode()
     });
   },
   openFile() {
@@ -127,14 +118,14 @@ export default React.createClass({
           text: 'Run',
           onClick: this.startRobot,
           glyph: 'play',
-          disabled: (this.state.status || !this.state.connection)
+          disabled: (this.props.isRunningCode || !this.props.connectionStatus )
         },
         {
           name: 'stop',
           text: 'Stop',
           onClick: this.stopRobot,
           glyph: 'stop',
-          disabled: !(this.state.status && this.state.connection)
+          disabled: !(this.props.isRunningCode && this.props.connectionStatus)
         },
         {
           name: 'toggle-console',
@@ -186,7 +177,7 @@ export default React.createClass({
         <ConsoleOutput
           show={this.state.showConsole}
           height={String(consoleHeight) + 'px'}
-          output={this.state.consoleOutput}/>
+          output={this.props.consoleData}/>
       </div>
     );
   }

@@ -18,7 +18,7 @@ export default React.createClass({
             <Gamepads {...this.props} />
           </Col>
           <Col smPull={4} sm={8}>
-            <Editor />
+            <Editor {...this.props} />
           </Col>
         </Row>
       </Grid>

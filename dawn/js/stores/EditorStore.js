@@ -3,7 +3,7 @@ import { ActionTypes } from '../constants/Constants';
 import {EventEmitter} from 'events';
 import assign from 'object-assign';
 
-let editorData = {
+let _editorData = {
   filepath: null,
   latestSaveCode: '',
   editorCode: ''
@@ -13,40 +13,45 @@ let EditorStore = assign({}, EventEmitter.prototype, {
   emitChange() {
     this.emit('change');
   },
-  getEditorData() {
-    return editorData;
+  getFilepath() {
+    return _editorData.filepath;
+  },
+  getLatestSaveCode() {
+    return _editorData.latestSaveCode;
+  },
+  getEditorCode() {
+    return _editorData.editorCode;
   }
 });
 
 function openFile(payload) {
-  editorData.latestSaveCode = payload.code;
+  _editorData.latestSaveCode = payload.code;
   // Setting editorCode will be considered a
   // change and will fire an editorUpdate action.
   // We need to wait in order not to conflict with
   // the original getCode dispatch. 
   process.nextTick(() => {
-    editorData.editorCode = payload.code;
-    editorData.filepath = payload.filepath;
+    _editorData.editorCode = payload.code;
+    _editorData.filepath = payload.filepath;
     EditorStore.emitChange();
   });
 }
 
 function saveFile(payload) {
-  editorData.latestSaveCode = payload.code;
-  editorData.filepath = payload.filepath;
-  console.log(editorData);
+  _editorData.latestSaveCode = payload.code;
+  _editorData.filepath = payload.filepath;
   EditorStore.emitChange();
 }
 
 function clearEditor() {
-  editorData.latestSaveCode = '';
-  editorData.editorCode = '';
-  editorData.filepath = null;
+  _editorData.latestSaveCode = '';
+  _editorData.editorCode = '';
+  _editorData.filepath = null;
   EditorStore.emitChange();
 }
 
 function editorUpdate(payload) {
-  editorData.editorCode = payload.code;
+  _editorData.editorCode = payload.code;
   EditorStore.emitChange();
 }
 

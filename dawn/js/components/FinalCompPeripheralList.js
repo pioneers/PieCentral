@@ -5,33 +5,29 @@
 import React from 'react';
 import PeripheralList from './PeripheralList';
 import Peripheral from './Peripheral';
-import RemoteRobotStore from '../stores/RemoteRobotStore';
+import RobotPeripheralStore from '../stores/RobotPeripheralStore';
 import _ from 'lodash';
 
 var FinalCompPeripheralList = React.createClass({
   getInitialState() {
-    return {
-      peripherals: [],
-      connection: true
-    };
+    return { peripherals: [] };
   },
   onChange() {
     this.setState({
-      peripherals: RemoteRobotStore.getPeripherals(),
-      connection: RemoteRobotStore.getConnectionStatus()
+      peripherals: RobotPeripheralStore.getPeripherals(),
     });
   },
   componentDidMount() {
-    RemoteRobotStore.on('change', this.onChange);
+    RobotPeripheralStore.on('change', this.onChange);
     this.onChange();
   },
   componentWillUnmount() {
-    RemoteRobotStore.removeListener('change', this.onChange);
+    RobotPeripheralStore.removeListener('change', this.onChange);
   },
   render() {
     return (
       <PeripheralList header='Peripherals'>
-        {this.state.connection
+        {this.props.connectionStatus
           ? _.map(this.state.peripherals, (peripheral) => <Peripheral key={peripheral.id} {...peripheral}/>)
           : 'You are currently disconnected from the robot.'}
       </PeripheralList>

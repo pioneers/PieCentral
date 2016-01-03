@@ -20,8 +20,8 @@ export default React.createClass({
     return (
       _.map(this.props.buttons, (group, groupIndex) => {
         return (
-          <ButtonGroup key={String(groupIndex)}>
-            {_.map(group, (button, buttonIndex) => {
+          <ButtonGroup key={String(groupIndex)} id={group.groupId}>
+            {_.map(group.buttons, (button, buttonIndex) => {
               return (
                 <OverlayTrigger
                   key={String(buttonIndex)}

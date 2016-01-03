@@ -12,14 +12,8 @@ export default [
     position: 'bottom-left',
     type: 'hover'
   },{
-    title: 'File selector',
-    text: 'This dropdown displays a list of your code files, and allows you to switch between them.',
-    selector: '#choose-file-button',
-    position: 'bottom',
-    type: 'hover'
-  },{
     title: 'File operations',
-    text: 'Use these buttons to save your code, create and delete files, and download and upload code.',
+    text: 'Use these buttons to open, save, create, and delete files.',
     selector: '#file-operations-buttons',
     position: 'bottom',
     type: 'hover'

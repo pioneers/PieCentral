@@ -86,60 +86,67 @@ export default React.createClass({
   generateButtons() {
     // The buttons which will be in the button toolbar
     return [
-      [
-        {
-          name: 'open',
-          text: 'Open',
-          onClick: this.openFile,
-          glyph: 'folder-open'
-        },
-        {
-          name: 'save',
-          text: 'Save',
-          onClick: this.saveFile,
-          glyph: 'floppy-disk'
-        },
-        {
-          name: 'create',
-          text: 'New',
-          onClick: this.createNewFile,
-          glyph: 'file'
-        },
-        {
-          name: 'delete',
-          text: 'Delete',
-          onClick: this.deleteFile,
-          glyph: 'trash'
-        }
-      ],
-      [
-        {
-          name: 'run',
-          text: 'Run',
-          onClick: this.startRobot,
-          glyph: 'play',
-          disabled: (this.props.isRunningCode || !this.props.connectionStatus )
-        },
-        {
-          name: 'stop',
-          text: 'Stop',
-          onClick: this.stopRobot,
-          glyph: 'stop',
-          disabled: !(this.props.isRunningCode && this.props.connectionStatus)
-        },
-        {
-          name: 'toggle-console',
-          text: 'Toggle Console',
-          onClick: this.toggleConsole,
-          glyph: 'console'
-        },
-        {
-          name: 'clear-console',
-          text: 'Clear Console',
-          onClick: this.clearConsole,
-          glyph: 'remove'
-        }
-      ]
+      {
+        groupId: 'file-operations-buttons',
+        buttons:
+        [
+          {
+            name: 'open',
+            text: 'Open',
+            onClick: this.openFile,
+            glyph: 'folder-open'
+          },
+          {
+            name: 'save',
+            text: 'Save',
+            onClick: this.saveFile,
+            glyph: 'floppy-disk'
+          },
+          {
+            name: 'create',
+            text: 'New',
+            onClick: this.createNewFile,
+            glyph: 'file'
+          },
+          {
+            name: 'delete',
+            text: 'Delete',
+            onClick: this.deleteFile,
+            glyph: 'trash'
+          }
+        ],
+      }, {
+        groupId: 'code-execution-buttons',
+        buttons:
+        [
+          {
+            name: 'run',
+            text: 'Run',
+            onClick: this.startRobot,
+            glyph: 'play',
+            disabled: (this.props.isRunningCode || !this.props.connectionStatus )
+          },
+          {
+            name: 'stop',
+            text: 'Stop',
+            onClick: this.stopRobot,
+            glyph: 'stop',
+            disabled: !(this.props.isRunningCode && this.props.connectionStatus)
+          },
+          {
+            name: 'toggle-console',
+            text: 'Toggle Console',
+            onClick: this.toggleConsole,
+            glyph: 'console'
+          },
+          {
+            name: 'clear-console',
+            text: 'Clear Console',
+            onClick: this.clearConsole,
+            glyph: 'remove'
+          }
+        ]
+      }
     ];
   },
   pathToName(filepath) {

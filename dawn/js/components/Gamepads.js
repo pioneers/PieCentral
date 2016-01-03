@@ -37,7 +37,7 @@ export default React.createClass({
   render() {
     return (
       <Panel
-        header={<h3>Gamepads</h3>}
+        header="Gamepads"
         bsStyle="primary"
         id="gamepads-panel"
         defaultExpanded>

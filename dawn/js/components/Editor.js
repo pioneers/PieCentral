@@ -59,6 +59,13 @@ var Editor = React.createClass({
   saveFile() {
     EditorActionCreators.saveFile(this.state.filepath, this.state.editorCode);
   },
+  createNewFile() {
+    if (this.state.editorCode === this.state.latestSaveCode) {
+      EditorActionCreators.createNewFile();
+    } else {
+      alert('Please save your current changes before creating a new one.');
+    }
+  },
   editorUpdate(newVal) {
     EditorActionCreators.editorUpdate(newVal);
   },
@@ -94,10 +101,8 @@ var Editor = React.createClass({
         },
         {
           name: 'create',
-          text: 'Create',
-          onClick() {
-            alert('test');
-          },
+          text: 'New',
+          onClick: this.createNewFile,
           glyph: 'file'
         },
         {
@@ -149,6 +154,7 @@ var Editor = React.createClass({
   render() {
     let unsavedChanges = (this.state.latestSaveCode !== this.state.editorCode);
     let consoleHeight = 250;
+    let editorHeight = 600;
     return (
       <div>
         <EditorToolbar
@@ -162,7 +168,8 @@ var Editor = React.createClass({
           width="100%"
           ref="CodeEditor"
           name="CodeEditor"
-          height={String(500 - this.state.showConsole * consoleHeight) + 'px'}
+          height={String(
+            editorHeight - this.state.showConsole * (consoleHeight + 30)) + 'px'}
           value = { this.state.editorCode }
           onChange={ this.editorUpdate }
           editorProps={{$blockScrolling: Infinity}}

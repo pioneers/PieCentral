@@ -38,6 +38,13 @@ function saveFile(payload) {
   EditorStore.emitChange();
 }
 
+function createFile() {
+  editorData.latestSaveCode = '';
+  editorData.editorCode = '';
+  editorData.filepath = null;
+  EditorStore.emitChange();
+}
+
 function editorUpdate(payload) {
   editorData.editorCode = payload.code;
   EditorStore.emitChange();
@@ -50,6 +57,9 @@ EditorStore.dispatchToken = AppDispatcher.register((action) => {
       break;
     case ActionTypes.OPEN_FILE:
       openFile(action.payload);
+      break;
+    case ActionTypes.CREATE_NEW:
+      createFile();
       break;
     case ActionTypes.UPDATE_EDITOR:
       editorUpdate(action.payload);

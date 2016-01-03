@@ -51,6 +51,11 @@ var EditorActionCreators = {
       writeContents(filepath);
     }
   },
+  createNewFile() {
+    AppDispatcher.dispatch({
+      type: ActionTypes.CREATE_NEW
+    })
+  },
   editorUpdate(newVal) {
     AppDispatcher.dispatch({
       type: ActionTypes.UPDATE_EDITOR,

@@ -6,7 +6,6 @@ import {
   Button,
   Label,
   Glyphicon} from 'react-bootstrap';
-import AnsibleClient from '../utils/AnsibleClient';
 
 export default React.createClass({
   displayName: 'DNav',

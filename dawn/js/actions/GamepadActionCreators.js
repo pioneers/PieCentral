@@ -1,6 +1,6 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
 import { ActionTypes } from '../constants/Constants';
-import AnsibleClient from '../utils/AnsibleClient';
+import Ansible from '../utils/Ansible';
 import _ from 'lodash';
 
 var _timestamps = [0, 0, 0, 0];
@@ -33,7 +33,7 @@ var _formatGamepadsForJSON = function(newGamepads) {
 var _updateGamepadState = function() {
   let newGamepads = navigator.getGamepads();
   if (_needToUpdate(newGamepads)) {
-    AnsibleClient.sendMessage('gamepad', _formatGamepadsForJSON(newGamepads));
+    Ansible.sendMessage('gamepad', _formatGamepadsForJSON(newGamepads));
     GamepadActionCreators.updateGamepads(newGamepads);
   }
 };

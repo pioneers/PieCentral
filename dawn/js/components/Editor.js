@@ -9,7 +9,7 @@ import 'brace/mode/python';
 import 'brace/theme/monokai';
 import ConsoleOutput from './ConsoleOutput';
 import RobotActions from '../actions/RobotActions';
-import AnsibleClient from '../utils/AnsibleClient';
+import Ansible from '../utils/Ansible';
 import {Panel} from 'react-bootstrap';
 
 export default React.createClass({
@@ -79,10 +79,10 @@ export default React.createClass({
     RobotActions.clearConsole();
   },
   startRobot() {
-    AnsibleClient.sendMessage('execute', {});
+    Ansible.sendMessage('execute', {});
   },
   stopRobot() {
-    AnsibleClient.sendMessage('stop', {});
+    Ansible.sendMessage('stop', {});
   },
   generateButtons() {
     // The buttons which will be in the button toolbar

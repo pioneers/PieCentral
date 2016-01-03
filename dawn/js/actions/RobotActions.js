@@ -1,6 +1,5 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
 import {ActionTypes} from '../constants/Constants';
-import AnsibleClient from '../utils/AnsibleClient';
 
 var RobotActions = {
   updateMotor(id, speed) {

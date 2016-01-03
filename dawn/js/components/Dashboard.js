@@ -1,6 +1,5 @@
 import React from 'react';
 import { Grid, Row, Col } from 'react-bootstrap';
-import MotorList from './MotorList';
 import PeripheralList from './PeripheralList';
 import FinalCompPeripheralList from './FinalCompPeripheralList';
 import Peripheral from './Peripheral';

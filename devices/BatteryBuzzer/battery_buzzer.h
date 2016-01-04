@@ -10,18 +10,19 @@
 #define BATT_0 A0
 #define BATT_1 A1
 #define BATT_2 A2
-
+#define NUM_CELLS 3
 // units analogRead() uses
 #define VOLTS_PER_UNIT (5.0/1023.0)
 
-// 3.5V
-#define SAFE_THRESHOLD 3.5
+#define LOW_VOLTAGE_ENTER_THRESHOLD 3.5
+#define LOW_VOLTAGE_EXIT_THRESHOLD 3.7
 
 // connectivity is checked on raw values, not computed voltages
-#define CONNECTED_THRESHOLD 50
+#define DISCONNECTED_ENTER_THRESHOLD 50
+#define DISCONNECTED_EXIT_THRESHOLD 60
 
-// 1.0V
-#define BALANCE_THRESHOLD 1.0
+#define UNBALANCED_ENTER_THRESHOLD 1.0
+#define UNBALANCED_EXIT_THRESHOLD 0.8
 
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
@@ -30,6 +31,15 @@ hibike_uid_t UID = {
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
+///
+typedef enum {
+  CELL_SAFE,
+  CELL_LOW_VOLTAGE,
+  CELL_UNBALANCED,
+  CELL_DISCONNECTED
+} cell_state;
+
+cell_state new_state();
 
 void read_voltage();
 

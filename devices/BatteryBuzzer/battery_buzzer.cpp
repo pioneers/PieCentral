@@ -1,8 +1,12 @@
 #include "battery_buzzer.h"
 
 uint8_t safe, connected;
-float v_0, v_1, v_2, v_total;
+float cell_voltages[NUM_CELLS], v_total;
 
+// unbalanced for each cell is relative to the cell after it mod 3
+float cell_readings[NUM_CELLS];
+int cell_pins[NUM_CELLS] = {BATT_0, BATT_1, BATT_2};
+cell_state cell_states[NUM_CELLS] = {CELL_SAFE, CELL_SAFE, CELL_SAFE};
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
   pinMode(BATT_0, INPUT);
@@ -25,41 +29,68 @@ void loop() {
   hibike_loop();
 }
 
+// returns new state of a cell assuming currently safe
+cell_state new_state(size_t cell) {
+    if (cell_readings[cell] < CONNECTED_ENTER_THRESHOLD) {
+      return CELL_DISCONNECTED;
+    } else if (cell_voltages[cell] < LOW_VOLTAGE_ENTER_THRESHOLD) {
+      return CELL_LOW_VOLTAGE;
+    } else if (abs_diff(cell_voltages[cell], cell_voltages[(cell + 1) % NUM_CELLS]) > UNBALANCED_ENTER_THRESHOLD) {
+      return CELL_UNBALANCED;
+    } else {
+      return CELL_SAFE;
+    }
+}
+
 void read_voltage() {
   digitalWrite(READ_ENABLE_PIN, HIGH);
 
   // BATT_0 = 1/2 * v_0
   // BATT_1 = 1/4 * (v_0 + v_1)
   // BATT_2 = 10/61 * (v_0 + v_1 + v_2)
-  uint16_t in0 = analogRead(BATT_0);
-  uint16_t in1 = analogRead(BATT_1);
-  uint16_t in2 = analogRead(BATT_2);
-  v_0 = (float) in0 * 2.0 * VOLTS_PER_UNIT;
-  v_1 = (float) in1 * 4.0 * VOLTS_PER_UNIT - v_0;
-  v_2 = (float) in2 * 6.1 * VOLTS_PER_UNIT - (v_1 + v_0);
-  v_total = v_0 + v_1 + v_2;
+  size_t cell;
+  for (cell = 0; cell < NUM_CELLS; cell++) {
+    cell_readings[cell] = analogRead(cell_pins[cell]);
+  }
   digitalWrite(READ_ENABLE_PIN, LOW);
 
+  cell_voltages[0] = (float) cell_readings[0] * 2.0 * VOLTS_PER_UNIT;
+  cell_voltages[1] = (float) cell_readings[1] * 4.0 * VOLTS_PER_UNIT - cell_voltages[0];
+  cell_voltages[2] = (float) cell_readings[2] * 6.1 * VOLTS_PER_UNIT - (cell_voltages[1] + cell_voltages[0]);
+  v_total = cell_voltages[0] + cell_voltages[1] + cell_voltages[2];
 
-  // battery is disconnected and therefor unsafe if all inputs are low. This works on raw input values
-  if (in0 < CONNECTED_THRESHOLD || in1 < CONNECTED_THRESHOLD || in2 < CONNECTED_THRESHOLD) {
-    connected = 0;
-    safe = 0;
-
-  // battery is unsafe if the voltage drops too low
-  }  else if (v_0 < SAFE_THRESHOLD || v_1 < SAFE_THRESHOLD || v_2 < SAFE_THRESHOLD) {
-    connected = 1;
-    safe = 0;
-
-  // battery is also unsafe if two cells have a large voltage difference
-  } else if (abs_diff(v_0, v_1) > BALANCE_THRESHOLD 
-          || abs_diff(v_1, v_2) > BALANCE_THRESHOLD 
-          || abs_diff(v_2, v_0) > BALANCE_THRESHOLD) {
-    connected = 1;
-    safe = 0;
-  } else {
-    connected = 1;
-    safe = 1;
+  // update cell_states
+  for (cell = 0; cell < NUM_CELLS; cell++) {
+    switch (cell_states[cell]) {
+      case CELL_SAFE:
+        cell_states[cell] = new_state(cell);
+        break;
+      case CELL_DISCONNECTED:
+        if (cell_readings[cell] > DISCONNECTED_EXIT_THRESHOLD) {
+          cell_states[cell] = new_state(cell);
+        }
+        break;
+      case CELL_LOW_VOLTAGE:
+        if (cell_voltages[cell] > LOW_VOLTAGE_EXIT_THRESHOLD) {
+          cell_states[cell] = new_state(cell);
+        }
+        break;
+      case CELL_UNBALANCED:
+        if (abs_diff(cell_voltages[cell], cell_voltages[(cell + 1) % NUM_CELLS]) > UNBALANCED_EXIT_THRESHOLD) {
+          cell_states[cell] = new_state(cell);
+        }
+        break;
+    } 
+  }
+  safe = 1;
+  connected = 1;
+  for (cell = 0; cell < NUM_CELLS; cell++) {
+    if (cell_states[cell] == CELL_DISCONNECTED) {
+      connected = 0;
+    }
+    if (cell_states[cell] != CELL_SAFE) {
+      safe = 0;
+    }
   }
 }
 
@@ -91,15 +122,13 @@ uint32_t device_status(uint8_t param) {
 // You can use the helper function append_buf.
 // append_buf copies the specified amount data into the dst buffer and increments the offset
 uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
-  if (buf_len < (sizeof(safe) + sizeof(connected) + sizeof(v_0) + sizeof(v_1) + sizeof(v_2) + sizeof(v_total))) {
+  if (buf_len < (sizeof(safe) + sizeof(connected) + sizeof(cell_voltages) + sizeof(v_total))) {
     return 0;
   }
   uint8_t offset = 0;
   append_buf(data_update_buf, &offset, (uint8_t *)&safe, sizeof(safe));
   append_buf(data_update_buf, &offset, (uint8_t *)&connected, sizeof(connected));
-  append_buf(data_update_buf, &offset, (uint8_t *)&v_0, sizeof(v_0));
-  append_buf(data_update_buf, &offset, (uint8_t *)&v_1, sizeof(v_1));
-  append_buf(data_update_buf, &offset, (uint8_t *)&v_2, sizeof(v_2));
+  append_buf(data_update_buf, &offset, (uint8_t *)&cell_voltages, sizeof(cell_voltages));
   append_buf(data_update_buf, &offset, (uint8_t *)&v_total, sizeof(v_total));
   return offset;
 }

@@ -5,24 +5,30 @@ import { remote } from 'electron';
 const dialog = remote.dialog;
 
 let EditorActionCreators = {
+  readFilepath(filepath) {
+    fs.readFile(filepath, 'utf8', function(err, data) {
+      if (err) {
+        console.log('error');
+      } else {
+        localStorage.setItem('lastFile', filepath);
+        AppDispatcher.dispatch({
+          type: ActionTypes.OPEN_FILE,
+          payload: {
+            filepath: filepath,
+            code: data
+          }
+        });
+      }
+    });
+  },
   openFile() {
     dialog.showOpenDialog({
       filters: [{ name: 'python', extensions: ['py']}]
-    }, function(filepaths) {
+    }, (filepaths) => {
       if (filepaths === undefined) return;
-      fs.readFile(filepaths[0], 'utf8', function(err, data) {
-        if (err) {
-          console.log('error');
-        } else {
-          AppDispatcher.dispatch({
-            type: ActionTypes.OPEN_FILE,
-            payload: {
-              filepath: filepaths[0],
-              code: data
-            }
-          });
-        }
-      });
+      // Store as lastFile in localStorage. lastFile is auto-opened on startup.
+      localStorage.setItem('lastFile', filepaths[0]);
+      this.readFilepath(filepaths[0]);
     });
   },
   saveFile(filepath, code) {

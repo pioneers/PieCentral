@@ -25,12 +25,19 @@ export default React.createClass({
     Mousetrap.prototype.stopCallback = function(e, element, combo) {
       return false; // Always respond to keyboard combos
     };
+
     Mousetrap.bind(['mod+s'], (e)=>{
       if (e.preventDefault) {
         e.preventDefault();
       }
       this.saveFile();
     });
+
+    // If possible, reopen the last opened file.
+    let lastFile = localStorage.getItem('lastFile');
+    if (lastFile !== null) {
+      EditorActionCreators.readFilepath(lastFile);
+    }
 
     EditorStore.on('change', this.updateEditorData);
   },

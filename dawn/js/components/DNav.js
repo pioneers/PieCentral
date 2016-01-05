@@ -10,6 +10,13 @@ import {
 export default React.createClass({
   displayName: 'DNav',
   render() {
+    let batteryLabel = (
+      <Navbar.Text>
+        <Label bsStyle="success" id="battery-indicator">
+          Battery Level: {this.props.battery}
+        </Label>
+      </Navbar.Text>
+    );
     return (
       <Navbar fixedTop fluid>
         <Navbar.Header>
@@ -19,11 +26,7 @@ export default React.createClass({
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
-          <Navbar.Text>
-            <Label bsStyle="success" id="battery-indicator">
-              Battery Level: {this.props.battery}
-            </Label>
-          </Navbar.Text>
+          { this.props.connection ? batteryLabel : null }
           <Navbar.Form
             pullRight={true}>
             <ButtonToolbar>

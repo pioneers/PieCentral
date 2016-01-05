@@ -40,7 +40,8 @@ function handleUpdateBattery(action){
 }
 
 /**
- * Hacking more.
+ * Dispatch the 'StopCheck' action every second. handleStopCheck
+ * uses this to determine connectionStatus.
  */
 
 var previousActionType = null;
@@ -51,6 +52,10 @@ setInterval(() => {
   });
 }, 1000);
 
+/* Determines connection status. If we receive a StopCheck action,
+ * and the previous action was also a StopCheck, then we have received
+ * no status updates in the past second and we are disconnected.
+ */
 function handleStopCheck(action) {
   var old = _robotInfo.connectionStatus;
   if (previousActionType === 'StopCheck') {
@@ -64,14 +69,14 @@ function handleStopCheck(action) {
 }
 
 function handleConsoleUpdate(action) {
-  consoleData.push(action.console_output.value);
+  _robotInfo.consoleData.push(action.console_output.value);
   // keep the length of console output less than 20 lines
-  if (consoleData.length > 20)
-    consoleData.shift();
+  if (_robotInfo.consoleData.length > 20)
+    _robotInfo.consoleData.shift();
 }
 
 function handleClearConsole(action) {
-  consoleData.length = 0;
+  _robotInfo.consoleData = '';
 }
 
 RobotInfoStore.dispatchToken = AppDispatcher.register((action) => {

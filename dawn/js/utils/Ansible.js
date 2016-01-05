@@ -1,7 +1,7 @@
 import zmq from 'zmq';
 import AppDispatcher from '../dispatcher/AppDispatcher';
 
-// prepare our sockets
+// Prepare our sockets for connecting with runtime Ansible.
 let sendSock = zmq.socket('pair');
 let recvSock = zmq.socket('pair');
 
@@ -12,16 +12,25 @@ const LOCATION = '127.0.0.1';
 sendSock.connect('tcp://' + LOCATION + ':' + SEND_PORT);
 recvSock.connect('tcp://' + LOCATION + ':' + RECV_PORT);
 
+/*
+ * Module for communicating with the runtime.
+ */
 let Ansible = {
+  /* 
+   * Receives data from runtime over ZMQ, and passes it to a callback.
+   * Example usage: 'Ansible.on('message', function(msg) {...})'
+   */
   on(event, callback) {
     return recvSock.on(event, function(buffer) {
       let msg = JSON.parse(buffer.toString()); // parse the buffer
       callback(msg);
     })
   },
-  send(obj) {
+  /* Private, use sendMessage */
+  _send(obj) {
     return sendSock.send(JSON.stringify(obj));
   },
+  /* Send data over ZMQ to the runtime */
   sendMessage(msgType, content) {
     let msg = {
       header: {
@@ -29,13 +38,17 @@ let Ansible = {
       },
       content: content
     };
-    this.send(msg);
+    this._send(msg);
   }
 };
 
-// Hack for Ansible messages to enter Flux flow
+/*
+ * Hack for Ansible messages to enter Flux flow.
+ * Received messages are dispatched as actions,
+ * with action's type deteremined by msg_type
+ */
 Ansible.on('message', function(message) {
-  // reformat for flux action
+  // Reformat as flux action
   let unpackedMsg = message.content;
   unpackedMsg.type = message.header.msg_type;
   AppDispatcher.dispatch(unpackedMsg);

@@ -5,12 +5,22 @@ import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
 import EditorToolbar from './EditorToolbar';
 import Mousetrap from 'mousetrap';
-import 'brace/mode/python';
-import 'brace/theme/monokai';
 import ConsoleOutput from './ConsoleOutput';
 import RobotActions from '../actions/RobotActions';
 import Ansible from '../utils/Ansible';
 import {Panel} from 'react-bootstrap';
+import 'brace/mode/python';
+// React-ace themes
+import 'brace/theme/monokai';
+import 'brace/theme/github';
+import 'brace/theme/tomorrow';
+import 'brace/theme/kuroir';
+import 'brace/theme/twilight';
+import 'brace/theme/xcode';
+import 'brace/theme/textmate';
+import 'brace/theme/solarized_dark';
+import 'brace/theme/solarized_light';
+import 'brace/theme/terminal';
 
 export default React.createClass({
   getInitialState() {
@@ -18,7 +28,8 @@ export default React.createClass({
       showConsole: false,
       filepath: null,
       latestSaveCode: '',
-      editorCode: ''
+      editorCode: '',
+      editorTheme: localStorage.getItem('editorTheme') || 'monokai'
     };
   },
   componentDidMount() {
@@ -169,6 +180,22 @@ export default React.createClass({
   hasUnsavedChanges() {
     return (this.state.latestSaveCode !== this.state.editorCode);
   },
+  changeTheme(theme) {
+    localStorage.setItem('editorTheme', theme);
+    this.setState({editorTheme: theme});
+  },
+  themes: [
+    'monokai',
+    'github',
+    'tomorrow',
+    'kuroir',
+    'twilight',
+    'xcode',
+    'textmate',
+    'solarized_dark',
+    'solarized_light',
+    'terminal'
+  ],
   render() {
     let consoleHeight = 250;
     let editorHeight = 530;
@@ -180,10 +207,13 @@ export default React.createClass({
         <EditorToolbar
           buttons={ this.generateButtons() }
           unsavedChanges={ this.hasUnsavedChanges() }
+          changeTheme={ this.changeTheme }
+          editorTheme={ this.state.editorTheme }
+          themes={ this.themes }
         />
         <AceEditor
           mode="python"
-          theme="monokai"
+          theme={ this.state.editorTheme }
           width="100%"
           ref="CodeEditor"
           name="CodeEditor"

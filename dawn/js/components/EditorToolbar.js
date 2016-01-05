@@ -2,6 +2,8 @@ import React from 'react';
 import EditorActionCreators from '../actions/EditorActionCreators';
 import {
   Button,
+  DropdownButton,
+  MenuItem,
   ButtonGroup,
   ButtonToolbar,
   Glyphicon,
@@ -48,6 +50,22 @@ export default React.createClass({
       <div>
         <ButtonToolbar id="editor-toolbar">
           { this.renderToolbar() }
+          <DropdownButton
+            title={this.props.editorTheme}
+            bsSize="small"
+            id="choose-theme">
+            { _.map(this.props.themes, (theme, index) => {
+              if (theme !== this.props.editorTheme) {
+                return (
+                  <MenuItem
+                    onClick={_.partial(this.props.changeTheme, theme)}
+                    key={index}>
+                    {theme}
+                  </MenuItem>
+                );
+              }
+            }) }
+          </DropdownButton>
         </ButtonToolbar>
       </div>
     );

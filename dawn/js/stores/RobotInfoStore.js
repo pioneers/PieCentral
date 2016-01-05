@@ -30,12 +30,12 @@ let RobotInfoStore = assign({}, EventEmitter.prototype, {
 });
 
 function handleUpdateStatus(action) {
-  robotStatus = (action.status.value == 1);
+  _robotInfo.robotStatus = (action.status.value == 1);
   RobotInfoStore.emitChange();
 }
 
 function handleUpdateBattery(action){
-  batteryLevel = action.battery.value;
+  _robotInfo.batteryLevel = action.battery.value;
   RobotInfoStore.emitChange();
 }
 

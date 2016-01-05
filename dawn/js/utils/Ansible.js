@@ -7,7 +7,7 @@ let recvSock = zmq.socket('pair');
 
 const SEND_PORT = '12356';
 const RECV_PORT = '12355';
-const LOCATION = 'localhost';
+const LOCATION = '127.0.0.1';
 
 sendSock.connect('tcp://' + LOCATION + ':' + SEND_PORT);
 recvSock.connect('tcp://' + LOCATION + ':' + RECV_PORT);
@@ -37,7 +37,7 @@ let Ansible = {
 Ansible.on('message', function(message) {
   // reformat for flux action
   let unpackedMsg = message.content;
-  unpackedMsg.type = message.header,
+  unpackedMsg.type = message.header.msg_type;
   AppDispatcher.dispatch(unpackedMsg);
 })
 

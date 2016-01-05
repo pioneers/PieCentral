@@ -10,7 +10,7 @@ export default React.createClass({
   getInitialState() {
     return {
       steps: [],
-      consoleData: '',
+      consoleData: [],
       isRunningCode: false,
       connectionStatus: true,
       batteryLevel: 0
@@ -29,7 +29,7 @@ export default React.createClass({
       isRunningCode: RobotInfoStore.getIsRunningCode(),
       connectionStatus: RobotInfoStore.getConnectionStatus(),
       batteryLevel: RobotInfoStore.getBatteryLevel()
-    })
+    });
   },
   addSteps(steps) {
     let joyride = this.refs.joyride;
@@ -66,7 +66,7 @@ export default React.createClass({
           consoleData={this.state.consoleData}
           batteryLevel={this.state.batteryLevel}
           connectionStatus={this.state.connectionStatus}
-          isRunningFode={this.state.isRunningCode}
+          isRunningCode={this.state.isRunningCode}
         />
       </div>
     );

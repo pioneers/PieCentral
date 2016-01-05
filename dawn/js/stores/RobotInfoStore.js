@@ -5,7 +5,7 @@ import assign from 'object-assign';
 import _ from 'lodash';
 
 let _robotInfo = {
-  consoleData: '',
+  consoleData: [],
   connectionStatus: true,
   isRunningCode: false,
   batteryLevel: 0
@@ -30,7 +30,7 @@ let RobotInfoStore = assign({}, EventEmitter.prototype, {
 });
 
 function handleUpdateStatus(action) {
-  _robotInfo.robotStatus = (action.status.value == 1);
+  _robotInfo.isRunningCode = (action.status.value == 1);
   RobotInfoStore.emitChange();
 }
 
@@ -76,7 +76,7 @@ function handleConsoleUpdate(action) {
 }
 
 function handleClearConsole(action) {
-  _robotInfo.consoleData = '';
+  _robotInfo.consoleData = [];
 }
 
 RobotInfoStore.dispatchToken = AppDispatcher.register((action) => {

@@ -79,7 +79,9 @@ export default React.createClass({
     RobotActions.clearConsole();
   },
   startRobot() {
-    Ansible.sendMessage('execute', {});
+    Ansible.sendMessage('execute', {
+      code: this.state.editorCode
+    });
   },
   stopRobot() {
     Ansible.sendMessage('stop', {});
@@ -92,16 +94,16 @@ export default React.createClass({
         buttons:
         [
           {
-            name: 'open',
-            text: 'Open',
-            onClick: this.openFile,
-            glyph: 'folder-open'
-          },
-          {
             name: 'save',
             text: 'Save',
             onClick: this.saveFile,
             glyph: 'floppy-disk'
+          },
+          {
+            name: 'open',
+            text: 'Open',
+            onClick: this.openFile,
+            glyph: 'folder-open'
           },
           {
             name: 'create',

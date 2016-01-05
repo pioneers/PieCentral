@@ -48,7 +48,10 @@ export default React.createClass({
     this.refs.joyride.addTooltip(data);
   },
   startTour() {
-    this.refs.joyride.start(false);
+    this.refs.joyride.start(true);
+  },
+  completeCallback(steps, skipped) {
+    this.refs.joyride.reset(false);
   },
   render() {
     return (
@@ -58,7 +61,13 @@ export default React.createClass({
           connection={this.state.connectionStatus}
           battery={this.state.batteryLevel}
         />
-        <Joyride ref="joyride" steps={this.state.steps} />
+        <Joyride
+          ref="joyride"
+          steps={this.state.steps}
+          type="continuous"
+          showSkipButton={true}
+          completeCallback={this.completeCallback}
+        />
         <div style={{ height: '60px', marginBottom: '21px' }}/>
         <Dashboard {...this.props}
           addSteps={this.addSteps}

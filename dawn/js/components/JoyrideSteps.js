@@ -1,3 +1,7 @@
+/*
+ * Specifies the list of steps to follow in the joyride
+ * (the interactive intro tour). Each object in the list is a step.
+ */
 export default [
   {
     title: 'Battery Indicator',

@@ -6,7 +6,7 @@ from Queue import Empty
 def sender(port, send_queue):
     context = zmq.Context()
     socket = context.socket(zmq.PAIR)
-    socket.bind("tcp://127.0.0.1:%d" % port)
+    socket.connect("tcp://127.0.0.1:%d" % port)
     while True:
         msg = send_queue.get()
         socket.send_json(msg)
@@ -15,7 +15,7 @@ def sender(port, send_queue):
 def receiver(port, recv_queue):
     context = zmq.Context()
     socket = context.socket(zmq.PAIR)
-    socket.bind("tcp://127.0.0.1:%d" % port)
+    socket.connect("tcp://127.0.0.1:%d" % port)
     while True:
         msg = socket.recv()
         parsed = yaml.load(msg)

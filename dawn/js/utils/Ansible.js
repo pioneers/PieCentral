@@ -9,8 +9,8 @@ const SEND_PORT = '12356';
 const RECV_PORT = '12355';
 const LOCATION = '127.0.0.1';
 
-sendSock.connect('tcp://' + LOCATION + ':' + SEND_PORT);
-recvSock.connect('tcp://' + LOCATION + ':' + RECV_PORT);
+sendSock.bind('tcp://' + LOCATION + ':' + SEND_PORT);
+recvSock.bind('tcp://' + LOCATION + ':' + RECV_PORT);
 
 /*
  * Module for communicating with the runtime.
@@ -24,7 +24,7 @@ let Ansible = {
     return recvSock.on(event, function(buffer) {
       let msg = JSON.parse(buffer.toString()); // parse the buffer
       callback(msg);
-    })
+    });
   },
   /* Private, use sendMessage */
   _send(obj) {

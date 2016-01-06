@@ -17,14 +17,25 @@ called [Electron](http://electron.atom.io/).
 1. Install Required Software:
     * Get NodeJS or (if you already have it) make sure to update to v5.0.0 (download from the NodeJS website)
     * Get electron: `npm install -g electron-prebuilt`
-
-2. Get code and dependencies
+    * Get electron-packager: `npm install -g electron-packager`
+    * Get ZMQ if you haven't already:
+        1. Using brew on Mac: `brew install zeromq`
+        1. Python bindings: `pip install pyzmq`. Add `--upgrade` flag to upgrade.
+1. Get code and dependencies
     * Pull the latest code from `pioneers/develop`.
     * Enter the dawn directory: `cd dawn`.
     * Install dependencies with npm: `npm install`. Remember to do this step whenever the dependencies change.
 1. Start developing:
     * Launch the application: `npm start`. Leave this terminal window running. Dawn should open.
     * To see the effects of changes you make, just hit refresh: `CMD-R` (Mac) or `CTRL-R` (Windows).
+1. Package app:
+    * Packaging Dawn is done with electron-packager. Run the following from the `dawn` folder:
+
+    ```
+    electron-packager . dawn --platform=darwin --arch=x64 --version=0.36.2
+    ```
+
+    Here `--platform` is the target platform (darwin means OSX) and `--version` corresponds to the Electron version.
 
 ## Runtime
 [Runtime](https://github.com/pioneers/daemon/wiki/Runtime)

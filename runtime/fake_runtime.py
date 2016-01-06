@@ -15,7 +15,7 @@ def log_output(stream):
                 'value': line
             }
         })
-        time.sleep(0.25) # don't want to flood ansible
+        time.sleep(0.05) # don't want to flood ansible
 
 robotStatus = 0
 while True:
@@ -24,16 +24,20 @@ while True:
     if msg:
         msg_type = msg['header']['msg_type']
         if msg_type == 'execute' and not robotStatus:
-            student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
+            with open('student_code.py', 'w+') as f:
+                f.write(msg['content']['code'])
+            student_proc = subprocess.Popen(['python', '-u', 'student_code.py'],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             lines_iter = iter(student_proc.stdout.readline, b'')
             console_proc = multiprocessing.Process(target=log_output, args=(lines_iter,))
             console_proc.start()
             robotStatus = 1
+            print 'Running student code'
         elif msg_type == 'stop' and robotStatus:
             student_proc.terminate()
             console_proc.terminate()
             robotStatus = 0
+            print 'Stopping student code'
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
             'name': 'somethingElse',

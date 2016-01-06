@@ -7,7 +7,7 @@ var _timestamps = [0, 0, 0, 0];
 
 var _needToUpdate = function(newGamepads) {
   _.forEach(newGamepads, function(gamepad, index) {
-    if(gamepad && gamepad.timestamp > _timestampes[index]) {
+    if(gamepad && gamepad.timestamp > _timestamps[index]) {
       _timestamps[index] = gamepad.timestamp;
       return true;
     }

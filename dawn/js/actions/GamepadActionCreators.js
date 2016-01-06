@@ -47,9 +47,9 @@ var GamepadActionCreators = {
   },
   setUpdateInterval(delay) {
     // remove the previous interval, if present
-    if(this._interval !== null) {
+    if(this._interval !== undefined) {
       clearInterval(this._interval);
-      this._interval = null;
+      this._interval = undefined;
     }
     this._interval = setInterval(_updateGamepadState, delay);
   }

@@ -75,6 +75,12 @@ Message ID Enumeration:
     +------------------------------------+
     |  0x05   |      Device Response     |
     +------------------------------------+
+    |  0x06   |          Ping            |
+    +------------------------------------+
+    |  0x08   |    Description Request   |
+    +------------------------------------+
+    |  0x09   |   Description Response   |
+    +------------------------------------+
     |  0xFF   |           Error          |
     +------------------------------------+
 
@@ -100,6 +106,10 @@ Device Type Enumeration:
     |  0x07   | ServoControl   |
     +--------------------------+
     |  0x08   | LinearActuator |
+    +--------------------------+
+    |  0x09   | ColorSensor    |
+    +--------------------------+
+    |  0xFFFF | ExampleDevice  |
     +---------+----------------+ 
 Note: These assignments are totally random as of now. We need to figure
       out exactly what devices we are supporting.
@@ -200,7 +210,44 @@ Note: These assignments are also fairly random and may not all even be
     Direction:
     BBB <-- SD
 
-7. Error Packet: Not planned as of yet. May only be useful for 
+7. Ping: BBB pings SD for enumeration purposes.
+         The SD will respond with a Sub Response packet.
+    Payload format:
+
+        +---------------+
+        |     Empty     |
+        |    (0 bits)   |
+        +---------------+
+
+    Direction:
+    BBB --> SD
+
+8. DescriptionRequest: BBB requests a descriptor string from the SD.
+                       The SD will respond with a sequence of DescriptionResponse packets.
+    Payload format:
+
+        +---------------+
+        |     Empty     |
+        |    (0 bits)   |
+        +---------------+
+
+    Direction:
+    BBB --> SD
+9. DescriptionResponse: SD returns a sequence of packets containing indexes and substrings.
+                        The final packet's substring is terminated with a 0 byte.
+                        The BBB assembles the substrings into a full device descriptor.
+
+    Payload format:
+
+        +---------------+-----------------------+
+        |     Index     |  Descriptor Substring |
+        |    (8 bits)   |       (Variable)      |
+        +---------------+-----------------------+
+
+    Direction:
+    SD --> BBB
+
+10. Error Packet: Not planned as of yet. May only be useful for
                  debugging. See "Behavior" section for a higher-level
                  description of how error-handling will work.
     Payload format:

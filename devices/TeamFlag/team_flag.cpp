@@ -1,37 +1,16 @@
 #include "team_flag.h"
-//////////////// DEVICE UID ///////////////////
-hibike_uid_t UID = {
-  TEAM_FLAG,                      // Device Type
-  0,                      // Year
-  UID_RANDOM,     // ID
-};
-///////////////////////////////////////////////
 
-message_t hibikeBuff;
 
 int params[NUM_PARAMS] = {0};
 
-uint64_t prevTime, currTime, heartbeat;
-uint8_t param;
-uint32_t value;
-uint16_t subDelay;
+
 const uint8_t pins[NUM_PINS] = {BLUE, YELLOW, STAT0, STAT1, STAT2, STAT3};
-bool led_enabled;
 uint64_t modePrevTime, modePeriod=1000;
 uint32_t temp;
 uint8_t temp8;
 
 void setup() {
-  Serial.begin(115200);
-  prevTime = millis();
-  subDelay = 0;
-
-
-  // Setup Error LED
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
-  led_enabled = false;
-
+  hibike_setup();
   // Setup sensor input
   for (int i = 0; i < NUM_PINS; i++) {
     digitalWrite(pins[i], LOW);
@@ -45,83 +24,24 @@ void setup() {
     params[i] = 0;
   }
   setupMode(params[1]);
-  modePrevTime = prevTime;
-
-  subDelay = 0;
-  heartbeat = 0;
+  modePrevTime = millis();
 }
 
 
 void loop() {
-  // Read sensor
-  currTime = millis();
-
-  // Check for Hibike packets
-  if (Serial.available() > 1) {
-    if (read_message(&hibikeBuff) == -1) {
-      toggleLED();
-    } else {
-      switch (hibikeBuff.messageID) {
-        case SUBSCRIPTION_REQUEST:
-          // Unsupported packet
-          toggleLED();
-          break;
-
-        case SUBSCRIPTION_RESPONSE:
-          // Unsupported packet
-          toggleLED();
-          break;
-
-        case DATA_UPDATE:
-          // Unsupported packet
-          toggleLED();
-          break;
-
-        case DEVICE_UPDATE:
-          param = hibikeBuff.payload[0] - 1;
-          value = *((uint32_t*) &hibikeBuff.payload[DEVICE_PARAM_BYTES]);
-          if (param < NUM_PARAMS) {
-            deviceUpdate(param, value);
-            send_device_response(param+1, params[param]);
-          } else {
-            // Error due to too high a param index
-            toggleLED();
-          }
-          break;
-
-        case DEVICE_STATUS:
-          param = hibikeBuff.payload[0] - 1;
-          if (param < NUM_PARAMS) {
-            send_device_response(param+1, params[param]);
-          } else {
-            toggleLED();
-          }
-          break;
-
-        case DEVICE_RESPONSE:
-          // Unsupported packet
-          toggleLED();
-          break;
-        case PING_:
-          send_subscription_response(&UID, subDelay);
-          break;
-
-        default:
-          // Uh oh...
-          toggleLED();
-      }
-    }
-  }
-
-  if (currTime - heartbeat >= 1000) {
-    heartbeat = currTime;
-    toggleLED();
-  }
+  hibike_loop();
   modeUpdateLeds(params[1]);
 }
 
+uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
+  uint8_t offset = 0;
+  return offset;
+}
+uint32_t device_status(uint8_t param) {
+  return params[param];
+}
 
-void deviceUpdate(uint8_t param, uint32_t value) {
+uint32_t device_update(uint8_t param, uint32_t value) {
   /*enum {
     MODE_INITIAL = 0,  // Initial mode, switches to direct as soon as any LED is set
     MODE_DIRECT = 1,   // All LEDs controlled by the other parameters
@@ -163,6 +83,7 @@ void deviceUpdate(uint8_t param, uint32_t value) {
       setLed(pins[i], (uint16_t)params[i+2]);
     }
   }
+  return params[param];
 }
 uint16_t setLed(uint8_t pin, uint16_t value) {
   if (value == 0) {  // If zero, turn off
@@ -231,7 +152,7 @@ void setupMode(uint8_t mode) {
   }
 }
 void modeUpdateLeds(uint8_t mode) {
-  currTime = millis();
+  uint64_t currTime = millis();
   if (currTime - modePrevTime >= modePeriod) {
     modePrevTime += modePeriod;
   }
@@ -259,16 +180,4 @@ void modeUpdateLeds(uint8_t mode) {
       }
       return;
   }
-}
-
-
-void toggleLED() {
-  if (led_enabled) {
-    digitalWrite(LED_PIN, LOW);
-    led_enabled = false;
-  } else {
-    digitalWrite(LED_PIN, HIGH);
-    led_enabled = true;
-  }
-  
 }

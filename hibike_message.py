@@ -12,6 +12,8 @@ messageTypes = {
   "DeviceStatus" :         0x04,
   "DeviceResponse" :       0x05,
   "Ping" :                 0x06,
+  "DescriptionRequest" :   0x08,
+  "DescriptionResponse" :  0x09,
   "Error" :                0xff
 }
 
@@ -148,6 +150,12 @@ def make_ping():
   """ Makes and returns Ping message."""
   payload = bytearray()
   message = HibikeMessage(messageTypes["Ping"], payload)
+  return message
+
+def make_description_request():
+  """ Makes and returns DescriptionRequest message."""
+  payload = bytearray()
+  message = HibikeMessage(messageTypes["DescriptionRequest"], payload)
   return message
 
 

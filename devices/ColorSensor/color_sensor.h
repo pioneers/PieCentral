@@ -2,23 +2,25 @@
 #define EX_DEVICE_H
 
 #include "hibike_device.h"
+#include "Adafruit_TCS34725.h"
 
-#define NUM_PARAMS 5
-
-#define NUM_PINS 4
-#define IN_0 A0
-#define IN_1 A1
-#define IN_2 A2
-#define IN_3 A3
-
-#define LED_PIN 13
+#define DEFAULT_INTEGRATION_TIME TCS34725_INTEGRATIONTIME_50MS
+#define DEFAULT_GAIN TCS34725_GAIN_4X
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
-  POTENTIOMETER,                      // Device Type
+  COLOR_SENSOR,                      // Device Type
   0,                      // Year
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
+typedef enum {
+  INTEGRATION_TIME,
+  GAIN
+} param;
+
+
+#define NUM_PARAMS 6
+
 
 // function prototypes
 void setup();

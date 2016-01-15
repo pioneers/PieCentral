@@ -1,8 +1,7 @@
 #ifndef EX_DEVICE_H
 #define EX_DEVICE_H
 
-#include "hibike_message.h"
-#include "devices.h"
+#include "hibike_device.h"
 
 #define NUM_PARAMS 8
 
@@ -17,6 +16,13 @@
 #define STAT3 A3
 
 #define LED_PIN 13
+//////////////// DEVICE UID ///////////////////
+hibike_uid_t UID = {
+  TEAM_FLAG,                      // Device Type
+  0,                      // Year
+  UID_RANDOM,     // ID
+};
+///////////////////////////////////////////////
 
 enum {
   MODE_INITIAL = 0,  // Initial mode

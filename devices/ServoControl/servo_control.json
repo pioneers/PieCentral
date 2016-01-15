@@ -1,0 +1,15 @@
+{
+    "deviceID": "0x0007",
+    "deviceName": "ServoControl",
+    "dataFormat": {
+        "formatString": "",
+        "parameters": []
+    },
+    "params": [
+        "dataUpdate",
+        "servo0",
+        "servo1",
+        "servo2",
+        "servo3"
+    ]
+}

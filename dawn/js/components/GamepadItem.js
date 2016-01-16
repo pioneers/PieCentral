@@ -56,7 +56,7 @@ export default React.createClass({
             <Modal.Title>{this.renderHeader()}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <img src={'/graphics/gamepad.png'} style={{width: '100%'}}/>
+            <img src={'graphics/gamepad.png'} style={{width: '100%'}}/>
               <Table bordered>
                 <tr>
                   <th>Button</th>

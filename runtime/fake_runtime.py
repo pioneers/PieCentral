@@ -4,6 +4,8 @@ import random
 import subprocess, multiprocessing
 import memcache
 from datetime import datetime
+import eventlet
+eventlet.monkey_patch()
 
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache

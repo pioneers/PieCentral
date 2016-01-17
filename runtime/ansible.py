@@ -1,25 +1,35 @@
-import zmq, yaml
+from flask import Flask, copy_current_request_context, request
+from flask.ext.socketio import SocketIO
 from multiprocessing import Process, Queue
 from Queue import Empty
 
-# Sender process.
-def sender(port, send_queue):
-    context = zmq.Context()
-    socket = context.socket(zmq.PAIR)
-    socket.connect("tcp://127.0.0.1:%d" % port)
-    while True:
-        msg = send_queue.get()
-        socket.send_json(msg)
+def socket_server(recv_queue, send_queue):
+    app = Flask(__name__)
+    socketio = SocketIO(app)
 
-# Receiver process.
-def receiver(port, recv_queue):
-    context = zmq.Context()
-    socket = context.socket(zmq.PAIR)
-    socket.connect("tcp://127.0.0.1:%d" % port)
-    while True:
-        msg = socket.recv()
-        parsed = yaml.load(msg)
-        recv_queue.put(parsed)
+    @socketio.on('message')
+    def receive_message(msg):
+        print msg
+        recv_queue.put_nowait(msg)
+
+    @socketio.on('connect')
+    def on_connect():
+        socketio.emit('message', 'test')
+        print 'Connected to Dawn.'
+
+    @socketio.on_error()
+    def on_error(e):
+        print e
+
+    def send_process(send_queue):
+        while True:
+            msg = send_queue.get()
+            socketio.emit('message', msg)
+
+    send_p = Process(target=send_process, args=(send_queue,))
+    send_p.start()
+
+    socketio.run(app)
 
 # DON'T USE THIS UNLESS YOU KNOW WHAT YOU'RE DOING
 # Low level message sending. For high level messaging, use send_msg.
@@ -44,14 +54,8 @@ def recv(block=False):
         except Empty:
             return None
 
-# Intialize on module import
-send_port = 12355
-recv_port = 12356
-
-send_queue = Queue()
 recv_queue = Queue()
+send_queue = Queue()
 
-send_process = Process(target=sender, args=(send_port, send_queue))
-recv_process = Process(target=receiver, args=(recv_port, recv_queue))
-send_process.start()
-recv_process.start()
+socket_p = Process(target=socket_server, args=(recv_queue, send_queue))
+socket_p.start()

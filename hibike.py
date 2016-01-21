@@ -608,7 +608,7 @@ class HibikeDevice:
         self.params[param] = (value, time.time())
 
     # converts dataupdate from bytearray to specified format
-    def getData(self, param, data_format="dict"):
+    def getData(self, param, data_format="tuple"):
         formats = {"dict": self.dataToDict, "tuple": self.dataToTuple, "int": self.dataToInt}
         data = self.params[param][0]
         if param == 0:
@@ -623,7 +623,7 @@ class HibikeDevice:
     def dataToTuple(self, data):
         unpacked = struct.unpack(self.deviceType.dataFormat, data)
         scaled = [field / scale if scale != 1 else field for field, scale in zip(unpacked, self.deviceType.scalingFactors)]
-        return self.deviceType.dataTuple(*scaled)
+        return tuple(scaled)
 
 
     def dataToInt(self, data):

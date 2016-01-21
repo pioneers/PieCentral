@@ -89,7 +89,6 @@ def msg_handling(msg):
         stop_motors()
         robot_status = 0
     elif msg_type == 'gamepad':
-        mc.set('time', {'time': datetime.datetime.now()})
         mc.set('gamepad', content)
 
 peripheral_data_last_sent = 0
@@ -116,7 +115,7 @@ while True:
     # Handle any incoming commands from the UI
     if msg:
         msg_handling(msg)
-    
+
     # Send whether or not robot is executing code
     ansible.send_message('UPDATE_STATUS', {
         'status': {'value': robot_status}

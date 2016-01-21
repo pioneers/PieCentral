@@ -3,15 +3,6 @@ import memcache, ansible, hibike
 from grizzly import *
 import usb
 import os
-import hashlib
-from shutil import copyfile
-import datetime
-
-fileName = "CustomId.txt"
-fileName_old = "CustomID_Old.txt"
-txt = open(fileName) 
-txt_old = open(fileName_old)
-idName ={} #dictionary of [custom name] : ID
 
 # Useful motor mappings
 name_to_grizzly, name_to_values, name_to_ids = {}, {}, {}
@@ -160,42 +151,6 @@ while True:
                     'id': name_to_ids[name]
                 }
             })
-    isChanged = False
- 
-    hash_new = hashlib.md5(txt.read()).hexdigest() #hash for file sent by runtime
-    hash_old = hashlib.md5(txt_old.read()).hexdigest() #hash for the file previously sent by runtime 
-    if (hash_new == hash_old):
-        isChanged = True
-        txt.seek(0)
-        txt_old.seek (0)
-    else:
-        copyfile(fileName, fileName_old) #if the files are different, update the previously sent file
-        isChanged = False
-        txt.seek(0)
-        txt_old.seek (0)
-
-    
-    # if the file was changed, update idName
-    if not isChanged:
-        idName ={} #dictionary of [custom name] : ID
-        totalLine = 1
-
-        for line in txt: #count the lines in text file
-            totalLine+=1
-
-        txt.seek(0) #go back to the beginning of the file
-
-        for x in range(1, totalLine): #add the ID and custom name to the idName dictionary
-            oldId = txt.read(2)
-            txt.read(2)
-            newID = txt.readline()
-            newID =''.join(newID.split('\n'))
-            idName[newID] = oldId
-    
-        #print idName
-
-    
-    txt.seek(0)
 
 
 

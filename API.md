@@ -1,29 +1,27 @@
 # Hibike API
 
-There have been some changes. Sorry :(
-
 Couple things:
-* There are 2 classes to instantiate for Hibike - Hibike and DeviceContext. Hibike handles interfacing with sensors, while DeviceContext handles sending/recieving data from the user. As such, expect to be working with DeviceContext for the most part.
+* Runtime need only instantiate one (and only one) Hibike instance. All other setup work for SmartDevice detection and enumeration will happen behind the scenes. It is recommended that Hibike is instantiated at least a couple seconds after robot is powered on.
 * All setter methods are non-blocking, meaning its up to the user to check if the write methods were successful. This can be accomplished by comparing timestamps. Timestamps are initialized as -1, and will be updated for every new value read from the ACK packet returned for the given write request. See Usage for details.
-* All devices will have a specified parameter "dataUpdate" that will correspond to the data written via subscriptions. All other parameters are updated on request. See Usage and Method Summary for getData() for more details. Note that for devices like servos, dataUpdate will never be written to.
+* All devices will have a specified parameter "dataUpdate" that will correspond to the data written via subscriptions. All other parameters are updated on request. See Usage and Method Summary for getData() for more details.
 
-## DeviceContext
-### Constructor Summary
+## Constructor Summary
 
-**DeviceContext([configFile])**
+### Hibike(contextFile)
 
-Initializes a deviceContext instance, which will store the most up-to-date information on each SmartDevice. 
+Initializes the hibike instance and pings all connected devices for UID info.
+*Note that Hibike should be treated as a singleton class.*
 
-Input Parameters: 
-- configFile, with default value 'hibikeDevices.csv'
+Input Parameters:
+- contextFile: Absolute filepath to Hibike config file. It is recommended this be left as the default value.
 
-Return Value: DeviceContext instance
+Return Value: Hibike instance
 
-Blocks: No
+Blocks: **Yes**
 
-### Method Summary
+## Method Summary
 
-**getData(UID, param)**
+### getData(UID, param, )
 
 Gets the most recently recieved data from the specified device.
 
@@ -34,10 +32,13 @@ Return Value: (value, timestamp)
 - value = integer value of latest device reading of param
 - timestamp = timestamp of last time param was written to
 
+**Special Case:** If param == 'dataUpdate', return value will be a tuple of dataUpdate values, one for each actual device connected to the SmartDevice (e.g. a LimitSwitch SD will have 4 actual limit switches connected).
+
 Blocks: No
 
+---
 
-**writeValue(UID, param, value)**
+### writeValue(UID, param, value)
 
 Writes a value to the parameter of a particular device, specified by the UID.
 
@@ -50,7 +51,8 @@ Return Value: None
 
 Blocks: No
 
-**getDelay(UID)**
+---
+### getDelay(UID)
 
 Get the delay rate for the specified UID. Will fail if the requested UID has not been found active during initialization.
 
@@ -62,7 +64,8 @@ Return Value: int
 
 Blocks: No
 
-**subToDevice(UID, delay)**
+---
+### subToDevice(UID, delay)
 
 Subscribes to the specified with the given delay, an int specifying the time between subscriptions in milliseconds. Will fail if a requested UID has not been found active during initialization.
 
@@ -74,7 +77,8 @@ Return Value: None
 
 Blocks: No
 
-**subToDevices(deviceTuples)**
+---
+### subToDevices(deviceTuples)
 
 Subscribes to a list of devices. Will fail if a requested UID has not been found active during initialization.
 
@@ -85,7 +89,8 @@ Return Value: None
 
 Blocks: No
 
-**getParams(uid)**
+---
+### getParams(uid)
 
 Returns a list of strings for all parameter names of the specified .
 
@@ -97,7 +102,8 @@ Return Value: list
 
 Blocks: No
 
-**getDeviceName(deviceType)**
+---
+### getDeviceName(deviceType)
 
 Returns a string name of a device enum (given in hibike.getEnumeratedDevices). See Usage for details
 
@@ -109,25 +115,8 @@ Return Value: String
 
 Blocks: No
 
-
-## Hibike
-### Constructor Summary
-
-**Hibike(deviceContext)**
-
-Initializes the hibike instance and pings all connected devices for UID info.
-*Note that Hibike should be treated as a singleton class.*
-
-Input Parameters:
-- deviceContext: instance of DeviceContext, to which all data will be read and written to.
-
-Return Value: Hibike instance
-
-Blocks: **Yes**
-
-### Method Summary
-
-**getEnumeratedDevices()**
+---
+### getEnumeratedDevices()
 
 Returns a list of all active devices detected on setup. Returned list has tuple elements with a UID (as strings) and the associated deviceType (as ints) for convenience.
 
@@ -142,10 +131,8 @@ Blocks: No
 
     ### Initialize Hibike ###
     import hibike
-    import deviceContext
     import time
     
-    context = deviceContext.DeviceContext()
     h = hibike.Hibike(context)
 
 
@@ -153,56 +140,56 @@ Blocks: No
     connectedDevices = h.getEnumeratedDevices()
     
     # device0_name would equal "LimitSwitch"
-    device0_name = comtext.getDeviceTypes[connectedDevices[0][1]]	
+    device0_name = h.getDeviceTypes[connectedDevices[0][1]] 
 
 
     ### Subscribe to devices as needed ###
     # Retries and wait-times are handled by the user
     subList = zip(deviceUIDs, deviceDelays)
-    context.subToDevices(subList)
+    h.subToDevices(subList)
     
-    time.sleep(1)	# handle wait-times a needed
+    time.sleep(1)   # handle wait-times a needed
     
     for i in range(len(deviceUIDs)):
-        if context.getDelay(deviceUIDs[i]) != deviceUIDs[i]:
+        if h.getDelay(deviceUIDs[i]) != deviceUIDs[i]:
             # handle retries as needed
             print("subscription failed for: "+str(deviceUIDs[i])
     
-    context.subToDevice(Potentiometer3_UID, 50)
+    h.subToDevice(Potentiometer3_UID, 50)
     while(context.getDelay(Potentiometer3_UID) != 50):
         time.sleep(0.001)
         
         
     ### Get parameters for a certain device ###
-    servo_params = context.getParams(servo_UID)
+    servo_params = h.getParams(servo_UID)
     # servo_params will equal: ["dataUpdate", "servo0", "servo1", "servo2", "servo3"]
 
 
     ### Need some data? ###
-    device1_reading, device1_reading_timestamp = context.getData(device1_UID, "dataUpdate")
+    device1_reading, device1_reading_timestamp = h.getData(device1_UID, "dataUpdate")
 
 
     ### Need to read a device parameter? ###
-    _, old_time = context.getData(teamFlag_UID, "status")
+    _, old_time = h.getData(teamFlag_UID, "status")
     teamFlag_timestamp = old_time
     while teamFlag_timestamp == old_time:
-        teamFlag_status, teamFlag_timestamp = context.getData(teamFlag_UID, "status")
+        teamFlag_status, teamFlag_timestamp = h.getData(teamFlag_UID, "status")
 
 
     ### Need to write multiple values to a device? ###
-    _, old_time0 = context.getData(servo_UID, "servo0")
-    _, old_time1 = context.getData(servo_UID, servo_params[2])
+    _, old_time0 = h.getData(servo_UID, "servo0")
+    _, old_time1 = h.getData(servo_UID, servo_params[2])
     servo_time0 = old_time1
     servo_time1 = old_time2
     timeout = time.time() + 1                           # in seconds
     
-    context.writeValue(servo_UID, "servo1", 45)         # write 45 to servo 0
-    context.writeValue(servo_UID, servo_params[2], 119) # write 119 to servo 1
+    h.writeValue(servo_UID, "servo1", 45)         # write 45 to servo 0
+    h.writeValue(servo_UID, servo_params[2], 119) # write 119 to servo 1
     
     # Check if values have been written. Kinda optional, 
     # Can be run in the background and or checked at a later time
     while (servo_time0 == old_time0) or (servo_time1 == old_time1):
-        servo_val0, servo_time0 = getData(servo_UID, "servo0")
-        servo_val1, servo_time1 = getData(servo_UID, "servo1")
+        servo_val0, servo_time0 = h.getData(servo_UID, "servo0")
+        servo_val1, servo_time1 = h.getData(servo_UID, "servo1")
         if time.time() > timeout:
             # handle retries as needed

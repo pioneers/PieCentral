@@ -20,7 +20,6 @@
     "react-ace": "^3.0.0",
     "react-bootstrap": "^0.28.1",
     "react-dom": "^0.14.5",
-    "react-joyride": "^1.1.1",
-    "zmq": "^2.14.0"
+    "react-joyride": "^1.1.1"
   }
 }

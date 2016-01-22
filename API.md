@@ -21,18 +21,20 @@ Blocks: **Yes**
 
 ## Method Summary
 
-### getData(UID, param, )
+### getData(UID, param, data_format)
 
 Gets the most recently recieved data from the specified device.
 
 Input Parameters:
 - UID = "UID string"
+- param = String value of param. List of params for a specified device can be accessed from getParams()
+- data_format = String value of return type for 'dataUpdate' param only; defaults to "tuple", but can also take "dict" or "int".
 
 Return Value: (value, timestamp)
 - value = integer value of latest device reading of param
 - timestamp = timestamp of last time param was written to
 
-**Special Case:** If param == 'dataUpdate', return value will be a tuple of dataUpdate values, one for each actual device connected to the SmartDevice (e.g. a LimitSwitch SD will have 4 actual limit switches connected).
+**Special Case:** If param == 'dataUpdate', value will be a tuple (unless otherwise specified by data_format) of dataUpdate values, one for each actual device connected to the SmartDevice (e.g. a LimitSwitch SD will have 4 actual limit switches connected).
 
 Blocks: No
 
@@ -166,14 +168,14 @@ Blocks: No
 
 
     ### Need some data? ###
-    device1_reading, device1_reading_timestamp = h.getData(device1_UID, "dataUpdate")
-
+    ls_readings, ls_reading_timestamp = h.getData(limitSwitch_UID, "dataUpdate")
+	# ls_readings will be a tuple, eg: (1, 0, 1, 0)
 
     ### Need to read a device parameter? ###
     _, old_time = h.getData(teamFlag_UID, "status")
-    teamFlag_timestamp = old_time
-    while teamFlag_timestamp == old_time:
-        teamFlag_status, teamFlag_timestamp = h.getData(teamFlag_UID, "status")
+    tf_timestamp = old_time
+    while tf_timestamp == old_time:
+        tf_status, tf_timestamp = h.getData(teamFlag_UID, "status")
 
 
     ### Need to write multiple values to a device? ###

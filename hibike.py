@@ -610,9 +610,9 @@ class HibikeDevice:
     # converts dataupdate from bytearray to specified format
     def getData(self, param, data_format="tuple"):
         formats = {"dict": self.dataToDict, "tuple": self.dataToTuple, "int": self.dataToInt}
-        data = self.params[param][0]
+        data = self.params[param]
         if param == 0:
-            data = formats[data_format](data)
+            data = (formats[data_format](data), self.params[param][1])
         return data
 
     def dataToDict(self, data):

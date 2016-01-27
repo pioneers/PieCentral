@@ -27,8 +27,11 @@ mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 def get_all_data(connectedDevices):
     all_data = {}
     for t in connectedDevices:
-        all_data[str(t[0])] = h.getData(t[0],"dataUpdate")
-    return all_data
+        count = 1
+        for i in h.getData(t[0], "dataUpdate"):
+            all_data[str(count) + str(t[0])] = i
+            count += 1
+      return all_data
 
 # Called on start of student code, finds and configures all the connected motors
 def initialize_motors():

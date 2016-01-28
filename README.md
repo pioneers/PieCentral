@@ -18,9 +18,6 @@ called [Electron](http://electron.atom.io/).
     * Get NodeJS or (if you already have it) make sure to update to v5.0.0 (download from the NodeJS website)
     * Get electron: `npm install -g electron-prebuilt`
     * Get electron-packager: `npm install -g electron-packager`
-    * Get ZMQ if you haven't already:
-        1. Using brew on Mac: `brew install zeromq`
-        1. Python bindings: `pip install pyzmq`. Add `--upgrade` flag to upgrade.
 1. Get code and dependencies
     * Pull the latest code from `pioneers/develop`.
     * Enter the dawn directory: `cd dawn`.
@@ -45,8 +42,10 @@ and controlling the robot hardware.
 ### Quickstart
 From the 'runtime' directory, run:
 
+1. Install memcached
+1. Use pip to install flask, libevent, flask-socketio, and python-memcached
 1. `python runtime.py`
-2. `memcached -p 12357` (from another terminal window)
+1. `memcached -p 12357` (from another terminal window)
 
 
 ## Structure Diagram:

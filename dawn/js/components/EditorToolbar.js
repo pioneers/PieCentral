@@ -23,22 +23,7 @@ export default React.createClass({
         return (
           <ButtonGroup key={String(groupIndex)} id={group.groupId}>
             {_.map(group.buttons, (button, buttonIndex) => {
-              return (
-                <OverlayTrigger
-                  key={String(buttonIndex)}
-                  placement="top"
-                  overlay={<Tooltip id="{button.name.toLowerCase()}-tooltip">
-                    {button.text}
-                  </Tooltip>}>
-                  <Button
-                    onClick={button.onClick}
-                    bsSize="small"
-                    disabled={button.disabled || false}
-                    >
-                    <Glyphicon glyph={button.glyph} />
-                  </Button>
-                </OverlayTrigger>
-              );
+              return button.render(String(groupIndex) + String(buttonIndex));
             })}
           </ButtonGroup>
         );

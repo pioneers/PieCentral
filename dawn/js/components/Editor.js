@@ -9,6 +9,7 @@ import ConsoleOutput from './ConsoleOutput';
 import RobotActions from '../actions/RobotActions';
 import Ansible from '../utils/Ansible';
 import {Panel} from 'react-bootstrap';
+import { EditorButton } from './EditorClasses';
 import 'brace/mode/python';
 // React-ace themes
 import 'brace/theme/monokai';
@@ -109,63 +110,19 @@ export default React.createClass({
     return [
       {
         groupId: 'file-operations-buttons',
-        buttons:
-        [
-          {
-            name: 'save',
-            text: 'Save',
-            onClick: this.saveFile,
-            glyph: 'floppy-disk'
-          },
-          {
-            name: 'open',
-            text: 'Open',
-            onClick: this.openFile,
-            glyph: 'folder-open'
-          },
-          {
-            name: 'create',
-            text: 'New',
-            onClick: this.createNewFile,
-            glyph: 'file'
-          },
-          {
-            name: 'delete',
-            text: 'Delete',
-            onClick: this.deleteFile,
-            glyph: 'trash'
-          }
+        buttons: [
+          new EditorButton('save', 'Save', this.saveFile, 'floppy-disk'),
+          new EditorButton('open', 'Open', this.openFile, 'folder-open'),
+          new EditorButton('create', 'New', this.createNewFile, 'file'),
+          new EditorButton('delete', 'Delete', this.deleteFile, 'trash')
         ],
       }, {
         groupId: 'code-execution-buttons',
-        buttons:
-        [
-          {
-            name: 'run',
-            text: 'Run',
-            onClick: this.startRobot,
-            glyph: 'play',
-            disabled: (this.props.isRunningCode || !this.props.connectionStatus )
-          },
-          {
-            name: 'stop',
-            text: 'Stop',
-            onClick: this.stopRobot,
-            glyph: 'stop',
-            disabled: !(this.props.isRunningCode && this.props.connectionStatus)
-          },
-          {
-            name: 'toggle-console',
-            text: 'Toggle Console',
-            onClick: this.toggleConsole,
-            glyph: 'console'
-          },
-          {
-            name: 'clear-console',
-            text: 'Clear Console',
-            onClick: this.clearConsole,
-            glyph: 'remove'
-          }
+        buttons: [
+          new EditorButton('run', 'Run', this.startRobot, 'play', (this.props.isRunningCode || !this.props.connectionStatus)),
+          new EditorButton('stop', 'Stop', this.stopRobot, 'stop', !(this.props.isRunningCode && this.props.connectionStatus)),
+          new EditorButton('toggle-console', 'Toggle Console', this.toggleConsole, 'console'),
+          new EditorButton('clear-console', 'Clear Console', this.clearConsole, 'remove')
         ]
       }
     ];

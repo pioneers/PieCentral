@@ -31,9 +31,9 @@ def get_all_data(connectedDevices):
         for i in h.getData(t[0], "dataUpdate"):
             all_data[str(count) + str(t[0])] = i
             count += 1
-      return all_data
+    return all_data
 
-# Called on start of student code, finds and configures all the connected motors
+# Called on starte of student code, finds and configures all the connected motors
 def initialize_motors():
     try:
         addrs = Grizzly.get_all_ids()
@@ -77,6 +77,8 @@ def msg_handling(msg):
     global robot_status, student_proc, console_proc
     msg_type, content = msg['header']['msg_type'], msg['content']
     if msg_type == 'execute' and not robot_status:
+        with open('student_code.py', 'w+') as f:
+            f.write(msg['content']['code'])
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend

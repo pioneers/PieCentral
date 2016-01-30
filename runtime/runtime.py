@@ -93,8 +93,6 @@ def msg_handling(msg):
         console_proc.terminate()
         stop_motors()
         robot_status = 0
-    elif msg_type == 'gamepad':
-        mc.set('gamepad', content)
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):

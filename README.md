@@ -109,8 +109,13 @@ Device Type Enumeration:
     +--------------------------+
     |  0x09   | ColorSensor    |
     +--------------------------+
+    |  0x10   | DistanceSensor |
+    +--------------------------+
+    |  0x11   | MetalDetector  |
+    +--------------------------+
     |  0xFFFF | ExampleDevice  |
-    +---------+----------------+ 
+    +---------+----------------+
+     
 Note: These assignments are totally random as of now. We need to figure
       out exactly what devices we are supporting.
 Note: As of now, Grizzlies are not supported by Hibike (pyGrizzly should 

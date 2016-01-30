@@ -2,12 +2,14 @@
 
 Servo servos[NUM_PINS];
 
-uint64_t prevTime, currTime, heartbeat;
+/*uint64_t prevTime, currTime, heartbeat;
 uint8_t param, servo;
 uint32_t value;
 uint16_t subDelay;
-uint8_t pins[NUM_PINS] = {SERVO_0, SERVO_1, SERVO_2, SERVO_3};
 bool led_enabled;
+*/
+
+uint8_t pins[NUM_PINS] = {SERVO_0, SERVO_1, SERVO_2, SERVO_3};
 
 void setup() {
   hibike_setup();

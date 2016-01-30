@@ -43,7 +43,7 @@ and controlling the robot hardware.
 From the 'runtime' directory, run:
 
 1. Install memcached
-1. Use pip to install flask, libevent, flask-socketio, and python-memcached
+1. Use pip to install flask, eventlet, flask-socketio, and python-memcached
 1. `python runtime.py`
 1. `memcached -p 12357` (from another terminal window)
 

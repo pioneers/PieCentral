@@ -37,7 +37,12 @@ def ansible_server(send_queue, recv_queue):
 
     @socketio.on('message')
     def receive_message(msg):
-        recv_queue.put_nowait(json.loads(msg))
+        data = json.loads(msg)
+        # Special channel for gamepad data
+        if data['header']['msg_type'] == 'gamepad':
+            mc.set('gamepad', data['content'])
+        else:
+            recv_queue.put_nowait(data)
 
     @socketio.on('connect')
     def on_connect():

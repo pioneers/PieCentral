@@ -208,7 +208,7 @@ class Hibike():
 
     def getEnumeratedDevices(self):
         return [(uid, self.getDeviceType(uid)) for uid in self.getUIDs()]
-    def getData(self, uid, param, data_format='dict'):
+    def getData(self, uid, param):
         """Returns the data associated with param of device with uid 
         Returns None if bad uid or bad param
         """
@@ -220,7 +220,7 @@ class Hibike():
                 print("Bad param")
                 return None
             param = self.deviceTypes[self.getDeviceType(uid)].paramIDs[param]
-        return self.context[uid].getData(param, data_format)
+        return self.context[uid].getData(param)
 
 
     def getDeviceName(self, deviceType):
@@ -609,16 +609,16 @@ class HibikeDevice:
 
     # converts dataupdate from bytearray to specified format
     def getData(self, param, data_format="tuple"):
-        formats = {"dict": self.dataToDict, "tuple": self.dataToTuple, "int": self.dataToInt}
-        data = self.params[param]
+        # formats = {"dict": self.dataToDict, "tuple": self.dataToTuple, "int": self.dataToInt}
+        data = self.params[param][0]
         if param == 0:
-            data = (formats[data_format](data), self.params[param][1])
+            data = (self.dataToTuple(data), self.params[param][1])
         return data
 
-    def dataToDict(self, data):
-        unpacked = struct.unpack(self.deviceType.dataFormat, data)
-        scaled = [field / scale if scale != 1 else field for field, scale in zip(unpacked, self.deviceType.scalingFactors)]
-        return self.deviceType.dict_factory(*scaled)
+    # def dataToDict(self, data):
+    #     unpacked = struct.unpack(self.deviceType.dataFormat, data)
+    #     scaled = [field / scale if scale != 1 else field for field, scale in zip(unpacked, self.deviceType.scalingFactors)]
+    #     return self.deviceType.dict_factory(*scaled)
 
     def dataToTuple(self, data):
         unpacked = struct.unpack(self.deviceType.dataFormat, data)
@@ -626,8 +626,8 @@ class HibikeDevice:
         return tuple(scaled)
 
 
-    def dataToInt(self, data):
-        total = 0
-        for byte in list(bytearray(data)):
-            total = (total << 8) | byte
-        return total
+    # def dataToInt(self, data):
+    #     total = 0
+    #     for byte in list(bytearray(data)):
+    #         total = (total << 8) | byte
+    #     return total

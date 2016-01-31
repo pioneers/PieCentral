@@ -8,6 +8,8 @@ typedef enum {
   TEAM_FLAG = 0x05,
   SERVO_CONTROL = 0x07,
   COLOR_SENSOR = 0x09,
+  DISTANCE_SENSOR = 0x10,
+  METAL_DETECTOR = 0x11,
   EXAMPLE_DEVICE = 0xFFFF
 } deviceID;
 

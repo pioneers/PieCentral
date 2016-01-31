@@ -1,23 +1,30 @@
-#ifndef EX_DEVICE_H
-#define EX_DEVICE_H
+#ifndef METAL_DET_H
+#define METAL_DET_H
 
-#include "hibike_message.h"
-#include "Servo.h"
+#include "hibike_device.h"
 
-#define NUM_PARAMS 1
+//////////////// DEVICE UID ///////////////////
+hibike_uid_t UID = {
+  METAL_DETECTOR,        // Device Type
+  0,                     // Year
+  UID_RANDOM,    		 // ID
+};
+///////////////////////////////////////////////
 
-#define IN_PIN 14
-#define LED_PIN 13
+#define TRIG_PIN IO0
+
+// the last stored measurements or over 5*16 measurments
+#define MEASURE_EVERY 5
+#define HISTORY_LEN 16  // Power of 2
+#define HISTORY_INDEX_MASK 0x0F  // = HISTORY_LEN-1
 
 // function prototypes
 void setup();
 void loop();
 
-// Parameter Update 
-void update_param(uint8_t param, uint32_t value);
+void time_oscillaton();
 
-// functions to control this device
-void toggleLED();
-void timer();
+void calibrate();
+int32_t get_reading();
 
-#endif /* EX_DEVICE_H */
+#endif /* METAL_DET_H */

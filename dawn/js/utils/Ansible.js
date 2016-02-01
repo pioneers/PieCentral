@@ -1,6 +1,7 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
 
-let socket = io('http://127.0.0.1:5000/');
+let runtimeAddress = localStorage.getItem('runtimeAddress') || '127.0.0.1';
+let socket = io('http://' + runtimeAddress + ':5000/');
 socket.on('connect', ()=>console.log('Connected to runtime.'));
 socket.on('connect_error', (err)=>console.log(err));
 

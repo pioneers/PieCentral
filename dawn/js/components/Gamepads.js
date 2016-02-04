@@ -21,7 +21,7 @@ export default React.createClass({
   },
   renderInterior() {
     // if there are any gamepads
-    if (_.any(this.state.gamepads, (gamepad) => gamepad !== null)) {
+    if (_.some(this.state.gamepads, (gamepad) => gamepad !== null)) {
       return _.map(this.state.gamepads, (gamepad, index) => {
         return (<GamepadItem key={index} index={index} gamepad={gamepad}/>);
       });

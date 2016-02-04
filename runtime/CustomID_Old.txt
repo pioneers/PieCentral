@@ -1,0 +1,4 @@
+11, Eleven
+15, Fifteen
+75, Seventy-Five
+50, Fifty

@@ -27,10 +27,13 @@ mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 def get_all_data(connectedDevices):
     all_data = {}
     for t in connectedDevices:
-        all_data[str(t[0])] = h.getData(t[0],"dataUpdate")
+        count = 1
+        for i in h.getData(t[0], "dataUpdate"):
+            all_data[str(count) + str(t[0])] = i
+            count += 1
     return all_data
 
-# Called on start of student code, finds and configures all the connected motors
+# Called on starte of student code, finds and configures all the connected motors
 def initialize_motors():
     try:
         addrs = Grizzly.get_all_ids()
@@ -74,6 +77,8 @@ def msg_handling(msg):
     global robot_status, student_proc, console_proc
     msg_type, content = msg['header']['msg_type'], msg['content']
     if msg_type == 'execute' and not robot_status:
+        with open('student_code.py', 'w+') as f:
+            f.write(msg['content']['code'])
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend
@@ -88,8 +93,6 @@ def msg_handling(msg):
         console_proc.terminate()
         stop_motors()
         robot_status = 0
-    elif msg_type == 'gamepad':
-        mc.set('gamepad', content)
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):
@@ -150,5 +153,7 @@ while True:
                     'id': name_to_ids[name]
                 }
             })
+
+
 
     time.sleep(0.02)

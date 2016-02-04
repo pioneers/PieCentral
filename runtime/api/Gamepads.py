@@ -2,6 +2,13 @@
 # Gamepad.py class.
 # Copyright 2015. Pioneers in Engineering
 # ------
+'''
+This module contains functions for getting gamepad data.
+
+To use this module, you must first import it:
+
+>>> from api import Gamepads
+'''
 import memcache
 
 # Connect to memcache

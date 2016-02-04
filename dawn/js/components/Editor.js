@@ -5,6 +5,7 @@ import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
 import EditorToolbar from './EditorToolbar';
 import Mousetrap from 'mousetrap';
+import smalltalk from 'smalltalk';
 import ConsoleOutput from './ConsoleOutput';
 import RobotActions from '../actions/RobotActions';
 import Ansible from '../utils/Ansible';
@@ -66,7 +67,10 @@ export default React.createClass({
   },
   openFile() {
     if (this.hasUnsavedChanges()) {
-      alert('Please discard or save your current changes.')
+      smalltalk.alert(
+        'You have unsaved changes.',
+        'Please save or discard them before opening another file.'
+      ).then(()=>console.log('Ok.'), ()=>console.log('Cancel.'));
     } else {
       EditorActionCreators.openFile();
     }
@@ -76,15 +80,20 @@ export default React.createClass({
   },
   createNewFile() {
     if (this.hasUnsavedChanges()) {
-      alert('Please discard or save your current changes.');
+      smalltalk.alert(
+        'You have unsaved changes.',
+        'Please save or discard them before creating a new file.'
+      ).then(()=>console.log('Ok.'), ()=>console.log('Cancel.'));
     } else {
       EditorActionCreators.createNewFile();
     }
   },
   deleteFile() {
-    if(confirm('Warning: This will delete your file!')) {
-      EditorActionCreators.deleteFile(this.state.filepath);
-    }
+    smalltalk.confirm(
+      'Warning:',
+      'This will delete your file permanently!').then(()=>{
+        EditorActionCreators.deleteFile(this.state.filepath);
+      }, ()=>console.log('Cancel.'))
   },
   editorUpdate(newVal) {
     EditorActionCreators.editorUpdate(newVal);

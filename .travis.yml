@@ -1,12 +1,9 @@
 language: node_js
-node_js:
-- 'iojs-v2.4.0'
 sudo: true
 addons:
   apt:
     packages:
     - build-essential
-    - libzmq-dev
 before_install:
 - cd dawn
 install:

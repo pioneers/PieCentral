@@ -8,6 +8,7 @@
 
 import React from 'react';
 import {Label} from 'react-bootstrap';
+import NameEdit from './NameEdit';
 
 var Motor = React.createClass({
   propTypes: {
@@ -18,7 +19,7 @@ var Motor = React.createClass({
     return (
     <div style={{overflow: 'auto'}}>
       <div style={{overflow: 'auto', width: '100%'}}>
-        <h4 style={{float: 'left'}}>{this.props.name}<small> Motor</small></h4>
+        <h4 style={{float: 'left'}}><NameEdit name={this.props.name} id={this.props.id} /><small> Motor</small></h4>
         <h4 style={{float: 'right'}}>
         {
           this.props.disconnected

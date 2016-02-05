@@ -60,7 +60,7 @@ while True:
         'peripheral': {
             'name': 'myMotor',
             'peripheralType': 'MOTOR_SCALAR',
-            'value': random.randint(0, 100),
+            'value': random.randint(-100, 100),
             'id': 1234
         }
     })

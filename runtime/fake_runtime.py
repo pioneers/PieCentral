@@ -18,6 +18,7 @@ def log_output(stream):
         time.sleep(0.05) # don't want to flood ansible
 
 robotStatus = 0
+id_to_name = { '1236': 'somethingElse', '1234': 'myMotor', '1235': 'something'}
 while True:
     mc.set('gamepad', {'time': datetime.now()}) # sending arbitary data to API
     msg = ansible.recv()
@@ -38,12 +39,15 @@ while True:
             console_proc.terminate()
             robotStatus = 0
             print 'Stopping student code'
+        elif msg_type == 'custom_names':
+            sensor_id = msg['content']['id']
+            id_to_name[sensor_id] = msg['content']['name']
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
-            'name': 'somethingElse',
+            'name': id_to_name['1236'],
             'peripheralType': 'SENSOR_SCALAR',
             'value': random.randint(0, 100),
-            'id': 1236
+            'id': '1236'
         }
     })
     ansible.send_message('UPDATE_BATTERY', {
@@ -58,18 +62,18 @@ while True:
     })
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
-            'name': 'myMotor',
+            'name':id_to_name['1234'],
             'peripheralType': 'MOTOR_SCALAR',
             'value': random.randint(0, 100),
-            'id': 1234
+            'id': '1234'
         }
     })
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
-            'name': 'something',
+            'name': id_to_name['1235'],
             'peripheralType': 'SENSOR_BOOLEAN',
             'value': random.randint(0, 1),
-            'id': 1235
+            'id': '1235'
         }
     })
     time.sleep(0.5)

@@ -11,7 +11,8 @@ import _ from 'lodash';
 // Private data.
 let _peripheralData = {
   motors: {},
-  peripherals: {}
+  peripherals: {},
+  idsToNames: {}
 }
 
 let RobotPeripheralStore = assign({}, EventEmitter.prototype, {
@@ -76,6 +77,11 @@ function handleUpdatePeripheral(action) {
   RobotPeripheralStore.emitChange();
 }
 
+function handleUpdateName(action) {
+  _peripheralData.idsToName[action.id] = action.newName;
+  RobotPeripheralStore.emitChange();
+}
+
 RobotPeripheralStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.UPDATE_MOTOR:
@@ -83,6 +89,9 @@ RobotPeripheralStore.dispatchToken = AppDispatcher.register((action) => {
       break;
     case ActionTypes.UPDATE_PERIPHERAL:
       handleUpdatePeripheral(action);
+      break;
+    case ActionTypes.UPDATE_PERIPHERAL_NAME:
+      handleUpdateName(action);
       break;
   }
 });

@@ -21,6 +21,7 @@
     "react-bootstrap": "^0.28.1",
     "react-dom": "^0.14.5",
     "react-joyride": "^1.1.1",
+    "react-edit-inline": "^1.0.6",
     "smalltalk": "^1.6.5"
   }
 }

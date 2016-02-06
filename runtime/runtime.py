@@ -30,6 +30,8 @@ all_modes = {"default": ControlMode.NO_PID, "speed": ControlMode.SPEED_PID, "pos
         "brake": DriveMode.DRIVE_BRAKE, "coast": DriveMode.DRIVE_COAST}
 PID_constants = {"P": 1, "I": 0, "D": 0}
 
+name_file= open('Tester.txt','w')
+
 if 'HIBIKE_SIMULATOR' in os.environ and os.environ['HIBIKE_SIMULATOR'] in ['1', 'True', 'true']:
     import hibike_simulator
     h = hibike_simulator.Hibike()
@@ -245,6 +247,20 @@ def msg_handling(msg):
             stop_motor()
 
         os.system('sh ~/updates/update.sh')
+    elif msg_type == 'custom_names':
+        sensor_id = msg['content']['id']
+        id_to_name[sensor_id] = msg['content']['name']
+        name_file.seek(0)
+        end_of_file = True
+        for line in name_file:
+            custom_name = line.split()[0]
+            uid = line.split()[1]
+            if custom_name != id_to_name[id_name]:
+                line.replace(custom_name + " " + uid +"\n", id_to_name[uid]+ " " + uid + "\n")
+                end_of_file = False
+                break
+        if end_of_file: #if reached bottom of file
+            name_file.write(id_to_name[sensor_id]+ " " + sensor_id + "\n")
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):

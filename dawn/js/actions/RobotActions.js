@@ -21,13 +21,6 @@ var RobotActions = {
     AppDispatcher.dispatch({
       type: ActionTypes.CLEAR_CONSOLE,
     });
-  },
-  updatePeripheralName(id, newName) {
-    AppDispatcher.dispatch({
-      type: ActionTypes.UPDATE_PERIPHERAL_NAME,
-      id: id,
-      newName: newName
-    });
   }
 };
 

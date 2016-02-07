@@ -1,6 +1,6 @@
 import React from 'react';
 import InlineEdit from 'react-edit-inline';
-import RobotActions from '../../actions/RobotActions';
+import Ansible from '../../utils/Ansible';
 
 var NameEdit = React.createClass({
   propTypes: {
@@ -8,7 +8,10 @@ var NameEdit = React.createClass({
     id: React.PropTypes.string
   },
   dataChange(data) {
-    RobotActions.updatePeripheralName(this.props.id, data.name);
+    Ansible.sendMessage('custom_names', {
+      id: this.props.id,
+      name: data.name
+    });
   },
   render() {
     return (
@@ -33,6 +36,5 @@ var NameEdit = React.createClass({
     );
   }
 });
-  
 
 export default NameEdit;

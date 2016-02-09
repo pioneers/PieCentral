@@ -27,9 +27,7 @@ var NameEdit = React.createClass({
             display: 'inline-block',
             margin: 0,
             padding: 0,
-            fontSize:15,
-            outline: 0,
-            border: 0
+            fontSize:15
           }}
         />
       </div>

@@ -26,17 +26,18 @@ var NameEdit = React.createClass({
           text={this.props.name}
           change={this.dataChange}
           paramName="name"
-          style = {this.styles.editing}
+          style = {{
+            backgroundColor: 'white',
+            minWidth: 150,
+            display: 'inline-block',
+            margin: 0,
+            padding: 0,
+            fontSize:15
+          }}
         />
       </div>
     );
   }
 });
-
-NameEdit.styles = {
-  editing: {
-    border: '5px solid redasda'
-  }
-}
 
 export default NameEdit;

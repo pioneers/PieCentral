@@ -7,6 +7,11 @@ var NameEdit = React.createClass({
     name: React.PropTypes.string,
     id: React.PropTypes.string
   },
+  styles: {
+    editing: {
+      border: '5px solid red'
+    }
+  },
   dataChange(data) {
     Ansible.sendMessage('custom_names', {
       id: this.props.id,
@@ -17,24 +22,21 @@ var NameEdit = React.createClass({
     return (
       <div>
         <InlineEdit
-          activeClassName="editing"
+          className="editing"
           text={this.props.name}
           change={this.dataChange}
           paramName="name"
-          style = {{
-            backgroundColor: 'white',
-            minWidth: 150,
-            display: 'inline-block',
-            margin: 0,
-            padding: 0,
-            fontSize:15,
-            outline: 0,
-            border: 0
-          }}
+          style = {this.styles.editing}
         />
       </div>
     );
   }
 });
+
+NameEdit.styles = {
+  editing: {
+    border: '5px solid redasda'
+  }
+}
 
 export default NameEdit;

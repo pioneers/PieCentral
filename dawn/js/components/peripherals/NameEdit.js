@@ -7,11 +7,6 @@ var NameEdit = React.createClass({
     name: React.PropTypes.string,
     id: React.PropTypes.string
   },
-  styles: {
-    editing: {
-      border: '5px solid red'
-    }
-  },
   dataChange(data) {
     Ansible.sendMessage('custom_names', {
       id: this.props.id,
@@ -22,7 +17,8 @@ var NameEdit = React.createClass({
     return (
       <div>
         <InlineEdit
-          className="editing"
+          className="static"
+          activeClassName="editing"
           text={this.props.name}
           change={this.dataChange}
           paramName="name"

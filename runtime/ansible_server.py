@@ -41,6 +41,10 @@ def ansible_server(send_queue, recv_queue):
         # Special channel for gamepad data
         if data['header']['msg_type'] == 'gamepad':
             mc.set('gamepad', data['content'])
+        elif 'tar' in data['header']['msg_type']:
+            with open(data['header']['msg_type'],'wb') as f:
+                print "Received " + data['header']['msg_type']
+                f.write(data['header']['content'])
         else:
             recv_queue.put_nowait(data)
 

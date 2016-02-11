@@ -1,4 +1,5 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
+import fs from 'fs';
 
 let runtimeAddress = localStorage.getItem('runtimeAddress') || '127.0.0.1';
 let socket = io('http://' + runtimeAddress + ':5000/');
@@ -15,6 +16,8 @@ socket.on('message', (message)=>{
   unpackedMsg.type = message.header.msg_type;
   AppDispatcher.dispatch(unpackedMsg);
 });
+
+
 
 /*
  * Module for communicating with the runtime.
@@ -33,6 +36,12 @@ let Ansible = {
       content: content
     };
     this._send(msg);
+  },
+  prepareUpgrade(filename) {
+    fs.readFile(filename, function(err, buf){
+      var filenamelast = filename.split("/").pop();
+      Ansible.sendMessage(filenamelast, buf);
+    });
   }
 };
 

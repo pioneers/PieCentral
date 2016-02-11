@@ -11,6 +11,7 @@ import {
   Glyphicon} from 'react-bootstrap';
 import { remote } from 'electron';
 import smalltalk from 'smalltalk';
+import Ansible from '../utils/Ansible.js'
 
 export default React.createClass({
   displayName: 'DNav',
@@ -22,6 +23,15 @@ export default React.createClass({
       defaultAddress).then((value) => {
         localStorage.setItem('runtimeAddress', value);
         remote.getCurrentWebContents().reload();
+      }, ()=>console.log('Canceled'));
+  },
+  upgradeSoftware() {
+    let defaultLocation = localStorage.getItem('upgradeLocation') || window.location.href;
+    smalltalk.prompt(
+      'Enter the File Location of Upgrade to be Pushed',"",
+      defaultLocation).then((value) => {
+      console.log("Preparing Upload");
+      Ansible.prepareUpgrade(value);
       }, ()=>console.log('Canceled'));
   },
   render() {
@@ -70,6 +80,19 @@ export default React.createClass({
                     bsStyle="info"
                     onClick={ this.updateAddress }>
                     <Glyphicon glyph="transfer" />
+                  </Button>
+                </OverlayTrigger>
+                <OverlayTrigger
+                  placement="bottom"
+                  overlay={
+                    <Tooltip id={ 'upgrade-software-tooltip' }>
+                      "Upload Upgrade"
+                    </Tooltip>
+                  }>
+                  <Button
+                    bsStyle="info"
+                    onClick={ this.upgradeSoftware }>
+                    <Glyphicon glyph="cloud-upload" />
                   </Button>
                 </OverlayTrigger>
               </ButtonGroup>

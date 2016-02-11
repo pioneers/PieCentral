@@ -13,7 +13,14 @@ Dawn is a desktop application, but it is written
 using web technologies (primarily ReactJS). This is made possible by a technology
 called [Electron](http://electron.atom.io/).
 
-### Quickstart
+### Download the latest packaged Dawn for your platform:
+* [Windows 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-windows-x64.zip)
+* [Windows 32-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-windows-ia32.zip)
+* [Mac 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-osx-x64.zip)
+* [Linux 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-linux-x64.zip)
+* [Linux 32-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-linux-ia32.zip)
+
+### Development Quickstart
 1. Install Required Software:
     * Get NodeJS or (if you already have it) make sure to update to v5.0.0 (download from the NodeJS website)
     * Get electron: `npm install -g electron-prebuilt`

@@ -13,7 +13,10 @@ app.on('window-all-closed', function() {
 });
 
 app.on('ready', function() {
-  mainWindow = new BrowserWindow({width: 1360, height: 800});
+
+  electronScreen = electron.screen;
+  size = electronScreen.getPrimaryDisplay().workAreaSize;
+  mainWindow = new BrowserWindow({width: size.width, height: size.height});
 
   mainWindow.loadURL('file://' + __dirname + '/static/index.html');
 

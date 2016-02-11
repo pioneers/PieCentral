@@ -164,7 +164,7 @@ export default React.createClass({
   ],
   render() {
     let consoleHeight = 250;
-    let editorHeight = 530;
+    let editorHeight = window.innerHeight * 0.66;
     return (
       <Panel
         header={'Editing: ' + this.pathToName(this.state.filepath) +

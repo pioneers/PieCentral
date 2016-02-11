@@ -29,7 +29,7 @@ export default [
     type: 'hover'
   },{
     title: 'Peripherals',
-    text: 'This panel displays info about your robot\'s peripherals, including motors and sensors.',
+    text: 'This panel displays info about your robot\'s peripherals, including motors and sensors. You can click on a peripheral name to change it.',
     selector: '#peripherals-panel',
     position: 'left',
     type: 'hover'
@@ -37,6 +37,12 @@ export default [
     title: 'Gamepads',
     text: 'This panel displays all the connected gamepads.',
     selector: '#gamepads-panel',
+    position: 'left',
+    type: 'hover'
+  },{
+    title: 'Robot IP',
+    text: 'Click this button to edit the IP address of the robot.',
+    selector: '#update-address-button',
     position: 'left',
     type: 'hover'
   },{

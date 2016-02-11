@@ -1,6 +1,6 @@
 {
   "name": "Dawn",
-  "version": "1.0.0",
+  "version": "0.4.0",
   "description": "Frontend for PIE Robotics System",
   "main": "bootstrapper.js",
   "scripts": {
@@ -14,14 +14,16 @@
     "brace": "^0.7.0",
     "flux": "^2.1.1",
     "keymirror": "^0.1.1",
+    "lodash": "^4.3.0",
     "mousetrap": "^1.5.3",
     "numeral": "^1.5.3",
+    "object-assign": "^4.0.1",
     "react": "^0.14.5",
     "react-ace": "^3.0.0",
     "react-bootstrap": "^0.28.1",
     "react-dom": "^0.14.5",
-    "react-joyride": "^1.1.1",
     "react-edit-inline": "^1.0.6",
+    "react-joyride": "^1.1.1",
     "smalltalk": "^1.6.5"
   }
 }

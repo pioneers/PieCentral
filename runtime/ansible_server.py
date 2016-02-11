@@ -65,5 +65,5 @@ def ansible_server(send_queue, recv_queue):
     send_p.daemon = True
     send_p.start()
 
-    socketio.run(app)
+    socketio.run(app, host='0.0.0.0')
 

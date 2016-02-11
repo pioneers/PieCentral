@@ -17,6 +17,7 @@ var NameEdit = React.createClass({
     return (
       <div>
         <InlineEdit
+          className="static"
           activeClassName="editing"
           text={this.props.name}
           change={this.dataChange}

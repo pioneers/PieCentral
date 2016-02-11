@@ -8,10 +8,13 @@ var NameEdit = React.createClass({
     id: React.PropTypes.string
   },
   dataChange(data) {
-    Ansible.sendMessage('custom_names', {
-      id: this.props.id,
-      name: data.name
-    });
+    var x = new RegExp("^[A-Za-z][A-Za-z0-9]+$");
+    if (x.test(data.name)) {
+      Ansible.sendMessage('custom_names', {
+        id: this.props.id,
+        name: data.name
+      });
+    }
   },
   render() {
     return (

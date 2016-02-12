@@ -38,13 +38,17 @@ def ansible_server(send_queue, recv_queue):
     @socketio.on('message')
     def receive_message(msg):
         data = json.loads(msg)
+        print data['header']['content'].decode('base64')
         # Special channel for gamepad data
+        print 'Hello'
         if data['header']['msg_type'] == 'gamepad':
             mc.set('gamepad', data['content'])
         elif 'tar' in data['header']['msg_type']:
-            with open(data['header']['msg_type'],'wb') as f:
-                print "Received " + data['header']['msg_type']
-                f.write(data['header']['content'])
+            #f = open(data['header']['msg_type'], 'wb')
+            print 'Jello' #str(data['header']['content'].decode('base64'))
+            #f.close();
+            #with open(data['header']['msg_type'], 'wb') as f:
+            #    f.write(data['header']['content'].decode('base64'))
         else:
             recv_queue.put_nowait(data)
 

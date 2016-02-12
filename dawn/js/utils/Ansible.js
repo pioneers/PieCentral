@@ -29,6 +29,7 @@ let Ansible = {
   },
   /* Send data over ZMQ to the runtime */
   sendMessage(msgType, content) {
+
     let msg = {
       header: {
         msg_type: msgType
@@ -39,7 +40,9 @@ let Ansible = {
   },
   prepareUpgrade(filename) {
     fs.readFile(filename, function(err, buf){
+      if (err) throw err;
       var filenamelast = filename.split("/").pop();
+      buf = buf.toString('base64');
       Ansible.sendMessage(filenamelast, buf);
     });
   }

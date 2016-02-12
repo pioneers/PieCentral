@@ -120,7 +120,7 @@ def get_all_data(connectedDevices):
         if uid == battery_UID: # battery value testing is special-cased
             continue
         tup_nest = h.getData(uid, "dataUpdate")
-        if h.getDeviceName(int(uid)) == "ColorSensor":
+        if h.getDeviceName(int(device_type)) == "ColorSensor":
             #just for color sensor, put all data into one list
             all_data["5" + str(uid)] = h.getData(uid, "dataUpdate")
         if not tup_nest:
@@ -215,9 +215,9 @@ def set_flag(values):
 
 calibrate_val = 1
 def metal_d_calibrate(metalID):
-    cal_value = random.randint(-1000, 1000)
     global calibrate_val
-    while h.getData(metalID, "calibrate") != calibrate_val:
+    for i in range(10):
+    #while h.getData(metalID, "calibrate") != calibrate_val:
         h.writeValue(metalID, "calibrate", calibrate_val)
     calibrate_val += 1
     mc.set("metal_detector_calibrate", [False,False])
@@ -256,7 +256,6 @@ def enumerate_motors():
     mc.set('motor_values', name_to_values)
 
 def set_motors(data):
-    print("setting motors with: " , data)
     for name, value in data.items():
         grizzly = name_to_grizzly[name]
         try:
@@ -268,15 +267,15 @@ def set_motors(data):
 
 # Called on end of student code, sets all motor values to zero
 def stop_motors():
-    name_to_values = {}
+    motor_values = mc.get('motor_values') 
     for name, grizzly in name_to_grizzly.iteritems():
         try:
             grizzly.set_target(0)
         except:
             print("WARNING: failed to stop grizzly")
-        name_to_values[name] = 0
+        motor_values[name] = 0
 
-    mc.set('motor_values', name_to_values)
+    mc.set('motor_values', motor_values)
 
 def drive_set_distance(list_tuples):
     for item in list_tuples:
@@ -350,7 +349,7 @@ def msg_handling(msg):
         with open('student_code/student_code.py', 'w+') as f:
             f.write(msg['content']['code'])
 
-        enumerate_motors()
+        #enumerate_motors() TODO Unable to restart motors that already exist
 
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -415,6 +414,7 @@ def send_motor_data(data):
 
 read_naming_map()
 enumerate_hibike()
+enumerate_motors()
 while True:
     battery_safe = test_battery()
     if not battery_safe:
@@ -447,7 +447,6 @@ while True:
     # Update motor values, and send to UI
     motor_values = mc.get('motor_values') or {}
     send_motor_data(motor_values)
-    print("motor values", motor_values)
     if robot_status:
         set_motors(motor_values)
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import InlineEdit from 'react-edit-inline';
 import Ansible from '../../utils/Ansible';
+import smalltalk from 'smalltalk';
 
 var NameEdit = React.createClass({
   propTypes: {
@@ -14,6 +15,11 @@ var NameEdit = React.createClass({
         id: this.props.id,
         name: data.name
       });
+    } else {
+      smalltalk.alert(
+        'Invalid Peripheral Name',
+        'Names must be alphanumeric, and cannot contain spaces or start with a number.'
+      ).then(()=>console.log('Ok.'), ()=>console.log('Cancel.'));
     }
   },
   render() {

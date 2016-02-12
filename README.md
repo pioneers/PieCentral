@@ -16,7 +16,7 @@ called [Electron](http://electron.atom.io/).
 ### Download the latest packaged Dawn for your platform:
 * [Windows 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-windows-x64.zip)
 * [Windows 32-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-windows-ia32.zip)
-* [Mac 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-osx-x64.zip)
+* [Mac 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-darwin-x64.zip)
 * [Linux 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-linux-x64.zip)
 * [Linux 32-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-linux-ia32.zip)
 

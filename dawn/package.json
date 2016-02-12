@@ -4,7 +4,9 @@
   "description": "Frontend for PIE Robotics System",
   "main": "bootstrapper.js",
   "scripts": {
-    "start": "electron main.js"
+    "start": "electron main.js",
+    "build": "node ./node_modules/webpack/bin/webpack.js",
+    "watch": "node ./node_modules/webpack/bin/webpack.js --watch"
   },
   "devDependencies": {
     "babel-core": "^6.5.2",

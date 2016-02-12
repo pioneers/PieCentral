@@ -24,12 +24,17 @@ export default React.createClass({
         remote.getCurrentWebContents().reload();
       }, ()=>console.log('Canceled'));
   },
+  getDawnVersion() {
+    return process.env.npm_package_version;
+  },
   render() {
     return (
       <Navbar fixedTop fluid>
         <Navbar.Header>
           <Navbar.Brand>
-            {"Dawn" + (this.props.connection ? "" : " (disconnected)")}
+            {"Dawn v" +
+              this.getDawnVersion() +
+              (this.props.connection ? "" : " (disconnected)")}
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>

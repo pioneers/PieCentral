@@ -68,7 +68,8 @@ export default React.createClass({
                   }>
                   <Button
                     bsStyle="info"
-                    onClick={ this.updateAddress }>
+                    onClick={ this.updateAddress }
+                    id = "update-address-button">
                     <Glyphicon glyph="transfer" />
                   </Button>
                 </OverlayTrigger>

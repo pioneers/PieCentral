@@ -14,9 +14,8 @@ app.on('window-all-closed', function() {
 
 app.on('ready', function() {
 
-  electronScreen = electron.screen;
-  size = electronScreen.getPrimaryDisplay().workAreaSize;
-  mainWindow = new BrowserWindow({width: size.width, height: size.height});
+  mainWindow = new BrowserWindow();
+  mainWindow.maximize();
 
   mainWindow.loadURL('file://' + __dirname + '/static/index.html');
 

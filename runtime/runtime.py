@@ -122,7 +122,7 @@ def get_all_data(connectedDevices):
         tup_nest = h.getData(uid, "dataUpdate")
         if h.getDeviceName(int(device_type)) == "ColorSensor":
             #just for color sensor, put all data into one list
-            all_data["5" + str(uid)] = h.getData(uid, "dataUpdate")
+            all_data[str(uid) + "5"] = h.getData(uid, "dataUpdate")
         if not tup_nest:
             continue
         values, timestamps = tup_nest

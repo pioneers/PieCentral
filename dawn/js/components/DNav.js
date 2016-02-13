@@ -11,18 +11,35 @@ import {
   Glyphicon} from 'react-bootstrap';
 import { remote } from 'electron';
 import smalltalk from 'smalltalk';
+const storage = remote.require('electron-json-storage');
 
 export default React.createClass({
   displayName: 'DNav',
-  updateAddress() {
-    let defaultAddress = localStorage.getItem('runtimeAddress') || '127.0.0.1';
-    smalltalk.prompt(
+  saveAddress(currentAddress) {
+    let prompt = smalltalk.prompt(
       'Enter the IP address of robot/runtime:',
       'WARNING: This will reload the application. Save any changes you have.',
-      defaultAddress).then((value) => {
-        localStorage.setItem('runtimeAddress', value);
-        remote.getCurrentWebContents().reload();
-      }, ()=>console.log('Canceled'));
+      currentAddress
+    );
+    prompt.then((value) => {
+      storage.set('runtimeAddress', {
+        address: value
+      }, (err)=>{
+        if (err) throw err;
+      });
+      remote.getCurrentWebContents().reload();
+    }, ()=>console.log('Canceled'));
+  },
+  updateAddress() {
+    storage.has('runtimeAddress').then((hasKey)=>{
+      if (hasKey) {
+        storage.get('runtimeAddress').then((data)=>{
+          this.saveAddress(data.address);
+        });
+      } else {
+        this.saveAddress('127.0.0.1');
+      }
+    });
   },
   getDawnVersion() {
     return process.env.npm_package_version;

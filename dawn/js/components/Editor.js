@@ -12,6 +12,8 @@ import RobotActions from '../actions/RobotActions';
 import Ansible from '../utils/Ansible';
 import {Panel} from 'react-bootstrap';
 import { EditorButton } from './EditorClasses';
+import ace from 'brace';
+import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
 import 'brace/mode/python';
 // React-ace themes
@@ -25,6 +27,7 @@ import 'brace/theme/textmate';
 import 'brace/theme/solarized_dark';
 import 'brace/theme/solarized_light';
 import 'brace/theme/terminal';
+let langtools = ace.acequire('ace/ext/language_tools');
 
 export default React.createClass({
   getInitialState() {
@@ -37,6 +40,8 @@ export default React.createClass({
     };
   },
   componentDidMount() {
+    this.refs.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
+
     Mousetrap.prototype.stopCallback = function(e, element, combo) {
       return false; // Always respond to keyboard combos
     };

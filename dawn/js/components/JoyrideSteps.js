@@ -11,7 +11,7 @@ export default [
     type: 'hover'
   },{
     title: 'Editor',
-    text: 'This is the code editor. Create and edit your robot\'s code here.',
+    text: 'This is the code editor. Create and edit your robot\'s code here. The editor has autocompletion. Press CTRL/CMD-SPACEBAR to see autocomplete suggestions.',
     selector: '.ace_editor',
     position: 'bottom-left',
     type: 'hover'

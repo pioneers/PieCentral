@@ -3,6 +3,7 @@ import AceEditor from 'react-ace';
 import brace from 'brace';
 import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
+import AlertActions from '../actions/AlertActions';
 import EditorToolbar from './EditorToolbar';
 import Mousetrap from 'mousetrap';
 import smalltalk from 'smalltalk';
@@ -67,10 +68,9 @@ export default React.createClass({
   },
   openFile() {
     if (this.hasUnsavedChanges()) {
-      smalltalk.alert(
+      AlertActions.addAlert(
         'You have unsaved changes.',
-        'Please save or discard them before opening another file.'
-      ).then(()=>console.log('Ok.'), ()=>console.log('Cancel.'));
+        'Please save or discard them before opening another file.');
     } else {
       EditorActionCreators.openFile();
     }
@@ -80,10 +80,9 @@ export default React.createClass({
   },
   createNewFile() {
     if (this.hasUnsavedChanges()) {
-      smalltalk.alert(
-        'You have unsaved changes.',
-        'Please save or discard them before creating a new file.'
-      ).then(()=>console.log('Ok.'), ()=>console.log('Cancel.'));
+      AlertActions.addAlert(
+        'You have unsaved changes!',
+        'Please save or discard them before creating a new file.');
     } else {
       EditorActionCreators.createNewFile();
     }

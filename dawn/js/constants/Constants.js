@@ -14,7 +14,9 @@ module.exports = {
     SAVE_FILE: null,
     OPEN_FILE: null,
     CLEAR_EDITOR: null,
-    UPDATE_CONSOLE: null
+    UPDATE_CONSOLE: null,
+    ADD_ALERT: null,
+    REMOVE_ALERT: null
   }),
   PeripheralTypes: keyMirror({
     MOTOR_SCALAR: null,

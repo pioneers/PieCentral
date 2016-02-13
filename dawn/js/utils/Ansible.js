@@ -1,11 +1,9 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
-import smalltalk from 'smalltalk';
 
 let runtimeAddress = localStorage.getItem('runtimeAddress') || '127.0.0.1';
 let socket = io('http://' + runtimeAddress + ':5000/');
 socket.on('connect', ()=>console.log('Connected to runtime.'));
 socket.on('connect_error', (err)=>console.log(err));
-const BATTERY_LEVEL_TYPE = 'BATTERY_DEAD';
 
 /*
  * Hack for Ansible messages to enter Flux flow.
@@ -15,16 +13,6 @@ const BATTERY_LEVEL_TYPE = 'BATTERY_DEAD';
 socket.on('message', (message)=>{
   let unpackedMsg = message.content;
   unpackedMsg.type = message.header.msg_type;
-  if (unpackedMsg.type == BATTERY_LEVEL_TYPE) {
-    smalltalk.alert(
-      'Error',
-      'Battery level crucial!'
-    ).then(()=>{
-      return;
-    }, ()=>{
-      return;
-    });
-  }
   AppDispatcher.dispatch(unpackedMsg);
 });
 

@@ -3,24 +3,13 @@ import { remote } from 'electron';
 const storage = remote.require('electron-json-storage');
 
 let defaultAddress = '127.0.0.1';
+let socket = null;
 
-storage.has('runtimeAddress').then((hasKey)=>{
-  if (hasKey) {
-    storage.get('runtimeAddress').then((data)=>{
-      initAnsible(data.address);
-    });
-  } else {
-    initAnsible(defaultAddress);
-    storage.set('runtimeAddress', {
-      address: defaultAddress
-    }, (err)=>{
-      if(err) throw err;
-    });
+function connectToAnsible(runtimeAddress) {
+  if (socket !== null) {
+    socket.disconnect();
   }
-});
-
-function initAnsible(runtimeAddress) {
-  let socket = io('http://' + runtimeAddress + ':5000/');
+  socket = io('http://' + runtimeAddress + ':5000/');
   socket.on('connect', ()=>console.log('Connected to runtime.'));
   socket.on('connect_error', (err)=>console.log(err));
 
@@ -38,27 +27,51 @@ function initAnsible(runtimeAddress) {
     unpackedMsg.type = message.header.msg_type;
     AppDispatcher.dispatch(unpackedMsg);
   });
+}
 
+function initAnsible() {
+  storage.has('runtimeAddress').then((hasKey)=>{
+    if (hasKey) {
+      storage.get('runtimeAddress').then((data)=>{
+        connectToAnsible(data.address);
+      });
+    } else {
+      connectToAnsible(defaultAddress);
+      storage.set('runtimeAddress', {
+        address: defaultAddress
+      }, (err)=>{
+        if(err) throw err;
+      });
+    }
+  });
+}
+
+/*
+ * Module for communicating with the runtime.
+ */
+let Ansible = {
+  reload() {
+    initAnsible();
+  },
   /* Private, use sendMessage */
-  Ansible._send = function(obj) {
-    return socket.emit('message', JSON.stringify(obj));
-  };
-
+  _send(obj) {
+    if (socket !== null) {
+      return socket.emit('message', JSON.stringify(obj));
+    } else {
+      console.log('Socket is not initialized!');
+    }
+  },
   /* Send data over ZMQ to the runtime */
-  Ansible.sendMessage = function(msgType, content) {
+  sendMessage(msgType, content) {
     let msg = {
       header: {
         msg_type: msgType
       },
       content: content
     };
-    Ansible._send(msg);
+    this._send(msg);
   }
-}
+};
 
-/*
- * Module for communicating with the runtime.
- */
-let Ansible = {};
-
+initAnsible();
 export default Ansible;

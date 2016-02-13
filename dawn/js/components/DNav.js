@@ -11,14 +11,15 @@ import {
   Glyphicon} from 'react-bootstrap';
 import { remote } from 'electron';
 import smalltalk from 'smalltalk';
+import Ansible from '../utils/Ansible';
 const storage = remote.require('electron-json-storage');
 
 export default React.createClass({
   displayName: 'DNav',
   saveAddress(currentAddress) {
     let prompt = smalltalk.prompt(
-      'Enter the IP address of robot/runtime:',
-      'WARNING: This will reload the application. Save any changes you have.',
+      'Enter the IP address of the robot:',
+      'Examples: 192.168.0.100, 127.0.0.1',
       currentAddress
     );
     prompt.then((value) => {
@@ -26,8 +27,8 @@ export default React.createClass({
         address: value
       }, (err)=>{
         if (err) throw err;
+        Ansible.reload();
       });
-      remote.getCurrentWebContents().reload();
     }, ()=>console.log('Canceled'));
   },
   updateAddress() {

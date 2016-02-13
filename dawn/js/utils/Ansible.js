@@ -11,6 +11,10 @@ socket.on('connect_error', (err)=>console.log(err));
  * with action's type deteremined by msg_type
  */
 socket.on('message', (message)=>{
+  let transportName = socket.io.engine.transport.name;
+  if (transportName !== 'websocket') {
+    console.log('Websockets not working! Using:', transportName);
+  }
   let unpackedMsg = message.content;
   unpackedMsg.type = message.header.msg_type;
   AppDispatcher.dispatch(unpackedMsg);

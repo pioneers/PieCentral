@@ -12,6 +12,7 @@ import RobotActions from '../actions/RobotActions';
 import Ansible from '../utils/Ansible';
 import {Panel} from 'react-bootstrap';
 import { EditorButton } from './EditorClasses';
+import 'brace/ext/searchbox';
 import 'brace/mode/python';
 // React-ace themes
 import 'brace/theme/monokai';

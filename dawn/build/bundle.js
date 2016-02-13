@@ -38817,11 +38817,11 @@
 
 	var _Peripheral2 = _interopRequireDefault(_Peripheral);
 
-	var _RobotPeripheralStore = __webpack_require__(434);
+	var _RobotPeripheralStore = __webpack_require__(432);
 
 	var _RobotPeripheralStore2 = _interopRequireDefault(_RobotPeripheralStore);
 
-	var _lodash = __webpack_require__(436);
+	var _lodash = __webpack_require__(434);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -38883,11 +38883,11 @@
 
 	var _Motor2 = _interopRequireDefault(_Motor);
 
-	var _BooleanSensor = __webpack_require__(432);
+	var _BooleanSensor = __webpack_require__(436);
 
 	var _BooleanSensor2 = _interopRequireDefault(_BooleanSensor);
 
-	var _ScalarSensor = __webpack_require__(433);
+	var _ScalarSensor = __webpack_require__(437);
 
 	var _ScalarSensor2 = _interopRequireDefault(_ScalarSensor);
 
@@ -39163,6 +39163,10 @@
 
 	var _AlertActions2 = _interopRequireDefault(_AlertActions);
 
+	var _RobotPeripheralStore = __webpack_require__(432);
+
+	var _RobotPeripheralStore2 = _interopRequireDefault(_RobotPeripheralStore);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var NameEdit = _react2.default.createClass({
@@ -39173,18 +39177,19 @@
 	    id: _react2.default.PropTypes.string
 	  },
 	  dataChange: function dataChange(data) {
-	    var x = new RegExp("^[A-Za-z][A-Za-z0-9]+$");
-	    if (x.test(data.name)) {
-	      _Ansible2.default.sendMessage('custom_names', {
-	        id: this.props.id,
-	        name: data.name
-	      });
-	    }
+	    _Ansible2.default.sendMessage('custom_names', {
+	      id: this.props.id,
+	      name: data.name
+	    });
 	  },
 	  validatePeripheralName: function validatePeripheralName(name) {
 	    var re = new RegExp("^[A-Za-z][A-Za-z0-9]+$");
-	    var valid = re.test(name);
-	    return valid;
+	    var isValid = re.test(name);
+	    var allCurrentPeripherals = _RobotPeripheralStore2.default.getPeripherals();
+	    var isDuplicate = _.some(allCurrentPeripherals, function (peripheral) {
+	      return peripheral.name === name;
+	    });
+	    return isValid && !isDuplicate;
 	  },
 	  render: function render() {
 	    return _react2.default.createElement(
@@ -39426,151 +39431,19 @@
 	  value: true
 	});
 
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _NameEdit = __webpack_require__(429);
-
-	var _NameEdit2 = _interopRequireDefault(_NameEdit);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	/**
-	 * A component representing a boolean sensor.
-	 * Props:
-	 *   id: a unique id string
-	 *   value: Boolean, whether the sensor is sending a high value
-	 */
-
-	var BooleanSensor = _react2.default.createClass({
-	  displayName: 'BooleanSensor',
-
-	  propTypes: {
-	    name: _react2.default.PropTypes.string,
-	    speed: _react2.default.PropTypes.number
-	  },
-	  render: function render() {
-	    return _react2.default.createElement(
-	      'div',
-	      { style: { overflow: 'auto' } },
-	      _react2.default.createElement(
-	        'div',
-	        { style: { overflow: 'auto', width: '100%' } },
-	        _react2.default.createElement(
-	          'h4',
-	          { style: { float: 'left' } },
-	          _react2.default.createElement(_NameEdit2.default, { name: this.props.name, id: this.props.id }),
-	          _react2.default.createElement(
-	            'small',
-	            null,
-	            ' Boolean Sensor'
-	          )
-	        ),
-	        _react2.default.createElement(
-	          'h4',
-	          { style: { float: 'right' } },
-	          ' ',
-	          this.props.value,
-	          ' '
-	        )
-	      )
-	    );
-	  }
-	});
-
-	exports.default = BooleanSensor;
-
-/***/ },
-/* 433 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactBootstrap = __webpack_require__(170);
-
-	var _NameEdit = __webpack_require__(429);
-
-	var _NameEdit2 = _interopRequireDefault(_NameEdit);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var Motor = _react2.default.createClass({
-	  displayName: 'Motor',
-
-	  propTypes: {
-	    name: _react2.default.PropTypes.string,
-	    id: _react2.default.PropTypes.string,
-	    value: _react2.default.PropTypes.number
-	  },
-	  render: function render() {
-	    return _react2.default.createElement(
-	      'div',
-	      { style: { overflow: 'auto' } },
-	      _react2.default.createElement(
-	        'div',
-	        { style: { overflow: 'auto', width: '100%' } },
-	        _react2.default.createElement(
-	          'h4',
-	          { style: { float: 'left' } },
-	          _react2.default.createElement(_NameEdit2.default, { name: this.props.name, id: this.props.id }),
-	          _react2.default.createElement(
-	            'small',
-	            null,
-	            ' Scalar Sensor'
-	          )
-	        ),
-	        _react2.default.createElement(
-	          'h4',
-	          { style: { float: 'right' } },
-	          ' ',
-	          this.props.value,
-	          ' '
-	        )
-	      ),
-	      _react2.default.createElement(_reactBootstrap.ProgressBar, { now: this.props.value })
-	    );
-	  }
-	}); /**
-	     * A component representing a scalar sensor.
-	     * Props:
-	     *   id: a unique id string
-	     *   value: the speed, from 0 to 100.
-	     */
-
-	exports.default = Motor;
-
-/***/ },
-/* 434 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
 	var _AppDispatcher = __webpack_require__(417);
 
 	var _AppDispatcher2 = _interopRequireDefault(_AppDispatcher);
 
 	var _Constants = __webpack_require__(425);
 
-	var _events = __webpack_require__(435);
+	var _events = __webpack_require__(433);
 
 	var _objectAssign = __webpack_require__(168);
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
-	var _lodash = __webpack_require__(436);
+	var _lodash = __webpack_require__(434);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -39667,13 +39540,13 @@
 	exports.default = RobotPeripheralStore;
 
 /***/ },
-/* 435 */
+/* 433 */
 /***/ function(module, exports) {
 
 	module.exports = require("events");
 
 /***/ },
-/* 436 */
+/* 434 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {/**
@@ -54408,10 +54281,10 @@
 	  }
 	}.call(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(437)(module)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(435)(module)))
 
 /***/ },
-/* 437 */
+/* 435 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -54425,6 +54298,138 @@
 		return module;
 	}
 
+
+/***/ },
+/* 436 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _NameEdit = __webpack_require__(429);
+
+	var _NameEdit2 = _interopRequireDefault(_NameEdit);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	/**
+	 * A component representing a boolean sensor.
+	 * Props:
+	 *   id: a unique id string
+	 *   value: Boolean, whether the sensor is sending a high value
+	 */
+
+	var BooleanSensor = _react2.default.createClass({
+	  displayName: 'BooleanSensor',
+
+	  propTypes: {
+	    name: _react2.default.PropTypes.string,
+	    speed: _react2.default.PropTypes.number
+	  },
+	  render: function render() {
+	    return _react2.default.createElement(
+	      'div',
+	      { style: { overflow: 'auto' } },
+	      _react2.default.createElement(
+	        'div',
+	        { style: { overflow: 'auto', width: '100%' } },
+	        _react2.default.createElement(
+	          'h4',
+	          { style: { float: 'left' } },
+	          _react2.default.createElement(_NameEdit2.default, { name: this.props.name, id: this.props.id }),
+	          _react2.default.createElement(
+	            'small',
+	            null,
+	            ' Boolean Sensor'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'h4',
+	          { style: { float: 'right' } },
+	          ' ',
+	          this.props.value,
+	          ' '
+	        )
+	      )
+	    );
+	  }
+	});
+
+	exports.default = BooleanSensor;
+
+/***/ },
+/* 437 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactBootstrap = __webpack_require__(170);
+
+	var _NameEdit = __webpack_require__(429);
+
+	var _NameEdit2 = _interopRequireDefault(_NameEdit);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var Motor = _react2.default.createClass({
+	  displayName: 'Motor',
+
+	  propTypes: {
+	    name: _react2.default.PropTypes.string,
+	    id: _react2.default.PropTypes.string,
+	    value: _react2.default.PropTypes.number
+	  },
+	  render: function render() {
+	    return _react2.default.createElement(
+	      'div',
+	      { style: { overflow: 'auto' } },
+	      _react2.default.createElement(
+	        'div',
+	        { style: { overflow: 'auto', width: '100%' } },
+	        _react2.default.createElement(
+	          'h4',
+	          { style: { float: 'left' } },
+	          _react2.default.createElement(_NameEdit2.default, { name: this.props.name, id: this.props.id }),
+	          _react2.default.createElement(
+	            'small',
+	            null,
+	            ' Scalar Sensor'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'h4',
+	          { style: { float: 'right' } },
+	          ' ',
+	          this.props.value,
+	          ' '
+	        )
+	      ),
+	      _react2.default.createElement(_reactBootstrap.ProgressBar, { now: this.props.value })
+	    );
+	  }
+	}); /**
+	     * A component representing a scalar sensor.
+	     * Props:
+	     *   id: a unique id string
+	     *   value: the speed, from 0 to 100.
+	     */
+
+	exports.default = Motor;
 
 /***/ },
 /* 438 */
@@ -54442,7 +54447,7 @@
 
 	var _reactBootstrap = __webpack_require__(170);
 
-	var _lodash = __webpack_require__(436);
+	var _lodash = __webpack_require__(434);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -54518,7 +54523,7 @@
 
 	var _AppDispatcher2 = _interopRequireDefault(_AppDispatcher);
 
-	var _events = __webpack_require__(435);
+	var _events = __webpack_require__(433);
 
 	var _objectAssign = __webpack_require__(168);
 
@@ -54580,7 +54585,7 @@
 
 	var _Ansible2 = _interopRequireDefault(_Ansible);
 
-	var _lodash = __webpack_require__(436);
+	var _lodash = __webpack_require__(434);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -54656,7 +54661,7 @@
 
 	var _reactBootstrap = __webpack_require__(170);
 
-	var _lodash = __webpack_require__(436);
+	var _lodash = __webpack_require__(434);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -75085,7 +75090,7 @@
 
 	var _Constants = __webpack_require__(425);
 
-	var _events = __webpack_require__(435);
+	var _events = __webpack_require__(433);
 
 	var _objectAssign = __webpack_require__(168);
 
@@ -75184,7 +75189,7 @@
 
 	var _reactBootstrap = __webpack_require__(170);
 
-	var _lodash = __webpack_require__(436);
+	var _lodash = __webpack_require__(434);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -76284,7 +76289,7 @@
 
 	var _reactBootstrap = __webpack_require__(170);
 
-	var _lodash = __webpack_require__(436);
+	var _lodash = __webpack_require__(434);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -80099,7 +80104,7 @@
 
 	var _AppDispatcher2 = _interopRequireDefault(_AppDispatcher);
 
-	var _events = __webpack_require__(435);
+	var _events = __webpack_require__(433);
 
 	var _Constants = __webpack_require__(425);
 
@@ -80107,7 +80112,7 @@
 
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 
-	var _lodash = __webpack_require__(436);
+	var _lodash = __webpack_require__(434);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -80225,7 +80230,7 @@
 
 	var _AppDispatcher2 = _interopRequireDefault(_AppDispatcher);
 
-	var _events = __webpack_require__(435);
+	var _events = __webpack_require__(433);
 
 	var _objectAssign = __webpack_require__(168);
 
@@ -80233,7 +80238,7 @@
 
 	var _Constants = __webpack_require__(425);
 
-	var _lodash = __webpack_require__(436);
+	var _lodash = __webpack_require__(434);
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 

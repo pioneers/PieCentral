@@ -18,6 +18,7 @@ def log_output(stream):
         time.sleep(0.05) # don't want to flood ansible
 
 robotStatus = 0
+batteryLevel = 100
 id_to_name = { '1236': 'somethingElse', '1234': 'myMotor', '1235': 'something'}
 while True:
     mc.set('gamepad', {'time': datetime.now()}) # sending arbitary data to API
@@ -52,7 +53,7 @@ while True:
     })
     ansible.send_message('UPDATE_BATTERY', {
         'battery': {
-            'value': random.randint(0,100)
+            'value': batteryLevel
         }
     })
     ansible.send_message('UPDATE_STATUS', {
@@ -76,4 +77,13 @@ while True:
             'id': '1235'
         }
     })
+    batteryLevel -= 1
+    if batteryLevel == 0:
+        batteryLevel = 100
+        ansible.send_message('ADD_ALERT', {
+            'payload': {
+                'heading': 'Error',
+                'message': 'Robot battery level crucial!'
+                }
+            })
     time.sleep(0.5)

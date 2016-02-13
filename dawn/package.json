@@ -1,8 +1,8 @@
 {
   "name": "Dawn",
-  "version": "0.4.0",
+  "version": "0.4.0-beta.1",
   "description": "Frontend for PIE Robotics System",
-  "main": "bootstrapper.js",
+  "main": "main.js",
   "scripts": {
     "start": "electron main.js",
     "build": "node ./node_modules/webpack/bin/webpack.js",
@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "brace": "^0.7.0",
+    "electron-json-storage": "^1.0.0",
     "flux": "^2.1.1",
     "keymirror": "^0.1.1",
     "lodash": "^4.3.0",

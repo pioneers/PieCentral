@@ -3,7 +3,10 @@ import Joyride from 'react-joyride';
 import DNav from './DNav';
 import Dashboard from './Dashboard';
 import RobotInfoStore from '../stores/RobotInfoStore';
+import AlertStore from '../stores/AlertStore';
+import AlertActions from '../actions/AlertActions';
 import joyrideSteps from './JoyrideSteps';
+import smalltalk from 'smalltalk';
 
 export default React.createClass({
   displayName: 'Dawn',
@@ -19,9 +22,11 @@ export default React.createClass({
   componentDidMount() {
     this.addSteps(joyrideSteps);
     RobotInfoStore.on('change', this.updateRobotInfo);
+    AlertStore.on('change', this.updateAlert);
   },
   componentWillUnmount() {
     RobotInfoStore.removeListener('change', this.updateRobotInfo);
+    AlertStore.removeListener('change', this.updateAlert);
   },
   updateRobotInfo() {
     this.setState({
@@ -30,6 +35,16 @@ export default React.createClass({
       connectionStatus: RobotInfoStore.getConnectionStatus(),
       batteryLevel: RobotInfoStore.getBatteryLevel()
     });
+  },
+  updateAlert() {
+    let latestAlert = AlertStore.getLatestAlert();
+    if (latestAlert !== undefined) {
+      smalltalk.alert(latestAlert.heading, latestAlert.message).then(()=>{
+        AlertActions.removeAlert(latestAlert);
+      }, ()=>{
+        AlertActions.removeAlert(latestAlert);
+      });
+    }
   },
   addSteps(steps) {
     let joyride = this.refs.joyride;

@@ -1,7 +1,7 @@
 import React from 'react';
 import InlineEdit from 'react-edit-inline';
 import Ansible from '../../utils/Ansible';
-import smalltalk from 'smalltalk';
+import AlertActions from '../../actions/AlertActions';
 
 var NameEdit = React.createClass({
   propTypes: {
@@ -9,31 +9,29 @@ var NameEdit = React.createClass({
     id: React.PropTypes.string
   },
   dataChange(data) {
-    var x = new RegExp("^[A-Za-z][A-Za-z0-9]+$");
-    if (x.test(data.name)) {
-      Ansible.sendMessage('custom_names', {
-        id: this.props.id,
-        name: data.name
-      });
-    } else {
-      smalltalk.alert(
-        'Invalid Peripheral Name',
-        'Names must be alphanumeric, and cannot contain spaces or start with a number.'
-      ).then(()=>console.log('Ok.'), ()=>console.log('Cancel.'));
-    }
+    Ansible.sendMessage('custom_names', {
+      id: this.props.id,
+      name: data.name
+    });
+  },
+  validatePeripheralName(name) {
+    let re = new RegExp("^[A-Za-z][A-Za-z0-9]+$");
+    let valid = re.test(name);
+    return valid;
   },
   render() {
     return (
       <div>
         <InlineEdit
           className="static"
+          validate={this.validatePeripheralName}
           activeClassName="editing"
           text={this.props.name}
           change={this.dataChange}
           paramName="name"
           style = {{
-            backgroundColor: 'white',
             minWidth: 150,
+            borderRadius: '7px',
             display: 'inline-block',
             margin: 0,
             padding: 0,

@@ -11,25 +11,48 @@ import {
   Glyphicon} from 'react-bootstrap';
 import { remote } from 'electron';
 import smalltalk from 'smalltalk';
+import Ansible from '../utils/Ansible';
+const storage = remote.require('electron-json-storage');
 
 export default React.createClass({
   displayName: 'DNav',
+  saveAddress(currentAddress) {
+    let prompt = smalltalk.prompt(
+      'Enter the IP address of the robot:',
+      'Examples: 192.168.0.100, 127.0.0.1',
+      currentAddress
+    );
+    prompt.then((value) => {
+      storage.set('runtimeAddress', {
+        address: value
+      }, (err)=>{
+        if (err) throw err;
+        Ansible.reload();
+      });
+    }, ()=>console.log('Canceled'));
+  },
   updateAddress() {
-    let defaultAddress = localStorage.getItem('runtimeAddress') || '127.0.0.1';
-    smalltalk.prompt(
-      'Enter the IP address of robot/runtime:',
-      'WARNING: This will reload the application. Save any changes you have.',
-      defaultAddress).then((value) => {
-        localStorage.setItem('runtimeAddress', value);
-        remote.getCurrentWebContents().reload();
-      }, ()=>console.log('Canceled'));
+    storage.has('runtimeAddress').then((hasKey)=>{
+      if (hasKey) {
+        storage.get('runtimeAddress').then((data)=>{
+          this.saveAddress(data.address);
+        });
+      } else {
+        this.saveAddress('127.0.0.1');
+      }
+    });
+  },
+  getDawnVersion() {
+    return process.env.npm_package_version;
   },
   render() {
     return (
       <Navbar fixedTop fluid>
         <Navbar.Header>
           <Navbar.Brand>
-            {"Dawn" + (this.props.connection ? "" : " (disconnected)")}
+            {"Dawn v" +
+              this.getDawnVersion() +
+              (this.props.connection ? "" : " (disconnected)")}
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>
@@ -68,7 +91,8 @@ export default React.createClass({
                   }>
                   <Button
                     bsStyle="info"
-                    onClick={ this.updateAddress }>
+                    onClick={ this.updateAddress }
+                    id = "update-address-button">
                     <Glyphicon glyph="transfer" />
                   </Button>
                 </OverlayTrigger>

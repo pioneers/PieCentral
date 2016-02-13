@@ -29,6 +29,11 @@ import json
 import time
 from flask import Flask, copy_current_request_context, request
 from flask.ext.socketio import SocketIO
+import memcache
+
+# connect to memcache
+memcache_port = 12357
+mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 
 # A Flask server with the Socket.IO extension to communicate with Dawn.
 def ansible_server(send_queue, recv_queue):
@@ -65,5 +70,5 @@ def ansible_server(send_queue, recv_queue):
     send_p.daemon = True
     send_p.start()
 
-    socketio.run(app)
+    socketio.run(app, host='0.0.0.0')
 

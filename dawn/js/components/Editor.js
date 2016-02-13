@@ -3,6 +3,7 @@ import AceEditor from 'react-ace';
 import brace from 'brace';
 import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
+import AlertActions from '../actions/AlertActions';
 import EditorToolbar from './EditorToolbar';
 import Mousetrap from 'mousetrap';
 import smalltalk from 'smalltalk';
@@ -11,6 +12,9 @@ import RobotActions from '../actions/RobotActions';
 import Ansible from '../utils/Ansible';
 import {Panel} from 'react-bootstrap';
 import { EditorButton } from './EditorClasses';
+import ace from 'brace';
+import 'brace/ext/language_tools';
+import 'brace/ext/searchbox';
 import 'brace/mode/python';
 // React-ace themes
 import 'brace/theme/monokai';
@@ -23,6 +27,7 @@ import 'brace/theme/textmate';
 import 'brace/theme/solarized_dark';
 import 'brace/theme/solarized_light';
 import 'brace/theme/terminal';
+let langtools = ace.acequire('ace/ext/language_tools');
 
 export default React.createClass({
   getInitialState() {
@@ -35,6 +40,8 @@ export default React.createClass({
     };
   },
   componentDidMount() {
+    this.refs.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
+
     Mousetrap.prototype.stopCallback = function(e, element, combo) {
       return false; // Always respond to keyboard combos
     };
@@ -67,10 +74,9 @@ export default React.createClass({
   },
   openFile() {
     if (this.hasUnsavedChanges()) {
-      smalltalk.alert(
+      AlertActions.addAlert(
         'You have unsaved changes.',
-        'Please save or discard them before opening another file.'
-      ).then(()=>console.log('Ok.'), ()=>console.log('Cancel.'));
+        'Please save or discard them before opening another file.');
     } else {
       EditorActionCreators.openFile();
     }
@@ -80,10 +86,9 @@ export default React.createClass({
   },
   createNewFile() {
     if (this.hasUnsavedChanges()) {
-      smalltalk.alert(
-        'You have unsaved changes.',
-        'Please save or discard them before creating a new file.'
-      ).then(()=>console.log('Ok.'), ()=>console.log('Cancel.'));
+      AlertActions.addAlert(
+        'You have unsaved changes!',
+        'Please save or discard them before creating a new file.');
     } else {
       EditorActionCreators.createNewFile();
     }
@@ -164,7 +169,7 @@ export default React.createClass({
   ],
   render() {
     let consoleHeight = 250;
-    let editorHeight = 530;
+    let editorHeight = window.innerHeight * 0.66;
     return (
       <Panel
         header={'Editing: ' + this.pathToName(this.state.filepath) +

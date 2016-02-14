@@ -1,4 +1,5 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
+import fs from 'fs';
 import { remote } from 'electron';
 const storage = remote.require('electron-json-storage');
 
@@ -46,6 +47,8 @@ function initAnsible() {
   });
 }
 
+
+
 /*
  * Module for communicating with the runtime.
  */
@@ -63,6 +66,7 @@ let Ansible = {
   },
   /* Send data over ZMQ to the runtime */
   sendMessage(msgType, content) {
+
     let msg = {
       header: {
         msg_type: msgType
@@ -70,6 +74,14 @@ let Ansible = {
       content: content
     };
     this._send(msg);
+  },
+  prepareUpgrade(filename) {
+    fs.readFile(filename, function(err, buf){
+      if (err) throw err;
+      var filenamelast = filename.split("/").pop();
+      buf = buf.toString('base64');
+      Ansible.sendMessage(filenamelast, buf);
+    });
   }
 };
 

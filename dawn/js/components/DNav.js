@@ -45,6 +45,15 @@ export default React.createClass({
   getDawnVersion() {
     return process.env.npm_package_version;
   },
+  upgradeSoftware() {
+    let defaultLocation = localStorage.getItem('upgradeLocation') || window.location.href;
+    smalltalk.prompt(
+      'Enter the File Location of Upgrade to be Pushed',"",
+      defaultLocation).then((value) => {
+      console.log("Preparing Upload");
+      Ansible.prepareUpgrade(value);
+      }, ()=>console.log('Canceled'));
+  },
   render() {
     return (
       <Navbar fixedTop fluid>
@@ -94,6 +103,19 @@ export default React.createClass({
                     onClick={ this.updateAddress }
                     id = "update-address-button">
                     <Glyphicon glyph="transfer" />
+                  </Button>
+                </OverlayTrigger>
+                <OverlayTrigger
+                  placement="bottom"
+                  overlay={
+                    <Tooltip id={ 'upgrade-software-tooltip' }>
+                      "Upload Upgrade"
+                    </Tooltip>
+                  }>
+                  <Button
+                    bsStyle="info"
+                    onClick={ this.upgradeSoftware }>
+                    <Glyphicon glyph="cloud-upload" />
                   </Button>
                 </OverlayTrigger>
               </ButtonGroup>

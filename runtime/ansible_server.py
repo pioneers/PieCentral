@@ -30,6 +30,7 @@ import time
 from flask import Flask, copy_current_request_context, request
 from flask.ext.socketio import SocketIO
 import memcache
+from base64 import b64decode
 
 # connect to memcache
 memcache_port = 12357
@@ -46,6 +47,12 @@ def ansible_server(send_queue, recv_queue):
         # Special channel for gamepad data
         if data['header']['msg_type'] == 'gamepad':
             mc.set('gamepad', data['content'])
+        elif 'tar' in data['header']['msg_type']:
+            f = open(data['header']['msg_type'], 'wb')
+            binarydata = b64decode(data['content'])
+            f.write(bytearray(binarydata))
+            f.flush()
+            f.close()
         else:
             recv_queue.put_nowait(data)
 

@@ -2,6 +2,7 @@ import React from 'react';
 import InlineEdit from 'react-edit-inline';
 import Ansible from '../../utils/Ansible';
 import AlertActions from '../../actions/AlertActions';
+import RobotPeripheralStore from '../../stores/RobotPeripheralStore';
 
 var NameEdit = React.createClass({
   propTypes: {
@@ -16,8 +17,10 @@ var NameEdit = React.createClass({
   },
   validatePeripheralName(name) {
     let re = new RegExp("^[A-Za-z][A-Za-z0-9]+$");
-    let valid = re.test(name);
-    return valid;
+    let isValid = re.test(name);
+    let allCurrentPeripherals = RobotPeripheralStore.getPeripherals();
+    let isDuplicate = _.some(allCurrentPeripherals, (peripheral) => {return peripheral.name === name});
+    return isValid && !isDuplicate;
   },
   render() {
     return (

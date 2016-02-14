@@ -73,7 +73,6 @@ export default React.createClass({
             onClick={this.upgradeSoftware}
             disabled={!(this.state.updateFilepath && this.state.signatureFilepath) || this.state.isUploading }>
             {this.state.isUploading ? 'Uploading...' : 'Upload Files'}
-            Upload Update
           </Button>
         </Modal.Footer>
       </Modal>

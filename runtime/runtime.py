@@ -17,18 +17,23 @@ else:
 connectedDevices = h.getEnumeratedDevices()
 print connectedDevices
 # TODO: delay should not always be 20
-connectedDevices = [(device, 20) for (device, device_type) in connectedDevices]
+connectedDevices = [(device, 50) for (device, device_type) in connectedDevices]
 h.subToDevices(connectedDevices)
 
 # connect to memcache
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
+mc.set('gamepad', {0: {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
 
 def get_all_data(connectedDevices):
     all_data = {}
     for t in connectedDevices:
         count = 1
-        for i in h.getData(t[0], "dataUpdate"):
+        tup_nest = h.getData(t[0], "dataUpdate")
+        if not tup_nest:
+            continue
+        tup_vals = tup_nest[0]
+        for i in tup_vals:
             all_data[str(count) + str(t[0])] = i
             count += 1
     return all_data
@@ -79,7 +84,7 @@ def msg_handling(msg):
     if msg_type == 'execute' and not robot_status:
         with open('student_code.py', 'w+') as f:
             f.write(msg['content']['code'])
-        student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
+        student_proc = subprocess.Popen(['python', '-u', 'student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend
         lines_iter = iter(student_proc.stdout.readline, b'')
@@ -107,7 +112,7 @@ def send_peripheral_data(data):
         ansible.send_message('UPDATE_PERIPHERAL', {
             'peripheral': {
                 'name': 'sensor_{}'.format(device_id),
-                'peripheralType':'SENSOR_SCALAR',
+                'peripheralType':'SENSOR_BOOLEAN',
                 'value': value,
                 'id': device_id
                 }
@@ -131,6 +136,15 @@ while True:
         }
     })
 
+    ansible.send_message('UPDATE_PERIPHERAL', {
+                'peripheral': {
+                    'name': name,
+                    'peripheralType':'MOTOR_SCALAR',
+                    'value': name_to_value[name],
+                    'id': name_to_ids[name]
+                }
+            })
+
     # Update sensor values, and send to UI
     all_sensor_data = get_all_data(connectedDevices)
     send_peripheral_data(all_sensor_data)
@@ -145,15 +159,7 @@ while True:
                 grizzly.set_target(name_to_value[name])
             except:
                 stop_motors()
-            ansible.send_message('UPDATE_PERIPHERAL', {
-                'peripheral': {
-                    'name': name,
-                    'peripheralType':'MOTOR_SCALAR',
-                    'value': name_to_value[name],
-                    'id': name_to_ids[name]
-                }
-            })
 
 
 
-    time.sleep(0.02)
+    time.sleep(0.05)

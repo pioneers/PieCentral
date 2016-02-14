@@ -27,7 +27,9 @@ import 'brace/theme/textmate';
 import 'brace/theme/solarized_dark';
 import 'brace/theme/solarized_light';
 import 'brace/theme/terminal';
+import {remote} from 'electron';
 let langtools = ace.acequire('ace/ext/language_tools');
+let storage = remote.require('electron-json-storage');
 
 export default React.createClass({
   getInitialState() {
@@ -36,7 +38,7 @@ export default React.createClass({
       filepath: null,
       latestSaveCode: '',
       editorCode: '',
-      editorTheme: localStorage.getItem('editorTheme') || 'monokai'
+      editorTheme: 'github'
     };
   },
   componentDidMount() {
@@ -58,6 +60,22 @@ export default React.createClass({
     if (lastFile !== null) {
       EditorActionCreators.readFilepath(lastFile);
     }
+
+    storage.has('editorTheme').then((hasKey)=>{
+      if (hasKey) {
+        storage.get('editorTheme').then((data)=>{
+          this.setState({
+            editorTheme: data.theme
+          });
+        });
+      } else {
+        storage.set('editorTheme', {
+          theme: 'github'
+        }, (err)=>{
+          if (err) throw err;
+        });
+      }
+    });
 
     EditorStore.on('change', this.updateEditorData);
   },
@@ -152,7 +170,9 @@ export default React.createClass({
     return (this.state.latestSaveCode !== this.state.editorCode);
   },
   changeTheme(theme) {
-    localStorage.setItem('editorTheme', theme);
+    storage.set('editorTheme', {theme: theme}, (err)=>{
+      if (err) throw err;
+    });
     this.setState({editorTheme: theme});
   },
   themes: [

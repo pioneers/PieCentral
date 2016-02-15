@@ -9,6 +9,7 @@ import {
   Button,
   Label,
   Glyphicon} from 'react-bootstrap';
+import UpdateBox from './UpdateBox';
 import { remote } from 'electron';
 import smalltalk from 'smalltalk';
 import Ansible from '../utils/Ansible';
@@ -16,6 +17,9 @@ const storage = remote.require('electron-json-storage');
 
 export default React.createClass({
   displayName: 'DNav',
+  getInitialState() {
+    return { showUpdateModal: false };
+  },
   saveAddress(currentAddress) {
     let prompt = smalltalk.prompt(
       'Enter the IP address of the robot:',
@@ -45,18 +49,15 @@ export default React.createClass({
   getDawnVersion() {
     return process.env.npm_package_version;
   },
-  upgradeSoftware() {
-    let defaultLocation = localStorage.getItem('upgradeLocation') || window.location.href;
-    smalltalk.prompt(
-      'Enter the File Location of Upgrade to be Pushed',"",
-      defaultLocation).then((value) => {
-      console.log("Preparing Upload");
-      Ansible.prepareUpgrade(value);
-      }, ()=>console.log('Canceled'));
+  toggleUpdateModal() {
+    this.setState({ showUpdateModal: !this.state.showUpdateModal });
   },
   render() {
     return (
       <Navbar fixedTop fluid>
+        <UpdateBox
+          shouldShow={this.state.showUpdateModal}
+          hide={this.toggleUpdateModal} />
         <Navbar.Header>
           <Navbar.Brand>
             {"Dawn v" +
@@ -81,7 +82,7 @@ export default React.createClass({
                   placement="bottom"
                   overlay={
                     <Tooltip id={ 'tour-tooltip' }>
-                      "Tour"
+                      Tour
                     </Tooltip>
                   }>
                   <Button
@@ -95,7 +96,7 @@ export default React.createClass({
                   placement="bottom"
                   overlay={
                     <Tooltip id={ 'update-address-tooltip' }>
-                      "Robot IP"
+                      Robot IP
                     </Tooltip>
                   }>
                   <Button
@@ -109,12 +110,12 @@ export default React.createClass({
                   placement="bottom"
                   overlay={
                     <Tooltip id={ 'upgrade-software-tooltip' }>
-                      "Upload Upgrade"
+                      Upload Upgrade
                     </Tooltip>
                   }>
                   <Button
                     bsStyle="info"
-                    onClick={ this.upgradeSoftware }>
+                    onClick={ this.toggleUpdateModal }>
                     <Glyphicon glyph="cloud-upload" />
                   </Button>
                 </OverlayTrigger>

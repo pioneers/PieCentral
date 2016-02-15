@@ -12,8 +12,8 @@ programming and testing their robots.
 Dawn is a desktop app, but it is written with web technologies and packaged via Electron.
 
 ### Download the latest packaged Dawn for your platform:
-* [Windows 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-windows-x64.zip)
-* [Windows 32-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-windows-ia32.zip)
+* [Windows 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-win32-x64.zip)
+* [Windows 32-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-win32-ia32.zip)
 * [Mac 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-darwin-x64.zip)
 * [Linux 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-linux-x64.zip)
 * [Linux 32-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-linux-ia32.zip)

@@ -14,11 +14,15 @@ export default React.createClass({
       <Grid fluid>
         <Row>
           <Col smPush={8} sm={4}>
-            <FinalCompPeripheralList {...this.props} />
-            <Gamepads {...this.props} />
+            <FinalCompPeripheralList
+              connectionStatus={this.props.connectionStatus}/>
+            <Gamepads />
           </Col>
           <Col smPull={4} sm={8}>
-            <Editor {...this.props} />
+            <Editor
+              consoleData={this.props.consoleData}
+              connectionStatus={this.props.connectionStatus}
+              isRunningCode={this.props.isRunningCode}/>
           </Col>
         </Row>
       </Grid>

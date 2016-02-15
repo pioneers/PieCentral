@@ -20,7 +20,7 @@
 #define BATT_2_SCALE 6.1
 #define BATT_INPUT {A0, A1, A2}
 #define BATT_CHANNELS {7, 6, 5}  // The ADC channels for A0, A1, A2 on atmega32u4
-#define NUM_SAMPLES 52  // Average this many readings per cell voltage, should not be greater than 63
+#define NUM_SAMPLES 62  // Average this many readings per cell voltage, should not be greater than 63
 // units analogRead() uses
 #define UNITS_PER_VOLT (5.0/1023.0)  // From ADC
 #define PRESCALE (1/(NUM_SAMPLES*UNITS_PER_VOLT))
@@ -32,11 +32,11 @@
 #define MAX_REF_VOLT 5.5
 #define REF_VOLT 5
 
-#define LOW_VOLTAGE_ENTER_THRESHOLD 3.6
-#define LOW_VOLTAGE_EXIT_THRESHOLD 3.7
+#define LOW_VOLTAGE_ENTER_THRESHOLD 3.4
+#define LOW_VOLTAGE_EXIT_THRESHOLD 3.8
 
-#define UNBALANCED_ENTER_THRESHOLD 0.5
-#define UNBALANCED_EXIT_THRESHOLD 0.4
+#define UNBALANCED_ENTER_THRESHOLD 0.6
+#define UNBALANCED_EXIT_THRESHOLD 0.2
 
 // connectivity is checked on raw values, not computed voltages
 #define DISCONNECTED_THRESHOLD 100  // (~0.5 Volts)

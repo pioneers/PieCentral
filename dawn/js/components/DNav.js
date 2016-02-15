@@ -47,7 +47,7 @@ export default React.createClass({
     });
   },
   getDawnVersion() {
-    return process.env.npm_package_version;
+    return VERSION;
   },
   upgradeSoftware() {
     let defaultLocation = localStorage.getItem('upgradeLocation') || window.location.href;

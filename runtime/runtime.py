@@ -82,9 +82,16 @@ def msg_handling(msg):
     global robot_status, student_proc, console_proc
     msg_type, content = msg['header']['msg_type'], msg['content']
     if msg_type == 'execute' and not robot_status:
-        with open('student_code.py', 'w+') as f:
+        filename = "student_code/student_code.py"
+        if not os.path.exists(os.path.dirname(filename)):
+            try:
+                os.makedirs(os.path.dirname(filename))
+            except OSError as exc: # Guard against race condition
+                if exc.errno != errno.EEXIST:
+                    raise
+        with open('student_code/student_code.py', 'w+') as f:
             f.write(msg['content']['code'])
-        student_proc = subprocess.Popen(['python', '-u', 'student_code.py'],
+        student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend
         lines_iter = iter(student_proc.stdout.readline, b'')
@@ -136,29 +143,28 @@ while True:
         }
     })
 
-    ansible.send_message('UPDATE_PERIPHERAL', {
-                'peripheral': {
-                    'name': name,
-                    'peripheralType':'MOTOR_SCALAR',
-                    'value': name_to_value[name],
-                    'id': name_to_ids[name]
-                }
-            })
-
     # Update sensor values, and send to UI
     all_sensor_data = get_all_data(connectedDevices)
     send_peripheral_data(all_sensor_data)
     mc.set('sensor_values', all_sensor_data)
 
     # Send motor values to UI, if the robot is running
-    if robot_status:
-        name_to_value = mc.get('motor_values') or {}
-        for name in name_to_value:
-            grizzly = name_to_grizzly[name]
-            try:
-                grizzly.set_target(name_to_value[name])
-            except:
-                stop_motors()
+    name_to_value = mc.get('motor_values') or {}
+    for name in name_to_value:
+        grizzly = name_to_grizzly[name]
+        try:
+            grizzly.set_target(name_to_value[name])
+        except:
+            stop_motors()
+
+        ansible.send_message('UPDATE_PERIPHERAL', {
+            'peripheral': {
+                'name': name,
+                'peripheralType':'MOTOR_SCALAR',
+                'value': name_to_value[name],
+                'id': name_to_ids[name]
+            }
+        })
 
 
 

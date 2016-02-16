@@ -16,6 +16,10 @@ const storage = remote.require('electron-json-storage');
 
 export default React.createClass({
   displayName: 'DNav',
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps.connection !== this.props.connection ||
+      nextProps.battery !== this.props.battery;
+  },
   saveAddress(currentAddress) {
     let prompt = smalltalk.prompt(
       'Enter the IP address of the robot:',
@@ -43,7 +47,7 @@ export default React.createClass({
     });
   },
   getDawnVersion() {
-    return process.env.npm_package_version;
+    return VERSION;
   },
   upgradeSoftware() {
     let defaultLocation = localStorage.getItem('upgradeLocation') || window.location.href;

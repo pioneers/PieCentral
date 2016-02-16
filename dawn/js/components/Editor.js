@@ -7,6 +7,7 @@ import AlertActions from '../actions/AlertActions';
 import EditorToolbar from './EditorToolbar';
 import Mousetrap from 'mousetrap';
 import smalltalk from 'smalltalk';
+import _ from 'lodash';
 import ConsoleOutput from './ConsoleOutput';
 import RobotActions from '../actions/RobotActions';
 import Ansible from '../utils/Ansible';
@@ -189,6 +190,9 @@ export default React.createClass({
     'solarized_light',
     'terminal'
   ],
+  shouldComponentUpdate(nextProps, nextState) {
+    return !(_.isEqual(nextState, this.state) && _.isEqual(nextProps, this.props));
+  },
   render() {
     let consoleHeight = 250;
     let editorHeight = window.innerHeight * 0.66;

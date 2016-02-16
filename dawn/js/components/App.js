@@ -71,7 +71,7 @@ export default React.createClass({
   render() {
     return (
       <div>
-        <DNav {...this.props}
+        <DNav
           startTour={this.startTour}
           connection={this.state.connectionStatus}
           battery={this.state.batteryLevel}
@@ -88,7 +88,6 @@ export default React.createClass({
           addSteps={this.addSteps}
           addTooltip={this.addTooltip}
           consoleData={this.state.consoleData}
-          batteryLevel={this.state.batteryLevel}
           connectionStatus={this.state.connectionStatus}
           isRunningCode={this.state.isRunningCode}
         />

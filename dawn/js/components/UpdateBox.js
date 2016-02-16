@@ -44,8 +44,8 @@ export default React.createClass({
         this.setState({isUploading: true});
         Ansible.sendMessage('update', {
           filename: this.state.updateFilepath.split('/').pop(),
-          update: results[0],
-          signature: results[1]
+          update: results[0].toString('base64'),
+          signature: results[1].toString('base64')
         }, (response)=>{
           this.setState({isUploading: false});
           this.props.hide();
@@ -66,6 +66,8 @@ export default React.createClass({
           <h4>Update Signature (tar.gz.asc file)</h4>
           <h5>{this.state.signatureFilepath ? this.state.signatureFilepath : ''}</h5>
           <Button onClick={ this.chooseSignature }>Choose File</Button>
+          <br/>
+          <strong>Warning: This process will take a few minutes and will disconnect you from the robot.</strong>
         </Modal.Body>
         <Modal.Footer>
           <Button

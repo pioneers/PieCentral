@@ -17,8 +17,9 @@ const storage = remote.require('electron-json-storage');
 
 export default React.createClass({
   displayName: 'DNav',
-  getInitialState() {
-    return { showUpdateModal: false };
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps.connection !== this.props.connection ||
+      nextProps.battery !== this.props.battery;
   },
   saveAddress(currentAddress) {
     let prompt = smalltalk.prompt(
@@ -47,7 +48,7 @@ export default React.createClass({
     });
   },
   getDawnVersion() {
-    return process.env.npm_package_version;
+    return VERSION;
   },
   toggleUpdateModal() {
     this.setState({ showUpdateModal: !this.state.showUpdateModal });

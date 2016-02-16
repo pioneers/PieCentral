@@ -58,6 +58,7 @@ let EditorActionCreators = {
     }
   },
   createNewFile() {
+    localStorage.removeItem('lastFile');
     AppDispatcher.dispatch({
       type: ActionTypes.CLEAR_EDITOR
     });

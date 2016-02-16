@@ -4,6 +4,7 @@ import random
 import subprocess, multiprocessing
 import memcache
 from datetime import datetime
+from base64 import b64decode
 
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
@@ -43,6 +44,20 @@ while True:
         elif msg_type == 'custom_names':
             sensor_id = msg['content']['id']
             id_to_name[sensor_id] = msg['content']['name']
+        elif msg_type == 'update':
+            update = b64decode(msg['content']['update'])
+            signature = b64decode(msg['content']['signature'])
+            filename = msg['content']['filename']
+            signature_filename = filename + '.asc'
+            update_f = open(filename, 'wb')
+            update_f.write(bytearray(update))
+            update_f.flush()
+            update_f.close()
+            signature_f = open(signature_filename, 'wb')
+            signature_f.write(bytearray(signature))
+            signature_f.flush()
+            signature_f.close()
+
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
             'name': id_to_name['1236'],

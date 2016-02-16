@@ -33,7 +33,6 @@ void setup() {
   digitalWrite(READ_ENABLE_PIN, HIGH);
   digitalWrite(BUZZER_LED_PIN, HIGH);
 
-  calibrationSetup(false);
   calibrationSetup(true);  // Also plays startup tone
   readTimerStart();
 
@@ -56,17 +55,31 @@ void loop() {
   hibike_loop();
 }
 
+uint16_t newAnalogRead(uint8_t channel) {
+  // Configure ADC
+  ADMUX = (0<<REFS0);  // 1=Set reference voltage to AVcc (5V), 0=External AREF, 3=Internal 2.56V
+  ADCSRA = (1<<ADEN) | (7<<ADPS0);  // Enable ADC, set divider to 128 (125kHz when 16MHz clock)
+
+  channel &= 0x07;
+  ADMUX = (ADMUX & 0xF8) | channel;  // Select ADC channel
+
+  ADCSRA |= (1<<ADSC);  // Start conversion
+  while (ADCSRA & (1<<ADSC));
+  return ADC;
+}
+
 void calibrationSetup(bool beep) {
+  volatile float defaultCellScale[NUM_CELLS] = DEFAULT_CALIBRATION;
   uint8_t arrIndex = latestAnalogAccum;
   memset(analogAccumArrs[arrIndex], 0, NUM_CELLS*sizeof(uint16_t));
   for (int i=0; i<NUM_SAMPLES; i++) {
     for (int j=0; j<NUM_CELLS; j++) {
-      analogAccumArrs[arrIndex][j] += analogRead(cellPins[j]);
+      analogAccumArrs[arrIndex][j] += newAnalogRead(channelNums[j]);
     }
   }
   bool shouldCalibrate = true;
   for (int j=0; j<NUM_CELLS; j++) {
-    cellVoltageArrs[arrIndex][j] = analogAccumArrs[arrIndex][j]*cellScale[j];
+    cellVoltageArrs[arrIndex][j] = analogAccumArrs[arrIndex][j]*defaultCellScale[j];
     if (cellVoltageArrs[arrIndex][j] < MIN_REF_VOLT || cellVoltageArrs[arrIndex][j] > MAX_REF_VOLT) {
       shouldCalibrate = false;
     }
@@ -124,7 +137,7 @@ void calibrationSetup(bool beep) {
 
 void readTimerStart() {
   // Configure ADC
-  ADMUX = (1<<REFS0);  // Set reference voltage to AVcc (5V)
+  ADMUX = (0<<REFS0);  // 1=Set reference voltage to AVcc (5V), 0=External AREF, 3=Internal 2.56V
   ADCSRA = (1<<ADEN) | (7<<ADPS0);  // Enable ADC, set divider to 128 (125kHz when 16MHz clock)
 
   // Setup Timer 1 (Timer 0 is for Arduino millis/micro/delay, Timer 3 is for tone)

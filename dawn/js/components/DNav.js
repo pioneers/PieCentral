@@ -21,6 +21,9 @@ export default React.createClass({
     return nextProps.connection !== this.props.connection ||
       nextProps.battery !== this.props.battery;
   },
+  getInitialState() {
+    return { showUpdateModal: false };
+  },
   saveAddress(currentAddress) {
     let prompt = smalltalk.prompt(
       'Enter the IP address of the robot:',

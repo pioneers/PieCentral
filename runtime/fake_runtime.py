@@ -4,6 +4,7 @@ import random
 import subprocess, multiprocessing
 import memcache
 from datetime import datetime
+from base64 import b64decode
 
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
@@ -44,8 +45,8 @@ while True:
             sensor_id = msg['content']['id']
             id_to_name[sensor_id] = msg['content']['name']
         elif msg_type == 'update':
-            update = msg['content']['update']['data']
-            signature = msg['content']['signature']['data']
+            update = b64decode(msg['content']['update'])
+            signature = b64decode(msg['content']['signature'])
             filename = msg['content']['filename']
             signature_filename = filename + '.asc'
             update_f = open(filename, 'wb')

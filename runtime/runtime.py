@@ -23,7 +23,7 @@ h.subToDevices(connectedDevices)
 # connect to memcache
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
-mc.set('gamepad', {0: {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
+mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
 
 def get_all_data(connectedDevices):
     all_data = {}

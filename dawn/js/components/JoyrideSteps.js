@@ -4,8 +4,14 @@
  */
 export default [
   {
+    title: 'Header and Version',
+    text: 'This header displays the version of Dawn that you have. We may periodically release updates to Dawn, so always make sure you have the latest version. If you see \'(disconnected)\' in your header, Dawn is not connected to the robot. If you do not see that, then Dawn is connected',
+    selector: '#header-title',
+    position: 'bottom',
+    type: 'hover'
+  },{
     title: 'Battery Indicator',
-    text: 'This displays your robot\'s current battery level. Keep an eye on the battery level and charge the battery whenever it is nearly drained.',
+    text: 'This displays your robot\'s current battery level. Keep an eye on the battery level and charge the battery whenever it is nearly drained. Allowing the battery level to drop too low could damage your battery permanently.',
     selector: '#battery-indicator',
     position: 'bottom',
     type: 'hover'
@@ -17,7 +23,7 @@ export default [
     type: 'hover'
   },{
     title: 'File operations',
-    text: 'Use these buttons to open, save, create, and delete files.',
+    text: 'Use these buttons to create, open, and save code files.',
     selector: '#file-operations-buttons',
     position: 'bottom',
     type: 'hover'
@@ -28,20 +34,32 @@ export default [
     position: 'bottom',
     type: 'hover'
   },{
+    title: 'Editor Theme',
+    text: 'You can choose your editor\'s theme using this dropdown. Your preferences will be saved automatically.',
+    selector: '#choose-theme',
+    position: 'bottom',
+    type: 'hover'
+  },{
     title: 'Peripherals',
-    text: 'This panel displays info about your robot\'s peripherals, including motors and sensors. You can click on a peripheral name to change it.',
+    text: 'This panel displays info about your robot\'s peripherals, including motors and sensors. You can click on a peripheral name to change it. The name you assign to a peripheral here is the same name you should use to reference the peripheral in your code.',
     selector: '#peripherals-panel',
     position: 'left',
     type: 'hover'
   },{
     title: 'Gamepads',
-    text: 'This panel displays all the connected gamepads.',
+    text: 'This panel displays all the connected gamepads. Once you have a gamepad connected, press the details buttons to see more gamepad details.',
     selector: '#gamepads-panel',
     position: 'left',
     type: 'hover'
   },{
+    title: 'Updates',
+    text: 'Occasionally we may release updates to the robot\'s software. When this happens, you will download two files, an update package and its signature, and click on this button to upload those updates to the robot.',
+    selector: '#update-software-button',
+    position: 'left',
+    type: 'hover'
+  },{
     title: 'Robot IP',
-    text: 'Click this button to edit the IP address of the robot.',
+    text: 'This sets the IP address Dawn will use when trying to connect to the robot.',
     selector: '#update-address-button',
     position: 'left',
     type: 'hover'

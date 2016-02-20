@@ -10,6 +10,9 @@ var _needToUpdate = function(newGamepads) {
     if(!_.isUndefined(gamepad) && (gamepad.timestamp > _timestamps[index])) {
       _timestamps[index] = gamepad.timestamp;
       return true;
+    } else if (_.isUndefined(gamepad) && !_.isNull(_timestamps[index])) {
+      _timestamps[index] = null;
+      return true;
     }
     return false;
   });

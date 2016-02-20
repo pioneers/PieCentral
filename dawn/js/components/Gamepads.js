@@ -21,7 +21,7 @@ export default React.createClass({
   },
   renderInterior() {
     // if there are any gamepads
-    if (_.some(this.state.gamepads, (gamepad) => gamepad !== null)) {
+    if (_.some(this.state.gamepads, (gamepad) => gamepad !== undefined)) {
       // Currently there is a bug on windows where navigator.getGamepads()
       // returns a second, 'ghost' gamepad even when only one is connected.
       // The filter on 'mapping' filters out the ghost gamepad.

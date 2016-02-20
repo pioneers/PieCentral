@@ -10,6 +10,9 @@ var _needToUpdate = function(newGamepads) {
     if(!_.isUndefined(gamepad) && (gamepad.timestamp > _timestamps[index])) {
       _timestamps[index] = gamepad.timestamp;
       return true;
+    } else if (_.isUndefined(gamepad) && !_.isNull(_timestamps[index])) {
+      _timestamps[index] = null;
+      return true;
     }
     return false;
   });
@@ -17,7 +20,10 @@ var _needToUpdate = function(newGamepads) {
 
 var _formatGamepadsForJSON = function(newGamepads) {
   let formattedGamepads = {};
-  _.forEach(newGamepads, function(gamepad) {
+  // Currently there is a bug on windows where navigator.getGamepads()
+  // returns a second, 'ghost' gamepad even when only one is connected.
+  // The filter on 'mapping' filters out the ghost gamepad.
+  _.forEach(_.filter(newGamepads, {'mapping': 'standard'}), function(gamepad) {
     if (gamepad) {
       formattedGamepads[gamepad.index] = {
         index: gamepad.index,
@@ -34,7 +40,9 @@ var _formatGamepadsForJSON = function(newGamepads) {
 var _updateGamepadState = function() {
   let newGamepads = navigator.getGamepads();
   if (_needToUpdate(newGamepads)) {
-    Ansible.sendMessage('gamepad', _formatGamepadsForJSON(newGamepads));
+    if (_.some(newGamepads)) {
+      Ansible.sendMessage('gamepad', _formatGamepadsForJSON(newGamepads));
+    }
     GamepadActionCreators.updateGamepads(newGamepads);
   }
 };

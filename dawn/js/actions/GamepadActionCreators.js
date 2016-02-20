@@ -21,7 +21,8 @@ var _formatGamepadsForJSON = function(newGamepads) {
     if (gamepad) {
       formattedGamepads[gamepad.index] = {
         index: gamepad.index,
-        axes: gamepad.axes
+        axes: gamepad.axes,
+        buttons: _.map(gamepad.buttons, 'value')
       };
     }
   });

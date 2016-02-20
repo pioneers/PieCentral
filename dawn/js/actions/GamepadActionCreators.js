@@ -22,7 +22,7 @@ var _formatGamepadsForJSON = function(newGamepads) {
       formattedGamepads[gamepad.index] = {
         index: gamepad.index,
         axes: gamepad.axes,
-        buttons: gamepad.buttons
+        buttons: _.map(gamepad.buttons, 'value')
       };
     }
   });

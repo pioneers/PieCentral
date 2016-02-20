@@ -40,7 +40,9 @@ var _formatGamepadsForJSON = function(newGamepads) {
 var _updateGamepadState = function() {
   let newGamepads = navigator.getGamepads();
   if (_needToUpdate(newGamepads)) {
-    Ansible.sendMessage('gamepad', _formatGamepadsForJSON(newGamepads));
+    if (_.some(newGamepads)) {
+      Ansible.sendMessage('gamepad', _formatGamepadsForJSON(newGamepads));
+    }
     GamepadActionCreators.updateGamepads(newGamepads);
   }
 };

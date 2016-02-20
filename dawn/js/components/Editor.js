@@ -147,9 +147,9 @@ export default React.createClass({
       {
         groupId: 'file-operations-buttons',
         buttons: [
-          new EditorButton('save', 'Save', this.saveFile, 'floppy-disk'),
-          new EditorButton('open', 'Open', this.openFile, 'folder-open'),
           new EditorButton('create', 'New', this.createNewFile, 'file'),
+          new EditorButton('open', 'Open', this.openFile, 'folder-open'),
+          new EditorButton('save', 'Save', this.saveFile, 'floppy-disk')
         ],
       }, {
         groupId: 'code-execution-buttons',

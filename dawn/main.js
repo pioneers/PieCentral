@@ -7,6 +7,16 @@ const Menu = electron.Menu;
 
 let template = [
   {
+    label: 'Dawn',
+    submenu: [
+      {
+        label: 'Quit',
+        accelerator: 'CommandOrControl+Q',
+        click: function() { app.quit(); }
+      }
+    ]
+  },
+  {
     label: 'Edit',
     submenu: [
       {

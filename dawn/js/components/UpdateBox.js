@@ -23,7 +23,7 @@ export default React.createClass({
   },
   chooseUpdate() {
     dialog.showOpenDialog({
-      filters: [{ name: 'Update Package', extensions: ['tar.gz'] }]
+      filters: [{ name: 'Update Package', extensions: ['gz'] }]
     }, (filepaths)=>{
       if (filepaths === undefined) return;
       this.setState({ updateFilepath: filepaths[0] });
@@ -31,7 +31,7 @@ export default React.createClass({
   },
   chooseSignature() {
     dialog.showOpenDialog({
-      filters: [{ name: 'Update signature', extensions: ['tar.gz.asc'] }]
+      filters: [{ name: 'Update signature', extensions: ['asc'] }]
     }, (filepaths)=>{
       if (filepaths === undefined) return;
       this.setState({ signatureFilepath: filepaths[0] });

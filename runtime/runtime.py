@@ -16,6 +16,7 @@ if 'HIBIKE_SIMULATOR' in os.environ and os.environ['HIBIKE_SIMULATOR'] in ['1', 
 else:
     h = hibike.Hibike()
 connectedDevices = h.getEnumeratedDevices()
+uid_to_type = {uid: device_type for (uid, device_type) in connectedDevices}
 print connectedDevices
 # TODO: delay should not always be 20
 connectedDevices = [(device, 50) for (device, device_type) in connectedDevices]
@@ -29,14 +30,13 @@ mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 
 def get_all_data(connectedDevices):
     all_data = {}
     for t in connectedDevices:
-        count = 1
-        tup_nest = h.getData(t[0], "dataUpdate")
+        uid, device_type = t
+        tup_nest = h.getData(uid, "dataUpdate")
         if not tup_nest:
             continue
-        tup_vals = tup_nest[0]
-        for i in tup_vals:
-            all_data[str(count) + str(t[0])] = i
-            count += 1
+        values, timestamps = tup_nest
+        for value, device_id in zip(values, uid_to_device_id(uid, len(values))):
+            all_data[device_id] = value
     return all_data
 
 # Called on starte of student code, finds and configures all the connected motors
@@ -53,6 +53,7 @@ def initialize_motors():
         grizzly_motor = Grizzly(addrs[index])
         grizzly_motor.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_COAST)
         grizzly_motor.set_target(0)
+        grizzly_motor._set_as_int(0x80, 500, 2)
 
         name_to_grizzly['motor' + str(index)] = grizzly_motor
         name_to_values['motor' + str(index)] = 0
@@ -149,11 +150,17 @@ def send_peripheral_data(data):
         ansible.send_message('UPDATE_PERIPHERAL', {
             'peripheral': {
                 'name': 'sensor_{}'.format(device_id),
-                'peripheralType':'SENSOR_BOOLEAN',
+                'peripheralType':h.getDeviceName(uid_to_type[device_id_to_uid(device_id)]),
                 'value': value,
                 'id': device_id
                 }
             })
+
+def uid_to_device_id(uid, num_devices):
+    return [str(device_index) + str(uid) for device_index in range(num_devices)]
+
+def device_id_to_uid(device_id):
+    return device_id[1:]
 
 while True:
     msg = ansible.recv()

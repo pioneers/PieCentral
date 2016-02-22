@@ -24,7 +24,7 @@ var Motor = React.createClass({
         {
           this.props.disconnected
           ? <Label bsStyle='danger'>Disconnected</Label>
-          : this.props.value
+          : Math.round(this.props.value * 100) / 100
         }
         </h4>
       </div>

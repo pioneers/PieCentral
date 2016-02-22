@@ -20,7 +20,7 @@ def log_output(stream):
 
 robotStatus = 0
 batteryLevel = 100
-id_to_name = { '1236': 'somethingElse', '1234': 'myMotor', '1235': 'something'}
+id_to_name = {'1234': 'myMotor', '1235': 'something', '1236': 'somethingElse', '1237': 'somethingElseMore', '1238': 'MoreStuff', '1239': 'One', '1233': 'More'}
 while True:
     mc.set('gamepad', {'time': datetime.now()}) # sending arbitary data to API
     msg = ansible.recv()
@@ -62,7 +62,7 @@ while True:
         'peripheral': {
             'name': id_to_name['1236'],
             'peripheralType': 'SENSOR_SCALAR',
-            'value': random.randint(0, 100),
+            'value': random.uniform(0, 100),
             'id': '1236'
         }
     })
@@ -80,7 +80,7 @@ while True:
         'peripheral': {
             'name':id_to_name['1234'],
             'peripheralType': 'MOTOR_SCALAR',
-            'value': random.randint(0, 100),
+            'value': random.uniform(0, 100),
             'id': '1234'
         }
     })
@@ -90,6 +90,38 @@ while True:
             'peripheralType': 'SENSOR_BOOLEAN',
             'value': random.randint(0, 1),
             'id': '1235'
+        }
+    })
+    ansible.send_message('UPDATE_PERIPHERAL', {
+        'peripheral': {
+            'name':id_to_name['1237'],
+            'peripheralType': 'MOTOR_SCALAR',
+            'value': random.uniform(0, 100),
+            'id': '1237'
+        }
+    })
+    ansible.send_message('UPDATE_PERIPHERAL', {
+        'peripheral': {
+            'name':id_to_name['1238'],
+            'peripheralType': 'MOTOR_SCALAR',
+            'value': random.uniform(0, 100),
+            'id': '1238'
+        }
+    })
+    ansible.send_message('UPDATE_PERIPHERAL', {
+        'peripheral': {
+            'name':id_to_name['1233'],
+            'peripheralType': 'MOTOR_SCALAR',
+            'value': random.uniform(0, 100),
+            'id': '1233'
+        }
+    })
+    ansible.send_message('UPDATE_PERIPHERAL', {
+        'peripheral': {
+            'name':id_to_name['1239'],
+            'peripheralType': 'MOTOR_SCALAR',
+            'value': random.uniform(0, 100),
+            'id': '1239'
         }
     })
     batteryLevel -= 1

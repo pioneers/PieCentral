@@ -5,7 +5,6 @@ import {
   Button
 } from 'react-bootstrap';
 import { remote } from 'electron';
-import async from 'async';
 import Ansible from '../utils/Ansible';
 const dialog = remote.dialog;
 
@@ -38,21 +37,34 @@ export default React.createClass({
     });
   },
   upgradeSoftware() {
-    console.log(this.state.updateFilepath);
-    async.map(
-      [this.state.updateFilepath, this.state.signatureFilepath],
-      fs.readFile, (err, results)=>{
-        this.setState({isUploading: true});
-        Ansible.sendMessage('update', {
-          filename: this.state.updateFilepath.split('/').pop(),
-          update: results[0].toString('base64'),
-          signature: results[1].toString('base64')
-        }, (response)=>{
-          this.setState({isUploading: false});
-          this.props.hide();
-        });
-      }
-    );
+    this.setState({ isUploading: true });
+    Ansible.sendMessage('pre_update', {});
+    let updateP = new Promise((resolve, reject)=>{
+      Ansible.uploadFile(this.state.updateFilepath, (err, res)=>{
+        if (err) {
+          reject();
+        } else {
+          resolve(res);
+        }
+      })
+    });
+    let signatureP = new Promise((resolve, reject)=>{
+      Ansible.uploadFile(this.state.signatureFilepath, (err, res)=>{
+        if (err) {
+          reject();
+        } else {
+          resolve(res);
+        }
+      })
+    });
+    Promise.all([updateP, signatureP]).then((values)=>{
+      Ansible.sendMessage('update', {
+        update_path: values[0].text,
+        signature_path: values[1].text
+      });
+      this.setState({ isUploading: false });
+      this.props.hide();
+    });
   },
   render() {
     return (

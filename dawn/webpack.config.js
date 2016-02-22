@@ -14,12 +14,19 @@ module.exports = {
         query: {
           presets: ['es2015', 'react']
         }
+      },
+      {
+        test: /\.json$/,
+        loader: 'json-loader'
       }
     ]
   },
   plugins: [
     new webpack.DefinePlugin({
       VERSION: JSON.stringify(require('./package.json').version)
+    }),
+    new webpack.DefinePlugin({
+      "global.GENTLY": false
     })
   ]
 };

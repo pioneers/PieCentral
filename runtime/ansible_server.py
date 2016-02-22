@@ -23,6 +23,7 @@ if async_mode == 'eventlet':
     import eventlet
     eventlet.monkey_patch()
 
+import os
 from threading import Thread
 from Queue import Empty
 import json
@@ -40,6 +41,15 @@ mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 def ansible_server(send_queue, recv_queue):
     app = Flask(__name__)
     socketio = SocketIO(app)
+
+    @app.route('/upload', methods=['POST'])
+    def upload_file():
+        if request.method == 'POST':
+            file = request.files['file']
+            if file:
+                prefix = os.path.expanduser('~/updates/')
+                file.save(os.path.join(prefix, file.filename))
+                return 'File received', 200
 
     @socketio.on('message')
     def receive_message(msg):

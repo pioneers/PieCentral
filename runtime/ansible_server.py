@@ -48,8 +48,9 @@ def ansible_server(send_queue, recv_queue):
             file = request.files['file']
             if file:
                 prefix = os.path.expanduser('~/updates/')
-                file.save(os.path.join(prefix, file.filename))
-                return 'File received', 200
+                full_path = os.path.join(prefix, file.filename)
+                file.save(full_path)
+                return full_path, 200
 
     @socketio.on('message')
     def receive_message(msg):

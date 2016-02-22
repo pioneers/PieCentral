@@ -1,5 +1,6 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
 import fs from 'fs';
+import request from 'superagent';
 import { remote } from 'electron';
 const storage = remote.require('electron-json-storage');
 
@@ -28,6 +29,8 @@ function connectToAnsible(runtimeAddress) {
     unpackedMsg.type = message.header.msg_type;
     AppDispatcher.dispatch(unpackedMsg);
   });
+
+  Ansible.runtimeAddress = runtimeAddress;
 }
 
 function initAnsible() {
@@ -77,6 +80,15 @@ let Ansible = {
       content: content
     };
     this._send(msg, callback);
+  },
+  uploadFile(filepath, callback) {
+    if (this.runtimeAddress) {
+      request
+        .post('http://' + this.runtimeAddress + ':5000/upload')
+        .attach('file', filepath).end(callback);
+    } else {
+      console.log('Cannot upload! Not connected to runtime!');
+    }
   }
 };
 

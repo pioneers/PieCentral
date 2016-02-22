@@ -31,7 +31,6 @@
     "webpack": "^1.12.13"
   },
   "dependencies": {
-    "async": "^1.5.2",
     "brace": "^0.7.0",
     "electron-json-storage": "^1.0.0",
     "flux": "^2.1.1",

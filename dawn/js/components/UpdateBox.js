@@ -5,7 +5,6 @@ import {
   Button
 } from 'react-bootstrap';
 import { remote } from 'electron';
-import async from 'async';
 import Ansible from '../utils/Ansible';
 const dialog = remote.dialog;
 

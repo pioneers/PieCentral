@@ -244,30 +244,7 @@ def msg_handling(msg):
             student_proc.terminate()
             console_proc.terminate()
             stop_motor()
-
-        #remove everything that is like tar currently in the update folder
-        #os.system('rm -f ~/updates/*tar*')
-
-        #update = b64decode(msg['content']['update_path'])
-        #signature = b64decode(msg['content']['signature_path'])
-        #update_path = msg['content']['update_path']
-        #signature_path = msg['content']['signature_path']
-        #filename = msg['content']['filename']
-        #signature_filename = filename + '.asc'
-        #update_f = open(, 'wb')
-        #update_f.write(bytearray(update))
-        #update_f.flush()
-        #update_f.close()
-        #signature_f = open(signature_filename, 'wb')
-        #signature_f.write(bytearray(signature))
-        #signature_f.flush()
-        #signature_f.close()
-
-        #put signature_f and update_f in ~/updates
-        #os.system('mv ' + filename + ' ~/updates')
-        #os.system('mv ' + signature_filename + ' ~/updates')
-
-        #run ./update.sh
+            
         os.system('sh ~/updates/update.sh')
 
 peripheral_data_last_sent = 0

@@ -31,10 +31,10 @@
     "webpack": "^1.12.13"
   },
   "dependencies": {
-    "async": "^1.5.2",
     "brace": "^0.7.0",
     "electron-json-storage": "^1.0.0",
     "flux": "^2.1.1",
+    "json-loader": "^0.5.4",
     "keymirror": "^0.1.1",
     "lodash": "^4.3.0",
     "mousetrap": "^1.5.3",
@@ -46,6 +46,7 @@
     "react-dom": "^0.14.5",
     "react-edit-inline": "^1.0.6",
     "react-joyride": "^1.1.1",
-    "smalltalk": "^1.6.5"
+    "smalltalk": "^1.6.5",
+    "superagent": "^1.7.2"
   }
 }

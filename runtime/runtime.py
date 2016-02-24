@@ -6,6 +6,8 @@ import usb
 import os
 from base64 import b64decode
 
+from uid_did_conversions import *
+
 #connect to memcache
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
@@ -15,7 +17,7 @@ mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 
 name_to_grizzly, name_to_values, name_to_ids, name_to_modes = {}, {}, {}, {}
 student_proc, console_proc = None, None
 robot_status = 0 # a boolean for whether or not the robot is executing
-battery_UID = 0 #TODO, what if no battery buzzer, what if not safe battery buzzer
+battery_UID = None #TODO, what if no battery buzzer, what if not safe battery buzzer
 mc.set('flag_values',[]) #set flag color initial status
 mc.set('servo_values',[])
 mc.set('PID_constants',[("P", 1), ("I", 0), ("D", 0)])
@@ -23,28 +25,26 @@ mc.set('control_mode', ["default", "all"])
 mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
 gear_to_tick = {19: 1200.0/360, 67: 4480/360}
+
 all_modes = {"default": ControlMode.NO_PID, "speed": ControlMode.SPEED_PID, "position": ControlMode.POSITION_PID,
         "brake": DriveMode.DRIVE_BRAKE, "coast": DriveMode.DRIVE_COAST}
 PID_constants = {"P": 1, "I": 0, "D": 0}
-
-
 
 if 'HIBIKE_SIMULATOR' in os.environ and os.environ['HIBIKE_SIMULATOR'] in ['1', 'True', 'true']:
     import hibike_simulator
     h = hibike_simulator.Hibike()
 else:
     h = hibike.Hibike()
+connectedDevices = h.getEnumeratedDevices()    #list of tuples, first val of tuple is UID, second is int Devicetype
 
-connectedDevices = h.getEnumeratedDevices()
-uid_to_type = {uid: device_type for (uid, device_type) in connectedDevices}
-print connectedDevices
 # TODO: delay should not always be 50
 h.subToDevices([(device, 50) for (device, device_type) in connectedDevices])
+print(connectedDevices)
 
 def init_battery():
     global battery_UID
     for UID, dev in connectedDevices:
-        if h.getDeviceName(int(UID)) == "BatteryBuzzer":
+        if h.getDeviceName(int(dev)) == "BatteryBuzzer":
             battery_UID = UID
 
 def get_all_data(connectedDevices):
@@ -66,7 +66,7 @@ def get_all_data(connectedDevices):
 
 
 def set_flags(values):
-    for i in range(1,values.length):
+    for i in range(1,len(values)):
         light = values[i]
         if light != -1:
             if light == 1:
@@ -75,12 +75,13 @@ def set_flags(values):
                 light = -64
             elif light == 3:
                 light = -128
-            h.writeValue(int(values[0]), "s" + string(i), light)
+            h.writeValue(int(values[0]), "s" + str(i), light)
 
 def set_servos(values):
-    for i in range(0,values.length-1):
-        if values[i+1] != -1:
-            h.writeValue(int(values[0]),"servo" + string(i), values[i+1])
+    for i in range(1,len(values)):
+        if values[i] != -1:
+            print("writing hibike with: " + values[0])
+            h.writeValue(int(values[0]),"servo" + str(i), values[i])
     mc.set("servo_value",[])
 
 def drive_set_distance(list_tuples):
@@ -126,10 +127,6 @@ def set_PID(constants):
         grizzly.init_pid(p, i, d)
 
 def test_battery():
-
-    # Send battery level
-
-
     if battery_UID is None or battery_UID not in [x[0] for x in connectedDevices]:
         ansible.send_message('ADD_ALERT', {
         'payload': {
@@ -145,7 +142,7 @@ def test_battery():
         return False
 
     try:
-        (safe, connected, c0, c1, c2, c3, voltage), timestamp = h.getData(battery_UID,"dataUpdate")
+        (safe, connected, c0, c1, c2, voltage), timestamp = h.getData(battery_UID,"dataUpdate")
     except:
         raise
         safe = False
@@ -170,7 +167,8 @@ def test_battery():
                 }
         })
     return True
-# Called on starte of student code, finds and configures all the connected motors
+
+# Called on start of student code, finds and configures all the connected motors
 def initialize_motors():
     try:
         addrs = Grizzly.get_all_ids()
@@ -205,6 +203,7 @@ def stop_motors():
 def log_output(stream):
     #TODO: figure out a way to limit speed of sending messages, so
     # ansible is not overflowed by printing too fast
+    return # HACK to work around console issue: don't have a console!
     for line in stream:
         ansible.send_message('UPDATE_CONSOLE', {
             'console_output': {
@@ -289,11 +288,8 @@ def send_peripheral_data(data):
                 }
             })
 
-def uid_to_device_id(uid, num_devices):
-    return [str(device_index) + str(uid) for device_index in range(num_devices)]
 
-def device_id_to_uid(device_id):
-    return device_id[1:]
+
 
 init_battery()
 while True:

@@ -15,10 +15,14 @@ import memcache
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
 
+from uid_did_conversions import *
+
 motor = {}
 
-def _lookup(name): #Returns actual UID given name
-    return name
+def _lookup(name): #Returns actual device ID given name
+    # TODO: HARDCODED VALUE FOR TESTING ONLY
+    # uid = 33069839498132392805621
+    return "425081180711840871785071"
 
 def get_motor(name):
     """Returns the current power value for a motor.
@@ -66,10 +70,10 @@ def get_sensor(name):
     :param name: A string that identifies the sensor.
     :returns: The reading of the sensor at the current point in time.
     """
-    name = _lookup(name)
+    device_id = _lookup(name)
     all_data = mc.get('sensor_values')
     try:
-        return all_data[name]
+        return all_data[device_id]
     except KeyError:
         raise KeyError("No Sensor with that name")
 
@@ -92,9 +96,9 @@ def set_LED(name,value):
     >>> Robot.set_LED("flag12",Flag.OFF)
     >>> Robot.set_LED("flag1",Flag.LOW)
     """
-    name = _lookup(name)
+    device_id = _lookup(name)
     assert value in range(4),"Value must be an enum"
-    flag_data = list(name[1:]) + [-1,-1,-1,-1]
+    flag_data = [device_id_to_uid(device_id)] + [-1,-1,-1,-1]
     flag_data[name[0]] = value
     mc.set('flag_values', flag_data)
 
@@ -113,9 +117,14 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
 
     """
     assert value in range(181), "Servo degrees must be between 0 and 180"
-    name = _lookup(name)
-    servo_data = list(name[1:]) + [-1,-1,-1,-1]
-    servo_data[name[0]] = value
+    device_id = _lookup(name)
+    print(device_id)
+    servo_data = [device_id_to_uid(device_id)] + [-1,-1,-1,-1]
+    print(device_id_to_uid(device_id))
+    # TODO: Sets all servos because we're too lazy to figure out which one it is
+    print(servo_data[0])
+    for i in range(1, 5):
+        servo_data[i] = value
     mc.set('servo_values', servo_data)
 
 
@@ -139,8 +148,8 @@ def get_color_sensor(name):
     0.873748
 
     """
-    name = _lookup(name)
-    return _testConnected(name)
+    device_id = _lookup(name)
+    return _testConnected(device_id)
 
 def get_luminosity(name):
     """Returns the luminosity for the specified color sensor.
@@ -157,8 +166,8 @@ def get_luminosity(name):
     0.89783
 
     """
-    name = _lookup(name)
-    return _testConnected(name)
+    device_id = _lookup(name)
+    return _testConnected(device_id)
 
 def get_hue(name):
     """Returns the hue detected at the specified color sensor.
@@ -178,7 +187,7 @@ def get_hue(name):
 
     """
     all_data = mc.get('sensor_values')
-    name = _lookup(name)
+    device_id = _lookup(name)
     try:
         r = all_data[name][0]
         g = all_data[name][1]
@@ -204,8 +213,8 @@ def get_distance_sensor(name):
     >>> distance = Robot.get_distance_sensor("distance1")
 
     """
-    name = _lookup(name)
-    return _testConnected(name)
+    device_id = _lookup(name)
+    return _testConnected(device_id)
 
 
 def get_limit_switch(name):
@@ -223,8 +232,8 @@ def get_limit_switch(name):
     True
 
     """
-    name = _lookup(name)
-    return _testConnected(name)
+    device_id = _lookup(name)
+    return _testConnected(device_id)
 
 def get_potentiometer(name):
     """Returns the sensor reading of a potentiometer 
@@ -236,8 +245,8 @@ def get_potentiometer(name):
     :returns: A decimal between 0 and 1 representing the angle.
 
     """
-    name = _lookup(name)
-    return _testConnected(name)
+    device_id = _lookup(name)
+    return _testConnected(device_id)
 
 """def get_metal_detector(name): #TODO metal detector Implementation
     \"""Returns the sensor reading of the specified metal detector
@@ -293,12 +302,10 @@ def drive_distance_all(degrees, motors, gear_ratios):
     assert isinstance(motors, list), "motors must be a list"
     assert isinstance(gear_ratios, list), "gear_ratios must be a list"
     assert isinstance(degrees, list), "degrees must be a list"
-    assert degrees.length == motors.length and degrees.length == gear_ratios.length, "List lengths for all 3 parameters must be equal"
+    assert len(degrees) == len(motors) and len(degrees) == len(gear_ratios), "List lengths for all 3 parameters must be equal"
     motor_list = mc.get("motor_values")
-    i = 1
     for motor in motors:
         assert motor in motor_list, motor + " not found in connected motors"
-        i += 1
     zipped = zip(motors, degrees, gear_ratios)
     mc.set("drive_distance", zipped)
   
@@ -422,10 +429,12 @@ def get_PID_constants():
     """
     return mc.get("get_PID")
 
-def _testConnected(name): #checks if data exists in sensor values, throws error if doesn't
+def _testConnected(device_id): #checks if data exists in sensor values, throws error if doesn't
     all_data = mc.get('sensor_values')
+    print(device_id)
+    print(all_data)
     try:
-        return all_data[name]
+        return all_data[device_id]
     except KeyError:
         raise KeyError("No sensor with that name")
 

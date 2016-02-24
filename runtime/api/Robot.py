@@ -19,10 +19,8 @@ from uid_did_conversions import *
 
 motor = {}
 
-def _lookup(name): #Returns actual device ID given name
-    # TODO: HARDCODED VALUE FOR TESTING ONLY
-    # uid = 33069839498132392805621
-    return "425081180711840871785071"
+def _lookup(name):
+    return name
 
 def get_motor(name):
     """Returns the current power value for a motor.

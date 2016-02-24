@@ -144,7 +144,6 @@ def test_battery():
     try:
         (safe, connected, c0, c1, c2, voltage), timestamp = h.getData(battery_UID,"dataUpdate")
     except:
-        raise
         safe = False
 
     if not safe:
@@ -244,7 +243,7 @@ def msg_handling(msg):
             student_proc.terminate()
             console_proc.terminate()
             stop_motor()
-            
+
         os.system('sh ~/updates/update.sh')
 
 peripheral_data_last_sent = 0
@@ -260,6 +259,7 @@ def send_peripheral_data(data):
         ansible.send_message('UPDATE_PERIPHERAL', {
             'peripheral': {
                 'name': 'sensor_{}'.format(device_id),
+                # TODO: specify the correct sensor type, not SENSOR_BOOLEAN
                 #'peripheralType':h.getDeviceName(uid_to_type[device_id_to_uid(device_id)]),
                 'peripheralType': 'SENSOR_BOOLEAN',
                 'value': value,

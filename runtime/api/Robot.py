@@ -85,13 +85,13 @@ def get_all_motors():
 def set_LED(name,value):
     """Sets the brightness of a specific LED on the team flag.
 
-    Each LED has four levels, represented by enums. Each light is set to an enum: Flag.OFF, 
+    Each LED has four levels, represented by enums. Each light is set to an enum: Flag.OFF,
     Flag.LOW, Flag.MED, or Flag.HIGH.
 
     :param name: A string that identifies the LED on the team flag.
     :param value: An enum (OFF,LOW,MED,HIGH) which sets brightness for the specified LED
 
-    :Examples: 
+    :Examples:
 
     >>> Robot.set_LED("flag12",Flag.OFF)
     >>> Robot.set_LED("flag1",Flag.LOW)
@@ -131,13 +131,13 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
 def get_color_sensor(name):
     """Returns the value from the color sensor for a specific color.
 
-    Each color sensor senses red, green, and blue, returning a 
+    Each color sensor senses red, green, and blue, returning a
     number between 0 and 1, where 1 indicates a higher intensity. This function returns
     the result from one specific color sensor.
 
     :param name: A string that identifies the color sensor
     :param color: A integer that identifies which specific color sensor to return
-                  where 0 specifies the red sensor, 1 specifies the green sensor, 
+                  where 0 specifies the red sensor, 1 specifies the green sensor,
                   and 2 specifies the blue sensor
     :returns: A double between 0 and 1, where 1 indicates a higher intensity
 
@@ -172,8 +172,8 @@ def get_luminosity(name):
 def get_hue(name):
     """Returns the hue detected at the specified color sensor.
 
-    This uses the red, green, and blue sensors on the color sensor to return the 
-    detected hue, which is represented as a double between 0 and 360. See 
+    This uses the red, green, and blue sensors on the color sensor to return the
+    detected hue, which is represented as a double between 0 and 360. See
     https://en.wikipedia.org/wiki/Hue for more information on hue.
 
     :param name: A string that identifies the color sensor
@@ -208,7 +208,7 @@ def get_distance_sensor(name):
     :param name: A String that identifies the distance sensor
     :returns: A double representing how many centimeters away the object is from the sensor
 
-    :Examples: 
+    :Examples:
 
     >>> distance = Robot.get_distance_sensor("distance1")
 
@@ -220,7 +220,7 @@ def get_distance_sensor(name):
 def get_limit_switch(name):
     """Returns whether a specified limit switch on the identified device is pressed or not
 
-    The specified limit switch returns a boolean, either True (pressed) or False (not pressed). 
+    The specified limit switch returns a boolean, either True (pressed) or False (not pressed).
 
     :param name: A String that identifies the limit switch
     :returns: A boolean value, where True is pressed and False is not pressed.
@@ -236,10 +236,10 @@ def get_limit_switch(name):
     return _testConnected(device_id)
 
 def get_potentiometer(name):
-    """Returns the sensor reading of a potentiometer 
+    """Returns the sensor reading of a potentiometer
 
-    The potentiometer returns a decimal between 0 and 1, indicating the angle detected, 
-    where 0 and 1 are the two extreme angles. 
+    The potentiometer returns a decimal between 0 and 1, indicating the angle detected,
+    where 0 and 1 are the two extreme angles.
 
     :param name: A string that identifies the potentiometer smart device (contains four potentiometers)
     :returns: A decimal between 0 and 1 representing the angle.
@@ -254,9 +254,9 @@ def get_potentiometer(name):
     Each metal detector returns an integer, which changes based on the prescence of metal.
 
     :param name: A String that identifies the metal detector smart device.
-    :returns: An integer (large) which represents whether metal is detected or not. 
+    :returns: An integer (large) which represents whether metal is detected or not.
 
-    \""" 
+    \"""
     name = _lookup(name)
     return _testConnected(name)
 
@@ -267,7 +267,7 @@ def calibrate_metal_detector(name): #TODO ask hibike
 
     :param name: A String that identifies the metal detector smart device.
     \"""
-    return null 
+    return null
 
 def get_all_reflecting(name): #TODO hibike implement
     \"""Returns how much light is reflected onto the sensor_values
@@ -285,18 +285,18 @@ def get_all_reflecting(name): #TODO hibike implement
 
 def drive_distance_all(degrees, motors, gear_ratios):
     """Drives all motors in the list a set number of degrees set by the corresponding index in the distances list.
-  
-    The specified motor will run until it reaches the specified degree of rotation and will hold the motor 
+
+    The specified motor will run until it reaches the specified degree of rotation and will hold the motor
     there until a grizzly motor method is called again.
-    The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode: 
+    The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode:
     this method translates degrees into encoder ticks and then sets the target in said encoder ticks. When this method is called again
-    on the same motor, current encoder tick position is reset to 0 and the method reruns. 
-    
-    :param degrees: A list of integers corresponding to the number of ticks to be moved. The integer at the index of 
+    on the same motor, current encoder tick position is reset to 0 and the method reruns.
+
+    :param degrees: A list of integers corresponding to the number of ticks to be moved. The integer at the index of
         this list should match the motor's index.
     :param motor: A list of strings corresponding to the motor names to be rotated. The index of the motor names
         should match the index of the distance.
-    :param gear_ratios: A list of integers corresponding to the gear ratios of the motors. The integer at the 
+    :param gear_ratios: A list of integers corresponding to the gear ratios of the motors. The integer at the
         index of this list should match the motor's index.
     """
     assert isinstance(motors, list), "motors must be a list"
@@ -308,15 +308,15 @@ def drive_distance_all(degrees, motors, gear_ratios):
         assert motor in motor_list, motor + " not found in connected motors"
     zipped = zip(motors, degrees, gear_ratios)
     mc.set("drive_distance", zipped)
-  
+
   #TODO, need to reset positions each time these two methods are called.
 def drive_distance_degrees(degrees, motor, gear_ratio):
-    """Drives the specified motor a set number of degrees and holds the motor there. 
-  
+    """Drives the specified motor a set number of degrees and holds the motor there.
+
     The specified motor will run until it reaches the specified degree of rotation and will hold the motor there until a grizzly motor method is called again.
-    The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode: 
+    The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode:
     this method translates degrees into encoder ticks and then sets the target in said encoder ticks. When this method is called again
-    on the same motor, current encoder tick position is reset to 0 and the method reruns. 
+    on the same motor, current encoder tick position is reset to 0 and the method reruns.
 
     :param degrees: An integer corresponding to the number of degrees to be moved
     :param motor: A String corresponding to the motor name to be rotated
@@ -330,15 +330,15 @@ def drive_distance_degrees(degrees, motor, gear_ratio):
     assert gear_ratio in [19,67], "Gear ratio must be 19:1 or 67:1"
     sent_list = [(motor, degrees, gear_ratio)]
     mc.set("drive_distance", sent_list)
-    
+
 
 def drive_distance_rotations(rotations, motor, gear_ratio):
-    """Drives the specified motor a set number of rotations and holds the motor there. 
-  
+    """Drives the specified motor a set number of rotations and holds the motor there.
+
     The specified motor will run until it reaches the specified degree of rotation and will hold the motor there until a grizzly motor method is called again.
-    The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode: 
+    The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode:
     this method translates degrees into encoder ticks and then sets the target in said encoder ticks. When this method is called again
-    on the same motor, current encoder tick position is reset to 0 and the method reruns. 
+    on the same motor, current encoder tick position is reset to 0 and the method reruns.
 
     :param rotations: An integer corresponding to the number of rotations to be moved
     :param motor: A String corresponding to the motor name to be rotated
@@ -370,9 +370,9 @@ def set_drive_mode(mode):
 def change_control_mode_all(mode):
     """Changes PID mode for all motors connected to the robot
 
-    This changes the control mode for inputing values into all of the motors. 
+    This changes the control mode for inputing values into all of the motors.
     Default mode - No_PID which means one inputs a range of floats from -1 to 1 and the motor runs at a proportion corresponding to that range.
-    
+
     Speed PID - Motors run at encoder ticks per second instead of an integer range. Encoder ticks are a proportion of a rotation, similar to degrees
     to check for encoder ticks for each motor, see this website: https://www.pololu.com/category/116/37d-mm-gearmotors
 
@@ -386,12 +386,12 @@ def change_control_mode_all(mode):
     mc.set("control_mode", [mode, "all"])
 
 def change_control_mode(mode, motor):
-    """Changes PID mode for specified motors connected to the robot 
+    """Changes PID mode for specified motors connected to the robot
 
-    This changes the control mode for inputing values into the specified motors. 
+    This changes the control mode for inputing values into the specified motors.
 
     Default mode - No_PID which means one inputs a range of integers from -1 to 1 and the motor runs at a proportion corresponding to that range.
-    
+
     Speed PID - Motors run at encoder ticks per second instead of an integer range. Encoder ticks are a proportion of a rotation, similar to degrees
     to check for encoder ticks for each motor, see this website: https://www.pololu.com/category/116/37d-mm-gearmotors
 
@@ -446,17 +446,17 @@ class Flag:
     MED = 2
     HIGH = 3
 
-# pololu.com. 19:1 and 67:1 motors 37D motors geared. Be able to change PID constants. Move and stay - set point. once it is called again, reset and redo function. 
+# pololu.com. 19:1 and 67:1 motors 37D motors geared. Be able to change PID constants. Move and stay - set point. once it is called again, reset and redo function.
 
 """Old functions
 
 def set_flag(name,light0,light1,light2,light3):  #TODO UID convert to int
     \"""Sets the brightness of every LED on the team flag.
 
-    Each LED has four levels, represented by integers. Each light is set to Flag.OFF, 
+    Each LED has four levels, represented by integers. Each light is set to Flag.OFF,
     Flag.LOW, Flag.MED, Flag.HIGH
 
-    :param name: A string that identifies the team flag. 
+    :param name: A string that identifies the team flag.
     :param light0: An enum (OFF,LOW,MED,HIGH) which sets brightness for LED 0
     :param light1: An enum (OFF,LOW,MED,HIGH) which sets brightness for LED 1
     :param light2: An enum (OFF,LOW,MED,HIGH) which sets brightness for LED 2
@@ -487,7 +487,7 @@ def set_flag(name,light0,light1,light2,light3):  #TODO UID convert to int
     :param servo1: An integer between 0 and 180 which sets the amount to turn to in degrees for servo 1
     :param servo2: An integer between 0 and 180 which sets the amount to turn to in degrees for servo 2
     :param servo3: An integer between 0 and 180 which sets the amount to turn to in degrees for servo 3
-    
+
     :Examples:
 
     >>> set_all_servos("servo1",90,40,30,20)
@@ -506,11 +506,11 @@ def set_flag(name,light0,light1,light2,light3):  #TODO UID convert to int
     \"""Returns whether each limit switch on the identified device is pressed or not
 
     Each of the four limit switches on the device return either True (pressed)
-    or False (not pressed). Each limit switch is specified with an intger, 
+    or False (not pressed). Each limit switch is specified with an intger,
     either 0, 1, 2, 3.
 
     :param name: A String that identifies the limit switch smart device (contains four limit switches)
-    :returns: A list of boolean values, where True is pressed and False is not pressed. 
+    :returns: A list of boolean values, where True is pressed and False is not pressed.
               The value at index 0 corresponds to limit switch 0, index 1 to switch 1, and so forth.
 
     :Examples:
@@ -530,12 +530,12 @@ def set_flag(name,light0,light1,light2,light3):  #TODO UID convert to int
     def get_all_potentiometers(name):
     \"""Returns the sensor reading of all potentiometers on the specified smart device
 
-    Each potentiometer has an index of either 0,1,2,3. The potentiometer returns 
+    Each potentiometer has an index of either 0,1,2,3. The potentiometer returns
     a decimal between 0 and 1, indicating the angle detected, where 0 and 1
-    are the two extremes. 
+    are the two extremes.
 
     :param name: A string that identifies the potentiometer smart device (contains four potentiometers)
-    :returns: A list of decimals, each number between 0 and 1 representing the angle. Each potentiometer 
+    :returns: A list of decimals, each number between 0 and 1 representing the angle. Each potentiometer
               corresponds to a certain index (0,1,2,3)
 
     \"""

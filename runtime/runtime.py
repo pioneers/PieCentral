@@ -4,7 +4,6 @@ import memcache, ansible, hibike
 from grizzly import *
 import usb
 import os
-from base64 import b64decode
 
 from uid_did_conversions import *
 

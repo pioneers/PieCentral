@@ -36,6 +36,12 @@ while True:
             console_proc.start()
             robotStatus = 1
             print 'Running student code'
+        elif msg_type == 'save' and not robotStatus:
+            with open('student_code.py', 'w+') as f:
+                f.write(msg['content']['code'])
+                f.close()
+            robotStatus = 0
+            print 'Uploading student code'
         elif msg_type == 'stop' and robotStatus:
             student_proc.terminate()
             console_proc.terminate()

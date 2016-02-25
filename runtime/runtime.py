@@ -243,7 +243,7 @@ def msg_handling(msg):
             console_proc.terminate()
             stop_motor()
 
-        os.system('sh ~/updates/update.sh')
+        os.system('sudo restart runtime')
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):

@@ -7,7 +7,11 @@ addons:
 before_install:
 - cd dawn
 install:
+- npm install -g electron-prebuilt
 - npm install
+script:
+- npm run-script build
+- npm start
 notifications:
   slack:
     secure: gcPvQOCwtvw4nUm9PaR5ztgGsXOdNB0MGNshhLkgX/TXAJUWj+6BgrrWi5NkptaOMrvM+2MrDDHW1XqSx2WOpS334EIYIW1gG82QByY9lR5hC9Id4Gqd3BT9Dl9eo3ev5nA1ffMXvgXGgP/VMd7Xjn/OC1iYNCud8dGPSDdzG5s=

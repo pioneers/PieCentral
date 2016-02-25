@@ -35,7 +35,7 @@ if 'HIBIKE_SIMULATOR' in os.environ and os.environ['HIBIKE_SIMULATOR'] in ['1', 
 else:
     h = hibike.Hibike()
 connectedDevices = h.getEnumeratedDevices()    #list of tuples, first val of tuple is UID, second is int Devicetype
-
+uid_to_type = {uid: device_type for (uid, device_type) in connectedDevices}
 # TODO: delay should not always be 50
 h.subToDevices([(device, 50) for (device, device_type) in connectedDevices])
 print(connectedDevices)
@@ -259,14 +259,18 @@ def send_peripheral_data(data):
             'peripheral': {
                 'name': 'sensor_{}'.format(device_id),
                 # TODO: specify the correct sensor type, not SENSOR_BOOLEAN
-                #'peripheralType':h.getDeviceName(uid_to_type[device_id_to_uid(device_id)]),
-                'peripheralType': 'SENSOR_BOOLEAN',
+                'peripheralType':h.getDeviceName(uid_to_type[device_id_to_uid(device_id)]),
+                #'peripheralType': 'SENSOR_BOOLEAN',
                 'value': value,
                 'id': device_id
                 }
             })
 
+def uid_to_device_id(uid, num_devices):
+    return [ str(uid)+str(device_index) for device_index in range(1,1+num_devices)]
 
+def device_id_to_uid(device_id):
+    return device_id[:-1]
 
 
 init_battery()

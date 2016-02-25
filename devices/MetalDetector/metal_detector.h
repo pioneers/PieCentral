@@ -5,13 +5,13 @@
 
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
-  METAL_DETECTOR,        // Device Type
-  0,                     // Year
-  UID_RANDOM,    		 // ID
+  METAL_DETECTOR,                      // Device Type
+  0,                      // Year
+  UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
 
-#define TRIG_PIN IO0
+#define TRIG_PIN 2
 
 // the last stored measurements or over 5*16 measurments
 #define MEASURE_EVERY 5
@@ -21,10 +21,10 @@ hibike_uid_t UID = {
 // function prototypes
 void setup();
 void loop();
+uint32_t getReading();
+void initDetector();
+void initIsr();
+ISR(INT0_vect);
 
-void time_oscillaton();
-
-void calibrate();
-int32_t get_reading();
 
 #endif /* METAL_DET_H */

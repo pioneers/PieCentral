@@ -70,7 +70,7 @@ while True:
         'peripheral': {
             'name':id_to_name['1234'],
             'peripheralType': 'MOTOR_SCALAR',
-            'value': random.randint(-100, 100),
+            'value': random.uniform(-100, 100),
             'id': '1234'
         }
     })
@@ -86,7 +86,7 @@ while True:
         'peripheral': {
             'name':id_to_name['1237'],
             'peripheralType': 'MOTOR_SCALAR',
-            'value': random.uniform(0, 100),
+            'value': random.uniform(-100, 100),
             'id': '1237'
         }
     })
@@ -94,7 +94,7 @@ while True:
         'peripheral': {
             'name':id_to_name['1238'],
             'peripheralType': 'MOTOR_SCALAR',
-            'value': random.uniform(0, 100),
+            'value': random.uniform(-100, 100),
             'id': '1238'
         }
     })
@@ -102,7 +102,7 @@ while True:
         'peripheral': {
             'name':id_to_name['1233'],
             'peripheralType': 'MOTOR_SCALAR',
-            'value': random.uniform(0, 100),
+            'value': random.uniform(-100, 100),
             'id': '1233'
         }
     })
@@ -110,7 +110,7 @@ while True:
         'peripheral': {
             'name':id_to_name['1239'],
             'peripheralType': 'LimitSwitch',
-            'value': random.randint(0, 1),
+            'value': random.randint(-100, 1),
             'id': '1239'
         }
     })

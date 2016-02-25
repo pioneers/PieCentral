@@ -133,6 +133,11 @@ export default React.createClass({
   clearConsole() {
     RobotActions.clearConsole();
   },
+  upload() {
+    Ansible.sendMessage('save', {
+      code: this.state.editorCode
+    });
+  },
   startRobot() {
     Ansible.sendMessage('execute', {
       code: this.state.editorCode
@@ -156,6 +161,7 @@ export default React.createClass({
         buttons: [
           new EditorButton('run', 'Run', this.startRobot, 'play', (this.props.isRunningCode || !this.props.connectionStatus)),
           new EditorButton('stop', 'Stop', this.stopRobot, 'stop', !(this.props.isRunningCode && this.props.connectionStatus)),
+          new EditorButton('upload', 'Upload', this.upload, 'upload', (this.props.isRunningCode || !this.props.connectionStatus)),
           new EditorButton('toggle-console', 'Toggle Console', this.toggleConsole, 'console'),
           new EditorButton('clear-console', 'Clear Console', this.clearConsole, 'remove')
         ]

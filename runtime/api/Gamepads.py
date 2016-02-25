@@ -7,9 +7,8 @@ This module contains functions for getting gamepad data.
 
 To use this module, you must first import it:
 
->>> from api import Gamepads
+>>> from api.Gamepads import *
 '''
-
 
 # Connect to memcache
 import memcache
@@ -48,7 +47,7 @@ def get_joysticks(index):
 
     :Examples:
 
-    >>> axes = Gamepads.get_joysticks(0)
+    >>> axes = get_joysticks(0)
     """
     gamepad_index = mc.get("gamepad")[index]
     assert gamepad_index != None, "gamepad index not found"
@@ -58,8 +57,8 @@ def get_axis(index,axis):
     """Returns the position of a specified joystick.
 
     Each returned value is between -1 and 1, which represents where the joystick
-    is along that axis. In order to get a better sense of
-    the joystick mappings, click the 'Details' button next to a gamepad in Dawn
+    is along that axis. In order to get a better sense of the joystick mappings,
+    click the 'Details' button next to a gamepad in Dawn
     or refer to https://w3c.github.io/gamepad/#remapping.
 
     On a standard gamepad:
@@ -74,10 +73,11 @@ def get_axis(index,axis):
 
     :Examples:
 
-    >>> axis = Gamepads.get_axis(0,Joystick.LEFT_X)
+    >>> axis = get_axis(0,Joystick.LEFT_X)
+    >>> axis = get_axis(1,Joystick.RIGHT_Y)
     """
     gamepad_index = mc.get("gamepad")[str(index)]
-    assert gamepad_index != None, "gamepad index not found"
+    assert gamepad_index != None, "Gamepad index not found"
     return gamepad_index['axes'][axis]
 
 def get_all_buttons(index):
@@ -93,7 +93,7 @@ def get_all_buttons(index):
 
     :Examples:
 
-    >>> all_buttons = Gamepads.get_all_buttons(0)
+    >>> all_buttons = get_all_buttons(0)
     >>> all_buttons[1]
     True
 
@@ -106,18 +106,18 @@ def get_all_buttons(index):
 def get_button(index,button):
     """Returns whether a button is pressed or not.
 
-    For a specific button (each button has has a number) the output is either
+    For a specific button (each button has has a name) the output is either
     True (pressed) or False (not pressed). To see the exact mapping, click on
     the 'Details' button next to a gamepad in Dawn, or refer to
     https://w3c.github.io/gamepad/#remapping.
 
     :param index: The index of the gamepad, usually 0, 1, 2, or 3
-    :param button: Enum of button, see api documentation for more details
+    :param button: Enum of button (e.g. Button.Y), see documentation for more details
     :returns: A boolean either True (pressed) or False (not pressed)
 
     :Examples:
 
-    >>> button = Gamepads.get_button(0,Button.Y)
+    >>> button = get_button(0,Button.Y)
     >>> button
     False
 

@@ -45,18 +45,8 @@ while True:
             sensor_id = msg['content']['id']
             id_to_name[sensor_id] = msg['content']['name']
         elif msg_type == 'update':
-            update = b64decode(msg['content']['update'])
-            signature = b64decode(msg['content']['signature'])
-            filename = msg['content']['filename']
-            signature_filename = filename + '.asc'
-            update_f = open(filename, 'wb')
-            update_f.write(bytearray(update))
-            update_f.flush()
-            update_f.close()
-            signature_f = open(signature_filename, 'wb')
-            signature_f.write(bytearray(signature))
-            signature_f.flush()
-            signature_f.close()
+            print msg['content']['update_path']
+            print msg['content']['signature_path']
 
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {

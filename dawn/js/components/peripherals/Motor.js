@@ -2,13 +2,19 @@
  * A component representing a motor.
  * Props:
  *   id: a unique id string
- *   value: the speed, from 0 to 100.
+ *   value: the speed, from -100 to 100.
  *   disconnected: Boolean indicator if this motor is disconnected
  */
 
 import React from 'react';
 import {Label} from 'react-bootstrap';
 import NameEdit from './NameEdit';
+
+var _roundMotor = function(num) {
+  if (num > 0) {
+    return "+" + (Math.round(num * 100) / 100);
+  } else return (Math.round(num * 100) / 100);
+};
 
 var Motor = React.createClass({
   propTypes: {
@@ -24,7 +30,7 @@ var Motor = React.createClass({
         {
           this.props.disconnected
           ? <Label bsStyle='danger'>Disconnected</Label>
-          : Math.round(this.props.value * 100) / 100
+          : (this.props.value > 0) ? "+" + (Math.round(this.props.value * 100) / 100):(Math.round(this.props.value * 100) / 100)
         }
         </h4>
       </div>

@@ -106,14 +106,14 @@ def get_all_buttons(index):
 def get_button(index,button):
     """Returns whether a button is pressed or not.
 
-    For a specific button (each button has has a number) the output is either 
-    True (pressed) or False (not pressed). To see the exact mapping, click on 
-    the 'Details' button next to a gamepad in Dawn, or refer to 
+    For a specific button (each button has has a number) the output is either
+    True (pressed) or False (not pressed). To see the exact mapping, click on
+    the 'Details' button next to a gamepad in Dawn, or refer to
     https://w3c.github.io/gamepad/#remapping.
 
     :param index: The index of the gamepad, usually 0, 1, 2, or 3
     :param button: Enum of button, see api documentation for more details
-    :returns: A boolean either True (pressed) or False (not pressed) 
+    :returns: A boolean either True (pressed) or False (not pressed)
 
     :Examples:
 

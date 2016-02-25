@@ -109,8 +109,8 @@ while True:
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
             'name':id_to_name['1239'],
-            'peripheralType': 'MOTOR_SCALAR',
-            'value': random.uniform(0, 100),
+            'peripheralType': 'LimitSwitch',
+            'value': random.randint(0, 1),
             'id': '1239'
         }
     })

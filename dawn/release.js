@@ -1,10 +1,10 @@
 var minimist = require('minimist');
 var packager = require('electron-packager');
-var exec = require('child_process').exec;
+var execSync = require('child_process').execSync;
 
 function build() {
   console.log('Packaging with webpack, using the production config');
-  var child = exec('npm run-script build', function(err, stdout, stderr) {
+  var child = execSync('npm run-script build', function(err, stdout, stderr) {
     console.log('stderr: ', stderr);
     if (err !== null) {
       console.log('error: ', err);
@@ -12,10 +12,10 @@ function build() {
   });
 }
 
-function pack(all, platform, arch, prune) {
+function pack(prod, platform, arch) {
   var opts = {}; //packaging options
 
-  if (all) {
+  if (prod) {
     console.log('Packaging for all platforms');
     opts.all = true; // build for all platforms and arch
   } else {
@@ -23,20 +23,34 @@ function pack(all, platform, arch, prune) {
     opts.platform = platform;
     opts.arch = arch;
   }
-  opts.dir = '.'; // source dir
+
+  opts.dir = __dirname; // source dir
   opts.name = 'dawn';
-  opts.prune = prune; //remove dev dependencies
+  opts.prune = true; //remove dev dependencies
   opts.icon = './icons/icon';
+  opts.version = '0.36.2';
+  opts.out = '../..'
+
+  packager(opts, function(err, appPath) {
+    if (err) {
+      console.log('Packaging error: ', err);
+    } else {
+      console.log(appPath);
+    }
+  });
 }
 
+// General release command: 'node release.js --prod'.
+// If you already ran build: 'node release.js --prod --prebuilt'
+// For a specific target: 'node release.js --platform=... --arch=...'
 function main() {
   var argv = minimist(process.argv.slice(2));
 
-  if (argv.build) {
+  if (!argv.prebuilt) {
     build();
   }
 
-  pack(argv.all, argv.platform, argv.arch, argv.prune);
+  pack(argv.prod, argv.platform, argv.arch);
 }
 
 main();

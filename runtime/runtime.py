@@ -212,7 +212,7 @@ def log_output(stream):
 def msg_handling(msg):
     global robot_status, student_proc, console_proc
     msg_type, content = msg['header']['msg_type'], msg['content']
-    if msg_type == 'execute' and not robot_status:
+    if msg_type == 'save' and not robot_status:
         filename = "student_code/student_code.py"
         if not os.path.exists(os.path.dirname(filename)):
             try:
@@ -220,8 +220,9 @@ def msg_handling(msg):
             except OSError as exc: # Guard against race condition
                 if exc.errno != errno.EEXIST:
                     raise
-        with open('student_code/student_code.py', 'w+') as f:
+        with open(filename, 'w+') as f:
             f.write(msg['content']['code'])
+    elif msg_type == 'execute' and not robot_status:
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend

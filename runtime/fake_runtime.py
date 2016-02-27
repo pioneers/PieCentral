@@ -110,7 +110,7 @@ while True:
         'peripheral': {
             'name':id_to_name['1239'],
             'peripheralType': 'LimitSwitch',
-            'value': random.randint(-100, 1),
+            'value': random.randint(0, 1),
             'id': '1239'
         }
     })

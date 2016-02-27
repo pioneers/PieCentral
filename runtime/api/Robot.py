@@ -430,8 +430,6 @@ def get_PID_constants():
 
 def _testConnected(device_id): #checks if data exists in sensor values, throws error if doesn't
     all_data = mc.get('sensor_values')
-    print(device_id)
-    print(all_data)
     try:
         return all_data[device_id]
     except KeyError:

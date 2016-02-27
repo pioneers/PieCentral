@@ -99,7 +99,6 @@ def get_all_buttons(index):
 
     """
     gamepad_index = mc.get("gamepad")[str(index)]
-    print(gamepad_index)
     assert gamepad_index != None, "gamepad index not found"
     return [x == 1 for x in gamepad_index['buttons']]
 

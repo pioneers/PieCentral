@@ -156,7 +156,7 @@ def init_flag():
         print("WARNING: no team flag found")
 
 
-flag_debounce = [False, False, False, False]
+flag_debounce = None
 def set_flag(values):
     global flag_debounce
     if flag_UID is None:

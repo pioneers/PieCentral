@@ -42,6 +42,10 @@ def ansible_server(send_queue, recv_queue):
     app = Flask(__name__)
     socketio = SocketIO(app)
 
+    @app.route('/restart')
+    def do_restart():
+        os.system("sudo restart runtime")
+
     @app.route('/upload', methods=['POST'])
     def upload_file():
         if request.method == 'POST':

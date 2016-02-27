@@ -1,6 +1,6 @@
+from ansible_server import ansible_server
 from multiprocessing import Process, Queue
 from Queue import Empty
-from ansible_server import ansible_server
 
 # DON'T USE THIS UNLESS YOU KNOW WHAT YOU'RE DOING
 # Low level message sending. For high level messaging, use send_msg.

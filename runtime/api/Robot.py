@@ -15,8 +15,6 @@ import memcache
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
 
-from uid_did_conversions import *
-
 motor = {}
 
 def _lookup(name):
@@ -96,7 +94,7 @@ def set_LED(name,value):
     """
     device_id = _lookup(name)
     assert value in range(4),"Value must be an enum"
-    flag_data = [device_id_to_uid(device_id)] + [-1,-1,-1,-1]
+    flag_data = [device_id] + [-1,-1,-1,-1]
     flag_data[name[0]] = value
     mc.set('flag_values', flag_data)
 
@@ -116,9 +114,7 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     """
     assert value in range(181), "Servo degrees must be between 0 and 180"
     device_id = _lookup(name)
-    print(device_id)
-    servo_data = [device_id_to_uid(device_id)] + [-1,-1,-1,-1]
-    print(device_id_to_uid(device_id))
+    servo_data = [device_id] + [-1,-1,-1,-1]
     # TODO: Sets all servos because we're too lazy to figure out which one it is
     print(servo_data[0])
     for i in range(1, 5):

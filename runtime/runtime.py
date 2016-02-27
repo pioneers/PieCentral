@@ -5,8 +5,6 @@ from grizzly import *
 import usb
 import os
 
-from uid_did_conversions import *
-
 #connect to memcache
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
@@ -39,6 +37,12 @@ uid_to_type = {uid: device_type for (uid, device_type) in connectedDevices}
 # TODO: delay should not always be 50
 h.subToDevices([(device, 50) for (device, device_type) in connectedDevices])
 print(connectedDevices)
+
+def uid_to_device_id(uid, num_devices):
+    return [ str(uid)+str(device_index) for device_index in range(1,1+num_devices)]
+
+def device_id_to_uid(device_id):
+    return int(device_id[:-1])
 
 def init_battery():
     global battery_UID
@@ -74,13 +78,13 @@ def set_flags(values):
                 light = -64
             elif light == 3:
                 light = -128
-            h.writeValue(int(values[0]), "s" + str(i), light)
+            h.writeValue(uid_to_device_id(values[0]), "s" + str(i), light)
 
 def set_servos(values):
     for i in range(1,len(values)):
         if values[i] != -1:
             print("writing hibike with: " + values[0])
-            h.writeValue(int(values[0]),"servo" + str(i), values[i])
+            h.writeValue(uid_to_device_id(values[0]),"servo" + str(i), values[i])
     mc.set("servo_value",[])
 
 def drive_set_distance(list_tuples):
@@ -265,13 +269,6 @@ def send_peripheral_data(data):
                 'id': device_id
                 }
             })
-
-def uid_to_device_id(uid, num_devices):
-    return [ str(uid)+str(device_index) for device_index in range(1,1+num_devices)]
-
-def device_id_to_uid(device_id):
-    return int(device_id[:-1])
-
 
 init_battery()
 while True:

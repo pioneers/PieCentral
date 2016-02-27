@@ -11,6 +11,7 @@ import os
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
+mc.set('motor_values', {})
 mc.set('servo_values', {})
 mc.set('flag_values', [False, False, False, False])
 mc.set('PID_constants',[("P", 1), ("I", 0), ("D", 0)])
@@ -332,12 +333,14 @@ def msg_handling(msg):
                     raise
         with open('student_code/student_code.py', 'w+') as f:
             f.write(msg['content']['code'])
+
+        enumerate_motors()
+
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend
         lines_iter = iter(student_proc.stdout.readline, b'')
         # start process for watching for student code output
-        enumerate_motors()
         robot_status= 1
         console_proc = Thread(target=log_output,
                               args=(lines_iter,))

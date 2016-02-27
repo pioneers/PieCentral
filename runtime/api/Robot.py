@@ -68,12 +68,10 @@ def set_motor(name, value):
     assert value <= 1 and value >= -1, "Motor value must be a decimal between -1 and 1 inclusive."
     name = _lookup(name)
     name_to_value = mc.get('motor_values')
-    try:
-        name_to_value[name] = value*100
-        mc.set('motor_values', name_to_value)
-    except KeyError:
+    if name not in name_to_value:
         raise KeyError("No motor with that name")
-
+    name_to_value[name] = value*100
+    mc.set('motor_values', name_to_value)
 
 def get_sensor(name):
     """Returns the value, or reading corresponding to the specified sensor.

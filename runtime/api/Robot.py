@@ -17,7 +17,20 @@ mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
 
 motor = {}
 
+_naming_map_filename = 'student_code/CustomID.txt'
+_name_to_id = {}
+try:
+    with open(_naming_map_filename, "r") as f:
+        for line in f.readlines():
+            line = line.strip()
+            device_id, name = line.split(" ", 1)
+            _name_to_id[name] = device_id
+except:
+    print("Could not read naming map")
+
 def _lookup(name):
+    if name in _name_to_id:
+        return _name_to_id[name]
     return name
 
 def get_motor(name):
@@ -31,6 +44,7 @@ def get_motor(name):
     >>> motor = Robot.get_motor(motor1)
 
     """
+    name = _lookup(name)
     name_to_value = mc.get('motor_values')
     assert type(name) is str, "Type Mismatch: Must pass in a string"
     try:
@@ -52,6 +66,7 @@ def set_motor(name, value):
     assert type(name) is str, "Type Mismatch: Must pass in a string to name."
     assert type(value) is int or type(value) is float, "Type Mismatch: Must pass in an integer or float to value."
     assert value <= 1 and value >= -1, "Motor value must be a decimal between -1 and 1 inclusive."
+    name = _lookup(name)
     name_to_value = mc.get('motor_values')
     try:
         name_to_value[name] = value*100

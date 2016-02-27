@@ -31,6 +31,7 @@ else:
 #####
 student_proc, console_proc = None, None
 robot_status = 0 # a boolean for whether or not the robot is executing
+naming_map_filename = 'student_code/CustomID.txt'
 
 #####
 # Constant mappings for student code info
@@ -50,6 +51,8 @@ PID_constants = {"P": 1, "I": 0, "D": 0}
 #####
 connectedDevices = [] #list of tuples, first val of tuple is UID, second is int Devicetype
 uid_to_type = {}
+id_to_name = {}
+
 def enumerate_hibike():
     global connectedDevices, uid_to_type
     connectedDevices = h.getEnumeratedDevices()
@@ -69,6 +72,44 @@ def device_id_to_uid(device_id):
 
 def device_id_to_index(device_id):
     return int(device_id[-1:]) - 1
+
+def read_naming_map():
+    global id_to_name, naming_map_filename
+
+    if not os.path.exists(naming_map_filename):
+        return
+
+    with open(naming_map_filename, "r") as f:
+        for line in f.readlines():
+            line = line.strip()
+            device_id, name = line.split(" ", 1)
+            id_to_name[device_id] = name
+
+def write_naming_map():
+    global id_to_name, naming_map_filename
+    if not os.path.exists(os.path.dirname(naming_map_filename)):
+        try:
+            os.makedirs(os.path.dirname(naming_map_filename))
+        except OSError as exc: # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+
+    with open(naming_map_filename, "w") as f:
+        for id, name in id_to_name.items():
+            f.write(id + " " + name + "\n")
+
+def device_id_set_name(device_id, name):
+    id_to_name[device_id] = name
+    write_naming_map()
+
+def device_id_get_name(device_id):
+    if device_id not in id_to_name:
+        if device_id.startswith('motor'):
+            device_id_set_name(device_id, device_id)
+        else:
+            device_id_set_name(device_id, 'sensor_' + device_id)
+
+    return id_to_name[device_id]
 
 def get_all_data(connectedDevices):
     all_data = {}
@@ -310,6 +351,8 @@ def msg_handling(msg):
             stop_motor()
 
         os.system('sudo restart runtime')
+    elif msg_type == 'custom_names':
+        device_id_set_name(msg['content']['id'], msg['content']['name'])
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):
@@ -323,7 +366,7 @@ def send_peripheral_data(data):
     for device_id, value in data.items():
         ansible.send_message('UPDATE_PERIPHERAL', {
             'peripheral': {
-                'name': 'sensor_{}'.format(device_id),
+                'name': device_id_get_name(device_id),
                 'peripheralType':h.getDeviceName(uid_to_type[device_id_to_uid(device_id)]),
                 'value': value,
                 'id': device_id
@@ -340,13 +383,14 @@ def send_motor_data(data):
     for name, value in data.items():
         ansible.send_message('UPDATE_PERIPHERAL', {
             'peripheral': {
-                'name': name,
+                'name': device_id_get_name(name),
                 'peripheralType':'MOTOR_SCALAR',
                 'value': value,
                 'id': name
             }
         })
 
+read_naming_map()
 enumerate_hibike()
 while True:
     battery_safe = test_battery()

@@ -170,7 +170,11 @@ export default React.createClass({
   },
   pathToName(filepath) {
     if (filepath !== null) {
-      return filepath.split('/').pop();
+      if (process.platform === 'win32') {
+        return filepath.split('\\').pop();
+      } else {
+        return filepath.split('/').pop();
+      }
     } else {
       return '[ New File ]';
     }
@@ -218,6 +222,7 @@ export default React.createClass({
           mode="python"
           theme={ this.state.editorTheme }
           width="100%"
+          fontSize={14}
           ref="CodeEditor"
           name="CodeEditor"
           height={String(

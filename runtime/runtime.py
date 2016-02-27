@@ -166,7 +166,7 @@ def set_flag(values):
         return
     flag_debounce = values
 
-    for field, value in zip(["s0", "s1", "s2", "s3"], values):
+    for field, value in zip(["s1", "s2", "s3", "s4"], values):
         h.writeValue(flag_UID, field, int(value))
 
 #####

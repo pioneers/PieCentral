@@ -29,6 +29,7 @@
     "params": [
         "dataUpdate",
         "IntegrationTime",
-        "Gain"
+        "Gain",
+        "Toggle"
     ]
 }

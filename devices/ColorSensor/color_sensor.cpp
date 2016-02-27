@@ -4,9 +4,12 @@
 tcs34725IntegrationTime_t it = DEFAULT_INTEGRATION_TIME;
 tcs34725Gain_t gain = DEFAULT_GAIN;
 Adafruit_TCS34725 tcs;
+volatile uint32_t toggle = 1; // 0 means LED light off, 1 means on
+
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
   tcs = Adafruit_TCS34725(it, gain);
+  pinMode(TOGGLE_PIN, OUTPUT);
   hibike_setup();
 }
 
@@ -40,6 +43,16 @@ uint32_t device_update(uint8_t param, uint32_t value) {
       return gain;
       break;
 
+    case TOGGLE:
+      toggle = value;
+      if (toggle == 1) {
+        digitalWrite(TOGGLE_PIN, HIGH);
+      } else if (toggle == 0) {
+        digitalWrite(TOGGLE_PIN, LOW);
+      }
+      return toggle;
+      break;
+
     default:
       return ~((uint32_t) 0);
 
@@ -59,6 +72,10 @@ uint32_t device_status(uint8_t param) {
 
     case GAIN:
       return gain;
+      break;
+
+    case TOGGLE:
+      return toggle;
       break;
 
     default:

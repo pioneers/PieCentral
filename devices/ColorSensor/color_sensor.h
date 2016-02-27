@@ -6,6 +6,8 @@
 
 #define DEFAULT_INTEGRATION_TIME TCS34725_INTEGRATIONTIME_50MS
 #define DEFAULT_GAIN TCS34725_GAIN_4X
+
+#define TOGGLE_PIN IO2
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
   COLOR_SENSOR,                      // Device Type
@@ -15,11 +17,12 @@ hibike_uid_t UID = {
 ///////////////////////////////////////////////
 typedef enum {
   INTEGRATION_TIME,
-  GAIN
+  GAIN,
+  TOGGLE
 } param;
 
 
-#define NUM_PARAMS 6
+#define NUM_PARAMS 7
 
 
 // function prototypes

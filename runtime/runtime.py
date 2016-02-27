@@ -1,4 +1,5 @@
 import subprocess, multiprocessing, time
+from threading import Thread
 import memcache, ansible, hibike
 from grizzly import *
 import usb
@@ -308,8 +309,10 @@ def set_PID(constants):
 def log_output(stream):
     #TODO: figure out a way to limit speed of sending messages, so
     # ansible is not overflowed by printing too fast
-    return # HACK to work around console issue: don't have a console!
     for line in stream:
+        if robot_status == 0:
+            return
+        time.sleep(0.05)
         ansible.send_message('UPDATE_CONSOLE', {
             'console_output': {
                 'value': line
@@ -334,21 +337,22 @@ def msg_handling(msg):
         # turns student process stdout into a stream for sending to frontend
         lines_iter = iter(student_proc.stdout.readline, b'')
         # start process for watching for student code output
-        console_proc = multiprocessing.Process(target=log_output, args=(lines_iter,))
-        console_proc.start()
         enumerate_motors()
         robot_status= 1
+        console_proc = Thread(target=log_output,
+                              args=(lines_iter,))
+        console_proc.start()
     elif msg_type == 'stop' and robot_status:
         student_proc.terminate()
-        console_proc.terminate()
+        # console_proc.terminate()
         stop_motors()
         robot_status = 0
     elif msg_type == 'update':
         #initiate necessary shutdown procedures
         if robot_status:
             student_proc.terminate()
-            console_proc.terminate()
-            stop_motor()
+            # console_proc.terminate()
+            stop_motors()
 
         os.system('sudo restart runtime')
     elif msg_type == 'custom_names':

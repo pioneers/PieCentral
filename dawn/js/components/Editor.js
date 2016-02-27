@@ -222,6 +222,7 @@ export default React.createClass({
           mode="python"
           theme={ this.state.editorTheme }
           width="100%"
+          fontSize={14}
           ref="CodeEditor"
           name="CodeEditor"
           height={String(

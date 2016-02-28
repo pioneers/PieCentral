@@ -52,10 +52,19 @@ app.on('ready', function() {
 
   mainWindow.loadURL('file://' + __dirname + '/static/index.html');
   if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.openDevTools(); // Open dev tools
+    // Open dev tools on startup in dev environment.
+    mainWindow.webContents.openDevTools();
   }
   mainWindow.on('closed', function() {
     mainWindow = null;
+  });
+
+  // Add open devtools option to main menu.
+  template[0].submenu.unshift({
+    label: 'Open DevTools',
+    click: function() {
+      mainWindow.webContents.openDevTools();
+    }
   });
 
   let menu = Menu.buildFromTemplate(template);

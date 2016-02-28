@@ -158,7 +158,6 @@ def test_battery():
     try:
         (safe, connected, c0, c1, c2, voltage), timestamp = h.getData(battery_UID,"dataUpdate")
     except:
-        raise
         safe, voltage = False, 0.0
 
     ansible.send_message('UPDATE_BATTERY', {
@@ -313,7 +312,7 @@ def log_output(stream):
     for line in stream:
         if robot_status == 0:
             return
-        time.sleep(0.05)
+        time.sleep(0.005)
         ansible.send_message('UPDATE_CONSOLE', {
             'console_output': {
                 'value': line
@@ -402,6 +401,10 @@ enumerate_hibike()
 while True:
     battery_safe = test_battery()
     if not battery_safe:
+        if robot_status:
+            student_proc.terminate()
+            stop_motors()
+            robot_status = 0
         for _ in range(10):
             ansible.send_message('UPDATE_STATUS', {
                 'status': {'value': False}

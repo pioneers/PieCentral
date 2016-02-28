@@ -232,7 +232,12 @@ def enumerate_motors():
         grizzly_motor = Grizzly(addrs[index])
         grizzly_motor.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
         grizzly_motor.set_target(0)
-        grizzly_motor._set_as_int(0x80, 500, 2)
+        
+        # enable usb mode disables timeouts, so we have to disable it to enable timeouts.
+        grizzly_motor._set_as_int(Addr.EnableUSB, 0, 1)
+        
+        # set the grizzly timeout to 500 ms
+        grizzly_motor._set_as_int(Addr.Timeout, 500, 2)
 
         name_to_grizzly['motor' + str(index)] = grizzly_motor
         name_to_values['motor' + str(index)] = 0

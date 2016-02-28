@@ -67,6 +67,17 @@ app.on('ready', function() {
     }
   });
 
+  // In development mode, allow quick reloading to see effects of code changes.
+  if (process.env.NODE_ENV === 'development') {
+    template[0].submenu.unshift({
+      label: 'Reload',
+      accelerator: 'CommandOrControl+R',
+      click: function() {
+        mainWindow.reload();
+      }
+    });
+  }
+
   let menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
 });

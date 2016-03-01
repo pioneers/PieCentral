@@ -18,6 +18,7 @@ mc.set('PID_constants',[("P", 1), ("I", 0), ("D", 0)])
 mc.set('control_mode', ["default", "all"])
 mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
+mc.set('metal_detector_calibrate', False)
 
 #####
 # Connect to hibike
@@ -211,6 +212,13 @@ def set_flag(values):
 
     for field, value in zip(["s1", "s2", "s3", "s4"], values):
         h.writeValue(flag_UID, field, int(value))
+
+def metal_d_calibrate(metalID):
+    cal_value = random.randint(-1000, 1000)
+    h.writeValue(metalID, "calibrate", cal_value)
+    #TODO implement checking and a while loop so we know it is calibrated
+    mc.set("metal_detector_calibrate", None)
+
 
 #####
 # Motors
@@ -423,6 +431,10 @@ while True:
     all_sensor_data = get_all_data(connectedDevices)
     send_peripheral_data(all_sensor_data)
     mc.set('sensor_values', all_sensor_data)
+
+    md_calibrate = mc.get('metal_detector_calibrate')
+    if md_calibrate:
+        metal_d_calibrate(md_calibrate)
 
     # Update motor values, and send to UI
     motor_values = mc.get('motor_values') or {}

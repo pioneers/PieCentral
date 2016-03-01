@@ -1,0 +1,27 @@
+{
+    "deviceID": "0x0001",
+    "deviceName": "LineFollower",
+    "dataFormat": {
+        "formatString": "<HHH",
+        "parameters": [
+            {
+                "scalingFactor": 204.6,
+                "machineName": "value0",
+                "humanName": "Sensor 0"
+            },
+            {
+                "scalingFactor": 204.6,
+                "machineName": "value1",
+                "humanName": "Sensor 1"
+            },
+            {
+                "scalingFactor": 204.6,
+                "machineName": "value2",
+                "humanName": "Sensor 2"
+            },
+        ]
+    },
+    "params": [
+        "dataUpdate"
+    ]
+}

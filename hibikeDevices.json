@@ -36,27 +36,22 @@
             "deviceID": "0x0001",
             "deviceName": "LineFollower",
             "dataFormat": {
-                "formatString": "<????",
+                "formatString": "<HHH",
                 "parameters": [
                     {
-                        "scalingFactor": 1.0,
+                        "scalingFactor": 204.6,
                         "machineName": "value0",
-                        "humanName": "Switch 0"
+                        "humanName": "Left Sensor"
                     },
                     {
-                        "scalingFactor": 1.0,
+                        "scalingFactor": 204.6,
                         "machineName": "value1",
-                        "humanName": "Switch 1"
+                        "humanName": "Middle Sensor"
                     },
                     {
-                        "scalingFactor": 1.0,
+                        "scalingFactor": 204.6,
                         "machineName": "value2",
-                        "humanName": "Switch 2"
-                    },
-                    {
-                        "scalingFactor": 1.0,
-                        "machineName": "value3",
-                        "humanName": "Switch 3"
+                        "humanName": "Right Sensor"
                     }
                 ]
             },

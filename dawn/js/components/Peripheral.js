@@ -19,6 +19,12 @@ var typesToComponents = {};
 typesToComponents[PeripheralTypes.MOTOR_SCALAR] = Motor;
 typesToComponents[PeripheralTypes.SENSOR_BOOLEAN] = BooleanSensor;
 typesToComponents[PeripheralTypes.SENSOR_SCALAR] = ScalarSensor;
+typesToComponents[PeripheralTypes.LimitSwitch] = BooleanSensor;
+typesToComponents[PeripheralTypes.LineFollower] = ScalarSensor;
+typesToComponents[PeripheralTypes.Potentiometer] = ScalarSensor;
+typesToComponents[PeripheralTypes.Encoder] = ScalarSensor;
+//typesToComponents[PeripheralTypes.ColorSensor] = ;
+typesToComponents[PeripheralTypes.MetalDetector] = BooleanSensor;
 
 
 var Peripheral = React.createClass({

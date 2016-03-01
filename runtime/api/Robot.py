@@ -259,16 +259,18 @@ def get_metal_detector(name): #TODO metal detector Implementation
     """
     name = _lookup(name)
     return _testConnected(name)
-"""
+
 def calibrate_metal_detector(name): #TODO ask hibike
-    \"""Calibrates the specified metal sensor
+    """Calibrates the specified metal sensor
 
     Calibrates to set the current reading of the metal detector to air (0)
 
     :param name: A String that identifies the metal detector smart device.
-   \"""
-    return null
-"""
+    """
+    name = _lookup(name)
+    mc.set("metal_detector_calibrate",[name,True])
+
+
 """
 def get_all_reflecting(name): #TODO hibike implement
     \"""Returns how much light is reflected onto the sensor_values

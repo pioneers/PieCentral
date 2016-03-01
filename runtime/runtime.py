@@ -11,14 +11,15 @@ import os
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
-mc.set('motor_values', {})
-mc.set('servo_values', {})
+mc.set('motor_values', [])
+mc.set('servo_values', [])
 mc.set('flag_values', [False, False, False, False])
 mc.set('PID_constants',[("P", 1), ("I", 0), ("D", 0)])
 mc.set('control_mode', ["default", "all"])
 mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
-mc.set('metal_detector_calibrate', False)
+mc.set('metal_detector_calibrate', [False,False])
+calibrate_val = 1
 
 #####
 # Connect to hibike
@@ -215,9 +216,12 @@ def set_flag(values):
 
 def metal_d_calibrate(metalID):
     cal_value = random.randint(-1000, 1000)
-    h.writeValue(metalID, "calibrate", cal_value)
+    global calibrate_val
+    while h.getData(metalID, "calibrate") != calibrate_val:
+        h.writeValue(metalID, "calibrate", calibrate_val)
+    calibrate_val += 1
     #TODO implement checking and a while loop so we know it is calibrated
-    mc.set("metal_detector_calibrate", None)
+    mc.set("metal_detector_calibrate", [False,False])
 
 
 #####
@@ -438,8 +442,8 @@ while True:
     mc.set('sensor_values', all_sensor_data)
 
     md_calibrate = mc.get('metal_detector_calibrate')
-    if md_calibrate:
-        metal_d_calibrate(md_calibrate)
+    if md_calibrate[1]:
+        metal_d_calibrate(md_calibrate[0])
 
     # Update motor values, and send to UI
     motor_values = mc.get('motor_values') or {}

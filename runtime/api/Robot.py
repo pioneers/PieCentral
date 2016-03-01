@@ -10,6 +10,7 @@ manipulating the robot.
 To use this module, you must first import it:
 
 >>> from api import Robot
+>>> from api.Robot import *
 '''
 import memcache
 memcache_port = 12357
@@ -30,7 +31,7 @@ def get_motor(name):
 
     :Examples:
 
-    >>> motor = Robot.get_motor(motor1)
+    >>> motor = get_motor(motor1)
 
     """
     name_to_value = mc.get('motor_values')
@@ -48,7 +49,7 @@ def set_motor(name, value):
 
     :Examples:
 
-    >>> Robot.set_motor("motor1", .50)
+    >>> set_motor("motor1", .50)
 
     """
     assert type(name) is str, "Type Mismatch: Must pass in a string to name."
@@ -91,8 +92,8 @@ def set_LED(name,value):
 
     :Examples:
 
-    >>> Robot.set_LED("flag12",Flag.OFF)
-    >>> Robot.set_LED("flag1",Flag.LOW)
+    >>> set_LED("flag12",Flag.OFF)
+    >>> set_LED("flag1",Flag.LOW)
     """
     device_id = _lookup(name)
     assert value in range(4),"Value must be an enum"
@@ -110,8 +111,8 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
 
     :Examples:
 
-    >>> Robot.set_servo("servo1",90)
-    >>> Robot.set_servo("servo3",150)
+    >>> set_servo("servo1",90)
+    >>> set_servo("servo3",150)
 
     """
     assert value in range(181), "Servo degrees must be between 0 and 180"
@@ -141,7 +142,7 @@ def get_color_sensor(name):
 
     :Examples:
 
-    >>> color = Robot.get_color_sensor("color1",1)
+    >>> color = get_color_sensor("color1",1)
     >>> color
     0.873748
 
@@ -160,7 +161,7 @@ def get_luminosity(name):
 
     :Examples:
 
-    >>> Robot.get_luminosity("color1")
+    >>> get_luminosity("color1")
     0.89783
 
     """
@@ -179,7 +180,7 @@ def get_hue(name):
 
     :Examples:
 
-    >>> hue = Robot.get_hue("color1")
+    >>> hue = get_hue("color1")
     >>> hue
     254.01
 
@@ -208,7 +209,7 @@ def get_distance_sensor(name):
 
     :Examples:
 
-    >>> distance = Robot.get_distance_sensor("distance1")
+    >>> distance = get_distance_sensor("distance1")
 
     """
     device_id = _lookup(name)
@@ -225,7 +226,7 @@ def get_limit_switch(name):
 
     :Examples:
 
-    >>> switch = Robot.get_limit_switch("switch1",3)
+    >>> switch = get_limit_switch("switch1",3)
     >>> switch
     True
 
@@ -246,27 +247,28 @@ def get_potentiometer(name):
     device_id = _lookup(name)
     return _testConnected(device_id)
 
-"""def get_metal_detector(name): #TODO metal detector Implementation
-    \"""Returns the sensor reading of the specified metal detector
+def get_metal_detector(name): #TODO metal detector Implementation
+    """Returns the sensor reading of the specified metal detector
 
     Each metal detector returns an integer, which changes based on the prescence of metal.
 
     :param name: A String that identifies the metal detector smart device.
     :returns: An integer (large) which represents whether metal is detected or not.
 
-    \"""
+    """
     name = _lookup(name)
     return _testConnected(name)
-
+"""
 def calibrate_metal_detector(name): #TODO ask hibike
     \"""Calibrates the specified metal sensor
 
     Calibrates to set the current reading of the metal detector to air (0)
 
     :param name: A String that identifies the metal detector smart device.
-    \"""
+   \"""
     return null
-
+"""
+"""
 def get_all_reflecting(name): #TODO hibike implement
     \"""Returns how much light is reflected onto the sensor_values
 
@@ -445,6 +447,10 @@ class Flag:
     HIGH = 3
 
 # pololu.com. 19:1 and 67:1 motors 37D motors geared. Be able to change PID constants. Move and stay - set point. once it is called again, reset and redo function.
+
+def _get_all():
+    return mc.get('sensor_values')
+
 
 """Old functions
 

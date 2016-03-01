@@ -1,0 +1,1 @@
+Search.setIndex({envversion:47,filenames:["api","index"],objects:{},objnames:{},objtypes:{},terms:{content:1},titles:["Gamepads module","Welcome to the PiE Robot API documentation!"],titleterms:{api:1,document:1,gamepad:0,modul:0,pie:1,robot:[0,1],welcom:1}})

@@ -121,7 +121,7 @@ def get_button(index,button):
     False
 
     """
-    return get_all_buttons(index)[button] == 1;
+    return get_all_buttons(index)[button] == 1
 
 def get_is_connected(index):
     """Returns whether or not the specified gamepad is connected.

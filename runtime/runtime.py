@@ -245,11 +245,10 @@ def enumerate_motors():
         grizzly_motor.set_target(0)
         
         # enable usb mode disables timeouts, so we have to disable it to enable timeouts.
-        grizzly_motor._set_as_int(Addr.EnableUSB, 0, 1)
+        #grizzly_motor._set_as_int(Addr.EnableUSB, 0, 1)
         
         # set the grizzly timeout to 500 ms
-        grizzly_motor._set_as_int(Addr.Timeout, 500, 2)
-
+        #grizzly_motor._set_as_int(Addr.Timeout, 500, 2)
         name_to_grizzly['motor' + str(index)] = grizzly_motor
         name_to_values['motor' + str(index)] = 0
         name_to_modes['motor' + str(index)] = (ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
@@ -257,6 +256,7 @@ def enumerate_motors():
     mc.set('motor_values', name_to_values)
 
 def set_motors(data):
+    print("setting motors with: " , data)
     for name, value in data.items():
         grizzly = name_to_grizzly[name]
         try:
@@ -447,6 +447,7 @@ while True:
     # Update motor values, and send to UI
     motor_values = mc.get('motor_values') or {}
     send_motor_data(motor_values)
+    print("motor values", motor_values)
     if robot_status:
         set_motors(motor_values)
 

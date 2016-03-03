@@ -35,6 +35,11 @@ let template = [
         role: 'paste'
       }
     ]
+  },
+  {
+    label: 'Developer',
+    submenu: [
+    ]
   }
 ];
 
@@ -51,25 +56,22 @@ app.on('ready', function() {
   mainWindow.maximize();
 
   mainWindow.loadURL('file://' + __dirname + '/static/index.html');
-  if (process.env.NODE_ENV === 'development') {
-    // Open dev tools on startup in dev environment.
-    mainWindow.webContents.openDevTools();
-  }
+
   mainWindow.on('closed', function() {
     mainWindow = null;
   });
 
   // Add open devtools option to main menu.
-  template[0].submenu.unshift({
-    label: 'Open DevTools',
+  template[2].submenu.unshift({
+    label: 'Toggle DevTools',
     click: function() {
-      mainWindow.webContents.openDevTools();
+      mainWindow.webContents.toggleDevTools();
     }
   });
 
   // In development mode, allow quick reloading to see effects of code changes.
   if (process.env.NODE_ENV === 'development') {
-    template[0].submenu.unshift({
+    template[2].submenu.unshift({
       label: 'Reload',
       accelerator: 'CommandOrControl+R',
       click: function() {

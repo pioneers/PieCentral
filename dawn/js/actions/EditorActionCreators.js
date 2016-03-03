@@ -49,9 +49,17 @@ let EditorActionCreators = {
     };
 
     if (filepath === null) {
-      dialog.showSaveDialog(function(filepath) {
+      dialog.showSaveDialog({
+        filters: [{ name: 'python', extensions: ['py']}]
+      }, function(filepath) {
         if (filepath === undefined) return;
-        writeContents(filepath);
+
+        // Automatically append .py extension if they don't have it
+        if (filepath.endsWith('.py')) {
+          writeContents(filepath);
+        } else {
+          writeContents(filepath + '.py');
+        }
       });
     } else {
       writeContents(filepath);

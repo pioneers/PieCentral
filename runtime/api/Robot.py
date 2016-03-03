@@ -15,11 +15,22 @@ import memcache
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
 
-from uid_did_conversions import *
-
 motor = {}
 
+_naming_map_filename = 'student_code/CustomID.txt'
+_name_to_id = {}
+try:
+    with open(_naming_map_filename, "r") as f:
+        for line in f.readlines():
+            line = line.strip()
+            device_id, name = line.split(" ", 1)
+            _name_to_id[name] = device_id
+except:
+    print("Could not read naming map")
+
 def _lookup(name):
+    if name in _name_to_id:
+        return _name_to_id[name]
     return name
 
 def get_motor(name):
@@ -33,6 +44,7 @@ def get_motor(name):
     >>> motor = Robot.get_motor(motor1)
 
     """
+    name = _lookup(name)
     name_to_value = mc.get('motor_values')
     assert type(name) is str, "Type Mismatch: Must pass in a string"
     try:
@@ -54,13 +66,12 @@ def set_motor(name, value):
     assert type(name) is str, "Type Mismatch: Must pass in a string to name."
     assert type(value) is int or type(value) is float, "Type Mismatch: Must pass in an integer or float to value."
     assert value <= 1 and value >= -1, "Motor value must be a decimal between -1 and 1 inclusive."
+    name = _lookup(name)
     name_to_value = mc.get('motor_values')
-    try:
-        name_to_value[name] = value*100
-        mc.set('motor_values', name_to_value)
-    except KeyError:
+    if name not in name_to_value:
         raise KeyError("No motor with that name")
-
+    name_to_value[name] = value*100
+    mc.set('motor_values', name_to_value)
 
 def get_sensor(name):
     """Returns the value, or reading corresponding to the specified sensor.
@@ -80,24 +91,19 @@ def get_all_motors():
     """
     return mc.get('motor_values')
 
-def set_LED(name,value):
-    """Sets the brightness of a specific LED on the team flag.
+def set_led(num, value):
+    """Sets a specific LED on the team flag
 
-    Each LED has four levels, represented by enums. Each light is set to an enum: Flag.OFF,
-    Flag.LOW, Flag.MED, or Flag.HIGH.
-
-    :param name: A string that identifies the LED on the team flag.
-    :param value: An enum (OFF,LOW,MED,HIGH) which sets brightness for the specified LED
+    :param num: The number of the LED (0, 1, 2, or 3)
+    :param value: A boolean value
 
     :Examples:
 
-    >>> Robot.set_LED("flag12",Flag.OFF)
-    >>> Robot.set_LED("flag1",Flag.LOW)
+    >>> Robot.set_LED(0, False)
+    >>> Robot.set_LED(1,True)
     """
-    device_id = _lookup(name)
-    assert value in range(4),"Value must be an enum"
-    flag_data = [device_id_to_uid(device_id)] + [-1,-1,-1,-1]
-    flag_data[name[0]] = value
+    flag_data = mc.get('flag_values')
+    flag_data[num] = value
     mc.set('flag_values', flag_data)
 
 def set_servo(name,value):  #TODO Check with hibike on exact functionality
@@ -114,16 +120,11 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     >>> Robot.set_servo("servo3",150)
 
     """
-    assert value in range(181), "Servo degrees must be between 0 and 180"
+    assert 0 <= value <= 180, "Servo degrees must be between 0 and 180"
     device_id = _lookup(name)
-    print(device_id)
-    servo_data = [device_id_to_uid(device_id)] + [-1,-1,-1,-1]
-    print(device_id_to_uid(device_id))
-    # TODO: Sets all servos because we're too lazy to figure out which one it is
-    print(servo_data[0])
-    for i in range(1, 5):
-        servo_data[i] = value
-    mc.set('servo_values', servo_data)
+    name_to_value = mc.get('servo_values')
+    name_to_value[device_id] = value
+    mc.set('servo_values', name_to_value)
 
 
 def get_color_sensor(name):
@@ -429,8 +430,6 @@ def get_PID_constants():
 
 def _testConnected(device_id): #checks if data exists in sensor values, throws error if doesn't
     all_data = mc.get('sensor_values')
-    print(device_id)
-    print(all_data)
     try:
         return all_data[device_id]
     except KeyError:
@@ -438,11 +437,6 @@ def _testConnected(device_id): #checks if data exists in sensor values, throws e
 
 class SensorValueOutOfBounds(Exception):
     pass
-class Flag:
-    OFF = 0
-    LOW = 1
-    MED = 2
-    HIGH = 3
 
 # pololu.com. 19:1 and 67:1 motors 37D motors geared. Be able to change PID constants. Move and stay - set point. once it is called again, reset and redo function.
 

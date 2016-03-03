@@ -50,7 +50,7 @@ def get_joysticks(index):
 
     >>> axes = Gamepads.get_joysticks(0)
     """
-    gamepad_index = mc.get("gamepad")[index]
+    gamepad_index = mc.get("gamepad")[str(index)]
     assert gamepad_index != None, "gamepad index not found"
     return gamepad_index['axes']
 
@@ -99,7 +99,6 @@ def get_all_buttons(index):
 
     """
     gamepad_index = mc.get("gamepad")[str(index)]
-    print(gamepad_index)
     assert gamepad_index != None, "gamepad index not found"
     return [x == 1 for x in gamepad_index['buttons']]
 
@@ -130,19 +129,9 @@ def get_is_connected(index):
     :param index: The index of the gamepad, usually 0, 1, 2, or 3
     :returns: A boolean value for whether or not that gamepad is connected
     """
-    gamepad_index = mc.get("gamepad")[index]
+    gamepad_index = mc.get("gamepad")[str(index)]
     assert gamepad_index != None, "gamepad index not found"
     return gamepad_index['connected']
-
-
-# If the user knows the layout of the device and it corresponds to the Standard Gamepad
-# Layout, then the mapping should be set to standard. Otherwise set mapping property to empty string
-def get_mapping(index):
-    """Returns the mapping of the specified gamepad. Usually this value will be 'standard.'
-    """
-    gamepad_index = mc.get("gamepad")[index]
-    assert gamepad_index != None, "gamepad index not found"
-    return gamepad_index['mapping']
 
 #class for enums for buttons.
 class Button:

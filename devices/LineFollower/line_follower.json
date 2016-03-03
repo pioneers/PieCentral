@@ -5,17 +5,17 @@
         "formatString": "<HHH",
         "parameters": [
             {
-                "scalingFactor": 204.6,
+                "scalingFactor": 1023.0,
                 "machineName": "value0",
                 "humanName": "Sensor 0"
             },
             {
-                "scalingFactor": 204.6,
+                "scalingFactor": 1023.0,
                 "machineName": "value1",
                 "humanName": "Sensor 1"
             },
             {
-                "scalingFactor": 204.6,
+                "scalingFactor": 1023.0,
                 "machineName": "value2",
                 "humanName": "Sensor 2"
             },

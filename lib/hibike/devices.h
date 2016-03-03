@@ -3,6 +3,7 @@
 
 typedef enum {
   LIMIT_SWITCH = 0x00,
+  LINE_FOLLOWER = 0x01,
   POTENTIOMETER = 0x02,
   BATTERY_BUZZER = 0x04,
   TEAM_FLAG = 0x05,

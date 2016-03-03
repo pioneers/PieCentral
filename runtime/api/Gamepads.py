@@ -27,7 +27,7 @@ def get_all():
     """
     return mc.get('gamepad')
 
-def get_joysticks(index):
+def get_joysticks(gamepad_index):
     """Returns a list of axes values corresponding to the specified gamepad.
 
     Each returned value is between -1 and 1, which represents where the joystick
@@ -42,18 +42,18 @@ def get_joysticks(index):
     - axes[2] represents the horizontal axis of the right joystick
     - axes[3] represent the vertical axis of the right joystick
 
-    :param index: The index of the gamepad, usually 0, 1, 2, or 3
+    :param gamepad_index: The index of the gamepad, usually 0, 1, 2, or 3
     :returns: A list of 4 decimal values, each corresponding to a joystick axis.
 
     :Examples:
 
     >>> axes = get_joysticks(0)
     """
-    gamepad_index = mc.get("gamepad")[str(index)]
-    assert gamepad_index != None, "gamepad index not found"
+    gamepad_index = mc.get("gamepad")[str(gamepad_index)]
+    assert gamepad_index != None, "Gamepad index not found"
     return gamepad_index['axes']
 
-def get_axis(index,axis):
+def get_axis(gamepad_index,axis):
     """Returns the position of a specified joystick.
 
     Each returned value is between -1 and 1, which represents where the joystick
@@ -67,7 +67,7 @@ def get_axis(index,axis):
     - Joystick.RIGHT_X represents the horizontal axis of the right joystick
     - Joystick.RIGHT_Y represent the vertical axis of the right joystick
 
-    :param index: The index of the gamepad, usually 0, 1, 2, or 3
+    :param gamepad_index: The index of the gamepad, usually 0, 1, 2, or 3
     :param axis: An enum (LEFT_X,LEFT_Y,RIGHT_X,RIGHT_Y) which specifies the axis.
     :returns: A list of 4 decimal values, each corresponding to a joystick axis.
 
@@ -76,11 +76,11 @@ def get_axis(index,axis):
     >>> axis = get_axis(0,Joystick.LEFT_X)
     >>> axis = get_axis(1,Joystick.RIGHT_Y)
     """
-    gamepad_index = mc.get("gamepad")[str(index)]
+    gamepad_index = mc.get("gamepad")[str(gamepad_index)]
     assert gamepad_index != None, "Gamepad index not found"
     return gamepad_index['axes'][axis]
 
-def get_all_buttons(index):
+def get_all_buttons(gamepad_index):
     """Returns a list of button values corresponding to the specified gamepad.
 
     Each button value is either False (not pressed) or True (pressed). Unlike
@@ -88,7 +88,7 @@ def get_all_buttons(index):
     see the exact mapping, click on the 'Details' button next to a gamepad in
     Dawn, or refer to https://w3c.github.io/gamepad/#remapping.
 
-    :param index: The index of the gamepad, usually 0, 1, 2, or 3
+    :param gamepad_index: The index of the gamepad, usually 0, 1, 2, or 3
     :returns: A list of booleans, each corresponding to a button being pressed or not pressed
 
     :Examples:
@@ -98,11 +98,11 @@ def get_all_buttons(index):
     True
 
     """
-    gamepad_index = mc.get("gamepad")[str(index)]
+    gamepad_index = mc.get("gamepad")[str(gamepad_index)]
     assert gamepad_index != None, "gamepad index not found"
     return [x == 1 for x in gamepad_index['buttons']]
 
-def get_button(index,button):
+def get_button(gamepad_index, button):
     """Returns whether a button is pressed or not.
 
     For a specific button (each button has has a name) the output is either
@@ -110,7 +110,7 @@ def get_button(index,button):
     the 'Details' button next to a gamepad in Dawn, or refer to
     https://w3c.github.io/gamepad/#remapping.
 
-    :param index: The index of the gamepad, usually 0, 1, 2, or 3
+    :param gamepad_index: The index of the gamepad, usually 0, 1, 2, or 3
     :param button: Enum of button (e.g. Button.Y), see documentation for more details
     :returns: A boolean either True (pressed) or False (not pressed)
 
@@ -121,16 +121,16 @@ def get_button(index,button):
     False
 
     """
-    return get_all_buttons(index)[button] == 1
+    return get_all_buttons(gamepad_index)[button]
 
-def get_is_connected(index):
+def get_is_connected(gamepad_index):
     """Returns whether or not the specified gamepad is connected.
 
-    :param index: The index of the gamepad, usually 0, 1, 2, or 3
+    :param gamempad_index: The index of the gamepad, usually 0, 1, 2, or 3
     :returns: A boolean value for whether or not that gamepad is connected
     """
-    gamepad_index = mc.get("gamepad")[str(index)]
-    assert gamepad_index != None, "gamepad index not found"
+    gamepad_index = mc.get("gamepad")[str(gamepad_index)]
+    assert gamepad_index != None, "Gamepad index not found"
     return gamepad_index['connected']
 
 #class for enums for buttons.

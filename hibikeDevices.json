@@ -181,7 +181,11 @@
                 "servo0",
                 "servo1",
                 "servo2",
-                "servo3"
+                "servo3",
+                "toggle0",
+                "toggle1",
+                "toggle2",
+                "toggle3"
             ]
         },
         {

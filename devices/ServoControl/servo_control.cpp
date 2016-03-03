@@ -11,6 +11,11 @@ bool led_enabled;
 
 uint8_t pins[NUM_PINS] = {SERVO_0, SERVO_1, SERVO_2, SERVO_3};
 
+volatile uint32_t toggle0 = 1; // 0 means servo off, 1 means on
+volatile uint32_t toggle1 = 1; 
+volatile uint32_t toggle2 = 1; 
+volatile uint32_t toggle3 = 1; 
+
 void setup() {
   hibike_setup();
 
@@ -33,7 +38,42 @@ uint32_t device_update(uint8_t param, uint32_t value) {
     servos[param].write(value);
     return servos[param].read();
   }
-  return ~((uint32_t) 0);
+
+  switch (param) {
+
+    case TOGGLE0:
+      toggle0 = value;
+      return toggle_servo(0, toggle0);
+      break;
+
+    case TOGGLE1:
+      toggle1 = value;
+      return toggle_servo(0, toggle1);
+      break;
+
+    case TOGGLE2:
+      toggle2 = value;
+      return toggle_servo(0, toggle2);
+      break;
+
+    case TOGGLE3:
+      toggle3 = value;
+      return toggle_servo(0, toggle3);
+      break;
+
+    default:
+      return ~((uint32_t) 0);
+  }
+}
+
+uint32_t toggle_servo(int servo_num, uint32_t toggle) {
+  if ((toggle == 1) && (!servos[servo_num].attached())) {
+    servos[servo_num].attach(pins[servo_num]);
+  } else if ((toggle == 0) && (servos[servo_num].attached())) {
+    servos[servo_num].detach();
+  }
+  return toggle;
+
 }
 
 // you must implement this function. It is called when the devie receives a DeviceStatus packet.

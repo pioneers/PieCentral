@@ -19,9 +19,18 @@ hibike_uid_t UID = {
 };
 ///////////////////////////////////////////////
 
+typedef enum {
+  TOGGLE0,
+  TOGGLE1,
+  TOGGLE2,
+  TOGGLE3
+} param;
+
 // function prototypes
 void setup();
 void loop();
 
+// Helper functions
+uint32_t toggle_servo(int servo_num, uint32_t toggle);
 
 #endif /* EX_DEVICE_H */

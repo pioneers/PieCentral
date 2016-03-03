@@ -260,7 +260,7 @@ def get_metal_detector(name): #TODO metal detector Implementation
     name = _lookup(name)
     return _testConnected(name)
 
-def calibrate_metal_detector(name): #TODO ask hibike
+def calibrate_metal_detector(name): #TODO test calibration 
     """Calibrates the specified metal sensor
 
     Calibrates to set the current reading of the metal detector to air (0)

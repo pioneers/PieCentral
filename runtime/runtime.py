@@ -19,7 +19,6 @@ mc.set('control_mode', ["default", "all"])
 mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
 mc.set('metal_detector_calibrate', [False,False])
-calibrate_val = 1
 
 #####
 # Connect to hibike
@@ -121,7 +120,7 @@ def get_all_data(connectedDevices):
         if uid == battery_UID: # battery value testing is special-cased
             continue
         tup_nest = h.getData(uid, "dataUpdate")
-        if device_type == 9: # XXX a constant value
+        if h.getDeviceName(int(uid)) == "ColorSensor":
             #just for color sensor, put all data into one list
             all_data["5" + str(uid)] = h.getData(uid, "dataUpdate")
         if not tup_nest:
@@ -214,13 +213,13 @@ def set_flag(values):
     for field, value in zip(["s1", "s2", "s3", "s4"], values):
         h.writeValue(flag_UID, field, int(value))
 
+calibrate_val = 1
 def metal_d_calibrate(metalID):
     cal_value = random.randint(-1000, 1000)
     global calibrate_val
     while h.getData(metalID, "calibrate") != calibrate_val:
         h.writeValue(metalID, "calibrate", calibrate_val)
     calibrate_val += 1
-    #TODO implement checking and a while loop so we know it is calibrated
     mc.set("metal_detector_calibrate", [False,False])
 
 
@@ -443,7 +442,7 @@ while True:
 
     md_calibrate = mc.get('metal_detector_calibrate')
     if md_calibrate[1]:
-        metal_d_calibrate(md_calibrate[0])
+        metal_d_calibrate(device_id_to_uid(md_calibrate[0]))
 
     # Update motor values, and send to UI
     motor_values = mc.get('motor_values') or {}

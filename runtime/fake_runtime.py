@@ -20,7 +20,7 @@ def log_output(stream):
 
 robotStatus = 0
 batteryLevel = 100
-id_to_name = {'1234': 'myMotor', '1235': 'something', '1236': 'somethingElse', '1237': 'somethingElseMore', '1238': 'MoreStuff', '1239': 'One', '1233': 'More'}
+id_to_name = {'1234': 'myMotor', '1235': 'something', '1236': 'somethingElse', '1237': 'somethingElseMore', '1238': 'MoreStuff', '1239': 'One', '1233': 'More', '1231': 'ColorThing'}
 while True:
     mc.set('gamepad', {'time': datetime.now()}) # sending arbitary data to API
     msg = ansible.recv()
@@ -118,6 +118,14 @@ while True:
             'peripheralType': 'LimitSwitch',
             'value': random.randint(0, 1),
             'id': '1239'
+        }
+    })
+    ansible.send_message('UPDATE_PERIPHERAL', {
+        'peripheral': {
+            'name':id_to_name['1231'],
+            'peripheralType': 'ColorSensor',
+            'value': [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)],
+            'id': '1231'
         }
     })
     # batteryLevel -= 1

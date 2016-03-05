@@ -204,9 +204,6 @@ export default React.createClass({
     'solarized_light',
     'terminal'
   ],
-  shouldComponentUpdate(nextProps, nextState) {
-    return !(_.isEqual(nextState, this.state) && _.isEqual(nextProps, this.props));
-  },
   render() {
     let consoleHeight = 250;
     let editorHeight = window.innerHeight * 0.66;

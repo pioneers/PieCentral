@@ -14,6 +14,7 @@ import { remote } from 'electron';
 import smalltalk from 'smalltalk';
 import Ansible from '../utils/Ansible';
 const storage = remote.require('electron-json-storage');
+import numeral from 'numeral';
 
 export default React.createClass({
   displayName: 'DNav',
@@ -75,7 +76,9 @@ export default React.createClass({
           <Navbar.Text>
             <Label bsStyle="success" id="battery-indicator">
               Battery Level: {
-                this.props.connection ? this.props.battery : 'Not connected.'
+                this.props.connection ?
+                  numeral(this.props.battery).format('00.0') + ' V' :
+                  'Not connected.'
               }
             </Label>
           </Navbar.Text>

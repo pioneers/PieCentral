@@ -23,10 +23,10 @@ var _formatGamepadsForJSON = function(newGamepads) {
   // Currently there is a bug on windows where navigator.getGamepads()
   // returns a second, 'ghost' gamepad even when only one is connected.
   // The filter on 'mapping' filters out the ghost gamepad.
-  _.forEach(_.filter(newGamepads, {'mapping': 'standard'}), function(gamepad) {
+  _.forEach(_.filter(newGamepads, {'mapping': 'standard'}), function(gamepad, indexGamepad) {
     if (gamepad) {
       formattedGamepads[gamepad.index] = {
-        index: gamepad.index,
+        index: indexGamepad,
         axes: gamepad.axes,
         buttons: _.map(gamepad.buttons, 'value')
       };

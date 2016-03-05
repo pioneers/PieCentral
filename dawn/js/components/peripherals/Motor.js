@@ -9,12 +9,7 @@
 import React from 'react';
 import {Label} from 'react-bootstrap';
 import NameEdit from './NameEdit';
-
-var _roundMotor = function(num) {
-  if (num > 0) {
-    return "+" + (Math.round(num * 100) / 100);
-  } else return (Math.round(num * 100) / 100);
-};
+import numeral from 'numeral';
 
 var Motor = React.createClass({
   propTypes: {
@@ -29,8 +24,7 @@ var Motor = React.createClass({
         <h4 style={{float: 'right'}}>
         {
           this.props.disconnected
-          ? <Label bsStyle='danger'>Disconnected</Label>
-          : (this.props.value > 0) ? "+" + (Math.round(this.props.value * 100) / 100):(Math.round(this.props.value * 100) / 100)
+          ? <Label bsStyle='danger'>Disconnected</Label>: numeral(this.props.value).format('+0.00')
         }
         </h4>
       </div>

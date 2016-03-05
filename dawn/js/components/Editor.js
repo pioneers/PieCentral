@@ -158,7 +158,7 @@ export default React.createClass({
           new EditorButton('create', 'New', this.createNewFile, 'file'),
           new EditorButton('open', 'Open', this.openFile, 'folder-open'),
           new EditorButton('save', 'Save', this.saveFile, 'floppy-disk'),
-          new EditorButton('saveas', 'Save As', this.saveAsFile, 'share')
+          new EditorButton('saveas', 'Save As', this.saveAsFile, 'floppy-save')
         ],
       }, {
         groupId: 'code-execution-buttons',

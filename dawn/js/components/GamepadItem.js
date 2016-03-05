@@ -27,7 +27,7 @@ export default React.createClass({
   renderHeader() {
     return (
       <div>
-        <h4 style={{display: 'inline'}}> Gamepad {this.props.gamepad.index} </h4>
+        <h4 style={{display: 'inline'}}> Gamepad {this.props.index} </h4>
       </div>
     );
   },

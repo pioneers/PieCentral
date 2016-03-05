@@ -120,7 +120,7 @@ while True:
             'id': '1239'
         }
     })
-    batteryLevel -= 1
+    # batteryLevel -= 1
     if batteryLevel == 0:
         batteryLevel = 100
         ansible.send_message('ADD_ALERT', {

@@ -108,6 +108,9 @@ export default React.createClass({
   saveFile() {
     EditorActionCreators.saveFile(this.state.filepath, this.state.editorCode);
   },
+  saveAsFile() {
+    EditorActionCreators.saveFile(null, this.state.editorCode);
+  },
   createNewFile() {
     if (this.hasUnsavedChanges()) {
       smalltalk.confirm(
@@ -154,7 +157,8 @@ export default React.createClass({
         buttons: [
           new EditorButton('create', 'New', this.createNewFile, 'file'),
           new EditorButton('open', 'Open', this.openFile, 'folder-open'),
-          new EditorButton('save', 'Save', this.saveFile, 'floppy-disk')
+          new EditorButton('save', 'Save', this.saveFile, 'floppy-disk'),
+          new EditorButton('saveas', 'Save As', this.saveAsFile, 'share')
         ],
       }, {
         groupId: 'code-execution-buttons',

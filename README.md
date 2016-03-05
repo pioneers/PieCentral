@@ -41,7 +41,7 @@ Dawn is a desktop app, but it is written with web technologies and packaged via 
     * Packaging Dawn is done with electron-packager. Run the following from the `dawn` folder:
 
     ```
-    electron-packager . dawn --platform=darwin --arch=x64 --version=0.36.2 --prune
+    electron-packager . dawn --platform=darwin --arch=x64 --version=0.36.2 --prune --icon=./icons/pieicon
     ```
 
     Here `--platform` is the target platform (darwin means OSX) and `--version` corresponds to the Electron version. `--prune` removes all dev-dependencies before packaging, since these needlessly increase the packaged filesize. If you use `--prune`, make sure to `npm install` again afterwards to get your dev-dependencies back.

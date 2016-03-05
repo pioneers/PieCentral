@@ -11,8 +11,6 @@ import NameEdit from './NameEdit';
 var _booleanDisplay = function(sensor) {
   if (sensor.peripheralType == "LimitSwitch") {
     return (sensor.value) ? "Closed":"Open";
-  } else if (sensor.peripheralType == "MetalDetector") {
-    return (sensor.value >= 0) ? "Steel":"Aluminium";
   } else return sensor.value;
 };
 

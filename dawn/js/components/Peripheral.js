@@ -24,7 +24,7 @@ typesToComponents[PeripheralTypes.LineFollower] = ScalarSensor;
 typesToComponents[PeripheralTypes.Potentiometer] = ScalarSensor;
 typesToComponents[PeripheralTypes.Encoder] = ScalarSensor;
 //typesToComponents[PeripheralTypes.ColorSensor] = ;
-typesToComponents[PeripheralTypes.MetalDetector] = BooleanSensor;
+typesToComponents[PeripheralTypes.MetalDetector] = ScalarSensor;
 
 
 var Peripheral = React.createClass({

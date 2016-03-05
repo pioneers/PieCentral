@@ -11,13 +11,14 @@ import os
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
-mc.set('motor_values', {})
-mc.set('servo_values', {})
+mc.set('motor_values', [])
+mc.set('servo_values', [])
 mc.set('flag_values', [False, False, False, False])
 mc.set('PID_constants',[("P", 1), ("I", 0), ("D", 0)])
 mc.set('control_mode', ["default", "all"])
 mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
+mc.set('metal_detector_calibrate', [False,False])
 
 #####
 # Connect to hibike
@@ -119,9 +120,9 @@ def get_all_data(connectedDevices):
         if uid == battery_UID: # battery value testing is special-cased
             continue
         tup_nest = h.getData(uid, "dataUpdate")
-        if device_type == 9: # XXX a constant value
+        if h.getDeviceName(int(device_type)) == "ColorSensor":
             #just for color sensor, put all data into one list
-            all_data["5" + str(uid)] = h.getData(uid, "dataUpdate")
+            all_data[str(uid) + "5"] = h.getData(uid, "dataUpdate")
         if not tup_nest:
             continue
         values, timestamps = tup_nest
@@ -212,6 +213,16 @@ def set_flag(values):
     for field, value in zip(["s1", "s2", "s3", "s4"], values):
         h.writeValue(flag_UID, field, int(value))
 
+calibrate_val = 1
+def metal_d_calibrate(metalID):
+    global calibrate_val
+    for i in range(10):
+    #while h.getData(metalID, "calibrate") != calibrate_val:
+        h.writeValue(metalID, "calibrate", calibrate_val)
+    calibrate_val += 1
+    mc.set("metal_detector_calibrate", [False,False])
+
+
 #####
 # Motors
 #####
@@ -234,11 +245,10 @@ def enumerate_motors():
         grizzly_motor.set_target(0)
         
         # enable usb mode disables timeouts, so we have to disable it to enable timeouts.
-        grizzly_motor._set_as_int(Addr.EnableUSB, 0, 1)
+        #grizzly_motor._set_as_int(Addr.EnableUSB, 0, 1)
         
         # set the grizzly timeout to 500 ms
-        grizzly_motor._set_as_int(Addr.Timeout, 500, 2)
-
+        #grizzly_motor._set_as_int(Addr.Timeout, 500, 2)
         name_to_grizzly['motor' + str(index)] = grizzly_motor
         name_to_values['motor' + str(index)] = 0
         name_to_modes['motor' + str(index)] = (ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
@@ -257,15 +267,15 @@ def set_motors(data):
 
 # Called on end of student code, sets all motor values to zero
 def stop_motors():
-    name_to_values = {}
+    motor_values = mc.get('motor_values') 
     for name, grizzly in name_to_grizzly.iteritems():
         try:
             grizzly.set_target(0)
         except:
             print("WARNING: failed to stop grizzly")
-        name_to_values[name] = 0
+        motor_values[name] = 0
 
-    mc.set('motor_values', name_to_values)
+    mc.set('motor_values', motor_values)
 
 def drive_set_distance(list_tuples):
     for item in list_tuples:
@@ -339,7 +349,7 @@ def msg_handling(msg):
         with open('student_code/student_code.py', 'w+') as f:
             f.write(msg['content']['code'])
 
-        enumerate_motors()
+        #enumerate_motors() TODO Unable to restart motors that already exist
 
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -404,6 +414,7 @@ def send_motor_data(data):
 
 read_naming_map()
 enumerate_hibike()
+enumerate_motors()
 while True:
     battery_safe = test_battery()
     if not battery_safe:
@@ -428,6 +439,10 @@ while True:
     all_sensor_data = get_all_data(connectedDevices)
     send_peripheral_data(all_sensor_data)
     mc.set('sensor_values', all_sensor_data)
+
+    md_calibrate = mc.get('metal_detector_calibrate')
+    if md_calibrate[1]:
+        metal_d_calibrate(device_id_to_uid(md_calibrate[0]))
 
     # Update motor values, and send to UI
     motor_values = mc.get('motor_values') or {}

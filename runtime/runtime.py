@@ -290,26 +290,33 @@ def drive_set_distance(list_tuples):
             set_control_mode(control_mode)
         except:
             stop_motors()
+        mc.set("drive_distance", [])
 
 def set_control_mode(mode):
     new_mode = all_modes[mode[0]]
     if mode[1] == "all":
         for motor, old_mode in name_to_modes.items():
             grizzly = name_to_grizzly[motor]
-            grizzly.set_mode(new_mode, old_mode[1])
+            try:
+                grizzly.set_mode(new_mode, old_mode[1])
     else:
         grizzly = name_to_grizzly[motor]
-        grizzly.set_mode(new_mode, old_mode[1])
+        try:
+            grizzly.set_mode(new_mode, old_mode[1])
+    mc.set("control_mode", [])
 
 def set_drive_mode(mode):
     new_mode = all_modes[mode[0]]
     if mode[1] == "all":
         for motor, old_mode in name_to_modes.items():
             grizzly = name_to_grizzly[motor]
-            grizzly.set_mode(old_mode[0], new_mode)
+            try:
+                grizzly.set_mode(old_mode[0], new_mode)
     else:
         grizzly = name_to_grizzly[motor]
-        grizzly.set_mode(old_mode[0], new_mode)
+        try:
+            grizzly.set_mode(old_mode[0], new_mode)
+    mc.set("drive_mode", [])
 
 def set_PID(constants):
     PID_constants[constants[0]] = constants[1]
@@ -317,8 +324,11 @@ def set_PID(constants):
     i = PID_constants["I"]
     d = PID_constants["D"]
     for motor, grizzly in name_to_grizzly.items():
-        grizzly.init_pid(p, i, d)
-
+        try:
+            grizzly.init_pid(p, i, d)
+        except:
+            print("pid set failed");
+    mc.set("PID_constants", [])
 
 
 # A process for sending the output of student code to the UI
@@ -471,8 +481,8 @@ while True:
 
     #set drive mode
     drive_mode = mc.get("drive_mode")
-    if control_mode:
-        set_control_mode(control_mode)
+    if drive_mode:
+        set_drive_mode(drive_mode)
 
     #rebind PID constants
     PID_rebind= mc.get("PID_constants")

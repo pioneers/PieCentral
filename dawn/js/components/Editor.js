@@ -3,7 +3,6 @@ import AceEditor from 'react-ace';
 import brace from 'brace';
 import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
-import AlertActions from '../actions/AlertActions';
 import EditorToolbar from './EditorToolbar';
 import Mousetrap from 'mousetrap';
 import smalltalk from 'smalltalk';
@@ -128,6 +127,17 @@ export default React.createClass({
   editorUpdate(newVal) {
     EditorActionCreators.editorUpdate(newVal);
   },
+  onEditorPaste(pasteData) {
+    // Must correct non-ASCII characters, which would crash Runtime.
+    let correctedText = pasteData.text;
+    // Normalizing will allow us (in some cases) to preserve ASCII equivalents.
+    correctedText = correctedText.normalize("NFD");
+    // Special case to replace fancy quotes.
+    correctedText = correctedText.replace(/[”“]/g,'"');
+    correctedText = correctedText.replace(/[^\x00-\x7F]/g, "");
+    // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
+    pasteData.text = correctedText;
+  },
   toggleConsole() {
     this.setState({showConsole: !this.state.showConsole});
     // must call resize method after changing height of ace editor
@@ -230,6 +240,7 @@ export default React.createClass({
             editorHeight - this.state.showConsole * (consoleHeight + 30)) + 'px'}
           value = { this.state.editorCode }
           onChange={ this.editorUpdate }
+	  onPaste={ this.onEditorPaste }
           editorProps={{$blockScrolling: Infinity}}
         />
         <ConsoleOutput

@@ -14,7 +14,7 @@ var ColorSensor = React.createClass({
     <div style={{overflow: 'auto'}}>
       <div style={{overflow: 'auto', width: '100%'}}>
         <h4 style={{float: 'left'}}><NameEdit name={this.props.name} id={this.props.id} /><small> {this.props.peripheralType} </small></h4>
-        <h4 style={{float: 'right'}}> [{this.props.value[0]}, {this.props.value[1]}, {this.props.value[2]}]  </h4>
+        <h4 style={{float: 'right'}}>Hue: {this.props.value[4]}</h4>
       </div>
     </div>
     );

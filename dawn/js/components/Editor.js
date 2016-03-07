@@ -3,6 +3,7 @@ import AceEditor from 'react-ace';
 import brace from 'brace';
 import EditorActionCreators from '../actions/EditorActionCreators';
 import EditorStore from '../stores/EditorStore';
+import AlertActions from '../actions/AlertActions';
 import EditorToolbar from './EditorToolbar';
 import Mousetrap from 'mousetrap';
 import smalltalk from 'smalltalk';
@@ -127,6 +128,10 @@ export default React.createClass({
   editorUpdate(newVal) {
     EditorActionCreators.editorUpdate(newVal);
   },
+  correctText(text) {
+    // Removes non-ASCII characters from text.
+    return text.replace(/[^\x00-\x7F]/g, "");
+  },
   onEditorPaste(pasteData) {
     // Must correct non-ASCII characters, which would crash Runtime.
     let correctedText = pasteData.text;
@@ -134,7 +139,7 @@ export default React.createClass({
     correctedText = correctedText.normalize("NFD");
     // Special case to replace fancy quotes.
     correctedText = correctedText.replace(/[”“]/g,'"');
-    correctedText = correctedText.replace(/[^\x00-\x7F]/g, "");
+    correctedText = this.correctText(correctedText);
     // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
     pasteData.text = correctedText;
   },
@@ -146,16 +151,22 @@ export default React.createClass({
   clearConsole() {
     RobotActions.clearConsole();
   },
-  upload() {
-    Ansible.sendMessage('save', {
-      code: this.state.editorCode
-    });
+  sendCode(command) {
+    let correctedText = this.correctText(this.state.editorCode);
+    if (correctedText !== this.state.editorCode) {
+      AlertActions.addAlert(
+	'Invalid characters detected',
+	'Your code has non-ASCII characters, which won\'t work on the robot. ' +
+	'Please remove them and try again.'
+      );
+    } else {
+      Ansible.sendMessage(command, {
+	code: this.state.editorCode
+      });
+    }
   },
-  startRobot() {
-    Ansible.sendMessage('execute', {
-      code: this.state.editorCode
-    });
-  },
+  upload() { this.sendCode('upload'); },
+  startRobot() { this.sendCode('execute'); },
   stopRobot() {
     Ansible.sendMessage('stop', {});
   },

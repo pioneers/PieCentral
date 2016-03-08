@@ -3,10 +3,15 @@
 }
 
 .editing {
-  width: 0px;
   border: 2px solid #dadada;
   outline: none;
   border-color: #9ecaed;
   box-shadow: 0 0 10px #9ecaed;
 }
 
+.invalid {
+  border: 2px solid #dadada;
+  outline: none;
+  border-color: #ff0000;
+  box-shadow: 0 0 10px #9ecaed;
+}

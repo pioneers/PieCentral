@@ -139,6 +139,7 @@ export default React.createClass({
     correctedText = correctedText.normalize("NFD");
     // Special case to replace fancy quotes.
     correctedText = correctedText.replace(/[”“]/g,'"');
+    correctedText = correctedText.replace(/[‘’]/g,"'");
     correctedText = this.correctText(correctedText);
     // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
     pasteData.text = correctedText;

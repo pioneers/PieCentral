@@ -1,4 +1,5 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
+import RobotActions from '../actions/RobotActions';
 import fs from 'fs';
 import request from 'superagent';
 import { remote } from 'electron';
@@ -8,11 +9,23 @@ let defaultAddress = '127.0.0.1';
 let socket = null;
 
 function connectToAnsible(runtimeAddress) {
+  // Remove the existing connection.
   if (socket !== null) {
     socket.disconnect();
   }
+
   socket = io('http://' + runtimeAddress + ':5000/');
-  socket.on('connect', ()=>console.log('Connected to runtime.'));
+
+  socket.on('connect', ()=>{
+    RobotActions.updateConnection(true);
+    console.log('Connected to runtime.');
+  });
+
+  socket.on('disconnect', ()=>{
+    RobotActions.updateConnection(false);
+    console.log('Disconnected from runtime');
+  });
+
   socket.on('connect_error', (err)=>console.log(err));
 
   /*

@@ -6,8 +6,9 @@ import _ from 'lodash';
 
 let _robotInfo = {
   consoleData: [],
-  connectionStatus: true,
-  isRunningCode: false,
+  connectionStatus: false,
+  runtimeStatus: true, // Are we receiving data from runtime?
+  isRunningCode: false, // Is runtime executing code?
   batteryLevel: 0
 };
 
@@ -21,6 +22,9 @@ let RobotInfoStore = assign({}, EventEmitter.prototype, {
   getConnectionStatus() {
     return _robotInfo.connectionStatus;
   },
+  getRuntimeStatus() {
+    return _robotInfo.runtimeStatus;
+  },
   getIsRunningCode() {
     return _robotInfo.isRunningCode;
   },
@@ -29,6 +33,7 @@ let RobotInfoStore = assign({}, EventEmitter.prototype, {
   }
 });
 
+// Here, "status" refers to whether the robot is running code.
 function handleUpdateStatus(action) {
   _robotInfo.isRunningCode = (action.status.value == 1);
   RobotInfoStore.emitChange();
@@ -41,7 +46,7 @@ function handleUpdateBattery(action){
 
 /**
  * Dispatch the 'StopCheck' action every second. handleStopCheck
- * uses this to determine connectionStatus.
+ * uses this to determine runtimeStatus.
  */
 
 var previousActionType = null;
@@ -57,13 +62,13 @@ setInterval(() => {
  * no status updates in the past second and we are disconnected.
  */
 function handleStopCheck(action) {
-  var old = _robotInfo.connectionStatus;
+  var old = _robotInfo.runtimeStatus;
   if (previousActionType === 'StopCheck') {
-    _robotInfo.connectionStatus = false;
+    _robotInfo.runtimeStatus = false;
   } else {
-    _robotInfo.connectionStatus = true;
+    _robotInfo.runtimeStatus = true;
   }
-  if (old !== _robotInfo.connectionStatus) {
+  if (old !== _robotInfo.runtimeStatus) {
     RobotInfoStore.emitChange();
   }
 }
@@ -73,10 +78,17 @@ function handleConsoleUpdate(action) {
   // keep the length of console output less than 20 lines
   if (_robotInfo.consoleData.length > 20)
     _robotInfo.consoleData.shift();
+  RobotInfoStore.emitChange();
 }
 
 function handleClearConsole(action) {
   _robotInfo.consoleData = [];
+  RobotInfoStore.emitChange();
+}
+
+function handleUpdateConnection(action) {
+  _robotInfo.connectionStatus = action.payload;
+  RobotInfoStore.emitChange();
 }
 
 RobotInfoStore.dispatchToken = AppDispatcher.register((action) => {
@@ -93,6 +105,9 @@ RobotInfoStore.dispatchToken = AppDispatcher.register((action) => {
       break;
     case ActionTypes.CLEAR_CONSOLE:
       handleClearConsole(action);
+      break;
+    case ActionTypes.UPDATE_CONNECTION:
+      handleUpdateConnection(action);
       break;
     case 'StopCheck':
       handleStopCheck(action);

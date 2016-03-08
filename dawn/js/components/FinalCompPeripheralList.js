@@ -25,11 +25,17 @@ var FinalCompPeripheralList = React.createClass({
     RobotPeripheralStore.removeListener('change', this.onChange);
   },
   render() {
+    let errorMsg = null;
+    if (!this.props.connectionStatus) {
+      errorMsg = 'You are currently disconnected from the robot.';
+    } else if (!this.props.runtimeStatus) {
+      errorMsg = 'There appears to be some sort of Runtime error. No data is being received.';
+    }
     return (
       <PeripheralList header='Peripherals'>
-        {this.props.connectionStatus
+        {!errorMsg
           ? _.map(this.state.peripherals, (peripheral) => <Peripheral key={peripheral.id} {...peripheral}/>)
-          : 'You are currently disconnected from the robot.'}
+          : errorMsg}
       </PeripheralList>
     );
   }

@@ -5,13 +5,13 @@
 export default [
   {
     title: 'Header and Version',
-    text: 'This header displays the version of Dawn that you have. We may periodically release updates to Dawn, so always make sure you have the latest version. If you see \'(disconnected)\' in your header, Dawn is not connected to the robot. If you do not see that, then Dawn is connected',
+    text: 'This header displays the version of Dawn that you have. We may periodically release updates to Dawn, so always make sure you have the latest version.',
     selector: '#header-title',
     position: 'bottom',
     type: 'hover'
   },{
-    title: 'Battery Indicator',
-    text: 'This displays your robot\'s current battery level. Keep an eye on the battery level and charge the battery whenever it is nearly drained. Allowing the battery level to drop too low could damage your battery permanently.',
+    title: 'Status Indicator',
+    text: 'This displays your connection status with the robot and (when connected) the robot\'s current battery level. Keep an eye on the battery level and charge the battery whenever it is nearly drained. Allowing the battery level to drop too low could damage your battery permanently.',
     selector: '#battery-indicator',
     position: 'bottom',
     type: 'hover'
@@ -29,7 +29,7 @@ export default [
     type: 'hover'
   },{
     title: 'Code execution',
-    text: 'Use these buttons to run and stop your code, toggle the output console, and clear the output console.',
+    text: 'Use these buttons to run and stop your code, upload your code (for the competition), toggle the output console, and clear the output console.',
     selector: '#code-execution-buttons',
     position: 'bottom',
     type: 'hover'

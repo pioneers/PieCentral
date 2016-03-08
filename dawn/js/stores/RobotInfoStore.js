@@ -78,10 +78,12 @@ function handleConsoleUpdate(action) {
   // keep the length of console output less than 20 lines
   if (_robotInfo.consoleData.length > 20)
     _robotInfo.consoleData.shift();
+  RobotInfoStore.emitChange();
 }
 
 function handleClearConsole(action) {
   _robotInfo.consoleData = [];
+  RobotInfoStore.emitChange();
 }
 
 function handleUpdateConnection(action) {

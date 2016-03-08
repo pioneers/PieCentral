@@ -160,14 +160,21 @@ export default React.createClass({
 	'Your code has non-ASCII characters, which won\'t work on the robot. ' +
 	'Please remove them and try again.'
       );
+      return false;
     } else {
       Ansible.sendMessage(command, {
 	code: this.state.editorCode
       });
+      return true;
     }
   },
   upload() { this.sendCode('upload'); },
-  startRobot() { this.sendCode('execute'); },
+  startRobot() {
+    let sent = this.sendCode('execute');
+    if (sent) {
+      RobotActions.clearConsole();
+    };
+  },
   stopRobot() {
     Ansible.sendMessage('stop', {});
   },

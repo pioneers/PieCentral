@@ -19,7 +19,7 @@ def log_output(stream):
         time.sleep(0.05) # don't want to flood ansible
 
 robotStatus = 0
-batteryLevel = 100
+batteryLevel = 12.3154809823084346
 id_to_name = {'1234': 'myMotor', '1235': 'something', '1236': 'somethingElse', '1237': 'somethingElseMore', '1238': 'MoreStuff', '1239': 'One', '1233': 'More', '1231': 'ColorThing'}
 while True:
     mc.set('gamepad', {'time': datetime.now()}) # sending arbitary data to API

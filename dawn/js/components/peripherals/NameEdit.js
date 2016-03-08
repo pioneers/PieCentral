@@ -20,6 +20,15 @@ var NameEdit = React.createClass({
       name: data.name
     });
   },
+  componentDidMount() {
+    // MAJOR HAXORS! The default RIEInput component trims spaces from the
+    // end of strings before passing to validation. But we need
+    // to check for those spaces. So here I am modifying the RIEInput
+    // component's textChanged function to not trim before validation.
+    this.nameEdit.textChanged = (event)=>{
+      this.nameEdit.doValidations(event.target.value);
+    };
+  },
   validatePeripheralName(name) {
     let re = new RegExp("^[A-Za-z][A-Za-z0-9]+$");
     let isValid = re.test(name);
@@ -31,6 +40,7 @@ var NameEdit = React.createClass({
     return (
       <div>
 	<RIEInput
+	  ref={(ref) => this.nameEdit = ref}
 	  className="static"
 	  classEditing="editing"
 	  classInvalid="invalid"

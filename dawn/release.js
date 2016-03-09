@@ -1,6 +1,7 @@
 var minimist = require('minimist');
 var packager = require('electron-packager');
 var execSync = require('child_process').execSync;
+var path = require('path');
 
 function build() {
   console.log('Packaging with webpack, using the production config');
@@ -12,10 +13,10 @@ function build() {
   });
 }
 
-function pack(prod, platform, arch) {
+function pack(platform, arch, noprune) {
   var opts = {}; //packaging options
 
-  if (prod) {
+  if (!platform || !arch) {
     console.log('Packaging for all platforms');
     opts.all = true; // build for all platforms and arch
   } else {
@@ -26,16 +27,33 @@ function pack(prod, platform, arch) {
 
   opts.dir = __dirname; // source dir
   opts.name = 'dawn';
-  opts.prune = true; //remove dev dependencies
-  opts.icon = './icons/icon';
+  opts.prune = !noprune; //remove dev dependencies unless noprune is set
+  opts.icon = './icons/pieicon';
+  opts.asar = true;
   opts.version = '0.36.2';
-  opts.out = '../..'
+  opts.out = path.resolve('..'); // build in the parent dir
 
   packager(opts, function(err, appPath) {
     if (err) {
       console.log('Packaging error: ', err);
     } else {
-      console.log(appPath);
+      if (typeof appPath === 'string') {
+	console.log('Zipping: ', appPath);
+	execSync(`7z a -tzip ${appPath}.zip ${appPath}`, function(err, stdout, stderr) {
+	  if (err !== null) {
+	    console.log('error: ', err);
+	  }
+	});
+      } else {
+	appPath.forEach(function(folderPath) {
+	console.log('Zipping: ', folderPath);
+	  execSync(`7z a -tzip ${folderPath}.zip ${folderPath}`, function(err, stdout, stderr) {
+	    if (err !== null) {
+	      console.log('error: ', err);
+	    }
+	  });
+	});
+      }
     }
   });
 }
@@ -50,7 +68,7 @@ function main() {
     build();
   }
 
-  pack(argv.prod, argv.platform, argv.arch);
+  pack(argv.platform, argv.arch, argv.noprune);
 }
 
 main();

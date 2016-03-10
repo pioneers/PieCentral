@@ -134,11 +134,13 @@ def get_all_data(connectedDevices):
 # Battery
 #####
 battery_UID = None
+battery_safe = False
 def init_battery():
     global battery_UID
     for UID, dev in connectedDevices:
         if h.getDeviceName(int(dev)) == "BatteryBuzzer":
             battery_UID = UID
+    test_battery() #TODO Calls test_battery to send alert once for no battery buzzer
 
 def test_battery():
     global battery_UID
@@ -159,7 +161,7 @@ def test_battery():
     try:
         (safe, connected, c0, c1, c2, voltage), timestamp = h.getData(battery_UID,"dataUpdate")
     except:
-        raise
+        #raise TODO disables crashing runtime
         safe, voltage = False, 0.0
 
     ansible.send_message('UPDATE_BATTERY', {
@@ -416,8 +418,9 @@ read_naming_map()
 enumerate_hibike()
 enumerate_motors()
 while True:
-    battery_safe = test_battery()
-    if not battery_safe:
+    if battery_UID: #TODO Only tests battery safety if battery buzzer is connected
+        battery_safe = test_battery()
+    if not battery_safe and battery_UID: #TODO Disables sending alert if battery buzzer is not connected
         for _ in range(10):
             ansible.send_message('UPDATE_STATUS', {
                 'status': {'value': False}

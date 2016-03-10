@@ -13,6 +13,7 @@ import GenericPeripheral from './peripherals/GenericPeripheral';
 import Motor from './peripherals/Motor';
 import BooleanSensor from './peripherals/BooleanSensor';
 import ScalarSensor from './peripherals/ScalarSensor';
+import ColorSensor from './peripherals/ColorSensor';
 
 // Mapping between peripheral types and components
 var typesToComponents = {};
@@ -23,8 +24,8 @@ typesToComponents[PeripheralTypes.LimitSwitch] = BooleanSensor;
 typesToComponents[PeripheralTypes.LineFollower] = ScalarSensor;
 typesToComponents[PeripheralTypes.Potentiometer] = ScalarSensor;
 typesToComponents[PeripheralTypes.Encoder] = ScalarSensor;
-//typesToComponents[PeripheralTypes.ColorSensor] = ;
-typesToComponents[PeripheralTypes.MetalDetector] = BooleanSensor;
+typesToComponents[PeripheralTypes.ColorSensor] = ColorSensor;
+typesToComponents[PeripheralTypes.MetalDetector] = ScalarSensor;
 
 
 var Peripheral = React.createClass({

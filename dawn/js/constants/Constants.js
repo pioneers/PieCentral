@@ -11,6 +11,7 @@ module.exports = {
     UPDATE_MOTOR: null,
     UPDATE_PERIPHERAL: null,
     UPDATE_STATUS: null,
+    UPDATE_CONNECTION: null,
     SAVE_FILE: null,
     OPEN_FILE: null,
     CLEAR_EDITOR: null,

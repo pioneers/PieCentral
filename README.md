@@ -11,12 +11,14 @@ programming and testing their robots.
 
 Dawn is a desktop app, but it is written with web technologies and packaged via Electron.
 
-### Download the latest packaged Dawn for your platform:
-* [Windows 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-win32-x64.zip)
-* [Windows 32-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-win32-ia32.zip)
-* [Mac 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-darwin-x64.zip)
-* [Linux 64-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-linux-x64.zip)
-* [Linux 32-bit](https://storage.googleapis.com/pie-software-builds/latest/dawn-linux-ia32.zip)
+### Experimental builds:
+These are **experimental** builds for internal PiE use, and contain the latest features. For the latest
+**stable** release, download from [here](http://pioneers.github.io/daemon/).
+* [Windows 64-bit](https://storage.googleapis.com/pie-software-builds/experimental/dawn-win32-x64.zip)
+* [Windows 32-bit](https://storage.googleapis.com/pie-software-builds/experimental/dawn-win32-ia32.zip)
+* [Mac 64-bit](https://storage.googleapis.com/pie-software-builds/experimental/dawn-darwin-x64.zip)
+* [Linux 64-bit](https://storage.googleapis.com/pie-software-builds/experimental/dawn-linux-x64.zip)
+* [Linux 32-bit](https://storage.googleapis.com/pie-software-builds/experimental/dawn-linux-ia32.zip)
 
 ### Development Quickstart
 1. Install Required Software:
@@ -38,13 +40,13 @@ Dawn is a desktop app, but it is written with web technologies and packaged via 
 1. Install electron-packager: `npm install -g electron-packager`
 1. Build for production: `npm run-script build` (as opposed to `npm run-script watch` during production).
 1. Package app:
-    * Packaging Dawn is done with electron-packager. Run the following from the `dawn` folder:
+    * Packaging Dawn is done via a release script. To build for all platforms, run the following from the `dawn` folder:
 
     ```
-    electron-packager . dawn --platform=darwin --arch=x64 --version=0.36.2 --prune --icon=./icons/pieicon
+    node release.js
     ```
-
-    Here `--platform` is the target platform (darwin means OSX) and `--version` corresponds to the Electron version. `--prune` removes all dev-dependencies before packaging, since these needlessly increase the packaged filesize. If you use `--prune`, make sure to `npm install` again afterwards to get your dev-dependencies back.
+   
+   You can build for a specific platform and arch by adding `--platform=<PLATFORM> --arch=<ARCH>`, where `<PLATFORM>` is one of {win32, darwin, linux} and `<ARCH>` is one of {ia32, x64}. To build without pruning (which removes your devDependencies) add `--noprune`.
 
 ## Runtime
 [Runtime](https://github.com/pioneers/daemon/wiki/Runtime)

@@ -10,7 +10,7 @@ import {ProgressBar} from 'react-bootstrap';
 import NameEdit from './NameEdit';
 import numeral from 'numeral';
 
-var Motor = React.createClass({
+var ScalarSensor = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
     peripheralType: React.PropTypes.string,
@@ -30,4 +30,4 @@ var Motor = React.createClass({
   }
 });
 
-export default Motor;
+export default ScalarSensor;

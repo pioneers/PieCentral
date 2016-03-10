@@ -128,6 +128,22 @@ export default React.createClass({
   editorUpdate(newVal) {
     EditorActionCreators.editorUpdate(newVal);
   },
+  correctText(text) {
+    // Removes non-ASCII characters from text.
+    return text.replace(/[^\x00-\x7F]/g, "");
+  },
+  onEditorPaste(pasteData) {
+    // Must correct non-ASCII characters, which would crash Runtime.
+    let correctedText = pasteData.text;
+    // Normalizing will allow us (in some cases) to preserve ASCII equivalents.
+    correctedText = correctedText.normalize("NFD");
+    // Special case to replace fancy quotes.
+    correctedText = correctedText.replace(/[”“]/g,'"');
+    correctedText = correctedText.replace(/[‘’]/g,"'");
+    correctedText = this.correctText(correctedText);
+    // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
+    pasteData.text = correctedText;
+  },
   toggleConsole() {
     this.setState({showConsole: !this.state.showConsole});
     // must call resize method after changing height of ace editor
@@ -136,15 +152,28 @@ export default React.createClass({
   clearConsole() {
     RobotActions.clearConsole();
   },
-  upload() {
-    Ansible.sendMessage('save', {
-      code: this.state.editorCode
-    });
+  sendCode(command) {
+    let correctedText = this.correctText(this.state.editorCode);
+    if (correctedText !== this.state.editorCode) {
+      AlertActions.addAlert(
+	'Invalid characters detected',
+	'Your code has non-ASCII characters, which won\'t work on the robot. ' +
+	'Please remove them and try again.'
+      );
+      return false;
+    } else {
+      Ansible.sendMessage(command, {
+	code: this.state.editorCode
+      });
+      return true;
+    }
   },
+  upload() { this.sendCode('upload'); },
   startRobot() {
-    Ansible.sendMessage('execute', {
-      code: this.state.editorCode
-    });
+    let sent = this.sendCode('execute');
+    if (sent) {
+      RobotActions.clearConsole();
+    };
   },
   stopRobot() {
     Ansible.sendMessage('stop', {});
@@ -163,9 +192,9 @@ export default React.createClass({
       }, {
         groupId: 'code-execution-buttons',
         buttons: [
-          new EditorButton('run', 'Run', this.startRobot, 'play', (this.props.isRunningCode || !this.props.connectionStatus)),
-          new EditorButton('stop', 'Stop', this.stopRobot, 'stop', !(this.props.isRunningCode && this.props.connectionStatus)),
-          new EditorButton('upload', 'Upload', this.upload, 'upload', (this.props.isRunningCode || !this.props.connectionStatus)),
+          new EditorButton('run', 'Run', this.startRobot, 'play', (this.props.isRunningCode || !this.props.runtimeStatus)),
+          new EditorButton('stop', 'Stop', this.stopRobot, 'stop', !(this.props.isRunningCode && this.props.runtimeStatus)),
+          new EditorButton('upload', 'Upload', this.upload, 'upload', (this.props.isRunningCode || !this.props.runtimeStatus)),
           new EditorButton('toggle-console', 'Toggle Console', this.toggleConsole, 'console'),
           new EditorButton('clear-console', 'Clear Console', this.clearConsole, 'remove')
         ]
@@ -230,6 +259,7 @@ export default React.createClass({
             editorHeight - this.state.showConsole * (consoleHeight + 30)) + 'px'}
           value = { this.state.editorCode }
           onChange={ this.editorUpdate }
+	  onPaste={ this.onEditorPaste }
           editorProps={{$blockScrolling: Infinity}}
         />
         <ConsoleOutput

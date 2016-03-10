@@ -124,7 +124,7 @@ while True:
         'peripheral': {
             'name':id_to_name['1231'],
             'peripheralType': 'ColorSensor',
-            'value': [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)],
+            'value': [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), random.randint(0, 1), random.randint(0, 360)],
             'id': '1231'
         }
     })

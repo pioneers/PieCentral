@@ -15,7 +15,8 @@ export default React.createClass({
       steps: [],
       consoleData: [],
       isRunningCode: false,
-      connectionStatus: true,
+      connectionStatus: false,
+      runtimeStatus: true,
       batteryLevel: 0
     };
   },
@@ -33,6 +34,7 @@ export default React.createClass({
       consoleData: RobotInfoStore.getConsoleData(),
       isRunningCode: RobotInfoStore.getIsRunningCode(),
       connectionStatus: RobotInfoStore.getConnectionStatus(),
+      runtimeStatus: RobotInfoStore.getRuntimeStatus(),
       batteryLevel: RobotInfoStore.getBatteryLevel()
     });
   },
@@ -73,6 +75,7 @@ export default React.createClass({
       <div>
         <DNav
           startTour={this.startTour}
+	  runtimeStatus={this.state.runtimeStatus}
           connection={this.state.connectionStatus}
           battery={this.state.batteryLevel}
         />
@@ -88,7 +91,8 @@ export default React.createClass({
           addSteps={this.addSteps}
           addTooltip={this.addTooltip}
           consoleData={this.state.consoleData}
-          connectionStatus={this.state.connectionStatus}
+	  connectionStatus={this.state.connectionStatus}
+          runtimeStatus={this.state.runtimeStatus}
           isRunningCode={this.state.isRunningCode}
         />
       </div>

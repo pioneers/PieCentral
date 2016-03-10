@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import {Label} from 'react-bootstrap';
+import {ProgressBar} from 'react-bootstrap';
 import NameEdit from './NameEdit';
 import numeral from 'numeral';
 
@@ -25,6 +25,7 @@ var Motor = React.createClass({
 	  {numeral(this.props.value).format('+0.00')}
         </h4>
       </div>
+      <ProgressBar now={Math.abs(this.props.value)}></ProgressBar>
     </div>
     );
   }

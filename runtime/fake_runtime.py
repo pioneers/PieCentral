@@ -59,7 +59,7 @@ while True:
         'peripheral': {
             'name': id_to_name['1236'],
             'peripheralType': 'SENSOR_SCALAR',
-            'value': random.uniform(0, 100),
+            'value': random.uniform(0, 1),
             'id': '1236'
         }
     })
@@ -77,7 +77,7 @@ while True:
         'peripheral': {
             'name': id_to_name['1235'],
             'peripheralType': 'LimitSwitch',
-            'value': random.randint(0, 1),
+            'value': random.randint(0,1),
             'id': '1235'
         }
     })
@@ -85,7 +85,7 @@ while True:
         'peripheral': {
             'name':id_to_name['1237'],
             'peripheralType': 'LineFollower',
-            'value': random.uniform(-100, 100),
+            'value': random.uniform(0, 1),
             'id': '1237'
         }
     })

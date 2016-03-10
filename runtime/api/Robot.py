@@ -45,11 +45,11 @@ def get_motor(name):
     >>> motor = get_motor(motor1)
 
     """
-    name = _lookup(name)
+    device_id = _lookup(name)
     name_to_value = mc.get('motor_values')
-    assert type(name) is str, "Type Mismatch: Must pass in a string"
+    assert type(device_id) is str, "Type Mismatch: Must pass in a string"
     try:
-        return name_to_value[name]/100
+        return name_to_value[device_id]/100
     except KeyError:
         raise KeyError("Motor name not found.")
 
@@ -67,11 +67,11 @@ def set_motor(name, value):
     assert type(name) is str, "Type Mismatch: Must pass in a string to name."
     assert type(value) is int or type(value) is float, "Type Mismatch: Must pass in an integer or float to value."
     assert value <= 1 and value >= -1, "Motor value must be a decimal between -1 and 1 inclusive."
-    name = _lookup(name)
+    device_id = _lookup(name)
     name_to_value = mc.get('motor_values')
-    if name not in name_to_value:
+    if device_id not in name_to_value:
         raise KeyError("No motor with that name")
-    name_to_value[name] = value*100
+    name_to_value[device_id] = value*100
     mc.set('motor_values', name_to_value)
 
 def get_sensor(name):
@@ -252,23 +252,28 @@ def get_metal_detector(name): #TODO metal detector Implementation
     """Returns the sensor reading of the specified metal detector
 
     Each metal detector returns an integer, which changes based on the prescence of metal.
+    After callibration, the value should increase in the presence of steel and decrease in
+    the presence of aluminum. There is random drift of around 8 so your code should callibrate
+    in air often.
 
     :param name: A String that identifies the metal detector smart device.
     :returns: An integer (large) which represents whether metal is detected or not.
 
     """
-    name = _lookup(name)
-    return _testConnected(name)
+    device_id = _lookup(name)
+    return _testConnected(device_id)
 
 def calibrate_metal_detector(name): #TODO test calibration 
     """Calibrates the specified metal sensor
 
-    Calibrates to set the current reading of the metal detector to air (0)
+    Calibrates to set the current reading of the metal detector to air (0). It is
+    recommended that this is called before every reading to avoid misreading values
+    due to drift.
 
     :param name: A String that identifies the metal detector smart device.
     """
-    name = _lookup(name)
-    mc.set("metal_detector_calibrate",[name,True])
+    device_id = _lookup(name)
+    mc.set("metal_detector_calibrate",[device_id,True])
 
 
 """

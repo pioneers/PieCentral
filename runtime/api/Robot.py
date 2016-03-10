@@ -276,19 +276,20 @@ def calibrate_metal_detector(name): #TODO test calibration
     mc.set("metal_detector_calibrate",[device_id,True])
 
 
-"""
-def get_all_reflecting(name): #TODO hibike implement
-    \"""Returns how much light is reflected onto the sensor_values
 
-    A light/reflective material will return higher values, while a dark material
-    will return a lower value. Each reflecting sensor returns a list, with each index
-    corresponding to a specifie reflecting sensor.
+def get_line_sensor(name):
+    """Returns a value used to determine whether the selected sensor is over a line or not
+
+    If the selected sensor (left, center, or right) is over a line/reflective surface, 
+    this will return an double close to 0; 
+    Over the ground or dark material, this will return an double close to 1. 
 
     :param name: A String that identifies the reflecting smart device.
-    :returns: A list of decimals which represents how much light is reflected.
-    \"""
-    return null
-"""
+    :returns: An double that specifies whether it is over the tape (0 - 1)
+    """
+    device_id = _lookup(name)
+    return _testConnected(device_id)
+
 
 
 def drive_distance_all(degrees, motors, gear_ratios):

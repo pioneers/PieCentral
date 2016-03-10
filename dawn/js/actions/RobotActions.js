@@ -21,6 +21,12 @@ var RobotActions = {
     AppDispatcher.dispatch({
       type: ActionTypes.CLEAR_CONSOLE,
     });
+  },
+  updateConnection(connectionStatus) {
+    AppDispatcher.dispatch({
+      type: ActionTypes.UPDATE_CONNECTION,
+      payload: connectionStatus
+    });
   }
 };
 

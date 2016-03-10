@@ -15,13 +15,14 @@ export default React.createClass({
         <Row>
           <Col smPush={8} sm={4}>
             <FinalCompPeripheralList
-              connectionStatus={this.props.connectionStatus}/>
+	      connectionStatus={this.props.connectionStatus}
+              runtimeStatus={this.props.runtimeStatus}/>
             <Gamepads />
           </Col>
           <Col smPull={4} sm={8}>
             <Editor
               consoleData={this.props.consoleData}
-              connectionStatus={this.props.connectionStatus}
+              runtimeStatus={this.props.runtimeStatus}
               isRunningCode={this.props.isRunningCode}/>
           </Col>
         </Row>

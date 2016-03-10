@@ -19,8 +19,8 @@ def log_output(stream):
         time.sleep(0.05) # don't want to flood ansible
 
 robotStatus = 0
-batteryLevel = 100
-id_to_name = {'1234': 'myMotor', '1235': 'something', '1236': 'somethingElse', '1237': 'somethingElseMore', '1238': 'MoreStuff', '1239': 'One', '1233': 'More'}
+batteryLevel = 12.3154809823084346
+id_to_name = {'1234': 'myMotor', '1235': 'something', '1236': 'somethingElse', '1237': 'somethingElseMore', '1238': 'MoreStuff', '1239': 'One', '1233': 'More', '1231': 'ColorThing'}
 while True:
     mc.set('gamepad', {'time': datetime.now()}) # sending arbitary data to API
     msg = ansible.recv()
@@ -120,7 +120,15 @@ while True:
             'id': '1239'
         }
     })
-    batteryLevel -= 1
+    ansible.send_message('UPDATE_PERIPHERAL', {
+        'peripheral': {
+            'name':id_to_name['1231'],
+            'peripheralType': 'ColorSensor',
+            'value': [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), random.randint(0, 1), random.randint(0, 360)],
+            'id': '1231'
+        }
+    })
+    # batteryLevel -= 1
     if batteryLevel == 0:
         batteryLevel = 100
         ansible.send_message('ADD_ALERT', {

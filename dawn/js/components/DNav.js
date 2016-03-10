@@ -7,9 +7,9 @@ import {
   Tooltip,
   OverlayTrigger,
   Button,
-  Label,
   Glyphicon} from 'react-bootstrap';
 import UpdateBox from './UpdateBox';
+import StatusLabel from './StatusLabel';
 import { remote } from 'electron';
 import smalltalk from 'smalltalk';
 import Ansible from '../utils/Ansible';
@@ -17,11 +17,6 @@ const storage = remote.require('electron-json-storage');
 
 export default React.createClass({
   displayName: 'DNav',
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextProps.connection !== this.props.connection ||
-      nextProps.battery !== this.props.battery ||
-      nextState.showUpdateModal !== this.state.showUpdateModal;
-  },
   getInitialState() {
     return { showUpdateModal: false };
   },
@@ -65,20 +60,17 @@ export default React.createClass({
           hide={this.toggleUpdateModal} />
         <Navbar.Header>
           <Navbar.Brand id="header-title">
-            {"Dawn v" +
-              this.getDawnVersion() +
-              (this.props.connection ? "" : " (disconnected)")}
+            {"Dawn v" + this.getDawnVersion()}
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
-          <Navbar.Text>
-            <Label bsStyle="success" id="battery-indicator">
-              Battery Level: {
-                this.props.connection ? this.props.battery : 'Not connected.'
-              }
-            </Label>
-          </Navbar.Text>
+	  <Navbar.Text>
+	    <StatusLabel
+	      connectionStatus={this.props.connection}
+	      runtimeStatus={this.props.runtimeStatus}
+	      battery={this.props.battery} />
+	  </Navbar.Text>
           <Navbar.Form
             pullRight={true}>
             <ButtonToolbar>

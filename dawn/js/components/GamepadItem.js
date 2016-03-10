@@ -77,7 +77,6 @@ export default React.createClass({
                     <td>13</td>
                     <td>14</td>
                     <td>15</td>
-                    <td>16</td>
                   </tr>
                   <tr>
                     <th>Value</th>
@@ -97,7 +96,6 @@ export default React.createClass({
                     <td>{values.buttons[13]}</td>
                     <td>{values.buttons[14]}</td>
                     <td>{values.buttons[15]}</td>
-                    <td>{values.buttons[16]}</td>
                   </tr>
                 </tbody>
               </Table>

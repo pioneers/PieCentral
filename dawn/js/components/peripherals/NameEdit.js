@@ -33,7 +33,9 @@ var NameEdit = React.createClass({
     let re = new RegExp("^[A-Za-z][A-Za-z0-9]+$");
     let isValid = re.test(name);
     let allCurrentPeripherals = RobotPeripheralStore.getPeripherals();
-    let isDuplicate = _.some(allCurrentPeripherals, (peripheral) => {return peripheral.name === name});
+    let isDuplicate = _.some(allCurrentPeripherals, (peripheral) => {
+      return peripheral.name === name && peripheral.id !== this.props.id;
+    });
     return isValid && !isDuplicate;
   },
   render() {

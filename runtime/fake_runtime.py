@@ -18,9 +18,11 @@ def log_output(stream):
         })
         time.sleep(0.05) # don't want to flood ansible
 
+temporary_send = 20
 robotStatus = 0
 id_to_name = {'1230': 'MotorA', '1231': 'MotorB', '1232': 'LimitA', '1233': 'LineA', '1234': 'PotentiometerA', '1235': 'EncoderA', 
-                '1236': 'ColorThing', '1237': 'MetalDetectorA', '1238': 'ScalarA', '1239': 'ErroredA'}
+                '1236': 'ColorThing', '1237': 'MetalDetectorA', '1238': 'ScalarA', '1239': 'ErroredA',
+                '1240': 'TempMotor', '1241': 'TempLine'}
 while True:
     batteryLevel = random.uniform(0, 12.0)
     mc.set('gamepad', {'time': datetime.now()}) # sending arbitary data to API
@@ -55,7 +57,6 @@ while True:
             print msg['content']['update_path']
             print msg['content']['signature_path']
 
-    
     ansible.send_message('UPDATE_BATTERY', {
         'battery': {
             'value': batteryLevel
@@ -66,6 +67,25 @@ while True:
             'value': robotStatus
         }
     })
+
+    if temporary_send > 0:
+        ansible.send_message('UPDATE_PERIPHERAL', {
+            'peripheral': {
+                'name':id_to_name['1240'],
+                'peripheralType': 'MOTOR_SCALAR',
+                'value': random.uniform(-100, 100),
+                'id': '1240'
+            }
+        })
+        ansible.send_message('UPDATE_PERIPHERAL', {
+            'peripheral': {
+                'name':id_to_name['1241'],
+                'peripheralType': 'LineFollower',
+                'value': random.uniform(0, 10),
+                'id': '1241'
+            }
+        })
+        temporary_send -= 1
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
             'name':id_to_name['1230'],
@@ -146,8 +166,7 @@ while True:
             'id': '1239'
         }
     })
-    
-    # batteryLevel -= 1
+
     if batteryLevel == 0:
         batteryLevel = 100
         ansible.send_message('ADD_ALERT', {

@@ -3,7 +3,6 @@
  * Props:
  *   id: a unique id string
  *   value: the speed, from -100 to 100.
- *   disconnected: Boolean indicator if this motor is disconnected
  */
 
 import React from 'react';

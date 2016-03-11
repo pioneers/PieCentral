@@ -30,7 +30,6 @@ let RobotPeripheralStore = assign({}, EventEmitter.prototype, {
  * Remove the motor from the motors list. Helper for handleUpdateMotor.
  */
 function reapMotor(id) {
-  _peripheralData.motors[id].disconnected = true;
   _peripheralData.motors[id].reaper = setTimeout(() => {
     delete _peripheralData.motors[id];
     RobotPeripheralStore.emitChange();
@@ -42,7 +41,6 @@ function reapMotor(id) {
  * Remove the peripheral from the peripherals list. Helper for handleUpdatePeripheral.
  */
 function reapPeripheral(id) {
-  _peripheralData.peripherals[id].disconnected = true;
   _peripheralData.peripherals[id].reaper = setTimeout(() => {
     delete _peripheralData.peripherals[id];
     RobotPeripheralStore.emitChange();
@@ -65,9 +63,6 @@ function handleUpdateMotor(action) {
     motor = {id: action.id, peripheralType: PeripheralTypes.MOTOR_SCALAR};
     _peripheralData.motors[action.id] = motor;
   }
-
-  // Motor is not disconnected.
-  motor.disconnected = false;
 
   // Assign properties from the action.
   motor.value = action.value;

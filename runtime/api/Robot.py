@@ -456,4 +456,3 @@ class SensorValueOutOfBounds(Exception):
 def _get_all():
     return mc.get('sensor_values')
 
-

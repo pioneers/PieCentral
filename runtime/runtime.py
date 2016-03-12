@@ -123,16 +123,12 @@ def get_all_data(connectedDevices):
         tup_nest = h.getData(uid, "dataUpdate")
         if h.getDeviceName(int(device_type)) == "ColorSensor":
             #special case for color sensors
-            color_data = h.getData(uid, "dataUpdate")
+            color_data = h.getData(uid, "dataUpdate")[0]
             lum = float(color_data[3])
-            red = color_data[0] / lum * 256
-            green = color_data[1] / lum * 256
-            blue = color_data[2] / lum * 256
-            all_data[str(uid) + "1"] = red
-            all_data[str(uid) + "2"] = green
-            all_data[str(uid) + "3"] = blue
-            all_data[str(uid) + "4"] = lum
-            all_data[str(uid) + "5"] = get_hue(red, green, blue)
+            red = int(color_data[0] / lum * 256)
+            green = int(color_data[1] / lum * 256)
+            blue = int(color_data[2] / lum * 256)
+            all_data[str(uid) + "1"] = [red, green, blue, lum, get_hue(red, green, blue)]
             continue
         if not tup_nest:
             continue

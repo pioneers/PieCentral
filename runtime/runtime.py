@@ -19,6 +19,7 @@ mc.set('control_mode', ["default", "all"])
 mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
 mc.set('metal_detector_calibrate', [False,False])
+mc.set('toggle_light', None)
 
 #####
 # Connect to hibike
@@ -161,7 +162,8 @@ def get_hue(r, g, b):
     else:
         # Should never be here
         return -1
-        
+
+
 #####
 # Battery
 #####
@@ -255,6 +257,11 @@ def metal_d_calibrate(metalID):
     calibrate_val += 1
     mc.set("metal_detector_calibrate", [False,False])
 
+def set_light(value):
+    device_id = value[0]
+    write_value = value[1]
+    h.writeValue(device_id_to_uid(device_id), write_value)
+    mc.set("toggle_light", None)
 
 #####
 # Motors
@@ -527,9 +534,10 @@ while True:
     if PID_rebind:
         set_PID(PID_rebind)
 
-    #refresh PID constants
-    mc.set("get_PID", PID_constants)
-
+    #toggle light on or off
+    toggle_value = mc.get("toggle_light")
+    if toggle_value != None:
+        set_light(toggle_value)
 
 
     time.sleep(0.05)

@@ -66,6 +66,13 @@ export default React.createClass({
       this.props.hide();
     });
   },
+  canUploadUpdate() {
+    return (
+      !(this.state.updateFilepath && this.state.signatureFilepath) ||
+      this.state.isUploading ||
+      !(this.props.connectionStatus && this.props.runtimeStatus)
+    );
+  },
   render() {
     return (
       <Modal show={this.props.shouldShow} onHide={this.props.hide}>
@@ -86,7 +93,7 @@ export default React.createClass({
           <Button
             bsStyle="primary"
             onClick={this.upgradeSoftware}
-            disabled={!(this.state.updateFilepath && this.state.signatureFilepath) || this.state.isUploading }>
+            disabled={this.canUploadUpdate()}>
             {this.state.isUploading ? 'Uploading...' : 'Upload Files'}
           </Button>
         </Modal.Footer>

@@ -56,6 +56,8 @@ export default React.createClass({
     return (
       <Navbar fixedTop fluid>
         <UpdateBox
+          connectionStatus={this.props.connection}
+          runtimeStatus={this.props.runtimeStatus}
           shouldShow={this.state.showUpdateModal}
           hide={this.toggleUpdateModal} />
         <Navbar.Header>

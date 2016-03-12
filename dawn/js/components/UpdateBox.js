@@ -11,7 +11,10 @@ const dialog = remote.dialog;
 export default React.createClass({
   propTypes: {
     shouldShow: React.PropTypes.bool.isRequired,
-    hide: React.PropTypes.func.isRequired
+    hide: React.PropTypes.func.isRequired,
+    connectionStatus: React.PropTypes.bool,
+    runtimeStatus: React.PropTypes.bool,
+    isRunningCode: React.PropTypes.bool
   },
   getInitialState() {
     return {
@@ -66,11 +69,12 @@ export default React.createClass({
       this.props.hide();
     });
   },
-  canUploadUpdate() {
+  disableUploadUpdate() {
     return (
       !(this.state.updateFilepath && this.state.signatureFilepath) ||
       this.state.isUploading ||
-      !(this.props.connectionStatus && this.props.runtimeStatus)
+      !(this.props.connectionStatus && this.props.runtimeStatus) ||
+      this.props.isRunningCode
     );
   },
   render() {
@@ -93,7 +97,7 @@ export default React.createClass({
           <Button
             bsStyle="primary"
             onClick={this.upgradeSoftware}
-            disabled={this.canUploadUpdate()}>
+            disabled={this.disableUploadUpdate()}>
             {this.state.isUploading ? 'Uploading...' : 'Upload Files'}
           </Button>
         </Modal.Footer>

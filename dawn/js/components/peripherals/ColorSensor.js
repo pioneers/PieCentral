@@ -1,5 +1,10 @@
 import React from 'react';
 import NameEdit from './NameEdit';
+import {
+  Button,
+  OverlayTrigger,
+  Popover
+} from 'react-bootstrap';
 import numeral from 'numeral';
 import _ from 'lodash';
 
@@ -28,12 +33,23 @@ var ColorSensor = React.createClass({
           <NameEdit name={this.props.name} id={this.props.id} />
           <small> {this.props.peripheralType} </small>
         </h4>
-        <div style={{
-          float: 'right',
-          width: '35px',
-          height: '35px',
-          backgroundColor: this.getHexColorValue()}}>
-        </div>
+        <OverlayTrigger trigger="hover" placement="left" overlay={
+          <Popover>
+            {`R: ${this.props.value[0]} G: ${this.props.value[1]} B: ${this.props.value[2]}`}
+            <br/>
+            {`Hue: ${this.props.value[4]}`}
+            <br/>
+            {`Luminosity: ${this.props.value[3]}`}
+          </Popover>
+        }>
+          <div style={{
+            float: 'right',
+            width: '35px',
+            height: '35px',
+            backgroundColor: this.getHexColorValue()}
+          }>
+          </div>
+        </OverlayTrigger>
       </div>
     </div>
     );

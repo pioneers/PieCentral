@@ -37,9 +37,9 @@ var ColorSensor = React.createClass({
           <Popover>
             {`R: ${this.props.value[0]} G: ${this.props.value[1]} B: ${this.props.value[2]}`}
             <br/>
-            {`Hue: ${this.props.value[4]}`}
+            {`Hue: ${numeral(this.props.value[4]).format('0.00')}`}
             <br/>
-            {`Luminosity: ${this.props.value[3]}`}
+            {`Luminosity: ${numeral(this.props.value[3]).format('0.00')}`}
           </Popover>
         }>
           <div style={{

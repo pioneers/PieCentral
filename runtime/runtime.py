@@ -336,13 +336,13 @@ def set_control_mode(mode):
             try:
                 grizzly.set_mode(new_mode, old_mode[1])
             except:
-                continue
+                pass
     else:
         grizzly = name_to_grizzly[motor]
         try:
             grizzly.set_mode(new_mode, old_mode[1])
         except:
-            continue
+            pass
     mc.set("control_mode", [])
 
 def set_drive_mode(mode):
@@ -352,10 +352,14 @@ def set_drive_mode(mode):
             grizzly = name_to_grizzly[motor]
             try:
                 grizzly.set_mode(old_mode[0], new_mode)
+            except:
+                pass
     else:
         grizzly = name_to_grizzly[motor]
         try:
             grizzly.set_mode(old_mode[0], new_mode)
+        except:
+            pass
     mc.set("drive_mode", [])
 
 def set_PID(constants):

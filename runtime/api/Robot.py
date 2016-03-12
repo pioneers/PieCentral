@@ -425,7 +425,7 @@ def get_PID_constants():
     """
     return mc.get("get_PID")
 
-def _testConnected(device_id): #checks if data exists in sensor values, throws error if doesn't
+def _testConnected(device_id): # Returns value if device_id exists, otherwise throws SensorValueOutOFBounds Exception
     all_data = mc.get('sensor_values')
     try:
         return all_data[device_id]
@@ -434,8 +434,6 @@ def _testConnected(device_id): #checks if data exists in sensor values, throws e
 
 class SensorValueOutOfBounds(Exception):
     pass
-
-# pololu.com. 19:1 and 67:1 motors 37D motors geared. Be able to change PID constants. Move and stay - set point. once it is called again, reset and redo function.
 
 def _get_all():
     return mc.get('sensor_values')

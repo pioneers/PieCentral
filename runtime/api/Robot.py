@@ -19,7 +19,7 @@ mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
 motor = {}
 
 _naming_map_filename = 'student_code/CustomID.txt'
-_name_to_id = {}
+_name_to_id = {} # Mapping from motor name to device_id, both are strings
 try:
     with open(_naming_map_filename, "r") as f:
         for line in f.readlines():
@@ -186,21 +186,8 @@ def get_hue(name):
     254.01
 
     """
-    all_data = mc.get('sensor_values')
-    device_id = _lookup(name)
-    try:
-        r = all_data[name][0]
-        g = all_data[name][1]
-        b = all_data[name][2]
-        denom = max(r,g,b) - min(r,g,b)
-        if r > g and r > b:
-            return (g - b)/denom
-        elif g > r and g > b:
-            return 2.0 + (b - r)/denom
-        else:
-            return 4.0 + (r - g)/denom
-    except KeyError:
-        raise KeyError("No Sensor with that name")
+    device_id = _lockup(name)
+    return _testConnected(device_id)
 
 def get_distance_sensor(name):
     """Returns the distance away from the sensor an object is, measured in centimeters

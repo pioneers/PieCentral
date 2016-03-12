@@ -124,11 +124,14 @@ def get_all_data(connectedDevices):
             #special case for color sensors
             color_data = h.getData(uid, "dataUpdate")
             lum = float(color_data[3])
-            all_data[str(uid) + "5"] = color_data
-            all_data[str(uid) + "1"] = color_data[0] / lum * 256
-            all_data[str(uid) + "2"] = color_data[1] / lum * 256
-            all_data[str(uid) + "3"] = color_data[2] / lum * 256
+            red = color_data[0] / lum * 256
+            green = color_data[1] / lum * 256
+            blue = color_data[2] / lum * 256
+            all_data[str(uid) + "1"] = red
+            all_data[str(uid) + "2"] = green
+            all_data[str(uid) + "3"] = blue
             all_data[str(uid) + "4"] = lum
+            all_data[str(uid) + "5"] = get_hue(red, green, blue)
             continue
         if not tup_nest:
             continue
@@ -137,6 +140,28 @@ def get_all_data(connectedDevices):
             all_data[device_id] = value
     return all_data
 
+def get_hue(r, g, b):
+    denom = max(r, g, b) - min(r, g, b)
+    if denom == 0:
+        return 0
+    L, M, H = sorted([r, g, b])
+    preucilHueError = 1.0 * (M - L) / (H - L)
+    if r >= g and g >= b:
+        return 60 * preucilHueError
+    elif g > r and r >= b:
+        return 60 * (2 - preucilHueError)
+    elif g >= b and b > r:
+        return 60 * (2 + preucilHueError)
+    elif b > g and g > r:
+        return 60 * (4 - preucilHueError)
+    elif b > r and r >= g:
+        return 60 * (4 + preucilHueError)
+    elif r >= b and b > g:
+        return 60 * (6 - preucilHueError)
+    else:
+        # Should never be here
+        return -1
+        
 #####
 # Battery
 #####

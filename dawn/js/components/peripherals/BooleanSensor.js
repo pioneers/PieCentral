@@ -8,12 +8,6 @@
 import React from 'react';
 import NameEdit from './NameEdit';
 
-var _booleanDisplay = function(sensor) {
-  if (sensor.peripheralType == "LimitSwitch") {
-    return (sensor.value) ? "Closed":"Open";
-  } else return sensor.value;
-};
-
 var BooleanSensor = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
@@ -21,12 +15,19 @@ var BooleanSensor = React.createClass({
     id: React.PropTypes.string,
     value: React.PropTypes.number
   },
+  formatBoolean(sensor) {
+    if (sensor.peripheralType == "LimitSwitch") {
+      return (sensor.value) ? "Open":"Closed";
+    } else {
+      return sensor.value;
+    };
+  },
   render() {
     return (
     <div style={{overflow: 'auto'}}>
       <div style={{overflow: 'auto', width: '100%'}}>
         <h4 style={{float: 'left'}}><NameEdit name={this.props.name} id={this.props.id} /><small> {this.props.peripheralType} </small></h4>
-        <h4 style={{float: 'right'}}> {_booleanDisplay(this.props)} </h4>
+        <h4 style={{float: 'right'}}> {this.formatBoolean(this.props)} </h4>
       </div>
     </div>
     );

@@ -128,46 +128,46 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     mc.set('servo_values', name_to_value)
 
 
-def get_color_sensor(name):
-    """Returns the value from the color sensor for a specific color.
+def get_rgb(name):
+    """Returns a list of rgb values from the specified color sensor.
 
-    Each color sensor senses red, green, and blue, returning a
-    number between 0 and 1, where 1 indicates a higher intensity. This function returns
+    Each value for red, green, and blue will return a
+    number between 0 and 255, where 255 indicates a higher intensity. This function returns
     the result from one specific color sensor.
 
     :param name: A string that identifies the color sensor
-    :param color: A integer that identifies which specific color sensor to return
-                  where 0 specifies the red sensor, 1 specifies the green sensor,
-                  and 2 specifies the blue sensor
-    :returns: A double between 0 and 1, where 1 indicates a higher intensity
+    :returns: A list of integers in the order of values for red, green, blue
 
     :Examples:
 
-    >>> color = get_color_sensor("color1",1)
+    >>> color = get_color_sensor("color1")
     >>> color
-    0.873748
+    [100, 240, 150]
 
     """
     device_id = _lookup(name)
-    return _testConnected(device_id)
+    data = _testConnected(device_id)
+    red = data[0]
+    green = data[1]
+    blue = data[2]
+    return [red, green, blue]
 
 def get_luminosity(name):
     """Returns the luminosity for the specified color sensor.
 
     The color sensor returns the luminosity detected by the color sensor, represnted by
-    a decimal between 0 and 1, where 1 indicates higher intensity.
+    a decimal where larger numbers indicates higher intensity.
 
     :param name: A string that identifies the color sensor
-    :returns: A double between 0 and 1, where 1 indicates a higher intensity
+    :returns: A double where a larger number indicates a higher intensity
 
     :Examples:
 
-    >>> get_luminosity("color1")
-    0.89783
+    >>> lum_berry = get_luminosity("color1")
 
     """
     device_id = _lookup(name)
-    return _testConnected(device_id)
+    return _testConnected(device_id)[3]
 
 def get_hue(name):
     """Returns the hue detected at the specified color sensor.
@@ -186,8 +186,23 @@ def get_hue(name):
     254.01
 
     """
-    device_id = _lockup(name)
-    return _testConnected(device_id)
+    device_id = _lookup(name)
+    return _testConnected(device_id)[4]
+
+def toggle_light(name, status):
+    """Turns the light on specfied color sensor on or off.
+
+    Takes in the name of the specified color sensor and a boolean (True for on, false for off).
+
+    :param name: A string that identifies the color sensor.
+    :param status: A boolean that determines whether the light should be on (True) or off (False)
+    """
+    device_id = _lookup(name)
+    if (status):
+        write_value = 1
+    else:
+        write_value = 0
+    mc.set("toggle_light", [device_id, write_value])
 
 def get_distance_sensor(name):
     """Returns the distance away from the sensor an object is, measured in centimeters
@@ -238,6 +253,7 @@ def get_potentiometer(name):
 def get_metal_detector(name): #TODO metal detector Implementation
     """Returns the sensor reading of the specified metal detector
 
+
     Each metal detector returns an integer, which changes based on the prescence of metal.
     After callibration, the value should increase in the presence of steel and decrease in
     the presence of aluminum. There is random drift of around 8 so your code should callibrate
@@ -260,8 +276,8 @@ def calibrate_metal_detector(name): #TODO test calibration
     :param name: A String that identifies the metal detector smart device.
     """
     device_id = _lookup(name)
-    mc.set("metal_detector_calibrate",[device_id,True])
 
+    mc.set("metal_detector_calibrate",[device_id, True])
 
 
 def get_line_sensor(name):
@@ -437,3 +453,4 @@ class SensorValueOutOfBounds(Exception):
 
 def _get_all():
     return mc.get('sensor_values')
+

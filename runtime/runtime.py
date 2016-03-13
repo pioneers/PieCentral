@@ -124,7 +124,7 @@ def get_all_data(connectedDevices):
         if h.getDeviceName(int(device_type)) == "ColorSensor":
             #special case for color sensors
             color_data = h.getData(uid, "dataUpdate")[0]
-            lum = float(color_data[3])
+            lum = max(float(color_data[3]), 1)
             red = int(color_data[0] / lum * 256)
             green = int(color_data[1] / lum * 256)
             blue = int(color_data[2] / lum * 256)

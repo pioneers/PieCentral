@@ -33,8 +33,8 @@ var ColorSensor = React.createClass({
           <NameEdit name={this.props.name} id={this.props.id} />
           <small> {this.props.peripheralType} </small>
         </h4>
-        <OverlayTrigger trigger="hover" placement="left" overlay={
-          <Popover>
+        <OverlayTrigger trigger={["hover", "focus"]} placement="left" overlay={
+          <Popover id="colors">
             {`R: ${this.props.value[0]} G: ${this.props.value[1]} B: ${this.props.value[2]}`}
             <br/>
             {`Hue: ${numeral(this.props.value[4]).format('0.00')}`}

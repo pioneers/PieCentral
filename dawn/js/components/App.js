@@ -13,11 +13,11 @@ export default React.createClass({
   getInitialState() {
     return {
       steps: [],
-      consoleData: [],
-      isRunningCode: false,
-      connectionStatus: false,
-      runtimeStatus: true,
-      batteryLevel: 0
+      consoleData: RobotInfoStore.getConsoleData(),
+      isRunningCode: RobotInfoStore.getIsRunningCode(),
+      connectionStatus: RobotInfoStore.getConnectionStatus(),
+      runtimeStatus: RobotInfoStore.getRuntimeStatus(),
+      batteryLevel: RobotInfoStore.getBatteryLevel()
     };
   },
   componentDidMount() {

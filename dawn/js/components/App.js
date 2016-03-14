@@ -86,6 +86,7 @@ export default React.createClass({
           type="continuous"
           showSkipButton={true}
           completeCallback={this.completeCallback}
+          locale={{back: 'Previous', close: 'Close', last: 'End Tour', next: 'Next', skip: 'Skip Tour'}}
         />
         <div style={{ height: '60px', marginBottom: '21px' }}/>
         <Dashboard {...this.props}

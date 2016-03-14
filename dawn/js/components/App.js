@@ -13,11 +13,11 @@ export default React.createClass({
   getInitialState() {
     return {
       steps: [],
-      consoleData: [],
-      isRunningCode: false,
-      connectionStatus: false,
-      runtimeStatus: true,
-      batteryLevel: 0
+      consoleData: RobotInfoStore.getConsoleData(),
+      isRunningCode: RobotInfoStore.getIsRunningCode(),
+      connectionStatus: RobotInfoStore.getConnectionStatus(),
+      runtimeStatus: RobotInfoStore.getRuntimeStatus(),
+      batteryLevel: RobotInfoStore.getBatteryLevel()
     };
   },
   componentDidMount() {
@@ -86,6 +86,7 @@ export default React.createClass({
           type="continuous"
           showSkipButton={true}
           completeCallback={this.completeCallback}
+          locale={{back: 'Previous', close: 'Close', last: 'End Tour', next: 'Next', skip: 'Skip Tour'}}
         />
         <div style={{ height: '60px', marginBottom: '21px' }}/>
         <Dashboard {...this.props}

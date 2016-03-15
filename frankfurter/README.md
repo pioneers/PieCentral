@@ -1,37 +1,32 @@
 # frankfurter
 Various tools and scripts to make the deployment life easier.
 
-## Setting up a "master copy" of frank
-Ideally, only three things need to be done.
+## Before starting...
+Note that since all Beaglebone blacks have the same static IP settings by default, after logging
+into one (which happens implicitly when you run any of the make targets described below) it is
+necessary to remove the corresponding entry in `.ssh/known_hosts` before logging a different Beaglebone
+is possible.
 
-1. Flash the Beaglebone's eMMC as outlined in
-http://elinux.org/Beagleboard:Ubuntu_On_BeagleBone_Black#Main_Process (Follow Sections 1 and 4).
-2. Set up internet sharing from your PC to the Beaglebone Black. Instructions for this can be found
-at https://elementztechblog.wordpress.com/2014/12/22/sharing-internet-using-network-over-usb-in-beaglebone-black/
-Be sure to change the network devices being used in the examples appropriately.
-3. Install git (may require you to update apt-get), clone this repo, and run
-scripts/master_frank_setup.sh (TODO: integrate Chris' network setup stuff)
+## Setting up a Beaglebone Black
+Assuming you're running Linux/OSX, only three things need to be done. There likely won't ever be a
+way to easily deploy a BBB on Windows.
 
-That's it! From here we'll be pulling the image from our frank master copy to further flash to the
-rest of the Beaglebone Blacks.
+1. Flash the Beaglebone's eMMC as outlined [here](http://elinux.org/Beagleboard:Ubuntu_On_BeagleBone_Black#Main_Process)
+(Follow Sections 1 and 4). We have quite a few SD cards with the image already flashed on them in the DevOps box.
+2. Inside the frankfurter directory, run `make beaglebone_install`.
+3. You'll be asked to enter the default password of the BBB twice, and afterwards you'll be logged into
+   the BBB. From here, run `./start_tmux_job.sh`, and enter the default password one more time to initiate
+   setup. The script will do some stuff and eventually print 'Disconnect OK' to the console. At this point,
+   feel free to (assuming you keep the Beaglebone powered in some way) exit your ssh session with the
+   Beaglebone. When everything is finished, the file ~/DONE will be created.
+   (TODO: this step less clunky if possible)
 
-## Setting up clones of frank
-Setting up a clone of frank (for a team) only involves doing 2 things.
-
-1. Flash the Beaglebone's eMMC with the master frank image (we'll get this on the wiki once it's made)
-2. Wait until it finishes.
+## Update creation
+The `create_update` make target downloads the newest versions of runtime, hibike, etc, packages them
+into a tarball, and signs the tarball. From here, we can take the files created (they're placed in the
+build/ directory) and distribute them to teams.
 
 ## Update deployment
-Deploying an update is simple. All you have to do is run scripts/deploy_update.sh. This will output
-two files: the tarball itself and a signature (the .asc file).
-
-Currently, deploying an update does a few things.
-
-1. The latest versions of hibike and runtime are downloaded to be included in the tarball.
-2. scripts/install_update.sh is also copied to be packaged. This file contains the instructions for
-installing this particular update, so any additional packages to install, etc. that come up in the
-future should be added to that script. Of course, keep in mind that the script should be written
-such that the update can be applied regardless of the state of the robot given that the base frank
-image has been flashed to it.
-3. Everything is packed into a tarball which is then signed using gpg. Ask Vincent for the private
-key needed to sign tarballs.
+`deploy_update` assumes that you're USB tethered to a Beaglebone and then uploads and installs an update
+to the connected beaglebone, creating a new update using `create_update` if the build/ directory does not
+exit.

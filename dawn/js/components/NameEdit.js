@@ -1,8 +1,8 @@
 import React from 'react';
 import {RIEInput} from 'riek';
-import Ansible from '../../utils/Ansible';
-import AlertActions from '../../actions/AlertActions';
-import RobotPeripheralStore from '../../stores/RobotPeripheralStore';
+import Ansible from '../utils/Ansible';
+import AlertActions from '../actions/AlertActions';
+import RobotPeripheralStore from '../stores/RobotPeripheralStore';
 
 var NameEdit = React.createClass({
   propTypes: {

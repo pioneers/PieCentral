@@ -33,9 +33,6 @@ end
 ###############################################################################
 # --- packages for runtime and ui ---
 #
-package 'libzmq3-dev' do
-  version '4.0.4+dfsg-2'
-end
 # install nodejs, globally installed npm packages, and dawn specific packages
 # (we're assuming the dawn repo has been cloned in the expected location)
 bash 'nodejsSetup' do
@@ -61,7 +58,6 @@ bash 'pythonPackagesSetup' do
   code <<-EOH
     sudo pip install --upgrade enum34
     sudo pip install --upgrade pyserial
-    sudo pip install --upgrade pyzmq
     sudo pip install --upgrade grizzly
   EOH
 end

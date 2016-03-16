@@ -6,23 +6,34 @@ import {
   ButtonGroup,
   ButtonToolbar
 } from 'react-bootstrap';
-import _ from 'lodash';
+import ImmutablePropTypes from 'react-immutable-proptypes';
 
-var ConsoleOutput = React.createClass({
+class ConsoleOutput extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  componentWillReceiveProps (nextProps) {
+    if (this.props.output.size === 0 && nextProps.output.size > 0 && !this.props.show) {
+      this.props.toggleConsole();
+    }
+  }
+
   render() {
+    let height = String(this.props.height) + 'px';
     return (
       <div>
         <Panel collapsible expanded={this.props.show}>
-          <pre style={{position: 'relative', height: this.props.height}}>
+          <pre style={{position: 'relative', height: height}}>
             <div style={{
                 position: 'absolute',
                 bottom: '0',
-                maxHeight: this.props.height,
+                maxHeight: height,
                 overflowY: 'auto',
                 padding: '5px',
                 width: '99%'
             }}>
-            {_.map(this.props.output, (line, index)=>{
+            {this.props.output.map((line, index)=>{
               return (<code key={index}>{line}</code>);
             })}
             </div>
@@ -31,6 +42,13 @@ var ConsoleOutput = React.createClass({
       </div>
     );
   }
-});
+}
+
+ConsoleOutput.propTypes = {
+  height: React.PropTypes.number,
+  output: ImmutablePropTypes.list,
+  toggleConsole: React.PropTypes.func,
+  show: React.PropTypes.bool
+};
 
 export default ConsoleOutput;

@@ -263,8 +263,9 @@ export default React.createClass({
           editorProps={{$blockScrolling: Infinity}}
         />
         <ConsoleOutput
+          toggleConsole={this.toggleConsole}
           show={this.state.showConsole}
-          height={String(consoleHeight) + 'px'}
+          height={consoleHeight}
           output={this.props.consoleData}/>
       </Panel>
     );

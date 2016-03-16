@@ -9,11 +9,13 @@
 import React from 'react';
 import {ListGroupItem} from 'react-bootstrap';
 import {PeripheralTypes} from '../constants/Constants';
-import GenericPeripheral from './peripherals/GenericPeripheral';
-import Motor from './peripherals/Motor';
-import BooleanSensor from './peripherals/BooleanSensor';
-import ScalarSensor from './peripherals/ScalarSensor';
-import ColorSensor from './peripherals/ColorSensor';
+import {
+  Motor,
+  ColorSensor,
+  BooleanSensor,
+  ScalarSensor,
+  GenericPeripheral
+} from './Peripherals';
 
 // Mapping between peripheral types and components
 var typesToComponents = {};

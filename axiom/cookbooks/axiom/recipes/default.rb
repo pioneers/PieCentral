@@ -54,9 +54,14 @@ end
 package 'python-pip' do
   version '1.5.4-1'
 end
+
+# Note that the pip grizzly package is out of date. This ends up being a
+# non-issue for us at the moment, though, as obviously a grizzly is never
+# actually talked to using a VM, and we really only need the package to
+# ensure that runtime can import the grizzly package without any problems
+# This, of course, will be fixed if necessary.
 bash 'pythonPackagesSetup' do
   code <<-EOH
-    sudo pip install --upgrade enum34
     sudo pip install --upgrade pyserial
     sudo pip install --upgrade grizzly
   EOH

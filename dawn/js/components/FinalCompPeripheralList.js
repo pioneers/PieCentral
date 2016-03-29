@@ -33,9 +33,22 @@ var FinalCompPeripheralList = React.createClass({
     }
     return (
       <PeripheralList header='Peripherals'>
-        {!errorMsg
-          ? _.map(this.state.peripherals, (peripheral) => <Peripheral key={peripheral.id} {...peripheral}/>)
-          : errorMsg}
+      {
+        !errorMsg ?
+        _.map(
+          this.state.peripherals,
+          (peripheral) => {
+            return (
+              <Peripheral
+                key={peripheral.get('id')}
+                id={peripheral.get('id')}
+                name={peripheral.get('name')}
+                value={peripheral.get('value')}
+                peripheralType={peripheral.get('peripheralType')}/>
+            );
+          }
+        ) : errorMsg
+      }
       </PeripheralList>
     );
   }

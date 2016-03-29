@@ -13,11 +13,14 @@ var StatusLabel = React.createClass({
     let labelText = 'Disconnected';
     if (this.props.connectionStatus) {
       if (!this.props.runtimeStatus) {
-	labelStyle = 'danger';
-	labelText = 'Runtime Error';
+        labelStyle = 'danger';
+        labelText = 'Runtime Error';
+      } else if (this.props.battery < 1) {
+        labelStyle = 'warning';
+        labelText = 'Battery Issue'
       } else {
-	labelStyle = 'success';
-	labelText = `Connected. Battery: ${numeral(this.props.battery).format('0.00')} V`;
+        labelStyle = 'success';
+        labelText = `Connected. Battery: ${numeral(this.props.battery).format('0.00')} V`;
       }
     }
     return (

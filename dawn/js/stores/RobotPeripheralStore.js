@@ -30,11 +30,21 @@ let RobotPeripheralStore = assign({}, EventEmitter.prototype, {
  * Remove the motor from the motors list. Helper for handleUpdateMotor.
  */
 function reapMotor(id) {
-  _peripheralData.motors[id].disconnected = true;
   _peripheralData.motors[id].reaper = setTimeout(() => {
     delete _peripheralData.motors[id];
     RobotPeripheralStore.emitChange();
-  }, 3000);
+  }, 1000);
+  RobotPeripheralStore.emitChange();
+}
+
+/**
+ * Remove the peripheral from the peripherals list. Helper for handleUpdatePeripheral.
+ */
+function reapPeripheral(id) {
+  _peripheralData.peripherals[id].reaper = setTimeout(() => {
+    delete _peripheralData.peripherals[id];
+    RobotPeripheralStore.emitChange();
+  }, 1000);
   RobotPeripheralStore.emitChange();
 }
 
@@ -54,15 +64,12 @@ function handleUpdateMotor(action) {
     _peripheralData.motors[action.id] = motor;
   }
 
-  // Motor is not disconnected.
-  motor.disconnected = false;
-
   // Assign properties from the action.
   motor.value = action.value;
 
   // Assign a new reaper, which will remove this motor if
   // no updates are received after some number of milliseconds.
-  motor.reaper = setTimeout(reapMotor, 500, action.id);
+  motor.reaper = setTimeout(reapMotor, 1000, action.id);
   // Notify listeners that the motors have been updated.
   RobotPeripheralStore.emitChange();
 }
@@ -71,8 +78,17 @@ function handleUpdateMotor(action) {
  * Handles receiving an UPDATE_PERIPHERAL action.
  */
 function handleUpdatePeripheral(action) {
-  var peripheral = action.peripheral;
-  _peripheralData.peripherals[peripheral.id] = peripheral;
+  let peripheral = _peripheralData.peripherals[action.peripheral.id];
+
+  if (peripheral != null && peripheral.reaper != null) {
+    clearTimeout(peripheral.reaper);
+  } else {
+    peripheral = action.peripheral;
+    _peripheralData.peripherals[action.peripheral.id] = peripheral;
+  }
+
+  peripheral.value = action.peripheral.value;
+  peripheral.reaper = setTimeout(reapPeripheral, 1000, action.peripheral.id);
   RobotPeripheralStore.emitChange();
 }
 

@@ -1,0 +1,543 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>api.Robot &mdash; PiE Robot API 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="PiE Robot API 1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for api.Robot</h1><div class="highlight"><pre>
+<span class="c1"># ------</span>
+<span class="c1"># Robot.py class</span>
+<span class="c1"># This runs the robot.</span>
+<span class="c1"># Copyright 2015. Pioneers in Engineering.</span>
+<span class="c1"># ------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">This module contains functions for reading data from the robot, and for</span>
+<span class="sd">manipulating the robot.</span>
+
+<span class="sd">To use this module, you must first import it:</span>
+
+<span class="sd">&gt;&gt;&gt; from api import Robot</span>
+<span class="sd">&gt;&gt;&gt; from api.Robot import *</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1">#import memcache</span>
+<span class="c1">#memcache_port = 12357</span>
+<span class="c1">#mc = memcache.Client([&#39;127.0.0.1:%d&#39; % memcache_port]) # connect to memcache</span>
+
+<span class="n">motor</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="n">_naming_map_filename</span> <span class="o">=</span> <span class="s1">&#39;student_code/CustomID.txt&#39;</span>
+<span class="n">_name_to_id</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># Mapping from motor name to device_id, both are strings</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_naming_map_filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">device_id</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">_name_to_id</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">device_id</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Could not read naming map&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_name_to_id</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_name_to_id</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">name</span>
+
+<div class="viewcode-block" id="get_motor"><a class="viewcode-back" href="../../api.html#api.Robot.get_motor">[docs]</a><span class="k">def</span> <span class="nf">get_motor</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the current power value for a motor.</span>
+
+<span class="sd">    :param name: A string that identifies the motor</span>
+<span class="sd">    :returns: A value between -1 and 1, which is the power level of that motor.</span>
+
+<span class="sd">    :Examples:</span>
+
+<span class="sd">    &gt;&gt;&gt; motor = get_motor(motor1)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">name_to_value</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;motor_values&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">device_id</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;Type Mismatch: Must pass in a string&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">name_to_value</span><span class="p">[</span><span class="n">device_id</span><span class="p">]</span><span class="o">/</span><span class="mi">100</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;Motor name not found.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="set_motor"><a class="viewcode-back" href="../../api.html#api.Robot.set_motor">[docs]</a><span class="k">def</span> <span class="nf">set_motor</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets a motor to the specified power value.</span>
+
+<span class="sd">    :param name: A string that identifies the motor.</span>
+<span class="sd">    :param value: A decimal value between -1 and 1, the power level you want to set.</span>
+
+<span class="sd">    :Examples:</span>
+
+<span class="sd">    &gt;&gt;&gt; set_motor(&quot;motor1&quot;, .50)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;Type Mismatch: Must pass in a string to name.&quot;</span>
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;Type Mismatch: Must pass in an integer or float to value.&quot;</span>
+    <span class="k">assert</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Motor value must be a decimal between -1 and 1 inclusive.&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">name_to_value</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;motor_values&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">device_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name_to_value</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No motor with that name&quot;</span><span class="p">)</span>
+    <span class="n">name_to_value</span><span class="p">[</span><span class="n">device_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">*</span><span class="mi">100</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;motor_values&#39;</span><span class="p">,</span> <span class="n">name_to_value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_sensor"><a class="viewcode-back" href="../../api.html#api.Robot.get_sensor">[docs]</a><span class="k">def</span> <span class="nf">get_sensor</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the value, or reading corresponding to the specified sensor.</span>
+
+<span class="sd">    :param name: A string that identifies the sensor.</span>
+<span class="sd">    :returns: The reading of the sensor at the current point in time.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">all_data</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sensor_values&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">all_data</span><span class="p">[</span><span class="n">device_id</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No Sensor with that name&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_all_motors"><a class="viewcode-back" href="../../api.html#api.Robot.get_all_motors">[docs]</a><span class="k">def</span> <span class="nf">get_all_motors</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Returns the current power values for every connected motor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;motor_values&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="set_led"><a class="viewcode-back" href="../../api.html#api.Robot.set_led">[docs]</a><span class="k">def</span> <span class="nf">set_led</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets a specific LED on the team flag</span>
+
+<span class="sd">    :param num: The number of the LED (0, 1, 2, or 3)</span>
+<span class="sd">    :param value: A boolean value</span>
+
+<span class="sd">    :Examples:</span>
+
+<span class="sd">    &gt;&gt;&gt; set_LED(&quot;flag12&quot;,Flag.OFF)</span>
+<span class="sd">    &gt;&gt;&gt; set_LED(&quot;flag1&quot;,Flag.LOW)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">flag_data</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;flag_values&#39;</span><span class="p">)</span>
+    <span class="n">flag_data</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;flag_values&#39;</span><span class="p">,</span> <span class="n">flag_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="set_servo"><a class="viewcode-back" href="../../api.html#api.Robot.set_servo">[docs]</a><span class="k">def</span> <span class="nf">set_servo</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">value</span><span class="p">):</span>  <span class="c1">#TODO Check with hibike on exact functionality</span>
+    <span class="sd">&quot;&quot;&quot;Sets a degree for a specific servo to turn.</span>
+
+<span class="sd">    One servo, as specified by its name, is set to turn to an integer amount of degrees (0-180)</span>
+
+<span class="sd">    :param name: A string that identifies the servo</span>
+<span class="sd">    :param value: An integer between 0 and 180 which sets the amount to turn to in degrees</span>
+
+<span class="sd">    :Examples:</span>
+
+<span class="sd">    &gt;&gt;&gt; set_servo(&quot;servo1&quot;,90)</span>
+<span class="sd">    &gt;&gt;&gt; set_servo(&quot;servo3&quot;,150)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">180</span><span class="p">,</span> <span class="s2">&quot;Servo degrees must be between 0 and 180&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">name_to_value</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;servo_values&#39;</span><span class="p">)</span>
+    <span class="n">name_to_value</span><span class="p">[</span><span class="n">device_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;servo_values&#39;</span><span class="p">,</span> <span class="n">name_to_value</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_rgb"><a class="viewcode-back" href="../../api.html#api.Robot.get_rgb">[docs]</a><span class="k">def</span> <span class="nf">get_rgb</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list of rgb values from the specified color sensor.</span>
+
+<span class="sd">    Each value for red, green, and blue will return a</span>
+<span class="sd">    number between 0 and 255, where 255 indicates a higher intensity. This function returns</span>
+<span class="sd">    the result from one specific color sensor.</span>
+
+<span class="sd">    :param name: A string that identifies the color sensor</span>
+<span class="sd">    :returns: A list of integers in the order of values for red, green, blue</span>
+
+<span class="sd">    :Examples:</span>
+
+<span class="sd">    &gt;&gt;&gt; color = get_color_sensor(&quot;color1&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; color</span>
+<span class="sd">    [100, 240, 150]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_testConnected</span><span class="p">(</span><span class="n">device_id</span><span class="p">)</span>
+    <span class="n">red</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">green</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">blue</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">red</span><span class="p">,</span> <span class="n">green</span><span class="p">,</span> <span class="n">blue</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="get_luminosity"><a class="viewcode-back" href="../../api.html#api.Robot.get_luminosity">[docs]</a><span class="k">def</span> <span class="nf">get_luminosity</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the luminosity for the specified color sensor.</span>
+
+<span class="sd">    The color sensor returns the luminosity detected by the color sensor, represnted by</span>
+<span class="sd">    a decimal where larger numbers indicates higher intensity.</span>
+
+<span class="sd">    :param name: A string that identifies the color sensor</span>
+<span class="sd">    :returns: A double where a larger number indicates a higher intensity</span>
+
+<span class="sd">    :Examples:</span>
+
+<span class="sd">    &gt;&gt;&gt; lum_berry = get_luminosity(&quot;color1&quot;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_testConnected</span><span class="p">(</span><span class="n">device_id</span><span class="p">)[</span><span class="mi">3</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="get_hue"><a class="viewcode-back" href="../../api.html#api.Robot.get_hue">[docs]</a><span class="k">def</span> <span class="nf">get_hue</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the hue detected at the specified color sensor.</span>
+
+<span class="sd">    This uses the red, green, and blue sensors on the color sensor to return the</span>
+<span class="sd">    detected hue, which is represented as a double between 0 and 360. See</span>
+<span class="sd">    https://en.wikipedia.org/wiki/Hue for more information on hue.</span>
+
+<span class="sd">    :param name: A string that identifies the color sensor</span>
+<span class="sd">    :returns: A double between 0 and 360 representing the detected hue</span>
+
+<span class="sd">    :Examples:</span>
+
+<span class="sd">    &gt;&gt;&gt; hue = get_hue(&quot;color1&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; hue</span>
+<span class="sd">    254.01</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_testConnected</span><span class="p">(</span><span class="n">device_id</span><span class="p">)[</span><span class="mi">4</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="toggle_light"><a class="viewcode-back" href="../../api.html#api.Robot.toggle_light">[docs]</a><span class="k">def</span> <span class="nf">toggle_light</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Turns the light on specfied color sensor on or off.</span>
+
+<span class="sd">    Takes in the name of the specified color sensor and a boolean (True for on, false for off).</span>
+
+<span class="sd">    :param name: A string that identifies the color sensor.</span>
+<span class="sd">    :param status: A boolean that determines whether the light should be on (True) or off (False)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">status</span><span class="p">):</span>
+        <span class="n">write_value</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">write_value</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;toggle_light&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">device_id</span><span class="p">,</span> <span class="n">write_value</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="get_distance_sensor"><a class="viewcode-back" href="../../api.html#api.Robot.get_distance_sensor">[docs]</a><span class="k">def</span> <span class="nf">get_distance_sensor</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the distance away from the sensor an object is, measured in centimeters</span>
+
+<span class="sd">    :param name: A String that identifies the distance sensor</span>
+<span class="sd">    :returns: A double representing how many centimeters away the object is from the sensor</span>
+
+<span class="sd">    :Examples:</span>
+
+<span class="sd">    &gt;&gt;&gt; distance = get_distance_sensor(&quot;distance1&quot;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_testConnected</span><span class="p">(</span><span class="n">device_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_limit_switch"><a class="viewcode-back" href="../../api.html#api.Robot.get_limit_switch">[docs]</a><span class="k">def</span> <span class="nf">get_limit_switch</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns whether a specified limit switch on the identified device is pressed or not</span>
+
+<span class="sd">    The specified limit switch returns a boolean, either True (pressed) or False (not pressed).</span>
+
+<span class="sd">    :param name: A String that identifies the limit switch</span>
+<span class="sd">    :returns: A boolean value, where True is pressed and False is not pressed.</span>
+
+<span class="sd">    :Examples:</span>
+
+<span class="sd">    &gt;&gt;&gt; switch = get_limit_switch(&quot;switch1&quot;,3)</span>
+<span class="sd">    &gt;&gt;&gt; switch</span>
+<span class="sd">    True</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_testConnected</span><span class="p">(</span><span class="n">device_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_potentiometer"><a class="viewcode-back" href="../../api.html#api.Robot.get_potentiometer">[docs]</a><span class="k">def</span> <span class="nf">get_potentiometer</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the sensor reading of a potentiometer</span>
+
+<span class="sd">    The potentiometer returns a decimal between 0 and 1, indicating the angle detected,</span>
+<span class="sd">    where 0 and 1 are the two extreme angles.</span>
+
+<span class="sd">    :param name: A string that identifies the potentiometer smart device (contains four potentiometers)</span>
+<span class="sd">    :returns: A decimal between 0 and 1 representing the angle.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_testConnected</span><span class="p">(</span><span class="n">device_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_metal_detector"><a class="viewcode-back" href="../../api.html#api.Robot.get_metal_detector">[docs]</a><span class="k">def</span> <span class="nf">get_metal_detector</span><span class="p">(</span><span class="n">name</span><span class="p">):</span> <span class="c1">#TODO metal detector Implementation</span>
+    <span class="sd">&quot;&quot;&quot;Returns the sensor reading of the specified metal detector</span>
+
+
+<span class="sd">    Each metal detector returns an integer, which changes based on the prescence of metal.</span>
+<span class="sd">    After callibration, the value should increase in the presence of steel and decrease in</span>
+<span class="sd">    the presence of aluminum. There is random drift of around 8 so your code should callibrate</span>
+<span class="sd">    in air often.</span>
+
+<span class="sd">    :param name: A String that identifies the metal detector smart device.</span>
+<span class="sd">    :returns: An integer (large) which represents whether metal is detected or not.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_testConnected</span><span class="p">(</span><span class="n">device_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="calibrate_metal_detector"><a class="viewcode-back" href="../../api.html#api.Robot.calibrate_metal_detector">[docs]</a><span class="k">def</span> <span class="nf">calibrate_metal_detector</span><span class="p">(</span><span class="n">name</span><span class="p">):</span> <span class="c1">#TODO test calibration </span>
+    <span class="sd">&quot;&quot;&quot;Calibrates the specified metal sensor</span>
+
+<span class="sd">    Calibrates to set the current reading of the metal detector to air (0). It is</span>
+<span class="sd">    recommended that this is called before every reading to avoid misreading values</span>
+<span class="sd">    due to drift.</span>
+
+<span class="sd">    :param name: A String that identifies the metal detector smart device.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;metal_detector_calibrate&quot;</span><span class="p">,[</span><span class="n">device_id</span><span class="p">,</span> <span class="bp">True</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="get_line_sensor"><a class="viewcode-back" href="../../api.html#api.Robot.get_line_sensor">[docs]</a><span class="k">def</span> <span class="nf">get_line_sensor</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a value used to determine whether the selected sensor is over a line or not</span>
+
+<span class="sd">    If the selected sensor (left, center, or right) is over a line/reflective surface, </span>
+<span class="sd">    this will return an double close to 0; </span>
+<span class="sd">    Over the ground or dark material, this will return an double close to 1. </span>
+
+<span class="sd">    :param name: A String that identifies the reflecting smart device.</span>
+<span class="sd">    :returns: An double that specifies whether it is over the tape (0 - 1)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">device_id</span> <span class="o">=</span> <span class="n">_lookup</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_testConnected</span><span class="p">(</span><span class="n">device_id</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="drive_distance_all"><a class="viewcode-back" href="../../api.html#api.Robot.drive_distance_all">[docs]</a><span class="k">def</span> <span class="nf">drive_distance_all</span><span class="p">(</span><span class="n">degrees</span><span class="p">,</span> <span class="n">motors</span><span class="p">,</span> <span class="n">gear_ratios</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Drives all motors in the list a set number of degrees set by the corresponding index in the distances list.</span>
+
+<span class="sd">    The specified motor will run until it reaches the specified degree of rotation and will hold the motor</span>
+<span class="sd">    there until a grizzly motor method is called again.</span>
+<span class="sd">    The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode:</span>
+<span class="sd">    this method translates degrees into encoder ticks and then sets the target in said encoder ticks. When this method is called again</span>
+<span class="sd">    on the same motor, current encoder tick position is reset to 0 and the method reruns.</span>
+
+<span class="sd">    :param degrees: A list of integers corresponding to the number of ticks to be moved. The integer at the index of</span>
+<span class="sd">        this list should match the motor&#39;s index.</span>
+<span class="sd">    :param motor: A list of strings corresponding to the motor names to be rotated. The index of the motor names</span>
+<span class="sd">        should match the index of the distance.</span>
+<span class="sd">    :param gear_ratios: A list of integers corresponding to the gear ratios of the motors. The integer at the</span>
+<span class="sd">        index of this list should match the motor&#39;s index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">motors</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;motors must be a list&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gear_ratios</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;gear_ratios must be a list&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">degrees</span><span class="p">,</span> <span class="nb">list</span><span class="p">),</span> <span class="s2">&quot;degrees must be a list&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">degrees</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">motors</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">degrees</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">gear_ratios</span><span class="p">),</span> <span class="s2">&quot;List lengths for all 3 parameters must be equal&quot;</span>
+    <span class="n">motor_list</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;motor_values&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">motor</span> <span class="ow">in</span> <span class="n">motors</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">motor</span> <span class="ow">in</span> <span class="n">motor_list</span><span class="p">,</span> <span class="n">motor</span> <span class="o">+</span> <span class="s2">&quot; not found in connected motors&quot;</span>
+    <span class="n">zipped</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="n">motors</span><span class="p">,</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">gear_ratios</span><span class="p">)</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;drive_distance&quot;</span><span class="p">,</span> <span class="n">zipped</span><span class="p">)</span></div>
+
+  <span class="c1">#TODO, need to reset positions each time these two methods are called.</span>
+<div class="viewcode-block" id="drive_distance_degrees"><a class="viewcode-back" href="../../api.html#api.Robot.drive_distance_degrees">[docs]</a><span class="k">def</span> <span class="nf">drive_distance_degrees</span><span class="p">(</span><span class="n">degrees</span><span class="p">,</span> <span class="n">motor</span><span class="p">,</span> <span class="n">gear_ratio</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Drives the specified motor a set number of degrees and holds the motor there.</span>
+
+<span class="sd">    The specified motor will run until it reaches the specified degree of rotation and will hold the motor there until a grizzly motor method is called again.</span>
+<span class="sd">    The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode:</span>
+<span class="sd">    this method translates degrees into encoder ticks and then sets the target in said encoder ticks. When this method is called again</span>
+<span class="sd">    on the same motor, current encoder tick position is reset to 0 and the method reruns.</span>
+
+<span class="sd">    :param degrees: An integer corresponding to the number of degrees to be moved</span>
+<span class="sd">    :param motor: A String corresponding to the motor name to be rotated</span>
+<span class="sd">    :param gear_ratio: An integer corresponding to the gear ratio of the motor (19 or 67)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">motors</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;motor must be an String&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gear_ratios</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;gear_ratio must be an integer&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">degrees</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;degrees must be an integer&quot;</span>
+    <span class="n">motor_list</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;motor_values&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">motor</span> <span class="ow">in</span> <span class="n">motor_list</span><span class="p">,</span> <span class="n">motor</span> <span class="o">+</span> <span class="s2">&quot; not found in connected motors&quot;</span>
+    <span class="k">assert</span> <span class="n">gear_ratio</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">19</span><span class="p">,</span><span class="mi">67</span><span class="p">],</span> <span class="s2">&quot;Gear ratio must be 19:1 or 67:1&quot;</span>
+    <span class="n">sent_list</span> <span class="o">=</span> <span class="p">[(</span><span class="n">motor</span><span class="p">,</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">gear_ratio</span><span class="p">)]</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;drive_distance&quot;</span><span class="p">,</span> <span class="n">sent_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="drive_distance_rotations"><a class="viewcode-back" href="../../api.html#api.Robot.drive_distance_rotations">[docs]</a><span class="k">def</span> <span class="nf">drive_distance_rotations</span><span class="p">(</span><span class="n">rotations</span><span class="p">,</span> <span class="n">motor</span><span class="p">,</span> <span class="n">gear_ratio</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Drives the specified motor a set number of rotations and holds the motor there.</span>
+
+<span class="sd">    The specified motor will run until it reaches the specified degree of rotation and will hold the motor there until a grizzly motor method is called again.</span>
+<span class="sd">    The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode:</span>
+<span class="sd">    this method translates degrees into encoder ticks and then sets the target in said encoder ticks. When this method is called again</span>
+<span class="sd">    on the same motor, current encoder tick position is reset to 0 and the method reruns.</span>
+
+<span class="sd">    :param rotations: An integer corresponding to the number of rotations to be moved</span>
+<span class="sd">    :param motor: A String corresponding to the motor name to be rotated</span>
+<span class="sd">    :param gear_ratio: An integer corresponding to the gear ratio of the motor (19 or 67)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">motors</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;motor must be a String&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gear_ratios</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;gear_ratio must be an integer&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rotations</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;degrees must be an integer&quot;</span>
+    <span class="n">motor_list</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;motor_values&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">motor</span> <span class="ow">in</span> <span class="n">motor_list</span><span class="p">,</span> <span class="n">motor</span> <span class="o">+</span> <span class="s2">&quot; not found in connected motors&quot;</span>
+    <span class="k">assert</span> <span class="n">gear_ratio</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">19</span><span class="p">,</span><span class="mi">67</span><span class="p">],</span> <span class="s2">&quot;Gear ratio must be 19:1 or 67:1&quot;</span>
+    <span class="n">sent_list</span> <span class="o">=</span> <span class="p">[(</span><span class="n">motor</span><span class="p">,</span> <span class="n">rotations</span><span class="o">*</span><span class="mi">360</span><span class="p">,</span> <span class="n">gear_ratio</span><span class="p">)]</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;drive_distance&quot;</span><span class="p">,</span> <span class="n">sent_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_drive_mode"><a class="viewcode-back" href="../../api.html#api.Robot.set_drive_mode">[docs]</a><span class="k">def</span> <span class="nf">set_drive_mode</span><span class="p">(</span><span class="n">mode</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sets the drive mode of all the motors between coasting and full breaking.</span>
+
+<span class="sd">    Enter a string (&quot;coast&quot; or &quot;brake&quot;) to specify if the motors should fully break after movement or coast to a stop. Default mode is breaking after</span>
+<span class="sd">    movement</span>
+
+<span class="sd">    :param mode: A String (&quot;coast&quot; or &quot;brake&quot;) corresponding to the selected drive mode.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;coast&quot;</span><span class="p">,</span> <span class="s2">&quot;brake&quot;</span><span class="p">],</span> <span class="n">mode</span> <span class="o">+</span> <span class="s2">&quot; is not a valid drive mode&quot;</span>
+    <span class="k">assert</span> <span class="n">gear_ratio</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">19</span><span class="p">,</span><span class="mi">67</span><span class="p">],</span> <span class="s2">&quot;Gear ratio must be 19:1 or 67:1&quot;</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;drive_mode&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">mode</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="change_control_mode_all"><a class="viewcode-back" href="../../api.html#api.Robot.change_control_mode_all">[docs]</a><span class="k">def</span> <span class="nf">change_control_mode_all</span><span class="p">(</span><span class="n">mode</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Changes PID mode for all motors connected to the robot</span>
+
+<span class="sd">    This changes the control mode for inputing values into all of the motors.</span>
+<span class="sd">    Default mode - No_PID which means one inputs a range of floats from -1 to 1 and the motor runs at a proportion corresponding to that range.</span>
+
+<span class="sd">    Speed PID - Motors run at encoder ticks per second instead of an integer range. Encoder ticks are a proportion of a rotation, similar to degrees</span>
+<span class="sd">    to check for encoder ticks for each motor, see this website: https://www.pololu.com/category/116/37d-mm-gearmotors</span>
+
+<span class="sd">    Position PID - Motors run until at a certain position, using encoder ticks as units. See above website for number of ticks per degree of rotation.</span>
+
+<span class="sd">    :param mode: A String (&quot;default&quot;, &quot;speed&quot;, &quot;position&quot;) corresponding to the wanted control mode for all motors.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="s2">&quot;speed&quot;</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="n">mode</span> <span class="o">+</span> <span class="s2">&quot; is not a valid control mode&quot;</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;control_mode&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">mode</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="change_control_mode"><a class="viewcode-back" href="../../api.html#api.Robot.change_control_mode">[docs]</a><span class="k">def</span> <span class="nf">change_control_mode</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">motor</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Changes PID mode for specified motors connected to the robot</span>
+
+<span class="sd">    This changes the control mode for inputing values into the specified motors.</span>
+
+<span class="sd">    Default mode - No_PID which means one inputs a range of integers from -1 to 1 and the motor runs at a proportion corresponding to that range.</span>
+
+<span class="sd">    Speed PID - Motors run at encoder ticks per second instead of an integer range. Encoder ticks are a proportion of a rotation, similar to degrees</span>
+<span class="sd">    to check for encoder ticks for each motor, see this website: https://www.pololu.com/category/116/37d-mm-gearmotors</span>
+
+<span class="sd">    Position PID - Motors run until at a certain position, using encoder ticks as units. See above website for number of ticks per degree of rotation.</span>
+
+<span class="sd">    :param mode: A String (&#39;default&#39;, &#39;speed&#39;, &#39;position&#39;) corresponding to the wanted control mode for the specified motor.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="s2">&quot;speed&quot;</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="n">mode</span> <span class="o">+</span> <span class="s2">&quot; is not a valid control mode&quot;</span>
+    <span class="n">motor_list</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;motor_values&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">motor</span> <span class="ow">in</span> <span class="n">motor_list</span><span class="p">,</span> <span class="n">motor</span> <span class="o">+</span> <span class="s2">&quot; not found in connected motors&quot;</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;control_mode&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">mode</span><span class="p">,</span> <span class="n">motor</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="change_PID_constants"><a class="viewcode-back" href="../../api.html#api.Robot.change_PID_constants">[docs]</a><span class="k">def</span> <span class="nf">change_PID_constants</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">constant</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Changes a PID constant which error corrects for motor positions.</span>
+
+<span class="sd">    P - Proportion - changes the constant for present error correcting</span>
+<span class="sd">    I - Integral - changes the constant for past error correcting</span>
+<span class="sd">    D - Derivative - changes the constant for future errors - decreases response time</span>
+<span class="sd">    For more information, refer to a mentor or the wiki page: https://en.wikipedia.org/wiki/PID_controller</span>
+
+<span class="sd">    :param value: A decimal corresponding to the new coefficient of a PID constant.</span>
+<span class="sd">    :param constant: A String (&quot;P&quot;, &quot;I&quot;, &quot;D&quot;) corresponding to the constant to be changed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">constant</span> <span class="o">=</span> <span class="n">constant</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">constant</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">],</span> <span class="s2">&quot;invalid constant&quot;</span> <span class="o">+</span> <span class="n">constant</span>
+    <span class="n">mc</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;PID_constant&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">constant</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="get_PID_constants"><a class="viewcode-back" href="../../api.html#api.Robot.get_PID_constants">[docs]</a><span class="k">def</span> <span class="nf">get_PID_constants</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Returns a dictionary with the key being the constants and the corresponding item as the value of the constant</span>
+
+<span class="sd">    Returns a list of 3 tuples with the key containing a String (&quot;P&quot;, &quot;I&quot;, or &quot;D&quot;) corresponding to each of the constants. The item</span>
+<span class="sd">    of the dictionary is that constant&#39;s current value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;get_PID&quot;</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">_testConnected</span><span class="p">(</span><span class="n">device_id</span><span class="p">):</span> <span class="c1"># Returns value if device_id exists, otherwise throws SensorValueOutOFBounds Exception</span>
+    <span class="n">all_data</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sensor_values&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">all_data</span><span class="p">[</span><span class="n">device_id</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;No sensor with that name&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SensorValueOutOfBounds"><a class="viewcode-back" href="../../api.html#api.Robot.SensorValueOutOfBounds">[docs]</a><span class="k">class</span> <span class="nc">SensorValueOutOfBounds</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+<span class="k">def</span> <span class="nf">_get_all</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">mc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;sensor_values&#39;</span><span class="p">)</span>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Pioneers in Engineering.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

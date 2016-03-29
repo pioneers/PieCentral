@@ -1,0 +1,878 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Gamepads module &mdash; PiE Robot API 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PiE Robot API 1.0 documentation" href="index.html" />
+    <link rel="prev" title="Welcome to the PiE Robot API documentation!" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-api.Gamepads">
+<span id="gamepads-module"></span><h1>Gamepads module<a class="headerlink" href="#module-api.Gamepads" title="Permalink to this headline">¶</a></h1>
+<p>This module contains functions for getting gamepad data.</p>
+<p>To use this module, you must first import it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">api.Gamepads</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="api.Gamepads.Button">
+<em class="property">class </em><code class="descclassname">api.Gamepads.</code><code class="descname">Button</code><a class="reference internal" href="_modules/api/Gamepads.html#Button"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Gamepads.Button" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="api.Gamepads.Button.A">
+<code class="descname">A</code><em class="property"> = 0</em><a class="headerlink" href="#api.Gamepads.Button.A" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.B">
+<code class="descname">B</code><em class="property"> = 1</em><a class="headerlink" href="#api.Gamepads.Button.B" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.BACK">
+<code class="descname">BACK</code><em class="property"> = 8</em><a class="headerlink" href="#api.Gamepads.Button.BACK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.DPAD_DOWN">
+<code class="descname">DPAD_DOWN</code><em class="property"> = 13</em><a class="headerlink" href="#api.Gamepads.Button.DPAD_DOWN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.DPAD_LEFT">
+<code class="descname">DPAD_LEFT</code><em class="property"> = 14</em><a class="headerlink" href="#api.Gamepads.Button.DPAD_LEFT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.DPAD_RIGHT">
+<code class="descname">DPAD_RIGHT</code><em class="property"> = 15</em><a class="headerlink" href="#api.Gamepads.Button.DPAD_RIGHT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.DPAD_UP">
+<code class="descname">DPAD_UP</code><em class="property"> = 12</em><a class="headerlink" href="#api.Gamepads.Button.DPAD_UP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.L_BUMPER">
+<code class="descname">L_BUMPER</code><em class="property"> = 4</em><a class="headerlink" href="#api.Gamepads.Button.L_BUMPER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.L_STICK">
+<code class="descname">L_STICK</code><em class="property"> = 10</em><a class="headerlink" href="#api.Gamepads.Button.L_STICK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.L_TRIGGER">
+<code class="descname">L_TRIGGER</code><em class="property"> = 6</em><a class="headerlink" href="#api.Gamepads.Button.L_TRIGGER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.R_BUMPER">
+<code class="descname">R_BUMPER</code><em class="property"> = 5</em><a class="headerlink" href="#api.Gamepads.Button.R_BUMPER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.R_STICK">
+<code class="descname">R_STICK</code><em class="property"> = 11</em><a class="headerlink" href="#api.Gamepads.Button.R_STICK" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.R_TRIGGER">
+<code class="descname">R_TRIGGER</code><em class="property"> = 7</em><a class="headerlink" href="#api.Gamepads.Button.R_TRIGGER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.START">
+<code class="descname">START</code><em class="property"> = 9</em><a class="headerlink" href="#api.Gamepads.Button.START" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.X">
+<code class="descname">X</code><em class="property"> = 2</em><a class="headerlink" href="#api.Gamepads.Button.X" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.XBOX">
+<code class="descname">XBOX</code><em class="property"> = 16</em><a class="headerlink" href="#api.Gamepads.Button.XBOX" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Button.Y">
+<code class="descname">Y</code><em class="property"> = 3</em><a class="headerlink" href="#api.Gamepads.Button.Y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api.Gamepads.Joystick">
+<em class="property">class </em><code class="descclassname">api.Gamepads.</code><code class="descname">Joystick</code><a class="reference internal" href="_modules/api/Gamepads.html#Joystick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Gamepads.Joystick" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="api.Gamepads.Joystick.LEFT_X">
+<code class="descname">LEFT_X</code><em class="property"> = 0</em><a class="headerlink" href="#api.Gamepads.Joystick.LEFT_X" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Joystick.LEFT_Y">
+<code class="descname">LEFT_Y</code><em class="property"> = 1</em><a class="headerlink" href="#api.Gamepads.Joystick.LEFT_Y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Joystick.RIGHT_X">
+<code class="descname">RIGHT_X</code><em class="property"> = 2</em><a class="headerlink" href="#api.Gamepads.Joystick.RIGHT_X" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="api.Gamepads.Joystick.RIGHT_Y">
+<code class="descname">RIGHT_Y</code><em class="property"> = 3</em><a class="headerlink" href="#api.Gamepads.Joystick.RIGHT_Y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Gamepads.get_all">
+<code class="descclassname">api.Gamepads.</code><code class="descname">get_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Gamepads.html#get_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Gamepads.get_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list a list of values for every gamepad connected.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of axes and button data for each connected gamepad</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gpads</span> <span class="o">=</span> <span class="n">Gamepads</span><span class="o">.</span><span class="n">get_all</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gamepad0</span> <span class="o">=</span> <span class="n">gpads</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Gamepads.get_all_buttons">
+<code class="descclassname">api.Gamepads.</code><code class="descname">get_all_buttons</code><span class="sig-paren">(</span><em>gamepad_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Gamepads.html#get_all_buttons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Gamepads.get_all_buttons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of button values corresponding to the specified gamepad.</p>
+<p>Each button value is either False (not pressed) or True (pressed). Unlike
+joysticks, there are no in-between values&#8211;it can only be False or True. To
+see the exact mapping, click on the &#8216;Details&#8217; button next to a gamepad in
+Dawn, or refer to <a class="reference external" href="https://w3c.github.io/gamepad/#remapping">https://w3c.github.io/gamepad/#remapping</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gamepad_index</strong> &#8211; The index of the gamepad, usually 0, 1, 2, or 3</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of booleans, each corresponding to a button being pressed or not pressed</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">all_buttons</span> <span class="o">=</span> <span class="n">get_all_buttons</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">all_buttons</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Gamepads.get_axis">
+<code class="descclassname">api.Gamepads.</code><code class="descname">get_axis</code><span class="sig-paren">(</span><em>gamepad_index</em>, <em>axis</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Gamepads.html#get_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Gamepads.get_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the position of a specified joystick.</p>
+<p>Each returned value is between -1 and 1, which represents where the joystick
+is along that axis. In order to get a better sense of the joystick mappings,
+click the &#8216;Details&#8217; button next to a gamepad in Dawn
+or refer to <a class="reference external" href="https://w3c.github.io/gamepad/#remapping">https://w3c.github.io/gamepad/#remapping</a>.</p>
+<p>On a standard gamepad:
+- Joystick.LEFT_X represents the horizontal axis of the left joystick
+- Joystick.LEFT_Y represents the vertical axis of the left joystick
+- Joystick.RIGHT_X represents the horizontal axis of the right joystick
+- Joystick.RIGHT_Y represent the vertical axis of the right joystick</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gamepad_index</strong> &#8211; The index of the gamepad, usually 0, 1, 2, or 3</li>
+<li><strong>axis</strong> &#8211; An enum (LEFT_X,LEFT_Y,RIGHT_X,RIGHT_Y) which specifies the axis.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of 4 decimal values, each corresponding to a joystick axis.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">axis</span> <span class="o">=</span> <span class="n">get_axis</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Joystick</span><span class="o">.</span><span class="n">LEFT_X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">axis</span> <span class="o">=</span> <span class="n">get_axis</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">Joystick</span><span class="o">.</span><span class="n">RIGHT_Y</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Gamepads.get_button">
+<code class="descclassname">api.Gamepads.</code><code class="descname">get_button</code><span class="sig-paren">(</span><em>gamepad_index</em>, <em>button</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Gamepads.html#get_button"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Gamepads.get_button" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether a button is pressed or not.</p>
+<p>For a specific button (each button has has a name) the output is either
+True (pressed) or False (not pressed). To see the exact mapping, click on
+the &#8216;Details&#8217; button next to a gamepad in Dawn, or refer to
+<a class="reference external" href="https://w3c.github.io/gamepad/#remapping">https://w3c.github.io/gamepad/#remapping</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gamepad_index</strong> &#8211; The index of the gamepad, usually 0, 1, 2, or 3</li>
+<li><strong>button</strong> &#8211; Enum of button (e.g. Button.Y), see documentation for more details</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A boolean either True (pressed) or False (not pressed)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">button</span> <span class="o">=</span> <span class="n">get_button</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">Button</span><span class="o">.</span><span class="n">Y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">button</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Gamepads.get_is_connected">
+<code class="descclassname">api.Gamepads.</code><code class="descname">get_is_connected</code><span class="sig-paren">(</span><em>gamepad_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Gamepads.html#get_is_connected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Gamepads.get_is_connected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether or not the specified gamepad is connected.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gamempad_index</strong> &#8211; The index of the gamepad, usually 0, 1, 2, or 3</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A boolean value for whether or not that gamepad is connected</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Gamepads.get_joysticks">
+<code class="descclassname">api.Gamepads.</code><code class="descname">get_joysticks</code><span class="sig-paren">(</span><em>gamepad_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Gamepads.html#get_joysticks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Gamepads.get_joysticks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of axes values corresponding to the specified gamepad.</p>
+<p>Each returned value is between -1 and 1, which represents where the joystick
+is along that axis. For example, if axes[0] is -1, then the left joystick
+has been pushed all the way to the left. In order to get a better sense of
+the joystick mappings, click the &#8216;Details&#8217; button next to a gamepad in Dawn
+or refer to <a class="reference external" href="https://w3c.github.io/gamepad/#remapping">https://w3c.github.io/gamepad/#remapping</a>.</p>
+<p>On a standard gamepad:
+- axes[0] represents the horizontal axis of the left joystick.
+- axes[1] represents the vertical axis of the left joystick
+- axes[2] represents the horizontal axis of the right joystick
+- axes[3] represent the vertical axis of the right joystick</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>gamepad_index</strong> &#8211; The index of the gamepad, usually 0, 1, 2, or 3</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of 4 decimal values, each corresponding to a joystick axis.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">axes</span> <span class="o">=</span> <span class="n">get_joysticks</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-api.Robot">
+<span id="robot-module"></span><h1>Robot module<a class="headerlink" href="#module-api.Robot" title="Permalink to this headline">¶</a></h1>
+<p>This module contains functions for reading data from the robot, and for
+manipulating the robot.</p>
+<p>To use this module, you must first import it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">api</span> <span class="kn">import</span> <span class="n">Robot</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">api.Robot</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+<dl class="exception">
+<dt id="api.Robot.SensorValueOutOfBounds">
+<em class="property">exception </em><code class="descclassname">api.Robot.</code><code class="descname">SensorValueOutOfBounds</code><a class="reference internal" href="_modules/api/Robot.html#SensorValueOutOfBounds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.SensorValueOutOfBounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.calibrate_metal_detector">
+<code class="descclassname">api.Robot.</code><code class="descname">calibrate_metal_detector</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#calibrate_metal_detector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.calibrate_metal_detector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calibrates the specified metal sensor</p>
+<p>Calibrates to set the current reading of the metal detector to air (0). It is
+recommended that this is called before every reading to avoid misreading values
+due to drift.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; A String that identifies the metal detector smart device.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.change_PID_constants">
+<code class="descclassname">api.Robot.</code><code class="descname">change_PID_constants</code><span class="sig-paren">(</span><em>value</em>, <em>constant</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#change_PID_constants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.change_PID_constants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes a PID constant which error corrects for motor positions.</p>
+<p>P - Proportion - changes the constant for present error correcting
+I - Integral - changes the constant for past error correcting
+D - Derivative - changes the constant for future errors - decreases response time
+For more information, refer to a mentor or the wiki page: <a class="reference external" href="https://en.wikipedia.org/wiki/PID_controller">https://en.wikipedia.org/wiki/PID_controller</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; A decimal corresponding to the new coefficient of a PID constant.</li>
+<li><strong>constant</strong> &#8211; A String (&#8220;P&#8221;, &#8220;I&#8221;, &#8220;D&#8221;) corresponding to the constant to be changed.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.change_control_mode">
+<code class="descclassname">api.Robot.</code><code class="descname">change_control_mode</code><span class="sig-paren">(</span><em>mode</em>, <em>motor</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#change_control_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.change_control_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes PID mode for specified motors connected to the robot</p>
+<p>This changes the control mode for inputing values into the specified motors.</p>
+<p>Default mode - No_PID which means one inputs a range of integers from -1 to 1 and the motor runs at a proportion corresponding to that range.</p>
+<p>Speed PID - Motors run at encoder ticks per second instead of an integer range. Encoder ticks are a proportion of a rotation, similar to degrees
+to check for encoder ticks for each motor, see this website: <a class="reference external" href="https://www.pololu.com/category/116/37d-mm-gearmotors">https://www.pololu.com/category/116/37d-mm-gearmotors</a></p>
+<p>Position PID - Motors run until at a certain position, using encoder ticks as units. See above website for number of ticks per degree of rotation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mode</strong> &#8211; A String (&#8216;default&#8217;, &#8216;speed&#8217;, &#8216;position&#8217;) corresponding to the wanted control mode for the specified motor.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.change_control_mode_all">
+<code class="descclassname">api.Robot.</code><code class="descname">change_control_mode_all</code><span class="sig-paren">(</span><em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#change_control_mode_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.change_control_mode_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes PID mode for all motors connected to the robot</p>
+<p>This changes the control mode for inputing values into all of the motors.
+Default mode - No_PID which means one inputs a range of floats from -1 to 1 and the motor runs at a proportion corresponding to that range.</p>
+<p>Speed PID - Motors run at encoder ticks per second instead of an integer range. Encoder ticks are a proportion of a rotation, similar to degrees
+to check for encoder ticks for each motor, see this website: <a class="reference external" href="https://www.pololu.com/category/116/37d-mm-gearmotors">https://www.pololu.com/category/116/37d-mm-gearmotors</a></p>
+<p>Position PID - Motors run until at a certain position, using encoder ticks as units. See above website for number of ticks per degree of rotation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mode</strong> &#8211; A String (&#8220;default&#8221;, &#8220;speed&#8221;, &#8220;position&#8221;) corresponding to the wanted control mode for all motors.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.drive_distance_all">
+<code class="descclassname">api.Robot.</code><code class="descname">drive_distance_all</code><span class="sig-paren">(</span><em>degrees</em>, <em>motors</em>, <em>gear_ratios</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#drive_distance_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.drive_distance_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drives all motors in the list a set number of degrees set by the corresponding index in the distances list.</p>
+<p>The specified motor will run until it reaches the specified degree of rotation and will hold the motor
+there until a grizzly motor method is called again.
+The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode:
+this method translates degrees into encoder ticks and then sets the target in said encoder ticks. When this method is called again
+on the same motor, current encoder tick position is reset to 0 and the method reruns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>degrees</strong> &#8211; A list of integers corresponding to the number of ticks to be moved. The integer at the index of
+this list should match the motor&#8217;s index.</li>
+<li><strong>motor</strong> &#8211; A list of strings corresponding to the motor names to be rotated. The index of the motor names
+should match the index of the distance.</li>
+<li><strong>gear_ratios</strong> &#8211; A list of integers corresponding to the gear ratios of the motors. The integer at the
+index of this list should match the motor&#8217;s index.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.drive_distance_degrees">
+<code class="descclassname">api.Robot.</code><code class="descname">drive_distance_degrees</code><span class="sig-paren">(</span><em>degrees</em>, <em>motor</em>, <em>gear_ratio</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#drive_distance_degrees"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.drive_distance_degrees" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drives the specified motor a set number of degrees and holds the motor there.</p>
+<p>The specified motor will run until it reaches the specified degree of rotation and will hold the motor there until a grizzly motor method is called again.
+The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode:
+this method translates degrees into encoder ticks and then sets the target in said encoder ticks. When this method is called again
+on the same motor, current encoder tick position is reset to 0 and the method reruns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>degrees</strong> &#8211; An integer corresponding to the number of degrees to be moved</li>
+<li><strong>motor</strong> &#8211; A String corresponding to the motor name to be rotated</li>
+<li><strong>gear_ratio</strong> &#8211; An integer corresponding to the gear ratio of the motor (19 or 67)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.drive_distance_rotations">
+<code class="descclassname">api.Robot.</code><code class="descname">drive_distance_rotations</code><span class="sig-paren">(</span><em>rotations</em>, <em>motor</em>, <em>gear_ratio</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#drive_distance_rotations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.drive_distance_rotations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drives the specified motor a set number of rotations and holds the motor there.</p>
+<p>The specified motor will run until it reaches the specified degree of rotation and will hold the motor there until a grizzly motor method is called again.
+The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode:
+this method translates degrees into encoder ticks and then sets the target in said encoder ticks. When this method is called again
+on the same motor, current encoder tick position is reset to 0 and the method reruns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>rotations</strong> &#8211; An integer corresponding to the number of rotations to be moved</li>
+<li><strong>motor</strong> &#8211; A String corresponding to the motor name to be rotated</li>
+<li><strong>gear_ratio</strong> &#8211; An integer corresponding to the gear ratio of the motor (19 or 67)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_PID_constants">
+<code class="descclassname">api.Robot.</code><code class="descname">get_PID_constants</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_PID_constants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_PID_constants" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary with the key being the constants and the corresponding item as the value of the constant</p>
+<p>Returns a list of 3 tuples with the key containing a String (&#8220;P&#8221;, &#8220;I&#8221;, or &#8220;D&#8221;) corresponding to each of the constants. The item
+of the dictionary is that constant&#8217;s current value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_all_motors">
+<code class="descclassname">api.Robot.</code><code class="descname">get_all_motors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_all_motors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_all_motors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current power values for every connected motor.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_distance_sensor">
+<code class="descclassname">api.Robot.</code><code class="descname">get_distance_sensor</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_distance_sensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_distance_sensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the distance away from the sensor an object is, measured in centimeters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; A String that identifies the distance sensor</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A double representing how many centimeters away the object is from the sensor</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">distance</span> <span class="o">=</span> <span class="n">get_distance_sensor</span><span class="p">(</span><span class="s2">&quot;distance1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_hue">
+<code class="descclassname">api.Robot.</code><code class="descname">get_hue</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_hue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_hue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the hue detected at the specified color sensor.</p>
+<p>This uses the red, green, and blue sensors on the color sensor to return the
+detected hue, which is represented as a double between 0 and 360. See
+<a class="reference external" href="https://en.wikipedia.org/wiki/Hue">https://en.wikipedia.org/wiki/Hue</a> for more information on hue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; A string that identifies the color sensor</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A double between 0 and 360 representing the detected hue</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">hue</span> <span class="o">=</span> <span class="n">get_hue</span><span class="p">(</span><span class="s2">&quot;color1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hue</span>
+<span class="go">254.01</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_limit_switch">
+<code class="descclassname">api.Robot.</code><code class="descname">get_limit_switch</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_limit_switch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_limit_switch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether a specified limit switch on the identified device is pressed or not</p>
+<p>The specified limit switch returns a boolean, either True (pressed) or False (not pressed).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; A String that identifies the limit switch</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A boolean value, where True is pressed and False is not pressed.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">switch</span> <span class="o">=</span> <span class="n">get_limit_switch</span><span class="p">(</span><span class="s2">&quot;switch1&quot;</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">switch</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_line_sensor">
+<code class="descclassname">api.Robot.</code><code class="descname">get_line_sensor</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_line_sensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_line_sensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a value used to determine whether the selected sensor is over a line or not</p>
+<p>If the selected sensor (left, center, or right) is over a line/reflective surface, 
+this will return an double close to 0; 
+Over the ground or dark material, this will return an double close to 1.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; A String that identifies the reflecting smart device.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An double that specifies whether it is over the tape (0 - 1)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_luminosity">
+<code class="descclassname">api.Robot.</code><code class="descname">get_luminosity</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_luminosity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_luminosity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the luminosity for the specified color sensor.</p>
+<p>The color sensor returns the luminosity detected by the color sensor, represnted by
+a decimal where larger numbers indicates higher intensity.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; A string that identifies the color sensor</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A double where a larger number indicates a higher intensity</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">lum_berry</span> <span class="o">=</span> <span class="n">get_luminosity</span><span class="p">(</span><span class="s2">&quot;color1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_metal_detector">
+<code class="descclassname">api.Robot.</code><code class="descname">get_metal_detector</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_metal_detector"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_metal_detector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sensor reading of the specified metal detector</p>
+<p>Each metal detector returns an integer, which changes based on the prescence of metal.
+After callibration, the value should increase in the presence of steel and decrease in
+the presence of aluminum. There is random drift of around 8 so your code should callibrate
+in air often.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; A String that identifies the metal detector smart device.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An integer (large) which represents whether metal is detected or not.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_motor">
+<code class="descclassname">api.Robot.</code><code class="descname">get_motor</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_motor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_motor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current power value for a motor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; A string that identifies the motor</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A value between -1 and 1, which is the power level of that motor.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">motor</span> <span class="o">=</span> <span class="n">get_motor</span><span class="p">(</span><span class="n">motor1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_potentiometer">
+<code class="descclassname">api.Robot.</code><code class="descname">get_potentiometer</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_potentiometer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_potentiometer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sensor reading of a potentiometer</p>
+<p>The potentiometer returns a decimal between 0 and 1, indicating the angle detected,
+where 0 and 1 are the two extreme angles.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; A string that identifies the potentiometer smart device (contains four potentiometers)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A decimal between 0 and 1 representing the angle.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_rgb">
+<code class="descclassname">api.Robot.</code><code class="descname">get_rgb</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_rgb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_rgb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of rgb values from the specified color sensor.</p>
+<p>Each value for red, green, and blue will return a
+number between 0 and 255, where 255 indicates a higher intensity. This function returns
+the result from one specific color sensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; A string that identifies the color sensor</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of integers in the order of values for red, green, blue</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">color</span> <span class="o">=</span> <span class="n">get_color_sensor</span><span class="p">(</span><span class="s2">&quot;color1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">color</span>
+<span class="go">[100, 240, 150]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.get_sensor">
+<code class="descclassname">api.Robot.</code><code class="descname">get_sensor</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#get_sensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.get_sensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value, or reading corresponding to the specified sensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; A string that identifies the sensor.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The reading of the sensor at the current point in time.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.set_drive_mode">
+<code class="descclassname">api.Robot.</code><code class="descname">set_drive_mode</code><span class="sig-paren">(</span><em>mode</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#set_drive_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.set_drive_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the drive mode of all the motors between coasting and full breaking.</p>
+<p>Enter a string (&#8220;coast&#8221; or &#8220;brake&#8221;) to specify if the motors should fully break after movement or coast to a stop. Default mode is breaking after
+movement</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mode</strong> &#8211; A String (&#8220;coast&#8221; or &#8220;brake&#8221;) corresponding to the selected drive mode.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.set_led">
+<code class="descclassname">api.Robot.</code><code class="descname">set_led</code><span class="sig-paren">(</span><em>num</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#set_led"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.set_led" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets a specific LED on the team flag</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num</strong> &#8211; The number of the LED (0, 1, 2, or 3)</li>
+<li><strong>value</strong> &#8211; A boolean value</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">set_LED</span><span class="p">(</span><span class="s2">&quot;flag12&quot;</span><span class="p">,</span><span class="n">Flag</span><span class="o">.</span><span class="n">OFF</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">set_LED</span><span class="p">(</span><span class="s2">&quot;flag1&quot;</span><span class="p">,</span><span class="n">Flag</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.set_motor">
+<code class="descclassname">api.Robot.</code><code class="descname">set_motor</code><span class="sig-paren">(</span><em>name</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#set_motor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.set_motor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets a motor to the specified power value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; A string that identifies the motor.</li>
+<li><strong>value</strong> &#8211; A decimal value between -1 and 1, the power level you want to set.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">set_motor</span><span class="p">(</span><span class="s2">&quot;motor1&quot;</span><span class="p">,</span> <span class="o">.</span><span class="mi">50</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.set_servo">
+<code class="descclassname">api.Robot.</code><code class="descname">set_servo</code><span class="sig-paren">(</span><em>name</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#set_servo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.set_servo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets a degree for a specific servo to turn.</p>
+<p>One servo, as specified by its name, is set to turn to an integer amount of degrees (0-180)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> &#8211; A string that identifies the servo</li>
+<li><strong>value</strong> &#8211; An integer between 0 and 180 which sets the amount to turn to in degrees</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Examples:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">set_servo</span><span class="p">(</span><span class="s2">&quot;servo1&quot;</span><span class="p">,</span><span class="mi">90</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">set_servo</span><span class="p">(</span><span class="s2">&quot;servo3&quot;</span><span class="p">,</span><span class="mi">150</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="api.Robot.toggle_light">
+<code class="descclassname">api.Robot.</code><code class="descname">toggle_light</code><span class="sig-paren">(</span><em>name</em>, <em>status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/api/Robot.html#toggle_light"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api.Robot.toggle_light" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turns the light on specfied color sensor on or off.</p>
+<p>Takes in the name of the specified color sensor and a boolean (True for on, false for off).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; A string that identifies the color sensor.</li>
+<li><strong>status</strong> &#8211; A boolean that determines whether the light should be on (True) or off (False)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Gamepads module</a></li>
+<li><a class="reference internal" href="#module-api.Robot">Robot module</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to the PiE Robot API documentation!</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Pioneers in Engineering.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

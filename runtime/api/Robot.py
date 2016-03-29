@@ -455,3 +455,4 @@ class SensorValueOutOfBounds(Exception):
 def _get_all():
     return mc.get('sensor_values')
 
+# pololu.com. 19:1 and 67:1 motors 37D motors geared. Be able to change PID constants. Move and stay - set point. once it is called again, reset and redo function.

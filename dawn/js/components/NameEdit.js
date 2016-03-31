@@ -34,23 +34,23 @@ var NameEdit = React.createClass({
     let isValid = re.test(name);
     let allCurrentPeripherals = RobotPeripheralStore.getPeripherals();
     let isDuplicate = _.some(allCurrentPeripherals, (peripheral) => {
-      return peripheral.name === name && peripheral.id !== this.props.id;
+      console.log(peripheral);
+      return peripheral._root.entries[1][1] === name && peripheral._root.entries[3][1] !== this.props.id;
     });
     return isValid && !isDuplicate;
   },
   render() {
     return (
       <div>
-	<RIEInput
-	  ref={(ref) => this.nameEdit = ref}
-	  className="static"
-	  classEditing="editing"
-	  classInvalid="invalid"
-	  validate={this.validatePeripheralName}
-	  value={this.props.name}
-	  change={this.dataChange}
-	  propName="name"
-	/>
+      	<RIEInput
+      	  ref={(ref) => this.nameEdit = ref}
+      	  className="static"
+      	  classEditing="editing"
+      	  classInvalid="invalid"
+      	  validate={this.validatePeripheralName}
+      	  value={this.props.name}
+      	  change={this.dataChange}
+      	  propName="name" />
       </div>
     );
   }

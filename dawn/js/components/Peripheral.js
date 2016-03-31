@@ -28,6 +28,7 @@ typesToComponents[PeripheralTypes.Potentiometer] = ScalarSensor;
 typesToComponents[PeripheralTypes.Encoder] = ScalarSensor;
 typesToComponents[PeripheralTypes.ColorSensor] = ColorSensor;
 typesToComponents[PeripheralTypes.MetalDetector] = ScalarSensor;
+typesToComponents[PeripheralTypes.ServoControl] = ScalarSensor;
 
 
 var Peripheral = React.createClass({

@@ -34,8 +34,7 @@ var NameEdit = React.createClass({
     let isValid = re.test(name);
     let allCurrentPeripherals = RobotPeripheralStore.getPeripherals();
     let isDuplicate = _.some(allCurrentPeripherals, (peripheral) => {
-      console.log(peripheral);
-      return peripheral._root.entries[1][1] === name && peripheral._root.entries[3][1] !== this.props.id;
+      return peripheral.get("name") === name && peripheral.get("id") !== this.props.id;
     });
     return isValid && !isDuplicate;
   },

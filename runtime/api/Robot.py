@@ -43,7 +43,7 @@ def get_motor(name):
 
     :Examples:
 
-    >>> motor = get_motor(motor1)
+    >>> motor = get_motor("motor1")
 
     """
     device_id = _lookup(name)
@@ -78,8 +78,17 @@ def set_motor(name, value):
 def get_sensor(name):
     """Returns the value, or reading corresponding to the specified sensor.
 
+    WARNING: This is a default get method and should only be used if the sensor in question
+    does not have a specific get function.
+    You should always use a specific sensor's get function if specified in this doc.
+
     :param name: A string that identifies the sensor.
     :returns: The reading of the sensor at the current point in time.
+
+    :Examples:
+
+    >>> get_sensor("sensor1")
+
     """
     device_id = _lookup(name)
     all_data = mc.get('sensor_values')
@@ -101,8 +110,8 @@ def set_led(num, value):
 
     :Examples:
 
-    >>> set_LED("flag12",Flag.OFF)
-    >>> set_LED("flag1",Flag.LOW)
+    >>> set_LED(0, False)
+    >>> set_LED(1, True)
     """
     flag_data = mc.get('flag_values')
     flag_data[num] = value
@@ -209,10 +218,14 @@ def get_hue(name):
 def toggle_light(name, status):
     """Turns the light on specfied color sensor on or off.
 
-    Takes in the name of the specified color sensor and a boolean (True for on, false for off).
+    Takes in the name of the specified color sensor and a boolean (True for on, False for off).
 
     :param name: A string that identifies the color sensor.
     :param status: A boolean that determines whether the light should be on (True) or off (False)
+
+    >>> toggle_light("color1", True)
+    >>> toggle_light("color2", False)
+
     """
     device_id = _lookup(name)
     if (status):
@@ -230,6 +243,8 @@ def get_distance_sensor(name):
     :Examples:
 
     >>> distance = get_distance_sensor("distance1")
+    >>> distance
+    10.76
 
     """
     device_id = _lookup(name)
@@ -246,7 +261,7 @@ def get_limit_switch(name):
 
     :Examples:
 
-    >>> switch = get_limit_switch("switch1",3)
+    >>> switch = get_limit_switch("switch1")
     >>> switch
     True
 
@@ -263,13 +278,16 @@ def get_potentiometer(name):
     :param name: A string that identifies the potentiometer smart device (contains four potentiometers)
     :returns: A decimal between 0 and 1 representing the angle.
 
+    >>> potentiometer = get_potentiometer("potentiometer1")
+    >>> potentiometer
+    0.364
+
     """
     device_id = _lookup(name)
     return _testConnected(device_id)
 
 def get_metal_detector(name): #TODO metal detector Implementation
     """Returns the sensor reading of the specified metal detector
-
 
     Each metal detector returns an integer, which changes based on the prescence of metal.
     After callibration, the value should increase in the presence of steel and decrease in
@@ -291,6 +309,7 @@ def calibrate_metal_detector(name): #TODO test calibration
     due to drift.
 
     :param name: A String that identifies the metal detector smart device.
+
     """
     device_id = _lookup(name)
 
@@ -306,14 +325,19 @@ def get_line_sensor(name):
 
     :param name: A String that identifies the reflecting smart device.
     :returns: An double that specifies whether it is over the tape (0 - 1)
+
+    >>> line_sensor = get_line_sensor("line_sensor_1")
+    >>> line_sensor
+    0.03
+
     """
     device_id = _lookup(name)
     return _testConnected(device_id)
 
-
-
 def drive_distance_all(degrees, motors, gear_ratios):
-    """Drives all motors in the list a set number of degrees set by the corresponding index in the distances list.
+    """WARNING: THIS METHOD IS NOT GUARANTEED TO WORK. USE WITH CAUTION.
+
+    Drives all motors in the list a set number of degrees set by the corresponding index in the distances list.
 
     The specified motor will run until it reaches the specified degree of rotation and will hold the motor
     there until a grizzly motor method is called again.
@@ -340,7 +364,9 @@ def drive_distance_all(degrees, motors, gear_ratios):
 
   #TODO, need to reset positions each time these two methods are called.
 def drive_distance_degrees(degrees, motor, gear_ratio):
-    """Drives the specified motor a set number of degrees and holds the motor there.
+    """WARNING: THIS METHOD IS NOT GUARANTEED TO WORK. USE WITH CAUTION.
+
+    Drives the specified motor a set number of degrees and holds the motor there.
 
     The specified motor will run until it reaches the specified degree of rotation and will hold the motor there until a grizzly motor method is called again.
     The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode:
@@ -362,7 +388,9 @@ def drive_distance_degrees(degrees, motor, gear_ratio):
 
 
 def drive_distance_rotations(rotations, motor, gear_ratio):
-    """Drives the specified motor a set number of rotations and holds the motor there.
+    """WARNING: THIS METHOD IS NOT GUARANTEED TO WORK. USE WITH CAUTION.
+
+    Drives the specified motor a set number of rotations and holds the motor there.
 
     The specified motor will run until it reaches the specified degree of rotation and will hold the motor there until a grizzly motor method is called again.
     The gear ratio should be indicated on the physical motor itself. Implementation of this method for users in PID mode:
@@ -390,6 +418,9 @@ def set_drive_mode(mode):
     movement
 
     :param mode: A String ("coast" or "brake") corresponding to the selected drive mode.
+
+    >>> set_drive_mode("coast")
+
     """
     mode = mode.lower()
     assert mode in ["coast", "brake"], mode + " is not a valid drive mode"
@@ -427,6 +458,7 @@ def change_control_mode(mode, motor):
     Position PID - Motors run until at a certain position, using encoder ticks as units. See above website for number of ticks per degree of rotation.
 
     :param mode: A String ('default', 'speed', 'position') corresponding to the wanted control mode for the specified motor.
+    :param motor: A String corresponding to the motor name whose PID mode is to be changed
 
     """
     mode = mode.lower()

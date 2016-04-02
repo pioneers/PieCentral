@@ -21,7 +21,7 @@ def log_output(stream):
 temporary_send = 20
 robotStatus = 0
 id_to_name = {'1230': 'MotorA', '1231': 'MotorB', '1232': 'LimitA', '1233': 'LineA', '1234': 'PotentiometerA', '1235': 'EncoderA', 
-                '1236': 'ColorThing', '1237': 'MetalDetectorA', '1238': 'ScalarA', '1239': 'ErroredA',
+                '1236': 'ColorThing', '1237': 'MetalDetectorA', '1238': 'ScalarA', '1239': 'ServoA',
                 '1240': 'TempMotor', '1241': 'TempLine'}
 while True:
     batteryLevel = random.uniform(0, 12.0)
@@ -138,7 +138,7 @@ while True:
         'peripheral': {
             'name':id_to_name['1236'],
             'peripheralType': 'ColorSensor',
-            'value': [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), random.randint(0, 1), random.randint(0, 360)],
+            'value': [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), random.uniform(0, 360), random.uniform(0, 360)],
             'id': '1236'
         }
     })
@@ -161,8 +161,8 @@ while True:
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
             'name':id_to_name['1239'],
-            'peripheralType': 'Junk',
-            'value': random.uniform(-100, 100),
+            'peripheralType': 'ServoControl',
+            'value': random.randint(0, 180),
             'id': '1239'
         }
     })

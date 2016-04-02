@@ -124,7 +124,7 @@ def get_all_data(connectedDevices):
         if h.getDeviceName(int(device_type)) == "ColorSensor":
             #special case for color sensors
             color_data = h.getData(uid, "dataUpdate")[0]
-            lum = float(color_data[3])
+            lum = max(float(color_data[3]), 1)
             red = int(color_data[0] / lum * 256)
             green = int(color_data[1] / lum * 256)
             blue = int(color_data[2] / lum * 256)
@@ -335,10 +335,14 @@ def set_control_mode(mode):
             grizzly = name_to_grizzly[motor]
             try:
                 grizzly.set_mode(new_mode, old_mode[1])
+            except:
+                pass
     else:
         grizzly = name_to_grizzly[motor]
         try:
             grizzly.set_mode(new_mode, old_mode[1])
+        except:
+            pass
     mc.set("control_mode", [])
 
 def set_drive_mode(mode):
@@ -348,10 +352,14 @@ def set_drive_mode(mode):
             grizzly = name_to_grizzly[motor]
             try:
                 grizzly.set_mode(old_mode[0], new_mode)
+            except:
+                pass
     else:
         grizzly = name_to_grizzly[motor]
         try:
             grizzly.set_mode(old_mode[0], new_mode)
+        except:
+            pass
     mc.set("drive_mode", [])
 
 def set_PID(constants):

@@ -12,6 +12,7 @@ To use this module, you must first import it:
 >>> from api import Robot
 >>> from api.Robot import *
 '''
+# Connect to memcache
 import memcache
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port]) # connect to memcache
@@ -127,6 +128,22 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     name_to_value[device_id] = value
     mc.set('servo_values', name_to_value)
 
+def get_servo(name):
+    """Gets the degree that a servo is set to.
+
+    Each servo is set to an integer degree value (0-180). This function returns
+    what value the servo is currently set to.
+
+    :param name: A string that identifies the servo
+
+    :Examples:
+
+    >>> get_servo("servo1")
+    45
+
+    """
+    device_id = _lookup(name)
+    return _testConnected(device_id)
 
 def get_rgb(name):
     """Returns a list of rgb values from the specified color sensor.

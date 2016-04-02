@@ -8,7 +8,6 @@ let EditorActionCreators = {
   readFilepath(filepath) {
     fs.readFile(filepath, 'utf8', function(err, data) {
       if (err) {
-        console.log('error');
       } else {
         localStorage.setItem('lastFile', filepath);
         AppDispatcher.dispatch({

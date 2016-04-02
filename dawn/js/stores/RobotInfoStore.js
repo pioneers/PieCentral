@@ -3,9 +3,10 @@ import {EventEmitter} from 'events';
 import { ActionTypes } from '../constants/Constants';
 import assign from 'object-assign';
 import _ from 'lodash';
+import Immutable from 'immutable';
 
 let _robotInfo = {
-  consoleData: [],
+  consoleData: Immutable.List(),
   connectionStatus: false,
   runtimeStatus: true, // Are we receiving data from runtime?
   isRunningCode: false, // Is runtime executing code?
@@ -74,15 +75,15 @@ function handleStopCheck(action) {
 }
 
 function handleConsoleUpdate(action) {
-  _robotInfo.consoleData.push(action.console_output.value);
+  _robotInfo.consoleData = _robotInfo.consoleData.push(action.console_output.value);
   // keep the length of console output less than 20 lines
-  if (_robotInfo.consoleData.length > 20)
-    _robotInfo.consoleData.shift();
+  if (_robotInfo.consoleData.size > 20)
+    _robotInfo.consoleData = _robotInfo.consoleData.shift();
   RobotInfoStore.emitChange();
 }
 
 function handleClearConsole(action) {
-  _robotInfo.consoleData = [];
+  _robotInfo.consoleData = _robotInfo.consoleData.clear();
   RobotInfoStore.emitChange();
 }
 

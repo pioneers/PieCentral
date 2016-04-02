@@ -30,7 +30,7 @@ let EditorActionCreators = {
       this.readFilepath(filepaths[0]);
     });
   },
-  saveFile(filepath, code) {
+  saveFile(filepath, code, callback) {
     function writeContents(filepath) {
       fs.writeFile(filepath, code, function(err) {
         if (err) {
@@ -40,7 +40,8 @@ let EditorActionCreators = {
             type: ActionTypes.SAVE_FILE,
             payload: {
               code: code,
-              filepath: filepath
+              filepath: filepath,
+              callback: callback
             }
           });
         }

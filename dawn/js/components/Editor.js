@@ -31,6 +31,8 @@ import 'brace/theme/terminal';
 import {remote} from 'electron';
 let langtools = ace.acequire('ace/ext/language_tools');
 let storage = remote.require('electron-json-storage');
+let dialog = remote.dialog;
+let currentWindow = remote.getCurrentWindow();
 
 export default React.createClass({
   getInitialState() {
@@ -43,6 +45,34 @@ export default React.createClass({
     };
   },
   componentDidMount() {
+
+    // If there are unsaved changes and the user tries to close Dawn,
+    // check if they want to save their changes first.
+    window.onbeforeunload = (e) => {
+      if (this.hasUnsavedChanges()) {
+        e.returnValue = false;
+        dialog.showMessageBox({
+          type: 'warning',
+          buttons: ['Save and exit', 'Quit without saving', 'Cancel'],
+          title: 'You have unsaved changes!',
+          message: 'What do you want to do with your unsaved changes?'
+        }, (res)=>{
+          // 'res' is an integer corrseponding to index in button list above.
+          if (res === 0) {
+            this.saveFile(()=>{
+              window.onbeforeunload = null;
+              currentWindow.close();
+            });
+          } else if (res === 1) {
+            window.onbeforeunload = null;
+            currentWindow.close();
+          } else {
+            console.log('Exit canceled.');
+          }
+        });
+      }
+    };
+
     this.refs.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
 
     Mousetrap.prototype.stopCallback = function(e, element, combo) {
@@ -105,8 +135,9 @@ export default React.createClass({
       EditorActionCreators.openFile();
     }
   },
-  saveFile() {
-    EditorActionCreators.saveFile(this.state.filepath, this.state.editorCode);
+  saveFile(callback) {
+    EditorActionCreators.saveFile(
+      this.state.filepath, this.state.editorCode, callback);
   },
   saveAsFile() {
     EditorActionCreators.saveFile(null, this.state.editorCode);

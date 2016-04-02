@@ -256,7 +256,7 @@ def metal_d_calibrate(metalID):
 def set_light(value):
     device_id = value[0]
     write_value = value[1]
-    h.writeValue(device_id_to_uid(device_id), write_value)
+    h.writeValue(device_id_to_uid(device_id), "Toggle", write_value)
     mc.set("toggle_light", None)
 
 #####

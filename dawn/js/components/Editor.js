@@ -6,7 +6,6 @@ import EditorStore from '../stores/EditorStore';
 import AlertActions from '../actions/AlertActions';
 import EditorToolbar from './EditorToolbar';
 import Mousetrap from 'mousetrap';
-import smalltalk from 'smalltalk';
 import _ from 'lodash';
 import ConsoleOutput from './ConsoleOutput';
 import RobotActions from '../actions/RobotActions';
@@ -53,9 +52,9 @@ export default React.createClass({
         e.returnValue = false;
         dialog.showMessageBox({
           type: 'warning',
-          buttons: ['Save and exit', 'Quit without saving', 'Cancel'],
+          buttons: ['Save and exit', 'Quit without saving', 'Cancel exit'],
           title: 'You have unsaved changes!',
-          message: 'What do you want to do with your unsaved changes?'
+          message: 'You are trying to exit Dawn, but you have unsaved changes. What do you want to do with your unsaved changes?'
         }, (res)=>{
           // 'res' is an integer corrseponding to index in button list above.
           if (res === 0) {
@@ -123,13 +122,24 @@ export default React.createClass({
   },
   openFile() {
     if (this.hasUnsavedChanges()) {
-      smalltalk.confirm(
-        'Are you sure?',
-        'You have unsaved changes, opening a new file will discard them!'
-      ).then(()=>{
-        EditorActionCreators.openFile();
-      }, ()=>{
-        console.log('Canceled');
+      dialog.showMessageBox({
+        type: 'warning',
+        buttons: ['Save and open', 'Discard and open', 'Cancel action'],
+        title: 'You have unsaved changes!',
+        message: 'You are trying to open a new file, but you have unsaved changes to your current one. What do you want to do?'
+      }, (res)=>{
+        // 'res' is an integer corrseponding to index in button list above.
+        if (res === 0) {
+          this.saveFile(()=>{
+            process.nextTick(()=>{
+              EditorActionCreators.openFile();
+            });
+          });
+        } else if (res === 1) {
+          EditorActionCreators.openFile();
+        } else {
+          console.log('File open canceled.');
+        }
       });
     } else {
       EditorActionCreators.openFile();
@@ -144,13 +154,24 @@ export default React.createClass({
   },
   createNewFile() {
     if (this.hasUnsavedChanges()) {
-      smalltalk.confirm(
-        'Are you sure?',
-        'You have unsaved changes, creating a new file will discard them!'
-      ).then(()=>{
-        EditorActionCreators.createNewFile();
-      }, ()=>{
-        console.log('Canceled');
+      dialog.showMessageBox({
+        type: 'warning',
+        buttons: ['Save and create', 'Discard and create', 'Cancel action'],
+        title: 'You have unsaved changes!',
+        message: 'You are trying to create a new file, but you have unsaved changes to your current one. What do you want to do?'
+      }, (res)=>{
+        // 'res' is an integer corrseponding to index in button list above.
+        if (res === 0) {
+          this.saveFile(()=>{
+            process.nextTick(()=>{
+              EditorActionCreators.createNewFile();
+            });
+          });
+        } else if (res === 1) {
+          EditorActionCreators.createNewFile();
+        } else {
+          console.log('New file creation canceled.');
+        }
       });
     } else {
       EditorActionCreators.createNewFile();

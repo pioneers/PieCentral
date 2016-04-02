@@ -12,7 +12,7 @@ memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
 mc.set('motor_values', [])
-mc.set('servo_values', [])
+mc.set('servo_values', {})
 mc.set('flag_values', [False, False, False, False])
 mc.set('PID_constants',[("P", 1), ("I", 0), ("D", 0)])
 mc.set('control_mode', ["default", "all"])
@@ -133,8 +133,9 @@ def get_all_data(connectedDevices):
             continue
         if h.getDeviceName(int(device_type)) == "ServoControl":
             for device_id in uid_to_device_id(uid, 4):
-                if device_id not in all_data:
+                if device_id not in all_servos:
                     all_servos[device_id] = 0
+                    h.writeValue(device_id_to_uid(device_id), "servo" + str(device_id_to_index(device_id)), 0)
         if not tup_nest:
             continue
         values, timestamps = tup_nest
@@ -221,13 +222,14 @@ def test_battery():
 #####
 all_servos = {}
 def set_servos(data):
-    device_id = data[0]
-    value = data[1]
-    all_servos[device_id] = value
-    h.writeValue(device_id_to_uid(device_id),
+    global all_servos
+    for device_id in data:
+        value = data[device_id]
+        all_servos[device_id] = value
+        h.writeValue(device_id_to_uid(device_id),
                      "servo" + str(device_id_to_index(device_id)),
                      value)
-    mc.set('servo_values', [])
+    mc.set('servo_values', {})
 
 flag_UID = None
 def init_flag():

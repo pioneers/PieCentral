@@ -12,7 +12,7 @@ memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
 mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
 mc.set('motor_values', [])
-mc.set('servo_values', [])
+mc.set('servo_values', {})
 mc.set('flag_values', [False, False, False, False])
 mc.set('PID_constants',[("P", 1), ("I", 0), ("D", 0)])
 mc.set('control_mode', ["default", "all"])
@@ -116,6 +116,7 @@ def device_id_get_name(device_id):
     return id_to_name[device_id]
 
 def get_all_data(connectedDevices):
+    global all_servos
     all_data = {}
     for uid, device_type in connectedDevices:
         if uid == battery_UID: # battery value testing is special-cased
@@ -130,11 +131,17 @@ def get_all_data(connectedDevices):
             blue = int(color_data[2] / lum * 256)
             all_data[str(uid) + "1"] = [red, green, blue, lum, get_hue(red, green, blue)]
             continue
+        if h.getDeviceName(int(device_type)) == "ServoControl":
+            for device_id in uid_to_device_id(uid, 4):
+                if device_id not in all_servos:
+                    all_servos[device_id] = 0
+                    h.writeValue(device_id_to_uid(device_id), "servo" + str(device_id_to_index(device_id)), 0)
         if not tup_nest:
             continue
         values, timestamps = tup_nest
         for value, device_id in zip(values, uid_to_device_id(uid, len(values))):
             all_data[device_id] = value
+    all_data.update(all_servos)
     return all_data
 
 def get_hue(r, g, b):
@@ -213,13 +220,16 @@ def test_battery():
 #####
 # Hibike actuators
 #####
+all_servos = {}
 def set_servos(data):
-    for device_id, value in data.items():
-        if value == -1:
-            continue
+    global all_servos
+    for device_id in data:
+        value = data[device_id]
+        all_servos[device_id] = value
         h.writeValue(device_id_to_uid(device_id),
                      "servo" + str(device_id_to_index(device_id)),
                      value)
+    mc.set('servo_values', {})
 
 flag_UID = None
 def init_flag():
@@ -514,8 +524,9 @@ while True:
         set_motors(motor_values)
 
     #Set Servos
-    servo_values = mc.get('servo_values') or {}
-    set_servos(servo_values)
+    servo_values = mc.get('servo_values') 
+    if servo_values:
+        set_servos(servo_values)
 
     #Set Team Flag
     flag_values = mc.get('flag_values') or [False, False, False, False]

@@ -133,9 +133,9 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     """
     assert 0 <= value <= 180, "Servo degrees must be between 0 and 180"
     device_id = _lookup(name)
-    name_to_value = mc.get('servo_values')
-    name_to_value[device_id] = value
-    mc.set('servo_values', name_to_value)
+    servo_values = mc.get('servo_values')
+    servo_values[device_id] = value
+    mc.set('servo_values', servo_values)
 
 def get_servo(name):
     """Gets the degree that a servo is set to.

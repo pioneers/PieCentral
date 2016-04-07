@@ -20,6 +20,7 @@ mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
 mc.set('metal_detector_calibrate', [False,False])
 mc.set('toggle_light', None)
+mc.set('game', {'autonomous': False, 'enabled': False})
 
 #####
 # Connect to hibike
@@ -279,10 +280,10 @@ def enumerate_motors():
         grizzly_motor = Grizzly(addrs[index])
         grizzly_motor.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
         grizzly_motor.set_target(0)
-        
+
         # enable usb mode disables timeouts, so we have to disable it to enable timeouts.
         #grizzly_motor._set_as_int(Addr.EnableUSB, 0, 1)
-        
+
         # set the grizzly timeout to 500 ms
         #grizzly_motor._set_as_int(Addr.Timeout, 500, 2)
         name_to_grizzly['motor' + str(index)] = grizzly_motor
@@ -303,7 +304,7 @@ def set_motors(data):
 
 # Called on end of student code, sets all motor values to zero
 def stop_motors():
-    motor_values = mc.get('motor_values') 
+    motor_values = mc.get('motor_values')
     for name, grizzly in name_to_grizzly.iteritems():
         try:
             grizzly.set_target(0)
@@ -433,6 +434,8 @@ def msg_handling(msg):
         os.system('sudo restart runtime')
     elif msg_type == 'custom_names':
         device_id_set_name(msg['content']['id'], msg['content']['name'])
+    elif msg_type == 'game':
+        mc.set('game', msg['content'])
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):

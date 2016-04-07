@@ -40,6 +40,10 @@ function openFile(payload) {
 function saveFile(payload) {
   _editorData.latestSaveCode = payload.code;
   _editorData.filepath = payload.filepath;
+  let callback = payload.callback;
+  if (callback) {
+    callback();
+  }
   EditorStore.emitChange();
 }
 

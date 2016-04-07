@@ -207,8 +207,8 @@ export default React.createClass({
           new EditorButton('upload', 'Upload', this.upload, 'upload', (this.props.isRunningCode || !this.props.runtimeStatus)),
           new EditorButton('toggle-console', 'Toggle Console', this.toggleConsole, 'console'),
           new EditorButton('clear-console', 'Clear Console', this.clearConsole, 'remove'),
-          new EditorButton('enabled', 'Game Enable', this.gameEnable, 'play-circle'),
-          new EditorButton('autonomous', 'Autonomous', this.gameAuto, 'king')
+          new EditorButton('enabled', 'Game Enable', this.gameEnable, 'play-circle', false, this.state.gameEnable),
+          new EditorButton('autonomous', 'Autonomous', this.gameAuto, 'king', false, this.state.gameAuto)
         ]
       }
     ];

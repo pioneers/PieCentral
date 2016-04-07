@@ -8,7 +8,6 @@ module.exports = {
     UPDATE_EDITOR: null,
     UPDATE_FILENAMES: null,
     UPDATE_FILENAME: null,
-    UPDATE_MOTOR: null,
     UPDATE_PERIPHERAL: null,
     UPDATE_STATUS: null,
     UPDATE_CONNECTION: null,

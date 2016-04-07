@@ -8,7 +8,6 @@ let EditorActionCreators = {
   readFilepath(filepath) {
     fs.readFile(filepath, 'utf8', function(err, data) {
       if (err) {
-        console.log('error');
       } else {
         localStorage.setItem('lastFile', filepath);
         AppDispatcher.dispatch({
@@ -31,7 +30,7 @@ let EditorActionCreators = {
       this.readFilepath(filepaths[0]);
     });
   },
-  saveFile(filepath, code) {
+  saveFile(filepath, code, callback) {
     function writeContents(filepath) {
       fs.writeFile(filepath, code, function(err) {
         if (err) {
@@ -41,7 +40,8 @@ let EditorActionCreators = {
             type: ActionTypes.SAVE_FILE,
             payload: {
               code: code,
-              filepath: filepath
+              filepath: filepath,
+              callback: callback
             }
           });
         }

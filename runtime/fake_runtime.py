@@ -18,10 +18,13 @@ def log_output(stream):
         })
         time.sleep(0.05) # don't want to flood ansible
 
+temporary_send = 20
 robotStatus = 0
-batteryLevel = 12.3154809823084346
-id_to_name = {'1234': 'myMotor', '1235': 'something', '1236': 'somethingElse', '1237': 'somethingElseMore', '1238': 'MoreStuff', '1239': 'One', '1233': 'More', '1231': 'ColorThing'}
+id_to_name = {'1230': 'MotorA', '1231': 'MotorB', '1232': 'LimitA', '1233': 'LineA', '1234': 'PotentiometerA', '1235': 'EncoderA', 
+                '1236': 'ColorThing', '1237': 'MetalDetectorA', '1238': 'ScalarA', '1239': 'ServoA',
+                '1240': 'TempMotor', '1241': 'TempLine'}
 while True:
+    batteryLevel = random.uniform(0, 12.0)
     mc.set('gamepad', {'time': datetime.now()}) # sending arbitary data to API
     msg = ansible.recv()
     if msg:
@@ -54,14 +57,6 @@ while True:
             print msg['content']['update_path']
             print msg['content']['signature_path']
 
-    ansible.send_message('UPDATE_PERIPHERAL', {
-        'peripheral': {
-            'name': id_to_name['1236'],
-            'peripheralType': 'SENSOR_SCALAR',
-            'value': random.uniform(0, 100),
-            'id': '1236'
-        }
-    })
     ansible.send_message('UPDATE_BATTERY', {
         'battery': {
             'value': batteryLevel
@@ -72,63 +67,106 @@ while True:
             'value': robotStatus
         }
     })
+
+    if temporary_send > 0:
+        ansible.send_message('UPDATE_PERIPHERAL', {
+            'peripheral': {
+                'name':id_to_name['1240'],
+                'peripheralType': 'MOTOR_SCALAR',
+                'value': random.uniform(-100, 100),
+                'id': '1240'
+            }
+        })
+        ansible.send_message('UPDATE_PERIPHERAL', {
+            'peripheral': {
+                'name':id_to_name['1241'],
+                'peripheralType': 'LineFollower',
+                'value': random.uniform(0, 10),
+                'id': '1241'
+            }
+        })
+        temporary_send -= 1
+    ansible.send_message('UPDATE_PERIPHERAL', {
+        'peripheral': {
+            'name':id_to_name['1230'],
+            'peripheralType': 'MOTOR_SCALAR',
+            'value': random.uniform(-100, 100),
+            'id': '1230'
+        }
+    })
+    ansible.send_message('UPDATE_PERIPHERAL', {
+        'peripheral': {
+            'name':id_to_name['1231'],
+            'peripheralType': 'MOTOR_SCALAR',
+            'value': random.uniform(-100, 100),
+            'id': '1231'
+        }
+    })
+    ansible.send_message('UPDATE_PERIPHERAL', {
+        'peripheral': {
+            'name':id_to_name['1232'],
+            'peripheralType': 'LimitSwitch',
+            'value': random.randint(0, 1),
+            'id': '1232'
+        }
+    })
+    ansible.send_message('UPDATE_PERIPHERAL', {
+        'peripheral': {
+            'name': id_to_name['1233'],
+            'peripheralType': 'LineFollower',
+            'value': random.uniform(0, 10),
+            'id': '1233'
+        }
+    })
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
             'name':id_to_name['1234'],
-            'peripheralType': 'MOTOR_SCALAR',
-            'value': random.uniform(-100, 100),
+            'peripheralType': 'Potentiometer',
+            'value': random.uniform(0, 100),
             'id': '1234'
         }
     })
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
             'name': id_to_name['1235'],
-            'peripheralType': 'LimitSwitch',
-            'value': random.randint(0, 1),
+            'peripheralType': 'Encoder',
+            'value': random.randint(0, 1000),
             'id': '1235'
+       }
+    })
+    ansible.send_message('UPDATE_PERIPHERAL', {
+        'peripheral': {
+            'name':id_to_name['1236'],
+            'peripheralType': 'ColorSensor',
+            'value': [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), random.uniform(0, 360), random.uniform(0, 360)],
+            'id': '1236'
         }
     })
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
             'name':id_to_name['1237'],
-            'peripheralType': 'MOTOR_SCALAR',
-            'value': random.uniform(-100, 100),
+            'peripheralType': 'MetalDetector',
+            'value': random.uniform(30000, 40000),
             'id': '1237'
         }
     })
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
             'name':id_to_name['1238'],
-            'peripheralType': 'MOTOR_SCALAR',
+            'peripheralType': 'SENSOR_SCALAR',
             'value': random.uniform(-100, 100),
             'id': '1238'
         }
     })
     ansible.send_message('UPDATE_PERIPHERAL', {
         'peripheral': {
-            'name':id_to_name['1233'],
-            'peripheralType': 'MOTOR_SCALAR',
-            'value': random.uniform(-100, 100),
-            'id': '1233'
-        }
-    })
-    ansible.send_message('UPDATE_PERIPHERAL', {
-        'peripheral': {
             'name':id_to_name['1239'],
-            'peripheralType': 'LimitSwitch',
-            'value': random.randint(0, 1),
+            'peripheralType': 'ServoControl',
+            'value': random.randint(0, 180),
             'id': '1239'
         }
     })
-    ansible.send_message('UPDATE_PERIPHERAL', {
-        'peripheral': {
-            'name':id_to_name['1231'],
-            'peripheralType': 'ColorSensor',
-            'value': [random.randint(0, 255), random.randint(0, 255), random.randint(0, 255), random.randint(0, 1), random.randint(0, 360)],
-            'id': '1231'
-        }
-    })
-    # batteryLevel -= 1
+
     if batteryLevel == 0:
         batteryLevel = 100
         ansible.send_message('ADD_ALERT', {

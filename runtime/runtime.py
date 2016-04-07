@@ -19,6 +19,7 @@ mc.set('control_mode', ["default", "all"])
 mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
 mc.set('metal_detector_calibrate', [False,False])
+mc.set('toggle_light', None)
 
 #####
 # Connect to hibike
@@ -137,8 +138,14 @@ def get_all_data(connectedDevices):
             continue
         tup_nest = h.getData(uid, "dataUpdate")
         if h.getDeviceName(int(device_type)) == "ColorSensor":
-            #just for color sensor, put all data into one list
-            all_data[str(uid) + "5"] = h.getData(uid, "dataUpdate")
+            #special case for color sensors
+            color_data = h.getData(uid, "dataUpdate")[0]
+            lum = max(float(color_data[3]), 1)
+            red = int(color_data[0] / lum * 256)
+            green = int(color_data[1] / lum * 256)
+            blue = int(color_data[2] / lum * 256)
+            all_data[str(uid) + "1"] = [red, green, blue, lum, get_hue(red, green, blue)]
+            continue
         if not tup_nest:
             continue
         values, timestamps = tup_nest
@@ -146,15 +153,40 @@ def get_all_data(connectedDevices):
             all_data[device_id] = value
     return all_data
 
+def get_hue(r, g, b):
+    denom = max(r, g, b) - min(r, g, b)
+    if denom == 0:
+        return 0
+    L, M, H = sorted([r, g, b])
+    preucilHueError = 1.0 * (M - L) / (H - L)
+    if r >= g and g >= b:
+        return 60 * preucilHueError
+    elif g > r and r >= b:
+        return 60 * (2 - preucilHueError)
+    elif g >= b and b > r:
+        return 60 * (2 + preucilHueError)
+    elif b > g and g > r:
+        return 60 * (4 - preucilHueError)
+    elif b > r and r >= g:
+        return 60 * (4 + preucilHueError)
+    elif r >= b and b > g:
+        return 60 * (6 - preucilHueError)
+    else:
+        # Should never be here
+        return -1
+
+
 #####
 # Battery
 #####
 battery_UID = None
+battery_safe = False
 def init_battery():
     global battery_UID
     for UID, dev in connectedDevices:
         if h.getDeviceName(int(dev)) == "BatteryBuzzer":
             battery_UID = UID
+    test_battery() #TODO Calls test_battery to send alert once for no battery buzzer
 
 def test_battery():
     global battery_UID
@@ -175,7 +207,6 @@ def test_battery():
     try:
         (safe, connected, c0, c1, c2, voltage), timestamp = h.getData(battery_UID,"dataUpdate")
     except:
-        raise
         safe, voltage = False, 0.0
 
     ansible.send_message('UPDATE_BATTERY', {
@@ -238,6 +269,11 @@ def metal_d_calibrate(metalID):
     calibrate_val += 1
     mc.set("metal_detector_calibrate", [False,False])
 
+def set_light(value):
+    device_id = value[0]
+    write_value = value[1]
+    h.writeValue(device_id_to_uid(device_id), "Toggle", write_value)
+    mc.set("toggle_light", None)
 
 #####
 # Motors
@@ -342,26 +378,41 @@ def drive_set_distance(list_tuples):
             set_control_mode(control_mode)
         except:
             stop_motors()
+        mc.set("drive_distance", [])
 
 def set_control_mode(mode):
     new_mode = all_modes[mode[0]]
     if mode[1] == "all":
         for motor, old_mode in name_to_modes.items():
             grizzly = name_to_grizzly[motor]
-            grizzly.set_mode(new_mode, old_mode[1])
+            try:
+                grizzly.set_mode(new_mode, old_mode[1])
+            except:
+                pass
     else:
         grizzly = name_to_grizzly[motor]
-        grizzly.set_mode(new_mode, old_mode[1])
+        try:
+            grizzly.set_mode(new_mode, old_mode[1])
+        except:
+            pass
+    mc.set("control_mode", [])
 
 def set_drive_mode(mode):
     new_mode = all_modes[mode[0]]
     if mode[1] == "all":
         for motor, old_mode in name_to_modes.items():
             grizzly = name_to_grizzly[motor]
-            grizzly.set_mode(old_mode[0], new_mode)
+            try:
+                grizzly.set_mode(old_mode[0], new_mode)
+            except:
+                pass
     else:
         grizzly = name_to_grizzly[motor]
-        grizzly.set_mode(old_mode[0], new_mode)
+        try:
+            grizzly.set_mode(old_mode[0], new_mode)
+        except:
+            pass
+    mc.set("drive_mode", [])
 
 def set_PID(constants):
     PID_constants[constants[0]] = constants[1]
@@ -369,8 +420,11 @@ def set_PID(constants):
     i = PID_constants["I"]
     d = PID_constants["D"]
     for motor, grizzly in name_to_grizzly.items():
-        grizzly.init_pid(p, i, d)
-
+        try:
+            grizzly.init_pid(p, i, d)
+        except:
+            print("pid set failed");
+    mc.set("PID_constants", [])
 
 
 # A process for sending the output of student code to the UI
@@ -380,29 +434,33 @@ def log_output(stream):
     for line in stream:
         if robot_status == 0:
             return
-        time.sleep(0.05)
+        time.sleep(0.005)
         ansible.send_message('UPDATE_CONSOLE', {
             'console_output': {
                 'value': line
             }
         })
 
+def upload_file(filename, msg):
+    if not os.path.exists(os.path.dirname(filename)):
+        try:
+            os.makedirs(os.path.dirname(filename))
+        except OSError as exc: # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+    with open(filename, 'w+') as f:
+        f.write(msg['content']['code'])
+
 def msg_handling(msg):
     global robot_status, student_proc, console_proc
     msg_type, content = msg['header']['msg_type'], msg['content']
-    if msg_type == 'execute' and not robot_status:
+    if msg_type == 'upload' and not robot_status:
         filename = "student_code/student_code.py"
-        if not os.path.exists(os.path.dirname(filename)):
-            try:
-                os.makedirs(os.path.dirname(filename))
-            except OSError as exc: # Guard against race condition
-                if exc.errno != errno.EEXIST:
-                    raise
-        with open('student_code/student_code.py', 'w+') as f:
-            f.write(msg['content']['code'])
-
+        upload_file(filename, msg)
         #enumerate_motors() TODO Unable to restart motors that already exist
-
+    elif msg_type == 'execute' and not robot_status:
+        filename = "student_code/student_code.py"
+        upload_file(filename, msg)
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend
@@ -468,8 +526,13 @@ read_naming_map()
 enumerate_hibike()
 enumerate_motors()
 while True:
-    battery_safe = test_battery()
-    if not battery_safe:
+    if battery_UID: #TODO Only tests battery safety if battery buzzer is connected
+        battery_safe = test_battery()
+    if not battery_safe and battery_UID: #TODO Disables sending alert if battery buzzer is not connected
+        if robot_status:
+            student_proc.terminate()
+            stop_motors()
+            robot_status = 0
         for _ in range(10):
             ansible.send_message('UPDATE_STATUS', {
                 'status': {'value': False}
@@ -524,17 +587,18 @@ while True:
 
     #set drive mode
     drive_mode = mc.get("drive_mode")
-    if control_mode:
-        set_control_mode(control_mode)
+    if drive_mode:
+        set_drive_mode(drive_mode)
 
     #rebind PID constants
     PID_rebind= mc.get("PID_constants")
     if PID_rebind:
         set_PID(PID_rebind)
 
-    #refresh PID constants
-    mc.set("get_PID", PID_constants)
-
+    #toggle light on or off
+    toggle_value = mc.get("toggle_light")
+    if toggle_value != None:
+        set_light(toggle_value)
 
 
     time.sleep(0.05)

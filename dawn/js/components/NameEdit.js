@@ -1,8 +1,8 @@
 import React from 'react';
 import {RIEInput} from 'riek';
-import Ansible from '../../utils/Ansible';
-import AlertActions from '../../actions/AlertActions';
-import RobotPeripheralStore from '../../stores/RobotPeripheralStore';
+import Ansible from '../utils/Ansible';
+import AlertActions from '../actions/AlertActions';
+import RobotPeripheralStore from '../stores/RobotPeripheralStore';
 
 var NameEdit = React.createClass({
   propTypes: {
@@ -33,22 +33,23 @@ var NameEdit = React.createClass({
     let re = new RegExp("^[A-Za-z][A-Za-z0-9]+$");
     let isValid = re.test(name);
     let allCurrentPeripherals = RobotPeripheralStore.getPeripherals();
-    let isDuplicate = _.some(allCurrentPeripherals, (peripheral) => {return peripheral.name === name});
+    let isDuplicate = _.some(allCurrentPeripherals, (peripheral) => {
+      return peripheral.get("name") === name && peripheral.get("id") !== this.props.id;
+    });
     return isValid && !isDuplicate;
   },
   render() {
     return (
       <div>
-	<RIEInput
-	  ref={(ref) => this.nameEdit = ref}
-	  className="static"
-	  classEditing="editing"
-	  classInvalid="invalid"
-	  validate={this.validatePeripheralName}
-	  value={this.props.name}
-	  change={this.dataChange}
-	  propName="name"
-	/>
+      	<RIEInput
+      	  ref={(ref) => this.nameEdit = ref}
+      	  className="static"
+      	  classEditing="editing"
+      	  classInvalid="invalid"
+      	  validate={this.validatePeripheralName}
+      	  value={this.props.name}
+      	  change={this.dataChange}
+      	  propName="name" />
       </div>
     );
   }

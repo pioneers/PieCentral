@@ -60,13 +60,29 @@ def enumerate_hibike():
     global connectedDevices, uid_to_type
     connectedDevices = h.getEnumeratedDevices()
     uid_to_type = {uid: device_type for (uid, device_type) in connectedDevices}
-
-    h.subToDevices([(device, 50) for (device, device_type) in connectedDevices])
+    h.subToDevices([(device, 50) for (uid, device_type) in connectedDevices])
     print("Connected to", connectedDevices)
 
     init_battery() # Battery is mandatory!
     init_flag()
 
+def update_hibike():
+    global connectedDevices, uid_to_type, id_to_name
+    connectedDevices = h.getEnumeratedDevices()
+
+    for uid in uid_to_type.keys():  #check for disconnect
+        if not (uid, uid_to_type[uid]) in connectedDevices:
+            del uid_to_type[uid]
+            del id_to_name[uid]
+
+    for (uid, device_type) in connectedDevices: #check for connect
+        if not uid in uid_to_type:
+            uid_to_type[uid] = device_type
+            h.subToDevices([(uid, 50)])
+            print("Connected to", (uid, device_type))
+            
+    #battery and flag?
+    
 def uid_to_device_id(uid, num_devices):
     return [ str(uid)+str(device_index) for device_index in range(1,1+num_devices)]
 
@@ -226,10 +242,12 @@ def metal_d_calibrate(metalID):
 #####
 # Motors
 #####
-name_to_grizzly, name_to_modes = {}, {}
+name_to_grizzly, name_to_modes, addrs_to_name = {}, {}, {}
+next_index = 0
 
 # Called on start of student code, finds and configures all the connected motors
 def enumerate_motors():
+    global next_index
     try:
         addrs = Grizzly.get_all_ids()
     except usb.USBError:
@@ -250,10 +268,44 @@ def enumerate_motors():
         # set the grizzly timeout to 500 ms
         #grizzly_motor._set_as_int(Addr.Timeout, 500, 2)
         name_to_grizzly['motor' + str(index)] = grizzly_motor
+        addrs_to_name[addrs[index]] = 'motor' + str(index)
         name_to_values['motor' + str(index)] = 0
         name_to_modes['motor' + str(index)] = (ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
 
     mc.set('motor_values', name_to_values)
+    next_index = len(addrs)
+
+def update_motors():
+    global next_index, name_to_grizzly, name_to_values, addrs_to_name, name_to_modes
+    try:
+        addrs = Grizzly.get_all_ids()
+    except usb.USBError:
+        print("WARNING: no Grizzly Bear devices found")
+        addrs = []
+
+    #connect motors
+    for id_addrs in addrs:
+        if not id_addrs in addrs_to_name:
+            #create grizzly
+            grizzly_motor = Grizzly(id_addrs)
+            grizzly_motor.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
+            grizzly_motor.set_target(0)
+            #add to dictionaries
+            name = 'motor' + str(next_index)
+            addrs_to_name[id_addrs] = name
+            name_to_grizzly[name] = grizzly_motor
+            name_to_values[name] = 0
+            name_to_modes[name] = (ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
+            next_index += 1
+
+    #disconnect motors
+    for id_addrs in addrs_to_name:
+        if not id_addrs in addrs:
+            name = addrs_to_name[id_addrs]
+            del addrs_to_name[id_addrs]
+            del name_to_grizzly[name]
+            del name_to_values[name]
+            del name_to_modes[name]
 
 def set_motors(data):
     for name, value in data.items():
@@ -426,7 +478,7 @@ while True:
         continue
 
     msg = ansible.recv()
-    # Handle any incoming commands from the UI
+    # Handle any incoming  commands from the UI
     if msg:
         msg_handling(msg)
 
@@ -436,6 +488,7 @@ while True:
     })
 
     # Update sensor values, and send to UI
+    update_hibike()
     all_sensor_data = get_all_data(connectedDevices)
     send_peripheral_data(all_sensor_data)
     mc.set('sensor_values', all_sensor_data)

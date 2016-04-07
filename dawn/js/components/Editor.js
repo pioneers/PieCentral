@@ -39,7 +39,9 @@ export default React.createClass({
       filepath: null,
       latestSaveCode: '',
       editorCode: '',
-      editorTheme: 'github'
+      editorTheme: 'github',
+      gameEnable: false,
+      gameAuto: false
     };
   },
   componentDidMount() {
@@ -178,6 +180,14 @@ export default React.createClass({
   stopRobot() {
     Ansible.sendMessage('stop', {});
   },
+  gameEnable() {
+    this.state.gameEnable = !this.state.gameEnable;
+    Ansible.sendMessage('game', {enabled: this.state.gameEnable, autonomous: this.state.gameAuto});
+  },
+  gameAuto() {
+    this.state.gameAuto = !this.state.gameAuto;
+    Ansible.sendMessage('game', {enabled: this.state.gameEnable, autonomous: this.state.gameAuto});
+  },
   generateButtons() {
     // The buttons which will be in the button toolbar
     return [
@@ -196,7 +206,9 @@ export default React.createClass({
           new EditorButton('stop', 'Stop', this.stopRobot, 'stop', !(this.props.isRunningCode && this.props.runtimeStatus)),
           new EditorButton('upload', 'Upload', this.upload, 'upload', (this.props.isRunningCode || !this.props.runtimeStatus)),
           new EditorButton('toggle-console', 'Toggle Console', this.toggleConsole, 'console'),
-          new EditorButton('clear-console', 'Clear Console', this.clearConsole, 'remove')
+          new EditorButton('clear-console', 'Clear Console', this.clearConsole, 'remove'),
+          new EditorButton('enabled', 'Game Enable', this.gameEnable, 'play-circle'),
+          new EditorButton('autonomous', 'Autonomous', this.gameAuto, 'king')
         ]
       }
     ];

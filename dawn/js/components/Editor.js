@@ -40,7 +40,7 @@ export default React.createClass({
       latestSaveCode: '',
       editorCode: '',
       editorTheme: 'github',
-      gameEnable: true,
+      gameEnable: false,
       gameAuto: false,
       fontSize: 14
     };

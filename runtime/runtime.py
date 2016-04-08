@@ -409,7 +409,10 @@ def msg_handling(msg):
         #enumerate_motors() TODO Unable to restart motors that already exist
     elif msg_type == 'execute' and not robot_status:
         filename = "student_code/student_code.py"
-        upload_file(filename, msg)
+        # Field Control: if content has key 'code' and it is not None, then upload+execute
+        # otherwise, don't upload, just execute
+        if 'code' in content and content['code']:
+            upload_file(filename, msg)
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend

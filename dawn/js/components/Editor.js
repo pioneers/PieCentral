@@ -41,7 +41,8 @@ export default React.createClass({
       editorCode: '',
       editorTheme: 'github',
       gameEnable: true,
-      gameAuto: false
+      gameAuto: false,
+      fontSize: 14
     };
   },
   componentDidMount() {
@@ -191,6 +192,16 @@ export default React.createClass({
   openAPI() {
     window.open("https://pie-api.readthedocs.org/")
   },
+  fontIncrease() {
+    if (this.state.fontSize <= 28) {
+      this.state.fontSize += 7;
+    }
+  },
+  fontDecrease() {
+    if (this.state.fontSize > 7) {
+      this.state.fontSize -= 7;
+    }
+  },
   generateButtons() {
     // The buttons which will be in the button toolbar
     return [
@@ -201,7 +212,9 @@ export default React.createClass({
           new EditorButton('open', 'Open', this.openFile, 'folder-open'),
           new EditorButton('save', 'Save', this.saveFile, 'floppy-disk'),
           new EditorButton('saveas', 'Save As', this.saveAsFile, 'floppy-save'),
-          new EditorButton('api', 'API', this.openAPI, 'book')
+          new EditorButton('api', 'API', this.openAPI, 'book'),
+          new EditorButton('zoomin', 'Font Larger', this.fontIncrease, 'zoom-in'),
+          new EditorButton('zoomout', 'Font Smaller', this.fontDecrease, 'zoom-out')
         ],
       }, {
         groupId: 'code-execution-buttons',
@@ -268,7 +281,7 @@ export default React.createClass({
           mode="python"
           theme={ this.state.editorTheme }
           width="100%"
-          fontSize={14}
+          fontSize={this.state.fontSize}
           ref="CodeEditor"
           name="CodeEditor"
           height={String(

@@ -24,6 +24,7 @@ export default React.createClass({
     this.addSteps(joyrideSteps);
     RobotInfoStore.on('change', this.updateRobotInfo);
     AlertStore.on('change', this.updateAlert);
+    this.startTour();
   },
   componentWillUnmount() {
     RobotInfoStore.removeListener('change', this.updateRobotInfo);
@@ -75,7 +76,7 @@ export default React.createClass({
       <div>
         <DNav
           startTour={this.startTour}
-	  runtimeStatus={this.state.runtimeStatus}
+          runtimeStatus={this.state.runtimeStatus}
           connection={this.state.connectionStatus}
           battery={this.state.batteryLevel}
           isRunningCode={this.state.isRunningCode}

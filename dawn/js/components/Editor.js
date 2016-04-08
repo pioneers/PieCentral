@@ -188,6 +188,9 @@ export default React.createClass({
     this.state.gameAuto = !this.state.gameAuto;
     Ansible.sendMessage('game', {enabled: this.state.gameEnable, autonomous: this.state.gameAuto});
   },
+  openAPI() {
+    window.open("https://pie-api.readthedocs.org/")
+  },
   generateButtons() {
     // The buttons which will be in the button toolbar
     return [
@@ -197,7 +200,8 @@ export default React.createClass({
           new EditorButton('create', 'New', this.createNewFile, 'file'),
           new EditorButton('open', 'Open', this.openFile, 'folder-open'),
           new EditorButton('save', 'Save', this.saveFile, 'floppy-disk'),
-          new EditorButton('saveas', 'Save As', this.saveAsFile, 'floppy-save')
+          new EditorButton('saveas', 'Save As', this.saveAsFile, 'floppy-save'),
+          new EditorButton('api', 'API', this.openAPI, 'book')
         ],
       }, {
         groupId: 'code-execution-buttons',

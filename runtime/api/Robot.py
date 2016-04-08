@@ -38,6 +38,9 @@ def _lookup(name):
 def is_autonomous():
     return mc.get('game')['autonomous']
 
+def is_enabled():
+    return mc.get('game')['enabled']
+
 def get_motor(name):
     """Returns the current power value for a motor.
 

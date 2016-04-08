@@ -20,6 +20,7 @@ mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
 mc.set('metal_detector_calibrate', [False,False])
 mc.set('toggle_light', None)
+mc.set('game', {'autonomous': False, 'enabled': False})
 
 #####
 # Connect to hibike
@@ -279,10 +280,10 @@ def enumerate_motors():
         grizzly_motor = Grizzly(addrs[index])
         grizzly_motor.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
         grizzly_motor.set_target(0)
-        
+
         # enable usb mode disables timeouts, so we have to disable it to enable timeouts.
         #grizzly_motor._set_as_int(Addr.EnableUSB, 0, 1)
-        
+
         # set the grizzly timeout to 500 ms
         #grizzly_motor._set_as_int(Addr.Timeout, 500, 2)
         name_to_grizzly['motor' + str(index)] = grizzly_motor
@@ -303,7 +304,7 @@ def set_motors(data):
 
 # Called on end of student code, sets all motor values to zero
 def stop_motors():
-    motor_values = mc.get('motor_values') 
+    motor_values = mc.get('motor_values')
     for name, grizzly in name_to_grizzly.iteritems():
         try:
             grizzly.set_target(0)
@@ -389,22 +390,29 @@ def log_output(stream):
             }
         })
 
+def upload_file(filename, msg):
+    if not os.path.exists(os.path.dirname(filename)):
+        try:
+            os.makedirs(os.path.dirname(filename))
+        except OSError as exc: # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+    with open(filename, 'w+') as f:
+        f.write(msg['content']['code'])
+
 def msg_handling(msg):
     global robot_status, student_proc, console_proc
     msg_type, content = msg['header']['msg_type'], msg['content']
-    if msg_type == 'execute' and not robot_status:
+    if msg_type == 'upload' and not robot_status:
         filename = "student_code/student_code.py"
-        if not os.path.exists(os.path.dirname(filename)):
-            try:
-                os.makedirs(os.path.dirname(filename))
-            except OSError as exc: # Guard against race condition
-                if exc.errno != errno.EEXIST:
-                    raise
-        with open('student_code/student_code.py', 'w+') as f:
-            f.write(msg['content']['code'])
-
+        upload_file(filename, msg)
         #enumerate_motors() TODO Unable to restart motors that already exist
-
+    elif msg_type == 'execute' and not robot_status:
+        filename = "student_code/student_code.py"
+        # Field Control: if content has key 'code' and it is not None, then upload+execute
+        # otherwise, don't upload, just execute
+        if 'code' in content and content['code']:
+            upload_file(filename, msg)
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend
@@ -429,6 +437,8 @@ def msg_handling(msg):
         os.system('sudo restart runtime')
     elif msg_type == 'custom_names':
         device_id_set_name(msg['content']['id'], msg['content']['name'])
+    elif msg_type == 'game':
+        mc.set('game', msg['content'])
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):

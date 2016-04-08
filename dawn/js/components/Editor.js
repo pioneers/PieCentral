@@ -182,12 +182,10 @@ export default React.createClass({
     Ansible.sendMessage('stop', {});
   },
   gameEnable() {
-    this.state.gameEnable = !this.state.gameEnable;
-    Ansible.sendMessage('game', {enabled: this.state.gameEnable, autonomous: this.state.gameAuto});
+    this.setState({gameEnable: !this.state.gameEnable}, () => Ansible.sendMessage('game', {enabled: this.state.gameEnable, autonomous: this.state.gameAuto}))
   },
   gameAuto() {
-    this.state.gameAuto = !this.state.gameAuto;
-    Ansible.sendMessage('game', {enabled: this.state.gameEnable, autonomous: this.state.gameAuto});
+    this.setState({gameAuto: !this.state.gameAuto}, () => Ansible.sendMessage('game', {enabled: this.state.gameEnable, autonomous: this.state.gameAuto}))
   },
   openAPI() {
     window.open("https://pie-api.readthedocs.org/")

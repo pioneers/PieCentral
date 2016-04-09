@@ -123,7 +123,7 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     One servo, as specified by its name, is set to turn to an integer amount of degrees (0-180)
 
     :param name: A string that identifies the servo
-    :param value: An integer between 0 and 180 which sets the amount to turn to in degrees
+    :param value: An integer between 20 and 160 which sets the amount to turn to in degrees
 
     :Examples:
 
@@ -131,7 +131,7 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     >>> set_servo("servo3",150)
 
     """
-    assert 0 <= value <= 180, "Servo degrees must be between 0 and 180"
+    assert 20 <= value <= 160, "Servo degrees must be between 20 and 160"
     device_id = _lookup(name)
     servo_values = mc.get('servo_values')
     servo_values[device_id] = value
@@ -140,7 +140,7 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
 def get_servo(name):
     """Gets the degree that a servo is set to.
 
-    Each servo is set to an integer degree value (0-180). This function returns
+    Each servo is set to an integer degree value (20-160). This function returns
     what value the servo is currently set to.
 
     :param name: A string that identifies the servo
@@ -377,8 +377,8 @@ def drive_distance_degrees(degrees, motor, gear_ratio):
     :param motor: A String corresponding to the motor name to be rotated
     :param gear_ratio: An integer corresponding to the gear ratio of the motor (19 or 67)
     """
-    assert isinstance(motors, str), "motor must be an String"
-    assert isinstance(gear_ratios, int), "gear_ratio must be an integer"
+    assert isinstance(motor, str), "motor must be an String"
+    assert isinstance(gear_ratio, int), "gear_ratio must be an integer"
     assert isinstance(degrees, int), "degrees must be an integer"
     motor_list = mc.get("motor_values")
     assert motor in motor_list, motor + " not found in connected motors"
@@ -401,8 +401,8 @@ def drive_distance_rotations(rotations, motor, gear_ratio):
     :param motor: A String corresponding to the motor name to be rotated
     :param gear_ratio: An integer corresponding to the gear ratio of the motor (19 or 67)
     """
-    assert isinstance(motors, str), "motor must be a String"
-    assert isinstance(gear_ratios, int), "gear_ratio must be an integer"
+    assert isinstance(motor, str), "motor must be a String"
+    assert isinstance(gear_ratio, int), "gear_ratio must be an integer"
     assert isinstance(rotations, int), "degrees must be an integer"
     motor_list = mc.get("motor_values")
     assert motor in motor_list, motor + " not found in connected motors"

@@ -327,13 +327,14 @@ def drive_set_distance(list_tuples):
     for item in list_tuples:
         grizzly = name_to_grizzly[item[0]]
         try:
-            grizzly.write_encoder(0)
+            #grizzly.write_encoder(0)
             grizzly.set_mode(ControlMode.POSITION_PID, DriveMode.DRIVE_BRAKE)
             grizzly.set_target(item[1] * gear_to_tick[item[2]])
             control_mode = mc.get("control_mode")
-            set_control_mode(control_mode)
+            set_control_mode(control_mode[0])
             drive_mode = mc.get("drive_mode")
-            set_control_mode(control_mode)
+            set_control_mode(drive_mode[0])
+            #reset target number.
         except:
             stop_motors()
         mc.set("drive_distance", [])

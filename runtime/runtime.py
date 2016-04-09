@@ -14,7 +14,7 @@ mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 
 mc.set('motor_values', [])
 mc.set('servo_values', {})
 mc.set('flag_values', [False, False, False, False])
-mc.set('PID_constants',[("P", 1), ("I", 0), ("D", 0)])
+mc.set('PID_constants',[("P", 0.5), ("I", 0), ("D", 0)])
 mc.set('control_mode', ["default", "all"])
 mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
@@ -135,7 +135,7 @@ def get_all_data(connectedDevices):
         if h.getDeviceName(int(device_type)) == "ServoControl":
             for device_id in uid_to_device_id(uid, 4):
                 if device_id not in all_servos:
-                    all_servos[device_id] = 0
+                    all_servos[device_id] = 90
                     h.writeValue(device_id_to_uid(device_id), "servo" + str(device_id_to_index(device_id)), 0)
         if not tup_nest:
             continue

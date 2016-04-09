@@ -68,19 +68,18 @@ export default React.createClass({
               key={2}>TeleOp</MenuItem>
           </DropdownButton>
           <DropdownButton
-            title={this.props.editorTheme}
+            title="Theme"
             bsSize="small"
             id="choose-theme">
             { _.map(this.props.themes, (theme, index) => {
-              if (theme !== this.props.editorTheme) {
-                return (
-                  <MenuItem
-                    onClick={_.partial(this.props.changeTheme, theme)}
-                    key={index}>
-                    {theme}
-                  </MenuItem>
-                );
-              }
+              return (
+                <MenuItem
+                  active={theme == this.props.editorTheme}
+                  onClick={_.partial(this.props.changeTheme, theme)}
+                  key={index}>
+                  {theme}
+                </MenuItem>
+              );
             }) }
           </DropdownButton>
         </ButtonToolbar>

@@ -7,6 +7,8 @@ import AlertStore from '../stores/AlertStore';
 import AlertActions from '../actions/AlertActions';
 import joyrideSteps from './JoyrideSteps';
 import smalltalk from 'smalltalk';
+import { remote } from 'electron';
+const storage = remote.require('electron-json-storage');
 
 export default React.createClass({
   displayName: 'Dawn',

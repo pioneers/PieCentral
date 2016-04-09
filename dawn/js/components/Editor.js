@@ -108,6 +108,23 @@ export default React.createClass({
       }
     });
 
+    storage.has('editorFontSize').then((hasKey)=>{
+      if (hasKey) {
+        storage.get('editorFontSize').then((data)=>{
+          console.log(data);
+          this.setState({
+            fontSize: data.editorFontSize
+          });
+        });
+      } else {
+        storage.set('editorFontSize', {
+          editorFontSize: 14
+        }, (err)=>{
+          if (err) throw err;
+        });
+      }
+    });
+
     EditorStore.on('change', this.updateEditorData);
   },
   componentWillUnmount() {
@@ -236,11 +253,17 @@ export default React.createClass({
   },
   fontIncrease() {
     if (this.state.fontSize <= 28) {
+      storage.set('editorFontSize', {editorFontSize: this.state.fontSize + 7}, (err)=>{
+        if (err) throw err;
+      });
       this.setState({fontSize: this.state.fontSize + 7});
     }
   },
   fontDecrease() {
     if (this.state.fontSize > 7) {
+      storage.set('editorFontSize', {editorFontSize: this.state.fontSize - 7}, (err)=>{
+        if (err) throw err;
+      });
       this.setState({fontSize: this.state.fontSize - 7});
     }
   },

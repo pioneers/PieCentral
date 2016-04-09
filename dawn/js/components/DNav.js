@@ -21,7 +21,6 @@ export default React.createClass({
     return { showUpdateModal: false };
   },
   IPvalidate(address) {
-    var re = /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/;
     return /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(address);
   },
   saveAddress(currentAddress) {

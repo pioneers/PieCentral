@@ -12,6 +12,12 @@ let template = [
     label: 'Dawn',
     submenu: [
       {
+        label: 'Reset user settings',
+        click: function() {
+          storage.clear();
+        }
+      },
+      {
         label: 'Quit',
         accelerator: 'CommandOrControl+Q',
         click: function() { app.quit(); }
@@ -90,12 +96,6 @@ app.on('ready', function() {
 
   // In development mode, allow quick reloading to see effects of code changes.
   if (process.env.NODE_ENV === 'development') {
-    template[2].submenu.unshift({
-      label: 'Clear Storage',
-      click: function() {
-        storage.clear();
-      }
-    });
     template[2].submenu.unshift({
       label: 'Reload',
       accelerator: 'CommandOrControl+R',

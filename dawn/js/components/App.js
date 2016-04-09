@@ -24,7 +24,7 @@ export default React.createClass({
     this.addSteps(joyrideSteps);
     RobotInfoStore.on('change', this.updateRobotInfo);
     AlertStore.on('change', this.updateAlert);
-    this.startTour();
+    //this.startTour();
   },
   componentWillUnmount() {
     RobotInfoStore.removeListener('change', this.updateRobotInfo);

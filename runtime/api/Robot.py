@@ -126,7 +126,7 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     One servo, as specified by its name, is set to turn to an integer amount of degrees (0-180)
 
     :param name: A string that identifies the servo
-    :param value: An integer between 20 and 160 which sets the amount to turn to in degrees
+    :param value: An integer between 0 and 180 which sets the amount to turn to in degrees
 
     :Examples:
 
@@ -134,8 +134,9 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     >>> set_servo("servo3",150)
 
     """
-    assert 20 <= value <= 160, "Servo degrees must be between 20 and 160"
+    assert 0 <= value <= 180, "Servo degrees must be between 20 and 160"
     device_id = _lookup(name)
+    value = 15 + (value * 150 / 180)
     servo_values = mc.get('servo_values')
     servo_values[device_id] = value
     mc.set('servo_values', servo_values)
@@ -143,7 +144,7 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
 def get_servo(name):
     """Gets the degree that a servo is set to.
 
-    Each servo is set to an integer degree value (20-160). This function returns
+    Each servo is set to an integer degree value (0-180). This function returns
     what value the servo is currently set to.
 
     :param name: A string that identifies the servo
@@ -155,7 +156,8 @@ def get_servo(name):
 
     """
     device_id = _lookup(name)
-    return _testConnected(device_id)
+    value = _testConnected(device_id)
+    return ((value - 15) * 180 / 150)
 
 def get_rgb(name):
     """Returns a list of rgb values from the specified color sensor.

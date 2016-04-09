@@ -41,7 +41,7 @@ naming_map_filename = 'student_code/CustomID.txt'
 #####
 # Constant mappings for student code info
 #####
-gear_to_tick = {19: 1200.0/360, 67: 4480/360}
+gear_to_tick = {19: 1200.0/360, 67: 4480.0/360}
 all_modes = {
     "default": ControlMode.NO_PID,
     "speed": ControlMode.SPEED_PID,
@@ -305,7 +305,10 @@ def enumerate_motors():
 def set_motors(data):
     for name, value in data.items():
         grizzly = name_to_grizzly[name]
+        if (value == None):
+            continue
         try:
+            grizzly.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
             grizzly.set_target(value)
         except:
             stop_motors()
@@ -317,6 +320,7 @@ def stop_motors():
     motor_values = mc.get('motor_values')
     for name, grizzly in name_to_grizzly.iteritems():
         try:
+            grizzly.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
             grizzly.set_target(0)
         except:
             print("WARNING: failed to stop grizzly")
@@ -328,17 +332,17 @@ def drive_set_distance(list_tuples):
     for item in list_tuples:
         grizzly = name_to_grizzly[item[0]]
         try:
-            #grizzly.write_encoder(0)
+            grizzly.write_encoder(0)
+            grizzly.set_target(0)
             grizzly.set_mode(ControlMode.POSITION_PID, DriveMode.DRIVE_BRAKE)
             grizzly.set_target(item[1] * gear_to_tick[item[2]])
-            control_mode = mc.get("control_mode")
-            set_control_mode(control_mode[0])
-            drive_mode = mc.get("drive_mode")
-            set_control_mode(drive_mode[0])
+            motor_vals = mc.get("motor_values")
+            motor_vals[item[0]] = None
+            mc.set("motor_values", motor_vals)
             #reset target number.
         except:
             stop_motors()
-        mc.set("drive_distance", [])
+    mc.set("drive_distance", [])
 
 def set_control_mode(mode):
     new_mode = all_modes[mode[0]]

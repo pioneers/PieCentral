@@ -31,12 +31,6 @@ cp -r $TEMP_DIR/student_code $RUNTIME_DIR
 
 ln -s $HOME_DIR/hibike/hibikeDevices.csv $RUNTIME_DIR/hibikeDevices.csv
 
-####################################################################################
-# New ssh keys!
-####################################################################################
-sudo rm $HOME_DIR/.ssh/authorized_keys
-cp $TEMP_DIR/frankfurter/resources/frankfurter_vincent.pub $HOME_DIR/.ssh/authorized_keys
-
 # SO CONFUSED. this makes no sense to me. online documentation says this should be
 # set to 600 and after a login things are set to 600, but the initial login doesn't
 # work unless these permissions are initially set to 644. I'm guessing the sshd

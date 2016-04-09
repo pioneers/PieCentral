@@ -24,6 +24,14 @@ export default React.createClass({
     this.addSteps(joyrideSteps);
     RobotInfoStore.on('change', this.updateRobotInfo);
     AlertStore.on('change', this.updateAlert);
+    storage.has('firstTime').then((hasKey)=>{
+      if (!hasKey) {
+        this.startTour();
+        storage.set('firstTime', {first: true}, (err)=>{
+          if (err) throw err;
+        });
+      }
+    });
   },
   componentWillUnmount() {
     RobotInfoStore.removeListener('change', this.updateRobotInfo);

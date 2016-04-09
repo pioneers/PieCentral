@@ -20,7 +20,7 @@ mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
 mc.set('metal_detector_calibrate', [False,False])
 mc.set('toggle_light', None)
-mc.set('game', {'autonomous': False, 'enabled': False})
+mc.set('game', {'autonomous': False, 'enabled': True})
 
 #####
 # Connect to hibike

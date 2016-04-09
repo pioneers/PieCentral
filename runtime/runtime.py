@@ -516,12 +516,16 @@ while True:
     # Update motor values, and send to UI
     motor_values = mc.get('motor_values') or {}
     send_motor_data(motor_values)
-    if robot_status:
+    if robot_status and mc.get('game')['enabled']:
         set_motors(motor_values)
+    elif not mc.get('game')['enabled']:
+        stop_motors()
+        mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
 
     #Set Servos
     servo_values = mc.get('servo_values') or {}
-    set_servos(servo_values)
+    if mc.get('game')['enabled']:
+        set_servos(servo_values)
 
     #Set Team Flag
     flag_values = mc.get('flag_values') or [False, False, False, False]

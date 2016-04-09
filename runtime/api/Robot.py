@@ -36,7 +36,32 @@ def _lookup(name):
     return name
 
 def is_autonomous():
+    """Returns the autonomous state of the game.
+
+    :param name: None
+    :returns: A boolean.
+
+    :Examples:
+
+    >>> if is_autonomous():
+            set_motor('motor1', 0.5)
+
+    """
     return mc.get('game')['autonomous']
+
+def is_enabled():
+    """Returns whether the robot is enabled.
+
+    :param name: None
+    :returns: A boolean.
+
+    :Examples:
+
+    >>> if is_enabled():
+            set_motor('motor1', 0.5)
+
+    """
+    return mc.get('game')['enabled']
 
 def get_motor(name):
     """Returns the current power value for a motor.

@@ -41,8 +41,6 @@ export default React.createClass({
       latestSaveCode: '',
       editorCode: '',
       editorTheme: 'github',
-      gameEnable: false,
-      gameAuto: false,
       fontSize: 14
     };
   },
@@ -233,23 +231,17 @@ export default React.createClass({
   stopRobot() {
     Ansible.sendMessage('stop', {});
   },
-  gameEnable() {
-    this.setState({gameEnable: !this.state.gameEnable}, () => Ansible.sendMessage('game', {enabled: this.state.gameEnable, autonomous: this.state.gameAuto}))
-  },
-  gameAuto() {
-    this.setState({gameAuto: !this.state.gameAuto}, () => Ansible.sendMessage('game', {enabled: this.state.gameEnable, autonomous: this.state.gameAuto}))
-  },
   openAPI() {
     window.open("https://pie-api.readthedocs.org/")
   },
   fontIncrease() {
     if (this.state.fontSize <= 28) {
-      this.state.fontSize += 7;
+      this.setState({fontSize: this.state.fontSize + 7});
     }
   },
   fontDecrease() {
     if (this.state.fontSize > 7) {
-      this.state.fontSize -= 7;
+      this.setState({fontSize: this.state.fontSize - 7});
     }
   },
   generateButtons() {
@@ -261,21 +253,23 @@ export default React.createClass({
           new EditorButton('create', 'New', this.createNewFile, 'file'),
           new EditorButton('open', 'Open', this.openFile, 'folder-open'),
           new EditorButton('save', 'Save', this.saveFile, 'floppy-disk'),
-          new EditorButton('saveas', 'Save As', this.saveAsFile, 'floppy-save'),
-          new EditorButton('api', 'API', this.openAPI, 'book'),
-          new EditorButton('zoomin', 'Font Larger', this.fontIncrease, 'zoom-in'),
-          new EditorButton('zoomout', 'Font Smaller', this.fontDecrease, 'zoom-out')
+          new EditorButton('saveas', 'Save As', this.saveAsFile, 'floppy-save')
         ],
       }, {
         groupId: 'code-execution-buttons',
         buttons: [
           new EditorButton('run', 'Run', this.startRobot, 'play', (this.props.isRunningCode || !this.props.runtimeStatus)),
           new EditorButton('stop', 'Stop', this.stopRobot, 'stop', !(this.props.isRunningCode && this.props.runtimeStatus)),
-          new EditorButton('upload', 'Upload', this.upload, 'upload', (this.props.isRunningCode || !this.props.runtimeStatus)),
           new EditorButton('toggle-console', 'Toggle Console', this.toggleConsole, 'console'),
           new EditorButton('clear-console', 'Clear Console', this.clearConsole, 'remove'),
-          new EditorButton('enabled', 'Game Enable', this.gameEnable, 'play-circle', false, this.state.gameEnable),
-          new EditorButton('autonomous', 'Autonomous', this.gameAuto, 'king', false, this.state.gameAuto)
+          new EditorButton('upload', 'Upload', this.upload, 'upload', (this.props.isRunningCode || !this.props.runtimeStatus)),
+        ]
+      }, {
+        groupId: 'misc-buttons',
+        buttons: [
+          new EditorButton('api', 'API Documentation', this.openAPI, 'book'),
+          new EditorButton('zoomin', 'Increase fontsize', this.fontIncrease, 'zoom-in'),
+          new EditorButton('zoomout', 'Decrease fontsize', this.fontDecrease, 'zoom-out')
         ]
       }
     ];
@@ -326,6 +320,7 @@ export default React.createClass({
           changeTheme={ this.changeTheme }
           editorTheme={ this.state.editorTheme }
           themes={ this.themes }
+          runtimeStatus={ this.props.runtimeStatus }
         />
         <AceEditor
           mode="python"

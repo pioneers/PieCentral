@@ -35,6 +35,9 @@ def _lookup(name):
         return _name_to_id[name]
     return name
 
+def is_autonomous():
+    return mc.get('game')['autonomous']
+
 def get_motor(name):
     """Returns the current power value for a motor.
 
@@ -301,7 +304,7 @@ def get_metal_detector(name): #TODO metal detector Implementation
     device_id = _lookup(name)
     return _testConnected(device_id)
 
-def calibrate_metal_detector(name): #TODO test calibration 
+def calibrate_metal_detector(name): #TODO test calibration
     """Calibrates the specified metal sensor
 
     Calibrates to set the current reading of the metal detector to air (0). It is
@@ -319,9 +322,9 @@ def calibrate_metal_detector(name): #TODO test calibration
 def get_line_sensor(name):
     """Returns a value used to determine whether the selected sensor is over a line or not
 
-    If the selected sensor (left, center, or right) is over a line/reflective surface, 
-    this will return an double close to 0; 
-    Over the ground or dark material, this will return an double close to 1. 
+    If the selected sensor (left, center, or right) is over a line/reflective surface,
+    this will return an double close to 0;
+    Over the ground or dark material, this will return an double close to 1.
 
     :param name: A String that identifies the reflecting smart device.
     :returns: An double that specifies whether it is over the tape (0 - 1)

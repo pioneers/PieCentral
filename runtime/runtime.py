@@ -10,7 +10,7 @@ import os
 #####
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
-mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
+mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': [0]*17, 'connected': None, 'mapping': None}})
 mc.set('motor_values', [])
 mc.set('servo_values', {})
 mc.set('flag_values', [False, False, False, False])
@@ -538,7 +538,7 @@ while True:
         set_motors(motor_values)
     elif not mc.get('game')['enabled']:
         stop_motors()
-        mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
+        mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': [0]*17, 'connected': None, 'mapping': None}})
 
     #Set Servos
     servo_values = mc.get('servo_values') 

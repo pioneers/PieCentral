@@ -454,6 +454,9 @@ def msg_handling(msg):
         device_id_set_name(msg['content']['id'], msg['content']['name'])
     elif msg_type == 'game':
         mc.set('game', msg['content'])
+        if 'blue' in msg['content'] and flag_UID is not None:
+            h.writeValue(flag_UID, 'blue', int(msg['content']['blue']))
+            h.writeValue(flag_UID, 'yellow', int(not msg['content']['blue']))
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):

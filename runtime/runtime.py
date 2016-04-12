@@ -21,6 +21,8 @@ mc.set('drive_distance', [])
 mc.set('metal_detector_calibrate', [False,False])
 mc.set('toggle_light', None)
 mc.set('game', {'autonomous': False, 'enabled': False})
+mc.set("spec_pid", [])
+mc.set("encoder_distance", {})
 
 #####
 # Connect to hibike
@@ -299,6 +301,7 @@ def enumerate_motors():
         name_to_grizzly['motor' + str(index)] = grizzly_motor
         name_to_values['motor' + str(index)] = 0
         name_to_modes['motor' + str(index)] = (ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
+        mc.
 
     mc.set('motor_values', name_to_values)
 
@@ -390,6 +393,23 @@ def set_PID(constants):
             print("pid set failed");
     mc.set("PID_constants", [])
 
+def set_spec_PID(data):
+    motor_name = data[0]
+    p = data[1]
+    i = data[2]
+    d = data[3]
+    grizzy = name_to_grizzly[motor_name]
+    try:
+        grizzly.init_pid(p, i, d)
+    except:
+        print("tried to set pid and failed")
+    mc.set("special-cased", ())
+
+def get_encoder_distance(motor):
+    grizzly = name_to_grizzly[motor[0]]
+    distance = grizzly.read_encoder()
+    distance = distance / gear_to_tick[motor[1]]
+    mc.set("encoder_distance", distance)
 
 # A process for sending the output of student code to the UI
 def log_output(stream):
@@ -454,6 +474,10 @@ def msg_handling(msg):
         device_id_set_name(msg['content']['id'], msg['content']['name'])
     elif msg_type == 'game':
         mc.set('game', msg['content'])
+        if 'blue' in msg['content'] and flag_UID is not None:
+            h.writeValue(flag_UID, 'blue', int(msg['content']['blue']))
+            h.writeValue(flag_UID, 'gold', int(not msg['content']['blue']))
+
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):
@@ -569,5 +593,12 @@ while True:
     if toggle_value != None:
         set_light(toggle_value)
 
+    spec_pid = mc.get("spec_pid")
+    if spec_pid:
+        set_spec_PID(spec_pid)
+
+    get_encoder_dist = mc.get("encoder_distance")
+    if get_encoder_dist:
+        get_encoder_distance(get_encoder_dist)
 
     time.sleep(0.05)

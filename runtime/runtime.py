@@ -275,7 +275,7 @@ def set_light(value):
 #####
 # Motors
 #####
-name_to_grizzly, name_to_modes = {}, {}
+name_to_grizzly, name_to_modes, name_to_distance = {}, {}, {}
 
 # Called on start of student code, finds and configures all the connected motors
 def enumerate_motors():
@@ -301,7 +301,6 @@ def enumerate_motors():
         name_to_grizzly['motor' + str(index)] = grizzly_motor
         name_to_values['motor' + str(index)] = 0
         name_to_modes['motor' + str(index)] = (ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
-        mc.
 
     mc.set('motor_values', name_to_values)
 
@@ -403,13 +402,14 @@ def set_spec_PID(data):
         grizzly.init_pid(p, i, d)
     except:
         print("tried to set pid and failed")
-    mc.set("special-cased", ())
+    mc.set("spec_pid", []
 
-def get_encoder_distance(motor):
-    grizzly = name_to_grizzly[motor[0]]
-    distance = grizzly.read_encoder()
-    distance = distance / gear_to_tick[motor[1]]
-    mc.set("encoder_distance", distance)
+def update_motor_distance():
+    for motor, grizzly in name_to_grizzly.items():
+        try:
+            name_to_distance[motor] = grizzly.read_encoder()
+        except:
+            print("tried and failed to read grizzly")
 
 # A process for sending the output of student code to the UI
 def log_output(stream):
@@ -597,8 +597,7 @@ while True:
     if spec_pid:
         set_spec_PID(spec_pid)
 
-    get_encoder_dist = mc.get("encoder_distance")
-    if get_encoder_dist:
-        get_encoder_distance(get_encoder_dist)
+    update_motor_distance()
+    mc.set("encoder_distance", name_to_distance)
 
     time.sleep(0.05)

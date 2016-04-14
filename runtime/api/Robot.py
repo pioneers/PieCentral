@@ -525,14 +525,17 @@ def get_motor_distance(motor, gear_ratio):
     :returns: An integer corresponding to the degrees at which the motor is at.
     """
     assert isinstance(motor, str), "motor must be a string"
-     name_to_value = mc.get('motor_values')
+    name_to_value = mc.get('motor_values')
     if device_id not in name_to_value:
         raise KeyError("No motor with that name")
     assert gear_ratio in [19,67], "Gear ratio must be 19:1 or 67:1"    
-    mc.set("encoder_distance", [motor] + [gear_ratio])
-    distances = mc.get("encoder_distance")
-    mc.set("encoder_distance", [])
-    return distances[motor]
+    distance_dict = mc.get("encoder_distance")
+    distance = distance_dict[motor]
+    if gear_ratio == 19:
+        distance = distance * 360.0 / 1200.0
+    if gear_ratio == 67:
+        distance = distance * 360.0 / 1200.0
+    return distance
 
 def _testConnected(device_id): # Returns value if device_id exists, otherwise throws SensorValueOutOFBounds Exception
     all_data = mc.get('sensor_values')

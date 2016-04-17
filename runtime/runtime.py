@@ -402,7 +402,7 @@ def set_spec_PID(data):
         grizzly.init_pid(p, i, d)
     except:
         print("tried to set pid and failed")
-    mc.set("spec_pid", []
+    mc.set("spec_pid", [])
 
 def update_motor_distance():
     for motor, grizzly in name_to_grizzly.items():

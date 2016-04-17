@@ -499,7 +499,7 @@ def change_specific_PID(motor, pid_list):
     assert isinstance(pid_list, list), "pid_list must be a list"
     assert len(pid_list) == 3, "pid_list must have only 3 values"
     for item in pid_list:
-        assert isinstance(item, int), "items in pid_list must be an integer"
+        assert isinstance(item, int) or isinstance(item, float), "items in pid_list must be an integer"
     name_to_value = mc.get('motor_values')
     if device_id not in name_to_value:
         raise KeyError("No motor with that name")

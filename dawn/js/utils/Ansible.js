@@ -5,7 +5,7 @@ import request from 'superagent';
 import { remote } from 'electron';
 const storage = remote.require('electron-json-storage');
 
-let defaultAddress = '127.0.0.1';
+let defaultAddress = '192.168.13.100';
 let socket = null;
 
 function connectToAnsible(runtimeAddress) {

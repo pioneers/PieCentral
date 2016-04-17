@@ -20,19 +20,26 @@ export default React.createClass({
   getInitialState() {
     return { showUpdateModal: false };
   },
+  IPvalidate(address) {
+    return /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(address);
+  },
   saveAddress(currentAddress) {
     let prompt = smalltalk.prompt(
       'Enter the IP address of the robot:',
-      'Examples: 192.168.0.100, 127.0.0.1',
+      'Examples: 192.168.13.100, 127.0.0.1',
       currentAddress
     );
     prompt.then((value) => {
-      storage.set('runtimeAddress', {
-        address: value
-      }, (err)=>{
-        if (err) throw err;
-        Ansible.reload();
-      });
+      if (/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(value)) {
+        storage.set('runtimeAddress', {
+          address: value
+        }, (err)=>{
+          if (err) throw err;
+          Ansible.reload();
+        });
+      } else if (value != null) {
+        console.log("Bad IP: " + value);
+      }
     }, ()=>console.log('Canceled'));
   },
   updateAddress() {
@@ -42,7 +49,7 @@ export default React.createClass({
           this.saveAddress(data.address);
         });
       } else {
-        this.saveAddress('127.0.0.1');
+        this.saveAddress('192.168.13.100');
       }
     });
   },

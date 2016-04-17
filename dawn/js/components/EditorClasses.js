@@ -6,12 +6,13 @@ import { OverlayTrigger, Button, Tooltip, Glyphicon } from 'react-bootstrap';
  * being disabled.
  */
 export class EditorButton {
-  constructor(name, text, callback, glyph, disabled) {
+  constructor(name, text, callback, glyph, disabled, active) {
     this.name = name;
     this.text = text;
     this.callback = callback;
     this.glyph = glyph;
     this.disabled = disabled;
+    this.active = active;
   }
 
   render(key) {
@@ -28,6 +29,7 @@ export class EditorButton {
           onClick={this.callback}
           bsSize="small"
           disabled={this.disabled || false}
+          active={this.active}
           >
           <Glyphicon glyph={this.glyph} />
         </Button>

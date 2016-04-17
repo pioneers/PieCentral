@@ -10,17 +10,17 @@ import os
 #####
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
-mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
+mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': [0]*17, 'connected': None, 'mapping': None}})
 mc.set('motor_values', [])
-mc.set('servo_values', [])
+mc.set('servo_values', {})
 mc.set('flag_values', [False, False, False, False])
-mc.set('PID_constants',[("P", 1), ("I", 0), ("D", 0)])
+mc.set('PID_constants',[("P", 0.5), ("I", 0), ("D", 0)])
 mc.set('control_mode', ["default", "all"])
 mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
 mc.set('metal_detector_calibrate', [False,False])
 mc.set('toggle_light', None)
-mc.set('game', {'autonomous': False, 'enabled': False})
+mc.set('game', {'autonomous': False, 'enabled': True})
 
 #####
 # Connect to hibike
@@ -41,7 +41,7 @@ naming_map_filename = 'student_code/CustomID.txt'
 #####
 # Constant mappings for student code info
 #####
-gear_to_tick = {19: 1200.0/360, 67: 4480/360}
+gear_to_tick = {19: 1200.0/360, 67: 4480.0/360}
 all_modes = {
     "default": ControlMode.NO_PID,
     "speed": ControlMode.SPEED_PID,
@@ -117,6 +117,7 @@ def device_id_get_name(device_id):
     return id_to_name[device_id]
 
 def get_all_data(connectedDevices):
+    global all_servos
     all_data = {}
     for uid, device_type in connectedDevices:
         if uid == battery_UID: # battery value testing is special-cased
@@ -131,11 +132,17 @@ def get_all_data(connectedDevices):
             blue = int(color_data[2] / lum * 256)
             all_data[str(uid) + "1"] = [red, green, blue, lum, get_hue(red, green, blue)]
             continue
+        if h.getDeviceName(int(device_type)) == "ServoControl":
+            for device_id in uid_to_device_id(uid, 4):
+                if device_id not in all_servos:
+                    all_servos[device_id] = 90
+                    h.writeValue(device_id_to_uid(device_id), "servo" + str(device_id_to_index(device_id)), 0)
         if not tup_nest:
             continue
         values, timestamps = tup_nest
         for value, device_id in zip(values, uid_to_device_id(uid, len(values))):
             all_data[device_id] = value
+    all_data.update(all_servos)
     return all_data
 
 def get_hue(r, g, b):
@@ -214,13 +221,16 @@ def test_battery():
 #####
 # Hibike actuators
 #####
+all_servos = {}
 def set_servos(data):
-    for device_id, value in data.items():
-        if value == -1:
-            continue
+    global all_servos
+    for device_id in data:
+        value = data[device_id]
+        all_servos[device_id] = value
         h.writeValue(device_id_to_uid(device_id),
                      "servo" + str(device_id_to_index(device_id)),
                      value)
+    mc.set('servo_values', {})
 
 flag_UID = None
 def init_flag():
@@ -295,7 +305,10 @@ def enumerate_motors():
 def set_motors(data):
     for name, value in data.items():
         grizzly = name_to_grizzly[name]
+        if (value == None):
+            continue
         try:
+            grizzly.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
             grizzly.set_target(value)
         except:
             stop_motors()
@@ -307,6 +320,7 @@ def stop_motors():
     motor_values = mc.get('motor_values')
     for name, grizzly in name_to_grizzly.iteritems():
         try:
+            grizzly.set_mode(ControlMode.NO_PID, DriveMode.DRIVE_BRAKE)
             grizzly.set_target(0)
         except:
             print("WARNING: failed to stop grizzly")
@@ -319,15 +333,16 @@ def drive_set_distance(list_tuples):
         grizzly = name_to_grizzly[item[0]]
         try:
             grizzly.write_encoder(0)
+            grizzly.set_target(0)
             grizzly.set_mode(ControlMode.POSITION_PID, DriveMode.DRIVE_BRAKE)
             grizzly.set_target(item[1] * gear_to_tick[item[2]])
-            control_mode = mc.get("control_mode")
-            set_control_mode(control_mode)
-            drive_mode = mc.get("drive_mode")
-            set_control_mode(control_mode)
+            motor_vals = mc.get("motor_values")
+            motor_vals[item[0]] = None
+            mc.set("motor_values", motor_vals)
+            #reset target number.
         except:
             stop_motors()
-        mc.set("drive_distance", [])
+    mc.set("drive_distance", [])
 
 def set_control_mode(mode):
     new_mode = all_modes[mode[0]]
@@ -439,6 +454,9 @@ def msg_handling(msg):
         device_id_set_name(msg['content']['id'], msg['content']['name'])
     elif msg_type == 'game':
         mc.set('game', msg['content'])
+        if 'blue' in msg['content'] and flag_UID is not None:
+            h.writeValue(flag_UID, 'blue', int(msg['content']['blue']))
+            h.writeValue(flag_UID, 'yellow', int(not msg['content']['blue']))
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):
@@ -520,11 +538,11 @@ while True:
         set_motors(motor_values)
     elif not mc.get('game')['enabled']:
         stop_motors()
-        mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
+        mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': [0]*17, 'connected': None, 'mapping': None}})
 
     #Set Servos
-    servo_values = mc.get('servo_values') or {}
-    if mc.get('game')['enabled']:
+    servo_values = mc.get('servo_values') 
+    if servo_values and mc.get('game')['enabled']:
         set_servos(servo_values)
 
     #Set Team Flag

@@ -12,6 +12,12 @@ let template = [
     label: 'Dawn',
     submenu: [
       {
+        label: 'Reset user settings',
+        click: function() {
+          storage.clear();
+        }
+      },
+      {
         label: 'Quit',
         accelerator: 'CommandOrControl+Q',
         click: function() { app.quit(); }

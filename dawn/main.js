@@ -6,6 +6,8 @@ const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
 const request = require('superagent');
 const storage = require('electron-json-storage');
+const ipcMain = electron.ipcMain;
+const dialog = electron.dialog;
 
 let template = [
   {
@@ -48,6 +50,26 @@ let template = [
     label: 'Developer',
     submenu: [
       {
+        label: 'Runtime Info',
+        click: function() {
+          let msg = 'Not connected to runtime!';
+          if (runtimeVersion !== null) {
+            let version = runtimeVersion.version;
+            let headhash = runtimeVersion.headhash.substring(0, 8);
+            let modified = runtimeVersion.modified;
+            msg = 'Current Runtime Version: ' + version + '\n' +
+                      'Headhash: ' + headhash + '\n' +
+                      'Modified: ' + modified;
+          }
+          dialog.showMessageBox({
+            type: 'info',
+            buttons: ['Close'],
+            title: 'Runtime Info',
+            message: msg
+          }, (res)=>{});
+        }
+      },
+      {
         label: 'Restart Runtime',
         click: function() {
           storage.has('runtimeAddress', (err, hasKey)=>{
@@ -69,6 +91,11 @@ let template = [
     ]
   }
 ];
+
+let runtimeVersion = null;
+ipcMain.on('runtime-version', function(event, arg) {
+  runtimeVersion = arg;
+});
 
 let mainWindow;
 app.on('window-all-closed', function() {

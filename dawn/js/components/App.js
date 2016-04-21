@@ -7,6 +7,8 @@ import AlertStore from '../stores/AlertStore';
 import AlertActions from '../actions/AlertActions';
 import joyrideSteps from './JoyrideSteps';
 import smalltalk from 'smalltalk';
+import { remote } from 'electron';
+const storage = remote.require('electron-json-storage');
 
 export default React.createClass({
   displayName: 'Dawn',
@@ -24,6 +26,14 @@ export default React.createClass({
     this.addSteps(joyrideSteps);
     RobotInfoStore.on('change', this.updateRobotInfo);
     AlertStore.on('change', this.updateAlert);
+    storage.has('firstTime').then((hasKey)=>{
+      if (!hasKey) {
+        this.startTour();
+        storage.set('firstTime', {first: true}, (err)=>{
+          if (err) throw err;
+        });
+      }
+    });
   },
   componentWillUnmount() {
     RobotInfoStore.removeListener('change', this.updateRobotInfo);
@@ -75,7 +85,7 @@ export default React.createClass({
       <div>
         <DNav
           startTour={this.startTour}
-	  runtimeStatus={this.state.runtimeStatus}
+          runtimeStatus={this.state.runtimeStatus}
           connection={this.state.connectionStatus}
           battery={this.state.batteryLevel}
           isRunningCode={this.state.isRunningCode}

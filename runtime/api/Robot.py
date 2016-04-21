@@ -35,6 +35,34 @@ def _lookup(name):
         return _name_to_id[name]
     return name
 
+def is_autonomous():
+    """Returns the autonomous state of the game.
+
+    :param name: None
+    :returns: A boolean.
+
+    :Examples:
+
+    >>> if is_autonomous():
+            set_motor('motor1', 0.5)
+
+    """
+    return mc.get('game')['autonomous']
+
+def is_enabled():
+    """Returns whether the robot is enabled.
+
+    :param name: None
+    :returns: A boolean.
+
+    :Examples:
+
+    >>> if is_enabled():
+            set_motor('motor1', 0.5)
+
+    """
+    return mc.get('game')['enabled']
+
 def get_motor(name):
     """Returns the current power value for a motor.
 
@@ -131,11 +159,11 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     >>> set_servo("servo3",150)
 
     """
-    assert 0 <= value <= 180, "Servo degrees must be between 0 and 180"
+    assert 0 <= value <= 180, "Servo degrees must be between 20 and 160"
     device_id = _lookup(name)
-    name_to_value = mc.get('servo_values')
-    name_to_value[device_id] = value
-    mc.set('servo_values', name_to_value)
+    servo_values = mc.get('servo_values')
+    servo_values[device_id] = value
+    mc.set('servo_values', servo_values)
 
 def get_servo(name):
     """Gets the degree that a servo is set to.
@@ -152,7 +180,8 @@ def get_servo(name):
 
     """
     device_id = _lookup(name)
-    return _testConnected(device_id)
+    value = _testConnected(device_id)
+    return value
 
 def get_rgb(name):
     """Returns a list of rgb values from the specified color sensor.
@@ -301,7 +330,7 @@ def get_metal_detector(name): #TODO metal detector Implementation
     device_id = _lookup(name)
     return _testConnected(device_id)
 
-def calibrate_metal_detector(name): #TODO test calibration 
+def calibrate_metal_detector(name): #TODO test calibration
     """Calibrates the specified metal sensor
 
     Calibrates to set the current reading of the metal detector to air (0). It is
@@ -319,9 +348,9 @@ def calibrate_metal_detector(name): #TODO test calibration
 def get_line_sensor(name):
     """Returns a value used to determine whether the selected sensor is over a line or not
 
-    If the selected sensor (left, center, or right) is over a line/reflective surface, 
-    this will return an double close to 0; 
-    Over the ground or dark material, this will return an double close to 1. 
+    If the selected sensor (left, center, or right) is over a line/reflective surface,
+    this will return an double close to 0;
+    Over the ground or dark material, this will return an double close to 1.
 
     :param name: A String that identifies the reflecting smart device.
     :returns: An double that specifies whether it is over the tape (0 - 1)
@@ -377,8 +406,8 @@ def drive_distance_degrees(degrees, motor, gear_ratio):
     :param motor: A String corresponding to the motor name to be rotated
     :param gear_ratio: An integer corresponding to the gear ratio of the motor (19 or 67)
     """
-    assert isinstance(motors, str), "motor must be an String"
-    assert isinstance(gear_ratios, int), "gear_ratio must be an integer"
+    assert isinstance(motor, str), "motor must be an String"
+    assert isinstance(gear_ratio, int), "gear_ratio must be an integer"
     assert isinstance(degrees, int), "degrees must be an integer"
     motor_list = mc.get("motor_values")
     assert motor in motor_list, motor + " not found in connected motors"
@@ -401,8 +430,8 @@ def drive_distance_rotations(rotations, motor, gear_ratio):
     :param motor: A String corresponding to the motor name to be rotated
     :param gear_ratio: An integer corresponding to the gear ratio of the motor (19 or 67)
     """
-    assert isinstance(motors, str), "motor must be a String"
-    assert isinstance(gear_ratios, int), "gear_ratio must be an integer"
+    assert isinstance(motor, str), "motor must be a String"
+    assert isinstance(gear_ratio, int), "gear_ratio must be an integer"
     assert isinstance(rotations, int), "degrees must be an integer"
     motor_list = mc.get("motor_values")
     assert motor in motor_list, motor + " not found in connected motors"

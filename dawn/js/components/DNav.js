@@ -14,6 +14,7 @@ import { remote } from 'electron';
 import smalltalk from 'smalltalk';
 import Ansible from '../utils/Ansible';
 const storage = remote.require('electron-json-storage');
+let dialog = remote.dialog;
 
 export default React.createClass({
   displayName: 'DNav',
@@ -56,6 +57,16 @@ export default React.createClass({
   getDawnVersion() {
     return VERSION;
   },
+  showRuntimeVersion() {
+    dialog.showMessageBox({
+        type: 'info',
+        buttons: ['Close'],
+        title: 'Runtime Debugging',
+        message: 'Current Runtime Version: ' + this.props.runtimeVersion['version'] +
+          '\nHeadhash: ' + this.props.runtimeVersion['headhash'].substring(0,8) +
+          '\nModified: ' + this.props.runtimeVersion['modified']
+      }, (res)=>{});
+  },
   toggleUpdateModal() {
     this.setState({ showUpdateModal: !this.state.showUpdateModal });
   },
@@ -85,6 +96,20 @@ export default React.createClass({
             pullRight={true}>
             <ButtonToolbar>
               <ButtonGroup>
+                <OverlayTrigger
+                  placement="bottom"
+                  overlay={
+                    <Tooltip id={ 'runtime-tooltip' }>
+                      Runtime Info
+                    </Tooltip>
+                  }>
+                  <Button
+                    bsStyle="info"
+                    onClick={this.showRuntimeVersion}
+                    id="runtime-button">
+                    <Glyphicon glyph="barcode" />
+                  </Button>
+                </OverlayTrigger>
                 <OverlayTrigger
                   placement="bottom"
                   overlay={

@@ -88,7 +88,6 @@ export default React.createClass({
         <DNav
           startTour={this.startTour}
           runtimeStatus={this.state.runtimeStatus}
-          runtimeVersion={this.state.runtimeVersion}
           connection={this.state.connectionStatus}
           battery={this.state.batteryLevel}
           isRunningCode={this.state.isRunningCode}

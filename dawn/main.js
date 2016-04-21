@@ -50,10 +50,10 @@ let template = [
     label: 'Developer',
     submenu: [
       {
-        label: 'Runtime Info',
+        label: 'Runtime Version',
         click: function() {
           let msg = 'Not connected to runtime!';
-          if (runtimeVersion !== null) {
+          if (runtimeConnected) {
             let version = runtimeVersion.version;
             let headhash = runtimeVersion.headhash.substring(0, 8);
             let modified = runtimeVersion.modified;
@@ -92,9 +92,20 @@ let template = [
   }
 ];
 
+// Used for displaying runtime version info.
 let runtimeVersion = null;
 ipcMain.on('runtime-version', function(event, arg) {
   runtimeVersion = arg;
+});
+
+// Keep track of whether dawn is connected to robot or not.
+let runtimeConnected = false;
+ipcMain.on('runtime-connect', function(event, arg) {
+  runtimeConnected = true;
+});
+
+ipcMain.on('runtime-disconnect', function(event, arg) {
+  runtimeConnected = false;
 });
 
 let mainWindow;

@@ -34,6 +34,12 @@ export default [
     position: 'bottom',
     type: 'hover'
   },{
+    title: 'Game mode',
+    text: 'Use these modes to simulate the progression of a match. Robots start the match in autonomous mode. Afterwards, they are disabled for a few moments while referees tabulate scores. Then the robots enter tele-operated mode.',
+    selector: '#choose-mode',
+    position: 'bottom',
+    type: 'hover'
+  },{
     title: 'Editor Theme',
     text: 'You can choose your editor\'s theme using this dropdown. Your preferences will be saved automatically.',
     selector: '#choose-theme',

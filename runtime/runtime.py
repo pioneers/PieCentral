@@ -10,7 +10,7 @@ import os
 #####
 memcache_port = 12357
 mc = memcache.Client(['127.0.0.1:%d' % memcache_port])
-mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': None, 'connected': None, 'mapping': None}})
+mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': [0]*17, 'connected': None, 'mapping': None}})
 mc.set('motor_values', [])
 mc.set('servo_values', {})
 mc.set('flag_values', [False, False, False, False])
@@ -20,9 +20,13 @@ mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
 mc.set('metal_detector_calibrate', [False,False])
 mc.set('toggle_light', None)
+<<<<<<< HEAD
 mc.set('game', {'autonomous': False, 'enabled': False})
 mc.set("spec_pid", [])
 mc.set("encoder_distance", {})
+=======
+mc.set('game', {'autonomous': False, 'enabled': True})
+>>>>>>> 7bfaff1495de5a78e92d485eff5f28985836e319
 
 #####
 # Connect to hibike
@@ -476,8 +480,7 @@ def msg_handling(msg):
         mc.set('game', msg['content'])
         if 'blue' in msg['content'] and flag_UID is not None:
             h.writeValue(flag_UID, 'blue', int(msg['content']['blue']))
-            h.writeValue(flag_UID, 'gold', int(not msg['content']['blue']))
-
+            h.writeValue(flag_UID, 'yellow', int(not msg['content']['blue']))
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):
@@ -555,12 +558,15 @@ while True:
     # Update motor values, and send to UI
     motor_values = mc.get('motor_values') or {}
     send_motor_data(motor_values)
-    if robot_status:
+    if robot_status and mc.get('game')['enabled']:
         set_motors(motor_values)
+    elif not mc.get('game')['enabled']:
+        stop_motors()
+        mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': [0]*17, 'connected': None, 'mapping': None}})
 
     #Set Servos
     servo_values = mc.get('servo_values') 
-    if servo_values:
+    if servo_values and mc.get('game')['enabled']:
         set_servos(servo_values)
 
     #Set Team Flag

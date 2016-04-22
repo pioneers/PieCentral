@@ -36,7 +36,32 @@ def _lookup(name):
     return name
 
 def is_autonomous():
+    """Returns the autonomous state of the game.
+
+    :param name: None
+    :returns: A boolean.
+
+    :Examples:
+
+    >>> if is_autonomous():
+            set_motor('motor1', 0.5)
+
+    """
     return mc.get('game')['autonomous']
+
+def is_enabled():
+    """Returns whether the robot is enabled.
+
+    :param name: None
+    :returns: A boolean.
+
+    :Examples:
+
+    >>> if is_enabled():
+            set_motor('motor1', 0.5)
+
+    """
+    return mc.get('game')['enabled']
 
 def get_motor(name):
     """Returns the current power value for a motor.
@@ -136,7 +161,6 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     """
     assert 0 <= value <= 180, "Servo degrees must be between 20 and 160"
     device_id = _lookup(name)
-    value = 15 + (value * 150 / 180)
     servo_values = mc.get('servo_values')
     servo_values[device_id] = value
     mc.set('servo_values', servo_values)
@@ -157,7 +181,7 @@ def get_servo(name):
     """
     device_id = _lookup(name)
     value = _testConnected(device_id)
-    return ((value - 15) * 180 / 150)
+    return value
 
 def get_rgb(name):
     """Returns a list of rgb values from the specified color sensor.

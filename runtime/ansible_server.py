@@ -42,6 +42,19 @@ def ansible_server(send_queue, recv_queue):
     app = Flask(__name__)
     socketio = SocketIO(app)
 
+    def send_version():
+        headhash = os.popen('git rev-parse HEAD').read()
+        git_status = os.popen('git status --porcelain -uno').read()
+        modified = 0
+        if len(git_status) > 0:
+            modified = 1
+        send_queue.put_nowait({
+        'header': {'msg_type': 'runtime_version'},
+        'content': {'headhash': headhash,
+                    'modified': modified,
+                    'version': '2.1'}
+        })
+
     @app.route('/restart')
     def do_restart():
         os.system("sudo restart runtime")
@@ -67,6 +80,7 @@ def ansible_server(send_queue, recv_queue):
 
     @socketio.on('connect')
     def on_connect():
+        send_version()
         print 'Connected to Dawn.'
 
     @socketio.on_error()
@@ -81,6 +95,7 @@ def ansible_server(send_queue, recv_queue):
                 time.sleep(.02)
             except Empty:
                 time.sleep(.02)
+
 
     send_p = Thread(target=send_process, args=(send_queue,))
     send_p.start()

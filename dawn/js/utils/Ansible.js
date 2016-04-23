@@ -14,7 +14,10 @@ function connectToAnsible(runtimeAddress) {
     socket.disconnect();
   }
 
-  socket = io('http://' + runtimeAddress + ':5000/');
+  socket = io(
+    'http://' + runtimeAddress + ':5000/',
+    {transports: ['websocket']}
+  );
 
   socket.on('connect', ()=>{
     RobotActions.updateConnection(true);

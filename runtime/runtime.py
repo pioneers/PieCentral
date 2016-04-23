@@ -20,6 +20,8 @@ mc.set('drive_mode', ["brake", "all"])
 mc.set('drive_distance', [])
 mc.set('metal_detector_calibrate', [False,False])
 mc.set('toggle_light', None)
+mc.set("spec_pid", [])
+mc.set("encoder_distance", {})
 mc.set('game', {'autonomous': False, 'enabled': True})
 
 #####
@@ -273,7 +275,7 @@ def set_light(value):
 #####
 # Motors
 #####
-name_to_grizzly, name_to_modes = {}, {}
+name_to_grizzly, name_to_modes, name_to_distance = {}, {}, {}
 
 # Called on start of student code, finds and configures all the connected motors
 def enumerate_motors():
@@ -390,6 +392,24 @@ def set_PID(constants):
             print("pid set failed");
     mc.set("PID_constants", [])
 
+def set_spec_PID(data):
+    motor_name = data[0]
+    p = data[1]
+    i = data[2]
+    d = data[3]
+    grizzy = name_to_grizzly[motor_name]
+    try:
+        grizzly.init_pid(p, i, d)
+    except:
+        print("tried to set pid and failed")
+    mc.set("spec_pid", [])
+
+def update_motor_distance():
+    for motor, grizzly in name_to_grizzly.items():
+        try:
+            name_to_distance[motor] = grizzly.read_encoder()
+        except:
+            print("tried and failed to read grizzly")
 
 # A process for sending the output of student code to the UI
 def log_output(stream):
@@ -575,5 +595,11 @@ while True:
     if toggle_value != None:
         set_light(toggle_value)
 
+    spec_pid = mc.get("spec_pid")
+    if spec_pid:
+        set_spec_PID(spec_pid)
+
+    update_motor_distance()
+    mc.set("encoder_distance", name_to_distance)
 
     time.sleep(0.05)

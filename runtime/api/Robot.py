@@ -161,6 +161,7 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     """
     assert 0 <= value <= 180, "Servo degrees must be between 20 and 160"
     device_id = _lookup(name)
+    _testConnected(device_id)
     servo_values = mc.get('servo_values')
     servo_values[device_id] = value
     mc.set('servo_values', servo_values)
@@ -257,6 +258,7 @@ def toggle_light(name, status):
 
     """
     device_id = _lookup(name)
+    _testConnected(device_id)
     if (status):
         write_value = 1
     else:
@@ -341,7 +343,7 @@ def calibrate_metal_detector(name): #TODO test calibration
 
     """
     device_id = _lookup(name)
-
+    _testConnected(device_id)
     mc.set("metal_detector_calibrate",[device_id, True])
 
 

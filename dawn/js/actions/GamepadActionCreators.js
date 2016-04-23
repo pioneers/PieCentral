@@ -25,7 +25,7 @@ var _formatGamepadsForJSON = function(newGamepads) {
   // The filter on 'mapping' filters out the ghost gamepad.
   _.forEach(_.filter(newGamepads, {'mapping': 'standard'}), function(gamepad, indexGamepad) {
     if (gamepad) {
-      formattedGamepads[gamepad.index] = {
+      formattedGamepads[indexGamepad] = {
         index: indexGamepad,
         axes: gamepad.axes,
         buttons: _.map(gamepad.buttons, 'value')

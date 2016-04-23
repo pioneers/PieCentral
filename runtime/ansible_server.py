@@ -95,10 +95,11 @@ def ansible_server(send_queue, recv_queue):
                 time.sleep(.02)
             except Empty:
                 time.sleep(.02)
+            except:
+                time.sleep(.02)
 
 
     send_p = Thread(target=send_process, args=(send_queue,))
     send_p.start()
 
     socketio.run(app, host='0.0.0.0')
-

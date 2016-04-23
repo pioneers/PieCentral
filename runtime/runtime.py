@@ -84,9 +84,9 @@ def update_hibike():
             uid_to_type[uid] = device_type
             h.subToDevices([(uid, 50)])
             print("Connected to", (uid, device_type))
-            
+
     #battery and flag?
-    
+
 def uid_to_device_id(uid, num_devices):
     return [ str(uid)+str(device_index) for device_index in range(1,1+num_devices)]
 
@@ -291,7 +291,7 @@ def set_light(value):
 #####
 # Motors
 #####
-name_to_grizzly, name_to_modes, addrs_to_name = {}, {}, {}
+name_to_grizzly, name_to_modes, addrs_to_name, name_to_distance = {}, {}, {}, {}
 next_index = 0
 
 # Called on start of student code, finds and configures all the connected motors
@@ -614,7 +614,7 @@ while True:
         mc.set('gamepad', {'0': {'axes': [0,0,0,0], 'buttons': [0]*17, 'connected': None, 'mapping': None}})
 
     #Set Servos
-    servo_values = mc.get('servo_values') 
+    servo_values = mc.get('servo_values')
     if servo_values and mc.get('game')['enabled']:
         set_servos(servo_values)
 

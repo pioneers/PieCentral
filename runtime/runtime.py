@@ -64,7 +64,7 @@ def enumerate_hibike():
     global connectedDevices, uid_to_type
     connectedDevices = h.getEnumeratedDevices()
     uid_to_type = {uid: device_type for (uid, device_type) in connectedDevices}
-    h.subToDevices([(device, 50) for (uid, device_type) in connectedDevices])
+    h.subToDevices([(uid, 50) for (uid, device_type) in connectedDevices])
     print("Connected to", connectedDevices)
 
     init_battery() # Battery is mandatory!

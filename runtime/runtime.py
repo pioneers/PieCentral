@@ -506,10 +506,10 @@ def msg_handling(msg):
         # otherwise, don't upload, just execute
         if 'code' in content and content['code']:
             upload_file(filename, msg)
-        student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend
         if not is_competition:
+            student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             lines_iter = iter(student_proc.stdout.readline, b'')
             # start process for watching for student code output
             robot_status= 1
@@ -517,6 +517,8 @@ def msg_handling(msg):
                                   args=(lines_iter,))
             console_proc.start()
         else:
+            student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
+                stdout=None, stderr=subprocess.PIPE)
             lines_iter = iter(student_proc.stderr.readline, b'')
             # start process for watching for student code output
             robot_status= 1

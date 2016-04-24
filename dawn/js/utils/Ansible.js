@@ -2,7 +2,7 @@ import AppDispatcher from '../dispatcher/AppDispatcher';
 import RobotActions from '../actions/RobotActions';
 import fs from 'fs';
 import request from 'superagent';
-import { remote } from 'electron';
+import { remote, ipcRenderer } from 'electron';
 const storage = remote.require('electron-json-storage');
 
 let defaultAddress = '192.168.13.100';
@@ -14,15 +14,20 @@ function connectToAnsible(runtimeAddress) {
     socket.disconnect();
   }
 
-  socket = io('http://' + runtimeAddress + ':5000/');
+  socket = io(
+    'http://' + runtimeAddress + ':5000/',
+    {transports: ['websocket']}
+  );
 
   socket.on('connect', ()=>{
     RobotActions.updateConnection(true);
+    ipcRenderer.send('runtime-connect');
     console.log('Connected to runtime.');
   });
 
   socket.on('disconnect', ()=>{
     RobotActions.updateConnection(false);
+    ipcRenderer.send('runtime-disconnect');
     console.log('Disconnected from runtime');
   });
 

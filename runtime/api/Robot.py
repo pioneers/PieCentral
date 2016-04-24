@@ -161,6 +161,7 @@ def set_servo(name,value):  #TODO Check with hibike on exact functionality
     """
     assert 0 <= value <= 180, "Servo degrees must be between 20 and 160"
     device_id = _lookup(name)
+    _testConnected(device_id)
     servo_values = mc.get('servo_values')
     servo_values[device_id] = value
     mc.set('servo_values', servo_values)
@@ -257,6 +258,7 @@ def toggle_light(name, status):
 
     """
     device_id = _lookup(name)
+    _testConnected(device_id)
     if (status):
         write_value = 1
     else:
@@ -341,7 +343,7 @@ def calibrate_metal_detector(name): #TODO test calibration
 
     """
     device_id = _lookup(name)
-
+    _testConnected(device_id)
     mc.set("metal_detector_calibrate",[device_id, True])
 
 
@@ -453,7 +455,6 @@ def set_drive_mode(mode):
     """
     mode = mode.lower()
     assert mode in ["coast", "brake"], mode + " is not a valid drive mode"
-    assert gear_ratio in [19,67], "Gear ratio must be 19:1 or 67:1"
     mc.set("drive_mode", [mode, "all"])
 
 def change_control_mode_all(mode):
@@ -497,7 +498,7 @@ def change_control_mode(mode, motor):
     mc.set("control_mode", [mode, motor])
 
 def change_PID_constants(value, constant):
-    """Changes a PID constant which error corrects for motor positions.
+    """Changes a PID constant which error corrects for motor positions for all motors.
 
     P - Proportion - changes the constant for present error correcting
     I - Integral - changes the constant for past error correcting
@@ -511,13 +512,56 @@ def change_PID_constants(value, constant):
     assert constant in ["P", "I", "D"], "invalid constant" + constant
     mc.set("PID_constant", (constant, value))
 
+def change_specific_PID(motor, pid_list):
+    """Sets a PID for a specified motor.
+
+    For each constant, look at change_PID_constants method for specifics.
+    Call after change_PID_constants to override a specific motors PID for a specific purpose (e.g. an arm).
+
+    :param motor: A string that specifies which motor to change PID constants.
+    :param pid_list: A list of constants in the order of p, i, and d. Must include all 3.
+    """
+    assert isinstance(motor, str), "motor_name must be a string"
+    assert isinstance(pid_list, list), "pid_list must be a list"
+    assert len(pid_list) == 3, "pid_list must have only 3 values"
+    for item in pid_list:
+        assert isinstance(item, int) or isinstance(item, float), "items in pid_list must be an integer"
+    name_to_value = mc.get('motor_values')
+    if device_id not in name_to_value:
+        raise KeyError("No motor with that name")
+    list_to_send = [motor] + pid_list
+    mc.set("spec_pid", list_to_send)
 def get_PID_constants():
     """Returns a dictionary with the key being the constants and the corresponding item as the value of the constant
 
     Returns a list of 3 tuples with the key containing a String ("P", "I", or "D") corresponding to each of the constants. The item
     of the dictionary is that constant's current value.
+
+    :returns: a dictionary of tuples which keys are strings and items are integer values
     """
     return mc.get("get_PID")
+
+def get_motor_distance(motor, gear_ratio):
+    """Returns degrees of a motor.
+
+    Returns an integer corresponding the degrees of the encoder of the motor. Requires gear ratio of set motor to get degrees of said motor.
+
+    :param motor: String value specifying which motor's distance will be returned.
+
+    :returns: An integer corresponding to the degrees at which the motor is at.
+    """
+    assert isinstance(motor, str), "motor must be a string"
+    name_to_value = mc.get('motor_values')
+    if device_id not in name_to_value:
+        raise KeyError("No motor with that name")
+    assert gear_ratio in [19,67], "Gear ratio must be 19:1 or 67:1"    
+    distance_dict = mc.get("encoder_distance")
+    distance = distance_dict[motor]
+    if gear_ratio == 19:
+        distance = distance * 360.0 / 1200.0
+    if gear_ratio == 67:
+        distance = distance * 360.0 / 1200.0
+    return distance
 
 def _testConnected(device_id): # Returns value if device_id exists, otherwise throws SensorValueOutOFBounds Exception
     all_data = mc.get('sensor_values')

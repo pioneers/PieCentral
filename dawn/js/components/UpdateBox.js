@@ -25,7 +25,7 @@ export default React.createClass({
   },
   chooseUpdate() {
     dialog.showOpenDialog({
-      filters: [{ name: 'Update Package', extensions: ['gz'] }]
+      filters: [{ name: 'Update Package', extensions: ['gz', 'tar.gz'] }]
     }, (filepaths)=>{
       if (filepaths === undefined) return;
       this.setState({ updateFilepath: filepaths[0] });

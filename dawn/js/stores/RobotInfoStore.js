@@ -4,13 +4,15 @@ import { ActionTypes } from '../constants/Constants';
 import assign from 'object-assign';
 import _ from 'lodash';
 import Immutable from 'immutable';
+import { ipcRenderer } from 'electron';
 
 let _robotInfo = {
   consoleData: Immutable.List(),
   connectionStatus: false,
   runtimeStatus: true, // Are we receiving data from runtime?
   isRunningCode: false, // Is runtime executing code?
-  batteryLevel: 0
+  batteryLevel: 0,
+  runtimeVersion: {}
 };
 
 let RobotInfoStore = assign({}, EventEmitter.prototype, {
@@ -31,6 +33,9 @@ let RobotInfoStore = assign({}, EventEmitter.prototype, {
   },
   getBatteryLevel() {
     return _robotInfo.batteryLevel;
+  },
+  getRuntimeVersion() {
+    return _robotInfo.runtimeVersion;
   }
 });
 
@@ -92,6 +97,18 @@ function handleUpdateConnection(action) {
   RobotInfoStore.emitChange();
 }
 
+function runtimeUpdate(action) {
+  _robotInfo.runtimeVersion = {
+    version: action.version,
+    headhash: action.headhash,
+    modified: action.modified
+  };
+  // This information needs to be sent to the main process,
+  // since this info will be displayed through a toolbar button.
+  ipcRenderer.send('runtime-version', _robotInfo.runtimeVersion);
+  RobotInfoStore.emitChange();
+}
+
 RobotInfoStore.dispatchToken = AppDispatcher.register((action) => {
   switch (action.type) {
     case ActionTypes.UPDATE_STATUS:
@@ -109,6 +126,9 @@ RobotInfoStore.dispatchToken = AppDispatcher.register((action) => {
       break;
     case ActionTypes.UPDATE_CONNECTION:
       handleUpdateConnection(action);
+      break;
+    case ActionTypes.runtime_version:
+      runtimeUpdate(action);
       break;
     case 'StopCheck':
       handleStopCheck(action);

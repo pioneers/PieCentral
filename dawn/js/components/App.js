@@ -19,7 +19,8 @@ export default React.createClass({
       isRunningCode: RobotInfoStore.getIsRunningCode(),
       connectionStatus: RobotInfoStore.getConnectionStatus(),
       runtimeStatus: RobotInfoStore.getRuntimeStatus(),
-      batteryLevel: RobotInfoStore.getBatteryLevel()
+      batteryLevel: RobotInfoStore.getBatteryLevel(),
+      runtimeVersion: RobotInfoStore.getRuntimeVersion()
     };
   },
   componentDidMount() {
@@ -45,7 +46,8 @@ export default React.createClass({
       isRunningCode: RobotInfoStore.getIsRunningCode(),
       connectionStatus: RobotInfoStore.getConnectionStatus(),
       runtimeStatus: RobotInfoStore.getRuntimeStatus(),
-      batteryLevel: RobotInfoStore.getBatteryLevel()
+      batteryLevel: RobotInfoStore.getBatteryLevel(),
+      runtimeVersion: RobotInfoStore.getRuntimeVersion()
     });
   },
   updateAlert() {

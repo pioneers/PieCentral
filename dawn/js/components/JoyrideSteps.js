@@ -69,11 +69,5 @@ export default [
     selector: '#update-address-button',
     position: 'left',
     type: 'hover'
-  },{
-    title: 'That\'s it!',
-    text: 'If you would like to see this tour again, simply click this button.',
-    selector: '#tour-button',
-    position: 'left',
-    type: 'hover'
   }
 ];

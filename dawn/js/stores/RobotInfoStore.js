@@ -12,7 +12,7 @@ let _robotInfo = {
   runtimeStatus: true, // Are we receiving data from runtime?
   isRunningCode: false, // Is runtime executing code?
   batteryLevel: 0,
-  runtimeVersion: {}
+  runtimeVersion: null
 };
 
 let RobotInfoStore = assign({}, EventEmitter.prototype, {

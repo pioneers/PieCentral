@@ -5,6 +5,7 @@ import Dashboard from './Dashboard';
 import RobotInfoStore from '../stores/RobotInfoStore';
 import AlertStore from '../stores/AlertStore';
 import AlertActions from '../actions/AlertActions';
+import RuntimeConfig from './RuntimeConfig';
 import joyrideSteps from './JoyrideSteps';
 import smalltalk from 'smalltalk';
 import { remote } from 'electron';
@@ -109,6 +110,9 @@ export default React.createClass({
           runtimeStatus={this.state.runtimeStatus}
           isRunningCode={this.state.isRunningCode}
         />
+        <RuntimeConfig
+          connectionStatus={this.state.connectionStatus}
+          runtimeVersion={this.state.runtimeVersion}/>
       </div>
     );
   }

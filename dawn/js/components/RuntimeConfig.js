@@ -1,0 +1,71 @@
+import React from 'react';
+import {Modal, Button} from 'react-bootstrap';
+import {ipcRenderer} from 'electron';
+
+class RuntimeConfig extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      showModal: false
+    };
+
+    this.openModal = this.openModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
+  }
+
+  componentDidMount() {
+    ipcRenderer.on('show-runtime-config', (event, msg)=>{
+      console.log('received message');
+      this.openModal();
+    });
+  }
+
+  openModal() {
+    this.setState({showModal: true});
+  }
+
+  closeModal() {
+    this.setState({showModal: false});
+  }
+
+  render() {
+    let runtimeVersion = this.props.runtimeVersion;
+    let versionInfo = null;
+    if (!this.props.connectionStatus) {
+      versionInfo = (
+        <p>Not connected to Runtime.</p>
+      );
+    } else if (runtimeVersion === null) {
+      versionInfo = (
+        <p>
+          Dawn is not receiving version data from the robot.
+          This may be because your robot's software is outdated.
+        </p>
+      );
+    } else {
+      versionInfo = (
+        <ul>
+          <li>Current runtime version: {runtimeVersion.version}</li>
+          <li>Headhash: {runtimeVersion.headhash.substring(0, 8)}</li>
+          <li>Modified: {runtimeVersion.modified}</li>
+        </ul>
+      );
+    }
+    return (
+      <Modal show={this.state.showModal} onHide={this.closeModal}>
+        <Modal.Header>
+          <Modal.Title>Runtime Configuration</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p><strong>Runtime Version Information:</strong></p>
+          {versionInfo}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={this.closeModal}>Close</Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+}
+
+export default RuntimeConfig;

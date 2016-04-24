@@ -494,7 +494,7 @@ def upload_file(filename, msg):
         f.write(msg['content']['code'])
 
 def msg_handling(msg):
-    global robot_status, student_proc, console_proc
+    global robot_status, student_proc, console_proc, is_competition
     msg_type, content = msg['header']['msg_type'], msg['content']
     if msg_type == 'upload' and not robot_status:
         filename = "student_code/student_code.py"

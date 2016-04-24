@@ -515,6 +515,13 @@ def msg_handling(msg):
             console_proc = Thread(target=log_output,
                                   args=(lines_iter,))
             console_proc.start()
+        else:
+            lines_iter = iter(student_proc.stderr.readline, b'')
+            # start process for watching for student code output
+            robot_status= 1
+            console_proc = Thread(target=log_output,
+                                  args=(lines_iter,))
+            console_proc.start()
     elif msg_type == 'stop' and robot_status:
         student_proc.terminate()
         # console_proc.terminate()

@@ -39,6 +39,7 @@ else:
 student_proc, console_proc = None, None
 robot_status = 0 # a boolean for whether or not the robot is executing
 naming_map_filename = 'student_code/CustomID.txt'
+is_competition = False
 
 #####
 # Constant mappings for student code info
@@ -70,8 +71,13 @@ def enumerate_hibike():
     init_battery() # Battery is mandatory!
     init_flag()
 
+hibike_last_updated = 0
 def update_hibike():
-    global connectedDevices, uid_to_type, id_to_name
+    global connectedDevices, uid_to_type, id_to_name, hibike_last_updated
+    if time.time() < hibike_last_updated + 10:
+        return
+    hibike_last_updated = time.time()
+
     connectedDevices = h.getEnumeratedDevices()
 
     for uid in uid_to_type.keys():  #check for disconnect
@@ -488,7 +494,7 @@ def upload_file(filename, msg):
         f.write(msg['content']['code'])
 
 def msg_handling(msg):
-    global robot_status, student_proc, console_proc
+    global robot_status, student_proc, console_proc, is_competition
     msg_type, content = msg['header']['msg_type'], msg['content']
     if msg_type == 'upload' and not robot_status:
         filename = "student_code/student_code.py"
@@ -500,15 +506,25 @@ def msg_handling(msg):
         # otherwise, don't upload, just execute
         if 'code' in content and content['code']:
             upload_file(filename, msg)
-        student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend
-        lines_iter = iter(student_proc.stdout.readline, b'')
-        # start process for watching for student code output
-        robot_status= 1
-        console_proc = Thread(target=log_output,
-                              args=(lines_iter,))
-        console_proc.start()
+        if not is_competition:
+            student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            lines_iter = iter(student_proc.stdout.readline, b'')
+            # start process for watching for student code output
+            robot_status= 1
+            console_proc = Thread(target=log_output,
+                                  args=(lines_iter,))
+            console_proc.start()
+        else:
+            student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
+                stdout=None, stderr=subprocess.PIPE)
+            lines_iter = iter(student_proc.stderr.readline, b'')
+            # start process for watching for student code output
+            robot_status= 1
+            console_proc = Thread(target=log_output,
+                                  args=(lines_iter,))
+            console_proc.start()
     elif msg_type == 'stop' and robot_status:
         student_proc.terminate()
         # console_proc.terminate()
@@ -529,6 +545,9 @@ def msg_handling(msg):
         if 'blue' in msg['content'] and flag_UID is not None:
             h.writeValue(flag_UID, 'blue', int(msg['content']['blue']))
             h.writeValue(flag_UID, 'yellow', int(not msg['content']['blue']))
+    elif msg_type == 'competition':
+        if 'competition' in msg['content']:
+            is_competition = msg['content']['competition']
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):
@@ -569,6 +588,8 @@ def send_motor_data(data):
 read_naming_map()
 enumerate_hibike()
 enumerate_motors()
+mc.set('competition', {'competition': False})
+
 while True:
     if battery_UID: #TODO Only tests battery safety if battery buzzer is connected
         battery_safe = test_battery()

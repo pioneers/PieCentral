@@ -52,7 +52,7 @@ def ansible_server(send_queue, recv_queue):
         'header': {'msg_type': 'runtime_version'},
         'content': {'headhash': headhash,
                     'modified': modified,
-                    'version': '2.1'}
+                    'version': '2.3'}
         })
 
     @app.route('/restart')

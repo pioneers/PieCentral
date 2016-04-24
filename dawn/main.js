@@ -45,8 +45,15 @@ let template = [
     ]
   },
   {
-    label: 'Developer',
-    submenu: []
+    label: 'Debug',
+    submenu: [
+      {
+        label: 'Simulate Competition',
+        click: function() {
+          mainWindow.webContents.send('simulate-competition');
+        }
+      }
+    ]
   },
   {
     label: 'Config',

@@ -4,10 +4,8 @@ const electron = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
-const request = require('superagent');
 const storage = require('electron-json-storage');
 const ipcMain = electron.ipcMain;
-const dialog = electron.dialog;
 
 let template = [
   {
@@ -50,28 +48,9 @@ let template = [
     label: 'Developer',
     submenu: [
       {
-        label: 'Runtime Version',
+        label: 'Runtime Configuration',
         click: function() {
           mainWindow.webContents.send('show-runtime-config');
-        }
-      },
-      {
-        label: 'Restart Runtime',
-        click: function() {
-          storage.has('runtimeAddress', (err, hasKey)=>{
-            if(hasKey) {
-              storage.get('runtimeAddress', (err, data)=>{
-                let runtimeAddress = data.address;
-                request.get(
-                  `http://${runtimeAddress}:5000/restart`).end((err, res)=>{
-                    if (err) {
-                      console.log('Error on restart:', err);
-                    }
-                  }
-                );
-              });
-            }
-          });
         }
       }
     ]

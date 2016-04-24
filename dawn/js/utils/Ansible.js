@@ -99,6 +99,17 @@ let Ansible = {
     };
     this._send(msg, callback);
   },
+  restartRuntime() {
+    if (this.runtimeAddress) {
+      request.get(
+        `http://${this.runtimeAddress}:5000/restart`).end((err, res)=>{
+          if (err) {
+            console.log('Error on restart:', err);
+          }
+        }
+      );
+    }
+  },
   uploadFile(filepath, callback) {
     if (this.runtimeAddress) {
       request

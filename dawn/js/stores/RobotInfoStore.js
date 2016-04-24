@@ -4,7 +4,6 @@ import { ActionTypes } from '../constants/Constants';
 import assign from 'object-assign';
 import _ from 'lodash';
 import Immutable from 'immutable';
-import { ipcRenderer } from 'electron';
 
 let _robotInfo = {
   consoleData: Immutable.List(),
@@ -103,9 +102,6 @@ function runtimeUpdate(action) {
     headhash: action.headhash,
     modified: action.modified
   };
-  // This information needs to be sent to the main process,
-  // since this info will be displayed through a toolbar button.
-  ipcRenderer.send('runtime-version', _robotInfo.runtimeVersion);
   RobotInfoStore.emitChange();
 }
 

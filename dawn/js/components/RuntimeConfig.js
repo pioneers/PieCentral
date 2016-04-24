@@ -1,6 +1,8 @@
 import React from 'react';
 import {Modal, Button} from 'react-bootstrap';
 import {ipcRenderer} from 'electron';
+const request = require('superagent');
+import Ansible from '../utils/Ansible';
 
 class RuntimeConfig extends React.Component {
   constructor(props) {
@@ -59,6 +61,13 @@ class RuntimeConfig extends React.Component {
         <Modal.Body>
           <p><strong>Runtime Version Information:</strong></p>
           {versionInfo}
+          <p><strong>Restart the robot's runtime:</strong></p>
+          <Button
+            bsStyle="danger"
+            onClick={()=>Ansible.restartRuntime()}
+            disabled={!this.props.connectionStatus}>
+            Restart
+          </Button>
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={this.closeModal}>Close</Button>

@@ -60,7 +60,7 @@ setInterval(() => {
     type: 'StopCheck',
     content: {}
   });
-}, 1000);
+}, 3000);
 
 /* Determines connection status. If we receive a StopCheck action,
  * and the previous action was also a StopCheck, then we have received

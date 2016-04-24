@@ -39,6 +39,7 @@ else:
 student_proc, console_proc = None, None
 robot_status = 0 # a boolean for whether or not the robot is executing
 naming_map_filename = 'student_code/CustomID.txt'
+is_competition = False
 
 #####
 # Constant mappings for student code info
@@ -508,8 +509,15 @@ def msg_handling(msg):
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend
-        if not mc.get('competition')[competition]:
+        if not is_competition:
             lines_iter = iter(student_proc.stdout.readline, b'')
+            # start process for watching for student code output
+            robot_status= 1
+            console_proc = Thread(target=log_output,
+                                  args=(lines_iter,))
+            console_proc.start()
+        else:
+            lines_iter = iter(student_proc.stderr.readline, b'')
             # start process for watching for student code output
             robot_status= 1
             console_proc = Thread(target=log_output,
@@ -535,6 +543,9 @@ def msg_handling(msg):
         if 'blue' in msg['content'] and flag_UID is not None:
             h.writeValue(flag_UID, 'blue', int(msg['content']['blue']))
             h.writeValue(flag_UID, 'yellow', int(not msg['content']['blue']))
+    elif msg_type == 'competition':
+        if 'competition' in msg['content']:
+            is_competition = msg['content']['competition']
 
 peripheral_data_last_sent = 0
 def send_peripheral_data(data):

@@ -135,7 +135,7 @@ export default React.createClass({
             }) }
           </DropdownButton>
         </ButtonToolbar>
-        <Modal show={this.state.showModal} onHide={this.closeModal}>
+        <Modal show={this.state.showModal}>
           <Modal.Header>
             <Modal.Title>Simulating Competition</Modal.Title>
           </Modal.Header>
@@ -163,7 +163,11 @@ export default React.createClass({
             <p>Status: {simulationStatus}</p>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={this.closeModal}>Close</Button>
+            <Button
+              onClick={this.closeModal}
+              disabled={this.state.simulating}>
+              Close
+            </Button>
           </Modal.Footer>
         </Modal>
       </div>

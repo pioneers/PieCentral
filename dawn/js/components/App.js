@@ -5,9 +5,10 @@ import Dashboard from './Dashboard';
 import RobotInfoStore from '../stores/RobotInfoStore';
 import AlertStore from '../stores/AlertStore';
 import AlertActions from '../actions/AlertActions';
+import RuntimeConfig from './RuntimeConfig';
 import joyrideSteps from './JoyrideSteps';
 import smalltalk from 'smalltalk';
-import { remote } from 'electron';
+import { remote, ipcRenderer } from 'electron';
 const storage = remote.require('electron-json-storage');
 
 export default React.createClass({
@@ -27,6 +28,9 @@ export default React.createClass({
     this.addSteps(joyrideSteps);
     RobotInfoStore.on('change', this.updateRobotInfo);
     AlertStore.on('change', this.updateAlert);
+    ipcRenderer.on('start-interactive-tour', ()=>{
+      this.startTour();
+    });
     storage.has('firstTime').then((hasKey)=>{
       if (!hasKey) {
         this.startTour();
@@ -109,6 +113,9 @@ export default React.createClass({
           runtimeStatus={this.state.runtimeStatus}
           isRunningCode={this.state.isRunningCode}
         />
+        <RuntimeConfig
+          connectionStatus={this.state.connectionStatus}
+          runtimeVersion={this.state.runtimeVersion}/>
       </div>
     );
   }

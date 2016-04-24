@@ -4,10 +4,8 @@ const electron = require('electron');
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
-const request = require('superagent');
 const storage = require('electron-json-storage');
 const ipcMain = electron.ipcMain;
-const dialog = electron.dialog;
 
 let template = [
   {
@@ -47,62 +45,39 @@ let template = [
     ]
   },
   {
-    label: 'Developer',
+    label: 'Debug',
     submenu: [
       {
-        label: 'Runtime Version',
+        label: 'Simulate Competition',
         click: function() {
-          let msg = '';
-          if (!runtimeConnected) {
-            msg = 'Not connected to runtime!';
-          } else if (runtimeVersion === null) {
-            msg = 'Connected to runtime, but no runtime version data is ' +
-                  'being received. You may have an older version of ' +
-                  'runtime.';
-          } else {
-            let version = runtimeVersion.version;
-            let headhash = runtimeVersion.headhash.substring(0, 8);
-            let modified = runtimeVersion.modified;
-            msg = 'Current Runtime Version: ' + version + '\n' +
-                  'Headhash: ' + headhash + '\n' +
-                  'Modified: ' + modified;
-          }
-          dialog.showMessageBox({
-            type: 'info',
-            buttons: ['Close'],
-            title: 'Runtime Info',
-            message: msg
-          }, (res)=>{});
+          mainWindow.webContents.send('simulate-competition');
         }
-      },
+      }
+    ]
+  },
+  {
+    label: 'Config',
+    submenu: [
       {
-        label: 'Restart Runtime',
+        label: 'Runtime Config',
         click: function() {
-          storage.has('runtimeAddress', (err, hasKey)=>{
-            if(hasKey) {
-              storage.get('runtimeAddress', (err, data)=>{
-                let runtimeAddress = data.address;
-                request.get(
-                  `http://${runtimeAddress}:5000/restart`).end((err, res)=>{
-                    if (err) {
-                      console.log('Error on restart:', err);
-                    }
-                  }
-                );
-              });
-            }
-          });
+          mainWindow.webContents.send('show-runtime-config');
+        }
+      }
+    ]
+  },
+  {
+    label: 'Help',
+    submenu: [
+      {
+        label: 'Interactive Tutorial',
+        click: function() {
+          mainWindow.webContents.send('start-interactive-tour');
         }
       }
     ]
   }
 ];
-
-// Used for displaying runtime version info.
-let runtimeVersion = null;
-ipcMain.on('runtime-version', function(event, arg) {
-  runtimeVersion = arg;
-});
 
 // Keep track of whether dawn is connected to robot or not.
 let runtimeConnected = false;

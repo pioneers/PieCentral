@@ -14,10 +14,7 @@ function connectToAnsible(runtimeAddress) {
     socket.disconnect();
   }
 
-  socket = io(
-    'http://' + runtimeAddress + ':5000/',
-    {transports: ['websocket']}
-  );
+  socket = io('http://' + runtimeAddress + ':5000/');
 
   socket.on('connect', ()=>{
     RobotActions.updateConnection(true);
@@ -98,6 +95,17 @@ let Ansible = {
       content: content
     };
     this._send(msg, callback);
+  },
+  restartRuntime() {
+    if (this.runtimeAddress) {
+      request.get(
+        `http://${this.runtimeAddress}:5000/restart`).end((err, res)=>{
+          if (err) {
+            console.log('Error on restart:', err);
+          }
+        }
+      );
+    }
   },
   uploadFile(filepath, callback) {
     if (this.runtimeAddress) {

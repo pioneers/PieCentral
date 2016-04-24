@@ -4,7 +4,6 @@ import { ActionTypes } from '../constants/Constants';
 import assign from 'object-assign';
 import _ from 'lodash';
 import Immutable from 'immutable';
-import { ipcRenderer } from 'electron';
 
 let _robotInfo = {
   consoleData: Immutable.List(),
@@ -12,7 +11,7 @@ let _robotInfo = {
   runtimeStatus: true, // Are we receiving data from runtime?
   isRunningCode: false, // Is runtime executing code?
   batteryLevel: 0,
-  runtimeVersion: {}
+  runtimeVersion: null
 };
 
 let RobotInfoStore = assign({}, EventEmitter.prototype, {
@@ -61,7 +60,7 @@ setInterval(() => {
     type: 'StopCheck',
     content: {}
   });
-}, 1000);
+}, 3000);
 
 /* Determines connection status. If we receive a StopCheck action,
  * and the previous action was also a StopCheck, then we have received
@@ -103,9 +102,6 @@ function runtimeUpdate(action) {
     headhash: action.headhash,
     modified: action.modified
   };
-  // This information needs to be sent to the main process,
-  // since this info will be displayed through a toolbar button.
-  ipcRenderer.send('runtime-version', _robotInfo.runtimeVersion);
   RobotInfoStore.emitChange();
 }
 

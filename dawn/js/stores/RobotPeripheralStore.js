@@ -44,8 +44,8 @@ function handleUpdatePeripheral(action) {
 
   // Create a new peripheral object with the new data we've received.
   let peripheral = action.peripheral;
-  // Set a reaper to remove the peripheral in 2 seconds, IF no new data
-  // is received. If new data is received within 2 seconds, the reaper
+  // Set a reaper to remove the peripheral in 5 seconds, IF no new data
+  // is received. If new data is received within 5 seconds, the reaper
   // will be canceled.
   peripheral.reaper = setTimeout(reapPeripheral, 2000, action.peripheral.id);
   _peripherals[action.peripheral.id] = Map(peripheral);

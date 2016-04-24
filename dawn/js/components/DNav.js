@@ -88,20 +88,6 @@ export default React.createClass({
                 <OverlayTrigger
                   placement="bottom"
                   overlay={
-                    <Tooltip id={ 'tour-tooltip' }>
-                      Tour
-                    </Tooltip>
-                  }>
-                  <Button
-                    bsStyle="info"
-                    onClick={ this.props.startTour }
-                    id="tour-button">
-                    <Glyphicon glyph="info-sign" />
-                  </Button>
-                </OverlayTrigger>
-                <OverlayTrigger
-                  placement="bottom"
-                  overlay={
                     <Tooltip id={ 'update-address-tooltip' }>
                       Robot IP
                     </Tooltip>

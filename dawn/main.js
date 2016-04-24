@@ -46,11 +46,26 @@ let template = [
   },
   {
     label: 'Developer',
+    submenu: []
+  },
+  {
+    label: 'Config',
     submenu: [
       {
-        label: 'Runtime Configuration',
+        label: 'Runtime Config',
         click: function() {
           mainWindow.webContents.send('show-runtime-config');
+        }
+      }
+    ]
+  },
+  {
+    label: 'Help',
+    submenu: [
+      {
+        label: 'Interactive Tutorial',
+        click: function() {
+          mainWindow.webContents.send('start-interactive-tour');
         }
       }
     ]

@@ -62,7 +62,7 @@ export default React.createClass({
   },
   cancelSimulation() {
     this.changeGameMode(2);
-    this.props.stopRobot();
+    Ansible.sendMessage('stop', {});
     this.setState({simulating: false});
     _(this.state.timeouts).forEach((tId)=>{
       clearTimeout(tId);
@@ -74,7 +74,7 @@ export default React.createClass({
     this.setState({simulating: true});
     let t1 = setTimeout(()=>{
       this.changeGameMode(0);
-      this.props.startRobot();
+      Ansible.sendMessage('execute', {});
     }, 5000);
     let t2 = setTimeout(()=>{
       this.changeGameMode(1);
@@ -83,7 +83,7 @@ export default React.createClass({
       this.changeGameMode(2);
     }, 45000);
     let t4 = setTimeout(()=>{
-      this.props.stopRobot();
+      Ansible.sendMessage('stop', {});
       this.setState({simulating: false});
     }, 75000);
     this.setState({timeouts: [t1, t2, t3, t3]});

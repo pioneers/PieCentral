@@ -344,8 +344,6 @@ export default React.createClass({
           editorTheme={ this.state.editorTheme }
           themes={ this.themes }
           runtimeStatus={ this.props.runtimeStatus }
-          startRobot={this.startRobot}
-          stopRobot={this.stopRobot}
         />
         <AceEditor
           mode="python"

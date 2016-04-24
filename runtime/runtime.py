@@ -508,7 +508,7 @@ def msg_handling(msg):
         student_proc = subprocess.Popen(['python', '-u', 'student_code/student_code.py'],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         # turns student process stdout into a stream for sending to frontend
-        if mc.get('competition')[competition]:
+        if not mc.get('competition')[competition]:
             lines_iter = iter(student_proc.stdout.readline, b'')
             # start process for watching for student code output
             robot_status= 1

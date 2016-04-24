@@ -70,8 +70,13 @@ def enumerate_hibike():
     init_battery() # Battery is mandatory!
     init_flag()
 
+hibike_last_updated = 0
 def update_hibike():
-    global connectedDevices, uid_to_type, id_to_name
+    global connectedDevices, uid_to_type, id_to_name, hibike_last_updated
+    if time.time() < hibike_last_updated + 10:
+        return
+    hibike_last_updated = time.time()
+
     connectedDevices = h.getEnumeratedDevices()
 
     for uid in uid_to_type.keys():  #check for disconnect

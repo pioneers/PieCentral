@@ -1,32 +1,19 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Panel, ListGroup } from 'react-bootstrap';
 import _ from 'lodash';
-import GamepadStore from '../stores/GamepadStore';
 import GamepadItem from './GamepadItem';
 
-export default React.createClass({
+let Gamepads = React.createClass({
   displayName: 'Gamepads',
-  getInitialState() {
-    return { gamepads: GamepadStore.getGamepads() };
-  },
-  onChange() {
-    let gamepads = GamepadStore.getGamepads();
-    this.setState({ gamepads: gamepads });
-  },
-  componentDidMount() {
-    GamepadStore.on('change', this.onChange);
-  },
-  componentWillUnmount() {
-    GamepadStore.removeListener('change', this.onChange);
-  },
   renderInterior() {
     // if there are any gamepads
-    if (_.some(this.state.gamepads, (gamepad) => gamepad !== undefined)) {
+    if (_.some(this.props.gamepads, (gamepad) => gamepad !== undefined)) {
       // Currently there is a bug on windows where navigator.getGamepads()
       // returns a second, 'ghost' gamepad even when only one is connected.
       // The filter on 'mapping' filters out the ghost gamepad.
       return _.map(_.filter(
-        this.state.gamepads, {'mapping': 'standard'}), (gamepad, index) => {
+        this.props.gamepads, {'mapping': 'standard'}), (gamepad, index) => {
           return (<GamepadItem key={index} index={index} gamepad={gamepad}/>);
         }
       );
@@ -53,3 +40,13 @@ export default React.createClass({
     );
   }
 });
+
+const mapStateToProps = (state) => {
+  return {
+    gamepads: state.gamepads.gamepads
+  };
+};
+
+Gamepads = connect(mapStateToProps)(Gamepads);
+
+export default Gamepads;

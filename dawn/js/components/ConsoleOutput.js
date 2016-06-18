@@ -46,7 +46,7 @@ class ConsoleOutput extends React.Component {
 
 ConsoleOutput.propTypes = {
   height: React.PropTypes.number,
-  output: ImmutablePropTypes.list,
+  output: React.PropTypes.array,
   toggleConsole: React.PropTypes.func,
   show: React.PropTypes.bool
 };

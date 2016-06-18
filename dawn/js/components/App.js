@@ -2,32 +2,23 @@ import React from 'react';
 import Joyride from 'react-joyride';
 import DNav from './DNav';
 import Dashboard from './Dashboard';
-import RobotInfoStore from '../stores/RobotInfoStore';
-import AlertStore from '../stores/AlertStore';
-import AlertActions from '../actions/AlertActions';
 import RuntimeConfig from './RuntimeConfig';
 import joyrideSteps from './JoyrideSteps';
 import smalltalk from 'smalltalk';
+import { removeAsyncAlert } from '../actions/AlertActions';
 import { remote, ipcRenderer } from 'electron';
+import { connect } from 'react-redux';
 const storage = remote.require('electron-json-storage');
 
-export default React.createClass({
+let App = React.createClass({
   displayName: 'Dawn',
   getInitialState() {
     return {
       steps: [],
-      consoleData: RobotInfoStore.getConsoleData(),
-      isRunningCode: RobotInfoStore.getIsRunningCode(),
-      connectionStatus: RobotInfoStore.getConnectionStatus(),
-      runtimeStatus: RobotInfoStore.getRuntimeStatus(),
-      batteryLevel: RobotInfoStore.getBatteryLevel(),
-      runtimeVersion: RobotInfoStore.getRuntimeVersion()
     };
   },
   componentDidMount() {
     this.addSteps(joyrideSteps);
-    RobotInfoStore.on('change', this.updateRobotInfo);
-    AlertStore.on('change', this.updateAlert);
     ipcRenderer.on('start-interactive-tour', ()=>{
       this.startTour();
     });
@@ -40,29 +31,22 @@ export default React.createClass({
       }
     });
   },
-  componentWillUnmount() {
-    RobotInfoStore.removeListener('change', this.updateRobotInfo);
-    AlertStore.removeListener('change', this.updateAlert);
-  },
-  updateRobotInfo() {
-    this.setState({
-      consoleData: RobotInfoStore.getConsoleData(),
-      isRunningCode: RobotInfoStore.getIsRunningCode(),
-      connectionStatus: RobotInfoStore.getConnectionStatus(),
-      runtimeStatus: RobotInfoStore.getRuntimeStatus(),
-      batteryLevel: RobotInfoStore.getBatteryLevel(),
-      runtimeVersion: RobotInfoStore.getRuntimeVersion()
-    });
-  },
-  updateAlert() {
-    let latestAlert = AlertStore.getLatestAlert();
-    if (latestAlert !== undefined) {
-      smalltalk.alert(latestAlert.heading, latestAlert.message).then(()=>{
-        AlertActions.removeAlert(latestAlert);
-      }, ()=>{
-        AlertActions.removeAlert(latestAlert);
-      });
+  componentWillReceiveProps(nextProps) {
+    let asyncAlerts = nextProps.asyncAlerts;
+    // If the alerts list has changed, display the latest one.
+    if (asyncAlerts !== this.props.asyncAlerts) {
+      let latestAlert = asyncAlerts[asyncAlerts.length - 1];
+      if (latestAlert !== undefined) {
+        this.updateAlert(latestAlert);
+      }
     }
+  },
+  updateAlert(latestAlert) {
+    smalltalk.alert(latestAlert.heading, latestAlert.message).then(()=>{
+      this.props.onAlertDone(latestAlert.id);
+    }, ()=>{
+      this.props.onAlertDone(latestAlert.id);
+    });
   },
   addSteps(steps) {
     let joyride = this.refs.joyride;
@@ -91,10 +75,10 @@ export default React.createClass({
       <div>
         <DNav
           startTour={this.startTour}
-          runtimeStatus={this.state.runtimeStatus}
-          connection={this.state.connectionStatus}
-          battery={this.state.batteryLevel}
-          isRunningCode={this.state.isRunningCode}
+          runtimeStatus={this.props.runtimeStatus}
+          connection={this.props.connectionStatus}
+          battery={this.props.batteryLevel}
+          isRunningCode={this.props.isRunningCode}
         />
         <Joyride
           ref="joyride"
@@ -108,15 +92,37 @@ export default React.createClass({
         <Dashboard {...this.props}
           addSteps={this.addSteps}
           addTooltip={this.addTooltip}
-          consoleData={this.state.consoleData}
-	  connectionStatus={this.state.connectionStatus}
-          runtimeStatus={this.state.runtimeStatus}
-          isRunningCode={this.state.isRunningCode}
+	  connectionStatus={this.props.connectionStatus}
+          runtimeStatus={this.props.runtimeStatus}
+          isRunningCode={this.props.isRunningCode}
         />
         <RuntimeConfig
-          connectionStatus={this.state.connectionStatus}
-          runtimeVersion={this.state.runtimeVersion}/>
+          connectionStatus={this.props.connectionStatus}
+          runtimeVersion={this.props.runtimeVersion}/>
       </div>
     );
   }
 });
+
+const mapStateToProps = (state) => {
+  return {
+    connectionStatus: state.info.connectionStatus,
+    runtimeStatus: state.info.runtimeStatus,
+    batteryLevel: state.info.batteryLevel,
+    isRunningCode: state.info.isRunningCode,
+    runtimeVersion: state.info.runtimeVersion,
+    asyncAlerts: state.asyncAlerts
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onAlertDone: (id) => {
+      dispatch(removeAsyncAlert(id));
+    }
+  };
+};
+
+App = connect(mapStateToProps, mapDispatchToProps)(App)
+
+export default App;

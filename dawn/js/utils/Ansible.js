@@ -1,5 +1,4 @@
-import AppDispatcher from '../dispatcher/AppDispatcher';
-import RobotActions from '../actions/RobotActions';
+import { store } from '../configureStore';
 import fs from 'fs';
 import request from 'superagent';
 import { remote, ipcRenderer } from 'electron';
@@ -20,13 +19,13 @@ function connectToAnsible(runtimeAddress) {
   );
 
   socket.on('connect', ()=>{
-    RobotActions.updateConnection(true);
+    store.dispatch({ type: 'ANSIBLE_CONNECT' });
     ipcRenderer.send('runtime-connect');
     console.log('Connected to runtime.');
   });
 
   socket.on('disconnect', ()=>{
-    RobotActions.updateConnection(false);
+    store.dispatch({ type: 'ANSIBLE_DISCONNECT' });
     ipcRenderer.send('runtime-disconnect');
     console.log('Disconnected from runtime');
   });
@@ -45,7 +44,7 @@ function connectToAnsible(runtimeAddress) {
     }
     let unpackedMsg = message.content;
     unpackedMsg.type = message.header.msg_type;
-    AppDispatcher.dispatch(unpackedMsg);
+    store.dispatch(unpackedMsg);
   });
 
   Ansible.runtimeAddress = runtimeAddress;

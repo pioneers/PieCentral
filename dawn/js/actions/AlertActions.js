@@ -1,22 +1,20 @@
-import AppDispatcher from '../dispatcher/AppDispatcher';
-import { ActionTypes } from '../constants/Constants';
+/**
+ * Actions for asynchronous (non-blocking) alerts.
+ */
 
-let AlertActions = {
-  addAlert(heading, message) {
-    AppDispatcher.dispatch({
-      type: ActionTypes.ADD_ALERT,
-      payload: {
-        heading: heading,
-        message: message
-      }
-    });
-  },
-  removeAlert(alert) {
-    AppDispatcher.dispatch({
-      type: ActionTypes.REMOVE_ALERT,
-      payload: alert
-    });
-  }
+let nextAsyncAlertId = 0;
+export const addAsyncAlert = (heading, message) => {
+  return {
+    type: 'ADD_ASYNC_ALERT',
+    id: nextAsyncAlertId++,
+    heading: heading,
+    message: message
+  };
 };
 
-export default AlertActions;
+export const removeAsyncAlert = (id) => {
+  return {
+    type: 'REMOVE_ASYNC_ALERT',
+    id: id
+  };
+};

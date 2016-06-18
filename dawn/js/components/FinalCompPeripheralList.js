@@ -5,25 +5,10 @@
 import React from 'react';
 import PeripheralList from './PeripheralList';
 import Peripheral from './Peripheral';
-import RobotPeripheralStore from '../stores/RobotPeripheralStore';
+import { connect } from 'react-redux';
 import _ from 'lodash';
 
 var FinalCompPeripheralList = React.createClass({
-  getInitialState() {
-    return { peripherals: [] };
-  },
-  onChange() {
-    this.setState({
-      peripherals: RobotPeripheralStore.getPeripherals(),
-    });
-  },
-  componentDidMount() {
-    RobotPeripheralStore.on('change', this.onChange);
-    this.onChange();
-  },
-  componentWillUnmount() {
-    RobotPeripheralStore.removeListener('change', this.onChange);
-  },
   render() {
     let errorMsg = null;
     if (!this.props.connectionStatus) {
@@ -36,15 +21,15 @@ var FinalCompPeripheralList = React.createClass({
       {
         !errorMsg ?
         _.map(
-          this.state.peripherals,
+          _.toArray(this.props.peripherals),
           (peripheral) => {
             return (
               <Peripheral
-                key={peripheral.get('id')}
-                id={peripheral.get('id')}
-                name={peripheral.get('name')}
-                value={peripheral.get('value')}
-                peripheralType={peripheral.get('peripheralType')}/>
+                key={peripheral.id}
+                id={peripheral.id}
+                name={peripheral.name}
+                value={peripheral.value}
+                peripheralType={peripheral.peripheralType}/>
             );
           }
         ) : errorMsg
@@ -53,5 +38,13 @@ var FinalCompPeripheralList = React.createClass({
     );
   }
 });
+
+const mapStateToProps = (state) => {
+  return {
+    peripherals: state.peripherals
+  };
+};
+
+FinalCompPeripheralList = connect(mapStateToProps)(FinalCompPeripheralList);
 
 export default FinalCompPeripheralList;

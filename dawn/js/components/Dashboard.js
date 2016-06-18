@@ -4,7 +4,6 @@ import PeripheralList from './PeripheralList';
 import FinalCompPeripheralList from './FinalCompPeripheralList';
 import Peripheral from './Peripheral';
 import Gamepads from './Gamepads';
-import RobotActions from '../actions/RobotActions';
 import Editor from './Editor';
 
 export default React.createClass({

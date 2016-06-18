@@ -1,10 +1,11 @@
 import React from 'react';
-import {RIEInput} from 'riek';
+import { RIEInput } from 'riek';
 import Ansible from '../utils/Ansible';
 import AlertActions from '../actions/AlertActions';
-import RobotPeripheralStore from '../stores/RobotPeripheralStore';
+import { connect } from 'react-redux';
+import _ from 'lodash';
 
-var NameEdit = React.createClass({
+let NameEdit = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
     id: React.PropTypes.string
@@ -32,7 +33,7 @@ var NameEdit = React.createClass({
   validatePeripheralName(name) {
     let re = new RegExp("^[A-Za-z][A-Za-z0-9]+$");
     let isValid = re.test(name);
-    let allCurrentPeripherals = RobotPeripheralStore.getPeripherals();
+    let allCurrentPeripherals = _.toArray(this.props.peripherals);
     let isDuplicate = _.some(allCurrentPeripherals, (peripheral) => {
       return peripheral.get("name") === name && peripheral.get("id") !== this.props.id;
     });
@@ -54,5 +55,13 @@ var NameEdit = React.createClass({
     );
   }
 });
+
+const mapStateToProps = (state) => {
+  return {
+    peripherals: state.peripherals
+  };
+};
+
+NameEdit = connect(mapStateToProps)(NameEdit);
 
 export default NameEdit;

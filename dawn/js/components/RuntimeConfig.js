@@ -37,7 +37,7 @@ class RuntimeConfig extends React.Component {
       versionInfo = (
         <p>Not connected to Runtime.</p>
       );
-    } else if (runtimeVersion === null) {
+    } else if (!runtimeVersion) {
       versionInfo = (
         <p>
           Dawn is not receiving version data from the robot.

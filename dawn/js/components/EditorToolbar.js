@@ -1,5 +1,4 @@
 import React from 'react';
-import EditorActionCreators from '../actions/EditorActionCreators';
 import {
   Button,
   DropdownButton,

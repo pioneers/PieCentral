@@ -10,24 +10,8 @@ node_modules
 .settings
 .idea/*
 
-_public
-node_modules/*
-npm-debug.log
+main.js
+build
 
-test/test-results.xml
-
-# Bower stuff.
-bower_components/
-
-# build stuff.
-dist
-dist/*
-
-cache/
-
-runtime/student_code.py
-runtime/hibike/
-
-runtime/api/doc/build/*
-
-dawn/main.js
+*.log
+*~

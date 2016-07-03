@@ -1,28 +1,18 @@
 /**
- * Entrypoint for main process of Electron application.
+ * Entrypoint for main process of Dawn.
  */
 
-import { app, BrowserWindow, Menu, ipcMain } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import storage from 'electron-json-storage';
 import {
   openFile,
   saveFile,
   createNewFile,
 } from '../renderer/actions/EditorActions';
+import RendererBridge from './RendererBridge';
+import FakeRuntime from './FakeRuntime';
 
 let mainWindow; // the window which displays Dawn
-
-// reduxState is synchronized with the frontend redux state.
-let reduxState;
-ipcMain.on('stateUpdate', (event, state) => {
-  reduxState = state;
-});
-
-// Dispatch redux actions to the frontend.
-const reduxDispatch = (action) => {
-  mainWindow.webContents.send('dispatch', action);
-};
-
 const template = [
   {
     label: 'Dawn',
@@ -48,27 +38,27 @@ const template = [
       {
         label: 'New File',
         click() {
-          reduxDispatch(createNewFile());
+          RendererBridge.reduxDispatch(createNewFile());
         },
       },
       {
         label: 'Open file',
         click() {
-          reduxDispatch(openFile());
+          RendererBridge.reduxDispatch(openFile());
         },
       },
       {
         label: 'Save file',
         click() {
-          const filepath = reduxState.editor.filepath;
-          const code = reduxState.editor.editorCode;
-          reduxDispatch(saveFile(filepath, code));
+          const filepath = RendererBridge.reduxState.editor.filepath;
+          const code = RendererBridge.reduxState.editor.editorCode;
+          RendererBridge.reduxDispatch(saveFile(filepath, code));
         },
       },
       {
         label: 'Save file as',
         click() {
-          reduxDispatch(saveFile(null, reduxState.editor.editorCode));
+          RendererBridge.reduxDispatch(saveFile(null, RendererBridge.reduxState.editor.editorCode));
         },
       },
     ],
@@ -100,6 +90,16 @@ const template = [
         label: 'Simulate Competition',
         click() {
           mainWindow.webContents.send('simulate-competition');
+        },
+      },
+      {
+        label: 'Toggle Runtime',
+        click() {
+          if (FakeRuntime.isActive()) {
+            FakeRuntime.stop();
+          } else {
+            FakeRuntime.start(500);
+          }
         },
       },
     ],
@@ -134,8 +134,11 @@ app.on('window-all-closed', () => {
 
 app.on('ready', () => {
   mainWindow = new BrowserWindow();
-  mainWindow.maximize();
 
+  // connects to window's redux state and dispatcher
+  RendererBridge.registerWindow(mainWindow);
+
+  mainWindow.maximize();
   mainWindow.loadURL(`file://${__dirname}/static/index.html`);
 
   mainWindow.on('closed', () => {

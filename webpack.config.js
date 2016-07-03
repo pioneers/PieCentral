@@ -33,6 +33,7 @@ var plugins = [
 
 module.exports = [{
   entry: './renderer/index.js',
+  devtool: 'cheap-module-eval-source-map',
   eslint: {
     configFile: './.eslintrc'
   },

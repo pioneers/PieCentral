@@ -4,7 +4,7 @@ import {
   Popover,
 } from 'react-bootstrap';
 import numeral from 'numeral';
-import NameEdit from '../NameEdit';
+import NameEditContainer from '../NameEditContainer';
 import _ from 'lodash';
 
 /**
@@ -33,7 +33,7 @@ class ColorSensor extends React.Component {
       <div style={{ overflow: 'auto' }}>
         <div style={{ overflow: 'auto', width: '100%' }}>
           <h4 style={{ float: 'left' }}>
-            <NameEdit name={this.props.name} id={this.props.id} />
+            <NameEditContainer name={this.props.name} id={this.props.id} />
             <small> {this.props.peripheralType} </small>
           </h4>
           <OverlayTrigger

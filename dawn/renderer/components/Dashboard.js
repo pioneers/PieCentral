@@ -1,21 +1,21 @@
 import React from 'react';
 import { Grid, Row, Col } from 'react-bootstrap';
-import FinalCompPeripheralList from './FinalCompPeripheralList';
-import Gamepads from './Gamepads';
-import Editor from './Editor';
+import FinalCompPeripheralListContainer from './FinalCompPeripheralListContainer';
+import GamepadsContainer from './GamepadsContainer';
+import EditorContainer from './EditorContainer';
 
 const Dashboard = (props) => (
   <Grid fluid>
     <Row>
       <Col smPush={8} sm={4}>
-        <FinalCompPeripheralList
+        <FinalCompPeripheralListContainer
           connectionStatus={props.connectionStatus}
           runtimeStatus={props.runtimeStatus}
         />
-        <Gamepads />
+        <GamepadsContainer />
       </Col>
       <Col smPull={4} sm={8}>
-        <Editor
+        <EditorContainer
           consoleData={props.consoleData}
           runtimeStatus={props.runtimeStatus}
           isRunningCode={props.isRunningCode}

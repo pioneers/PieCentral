@@ -1,10 +1,9 @@
 import React from 'react';
 import { RIEInput } from 'riek';
 import Ansible from '../utils/Ansible';
-import { connect } from 'react-redux';
 import _ from 'lodash';
 
-class NameEditComponent extends React.Component {
+class NameEdit extends React.Component {
   constructor(props) {
     super(props);
     this.dataChange = this.dataChange.bind(this);
@@ -62,16 +61,10 @@ class NameEditComponent extends React.Component {
   }
 }
 
-NameEditComponent.propTypes = {
+NameEdit.propTypes = {
   name: React.PropTypes.string,
   id: React.PropTypes.string,
   peripherals: React.PropTypes.object,
 };
-
-const mapStateToProps = (state) => ({
-  peripherals: state.peripherals,
-});
-
-const NameEdit = connect(mapStateToProps)(NameEditComponent);
 
 export default NameEdit;

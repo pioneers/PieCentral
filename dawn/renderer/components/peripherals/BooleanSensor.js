@@ -1,5 +1,5 @@
 import React from 'react';
-import NameEdit from '../NameEdit';
+import NameEditContainer from '../NameEditContainer';
 import { PeripheralTypes } from '../../constants/Constants';
 
 /**
@@ -27,7 +27,7 @@ class BooleanSensor extends React.Component {
       <div style={{ overflow: 'auto' }}>
         <div style={{ overflow: 'auto', width: '100%' }}>
           <h4 style={{ float: 'left' }}>
-            <NameEdit name={this.props.name} id={this.props.id} />
+            <NameEditContainer name={this.props.name} id={this.props.id} />
             <small> {this.props.peripheralType} </small>
           </h4>
           <h4

@@ -79,7 +79,7 @@ class RuntimeConfig extends React.Component {
 
 RuntimeConfig.propTypes = {
   runtimeVersion: React.PropTypes.object,
-  connectionStatus: React.PropTypes.object,
+  connectionStatus: React.PropTypes.bool,
 };
 
 export default RuntimeConfig;

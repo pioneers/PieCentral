@@ -5,10 +5,9 @@
 import React from 'react';
 import PeripheralList from './PeripheralList';
 import Peripheral from './Peripheral';
-import { connect } from 'react-redux';
 import _ from 'lodash';
 
-const FinalCompPeripheralListComponent = (props) => {
+const FinalCompPeripheralList = (props) => {
   let errorMsg = null;
   if (!props.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
@@ -36,16 +35,10 @@ const FinalCompPeripheralListComponent = (props) => {
   );
 };
 
-FinalCompPeripheralListComponent.propTypes = {
+FinalCompPeripheralList.propTypes = {
   connectionStatus: React.PropTypes.bool,
   runtimeStatus: React.PropTypes.bool,
   peripherals: React.PropTypes.object,
 };
-
-const mapStateToProps = (state) => ({
-  peripherals: state.peripherals,
-});
-
-const FinalCompPeripheralList = connect(mapStateToProps)(FinalCompPeripheralListComponent);
 
 export default FinalCompPeripheralList;

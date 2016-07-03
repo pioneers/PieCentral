@@ -10,6 +10,7 @@ import studentConsole from './studentConsole';
 import peripherals from './peripherals';
 import info from './info';
 import gamepads from './gamepads';
+import settings from './settings';
 
 const dawnApp = combineReducers({
   asyncAlerts,
@@ -18,6 +19,7 @@ const dawnApp = combineReducers({
   peripherals,
   info,
   gamepads,
+  settings,
 });
 
 export default dawnApp;

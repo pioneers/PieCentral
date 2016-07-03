@@ -1,10 +1,9 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Panel, ListGroup } from 'react-bootstrap';
 import _ from 'lodash';
 import GamepadItem from './GamepadItem';
 
-class GamepadsComponent extends React.Component {
+class Gamepads extends React.Component {
   renderInterior() {
     // if there are any gamepads
     if (_.some(this.props.gamepads, (gamepad) => gamepad !== undefined)) {
@@ -41,14 +40,8 @@ class GamepadsComponent extends React.Component {
   }
 }
 
-GamepadsComponent.propTypes = {
+Gamepads.propTypes = {
   gamepads: React.PropTypes.object,
 };
-
-const mapStateToProps = (state) => ({
-  gamepads: state.gamepads.gamepads,
-});
-
-const Gamepads = connect(mapStateToProps)(GamepadsComponent);
 
 export default Gamepads;

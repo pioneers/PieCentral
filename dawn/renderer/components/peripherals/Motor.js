@@ -1,5 +1,5 @@
 import React from 'react';
-import NameEdit from '../NameEdit';
+import NameEditContainer from '../NameEditContainer';
 import numeral from 'numeral';
 import { ProgressBar } from 'react-bootstrap';
 
@@ -9,7 +9,7 @@ import { ProgressBar } from 'react-bootstrap';
 const Motor = (props) => (
   <div style={{ overflow: 'auto' }}>
     <div style={{ overflow: 'auto', width: '100%' }}>
-      <h4 style={{ float: 'left' }}><NameEdit name={props.name} id={props.id} />
+      <h4 style={{ float: 'left' }}><NameEditContainer name={props.name} id={props.id} />
         <small> Motor</small>
       </h4>
       <h4 style={{ float: 'right' }}>

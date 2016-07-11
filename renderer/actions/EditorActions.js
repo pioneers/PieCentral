@@ -6,10 +6,9 @@ export const openFile = () => ({
   type: 'OPEN_FILE',
 });
 
-export const saveFile = (filepath, code) => ({
+export const saveFile = (saveAs = false) => ({
   type: 'SAVE_FILE',
-  code,
-  filepath,
+  saveAs,
 });
 
 export const deleteFile = () => ({

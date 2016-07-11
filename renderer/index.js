@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom';
 import App from './components/App';
 import { Provider } from 'react-redux';
 import { store, DevTools } from './configureStore';
-import './utils/MainProcessBridge';
 
 ReactDOM.render(
   <Provider store={store}>

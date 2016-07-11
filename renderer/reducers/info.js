@@ -30,15 +30,6 @@ const info = (state = {}, action) => {
         ...state,
         isRunningCode: (action.status.value === 1),
       };
-    case 'runtime_version':
-      return {
-        ...state,
-        runtimeVersion: {
-          version: action.version,
-          headhash: action.headhash,
-          modified: action.modified,
-        },
-      };
     default:
       return state;
   }

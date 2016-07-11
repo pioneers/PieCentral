@@ -2,15 +2,15 @@
   "name": "Dawn",
   "version": "0.4.6",
   "description": "Frontend for PIE Robotics System",
-  "main": "main.js",
+  "main": "build/main.js",
   "scripts": {
     "start": "better-npm-run start",
     "build": "better-npm-run build",
-    "watch": "node ./node_modules/webpack/bin/webpack.js --watch"
+    "watch": "node ./node_modules/webpack/bin/webpack.js --watch --progress"
   },
   "betterScripts": {
     "start": {
-      "command": "electron main.js",
+      "command": "electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }

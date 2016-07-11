@@ -1,8 +1,6 @@
 import React from 'react';
 import Joyride from 'react-joyride';
-import DNav from './DNav';
 import Dashboard from './Dashboard';
-import RuntimeConfig from './RuntimeConfig';
 import joyrideSteps from './JoyrideSteps';
 import smalltalk from 'smalltalk';
 import { removeAsyncAlert } from '../actions/AlertActions';
@@ -86,13 +84,6 @@ class AppComponent extends React.Component {
   render() {
     return (
       <div>
-        <DNav
-          startTour={this.startTour}
-          runtimeStatus={this.props.runtimeStatus}
-          connection={this.props.connectionStatus}
-          battery={this.props.batteryLevel}
-          isRunningCode={this.props.isRunningCode}
-        />
         <Joyride
           ref="joyride"
           steps={this.state.steps}
@@ -106,7 +97,7 @@ class AppComponent extends React.Component {
             skip: 'Skip Tour',
           }}
         />
-        <div style={{ height: '60px', marginBottom: '21px' }} />
+        <div style={{ height: '10px' }} />
         <Dashboard
           {...this.props}
           addSteps={this.addSteps}
@@ -114,10 +105,6 @@ class AppComponent extends React.Component {
           connectionStatus={this.props.connectionStatus}
           runtimeStatus={this.props.runtimeStatus}
           isRunningCode={this.props.isRunningCode}
-        />
-        <RuntimeConfig
-          connectionStatus={this.props.connectionStatus}
-          runtimeVersion={this.props.runtimeVersion}
         />
       </div>
     );
@@ -129,7 +116,6 @@ AppComponent.propTypes = {
   runtimeStatus: React.PropTypes.bool,
   batteryLevel: React.PropTypes.number,
   isRunningCode: React.PropTypes.bool,
-  runtimeVersion: React.PropTypes.object,
   asyncAlerts: React.PropTypes.array,
   onAlertDone: React.PropTypes.func,
 };
@@ -139,7 +125,6 @@ const mapStateToProps = (state) => ({
   runtimeStatus: state.info.runtimeStatus,
   batteryLevel: state.info.batteryLevel,
   isRunningCode: state.info.isRunningCode,
-  runtimeVersion: state.info.runtimeVersion,
   asyncAlerts: state.asyncAlerts,
 });
 

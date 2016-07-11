@@ -1,9 +1,14 @@
 import React from 'react';
-import EditorToolbar from './EditorToolbar';
 import ConsoleOutput from './ConsoleOutput';
 import Ansible from '../utils/Ansible';
-import { Panel } from 'react-bootstrap';
-import { EditorButton } from './EditorClasses';
+import {
+  Panel,
+  Button,
+  ButtonGroup,
+  Glyphicon,
+  Row,
+  Col,
+} from 'react-bootstrap';
 import AceEditor from 'react-ace';
 
 // React-ace extensions and modes
@@ -25,6 +30,7 @@ import 'brace/theme/terminal';
 class Editor extends React.Component {
   constructor(props) {
     super(props);
+    this.consoleHeight = 250; // pixels
     this.themes = [
       'monokai',
       'github',
@@ -37,6 +43,8 @@ class Editor extends React.Component {
       'solarized_light',
       'terminal',
     ];
+    this.toggleConsole = this.toggleConsole.bind(this);
+    this.getEditorHeight = this.getEditorHeight.bind(this);
   }
 
   componentDidMount() {
@@ -54,6 +62,10 @@ class Editor extends React.Component {
     correctedText = this.correctText(correctedText);
     // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
     pasteData.text = correctedText; // eslint-disable-line no-param-reassign
+  }
+
+  getEditorHeight(windowHeight) {
+    return `${String(windowHeight - 135 - this.props.showConsole * (this.consoleHeight + 40))}px`;
   }
 
   correctText(text) {
@@ -106,52 +118,6 @@ class Editor extends React.Component {
     window.open('https://pie-api.readthedocs.org/');
   }
 
-  generateButtons() {
-    // The buttons which will be in the button toolbar
-    return [
-      {
-        groupId: 'code-execution-buttons',
-        buttons: [
-          new EditorButton(
-            'run',
-            'Run',
-            this.startRobot,
-            'play',
-            (this.props.isRunningCode || !this.props.runtimeStatus)
-          ),
-          new EditorButton(
-            'stop',
-            'Stop',
-            this.stopRobot,
-            'stop',
-            !(this.props.isRunningCode && this.props.runtimeStatus)
-          ),
-          new EditorButton('toggle-console', 'Toggle Console', this.toggleConsole, 'console'),
-          new EditorButton('clear-console', 'Clear Console', this.props.onClearConsole, 'remove'),
-          new EditorButton(
-            'upload',
-            'Upload',
-            this.upload,
-            'upload',
-            (this.props.isRunningCode || !this.props.runtimeStatus)
-          ),
-        ],
-      }, {
-        groupId: 'misc-buttons',
-        buttons: [
-          new EditorButton('api', 'API Documentation', this.openAPI, 'book'),
-          new EditorButton('zoomin', 'Increase fontsize', this.props.onIncreaseFontsize, 'zoom-in'),
-          new EditorButton(
-            'zoomout',
-            'Decrease fontsize',
-            this.props.onDecreaseFontsize,
-            'zoom-out'
-          ),
-        ],
-      },
-    ];
-  }
-
   pathToName(filepath) {
     if (filepath !== null) {
       if (process.platform === 'win32') {
@@ -167,22 +133,62 @@ class Editor extends React.Component {
   }
 
   render() {
-    const consoleHeight = 250;
-    const editorHeight = window.innerHeight * 0.66;
     const changeMarker = this.hasUnsavedChanges() ? '*' : '';
     return (
       <Panel
-        header={`Editing: ${this.pathToName(this.props.filepath)}${changeMarker}`}
         bsStyle="primary"
+        header={
+          <Row>
+            <Col md={6}>
+              Editing: {this.pathToName(this.props.filepath)} {changeMarker}
+            </Col>
+            <Col md={6}>
+              <ButtonGroup className="pull-right">
+                <Button
+                  bsStyle="default"
+                  bsSize="small"
+                  onClick={this.startRobot}
+                  disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+                >
+                  <Glyphicon glyph="play" />
+                </Button>
+                <Button
+                  bsStyle="default"
+                  bsSize="small"
+                  onClick={this.stopRobot}
+                  disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
+                >
+                  <Glyphicon glyph="stop" />
+                </Button>
+                <Button
+                  bsStyle="default"
+                  bsSize="small"
+                  onClick={this.upload}
+                  disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+                >
+                  <Glyphicon glyph="upload" />
+                </Button>
+              </ButtonGroup>
+              <ButtonGroup className="pull-right">
+                <Button
+                  bsStyle="default"
+                  bsSize="small"
+                  onClick={this.toggleConsole}
+                >
+                  <Glyphicon glyph="console" />
+                </Button>
+                <Button
+                  bsStyle="default"
+                  bsSize="small"
+                  onClick={this.props.onClearConsole}
+                >
+                  <Glyphicon glyph="remove" />
+                </Button>
+              </ButtonGroup>
+            </Col>
+          </Row>
+        }
       >
-        <EditorToolbar
-          buttons={this.generateButtons()}
-          unsavedChanges={this.hasUnsavedChanges()}
-          changeTheme={this.props.onChangeTheme}
-          editorTheme={this.props.editorTheme}
-          themes={this.themes}
-          runtimeStatus={this.props.runtimeStatus}
-        />
         <AceEditor
           mode="python"
           theme={this.props.editorTheme}
@@ -190,7 +196,7 @@ class Editor extends React.Component {
           fontSize={this.props.fontSize}
           ref="CodeEditor"
           name="CodeEditor"
-          height={`${String(editorHeight - this.props.showConsole * (consoleHeight + 30))}px`}
+          height={this.getEditorHeight(window.innerHeight)}
           value={this.props.editorCode}
           onChange={this.props.onEditorUpdate}
           onPaste={this.onEditorPaste}
@@ -199,7 +205,7 @@ class Editor extends React.Component {
         <ConsoleOutput
           toggleConsole={this.toggleConsole}
           show={this.props.showConsole}
-          height={consoleHeight}
+          height={this.consoleHeight}
           output={this.props.consoleData}
         />
       </Panel>

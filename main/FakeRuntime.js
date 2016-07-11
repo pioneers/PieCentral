@@ -66,6 +66,10 @@ const generateFakeData = () => [
       id: '5',
     },
   },
+  {
+    type: 'UPDATE_CONSOLE',
+    value: 'Some print statement\n',
+  },
 ];
 
 const FakeRuntime = {

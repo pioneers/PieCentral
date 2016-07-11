@@ -46,7 +46,7 @@ module.exports = [{
   eslint: {
     configFile: './.eslintrc'
   },
-  output: { path: __dirname, filename: 'main.js' },
+  output: { path: __dirname + '/build/', filename: 'main.js' },
   target: 'atom',
   node: {
     __dirname: false,

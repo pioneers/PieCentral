@@ -5,9 +5,9 @@
  */
 
 import fs from 'fs';
-import { takeEvery, delay } from 'redux-saga';
-import { cps, call, put, fork, take, race } from 'redux-saga/effects';
-import { remote } from 'electron';
+import { takeEvery, delay, eventChannel } from 'redux-saga';
+import { cps, call, put, fork, take, race, select } from 'redux-saga/effects';
+import { remote, ipcRenderer } from 'electron';
 import _ from 'lodash';
 import Ansible from './Ansible';
 
@@ -26,6 +26,7 @@ function openFileDialog() {
     dialog.showOpenDialog({
       filters: [{ name: 'python', extensions: ['py'] }],
     }, (filepaths) => {
+      // If filepaths is undefined, the user did not specify a file.
       if (filepaths === undefined) {
         reject();
       } else {
@@ -46,8 +47,10 @@ function saveFileDialog() {
     dialog.showSaveDialog({
       filters: [{ name: 'python', extensions: ['py'] }],
     }, (filepath) => {
+      // If filepath is undefined, the user did not specify a file.
       if (filepath === undefined) {
         reject();
+        return;
       }
 
       // Automatically append .py extension if they don't have it
@@ -60,27 +63,52 @@ function saveFileDialog() {
 }
 
 function* openFile() {
-  const filepath = yield call(openFileDialog);
-  const data = yield cps(fs.readFile, filepath, 'utf8');
-  yield put({
-    type: 'OPEN_FILE_SUCCEEDED',
-    code: data,
-    filepath,
-  });
+  try {
+    const filepath = yield call(openFileDialog);
+    const data = yield cps(fs.readFile, filepath, 'utf8');
+    yield put({
+      type: 'OPEN_FILE_SUCCEEDED',
+      code: data,
+      filepath,
+    });
+  } catch (e) {
+    console.log('No filename specified, no file opened.');
+  }
 }
 
-function* saveFile(action) {
-  let filepath = action.filepath;
-  const code = action.code;
-  if (filepath === null) {
-    filepath = yield call(saveFileDialog);
-  }
+/**
+ * Simple helper function to write to a codefile and dispatch action
+ * notifying store of the save.
+ */
+function* writeFile(filepath, code) {
   yield cps(fs.writeFile, filepath, code);
   yield put({
     type: 'SAVE_FILE_SUCCEEDED',
     code,
     filepath,
   });
+}
+
+function* saveFile(action) {
+  const selector = (state) => ({
+    filepath: state.editor.filepath,
+    code: state.editor.editorCode,
+  });
+  const result = yield select(selector);
+  let filepath = result.filepath;
+  const code = result.code;
+  // If the action is a "save as" OR there is no filepath (ie, a new file)
+  // then we open the save file dialog so the user can specify a filename before saving.
+  if (action.saveAs || !filepath) {
+    try {
+      filepath = yield call(saveFileDialog);
+      yield* writeFile(filepath, code);
+    } catch (e) {
+      console.log('No filename specified, file not saved.');
+    }
+  } else {
+    yield* writeFile(filepath, code);
+  }
 }
 
 /**
@@ -185,6 +213,45 @@ function* updateGamepads() {
 }
 
 /**
+ * Creates the ansibleReceiver eventChannel, which emits
+ * data received from the main process.
+ */
+function ansibleReceiver() {
+  return eventChannel((emitter) => {
+    const listener = (event, action) => {
+      emitter(action);
+    };
+    // Suscribe listener to dispatches from main process.
+    ipcRenderer.on('dispatch', listener);
+    // Return an unsuscribe function.
+    return () => {
+      ipcRenderer.removeListener('dispatch', listener);
+    };
+  });
+}
+
+/**
+ * Takes data from the ansibleReceiver channel and dispatches
+ * it to the store
+ */
+function* ansibleSaga() {
+  const chan = yield call(ansibleReceiver);
+  while (true) {
+    const action = yield take(chan);
+    // dispatch the action
+    yield put(action);
+  }
+}
+
+/**
+ * Send the store to the main process whenever it changes.
+ */
+function* updateMainProcess() {
+  const state = yield select();
+  ipcRenderer.send('stateUpdate', state);
+}
+
+/**
  * The root saga combines all the other sagas together into one.
  */
 export default function* rootSaga() {
@@ -192,7 +259,9 @@ export default function* rootSaga() {
     takeEvery('OPEN_FILE', openFile),
     takeEvery('SAVE_FILE', saveFile),
     takeEvery('UPDATE_PERIPHERAL', reapPeripheral),
+    takeEvery('*', updateMainProcess),
     fork(runtimeHeartbeat),
     fork(updateGamepads),
+    fork(ansibleSaga),
   ];
 }

@@ -13,7 +13,6 @@ DEBUG_DELIMITER_STRING = "****************** RUNTIME DEBUG ******************"
 # 1. Have student code throw an exception. Make sure runtime catches gracefully.
 # 2. Have student code go through api to modify state. 
 # 3. Create Error class for handling various errors/events
-# 4. Implement student code restarts and restart counter
 
 allThreads = []
 badThings = threading.Condition()
@@ -21,18 +20,29 @@ badEvent = "BAD THINGS HAPPENED"
 badThingsData = ["", None]
 
 def runtime():
+  restartCount = 0
   state = [0]
-  runStudentCode(state)
   while True:
+    if restartCount >= 5:
+      print(DEBUG_DELIMITER_STRING)
+      print("Too many restarts, terminating")
+      break
+    print(DEBUG_DELIMITER_STRING)
+    print("Starting studentCode attempt: %s" % (restartCount,))
+    runStudentCode(state)
     badThings.acquire()
     badThings.wait()
     print(DEBUG_DELIMITER_STRING)
     print(badThingsData[0])
     print(traceback.print_exception(*badThingsData[1]))
     badThings.release()
-    break
+    restartCount += 1
+
+def initRobotState(state):
+  state[0] = 0
 
 def runStudentCode(state):
+  initRobotState(state)
   studentThread = threading.Thread(target=runStudentCodeHelper, name=STUDENT_THREAD_NAME, args=(state,))
   allThreads.append(studentThread)
   studentThread.daemon = True

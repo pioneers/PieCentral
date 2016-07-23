@@ -1,0 +1,17 @@
+syntax = "proto3";
+message RuntimeData {
+	enum State {
+		STUDENT_CRASHED = 0;
+		STUDENT_RUNNING = 1;
+		STUDENT_STOPPED = 2;
+		TELEOP = 3;
+
+	}
+	message SensorData {
+		string type = 1;
+		float value =2;
+		string id = 3;
+	}
+	repeated SensorData sensor = 2;
+	State robot_state = 1;
+}

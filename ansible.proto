@@ -1,0 +1,20 @@
+syntax = "proto3";
+package main;
+
+message DawnData {
+    enum StudentCodeStatus {
+        IDLE = 0;
+        TELEOP = 1;
+        AUTONOMOUS = 2;
+    }
+
+    message Gamepad {
+	int32 index = 1; // Gamepad index, there may be up to 4
+        repeated double axes = 2;
+        repeated bool buttons = 3;
+    }
+
+    StudentCodeStatus student_code_status = 1;
+    repeated Gamepad gamepads = 2;
+    repeated string peripheral_names = 3;
+}

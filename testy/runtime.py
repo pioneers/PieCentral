@@ -8,10 +8,7 @@ import stateManager
 
 from runtimeUtil import *
 
-STUDENT_PROCESS_NAME = "studentProcess"
-STUDENT_PROCESS_HZ = 5 # Number of times to execute studentCode.main per second
-STATE_PROCESS_NAME = "stateProcess"
-DEBUG_DELIMITER_STRING = "****************** RUNTIME DEBUG ******************"
+
 # TODO:
 # 0. Set up testing code for the following features.
 # 1. Have student code go through api to modify state.
@@ -29,61 +26,58 @@ globalBadThing = "unititialized globalBadThing"
 def runtime():
   badThingsQueue = multiprocessing.Queue()
   stateQueue = multiprocessing.Queue()
+  spawnProcess = processFactory(badThingsQueue, stateQueue)
   restartCount = 0
   try:
-    startStateManager(badThingsQueue, stateQueue)
+    spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
     while True:
       if restartCount >= 5:
-        print(DEBUG_DELIMITER_STRING)
+        print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
         print("Too many restarts, terminating")
         break
-      print(DEBUG_DELIMITER_STRING)
+      print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
       print("Starting studentCode attempt: %s" % (restartCount,))
-      runStudentCode(badThingsQueue, stateQueue)
+      spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode)
       while True:
         globalBadThing = badThingsQueue.get(block=True)
-        print(DEBUG_DELIMITER_STRING)
+        print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
         print(globalBadThing)
-        if globalBadThing.event == "studentCode":
+        if globalBadThing.event == BAD_EVENTS.STUDENT_CODE_ERROR:
           break
-      stateQueue.put(["reset"])
+      stateQueue.put([SM_COMMANDS.RESET])
       restartCount += 1
   except:
-    print(DEBUG_DELIMITER_STRING)
+    print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime Had Too Much Fun")
     print(traceback.print_exception(*sys.exc_info()))
 
-def runStudentCode(badThingsQueue, stateQueue):
-  pipeToStudent, pipeFromStudent = multiprocessing.Pipe()
-  stateQueue.put(["add", pipeToStudent], block=True)
-  studentProcess = multiprocessing.Process(target=runStudentCodeHelper, name=STUDENT_PROCESS_NAME, args=(badThingsQueue, stateQueue, pipeFromStudent))
-  allProcesses[STUDENT_PROCESS_NAME] = studentProcess
-  studentProcess.daemon = True
-  studentProcess.start()
-
-def runStudentCodeHelper(badThingsQueue, stateQueue, pipe):
+def runStudentCode(badThingsQueue, stateQueue, pipe):
   try:
     studentCode.setup(pipe)
     nextCall = time.time()
     while True:
       studentCode.main(stateQueue, pipe)
-      nextCall += 1.0/STUDENT_PROCESS_HZ
+      nextCall += 1.0/RUNTIME_INFO.STUDENT_CODE_HZ.value
       time.sleep(nextCall - time.time())
   except Exception:
-    badThingsQueue.put(BadThing(sys.exc_info(), None, event="studentCode"))
+    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
 
-def startStateManager(badThingsQueue, stateQueue):
-  pipeToState, pipeFromState = multiprocessing.Pipe()
-  stateProcess = multiprocessing.Process(target=startStateManagerHelper, name=STATE_PROCESS_NAME, args=(badThingsQueue, stateQueue, pipeFromState))
-  allProcesses[STATE_PROCESS_NAME] = stateProcess
-  stateProcess.daemon = True
-  stateProcess.start()
-
-def startStateManagerHelper(badThingsQueue, stateQueue, runtimePipe):
+def startStateManager(badThingsQueue, stateQueue, runtimePipe):
   try:
     SM = stateManager.StateManager(badThingsQueue, stateQueue, runtimePipe)
     SM.start()
   except Exception:
-    badThingsQueue.put(BadThing(sys.exc_info(), str(stateQueue)))
+    badThingsQueue.put(BadThing(sys.exc_info(), None))
+
+def processFactory(badThingsQueue, stateQueue):
+  def spawnProcessHelper(processName, helper):
+    pipeToChild, pipeFromChild = multiprocessing.Pipe()
+    if processName != PROCESS_NAMES.STATE_MANAGER:
+      stateQueue.put([SM_COMMANDS.ADD, processName, pipeToChild], block=True)
+    newProcess = multiprocessing.Process(target=helper, name=processName.value, args=(badThingsQueue, stateQueue, pipeFromChild))
+    allProcesses[processName] = newProcess
+    newProcess.daemon = True
+    newProcess.start()
+  return spawnProcessHelper
 
 runtime()

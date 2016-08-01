@@ -1,9 +1,41 @@
 import traceback
 import multiprocessing
+from enum import Enum, unique
 
-BAD_EVENT = "BAD THINGS HAPPENED"
+@unique
+class BAD_EVENTS(Enum):
+  BAD_EVENT           = "BAD THINGS HAPPENED"
+  STUDENT_CODE_ERROR  = "Student Code Crashed"
+  UNKNOWN_PROCESS     = "Unknown State Manager process name"
+
+@unique
+class PROCESS_NAMES(Enum):
+  STUDENT_CODE        = "studentProcess"
+  STATE_MANAGER       = "stateProcess"
+  RUNTIME             = "runtime"
+
+@unique
+class SM_COMMANDS(Enum):
+  # Used to autoenumerate
+  # Don't ask I don't know how
+  # https://docs.python.org/3/library/enum.html#autonumber
+  def __new__(cls):
+    value = len(cls.__members__) + 1
+    obj = object.__new__(cls)
+    obj._value_ = value
+    return obj
+
+  RESET               = ()
+  ADD                 = ()
+  HELLO               = ()
+  READY               = ()
+
+class RUNTIME_INFO(Enum):
+  STUDENT_CODE_HZ    = 5 # Number of times to execute studentCode.main per second
+  DEBUG_DELIMITER_STRING  = "****************** RUNTIME DEBUG ******************"
+
 class BadThing:
-  def __init__(self, exc_info, data, event=BAD_EVENT, printStackTrace=True):
+  def __init__(self, exc_info, data, event=BAD_EVENTS.BAD_EVENT, printStackTrace=True):
     self.name = multiprocessing.current_process().name
     self.data = data
     self.event = event

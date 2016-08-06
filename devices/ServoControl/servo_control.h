@@ -20,6 +20,10 @@ hibike_uid_t UID = {
 ///////////////////////////////////////////////
 
 typedef enum {
+  SERVOPARAM0,
+  SERVOPARAM1,
+  SERVOPARAM2,
+  SERVOPARAM3,
   TOGGLE0,
   TOGGLE1,
   TOGGLE2,

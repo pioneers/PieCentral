@@ -1,5 +1,7 @@
 #!/bin/sh
 
+DAWN_URL=https://storage.googleapis.com/pie-software-builds/latest/dawn-linux-x64.zip
+
 declare -a APT_PACKAGES=(
   arduino
   arduino-core
@@ -36,7 +38,7 @@ do
   sudo pip3 install --upgrade $package
 done
 
-# TODO(vincent): download and install dawn in /opt/...
-#                currently blocked by pioneers.github.io/dawn not having a linux build...merp
-# wget <Link to dawn> -O ~/Downloads/dawn.tar.gz
-# tar -xzvf ~/Downloads/dawn.tar.gz /opt/dawn
+wget $DAWN_URL -O ~/Downloads/dawn.zip
+sudo unzip ~/Downloads/dawn.zip -d /opt
+sudo mv /opt/dawn-linux-x64 /opt/dawn #kinda hacky, but whatever
+rm -f ~/Downloads/dawn.zip

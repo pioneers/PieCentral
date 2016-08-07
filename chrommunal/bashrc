@@ -3,7 +3,6 @@ if [[ $- != *i* ]] ; then
   return
 fi
 
-# TODO(vincent): fix and uncomment the line below once we know where dawn is installed
-# alias dawn='sudo startxiwi -n trusty /opt/dawn/etc'
+alias dawn='sudo startxiwi -n trusty /opt/dawn/dawn'
 alias term='sudo enter-chroot'
 alias ubuntu='sudo startunity -X xorg'

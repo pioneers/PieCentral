@@ -4,23 +4,13 @@
     "dataFormat": {
         "formatString": "<b???",
         "parameters": [
-            {
-                "scalingFactor": 255.0,
-                "machineName": "value0",
-                "humanName": "PWM"
-            },
-            {
-                "scalingFactor": 1.0,
-                "machineName": "value1",
-                "humanName": "EN"
-            }
         ]
     },
     "params": [
         "dataUpdate",
-        "PWM",
-        "EN",
-        "INA",
-        "INB"
+        "duty",
+        "fault",
+        "forward",
+        "reverse"        
     ]
 }

@@ -13,8 +13,14 @@ hibike_uid_t UID = {
 
 
 
-#define NUM_PARAMS 4
+#define NUM_PARAMS 5
 
+typedef enum {
+  DUTY,
+  FAULT, //EN Value. high = operating, low = fault
+  FORWARD,
+  REVERSE
+} param;
 
 // function prototypes
 void setup();

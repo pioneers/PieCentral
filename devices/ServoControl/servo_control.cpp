@@ -76,7 +76,7 @@ uint32_t toggle_servo(int servo_num, uint32_t toggle) {
 
 }
 
-// you must implement this function. It is called when the devie receives a DeviceStatus packet.
+// you must implement this function. It is called when the deviCe receives a DeviceStatus packet.
 // the return value is the value field of the DeviceRespond packet hibike will respond with
 uint32_t device_status(uint8_t param) {
   if (param < NUM_PINS) {

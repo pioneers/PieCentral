@@ -8,6 +8,8 @@ def setup(pipe):
   # state[0] = startupValue
 
 def main(stateQueue, pipe):
+  while True:
+    pass
   print("Saying hello to the other side")
   state = Robot.getValue("")
   print("Hello from the other side %d" % (state,))

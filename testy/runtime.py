@@ -11,13 +11,14 @@ from runtimeUtil import *
 
 # TODO:
 # 0. Set up testing code for the following features.
-# 1. Have student code go through api to modify state.
-# 2. Imposing timeouts on student code (infinite loop, try-catch)
+# DONE 1. Have student code go through api to modify state.
+# DONE 2. Imposing timeouts on student code (infinite loop, try-catch)
 # 3. Figure out how to kill student thread.
 # 4. Integrate with Bob's socket code: spin up a communication process
 # 5. stateManager throw badThing on processNameNotFound
 # 6. refactor process startup code: higher order function
 # 7. Writeup how all this works
+# 8. Investigate making BadThing extend exception
 
 allProcesses = {}
 badThings = multiprocessing.Condition()
@@ -43,7 +44,8 @@ def runtime():
         globalBadThing = badThingsQueue.get(block=True)
         print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
         print(globalBadThing)
-        if globalBadThing.event == BAD_EVENTS.STUDENT_CODE_ERROR:
+        if (globalBadThing.event == BAD_EVENTS.STUDENT_CODE_ERROR) or \
+            (globalBadThing.event == BAD_EVENTS.STUDENT_CODE_TIMEOUT):
           break
       stateQueue.put([SM_COMMANDS.RESET])
       restartCount += 1
@@ -54,15 +56,29 @@ def runtime():
 
 def runStudentCode(badThingsQueue, stateQueue, pipe):
   try:
+    import signal
+    def timed_out_handler(signum, frame):
+      raise TimeoutError("studentCode timed out")
+    signal.signal(signal.SIGALRM, timed_out_handler)
+
     import studentCode
+
     r = studentAPI.Robot(stateQueue, pipe)
     setattr(studentCode, 'Robot', r)
+
+    signal.alarm(RUNTIME_INFO.STUDENT_CODE_TIMEOUT)
     studentCode.setup(pipe)
+    signal.alarm(0)
+
     nextCall = time.time()
     while True:
+      signal.alarm(RUNTIME_INFO.STUDENT_CODE_TIMEOUT)
       studentCode.main(stateQueue, pipe)
+      signal.alarm(0)
       nextCall += 1.0/RUNTIME_INFO.STUDENT_CODE_HZ.value
       time.sleep(nextCall - time.time())
+  except TimeoutError:
+    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
   except Exception:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
 

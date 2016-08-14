@@ -4,9 +4,10 @@ from enum import Enum, unique
 
 @unique
 class BAD_EVENTS(Enum):
-  BAD_EVENT           = "BAD THINGS HAPPENED"
-  STUDENT_CODE_ERROR  = "Student Code Crashed"
-  UNKNOWN_PROCESS     = "Unknown State Manager process name"
+  BAD_EVENT             = "BAD THINGS HAPPENED"
+  STUDENT_CODE_ERROR    = "Student Code Crashed"
+  STUDENT_CODE_TIMEOUT  = "Student Code Timed Out"
+  UNKNOWN_PROCESS       = "Unknown State Manager process name"
 
 @unique
 class PROCESS_NAMES(Enum):
@@ -31,6 +32,7 @@ class SM_COMMANDS(Enum):
   READY               = ()
 
 class RUNTIME_INFO(Enum):
+  STUDENT_CODE_TIMEOUT = 3
   STUDENT_CODE_HZ    = 5 # Number of times to execute studentCode.main per second
   DEBUG_DELIMITER_STRING  = "****************** RUNTIME DEBUG ******************"
 
@@ -58,3 +60,6 @@ class BadThing:
       return self.stackTrace
     else:
       return str(self.data)
+
+class TimeoutError(Exception):
+  pass

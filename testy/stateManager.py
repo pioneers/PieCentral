@@ -3,6 +3,8 @@ import sys
 
 from runtimeUtil import *
 
+# TODO:
+# 0. modify self.state to acually store (name, value) pairs
 class StateManager(object):
 
   """input is a multiprocessing.Queue object to support multiple

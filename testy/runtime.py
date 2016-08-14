@@ -3,8 +3,8 @@ import time
 import sys
 import traceback
 
-import studentCode
 import stateManager
+import studentAPI
 
 from runtimeUtil import *
 
@@ -17,6 +17,7 @@ from runtimeUtil import *
 # 4. Integrate with Bob's socket code: spin up a communication process
 # 5. stateManager throw badThing on processNameNotFound
 # 6. refactor process startup code: higher order function
+# 7. Writeup how all this works
 
 allProcesses = {}
 badThings = multiprocessing.Condition()
@@ -53,6 +54,9 @@ def runtime():
 
 def runStudentCode(badThingsQueue, stateQueue, pipe):
   try:
+    import studentCode
+    r = studentAPI.Robot(stateQueue, pipe)
+    setattr(studentCode, 'Robot', r)
     studentCode.setup(pipe)
     nextCall = time.time()
     while True:

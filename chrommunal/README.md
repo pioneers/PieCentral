@@ -15,12 +15,12 @@ being only a few steps given in the instructions below.
 * Open a crosh developer terminal by typing `ctrl+alt+t`, and type `shell` to switch to a real unix
   shell. From there, copy/paste or type the following command, then hit enter
 
-  ```wget https://raw.githubusercontent.com/pioneers/DevOps/master/chrommunal/setup-chrome.sh | bash```
+  ```wget -O - https://raw.githubusercontent.com/pioneers/DevOps/master/chrommunal/setup-chrome.sh | bash```
 
 * After the script finishes running, enter the following into the linux terminal that your shell
   instance was replaced with.
 
-  ```wget https://raw.githubusercontent.com/pioneers/DevOps/master/chrommunal/setup-ubuntu.sh | bash```
+  ```wget -O - https://raw.githubusercontent.com/pioneers/DevOps/master/chrommunal/setup-ubuntu.sh | bash```
 
 ## Usage
 

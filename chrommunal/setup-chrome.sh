@@ -16,4 +16,6 @@ rm -f ~/.bashrc
 wget $BASHRC_URL -O ~/.bashrc
 
 echo 'crouton setup complete! Now logging you into a linux shell.'
-echo 'Please run the following script within that shell to complete setup: <Link to script here>'
+echo 'Please run the following script within that shell to complete setup:'
+echo 'wget -O - https://raw.githubusercontent.com/pioneers/DevOps/master/chrommunal/setup-ubuntu.sh | bash'
+sudo enter-chroot

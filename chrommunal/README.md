@@ -33,3 +33,7 @@ a crosh shell using `ctrl+alt+t` and typed `shell` to enter a real unix shell.
    within ChromeOS.
 * `ubuntu` switches the GUI entirely to an ubuntu environment. Switching back and forth is possible
   with `ctrl+alt+shift+<left/right arrow>`.
+
+## Names
+
+All chrommunal laptops will be named after *-creme

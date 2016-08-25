@@ -55,6 +55,7 @@
     "mousetrap": "^1.5.3",
     "numeral": "^1.5.3",
     "object-assign": "^4.0.1",
+    "protobufjs": "^5.0.1",
     "react": "^0.14.5",
     "react-ace": "^3.0.0",
     "react-bootstrap": "^0.28.1",

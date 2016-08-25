@@ -3,7 +3,10 @@
  */
 
 import RendererBridge from '../RendererBridge';
-import FakeRuntime from '../FakeRuntime';
+import { fork } from 'child_process';
+
+// Reference to the child process for FakeRuntime.
+let child = null;
 
 const DebugMenu = {
   label: 'Debug',
@@ -16,11 +19,14 @@ const DebugMenu = {
     },
     {
       label: 'Toggle Runtime',
+      child: null,
       click() {
-        if (FakeRuntime.isActive()) {
-          FakeRuntime.stop();
+        if (child) {
+          child.kill();
+          child = null;
         } else {
-          FakeRuntime.start(500);
+          // Fork FakeRuntime as a child process
+          child = fork('./fake-runtime/FakeRuntime');
         }
       },
     },

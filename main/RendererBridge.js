@@ -5,10 +5,8 @@
  */
 
 import _ from 'lodash';
-import { ipcMain } from 'electron';
 
 const RendererBridge = {
-  reduxState: null,
   registeredWindow: null,
 
   registerWindow(electronWindow) {
@@ -21,10 +19,6 @@ const RendererBridge = {
     }
   },
 };
-
-ipcMain.on('stateUpdate', (event, state) => {
-  RendererBridge.reduxState = state;
-});
 
 _.bindAll(RendererBridge, ['registerWindow', 'reduxDispatch']);
 

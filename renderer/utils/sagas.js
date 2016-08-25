@@ -9,7 +9,6 @@ import { takeEvery, delay, eventChannel } from 'redux-saga';
 import { cps, call, put, fork, take, race, select } from 'redux-saga/effects';
 import { remote, ipcRenderer } from 'electron';
 import _ from 'lodash';
-import Ansible from './Ansible';
 
 const dialog = remote.dialog;
 
@@ -173,7 +172,7 @@ function _needToUpdate(newGamepads) {
   });
 }
 
-function _formatGamepadsForJSON(newGamepads) {
+function formatGamepads(newGamepads) {
   const formattedGamepads = {};
   // Currently there is a bug on windows where navigator.getGamepads()
   // returns a second, 'ghost' gamepad even when only one is connected.
@@ -200,12 +199,13 @@ function* updateGamepads() {
     // confuses redux, so we use assignIn to clone to a new object each time.
     const newGamepads = _.assignIn({}, navigator.getGamepads());
     if (_needToUpdate(newGamepads)) {
+      const formattedGamepads = formatGamepads(newGamepads);
+      yield put({ type: 'UPDATE_GAMEPADS', gamepads: formattedGamepads });
+
       // Send gamepad data to Runtime over Ansible.
       if (_.some(newGamepads)) {
-        Ansible.sendMessage('gamepad', _formatGamepadsForJSON(newGamepads));
+        yield put({ type: 'UPDATE_MAIN_PROCESS' });
       }
-
-      yield put({ type: 'UPDATE_GAMEPADS', gamepads: newGamepads });
     }
 
     yield call(delay, 50); // wait 50 ms before updating again.
@@ -247,8 +247,11 @@ function* ansibleSaga() {
  * Send the store to the main process whenever it changes.
  */
 function* updateMainProcess() {
-  const state = yield select();
-  ipcRenderer.send('stateUpdate', state);
+  const stateSlice = yield select((state) => ({
+    studentCodeStatus: true,
+    gamepads: state.gamepads.gamepads,
+  }));
+  ipcRenderer.send('stateUpdate', stateSlice);
 }
 
 /**
@@ -259,7 +262,7 @@ export default function* rootSaga() {
     takeEvery('OPEN_FILE', openFile),
     takeEvery('SAVE_FILE', saveFile),
     takeEvery('UPDATE_PERIPHERAL', reapPeripheral),
-    takeEvery('*', updateMainProcess),
+    takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     fork(runtimeHeartbeat),
     fork(updateGamepads),
     fork(ansibleSaga),

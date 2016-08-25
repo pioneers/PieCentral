@@ -5,6 +5,7 @@
 import { app, BrowserWindow, Menu } from 'electron';
 import RendererBridge from './RendererBridge';
 import Template from './MenuTemplate/Template';
+import './ansible/Ansible';
 
 let mainWindow; // the window which displays Dawn
 

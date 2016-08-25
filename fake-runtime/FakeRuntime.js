@@ -10,9 +10,8 @@ const dgram = require('dgram');
 const ProtoBuf = require('protobufjs');
 const _ = require('lodash');
 
-const builder = ProtoBuf.loadProtoFile('./main/ansible/ansible.proto');
-const AnsibleMain = builder.build('main');
-const DawnData = AnsibleMain.DawnData;
+const builder = ProtoBuf.loadProtoFile('./main/ansible/ansible-protos/ansible.proto');
+const DawnData = builder.build('DawnData');
 
 const clientPort = '12346'; // send port
 const serverPort = '12345'; // receive port

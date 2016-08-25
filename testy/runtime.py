@@ -21,9 +21,6 @@ from runtimeUtil import *
 # 8. Investigate making BadThing extend exception
 
 allProcesses = {}
-badThings = multiprocessing.Condition()
-globalBadThing = "unititialized globalBadThing"
-
 
 def runtime():
   badThingsQueue = multiprocessing.Queue()
@@ -41,14 +38,17 @@ def runtime():
       print("Starting studentCode attempt: %s" % (restartCount,))
       spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode)
       while True:
-        globalBadThing = badThingsQueue.get(block=True)
+        newBadThing = badThingsQueue.get(block=True)
         print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
-        print(globalBadThing)
-        if (globalBadThing.event == BAD_EVENTS.STUDENT_CODE_ERROR) or \
-            (globalBadThing.event == BAD_EVENTS.STUDENT_CODE_TIMEOUT):
+        print(newBadThing)
+        if (newBadThing.event == BAD_EVENTS.STUDENT_CODE_ERROR) or \
+            (newBadThing.event == BAD_EVENTS.STUDENT_CODE_TIMEOUT):
           break
       stateQueue.put([SM_COMMANDS.RESET])
       restartCount += 1
+      print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
+      print("Funtime Runtime is done having fun.")
+      print("TERMINATING")
   except:
     print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime Had Too Much Fun")
@@ -61,18 +61,20 @@ def runStudentCode(badThingsQueue, stateQueue, pipe):
       raise TimeoutError("studentCode timed out")
     signal.signal(signal.SIGALRM, timed_out_handler)
 
+    signal.alarm(RUNTIME_INFO.STUDENT_CODE_TIMEOUT.value)
     import studentCode
+    signal.alarm(0)
 
     r = studentAPI.Robot(stateQueue, pipe)
-    setattr(studentCode, 'Robot', r)
+    studentCode.Robot = r
 
-    signal.alarm(RUNTIME_INFO.STUDENT_CODE_TIMEOUT)
+    signal.alarm(RUNTIME_INFO.STUDENT_CODE_TIMEOUT.value)
     studentCode.setup(pipe)
     signal.alarm(0)
 
     nextCall = time.time()
     while True:
-      signal.alarm(RUNTIME_INFO.STUDENT_CODE_TIMEOUT)
+      signal.alarm(RUNTIME_INFO.STUDENT_CODE_TIMEOUT.value)
       studentCode.main(stateQueue, pipe)
       signal.alarm(0)
       nextCall += 1.0/RUNTIME_INFO.STUDENT_CODE_HZ.value
@@ -100,4 +102,5 @@ def processFactory(badThingsQueue, stateQueue):
     newProcess.start()
   return spawnProcessHelper
 
-runtime()
+if __name__ == "__main__":
+  runtime()

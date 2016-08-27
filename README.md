@@ -10,8 +10,8 @@ Dawn is a desktop app, but it is written with web technologies and packaged via 
 
 ### Development Quickstart
 1. Install Required Software:
-    * Get [NodeJS](https://nodejs.org/en/)
-    * Once npm is installed, install electron: `npm install -g electron-prebuilt`
+    * Install the latest [NodeJS](https://nodejs.org/en/)
+    * Once npm is installed, install electron: `sudo npm install -g electron-prebuilt`
 1. Get code and dependencies
     * Pull the latest code: `git clone https://github.com/pioneers/dawn`.
     * This should create a `dawn` directory wherever you typed this command. Enter the dawn directory: `cd dawn`.

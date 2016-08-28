@@ -6,6 +6,7 @@
   "scripts": {
     "start": "better-npm-run start",
     "build": "better-npm-run build",
+    "lint": "node ./node_modules/eslint/bin/eslint.js -c .eslintrc --ignore-path .eslintignore .",
     "watch": "node ./node_modules/webpack/bin/webpack.js --watch --progress"
   },
   "betterScripts": {

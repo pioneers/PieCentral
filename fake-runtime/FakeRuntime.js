@@ -8,7 +8,6 @@
 
 const dgram = require('dgram');
 const ProtoBuf = require('protobufjs');
-const _ = require('lodash');
 
 const builder = ProtoBuf.loadProtoFile('./main/ansible/ansible-protos/ansible.proto');
 const DawnData = builder.build('DawnData');
@@ -23,7 +22,7 @@ const server = dgram.createSocket('udp4'); // receiver
  * Handler to receive messages from Dawn.
  * We don't do anything besides decode it and print it out.
  */
-server.on('message', (msg, rinfo) => {
+server.on('message', (msg) => {
   // Decode and get the raw object.
   const data = DawnData.decode(msg).toRaw();
   console.log(`FakeRuntime received: ${JSON.stringify(data)}\n`);

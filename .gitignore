@@ -1,0 +1,5 @@
+*.pyc
+*.o
+**/.DS_Store
+bin/
+images/

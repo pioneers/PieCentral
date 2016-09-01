@@ -1,0 +1,16 @@
+{
+    "deviceID": "0x0006",
+    "deviceName": "YogiBear",
+    "dataFormat": {
+        "formatString": "<b???",
+        "parameters": [
+        ]
+    },
+    "params": [
+        "dataUpdate",
+        "duty",
+        "fault",
+        "forward",
+        "reverse"        
+    ]
+}

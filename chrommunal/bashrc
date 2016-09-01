@@ -1,0 +1,8 @@
+if [[ $- != *i* ]] ; then
+  # Shell is non-interactive, so no need to do anything
+  return
+fi
+
+alias dawn='sudo startxiwi -n trusty /opt/dawn/dawn'
+alias term='sudo enter-chroot'
+alias ubuntu='sudo startunity -X xorg'

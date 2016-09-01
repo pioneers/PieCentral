@@ -1,0 +1,4 @@
+build/*
+static/*
+release.js
+webpack.*

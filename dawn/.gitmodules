@@ -1,0 +1,3 @@
+[submodule "main/ansible/ansible-protos"]
+	path = main/ansible/ansible-protos
+	url = https://github.com/pioneers/ansible-protos

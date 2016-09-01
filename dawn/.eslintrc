@@ -1,0 +1,20 @@
+{
+  "extends": "airbnb",
+  "globals": {
+    "VERSION": true,
+    "io": true
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "rules": {
+    "import/no-unresolved": [2, { ignore: ['electron'] }],
+    "no-console": 0,
+    "no-constant-condition": 0,
+    "no-underscore-dangle": 0,
+    "no-param-reassign": 0,
+    "consistent-return": 0,
+  }
+}

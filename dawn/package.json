@@ -71,6 +71,7 @@
     "redux": "^3.5.2",
     "redux-saga": "^0.10.5",
     "riek": "^1.0.0",
+    "seedrandom": "^2.4.2",
     "smalltalk": "^1.6.5",
     "superagent": "^1.7.2"
   }

@@ -6,3 +6,6 @@ dawn-start:
 
 dawn-lint:
 	cd dawn && npm run-script lint
+
+dawn-test:
+	cd dawn && npm test

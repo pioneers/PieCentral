@@ -9,7 +9,7 @@
 const dgram = require('dgram');
 const ProtoBuf = require('protobufjs');
 
-const builder = ProtoBuf.loadProtoFile('./main/ansible/ansible-protos/ansible.proto');
+const builder = ProtoBuf.loadProtoFile('../ansible-protos/ansible.proto');
 const DawnData = builder.build('DawnData');
 
 const clientPort = '12346'; // send port

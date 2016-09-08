@@ -1,11 +1,13 @@
 /**
  * Actions for asynchronous (non-blocking) alerts.
  */
+import seedrandom from 'seedrandom';
 
-let nextAsyncAlertId = 0;
+const rng = new seedrandom('alertseed');
+
 export const addAsyncAlert = (heading, message) => ({
   type: 'ADD_ASYNC_ALERT',
-  id: nextAsyncAlertId++,
+  id: rng.int32(),
   heading,
   message,
 });

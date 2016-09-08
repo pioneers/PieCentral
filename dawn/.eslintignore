@@ -2,3 +2,4 @@ build/*
 static/*
 release.js
 webpack.*
+*.test.js

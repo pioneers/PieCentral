@@ -59,8 +59,12 @@ ipcMain.on('stateUpdate', (event, data) => {
  * Handler to receive messages from the robot Runtime
  */
 server.on('message', (msg) => {
-  const data = RuntimeData.decode(msg).toRaw();
-  console.log(`Dawn received: ${JSON.stringify(data)}\n`);
+  try {
+    const data = RuntimeData.decode(msg).toRaw();
+    console.log(`Dawn received: ${JSON.stringify(data)}\n`);
+  } catch (e) {
+    console.log('Error decoding');
+  }
 });
 
 server.bind(serverPort, hostname);

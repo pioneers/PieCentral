@@ -15,15 +15,44 @@
 
 ### If you want to learn more about these repositories, check out their directories!
 
-### A note to contributers:
-    
- - You don't have to fork! Instead, make your own branch in the central repo. 
+## Contributing to PieCentral
 
- - Also, when you are making your branch, make sure to follow this naming convention:
-   
-   **your_name/feature_name**
+Note: You don't have to fork! Instead, make your own branch in the central repo.
 
+### Setting up PieCentral
 
- - feel free to split the project further with more slashes
+```
+$ cd {directory of your choice}
+$ git clone https://github.com/pioneers/PieCentral.git
+$ cd PieCentral
+```
+
+### Creating a Branch
+Naming convention: project_name/feature_name
+
+Feel free to name "feature_name" anything and/or use more slashes.
+
+e.g. dawn/UDPintegration, atalanta/andy/UDPintegration
+```
+$ git branch {project_name/feature_name}
+$ git checkout {project_name/feature_name}
+$ git push origin {project_name/feature_name}
+```
+
+### Adding new code to master
+All code is rebased onto master, meaning new commits are added directly onto master, creating a linear commit history.
+
+Merge conflicts may arise when rebasing, make sure to fix conflicts before continuing.
+
+```
+$ git fetch origin master
+$ git rebase master
+$ git push {project_name/feature_name}
+```
+Open a pull request to master.
+
+Code will be code reviewed by PMs.
+
+Code will be rebased onto master. (Choose "Squash and Merge" instead of "Create a merge commit")
 
 [logo]: https://upload.wikimedia.org/wikipedia/en/e/e4/Pioneers_in_Engineering_Logo_1.png "Logo"

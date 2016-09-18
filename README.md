@@ -16,6 +16,9 @@
 ### If you want to learn more about these repositories, check out their directories!
 
 ## Contributing to PieCentral
+
+Note: You don't have to fork! Instead, make your own branch in the central repo.
+
 ### Setting up PieCentral
 
 ```

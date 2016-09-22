@@ -5,13 +5,17 @@ message RuntimeData {
 		STUDENT_RUNNING = 1;
 		STUDENT_STOPPED = 2;
 		TELEOP = 3;
-
+		AUTO = 4;
 	}
 	message SensorData {
-		string type = 1;
-		float value =2;
-		string id = 3;
+		string device_type = 1;
+		string device_name = 2;
+		float value = 3;
 	}
-	repeated SensorData sensor = 2;
 	State robot_state = 1;
+	repeated SensorData sensor_data = 2;
+}
+
+message TCPData {
+	string console_output = 1;
 }

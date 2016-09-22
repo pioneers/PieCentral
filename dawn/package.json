@@ -12,7 +12,7 @@
   },
   "betterScripts": {
     "start": {
-      "command": "./node_modules/electron/dist/electron build/main.js",
+      "command": "./node_modules/electron/dist/Electron.app/Contents/MacOS/Electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }

@@ -1,5 +1,7 @@
 import multiprocessing
 import time
+import os
+import signal
 import sys
 import traceback
 
@@ -19,6 +21,7 @@ from runtimeUtil import *
 # 6. refactor process startup code: higher order function
 # 7. Writeup how all this works
 # 8. Investigate making BadThing extend exception
+# DONE 9. Add count for number of times studentCode.main has run
 
 allProcesses = {}
 
@@ -51,10 +54,11 @@ def runtime():
             (newBadThing.event == BAD_EVENTS.STUDENT_CODE_TIMEOUT):
           break
       stateQueue.put([SM_COMMANDS.RESET])
+      os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
       restartCount += 1
-      print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
-      print("Funtime Runtime is done having fun.")
-      print("TERMINATING")
+    print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
+    print("Funtime Runtime is done having fun.")
+    print("TERMINATING")
   except:
     print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime Had Too Much Fun")
@@ -84,6 +88,8 @@ def runStudentCode(badThingsQueue, stateQueue, pipe):
       studentCode.main(stateQueue, pipe)
       signal.alarm(0)
       nextCall += 1.0/RUNTIME_INFO.STUDENT_CODE_HZ.value
+      # TODO: Replace with count of times we call main
+      stateQueue.put([SM_COMMANDS.HELLO])
       time.sleep(nextCall - time.time())
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))

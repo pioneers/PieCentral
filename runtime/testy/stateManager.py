@@ -18,27 +18,43 @@ class StateManager(object):
     self.processMapping = {PROCESS_NAMES.RUNTIME: runtimePipe}
 
   def initRobotState(self):
-    self.state = [5]
+    self.state = {
+     "incrementer" : 5,
+     "int1" : 112314,
+     "float1": 987.123,
+     "bool1" : True, 
+     "dict1" : {"inner_dict1_int" : 555, "inner_dict_1_string": "hello"},
+     "list1" : [70, "five", 14.3],
+     "string1" : "abcde"
+    }
 
   def addPipe(self, processName, pipe):
     self.processMapping[processName] = pipe
     pipe.send(SM_COMMANDS.READY)
+
+  def getValue(self, key):
+    self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state[key])
+
+  def setValue(self, key, value):
+    self.state[key] = value
+    self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state[key])
 
   def start(self):
     # TODO: Make sure request is a list/tuple before attempting to access
     # And that there are the correct number of elements
     while True:
       request = self.input.get(block=True)
-
-      if request[0] == SM_COMMANDS.RESET:
+      cmd_type = request[0]
+      if cmd_type == SM_COMMANDS.RESET:
         self.initRobotState()
-
-      elif request[0] == SM_COMMANDS.ADD:
+      elif cmd_type == SM_COMMANDS.ADD:
         self.addPipe(request[1], request[2])
-
-      elif request[0] == SM_COMMANDS.HELLO:
-        self.state[0] -= 1
-        self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state[0])
+      elif cmd_type == SM_COMMANDS.GET_VAL:
+        self.getValue(request[1])
+      elif cmd_type == SM_COMMANDS.SET_VAL:
+        self.setValue(request[1], request[2])
+      elif cmd_type == SM_COMMANDS.HELLO:
+        print("HELLO")
       # TODO: Add better error description
       else:
         self.badThingsQueue.put(BadThing(sys.exc_info(), "Unknown process name: %s" % (request,), event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))

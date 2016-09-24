@@ -51,8 +51,7 @@ def runtime():
         print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
         print(newBadThing)
         if (newBadThing.event == BAD_EVENTS.STUDENT_CODE_ERROR) or \
-            (newBadThing.event == BAD_EVENTS.STUDENT_CODE_TIMEOUT) or \
-            (newBadThing.event == BAD_EVENTS.STUDENT_CODE_VALUE_ERROR):
+            (newBadThing.event == BAD_EVENTS.STUDENT_CODE_TIMEOUT):
           break
       stateQueue.put([SM_COMMANDS.RESET, []])
       os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)

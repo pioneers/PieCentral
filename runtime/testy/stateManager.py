@@ -62,10 +62,7 @@ class StateManager(object):
         currDict = currDict[key[1]]
       if len(keys) > 1:
         i += 1
-      if keys[i] in currDict.keys():
-        currDict[keys[i]] = value
-      else:
-        raise Exception
+      currDict[keys[i]] = value
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(value)
     except:
       error = StudentAPIKeyError(self.dictErrorMessage(i, keys, currDict))

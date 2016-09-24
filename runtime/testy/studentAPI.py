@@ -15,11 +15,7 @@ class Robot:
     """Returns the value associated with key
     """
     # TODO: Actually use key
-    state = self.getState()
-    print("GOT STATE:", state)
-    state = list( (state.keys()) )
-    print("STATE LIST:", state)
-    if key not in state:
+    if key not in list( (self.getState().keys()) ):
         raise StudentValueError("'{}' is not a valid key.".format(name))
     self.toManager.put([SM_COMMANDS.GET_VAL, key])
     return self.fromManager.recv()
@@ -27,5 +23,7 @@ class Robot:
   def setValue(self, key, value):
     """Sets the value associated with key
     """
+    if key not in list( (self.getState().keys()) ):
+        raise StudentValueError("'{}' is not a valid key.".format(name))
     self.toManager.put([SM_COMMANDS.SET_VAL, key, value])
     return self.fromManager.recv()

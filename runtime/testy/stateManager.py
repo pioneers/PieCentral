@@ -41,7 +41,7 @@ class StateManager(object):
   def setValue(self, key, value):
     self.state[key] = value
     print("NEW STATE:", self.state)
-    self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state[key])
+    # self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state[key])
 
   def start(self):
     # TODO: Make sure request is a list/tuple before attempting to access

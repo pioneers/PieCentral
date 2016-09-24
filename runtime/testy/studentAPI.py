@@ -5,7 +5,7 @@ class Robot:
     self.fromManager = fromManager
     self.toManager = toManager
     # Wait for ack from SM before continuing
-    # self.fromManager.recv()
+    self.fromManager.recv()
 
   def getState(self):
     self.toManager.put([SM_COMMANDS.GET_STATE])

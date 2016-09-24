@@ -19,3 +19,4 @@ class Robot:
     """
     # TODO: Implement
     self.toManager.put([SM_COMMANDS.SET_VAL, key, value])
+    return self.fromManager.recv()

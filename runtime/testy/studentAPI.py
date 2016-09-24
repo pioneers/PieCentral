@@ -12,6 +12,8 @@ class Robot:
     """
     # TODO: Actually use key
     self.toManager.put([SM_COMMANDS.GET_VAL, key])
+    if name not in SM_COMMANDS.__members__:
+        raise StudentValueError("'{}' is not a valid command.".format(name))
     return self.fromManager.recv()
 
   def setValue(self, key, value):

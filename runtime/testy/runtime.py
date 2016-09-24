@@ -51,7 +51,8 @@ def runtime():
         print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
         print(newBadThing)
         if (newBadThing.event == BAD_EVENTS.STUDENT_CODE_ERROR) or \
-            (newBadThing.event == BAD_EVENTS.STUDENT_CODE_TIMEOUT):
+            (newBadThing.event == BAD_EVENTS.STUDENT_CODE_TIMEOUT) or \
+            (newBadThing.event == BAD_EVENTS.STUDENT_CODE_VALUE_ERROR):
           break
       stateQueue.put([SM_COMMANDS.RESET, []])
       os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
@@ -93,7 +94,9 @@ def runStudentCode(badThingsQueue, stateQueue, pipe):
       time.sleep(nextCall - time.time())
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
-  except Exception:
+  except StudentAPIError:
+    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
+  except Exception: #something broke in student code
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
 
 def startStateManager(badThingsQueue, stateQueue, runtimePipe):

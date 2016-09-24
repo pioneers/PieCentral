@@ -4,10 +4,11 @@ from enum import Enum, unique
 
 @unique
 class BAD_EVENTS(Enum):
-  BAD_EVENT               = "BAD THINGS HAPPENED"
-  STUDENT_CODE_ERROR      = "Student Code Crashed"
-  STUDENT_CODE_TIMEOUT    = "Student Code Timed Out"
-  UNKNOWN_PROCESS         = "Unknown State Manager process name"
+  BAD_EVENT             = "BAD THINGS HAPPENED"
+  STUDENT_CODE_ERROR    = "Student Code Crashed"
+  STUDENT_CODE_VALUE_ERROR    = "Student Code Value Error"
+  STUDENT_CODE_TIMEOUT  = "Student Code Timed Out"
+  UNKNOWN_PROCESS       = "Unknown State Manager process name"
   STATE_MANAGER_KEY_ERROR = "Error accessing key in State Manager"
 
 @unique
@@ -32,6 +33,7 @@ class SM_COMMANDS(Enum):
   HELLO               = ()
   GET_VAL             = ()
   SET_VAL             = ()
+  GET_STATE           = ()
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMEOUT = 3
@@ -63,6 +65,12 @@ class BadThing:
       return self.stackTrace
     else:
       return str(self.data)
+
+class StudentAPIError(Exception):
+  pass
+
+class StudentAPIKeyError(StudentAPIError):
+  pass
 
 class TimeoutError(Exception):
   pass

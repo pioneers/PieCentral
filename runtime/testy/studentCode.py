@@ -8,12 +8,17 @@ def setup(pipe):
   # state[0] = startupValue
 
 def main(stateQueue, pipe):
-  response = Robot.getValue("incrementer")
+  print("CODE LOOP")
+  # response = Robot.getValue()
+  # print("Get Info:", response)
+  
+  response = Robot.getValue("dict1", "inner_dict1_int")
   print("Get Info:", response)
-  response -= 1
 
-  Robot.setValue(response, "incrementer")
+  response = 1
+  Robot.setValue(response, "dict1", "inner_dict1_int")
+  response = Robot.getValue("dict1", "inner_dict1_int")
+  print("Get Info2:", response)
 
   print("Saying hello to the other side")
   print("DAT:", 1.0/response)
-

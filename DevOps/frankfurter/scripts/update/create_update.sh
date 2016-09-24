@@ -6,25 +6,31 @@
 # the file so that the signature can be verified before the robot uses the tarball to update #
 ##############################################################################################
 
-FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/frankfurter
+FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/DevOps/frankfurter
 BUILD_DIR=$FRANKFURTER_DIR/build
-TEMP_DIR=$FRANKFURTER_DIR/build/temp
+TMP_DIR=$BUILD_DIR/build
 
-rm -rf $BUILD_DIR
+if [ -d "$BUILD_DIR" ]; then
+  echo "Removing old build directory ... "
+  rm -rf $BUILD_DIR
+fi
+
+echo "Making new build directory ... "
 mkdir -p $BUILD_DIR
-mkdir $TEMP_DIR
-# currently unused, but may be useful in the case that we have to build packages from source
+mkdir -p $TMP_DIR
+echo "Done."
 
-git clone https://github.com/pioneers/daemon --branch develop --single-branch $TEMP_DIR/daemon
-git clone https://github.com/pioneers/hibike $TEMP_DIR/hibike
-git clone https://github.com/pioneers/frankfurter $TEMP_DIR/frankfurter
-cp $FRANKFURTER_DIR/scripts/update/install_update.sh $TEMP_DIR
+git pull
+cp -R $(git rev-parse --show-toplevel)/hibike $TMP_DIR/hibike
+cp $FRANKFURTER_DIR/scripts/update/install_update.sh $TMP_DIR
 
 CURRENT_TIME=$(date +%s%N)
-UPDATE_FILE_NAME=frankfurter-update-"$CURRENT_TIME".tar.gz
+UPDATE_FILENAME=frankfurter-update-"$CURRENT_TIME".tar.gz
 
 cd $BUILD_DIR
-tar -zcf $UPDATE_FILE_NAME --directory=$TEMP_DIR .
-gpg --armor --detach-sign $UPDATE_FILE_NAME # create a signature for the tarball.
+tar -zcf $UPDATE_FILENAME --directory=$TMP_DIR .
+echo "==> Tarball available at: "
+echo $BUILD_DIR/$UPDATE_FILENAME
 
-rm -rf $TEMP_DIR
+rm -rf $TMP_DIR
+echo "Cleaned up."

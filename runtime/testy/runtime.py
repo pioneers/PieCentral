@@ -40,15 +40,15 @@ def runtime():
     spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
     while True:
       if restartCount >= 5:
-        print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
+        print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
         print("Too many restarts, terminating")
         break
-      print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
+      print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
       print("Starting studentCode attempt: %s" % (restartCount,))
       spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode)
       while True:
         newBadThing = badThingsQueue.get(block=True)
-        print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
+        print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
         print(newBadThing)
         if (newBadThing.event == BAD_EVENTS.STUDENT_CODE_ERROR) or \
             (newBadThing.event == BAD_EVENTS.STUDENT_CODE_TIMEOUT):
@@ -56,11 +56,11 @@ def runtime():
       stateQueue.put([SM_COMMANDS.RESET])
       os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
       restartCount += 1
-    print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
+    print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
     print("TERMINATING")
   except:
-    print(RUNTIME_INFO.DEBUG_DELIMITER_STRING.value)
+    print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime Had Too Much Fun")
     print(traceback.print_exception(*sys.exc_info()))
 
@@ -71,23 +71,23 @@ def runStudentCode(badThingsQueue, stateQueue, pipe):
       raise TimeoutError("studentCode timed out")
     signal.signal(signal.SIGALRM, timed_out_handler)
 
-    signal.alarm(RUNTIME_INFO.STUDENT_CODE_TIMEOUT.value)
+    signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMEOUT.value)
     import studentCode
     signal.alarm(0)
 
     r = studentAPI.Robot(stateQueue, pipe)
     studentCode.Robot = r
 
-    signal.alarm(RUNTIME_INFO.STUDENT_CODE_TIMEOUT.value)
+    signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMEOUT.value)
     studentCode.setup(pipe)
     signal.alarm(0)
 
     nextCall = time.time()
     while True:
-      signal.alarm(RUNTIME_INFO.STUDENT_CODE_TIMEOUT.value)
+      signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMEOUT.value)
       studentCode.main(stateQueue, pipe)
       signal.alarm(0)
-      nextCall += 1.0/RUNTIME_INFO.STUDENT_CODE_HZ.value
+      nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
       # TODO: Replace with count of times we call main
       stateQueue.put([SM_COMMANDS.HELLO])
       time.sleep(nextCall - time.time())

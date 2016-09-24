@@ -58,15 +58,3 @@ echo "export PYTHONPATH=$HOME/hibike:$PYTHONPATH" >> ~/.bashrc
 
 # stop the apache server from auto-starting
 sudo rm -f /etc/init.d/apache2
-
-# Disable password login and add our ssh key to authorized_keys ##############################
-sudo cp $FRANKFURTER_DIR/resources/sshd_config /etc/ssh/sshd_config
-
-mkdir -p ~/.ssh
-# Ask Vincent for the private key, or just add your own public key here.
-# Post Kick-off security breach (Seiya): The authorized keys will be deleted and update with
-# the new public key in the install_update script; ask Seiya for new Private key #############
-cat $FRANKFURTER_DIR/resources/frankfurter_vincent.pub >> ~/.ssh/authorized_keys
-
-# Notifies that the script is done!
-echo "Frank script is deloyed. SSH key only applied after reboot." >> ~/DONE

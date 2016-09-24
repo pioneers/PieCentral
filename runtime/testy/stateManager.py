@@ -28,6 +28,9 @@ class StateManager(object):
      "string1" : "abcde"
     }
 
+  def getRobotState(self):
+    self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state)
+
   def addPipe(self, processName, pipe):
     self.processMapping[processName] = pipe
     pipe.send(RUNTIME_CONFIG.PIPE_READY.value)
@@ -37,6 +40,7 @@ class StateManager(object):
 
   def setValue(self, key, value):
     self.state[key] = value
+    print("NEW STATE:", self.state)
     self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state[key])
 
   def start(self):
@@ -53,6 +57,8 @@ class StateManager(object):
         self.getValue(request[1])
       elif cmd_type == SM_COMMANDS.SET_VAL:
         self.setValue(request[1], request[2])
+      elif cmd_type == SM_COMMANDS.GET_STATE:
+        self.getRobotState()
       elif cmd_type == SM_COMMANDS.HELLO:
         print("HELLO")
       # TODO: Add better error description

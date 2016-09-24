@@ -8,6 +8,7 @@ def setup(pipe):
   # state[0] = startupValue
 
 def main(stateQueue, pipe):
+  print("CODE LOOP")
   response = Robot.getValue("incrementer")
   print("Get Info:", response)
   response -= 1

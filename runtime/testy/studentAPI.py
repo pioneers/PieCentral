@@ -5,7 +5,7 @@ class Robot:
     self.fromManager = fromManager
     self.toManager = toManager
     # Wait for ack from SM before continuing
-    self.fromManager.recv()
+    # self.fromManager.recv()
 
   def getValue(self, key):
     """Returns the value associated with key
@@ -17,6 +17,8 @@ class Robot:
   def setValue(self, key, value):
     """Sets the value associated with key
     """
+    if name not in SM_COMMANDS.__members__:
+        raise StudentValueError("'{}' is not a valid command.".format(name))
     # TODO: Implement
     self.toManager.put([SM_COMMANDS.SET_VAL, key, value])
     return self.fromManager.recv()

@@ -27,6 +27,7 @@ class Robot:
         raise StudentValueError("'{}' is not a valid key.".format(name))
     self.toManager.put([SM_COMMANDS.SET_VAL, key, value])
     return self.fromManager.recv()
+
 class StudentError(Exception):
   pass
 

@@ -15,7 +15,7 @@ class Robot:
     """Returns the value associated with key
     """
     # TODO: Actually use key
-    state = list(self.getState().keys())
+    state = list( (self.getState().keys()) )
     print("STATE:", state)
     if key not in state:
         raise StudentValueError("'{}' is not a valid key.".format(name))

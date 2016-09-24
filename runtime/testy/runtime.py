@@ -93,7 +93,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe):
       time.sleep(nextCall - time.time())
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
-  except Exception:
+  except studentAPI.StudentError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
 
 def startStateManager(badThingsQueue, stateQueue, runtimePipe):

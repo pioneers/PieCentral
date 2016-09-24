@@ -5,22 +5,28 @@ class Robot:
     self.fromManager = fromManager
     self.toManager = toManager
     # Wait for ack from SM before continuing
-    # self.fromManager.recv()
+    self.fromManager.recv()
+
+  def getState(self):
+    self.toManager.put([SM_COMMANDS.GET_STATE])
+    return self.fromManager.recv()
 
   def getValue(self, key):
     """Returns the value associated with key
     """
     # TODO: Actually use key
+    state = list(self.getState().keys())
+    print("STATE:", state)
+    if key not in state:
+        raise StudentValueError("'{}' is not a valid key.".format(name))
     self.toManager.put([SM_COMMANDS.GET_VAL, key])
-    if name not in SM_COMMANDS.__members__:
-        raise StudentValueError("'{}' is not a valid command.".format(name))
     return self.fromManager.recv()
 
   def setValue(self, key, value):
     """Sets the value associated with key
     """
-    if name not in SM_COMMANDS.__members__:
-        raise StudentValueError("'{}' is not a valid command.".format(name))
+    # if name not in SM_COMMANDS.__members__:
+    #     raise StudentValueError("'{}' is not a valid key.".format(name))
     self.toManager.put([SM_COMMANDS.SET_VAL, key, value])
 
 class StudentError(Exception):

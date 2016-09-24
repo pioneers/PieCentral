@@ -30,7 +30,7 @@ class StateManager(object):
 
   def addPipe(self, processName, pipe):
     self.processMapping[processName] = pipe
-    pipe.send(SM_COMMANDS.READY)
+    pipe.send(RUNTIME_CONFIG.PIPE_READY.value)
 
   def getValue(self, key):
     self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state[key])

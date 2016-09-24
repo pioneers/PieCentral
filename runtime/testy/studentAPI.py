@@ -15,8 +15,10 @@ class Robot:
     """Returns the value associated with key
     """
     # TODO: Actually use key
-    state = list( (self.getState().keys()) )
-    print("STATE:", state)
+    state = self.getState()
+    print("GOT STATE:", state)
+    state = list( (state.keys()) )
+    print("STATE LIST:", state)
     if key not in state:
         raise StudentValueError("'{}' is not a valid key.".format(name))
     self.toManager.put([SM_COMMANDS.GET_VAL, key])

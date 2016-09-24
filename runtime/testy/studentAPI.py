@@ -5,7 +5,7 @@ class Robot:
     self.fromManager = fromManager
     self.toManager = toManager
     # Wait for ack from SM before continuing
-    # self.fromManager.recv()
+    self.fromManager.recv()
 
   def getValue(self, name):
     """Returns the value associated with name

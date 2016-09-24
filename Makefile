@@ -1,3 +1,6 @@
+dawn-install:
+	cd dawn && npm install
+
 dawn-watch:
 	cd dawn && npm install && npm run-script watch
 

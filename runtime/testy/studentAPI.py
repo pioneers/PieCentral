@@ -7,22 +7,25 @@ class Robot:
     # Wait for ack from SM before continuing
     self.fromManager.recv()
 
-  def getValue(self, name):
-    """Returns the value associated with name
-    """
-    if name not in SM_COMMANDS.__members__:
-        raise StudentValueError("'{}' is not a valid command.".format(name))
-    # TODO: Actually use name
-    self.toManager.put([SM_COMMANDS.HELLO])
+  def getState(self):
+    self.toManager.put([SM_COMMANDS.GET_STATE])
     return self.fromManager.recv()
 
-  def setValue(self, name, value):
-    """Sets the value associated with name
+  def getValue(self, key):
+    """Returns the value associated with key
     """
-    if name not in SM_COMMANDS.__members__:
-        raise StudentValueError("'{}' is not a valid command.".format(name))
-    # TODO: Implement
-    raise NotImplementedError
+    # TODO: Actually use key
+    if key not in list( (self.getState().keys()) ):
+        raise StudentValueError("'{}' is not a valid key.".format(name))
+    self.toManager.put([SM_COMMANDS.GET_VAL, key])
+    return self.fromManager.recv()
+
+  def setValue(self, key, value):
+    """Sets the value associated with key
+    """
+    if key not in list( (self.getState().keys()) ):
+        raise StudentValueError("'{}' is not a valid key.".format(name))
+    self.toManager.put([SM_COMMANDS.SET_VAL, key, value])
 
 class StudentError(Exception):
   pass

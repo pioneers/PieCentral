@@ -6,6 +6,7 @@ from enum import Enum, unique
 class BAD_EVENTS(Enum):
   BAD_EVENT             = "BAD THINGS HAPPENED"
   STUDENT_CODE_ERROR    = "Student Code Crashed"
+  STUDENT_CODE_VALUE_ERROR    = "Student Code Value Error"
   STUDENT_CODE_TIMEOUT  = "Student Code Timed Out"
   UNKNOWN_PROCESS       = "Unknown State Manager process name"
 
@@ -29,14 +30,15 @@ class SM_COMMANDS(Enum):
   RESET               = ()
   ADD                 = ()
   HELLO               = ()
-  READY               = ()
   GET_VAL             = ()
   SET_VAL             = ()
+  GET_STATE           = ()
 
-class RUNTIME_INFO(Enum):
+class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMEOUT = 3
   STUDENT_CODE_HZ    = 5 # Number of times to execute studentCode.main per second
   DEBUG_DELIMITER_STRING  = "****************** RUNTIME DEBUG ******************"
+  PIPE_READY = ["ready"]
 
 class BadThing:
   def __init__(self, exc_info, data, event=BAD_EVENTS.BAD_EVENT, printStackTrace=True):

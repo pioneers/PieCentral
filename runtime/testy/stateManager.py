@@ -28,16 +28,20 @@ class StateManager(object):
      "string1" : "abcde"
     }
 
+  def getRobotState(self):
+    self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state)
+
   def addPipe(self, processName, pipe):
     self.processMapping[processName] = pipe
-    pipe.send(SM_COMMANDS.READY)
+    pipe.send(RUNTIME_CONFIG.PIPE_READY.value)
 
   def getValue(self, key):
     self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state[key])
 
   def setValue(self, key, value):
     self.state[key] = value
-    self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state[key])
+    print("NEW STATE:", self.state)
+    # self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(self.state[key])
 
   def start(self):
     # TODO: Make sure request is a list/tuple before attempting to access
@@ -53,6 +57,8 @@ class StateManager(object):
         self.getValue(request[1])
       elif cmd_type == SM_COMMANDS.SET_VAL:
         self.setValue(request[1], request[2])
+      elif cmd_type == SM_COMMANDS.GET_STATE:
+        self.getRobotState()
       elif cmd_type == SM_COMMANDS.HELLO:
         print("HELLO")
       # TODO: Add better error description

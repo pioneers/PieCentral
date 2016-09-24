@@ -5,7 +5,7 @@ class Robot:
     self.fromManager = fromManager
     self.toManager = toManager
     # Wait for ack from SM before continuing
-    # self.fromManager.recv()
+    self.fromManager.recv()
 
   def getState(self):
     self.toManager.put([SM_COMMANDS.GET_STATE])
@@ -15,7 +15,7 @@ class Robot:
     """Returns the value associated with key
     """
     # TODO: Actually use key
-    state = list(self.getState().keys())
+    state = list( (self.getState().keys()) )
     print("STATE:", state)
     if key not in state:
         raise StudentValueError("'{}' is not a valid key.".format(name))

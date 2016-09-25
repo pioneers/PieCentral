@@ -3,7 +3,6 @@ import { showConsole, hideConsole, updateConsole, clearConsole } from '../Consol
 
 
 describe('console actions creator', () => {
-  // Needs to be using the same seed as the action creator.
   it('should create an action to show console', () => {
     const expectedAction = {
       type: 'SHOW_CONSOLE',
@@ -19,9 +18,9 @@ describe('console actions creator', () => {
   it('should create an action to update console', () => {
     const expectedAction = {
       type: 'UPDATE_CONSOLE',
-      consoleOutput: 0,
+      consoleOutput: 'Hello World',
     };
-    expect(updateConsole(0)).to.deep.equal(expectedAction);
+    expect(updateConsole('Hello World')).to.deep.equal(expectedAction);
   });
   it('should create an action to clear console', () => {
     const expectedAction = {

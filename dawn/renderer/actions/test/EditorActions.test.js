@@ -1,9 +1,17 @@
 import { expect } from 'chai';
-import { openFile, saveFile, deleteFile, createNewFile, editorUpdate, changeTheme, increaseFontsize, decreaseFontsize } from '../EditorActions';
+import {
+  openFile,
+  saveFile,
+  deleteFile,
+  createNewFile,
+  editorUpdate,
+  changeTheme,
+  increaseFontsize,
+  decreaseFontsize,
+} from '../EditorActions';
 
 
 describe('editor actions creator', () => {
-  // Needs to be using the same seed as the action creator.
   it('should create an action to open file', () => {
     const expectedAction = {
       type: 'OPEN_FILE',
@@ -16,6 +24,13 @@ describe('editor actions creator', () => {
       saveAs: false
     };
     expect(saveFile()).to.deep.equal(expectedAction);
+  });
+  it('should create an action to save file as', () => {
+    const expectedAction = {
+      type: 'SAVE_FILE',
+      saveAs: true
+    };
+    expect(saveFile(true)).to.deep.equal(expectedAction);
   });
   it('should create an action to delete file', () => {
     const expectedAction = {
@@ -32,9 +47,9 @@ describe('editor actions creator', () => {
   it('should create an action to update editor', () => {
     const expectedAction = {
       type: 'UPDATE_EDITOR',
-      code: 1337,
+      code: 'print(x)',
     };
-    expect(editorUpdate(1337)).to.deep.equal(expectedAction);
+    expect(editorUpdate('print(x)')).to.deep.equal(expectedAction);
   });
   it('should create an action to change theme', () => {
     const expectedAction = {

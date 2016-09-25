@@ -12,8 +12,8 @@ def main(stateQueue, pipe):
   print("Get Info:", response)
   response -= 1
 
-  Robot.setValue("incrementer", response)
+  Robot.setValue(response, "incrementer")
 
   print("Saying hello to the other side")
   print("DAT:", 1.0/response)
-  
+

@@ -16,7 +16,7 @@ class Robot:
     """
     # TODO: Actually use key
     if key not in list( (self.getState().keys()) ):
-        raise StudentValueError("'{}' is not a valid key.".format(name))
+        raise StudentValueError("'{}' is not a valid key.".format(key))
     self.toManager.put([SM_COMMANDS.GET_VAL, key])
     return self.fromManager.recv()
 
@@ -24,7 +24,7 @@ class Robot:
     """Sets the value associated with key
     """
     if key not in list( (self.getState().keys()) ):
-        raise StudentValueError("'{}' is not a valid key.".format(name))
+        raise StudentValueError("'{}' is not a valid key.".format(key))
     self.toManager.put([SM_COMMANDS.SET_VAL, key, value])
     return self.fromManager.recv()
 

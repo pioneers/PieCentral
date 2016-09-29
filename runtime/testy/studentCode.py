@@ -9,7 +9,7 @@ def setup(pipe):
 
 def main(stateQueue, pipe):
   print("CODE LOOP")
-  response = Robot.getValue("incrementer")
+  response = Robot.getValue("inrementer")
   print("Get Info:", response)
   response -= 1
 

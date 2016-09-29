@@ -14,6 +14,10 @@ class PROCESS_NAMES(Enum):
   STUDENT_CODE        = "studentProcess"
   STATE_MANAGER       = "stateProcess"
   RUNTIME             = "runtime"
+  UDP_PACKAGER        = "udpPackager"
+  UDP_SENDER          = "udpSender"
+  UDP_RECEIVER        = "udpReceiver"
+  UDP_UNPACKAGER      = "udpUnpackager"
 
 @unique
 class SM_COMMANDS(Enum):
@@ -31,6 +35,8 @@ class SM_COMMANDS(Enum):
   HELLO               = ()
   GET_VAL             = ()
   SET_VAL             = ()
+  SEND                = ()
+  RECV                = ()
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMEOUT = 3

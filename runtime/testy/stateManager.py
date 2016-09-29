@@ -56,5 +56,9 @@ class StateManager(object):
       elif cmd_type == SM_COMMANDS.HELLO:
         print("HELLO")
       # TODO: Add better error description
+      elif cm_type == SM_COMMANDS.SEND:
+        self.processMapping[PROCESS_NAMES.UDP_PACKAGER].send(state)
+      elif cm_type == SM_COMMANDS.RECEIVE:
+        state["bytes"] = request[1]
       else:
         self.badThingsQueue.put(BadThing(sys.exc_info(), "Unknown process name: %s" % (request,), event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))

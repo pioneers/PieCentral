@@ -39,7 +39,6 @@ class StateManager(object):
     }
 
   def addPipe(self, processName, pipe):
-    #print("add")
     self.processMapping[processName] = pipe
     pipe.send(RUNTIME_CONFIG.PIPE_READY.value)
 
@@ -55,14 +54,15 @@ class StateManager(object):
     # And that there are the correct number of elements
     while True:
       request = self.input.get(block=True)
+      cmdType = request[0]
+      args = request[1]
 
       if(len(request) != 2):
-        self.badThingsQueue.put(BadThing(sys.exc_info(), "Wrong input size, need list of size 2" % (request,), event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
-      elif(not isinstance(request[0], SM_COMMANDS)):
+        self.badThingsQueue.put(BadThing(sys.exc_info(), "Wrong input size, need list of size 2", event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
+      elif(cmdType not in self.commandMapping):
         self.badThingsQueue.put(BadThing(sys.exc_info(), "Unknown process name: %s" % (request,), event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
       else:
-        command = self.commandMapping[request[0]]
-        args = request[1]
+        command = self.commandMapping[cmdType]
         if command == "print":
           print("HELLO")
         else:

@@ -8,29 +8,34 @@
 
 FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/DevOps/frankfurter
 BUILD_DIR=$FRANKFURTER_DIR/build
-TMP_DIR=$BUILD_DIR/build
+TMP_DIR=$BUILD_DIR/tmp
 
 if [ -d "$BUILD_DIR" ]; then
-  echo "Removing old build directory ... "
-  rm -rf $BUILD_DIR
+    echo "Cleaning old builds ... "
+    rm -rf $BUILD_DIR/*
+else
+    echo "Making build directory ... "
+    mkdir -p $BUILD_DIR
 fi
-
-echo "Making new build directory ... "
-mkdir -p $BUILD_DIR
 mkdir -p $TMP_DIR
 echo "Done."
 
 git pull
 cp -R $(git rev-parse --show-toplevel)/hibike $TMP_DIR/hibike
+# Copy as necessary
+# cp -R $(git rev-parse --show-toplevel)/runtime $TMP_DIR/runtime
 cp $FRANKFURTER_DIR/scripts/update/install_update.sh $TMP_DIR
 
 CURRENT_TIME=$(date +%s%N)
 UPDATE_FILENAME=frankfurter-update-"$CURRENT_TIME".tar.gz
 
-cd $BUILD_DIR
-tar -zcf $UPDATE_FILENAME --directory=$TMP_DIR .
+cd $TMP_DIR
+tar -zcf $BUILD_DIR/$UPDATE_FILENAME *
+printf "\x1b[1;32m"
 echo "==> Tarball available at: "
 echo $BUILD_DIR/$UPDATE_FILENAME
+printf "\x1b[0m"
 
+cd ..
 rm -rf $TMP_DIR
 echo "Cleaned up."

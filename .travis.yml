@@ -6,3 +6,6 @@ install:
 script:
 - make dawn-test
 - make dawn-lint
+branches:
+  only:
+    - master

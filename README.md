@@ -1,6 +1,7 @@
 # Welcome to the PiE Central Repo!
-
 ![alt text][logo]
+
+[![Build Status](https://travis-ci.org/pioneers/PieCentral.svg?branch=master)](https://travis-ci.org/pioneers/PieCentral)
 
 ## What is the Central Repo?
  - The PiE Central Repo is our main central repository that contains a bunch of other PiE repositories, including...

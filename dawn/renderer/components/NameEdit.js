@@ -1,6 +1,6 @@
 import React from 'react';
 import { RIEInput } from 'riek';
-import Ansible from '../utils/Ansible';
+// import Ansible from '../../main/ansible/Ansible';
 import _ from 'lodash';
 
 class NameEdit extends React.Component {
@@ -27,10 +27,11 @@ class NameEdit extends React.Component {
   }
 
   dataChange(data) {
-    Ansible.sendMessage('custom_names', {
-      id: this.props.id,
-      name: data.name,
-    });
+    // Ansible.sendMessage('custom_names', {
+    //   id: this.props.id,
+    //   name: data.name,
+    // });
+    console.log('Deprecated');
   }
 
   validatePeripheralName(name) {

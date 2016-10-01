@@ -20,7 +20,7 @@ fi
 mkdir -p $TMP_DIR
 echo "Done."
 
-git pull
+git pull origin master
 cp -R $(git rev-parse --show-toplevel)/hibike $TMP_DIR/hibike
 # Copy as necessary
 # cp -R $(git rev-parse --show-toplevel)/runtime $TMP_DIR/runtime

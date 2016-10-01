@@ -108,6 +108,7 @@ def processFactory(badThingsQueue, stateQueue):
     pipeToChild, pipeFromChild = multiprocessing.Pipe()
     if processName != PROCESS_NAMES.STATE_MANAGER:
       stateQueue.put([SM_COMMANDS.ADD, [processName, pipeToChild]], block=True)
+      pipeToChild.recv()
     newProcess = multiprocessing.Process(target=helper, name=processName.value, args=(badThingsQueue, stateQueue, pipeFromChild))
     allProcesses[processName] = newProcess
     newProcess.daemon = True

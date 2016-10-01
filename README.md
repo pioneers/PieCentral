@@ -47,7 +47,7 @@ Merge conflicts may arise when rebasing, make sure to fix conflicts before conti
 
 ```
 $ git fetch origin master
-$ git rebase master
+$ git rebase origin/master
 $ git push origin {project_name/feature_name}
 ```
 Open a pull request to master.

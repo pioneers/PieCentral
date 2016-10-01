@@ -53,7 +53,7 @@ def runtime():
         if (newBadThing.event == BAD_EVENTS.STUDENT_CODE_ERROR) or \
             (newBadThing.event == BAD_EVENTS.STUDENT_CODE_TIMEOUT):
           break
-      stateQueue.put([SM_COMMANDS.RESET])
+      stateQueue.put([SM_COMMANDS.RESET, []])
       os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
       restartCount += 1
     print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
@@ -89,7 +89,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe):
       signal.alarm(0)
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
       # TODO: Replace with count of times we call main
-      stateQueue.put([SM_COMMANDS.HELLO])
+      stateQueue.put([SM_COMMANDS.HELLO, []])
       time.sleep(nextCall - time.time())
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
@@ -107,7 +107,7 @@ def processFactory(badThingsQueue, stateQueue):
   def spawnProcessHelper(processName, helper):
     pipeToChild, pipeFromChild = multiprocessing.Pipe()
     if processName != PROCESS_NAMES.STATE_MANAGER:
-      stateQueue.put([SM_COMMANDS.ADD, processName, pipeToChild], block=True)
+      stateQueue.put([SM_COMMANDS.ADD, [processName, pipeToChild]], block=True)
     newProcess = multiprocessing.Process(target=helper, name=processName.value, args=(badThingsQueue, stateQueue, pipeFromChild))
     allProcesses[processName] = newProcess
     newProcess.daemon = True

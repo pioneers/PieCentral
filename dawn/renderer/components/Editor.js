@@ -93,7 +93,8 @@ class Editor extends React.Component {
       );
       return false;
     }
-    console.log('Deprecated');
+    console.log('Deprecated: sendCode');
+    console.log(`Debug Info: ${command} EOD`);
     // Ansible.sendMessage(command, {
     //   code: this.props.editorCode,
     // });

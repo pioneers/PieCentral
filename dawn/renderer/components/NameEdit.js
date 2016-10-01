@@ -31,7 +31,8 @@ class NameEdit extends React.Component {
     //   id: this.props.id,
     //   name: data.name,
     // });
-    console.log('Deprecated');
+    console.log('Deprecated: dataChange');
+    console.log(`Debug Info: ${data} EOD`);
   }
 
   validatePeripheralName(name) {

@@ -4,8 +4,6 @@ class Robot:
   def __init__(self, toManager, fromManager):
     self.fromManager = fromManager
     self.toManager = toManager
-    # Wait for ack from SM before continuing
-    self.fromManager.recv()
 
   def getValue(self, key):
     """Returns the value associated with key

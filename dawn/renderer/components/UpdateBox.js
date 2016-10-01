@@ -4,7 +4,7 @@ import {
   Button,
 } from 'react-bootstrap';
 import { remote } from 'electron';
-import Ansible from '../../main/ansible/Ansible';
+// import Ansible from '../../main/ansible/Ansible';
 const dialog = remote.dialog;
 
 class UpdateBox extends React.Component {
@@ -40,7 +40,7 @@ class UpdateBox extends React.Component {
   }
 
   upgradeSoftware() {
-    console.log("Deprecated")
+    console.log('Deprecated');
     // this.setState({ isUploading: true });
     // Ansible.sendMessage('pre_update', {});
     // const updateP = new Promise((resolve, reject) => {

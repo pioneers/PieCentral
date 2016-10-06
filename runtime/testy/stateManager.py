@@ -1,4 +1,3 @@
-# import multiprocessing
 import sys
 
 from runtimeUtil import *
@@ -14,8 +13,19 @@ class StateManager(object):
     self.initRobotState()
     self.badThingsQueue = badThingsQueue
     self.input = inputQueue
+    self.commandMapping = self.makeCommandMap()
     # map process names to pipes
     self.processMapping = {PROCESS_NAMES.RUNTIME: runtimePipe}
+
+  def makeCommandMap(self):
+    commandMapping = {
+      SM_COMMANDS.RESET : self.initRobotState,
+      SM_COMMANDS.ADD : self.addPipe,
+      SM_COMMANDS.GET_VAL : self.getValue,
+      SM_COMMANDS.SET_VAL : self.setValue,
+      SM_COMMANDS.HELLO : "print"
+    }
+    return commandMapping
 
   def initRobotState(self):
     self.state = {
@@ -44,17 +54,16 @@ class StateManager(object):
     # And that there are the correct number of elements
     while True:
       request = self.input.get(block=True)
-      cmd_type = request[0]
-      if cmd_type == SM_COMMANDS.RESET:
-        self.initRobotState()
-      elif cmd_type == SM_COMMANDS.ADD:
-        self.addPipe(request[1], request[2])
-      elif cmd_type == SM_COMMANDS.GET_VAL:
-        self.getValue(request[1])
-      elif cmd_type == SM_COMMANDS.SET_VAL:
-        self.setValue(request[1], request[2])
-      elif cmd_type == SM_COMMANDS.HELLO:
-        print("HELLO")
-      # TODO: Add better error description
-      else:
+      cmdType = request[0]
+      args = request[1]
+
+      if(len(request) != 2):
+        self.badThingsQueue.put(BadThing(sys.exc_info(), "Wrong input size, need list of size 2", event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
+      elif(cmdType not in self.commandMapping):
         self.badThingsQueue.put(BadThing(sys.exc_info(), "Unknown process name: %s" % (request,), event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
+      else:
+        command = self.commandMapping[cmdType]
+        if command == "print":
+          print("HELLO")
+        else:
+          command(*args)

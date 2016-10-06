@@ -1,6 +1,5 @@
 import React from 'react';
 import ConsoleOutput from './ConsoleOutput';
-// import Ansible from '../../main/ansible/Ansible';
 import {
   Panel,
   Button,
@@ -95,9 +94,6 @@ class Editor extends React.Component {
     }
     console.log('Deprecated: sendCode');
     console.log(`Debug Info: ${command} EOD`);
-    // Ansible.sendMessage(command, {
-    //   code: this.props.editorCode,
-    // });
     return true;
   }
 
@@ -114,7 +110,6 @@ class Editor extends React.Component {
 
   stopRobot() {
     console.log('Deprecated');
-    // Ansible.sendMessage('stop', {});
   }
 
   openAPI() {

@@ -10,6 +10,9 @@ class BAD_EVENTS(Enum):
   STUDENT_CODE_TIMEOUT      = "Student Code Timed Out"
   UNKNOWN_PROCESS           = "Unknown State Manager process name"
   STATE_MANAGER_KEY_ERROR   = "Error accessing key in State Manager"
+  END_EVENT                 = "Process terminated" # Used for testing
+
+restartEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT]
 
 @unique
 class PROCESS_NAMES(Enum):
@@ -35,10 +38,11 @@ class SM_COMMANDS(Enum):
   SET_VAL             = ()
 
 class RUNTIME_CONFIG(Enum):
-  STUDENT_CODE_TIMEOUT   = 3
-  STUDENT_CODE_HZ        = 5 # Number of times to execute studentCode.main per second
-  DEBUG_DELIMITER_STRING = "****************** RUNTIME DEBUG ******************"
-  PIPE_READY             = ["ready"]
+  STUDENT_CODE_TIMEOUT        = 3
+  STUDENT_CODE_HZ             = 5 # Number of times to execute studentCode.main per second
+  DEBUG_DELIMITER_STRING      = "****************** RUNTIME DEBUG ******************"
+  PIPE_READY                  = ["ready"]
+  TEST_OUTPUT_DIR             = "test_outputs/"
 
 class BadThing:
   def __init__(self, exc_info, data, event=BAD_EVENTS.BAD_EVENT, printStackTrace=True):

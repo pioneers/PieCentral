@@ -33,8 +33,7 @@ sudo python setup.py install
 cd ..
 sudo rm -rf python-grizzly
 
-# download hibike and runtime ################################################################
-git clone https://github.com/pioneers/PieCentral ~/PieCentral
+# Link hibike and runtime ################################################################
 ln -s ~/PieCentral/hibike/hibikeDevices.csv ~/PieCentral/daemon/runtime/hibikeDevices.csv
 
 # set up things we need to update runtime and hibike #########################################

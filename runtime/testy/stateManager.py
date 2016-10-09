@@ -50,7 +50,8 @@ class StateManager(object):
         result = result[key[1]]
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(result)
     except:
-      self.badThingsQueue.put(BadThing(sys.exc_info(), self.dictErrorMessage(i, keys, result), event = BAD_EVENTS.STATE_MANAGER_KEY_ERROR, printStackTrace = False))
+      error = StudentAPIKeyError(self.dictErrorMessage(i, keys, result))
+      self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
 
   def setValue(self, value, keys):
     currDict = self.state
@@ -64,7 +65,8 @@ class StateManager(object):
       currDict[keys[i]] = value
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(value)
     except:
-      self.badThingsQueue.put(BadThing(sys.exc_info(), self.dictErrorMessage(i, keys, currDict), event = BAD_EVENTS.STATE_MANAGER_KEY_ERROR, printStackTrace = False))
+      error = StudentAPIKeyError(self.dictErrorMessage(i, keys, currDict))
+      self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
 
   def dictErrorMessage(self, erroredIndex, keys, currDict):
     keyChain = ""
@@ -88,7 +90,6 @@ class StateManager(object):
       errorMessage += "state" + keyChain + " is of type " + type(currDict).__name__
 
     return errorMessage
-
 
   def start(self):
     # TODO: Make sure request is a list/tuple before attempting to access

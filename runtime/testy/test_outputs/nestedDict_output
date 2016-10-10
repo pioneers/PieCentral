@@ -1,0 +1,41 @@
+CODE LOOP
+Get Info: 555
+Get Info2: 1
+HELLO
+CODE LOOP
+Get Info: 1
+Get Info2: 1
+HELLO
+CODE LOOP
+Get Info: 1
+Get Info2: 1
+HELLO
+BAD_EVENTS.END_EVENT
+CODE LOOP
+Get Info: 555
+Get Info2: 1
+HELLO
+CODE LOOP
+Get Info: 1
+Get Info2: 1
+HELLO
+CODE LOOP
+Get Info: 1
+Get Info2: 1
+HELLO
+BAD_EVENTS.END_EVENT
+CODE LOOP
+Get Info: 555
+Get Info2: 1
+HELLO
+CODE LOOP
+Get Info: 1
+Get Info2: 1
+HELLO
+CODE LOOP
+Get Info: 1
+Get Info2: 1
+HELLO
+BAD_EVENTS.END_EVENT
+Funtime Runtime is done having fun.
+TERMINATING

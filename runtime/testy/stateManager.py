@@ -23,13 +23,13 @@ class StateManager(object):
       SM_COMMANDS.ADD : self.addPipe,
       SM_COMMANDS.GET_VAL : self.getValue,
       SM_COMMANDS.SET_VAL : self.setValue,
-      SM_COMMANDS.HELLO : "print"
+      SM_COMMANDS.HELLO : lambda *x: print("HELLO")
     }
     return commandMapping
 
   def initRobotState(self):
     self.state = {
-     "incrementer" : 5,
+     "incrementer" : 2,
      "int1" : 112314,
      "float1": 987.123,
      "bool1" : True,
@@ -105,7 +105,4 @@ class StateManager(object):
         self.badThingsQueue.put(BadThing(sys.exc_info(), "Unknown process name: %s" % (request,), event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
       else:
         command = self.commandMapping[cmdType]
-        if command == "print":
-          print("HELLO")
-        else:
-          command(*args)
+        command(*args)

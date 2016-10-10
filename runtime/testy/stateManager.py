@@ -23,7 +23,8 @@ class StateManager(object):
       SM_COMMANDS.ADD : self.addPipe,
       SM_COMMANDS.GET_VAL : self.getValue,
       SM_COMMANDS.SET_VAL : self.setValue,
-      SM_COMMANDS.STUDENT_MAIN_OK : self.studentCodeTick
+      SM_COMMANDS.STUDENT_MAIN_OK : self.studentCodeTick,
+      SM_COMMANDS.CREATE_KEY : self.createKey
     }
     return commandMapping
 
@@ -42,6 +43,20 @@ class StateManager(object):
   def addPipe(self, processName, pipe):
     self.processMapping[processName] = pipe
     pipe.send(RUNTIME_CONFIG.PIPE_READY.value)
+
+  def createKey(self, keys):
+    currDict = self.state
+    for key in keys:
+      try:
+        if key not in currDict:
+          currDict[key] = {}
+        currDict = currDict[key]
+      except TypeError:
+        error = StudentAPIKeyError(
+          "key '{}' is defined, but does not contain a dictionary.".format(key))
+        self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
+        return
+    self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(None)
 
   def getValue(self, keys):
     result = self.state
@@ -63,6 +78,8 @@ class StateManager(object):
         currDict = currDict[key[1]]
       if len(keys) > 1:
         i += 1
+      if keys[i] not in currDict:
+        raise Exception
       currDict[keys[i]] = value
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(value)
     except:

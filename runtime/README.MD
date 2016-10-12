@@ -62,5 +62,11 @@ If you're feeling adventurous, you can simultaneously squash your commits by rep
 
 Remember you will need to push with the `-f` flag.
 
+# Stop Tracking Deleted Remote Branches
+
+`git branch -r` will eventually become polluted with a bunch of deleted branches. This command cleans it. Found [here](http://stackoverflow.com/questions/13064613/how-to-prune-local-tracking-branches-that-do-not-exist-on-remote-anymore)
+
+`git branch -r | awk '{print $1}' | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}' | xargs git branch -d`
+
 # Running runtime
 In the `testy` folder: `python3 runtime.py`

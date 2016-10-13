@@ -6,10 +6,10 @@ IP=192.168.7.2
 
 cd $FRANKFURTER_DIR
 
-IDENTITY_PATH=~/.ssh/frankfurter_seiya.pub
+IDENTITY_PATH=~/.ssh/frankfurter_seiya
 if [ -e $IDENTITY_PATH ]; then
   chmod 600 $IDENTITY_PATH
-  echo "Restricted permissions to user read/write."
+  echo "Restricted identity file permissions to user read/write."
 else
   echo -e "\x1b[1;31m'$IDENTITY_PATH' does not exist.\x1b[0m"
   exit
@@ -20,7 +20,6 @@ OPTIONS="$OPTIONS -o IdentityFile=$IDENTITY_PATH"
 
 CMD="cp /etc/ssh/sshd_config ~/sshd_config.bak"
 CMD="$CMD && sudo mv ~/sshd_config /etc/ssh"
-CMD="$CMD && rm ~/sshd_config"
 CMD="$CMD && sudo restart ssh"
 
 scp $OPTIONS resources/sshd_config $USER@$IP:~

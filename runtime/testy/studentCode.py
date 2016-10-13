@@ -25,7 +25,6 @@ def nestedDict_setup():
 
 def nestedDict_main():
   print("CODE LOOP")
-
   response = Robot.getValue("dict1", "inner_dict1_int")
   print("Get Info:", response)
 
@@ -39,3 +38,33 @@ def studentCodeMainCount_setup():
 
 def studentCodeMainCount_main():
   print(Robot.getValue("runtime_meta", "studentCode_main_count"))
+
+def createKey_setup():
+  Robot.createKey("Restarts")
+  Robot.setValue(0, "Restarts")
+  if Robot.getValue("Restarts") != 0:
+    print("Either getValue or setValue is not working correctly")
+  pass
+
+def createKey_main():
+  Robot.createKey("Restarts")
+  if Robot.getValue("Restarts") == 0:
+    try:
+      print("Making sure setValue can't create new key")
+      Robot.setValue(707, "Klefki")
+    except StudentAPIKeyError:
+      print("Success!")
+    else:
+      print("ERROR: setValue can create keys :(")
+
+  print("Creating key 'Klefki' and setting to value 707")
+  Robot.createKey("Klefki")
+  Robot.setValue(707, "Klefki")
+  print("Success!")
+
+  print("Creating nested keys")
+  Robot.createKey("Mankey", "EVOLUTION")
+  Robot.setValue("Primeape", "Mankey", "EVOLUTION")
+  print("Success!")
+  restarts = Robot.getValue("Restarts")
+  Robot.setValue(restarts+1, "Restarts")

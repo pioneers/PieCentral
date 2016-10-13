@@ -36,6 +36,7 @@ class SM_COMMANDS(Enum):
   STUDENT_MAIN_OK     = ()
   GET_VAL             = ()
   SET_VAL             = ()
+  CREATE_KEY          = ()
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMEOUT        = 3

@@ -23,7 +23,7 @@ class StateManager(object):
       SM_COMMANDS.ADD : self.addPipe,
       SM_COMMANDS.GET_VAL : self.getValue,
       SM_COMMANDS.SET_VAL : self.setValue,
-      SM_COMMANDS.HELLO : lambda *x: print("HELLO")
+      SM_COMMANDS.STUDENT_MAIN_OK : self.studentCodeTick
     }
     return commandMapping
 
@@ -35,7 +35,8 @@ class StateManager(object):
      "bool1" : True,
      "dict1" : {"inner_dict1_int" : 555, "inner_dict_1_string": "hello"},
      "list1" : [70, "five", 14.3],
-     "string1" : "abcde"
+     "string1" : "abcde",
+     "runtime_meta" : {"studentCode_main_count" : 0}
     }
 
   def addPipe(self, processName, pipe):
@@ -67,6 +68,9 @@ class StateManager(object):
     except:
       error = StudentAPIKeyError(self.dictErrorMessage(i, keys, currDict))
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
+
+  def studentCodeTick(self):
+    self.state["runtime_meta"]["studentCode_main_count"] += 1
 
   def dictErrorMessage(self, erroredIndex, keys, currDict):
     keyChain = ""

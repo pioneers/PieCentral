@@ -33,13 +33,13 @@ class SM_COMMANDS(Enum):
 
   RESET               = ()
   ADD                 = ()
-  HELLO               = ()
+  STUDENT_MAIN_OK     = ()
   GET_VAL             = ()
   SET_VAL             = ()
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMEOUT        = 3
-  STUDENT_CODE_HZ             = 5 # Number of times to execute studentCode.main per second
+  STUDENT_CODE_HZ             = 20 # Number of times to execute studentCode.main per second
   DEBUG_DELIMITER_STRING      = "****************** RUNTIME DEBUG ******************"
   PIPE_READY                  = ["ready"]
   TEST_OUTPUT_DIR             = "test_outputs/"

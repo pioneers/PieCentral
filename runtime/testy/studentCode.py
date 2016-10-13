@@ -33,3 +33,9 @@ def nestedDict_main():
   Robot.setValue(response, "dict1", "inner_dict1_int")
   response = Robot.getValue("dict1", "inner_dict1_int")
   print("Get Info2:", response)
+
+def studentCodeMainCount_setup():
+  pass
+
+def studentCodeMainCount_main():
+  print(Robot.getValue("runtime_meta", "studentCode_main_count"))

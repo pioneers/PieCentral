@@ -97,8 +97,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0)
     while maxIter == 0 or execCount < maxIter:
       checkTimedOut(mainFunc)
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
-      # TODO: Replace with count of times we call main
-      stateQueue.put([SM_COMMANDS.HELLO, []])
+      stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
       time.sleep(nextCall - time.time())
 
       execCount += 1

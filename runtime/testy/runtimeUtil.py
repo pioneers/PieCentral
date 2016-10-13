@@ -21,6 +21,13 @@ class PROCESS_NAMES(Enum):
   RUNTIME             = "runtime"
 
 @unique
+class HIBIKE_COMMANDS(Enum):
+  ENUMERATE = "enumerate_all"
+  SUBSCRIBE = "subscribe_device"
+  WRITE     = "write_params"
+  READ      = "read_params"
+
+@unique
 class SM_COMMANDS(Enum):
   # Used to autoenumerate
   # Don't ask I don't know how

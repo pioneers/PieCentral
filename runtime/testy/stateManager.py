@@ -15,6 +15,7 @@ class StateManager(object):
     self.input = inputQueue
     self.commandMapping = self.makeCommandMap()
     # map process names to pipes
+    self.hibikeMapping = self.makeHibikeMap()
     self.processMapping = {PROCESS_NAMES.RUNTIME: runtimePipe}
 
   def makeCommandMap(self):
@@ -27,6 +28,15 @@ class StateManager(object):
       SM_COMMANDS.CREATE_KEY : self.createKey
     }
     return commandMapping
+
+  def makeHibikeMap(self):
+    hibikeMapping = {
+      HIBIKE_COMMANDS.ENUMERATE: self.hibikeEnumerateAll,
+      HIBIKE_COMMANDS.SUBSCRIBE: self.hibikeSubscribeDevice,
+      HIBIKE_COMMANDS.READ: self.hibikeReadParams,
+      HIBIKE_COMMANDS.WRITE: self.hibikeWriteParams
+    }
+    return hibikeMapping
 
   def initRobotState(self):
     self.state = {
@@ -88,6 +98,18 @@ class StateManager(object):
 
   def studentCodeTick(self):
     self.state["runtime_meta"]["studentCode_main_count"] += 1
+
+  def hibikeEnumerateAll(self, pipe):
+    pipe.send([HIBIKE_COMMANDS.ENUMERATE.value])
+
+  def hibikeSubscribeDevice(self, pipe, uid, delay, params):
+    pipe.send([HIBIKE_COMMANDS.SUBSCRIBE.value, uid, delay, params])
+
+  def hibikeWriteParams(self, pipe, uid, param_values):
+    pipe.send([HIBIKE_COMMANDS.WRITE.value, uid, param_values])
+
+  def hibikeReadParams(self, pipe, uid, params):
+    pipe.send([HIBIKE_COMMANDS.READ.value, uid, params])
 
   def dictErrorMessage(self, erroredIndex, keys, currDict):
     keyChain = ""

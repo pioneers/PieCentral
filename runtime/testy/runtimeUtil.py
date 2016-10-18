@@ -19,6 +19,7 @@ class PROCESS_NAMES(Enum):
   STUDENT_CODE        = "studentProcess"
   STATE_MANAGER       = "stateProcess"
   RUNTIME             = "runtime"
+  HIBIKE              = "hibike"
 
 @unique
 class HIBIKE_COMMANDS(Enum):

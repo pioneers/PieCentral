@@ -158,6 +158,7 @@ def runtimeTest():
           if restartCount >= 3:
             break
           spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, 3)
+          spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
           while True:
             newBadThing = badThingsQueue.get(block=True)
             print(newBadThing.event)
@@ -197,3 +198,14 @@ def testSuccess(testFileName):
 
 if __name__ == "__main__":
   runtimeTest()
+
+import hibikeSim
+def startHibike(badThingsQueue, stateQueue, pipe):
+  # badThingsQueue - queue to runtime
+  # stateQueue - queue to stateManager
+  # pipe - pipe from statemanager
+  try:
+    hibike = hibikeSim.HibikeSimulator(badThingsQueue, stateQueue, pipe)
+    hibike.start()
+  except Exception:
+    badThingsQueue.put(BadThing(sys.exc_info(), None))

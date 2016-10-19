@@ -16,6 +16,7 @@ class StateManager(object):
     self.commandMapping = self.makeCommandMap()
     # map process names to pipes
     self.hibikeMapping = self.makeHibikeMap()
+    self.hibikeResponseMapping = self.makeHibikeResponseMap()
     self.processMapping = {PROCESS_NAMES.RUNTIME: runtimePipe}
 
   def makeCommandMap(self):
@@ -38,6 +39,12 @@ class StateManager(object):
     }
     return hibikeMapping
 
+  def makeHibikeResponseMap(self):
+    hibikeResponseMapping = {
+      HIBIKE_RESPONSE.DEVICE_SUBBED: self.hibikeResponseDeviceSubbed
+    }
+    return hibikeResponseMapping
+
   def initRobotState(self):
     self.state = {
      "incrementer" : 2,
@@ -47,7 +54,8 @@ class StateManager(object):
      "dict1" : {"inner_dict1_int" : 555, "inner_dict_1_string": "hello"},
      "list1" : [70, "five", 14.3],
      "string1" : "abcde",
-     "runtime_meta" : {"studentCode_main_count" : 0}
+     "runtime_meta" : {"studentCode_main_count" : 0},
+     "hibike" : {"device_subscribed" : 0}
     }
 
   def addPipe(self, processName, pipe):
@@ -100,16 +108,19 @@ class StateManager(object):
     self.state["runtime_meta"]["studentCode_main_count"] += 1
 
   def hibikeEnumerateAll(self, pipe):
-    pipe.send([HIBIKE_COMMANDS.ENUMERATE.value])
+    pipe.send([HIBIKE_COMMANDS.ENUMERATE, []])
 
   def hibikeSubscribeDevice(self, pipe, uid, delay, params):
-    pipe.send([HIBIKE_COMMANDS.SUBSCRIBE.value, uid, delay, params])
+    pipe.send([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])
 
   def hibikeWriteParams(self, pipe, uid, param_values):
-    pipe.send([HIBIKE_COMMANDS.WRITE.value, uid, param_values])
+    pipe.send([HIBIKE_COMMANDS.WRITE, [uid, param_values]])
 
   def hibikeReadParams(self, pipe, uid, params):
-    pipe.send([HIBIKE_COMMANDS.READ.value, uid, params])
+    pipe.send([HIBIKE_COMMANDS.READ, [uid, params]])
+
+  def hibikeResponseDeviceSubbed(self, uid, delay, params):
+    self.state["hibike"]["device_subscribed"] += 1
 
   def dictErrorMessage(self, erroredIndex, keys, currDict):
     keyChain = ""
@@ -144,8 +155,14 @@ class StateManager(object):
 
       if(len(request) != 2):
         self.badThingsQueue.put(BadThing(sys.exc_info(), "Wrong input size, need list of size 2", event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
-      elif(cmdType not in self.commandMapping):
-        self.badThingsQueue.put(BadThing(sys.exc_info(), "Unknown process name: %s" % (request,), event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
-      else:
+      elif cmdType in self.commandMapping:
         command = self.commandMapping[cmdType]
         command(*args)
+      elif cmdType in self.hibikeMapping:
+        command = self.hibikeMapping[cmdType]
+        command(self.processMapping[PROCESS_NAMES.HIBIKE], *args)
+      elif cmdType in self.hibikeResponseMapping:
+        command = self.hibikeResponseMapping[cmdType]
+        command(*args)
+      else:
+        self.badThingsQueue.put(BadThing(sys.exc_info(), "Unknown process name: %s" % (request,), event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))

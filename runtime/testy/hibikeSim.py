@@ -1,22 +1,31 @@
-from runtimeUtil import *
-class HibikeSimulator:
-	def __init__(self, badThingsQueue, inputQueue, stateManagerPipe):
-		self.badThingsQueue = badThingsQueue
-		self.input = inputQueue
-		self.commandMapping = self.makeCommandMap #dict with command names
+import sys
 
-	def makeCommandMap():
-		commandMapping = {
-      SM_COMMANDS.GET_VAL : self.getValue,
-      SM_COMMANDS.SET_VAL : self.setValue
+from runtimeUtil import *
+
+class HibikeSimulator:
+  def __init__(self, badThingsQueue, toManager, fromManager):
+    self.badThingsQueue = badThingsQueue
+    self.fromManager = fromManager
+    self.toManager = toManager
+    self.commandMapping = self.makeCommandMap() #dict with command names
+
+  def makeCommandMap(self):
+    commandMapping = {
+      HIBIKE_COMMANDS.SUBSCRIBE : self.subscribe_device
     }
     return commandMapping
 
-	def start(self):
+  def subscribe_device(self, uid, delay, params):
+    self._device_subscribed()
+
+  def _device_subscribed(self, uid=123, delay = 321, param1="param1", param2="param2"):
+    self.toManager.put([HIBIKE_RESPONSE.DEVICE_SUBBED, [uid, delay, [param1, param2]]])
+
+  def start(self):
     # TODO: Make sure request is a list/tuple before attempting to access
     # And that there are the correct number of elements
     while True:
-      request = self.input.get(block=True)
+      request = self.fromManager.recv()
       cmdType = request[0]
       args = request[1]
 

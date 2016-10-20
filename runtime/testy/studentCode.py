@@ -68,3 +68,10 @@ def createKey_main():
   print("Success!")
   restarts = Robot.getValue("Restarts")
   Robot.setValue(restarts+1, "Restarts")
+
+def hibikeSubscribeDevice_setup():
+  pass
+
+def hibikeSubscribeDevice_main():
+  Robot.hibikeSubscribeDevice(1, 2, [3, 4])
+  print(Robot.getValue("hibike", "device_subscribed"))

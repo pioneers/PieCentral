@@ -12,6 +12,7 @@ import studentAPI
 
 from runtimeUtil import *
 
+import hibikeSim
 
 # TODO:
 # 0. Set up testing code for the following features.
@@ -108,15 +109,15 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0)
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
   except StudentAPIError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
-  except Exception: #something broke in student code
+  except Exception as e: #something broke in student code
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
 
 def startStateManager(badThingsQueue, stateQueue, runtimePipe):
   try:
     SM = stateManager.StateManager(badThingsQueue, stateQueue, runtimePipe)
     SM.start()
-  except Exception:
-    badThingsQueue.put(BadThing(sys.exc_info(), None))
+  except Exception as e:
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
 
 def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
   def spawnProcessHelper(processName, helper, *args):
@@ -154,6 +155,7 @@ def runtimeTest():
 
       try:
         spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
+        spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
         while True:
           if restartCount >= 3:
             break
@@ -168,8 +170,9 @@ def runtimeTest():
           restartCount += 1
         print("Funtime Runtime is done having fun.")
         print("TERMINATING")
-      except:
+      except Exception as e:
         print("Funtime Runtime Had Too Much Fun")
+        print(e)
 
     if not testSuccess(testFileName):
       # Explicitly set output to terminal, since we overwrote it earlier
@@ -189,11 +192,20 @@ def runtimeTest():
     for testName in failedTests:
       print("    {0}".format(testName))
 
-
 def testSuccess(testFileName):
   expectedOutput = RUNTIME_CONFIG.TEST_OUTPUT_DIR.value + testFileName
   testOutput = testFileName
   return filecmp.cmp(expectedOutput, testOutput)
+
+def startHibike(badThingsQueue, stateQueue, pipe):
+  # badThingsQueue - queue to runtime
+  # stateQueue - queue to stateManager
+  # pipe - pipe from statemanager
+  try:
+    hibike = hibikeSim.HibikeSimulator(badThingsQueue, stateQueue, pipe)
+    hibike.start()
+  except Exception as e:
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
 
 if __name__ == "__main__":
   runtimeTest()

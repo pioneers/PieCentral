@@ -28,8 +28,8 @@ LoginGraceTime 120
 PermitRootLogin without-password
 StrictModes yes
 
-RSAAuthentication yes
-PubkeyAuthentication yes
+RSAAuthentication no
+PubkeyAuthentication no
 #AuthorizedKeysFile	%h/.ssh/authorized_keys
 
 # Don't read the user's ~/.rhosts and ~/.shosts files
@@ -49,7 +49,7 @@ PermitEmptyPasswords no
 ChallengeResponseAuthentication no
 
 # Change to no to disable tunnelled clear text passwords
-PasswordAuthentication no
+PasswordAuthentication yes
 
 # Kerberos options
 #KerberosAuthentication no

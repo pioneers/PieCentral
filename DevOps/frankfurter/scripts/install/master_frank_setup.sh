@@ -53,3 +53,6 @@ echo "export PYTHONPATH=$HOME/hibike:$PYTHONPATH" >> ~/.bashrc
 
 # stop the apache server from auto-starting
 sudo rm -f /etc/init.d/apache2
+
+# Done!
+echo "Done" > Done

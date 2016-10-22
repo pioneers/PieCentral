@@ -1,4 +1,5 @@
 import sys
+import time
 
 from runtimeUtil import *
 
@@ -47,15 +48,14 @@ class StateManager(object):
 
   def initRobotState(self):
     self.state = {
-     "incrementer" : 2,
-     "int1" : 112314,
-     "float1": 987.123,
-     "bool1" : True,
-     "dict1" : {"inner_dict1_int" : 555, "inner_dict_1_string": "hello"},
-     "list1" : [70, "five", 14.3],
-     "string1" : "abcde",
-     "runtime_meta" : {"studentCode_main_count" : 0},
-     "hibike" : {"device_subscribed" : 0}
+     "incrementer" : [2, 0],
+     "int1" : [112314, 0],
+     "float1": [987.123, 0],
+     "bool1" : [True, 0],
+     "dict1" : [{"inner_dict1_int" : [555, 0], "inner_dict_1_string": ["hello", 0]}, 0],
+     "list1" : [[[70, 0], ["five", 0], [14.3, 0]], 0],
+     "string1" : ["abcde", 0],
+     "runtime_meta" : [{"studentCode_main_count" : [0, 0]}, 0]
     }
 
   def addPipe(self, processName, pipe):
@@ -64,16 +64,21 @@ class StateManager(object):
 
   def createKey(self, keys):
     currDict = self.state
+    path = []
     for key in keys:
       try:
         if key not in currDict:
-          currDict[key] = {}
-        currDict = currDict[key]
+          currDict[key] = [{}, 0]
+        path.append(currDict[key])
+        currDict = currDict[key][0]
       except TypeError:
         error = StudentAPIKeyError(
           "key '{}' is defined, but does not contain a dictionary.".format(key))
         self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
         return
+    currTime = time.time()
+    for item in path:
+      item[1] = currTime
     self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(None)
 
   def getValue(self, keys):
@@ -81,7 +86,7 @@ class StateManager(object):
     try:
       for key in enumerate(keys):
         i = key[0]
-        result = result[key[1]]
+        result = result[key[1]][0]
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(result)
     except:
       error = StudentAPIKeyError(self.dictErrorMessage(i, keys, result))
@@ -91,21 +96,27 @@ class StateManager(object):
     currDict = self.state
     i = 0
     try:
+      path = []
       for key in enumerate(keys[:-1]):
         i = key[0]
-        currDict = currDict[key[1]]
+        path.append(currDict[key[1]])
+        currDict = currDict[key[1]][0]
       if len(keys) > 1:
         i += 1
       if keys[i] not in currDict:
         raise Exception
-      currDict[keys[i]] = value
+      path.append(currDict[keys[i]])
+      currDict[keys[i]][0] = value
+      currTime = time.time();
+      for item in path:
+        item[1] = currTime
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(value)
     except:
       error = StudentAPIKeyError(self.dictErrorMessage(i, keys, currDict))
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
 
   def studentCodeTick(self):
-    self.state["runtime_meta"]["studentCode_main_count"] += 1
+    self.state["runtime_meta"][0]["studentCode_main_count"][0] += 1
 
   def hibikeEnumerateAll(self, pipe):
     pipe.send([HIBIKE_COMMANDS.ENUMERATE, []])
@@ -166,3 +177,4 @@ class StateManager(object):
         command(*args)
       else:
         self.badThingsQueue.put(BadThing(sys.exc_info(), "Unknown process name: %s" % (request,), event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
+

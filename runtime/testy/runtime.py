@@ -35,12 +35,14 @@ def runtime():
   stateQueue = multiprocessing.Queue()
   spawnProcess = processFactory(badThingsQueue, stateQueue)
   restartCount = 0
+  emergency_stopped = False
   try:
     spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
     spawnProcess(PROCESS_NAMES.UDP_SEND_PROCESS, startUDPSender)
     spawnProcess(PROCESS_NAMES.UDP_RECEIVE_PROCESS, startUDPReceiver)
+    spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
     while True:
-      if restartCount >= 5:
+      if restartCount >= 5 or emergency_stopped:
         print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
         print("Too many restarts, terminating")
         break
@@ -50,6 +52,8 @@ def runtime():
       while True:
         newBadThing = badThingsQueue.get(block=True)
         print(newBadThing.event)
+        if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
+          emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
         if newBadThing.event in restartEvents:
           break
       stateQueue.put([SM_COMMANDS.RESET, []])
@@ -150,7 +154,10 @@ def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
 
 def terminate_process(process):
   process.terminate()
-  time.sleep(.01) # Give the OS a chance to terminate the other process
+  for i in range(10):
+    time.sleep(.01) # Give the OS a chance to terminate the other process
+    if not process.is_alive():
+      break
   if process.is_alive():
     print("Termintating with EXTREME PREJUDICE")
     print("Queue state is probably boned and we should restart entire runtime")
@@ -187,18 +194,21 @@ def runtimeTest(testNames):
       stateQueue = multiprocessing.Queue()
       spawnProcess = processFactory(badThingsQueue, stateQueue, sys.stdout)
       restartCount = 0
+      emergency_stopped = False
 
       try:
         spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
         spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
         while True:
-          if restartCount >= 3:
+          if restartCount >= 3 or emergency_stopped:
             break
           spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, 3)
           while True:
             try:
               newBadThing = badThingsQueue.get(block=True)
               print(newBadThing.event)
+              if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
+                emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
               if newBadThing.event in restartEvents:
                 break
             except Exception as e:
@@ -245,6 +255,37 @@ def startHibike(badThingsQueue, stateQueue, pipe):
     hibike.start()
   except Exception as e:
     badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
+
+def justin_runtime():
+  badThingsQueue = multiprocessing.Queue()
+  stateQueue = multiprocessing.Queue()
+  spawnProcess = processFactory(badThingsQueue, stateQueue, sys.stdout)
+  restartCount = 0
+  emergency_stopped = False
+
+  try:
+    spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
+    spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
+    while True:
+      if restartCount >= 3 or emergency_stopped:
+        break
+      spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, "emergencyStop", 2)
+      while True:
+        newBadThing = badThingsQueue.get(block=True)
+        print("BAD:", newBadThing.event)
+        if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
+          emergency_stopped = True
+        if newBadThing.event in restartEvents:
+          break
+      stateQueue.put([SM_COMMANDS.RESET, []])
+      os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
+      restartCount += 1
+    print("Funtime Runtime is done having fun.")
+    print("TERMINATING")
+  except:
+    print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
+    print("Funtime Runtime Had Too Much Fun")
+    print(traceback.print_exception(*sys.exc_info()))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

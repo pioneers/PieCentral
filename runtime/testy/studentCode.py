@@ -81,3 +81,31 @@ def hibikeSubscribeDevice_setup():
 def hibikeSubscribeDevice_main():
   Robot.hibikeSubscribeDevice(1, 2, [3, 4])
   print(Robot.getValue("hibike", "device_subscribed"))
+
+def timestamp_setup():
+  pass
+
+def timestamp_main():
+  path = ["dict1", "inner_dict_1_string"]
+
+  print("Getting timestamp")
+  initialTime = Robot.getTimestamp(*path)
+  print("Success!")
+
+  print("Setting timestamp")
+  Robot.setValue("bye", *path)
+  print("Success!")
+
+  print("Getting new timestamp")
+  newTime = Robot.getTimestamp(*path)
+  if newTime > initialTime and time.time() - newTime < 1:
+    print("Success!")
+  else:
+    print("Timestamp did not update correctly")
+
+  print("Testing nested timestamps")
+  if newTime == Robot.getTimestamp(*path[:-1]):
+    print("Success!")
+  else:
+    print("Nested timestamps did not update correctly")
+

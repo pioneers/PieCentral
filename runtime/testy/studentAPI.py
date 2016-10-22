@@ -34,6 +34,15 @@ class Robot:
         raise message
     return message
 
+  def getTimestamp(self, key, *args):
+    """Returns the value associated with key
+    """
+    self.toManager.put([SM_COMMANDS.GET_TIME, [[key] + list(args)]])
+    message = self.fromManager.recv()
+    if isinstance(message, StudentAPIKeyError):
+        raise message
+    return message
+
   # TODO: Only for testing. Remove in final version
   def hibikeSubscribeDevice(self, uid, delay, params):
     self.toManager.put([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])

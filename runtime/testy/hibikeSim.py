@@ -11,7 +11,8 @@ class HibikeSimulator:
 
   def makeCommandMap(self):
     commandMapping = {
-      HIBIKE_COMMANDS.SUBSCRIBE : self.subscribe_device
+      HIBIKE_COMMANDS.SUBSCRIBE : self.subscribe_device,
+      HIBIKE_COMMANDS.E_STOP: self.emergency_stop
     }
     return commandMapping
 
@@ -21,6 +22,9 @@ class HibikeSimulator:
   def _device_subscribed(self, uid=123, delay = 321, param1="param1", param2="param2"):
     self.toManager.put([HIBIKE_RESPONSE.DEVICE_SUBBED, [uid, delay, [param1, param2]]])
 
+  def emergency_stop(self):
+    print("EMERGENCY STOPPED COMMAND") #should write 0 to all motors and set stopped boolean to true
+
   def start(self):
     # TODO: Make sure request is a list/tuple before attempting to access
     # And that there are the correct number of elements
@@ -28,7 +32,6 @@ class HibikeSimulator:
       request = self.fromManager.recv()
       cmdType = request[0]
       args = request[1]
-
       if(len(request) != 2):
         self.badThingsQueue.put(BadThing(sys.exc_info(), "Wrong input size, need list of size 2", event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
       elif(cmdType not in self.commandMapping):

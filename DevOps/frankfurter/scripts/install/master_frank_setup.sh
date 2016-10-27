@@ -33,17 +33,12 @@ sudo python setup.py install
 cd ..
 sudo rm -rf python-grizzly
 
-# download hibike and runtime ################################################################
-git clone https://github.com/pioneers/daemon ~/daemon
-git clone https://github.com/pioneers/hibike ~/hibike
-ln -s ~/hibike/hibikeDevices.csv ~/daemon/runtime/hibikeDevices.csv
+# Link hibike and runtime ################################################################
+ln -s ~/PieCentral/hibike/hibikeDevices.csv ~/PieCentral/daemon/runtime/hibikeDevices.csv
 
 # set up things we need to update runtime and hibike #########################################
 mkdir -p ~/updates
 cp $FRANKFURTER_DIR/resources/update.sh ~/updates/
-
-gpg --ignore-time-conflict --import $FRANKFURTER_DIR/resources/frankfurter_vincent.gpg
-gpg --ignore-time-conflict --sign-key vincentdonato@pioneers.berkeley.edu
 
 # copy .conf files into /etc/init so that hibike/dawn/runtime start on boot ##################
 sudo cp $FRANKFURTER_DIR/resources/runtime.conf /etc/init
@@ -58,3 +53,6 @@ echo "export PYTHONPATH=$HOME/hibike:$PYTHONPATH" >> ~/.bashrc
 
 # stop the apache server from auto-starting
 sudo rm -f /etc/init.d/apache2
+
+# Done!
+echo "Done" > Done

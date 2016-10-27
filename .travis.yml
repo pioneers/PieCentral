@@ -1,9 +1,19 @@
+dist: trusty
 language: node_js
 node_js:
 - "4"
+addons:
+  apt:
+    packages:
+    - pylint
+    - python-setuptools python-dev build-essential
+before_install:
+- sudo easy_install pip
+- sudo pip install --upgrade virtualenv
 install:
 - make dawn-install
 script:
+- ./pylint.sh
 - make dawn-test
 - make dawn-lint
 branches:

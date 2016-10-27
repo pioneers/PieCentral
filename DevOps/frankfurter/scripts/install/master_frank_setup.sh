@@ -16,7 +16,7 @@
 # Install (most) apt-get packages ############################################################
 sudo apt-get install -y make build-essential gcc git htop curl memcached libevent-dev vim
 
-FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/frankfurter
+FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/PieCentral/frankfurter
 cd ~
 
 # Install python, pip, and pip packages ######################################################

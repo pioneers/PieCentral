@@ -1,0 +1,7 @@
+pyserial
+pyyaml
+python-memcached
+flask
+flask-socketio
+eventlet
+pyusb

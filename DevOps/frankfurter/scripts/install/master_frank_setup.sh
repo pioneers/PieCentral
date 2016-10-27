@@ -16,15 +16,13 @@
 # Install (most) apt-get packages ############################################################
 sudo apt-get install -y make build-essential gcc git htop curl memcached libevent-dev vim
 
-FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/PieCentral/frankfurter
+FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/DevOps/frankfurter
 cd ~
 
 # Install python, pip, and pip packages ######################################################
 sudo apt-get -y upgrade
 sudo apt-get install -y python python-dev python-pip
-sudo pip install --upgrade pyserial pyyaml python-memcached flask flask-socketio eventlet
-# there's no stable release version of pyusb in pip right now, so we need the --pre flag
-sudo pip install --pre pyusb
+sudo pip install --upgrade -r resources/requirements.txt
 
 # Install pygrizzly ##########################################################################
 git clone https://github.com/pioneers/python-grizzly

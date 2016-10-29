@@ -14,10 +14,12 @@ export const runtimeDisconnect = () => ({
   type: 'RUNTIME_DISCONNECT',
 });
 
-export const updateBattery = () => {(
+export const updateBattery = (battery) => ({
   type: 'UPDATE_BATTERY',
+  battery: battery,
 )};
 
-export const updateStatus = () => {(
+export const updateStatus = (status) => ({
   type: 'UPDATE_STATUS',
-)};
+  status: status,
+});

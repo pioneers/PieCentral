@@ -16,10 +16,10 @@ export const runtimeDisconnect = () => ({
 
 export const updateBattery = (battery) => ({
   type: 'UPDATE_BATTERY',
-  battery: battery,
-)};
+  battery,
+});
 
 export const updateStatus = (status) => ({
   type: 'UPDATE_STATUS',
-  status: status,
+  status,
 });

@@ -2,6 +2,15 @@
  * Actions for the editor state.
  */
 
+export const editorUpdate = (newVal) => ({
+  type: 'UPDATE_EDITOR',
+  code: newVal,
+});
+
+export const openFileSucceeded = () => ({
+  type: 'OPEN_FILE_SUCCEEDED',
+});
+
 export const openFile = () => ({
   type: 'OPEN_FILE',
 });
@@ -17,11 +26,6 @@ export const deleteFile = () => ({
 
 export const createNewFile = () => ({
   type: 'CREATE_NEW_FILE',
-});
-
-export const editorUpdate = (newVal) => ({
-  type: 'UPDATE_EDITOR',
-  code: newVal,
 });
 
 export const changeTheme = (theme) => ({

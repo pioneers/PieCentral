@@ -13,6 +13,17 @@
 # basis.                                                                                     #
 ##############################################################################################
 
+HOST=192.168.7.1  # Staff machine
+/sbin/route add default gw $HOST  # Forwards all unresolved names to the host
+                                  # Does not persist between reboots
+echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+timedatectl set-timezone America/Los_Angeles
+
+# apt -y update && apt -y upgrade
+# apt install -y $(cat dependencies.txt | tr "\n" " ")
+# apt install -y man-db make build-essential gcc git htop curl memcached libevent-dev vim python3-dev python3-pip
+# apt clean -y
+
 # Install (most) apt-get packages ############################################################
 sudo apt-get install -y make build-essential gcc git htop curl memcached libevent-dev vim
 
@@ -22,7 +33,7 @@ cd ~
 # Install python, pip, and pip packages ######################################################
 sudo apt-get -y upgrade
 sudo apt-get install -y python python-dev python-pip
-sudo pip install --upgrade -r resources/requirements.txt
+sudo pip install --upgrade -r $FRANKFURTER_DIR/resources/requirements.txt
 
 # Install pygrizzly ##########################################################################
 git clone https://github.com/pioneers/python-grizzly
@@ -40,9 +51,6 @@ ln -s ~/hibike/hibikeDevices.csv ~/daemon/runtime/hibikeDevices.csv
 mkdir -p ~/updates
 cp $FRANKFURTER_DIR/resources/update.sh ~/updates/
 
-gpg --ignore-time-conflict --import $FRANKFURTER_DIR/resources/frankfurter_vincent.gpg
-gpg --ignore-time-conflict --sign-key vincentdonato@pioneers.berkeley.edu
-
 # copy .conf files into /etc/init so that hibike/dawn/runtime start on boot ##################
 sudo cp $FRANKFURTER_DIR/resources/runtime.conf /etc/init
 sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc/init
@@ -52,7 +60,7 @@ sudo rm /etc/init.d/memcached
 sudo cp $FRANKFURTER_DIR/resources/50-grizzlybear.rules /etc/udev/rules.d/
 sudo cp $FRANKFURTER_DIR/resources/interfaces /etc/network/interfaces
 
-echo "export PYTHONPATH=$HOME/hibike:$PYTHONPATH" >> ~/.bashrc
+echo "export PYTHONPATH=$HOME/hibike:$PYTHONPATH" >> ~/.bashrc  # .profile?
 
 # stop the apache server from auto-starting
 sudo rm -f /etc/init.d/apache2

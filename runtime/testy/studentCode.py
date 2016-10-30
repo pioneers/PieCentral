@@ -1,6 +1,12 @@
 import time
 from runtimeUtil import *
 
+def setup():
+  pass
+
+def main():
+  pass
+
 def test0_setup():
   print("test0_setup")
 

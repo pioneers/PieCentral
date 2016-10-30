@@ -26,7 +26,9 @@ class StateManager(object):
       SM_COMMANDS.GET_VAL : self.getValue,
       SM_COMMANDS.SET_VAL : self.setValue,
       SM_COMMANDS.STUDENT_MAIN_OK : self.studentCodeTick,
-      SM_COMMANDS.CREATE_KEY : self.createKey
+      SM_COMMANDS.CREATE_KEY : self.createKey,
+      SM_COMMANDS.SEND_ANSIBLE : self.send_ansible,
+      SM_COMMANDS.RECV_ANSIBLE: self.recv_ansible
     }
     return commandMapping
 
@@ -103,6 +105,12 @@ class StateManager(object):
     except:
       error = StudentAPIKeyError(self.dictErrorMessage(i, keys, currDict))
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
+
+  def send_ansible(self):
+    self.processMapping[PROCESS_NAMES.UDP_SEND_PROCESS].send(self.state)
+
+  def recv_ansible(self, new_state):
+    self.state["bytes"] = new_state
 
   def studentCodeTick(self):
     self.state["runtime_meta"]["studentCode_main_count"] += 1

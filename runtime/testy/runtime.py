@@ -48,11 +48,14 @@ def runtime():
       print("Starting studentCode attempt: %s" % (restartCount,))
       spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode)
       while True:
-        newBadThing = badThingsQueue.get(block=True)
-        print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
-        print(newBadThing)
-        if newBadThing.event in restartEvents:
-          break
+        try:
+          newBadThing = badThingsQueue.get(block=False)
+          print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
+          print(newBadThing)
+          if newBadThing.event in restartEvents:
+            break
+        except Exception:
+          time.sleep(0.3)
       stateQueue.put([SM_COMMANDS.RESET, []])
       os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
       restartCount += 1
@@ -90,23 +93,23 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0)
 
     checkTimedOut(setupFunc)
 
-    nextCall = time.time()
     # TODO: Replace execCount with a value in stateManager
     execCount = 0
     while maxIter == 0 or execCount < maxIter:
-      checkTimedOut(mainFunc)
+      mainFunc()
+      nextCall = time.time()
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
       stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
-      time.sleep(nextCall - time.time())
-
+      time.sleep(max(nextCall - time.time(), 0))
       execCount += 1
 
+    print("PROCESS ENDING")
     badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
 
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
   except StudentAPIError:
-    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
+    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_VALUE_ERROR))
   except Exception as e: #something broke in student code
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
 
@@ -165,7 +168,7 @@ def runtimeTest(testNames):
   for testName in testNames:
     testFileName = "%s_output" % (testName,)
     with open(testFileName, "w", buffering = 1) as testOutput:
-      sys.stdout = testOutput
+      # sys.stdout = testOutput
 
       allProcesses.clear()
 
@@ -182,10 +185,14 @@ def runtimeTest(testNames):
             break
           spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, 3)
           while True:
-            newBadThing = badThingsQueue.get(block=True)
-            print(newBadThing.event)
-            if newBadThing.event in restartEvents:
-              break
+            try:
+              newBadThing = badThingsQueue.get(block=True)
+              print(newBadThing.event)
+              if newBadThing.event in restartEvents:
+                break
+            except Exception:
+              print("SLEEPING")
+              time.sleep(0.03)
           stateQueue.put([SM_COMMANDS.RESET, []])
           os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
           restartCount += 1
@@ -236,4 +243,3 @@ if __name__ == "__main__":
       runtime()
     else:
       runtimeTest(args.test)
-

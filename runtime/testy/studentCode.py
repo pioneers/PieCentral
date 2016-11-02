@@ -5,7 +5,14 @@ def setup():
   pass
 
 def main():
-  pass
+  response = Robot.getValue("incrementer")
+  print("Get Info:", response)
+  response -= 1
+
+  Robot.setValue(response, "incrementer")
+
+  print("Saying hello to the other side")
+  print("DAT:", 1.0/response)
 
 def test0_setup():
   print("test0_setup")
@@ -108,4 +115,3 @@ def timestamp_main():
     print("Success!")
   else:
     print("Nested timestamps did not update correctly")
-

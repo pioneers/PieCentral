@@ -47,11 +47,14 @@ def runtime():
       print("Starting studentCode attempt: %s" % (restartCount,))
       spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode)
       while True:
-        newBadThing = badThingsQueue.get(block=True)
-        print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
-        print(newBadThing)
-        if newBadThing.event in restartEvents:
-          break
+        try:
+          newBadThing = badThingsQueue.get(block=False)
+          print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
+          print(newBadThing)
+          if newBadThing.event in restartEvents:
+            break
+        except Exception:
+          time.sleep(0.3)
       stateQueue.put([SM_COMMANDS.RESET, []])
       os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
       restartCount += 1
@@ -96,8 +99,10 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0)
       checkTimedOut(mainFunc)
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
       stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
-      time.sleep(nextCall - time.time())
-
+      try:
+        time.sleep(nextCall - time.time())
+      except ValueError:
+        nextCall = time.time()
       execCount += 1
 
     badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
@@ -105,7 +110,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0)
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
   except StudentAPIError:
-    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
+    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_VALUE_ERROR))
   except Exception as e: #something broke in student code
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
 
@@ -172,10 +177,13 @@ def runtimeTest():
             break
           spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, 3)
           while True:
-            newBadThing = badThingsQueue.get(block=True)
-            print(newBadThing.event)
-            if newBadThing.event in restartEvents:
-              break
+            try:
+              newBadThing = badThingsQueue.get(block=False)
+              print(newBadThing.event)
+              if newBadThing.event in restartEvents:
+                break
+            except Exception:
+              time.sleep(0.3)
           stateQueue.put([SM_COMMANDS.RESET, []])
           os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
           restartCount += 1

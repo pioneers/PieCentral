@@ -80,4 +80,5 @@ def hibikeSubscribeDevice_setup():
 
 def hibikeSubscribeDevice_main():
   Robot.hibikeSubscribeDevice(1, 2, [3, 4])
+  time.sleep(0.01)
   print(Robot.getValue("hibike", "device_subscribed"))

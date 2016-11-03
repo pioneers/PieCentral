@@ -19,14 +19,16 @@ const StudentCodeStatus = DawnData.StudentCodeStatus;
 
 const runtimeBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
+const TCPData = runtimeBuilder.build('TCPData');
 
 var net = require('net');
 net.createServer(function (socket) {
     console.log("TCP Connection Up");
 
     socket.on('data', function (data) {
+        const console = TCPData.decode(data).toRaw();
         reduxDispatch(clearConsole());
-        reduxDispatch(updateConsole(data));
+        reduxDispatch(updateConsole(console));
     });
 
     // Remove the client from the list when it leaves

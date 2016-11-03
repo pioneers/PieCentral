@@ -1,11 +1,14 @@
 import { ipcMain } from 'electron';
 import ProtoBuf from 'protobufjs';
+import { reduxDispatch } from '../RendererBridge';
 import dgram from 'dgram';
 import _ from 'lodash';
+import {clearConsole, updateConsole} from "../../renderer/actions/ConsoleActions";
 
 const hostname = 'localhost';
-const clientPort = '12345'; // send port
-const serverPort = '12346'; // receive port
+const clientPort = 12345; // send port
+const serverPort = 12346; // receive port
+const tcpPort = 12347;
 const client = dgram.createSocket('udp4'); // sender
 const server = dgram.createSocket('udp4'); // receiver
 
@@ -17,11 +20,27 @@ const StudentCodeStatus = DawnData.StudentCodeStatus;
 const runtimeBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
 
+var net = require('net');
+net.createServer(function (socket) {
+    console.log("TCP Connection Up");
+
+    socket.on('data', function (data) {
+        reduxDispatch(clearConsole());
+        reduxDispatch(updateConsole(data));
+    });
+
+    // Remove the client from the list when it leaves
+    socket.on('end', function () {
+        console.log("TCP Connection Ended")
+    });
+}).listen(tcpPort);
+
+
 /**
  * Serialize the data using protocol buffers.
  */
 function buildProto(data) {
-  const status = data.stuentCodeStatus ?
+  const status = data.studentCodeStatus ?
     StudentCodeStatus.TELEOP : StudentCodeStatus.IDLE;
   const gamepads = _.map(_.toArray(data.gamepads), (gamepad) => {
     const axes = _.toArray(gamepad.axes);
@@ -61,7 +80,11 @@ ipcMain.on('stateUpdate', (event, data) => {
 server.on('message', (msg) => {
   try {
     const data = RuntimeData.decode(msg).toRaw();
-    console.log(`Dawn received: ${JSON.stringify(data)}\n`);
+    console.log(`Dawn received Runtime Information`);
+    reduxDispatch({
+      type: 'PERIPHERAL_DATA',
+      data
+    });
   } catch (e) {
     console.log('Error decoding');
   }

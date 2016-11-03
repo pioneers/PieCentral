@@ -92,19 +92,17 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0)
 
     checkTimedOut(setupFunc)
 
-    nextCall = time.time()
     # TODO: Replace execCount with a value in stateManager
     execCount = 0
     while maxIter == 0 or execCount < maxIter:
-      checkTimedOut(mainFunc)
+      mainFunc()
+      nextCall = time.time()
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
       stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
-      try:
-        time.sleep(nextCall - time.time())
-      except ValueError:
-        nextCall = time.time()
+      time.sleep(max(nextCall - time.time(), 0))
       execCount += 1
 
+    print("PROCESS ENDING")
     badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
 
   except TimeoutError:
@@ -160,7 +158,7 @@ def runtimeTest():
   for testName in testNames:
     testFileName = "%s_output" % (testName,)
     with open(testFileName, "w", buffering = 1) as testOutput:
-      sys.stdout = testOutput
+      # sys.stdout = testOutput
 
       allProcesses.clear()
 
@@ -178,12 +176,13 @@ def runtimeTest():
           spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, 3)
           while True:
             try:
-              newBadThing = badThingsQueue.get(block=False)
+              newBadThing = badThingsQueue.get(block=True)
               print(newBadThing.event)
               if newBadThing.event in restartEvents:
                 break
             except Exception:
-              time.sleep(0.3)
+              print("SLEEPING")
+              time.sleep(0.03)
           stateQueue.put([SM_COMMANDS.RESET, []])
           os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
           restartCount += 1
@@ -228,4 +227,4 @@ def startHibike(badThingsQueue, stateQueue, pipe):
 
 if __name__ == "__main__":
   runtimeTest()
-  runtime()
+  # runtime()

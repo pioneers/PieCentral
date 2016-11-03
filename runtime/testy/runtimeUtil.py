@@ -56,6 +56,7 @@ class SM_COMMANDS(Enum):
   SEND_ANSIBLE        = ()
   RECV_ANSIBLE        = ()
   CREATE_KEY          = ()
+  GET_TIME            = ()
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMEOUT        = 3

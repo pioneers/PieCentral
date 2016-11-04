@@ -48,16 +48,12 @@ def runtime():
       print("Starting studentCode attempt: %s" % (restartCount,))
       spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode)
       while True:
-        try:
-          newBadThing = badThingsQueue.get(block=False)
-          print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
-          print(newBadThing)
-          if newBadThing.event in restartEvents:
-            break
-        except Exception:
-          time.sleep(0.3)
+        newBadThing = badThingsQueue.get(block=True)
+        print(newBadThing.event)
+        if newBadThing.event in restartEvents:
+          break
       stateQueue.put([SM_COMMANDS.RESET, []])
-      os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
+      terminate_process(allProcesses[PROCESS_NAMES.STUDENT_CODE])
       restartCount += 1
     print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
@@ -70,16 +66,23 @@ def runtime():
 def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0):
   try:
     import signal
+
+    terminated = False
+    def sigTermHandler(signum, frame):
+      nonlocal terminated
+      terminated = True
+    signal.signal(signal.SIGTERM, sigTermHandler)
+
     def timedOutHandler(signum, frame):
       raise TimeoutError("studentCode timed out")
     signal.signal(signal.SIGALRM, timedOutHandler)
 
     def checkTimedOut(func, *args):
-      signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMEOUT.value)
+      signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMELIMIT.value)
       func(*args)
       signal.alarm(0)
 
-    signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMEOUT.value)
+    signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMELIMIT.value)
     import studentCode
     signal.alarm(0)
 
@@ -95,15 +98,14 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0)
 
     # TODO: Replace execCount with a value in stateManager
     execCount = 0
-    while maxIter == 0 or execCount < maxIter:
-      mainFunc()
+    while (not terminated) and (maxIter == 0 or execCount < maxIter):
+      checkTimedOut(mainFunc)
       nextCall = time.time()
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
       stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
       time.sleep(max(nextCall - time.time(), 0))
       execCount += 1
 
-    print("PROCESS ENDING")
     badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
 
   except TimeoutError:
@@ -146,6 +148,15 @@ def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
     newProcess.start()
   return spawnProcessHelper
 
+def terminate_process(process):
+  process.terminate()
+  time.sleep(.01) # Give the OS a chance to terminate the other process
+  if process.is_alive():
+    print("Termintating with EXTREME PREJUDICE")
+    print("Queue state is probably boned and we should restart entire runtime")
+    os.kill(process.pid, signal.SIGKILL)
+    raise NotImplementedError
+
 def runtimeTest(testNames):
   # Normally dangerous. Allowed here because we put testing code there.
   import studentCode
@@ -168,7 +179,7 @@ def runtimeTest(testNames):
   for testName in testNames:
     testFileName = "%s_output" % (testName,)
     with open(testFileName, "w", buffering = 1) as testOutput:
-      # sys.stdout = testOutput
+      sys.stdout = testOutput
 
       allProcesses.clear()
 
@@ -190,17 +201,17 @@ def runtimeTest(testNames):
               print(newBadThing.event)
               if newBadThing.event in restartEvents:
                 break
-            except Exception:
-              print("SLEEPING")
-              time.sleep(0.03)
+            except Exception as e:
+              print(e)
           stateQueue.put([SM_COMMANDS.RESET, []])
-          os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
+          terminate_process(allProcesses[PROCESS_NAMES.STUDENT_CODE])
           restartCount += 1
         print("Funtime Runtime is done having fun.")
         print("TERMINATING")
       except Exception as e:
         print("Funtime Runtime Had Too Much Fun")
         print(e)
+        print("".join(traceback.format_tb(sys.exc_info()[2])))
 
     if not testSuccess(testFileName):
       # Explicitly set output to terminal, since we overwrote it earlier

@@ -104,6 +104,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0)
 
     print("PROCESS ENDING")
     badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
+    print("Put onto queue")
 
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))

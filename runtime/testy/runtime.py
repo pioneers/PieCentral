@@ -106,6 +106,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0)
     print("PROCESS ENDING")
     badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
     print("Put onto queue")
+    print("We put None on the queue: " + str(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT) == None))
 
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
@@ -172,8 +173,9 @@ def runtimeTest():
       origGet = badThingsQueue.get
       def printingGet(*args, **kwargs):
         print("Getting something")
-        origGet(*args, **kwargs)
-        print(multiprocessing.current_process().name + "Got something")
+        x = origGet(*args, **kwargs)
+        print(multiprocessing.current_process().name + " Got something")
+        return x
       badThingsQueue.get = printingGet
 
       try:

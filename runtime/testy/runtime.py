@@ -103,10 +103,14 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0)
       time.sleep(max(nextCall - time.time(), 0))
       execCount += 1
 
-    print("PROCESS ENDING")
-    badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
-    print("Put onto queue")
-    print("We put None on the queue: " + str(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT) == None))
+    print("Putting Dummy 1 onto queue.")
+    badThingsQueue.put(('DUMMY', 1))
+    print("Putting Dummy 2 onto queue.")
+    badThingsQueue.put(('DUMMY', 2))
+    print("Finished putting both dummies.")
+    # badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
+    # print("Put onto queue")
+    # print("We put None on the queue: " + str(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT) == None))
 
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
@@ -190,6 +194,11 @@ def runtimeTest():
               print("Trying to read from badThingsQueue")
               newBadThing = badThingsQueue.get(block=True, timeout=1)
               print("Unblocked")
+              if newBadThing[0] == 'DUMMY':
+                print("Got dummy number",newBadThing[1])
+                if newBadThing[1] == 2:
+                  break
+                continue
               print(newBadThing.event)
               if newBadThing.event in restartEvents:
                 break

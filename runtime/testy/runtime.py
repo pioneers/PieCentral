@@ -6,6 +6,7 @@ import sys
 import traceback
 import re
 import filecmp
+import queue
 
 import stateManager
 import studentAPI
@@ -168,6 +169,13 @@ def runtimeTest():
       spawnProcess = processFactory(badThingsQueue, stateQueue, sys.stdout)
       restartCount = 0
 
+      origGet = badThingsQueue.get
+      def printingGet(*args, **kwargs):
+        print("Getting something")
+        origGet(*args, **kwargs)
+        print(multiprocessing.current_process().name + "Got something")
+      badThingsQueue.get = printingGet
+
       try:
         spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
         spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
@@ -177,11 +185,17 @@ def runtimeTest():
           spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, 3)
           while True:
             try:
-              newBadThing = badThingsQueue.get(block=True)
+              print("Trying to read from badThingsQueue")
+              newBadThing = badThingsQueue.get(block=True, timeout=1)
+              print("Unblocked")
               print(newBadThing.event)
               if newBadThing.event in restartEvents:
                 break
-            except Exception:
+            except queue.Empty as e:
+              print("badThingsQueue timed out")
+            except Exception as e:
+              print(e)
+              print("".join(traceback.format_tb(sys.exc_info()[2])))
               print("SLEEPING")
               time.sleep(0.03)
           stateQueue.put([SM_COMMANDS.RESET, []])

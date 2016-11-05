@@ -56,52 +56,19 @@ const generateFakeData = () => [
       "value": randomFloat(-100, 100),
     },
   },
-  // {
-  //   // type: 'UPDATE_PERIPHERAL',
-  //   peripheral: {
-  //     name: 'Limit Switch 1',
-  //     device_type: 'LimitSwitch',
-  //     value: Math.round(randomFloat(0, 1)),
-  //     id: '2',
-  //   },
+  {
+    // type: 'UPDATE_PERIPHERAL',
+    "robot_state": 0,
+    "sensor_data": {
+      "device_name": 'Limit Switch 1',
+      "device_type": 'LimitSwitch',
+      "value": Math.round(randomFloat(0, 1)),
+    },
+  },
+  // { For TCP Later
+  //   type: 'UPDATE_CONSOLE',
+  //   value: 'Some print statement\n',
   // },
-  // {
-  //   // type: 'UPDATE_PERIPHERAL',
-  //   peripheral: {
-  //     name: 'Scalar Sensor 1',
-  //     device_type: 'SENSOR_SCALAR',
-  //     value: randomFloat(-100, 100),
-  //     id: '3',
-  //   },
-  // },
-  // {
-  //   // type: 'UPDATE_PERIPHERAL',
-  //   peripheral: {
-  //     name: 'Servo 1',
-  //     device_type: 'ServoControl',
-  //     value: Math.round(randomFloat(0, 180)),
-  //     id: '4',
-  //   },
-  // },
-  // // {
-  // //   type: 'UPDATE_PERIPHERAL',
-  // //   peripheral: {
-  // //     name: 'Color Sensor 1',
-  // //     peripheralType: 'ColorSensor',
-  // //     value: [
-  // //       Math.round(randomFloat(0, 255)),
-  // //       Math.round(randomFloat(0, 255)),
-  // //       Math.round(randomFloat(0, 255)),
-  // //       Math.round(randomFloat(0, 360)),
-  // //       Math.round(randomFloat(0, 360)),
-  // //     ],
-  // //     id: '5',
-  // //   },
-  // // },
-  // // {
-  // //   type: 'UPDATE_CONSOLE',
-  // //   value: 'Some print statement\n',
-  // // },
 ];
 
 /**
@@ -109,13 +76,8 @@ const generateFakeData = () => [
  */
 setInterval(() => {
   const fakeData = generateFakeData();
-  var udpData = new RuntimeData({
-    "robot_state": 0,
-    "sensor_data": {
-      "device_type": 'MOTOR_SCALAR',
-      "device_name": 'Motor 1',
-      "value": randomFloat(-100, 100),
-    },
-  });
-  client.send(udpData.encode().toArrayBuffer(), clientPort, hostname);
+  for (let item of fakeData) {
+    var udpData = new RuntimeData(item);
+    client.send(Buffer.from(udpData.toArrayBuffer()), clientPort, hostname);
+  }
 }, 1000);

@@ -81,15 +81,15 @@ ipcMain.on('stateUpdate', (event, data) => {
 server.on('message', (msg) => {
   try {
     const data = RuntimeData.decode(msg);
-    console.log('Dawn received Runtime Information');
-    console.log(data);
-    RendererBridge.reduxDispatch({
-      type: 'PERIPHERAL_DATA',
-      data,
-    });
+    console.log(`Dawn received Runtime Information at ${(new Date).toISOString()}`);
+    for (const sensor of data.sensor_data) {
+      RendererBridge.reduxDispatch({
+        type: 'UPDATE_PERIPHERAL',
+        peripheral: sensor,
+      });
+    }
   } catch (e) {
-    console.log(e);
-    console.log('Error decoding');
+    console.log(`Error decoding: ${e}`);
   }
 });
 

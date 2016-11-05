@@ -50,20 +50,16 @@ const generateFakeData = () => [
   {
     // type: 'UPDATE_STATUS',
     "robot_state": 0,
-    "sensor_data": {
+    "sensor_data": [{
       "device_type": 'MOTOR_SCALAR',
       "device_name": 'Motor 1',
       "value": randomFloat(-100, 100),
     },
-  },
-  {
-    // type: 'UPDATE_PERIPHERAL',
-    "robot_state": 0,
-    "sensor_data": {
+    {
       "device_name": 'Limit Switch 1',
       "device_type": 'LimitSwitch',
       "value": Math.round(randomFloat(0, 1)),
-    },
+    }],
   },
   // { For TCP Later
   //   type: 'UPDATE_CONSOLE',

@@ -6,6 +6,7 @@ import sys
 import traceback
 import re
 import filecmp
+import argparse
 
 import stateManager
 import studentAPI
@@ -115,7 +116,7 @@ def startStateManager(badThingsQueue, stateQueue, runtimePipe):
     SM.start()
   except Exception as e:
     badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
-    
+
 def startUDPSender(badThingsQueue, stateQueue, smPipe):
   try:
     sendClass = Ansible.UDPSendClass(badThingsQueue, stateQueue, smPipe)
@@ -142,12 +143,21 @@ def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
     newProcess.start()
   return spawnProcessHelper
 
-def runtimeTest():
+def runtimeTest(testNames):
   # Normally dangerous. Allowed here because we put testing code there.
   import studentCode
 
   testNameRegex = re.compile(".*_setup")
-  testNames = [testName[:-len("_setup")] for testName in dir(studentCode) if testNameRegex.match(testName)]
+  allTestNames = [testName[:-len("_setup")] for testName in dir(studentCode) if testNameRegex.match(testName)]
+
+  if len(testNames) == 0:
+    print("Running all tests")
+    testNames = allTestNames
+  else:
+    for testName in testNames:
+      if testName not in allTestNames:
+        print("Error: {} not found.".format(testName))
+        return
 
   failCount = 0
   failedTests = []
@@ -219,5 +229,11 @@ def startHibike(badThingsQueue, stateQueue, pipe):
     badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
 
 if __name__ == "__main__":
-  runtimeTest()
-  runtime()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--test', nargs='*', help='Run specified tests. If no arguments, run all tests.')
+    args = parser.parse_args()
+    if args.test == None:
+      runtime()
+    else:
+      runtimeTest(args.test)
+

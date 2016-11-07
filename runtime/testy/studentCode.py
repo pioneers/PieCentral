@@ -80,6 +80,7 @@ def hibikeSubscribeDevice_setup():
 
 def hibikeSubscribeDevice_main():
   Robot.hibikeSubscribeDevice(1, 2, [3, 4])
+  time.sleep(.01) # Wait for command to propogate to Hibike
   print(Robot.getValue("hibike", "device_subscribed"))
 
 def timestamp_setup():
@@ -109,3 +110,18 @@ def timestamp_main():
   else:
     print("Nested timestamps did not update correctly")
 
+def infiniteSetupLoop_setup():
+  print("setup")
+  while True:
+    time.sleep(.1)
+
+def infiniteSetupLoop_main():
+  print("main")
+
+def infiniteMainLoop_setup():
+  print("setup")
+
+def infiniteMainLoop_main():
+  print("main")
+  while True:
+    time.sleep(.1)

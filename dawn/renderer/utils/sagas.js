@@ -195,6 +195,7 @@ function formatGamepads(newGamepads) {
  */
 function* updateGamepads() {
   while (true) {
+    console.log('Hello');
     // navigator.getGamepads always returns a reference to the same object. This
     // confuses redux, so we use assignIn to clone to a new object each time.
     const newGamepads = _.assignIn({}, navigator.getGamepads());

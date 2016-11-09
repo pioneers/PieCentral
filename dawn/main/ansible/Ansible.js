@@ -21,6 +21,8 @@ const runtimeBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
 const TCPData = runtimeBuilder.build('TCPData');
 
+let test = 0;
+
 const net = require('net');
 net.createServer((socket) => {
   console.log('TCP Connection Up');
@@ -75,6 +77,24 @@ ipcMain.on('stateUpdate', (event, data) => {
   });
 });
 
+setInterval(() => {
+  const message = new DawnData({
+    student_code_status: 1 - test,
+    gamepads: {
+      index: 1,
+      axes: [0.2],
+      buttons: [true],
+    },
+    peripheral_names: ['Test'],
+  });
+  const buffer = message.encode().toBuffer();
+  client.send(buffer, clientPort, hostname, (err) => {
+    if (err) {
+      console.error('UDP socket error on send:', err);
+    }
+  });
+}, 1000);
+
 /**
  * Handler to receive messages from the robot Runtime
  */
@@ -82,6 +102,7 @@ server.on('message', (msg) => {
   try {
     const data = RuntimeData.decode(msg);
     console.log(`Dawn received Runtime Information at ${(new Date).toISOString()}`);
+    test = 1 - test;
     for (const sensor of data.sensor_data) {
       RendererBridge.reduxDispatch({
         type: 'UPDATE_PERIPHERAL',

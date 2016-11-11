@@ -8,17 +8,17 @@
 
 const dgram = require('dgram');
 const ProtoBuf = require('protobufjs');
-const net = require('net');
+// const net = require('net');
 
 const dawnBuilder = ProtoBuf.loadProtoFile('../ansible-protos/ansible.proto');
 const DawnData = dawnBuilder.build('DawnData');
 const runtimeBuilder = ProtoBuf.loadProtoFile('../ansible-protos/runtime.proto');
 const RuntimeData = runtimeBuilder.build('RuntimeData');
-const TCPData = runtimeBuilder.build('TCPData');
+// const TCPData = runtimeBuilder.build('TCPData');
 
 const clientPort = 12346; // send port
 const serverPort = 12345; // receive port
-const tcpPort = 12347;
+// const tcpPort = 12347;
 const hostname = 'localhost';
 const client = dgram.createSocket('udp4');// sender
 const server = dgram.createSocket('udp4'); // receiver
@@ -49,17 +49,17 @@ const randomFloat = (min, max) => ((max - min) * Math.random() + min);
 const generateFakeData = () => [
   {
     // type: 'UPDATE_STATUS',
-    "robot_state": 0,
-    "sensor_data": [{
-      "device_type": 'MOTOR_SCALAR',
-      "device_name": 'Motor 1',
-      "value": randomFloat(-100, 100),
+    robot_state: 0,
+    sensor_data: [{
+      device_type: 'MOTOR_SCALAR',
+      device_name: 'Motor 1',
+      value: randomFloat(-100, 100),
     },
-    {
-      "device_name": 'Limit Switch 1',
-      "device_type": 'LimitSwitch',
-      "value": Math.round(randomFloat(0, 1)),
-    }],
+      {
+        device_name: 'Limit Switch 1',
+        device_type: 'LimitSwitch',
+        value: Math.round(randomFloat(0, 1)),
+      }],
   },
   // { For TCP Later
   //   type: 'UPDATE_CONSOLE',
@@ -72,8 +72,8 @@ const generateFakeData = () => [
  */
 setInterval(() => {
   const fakeData = generateFakeData();
-  for (let item of fakeData) {
-    var udpData = new RuntimeData(item);
+  for (const item of fakeData) {
+    const udpData = new RuntimeData(item);
     client.send(Buffer.from(udpData.toArrayBuffer()), clientPort, hostname);
   }
 }, 1000);

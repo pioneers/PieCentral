@@ -8,7 +8,7 @@ message DawnData {
     }
 
     message Gamepad {
-	int32 index = 1; // Gamepad index, there may be up to 4
+        int32 index = 1; // Gamepad index, there may be up to 4
         repeated double axes = 2;
         repeated bool buttons = 3;
     }

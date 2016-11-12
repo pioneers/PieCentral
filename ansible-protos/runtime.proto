@@ -11,6 +11,7 @@ message RuntimeData {
 		string device_type = 1;
 		string device_name = 2;
 		float value = 3;
+		int64 uid = 4;
 	}
 	State robot_state = 1;
 	repeated SensorData sensor_data = 2;

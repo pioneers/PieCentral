@@ -7,8 +7,8 @@
 WIFI_INTERFACE=wlp2s0
 BBB_INTERFACE=enp0s20f0u2
 
-CMD="sudo /sbin/route add gw 192.168.7.1"
-ssh ubuntu@192.168.7.2 $CMD
+CMD="sudo /sbin/route add default gw 192.168.7.1"
+ssh -t ubuntu@192.168.7.2 $CMD
 
 iptables --table nat --append POSTROUTING --out-interface $WIFI_INTERFACE -j MASQUERADE
 iptables --append FORWARD --in-interface $BBB_INTERFACE -j ACCEPT

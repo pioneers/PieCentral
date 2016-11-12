@@ -8,23 +8,18 @@
 
 const dgram = require('dgram');
 const ProtoBuf = require('protobufjs');
-// const net = require('net');
 
 const dawnBuilder = ProtoBuf.loadProtoFile('../ansible-protos/ansible.proto');
 const DawnData = dawnBuilder.build('DawnData');
 const runtimeBuilder = ProtoBuf.loadProtoFile('../ansible-protos/runtime.proto');
 const RuntimeData = runtimeBuilder.build('RuntimeData');
-// const TCPData = runtimeBuilder.build('TCPData');
 
 const clientPort = 12346; // send port
 const serverPort = 12345; // receive port
-// const tcpPort = 12347;
 const hostname = 'localhost';
 const client = dgram.createSocket('udp4');// sender
 const server = dgram.createSocket('udp4'); // receiver
-// const tcp = net.connect({port: tcpPort}, () => {
-//   console.log('Connected to Dawn!');
-// });
+const SENDRATE = 1000;
 
 /**
  * Handler to receive messages from Dawn.
@@ -48,7 +43,6 @@ const randomFloat = (min, max) => ((max - min) * Math.random() + min);
  */
 const generateFakeData = () => [
   {
-    // type: 'UPDATE_STATUS',
     robot_state: 0,
     sensor_data: [{
       device_type: 'MOTOR_SCALAR',
@@ -61,10 +55,6 @@ const generateFakeData = () => [
         value: Math.round(randomFloat(0, 1)),
       }],
   },
-  // { For TCP Later
-  //   type: 'UPDATE_CONSOLE',
-  //   value: 'Some print statement\n',
-  // },
 ];
 
 /**
@@ -76,4 +66,4 @@ setInterval(() => {
     const udpData = new RuntimeData(item);
     client.send(Buffer.from(udpData.toArrayBuffer()), clientPort, hostname);
   }
-}, 1000);
+}, SENDRATE);

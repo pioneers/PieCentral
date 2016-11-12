@@ -21,6 +21,7 @@ const runtimeBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
 const TCPData = runtimeBuilder.build('TCPData');
 
+const SENDRATE = 1000;
 let test = 0;
 
 const net = require('net');
@@ -93,7 +94,7 @@ setInterval(() => {
       console.error('UDP socket error on send:', err);
     }
   });
-}, 1000);
+}, SENDRATE);
 
 /**
  * Handler to receive messages from the robot Runtime

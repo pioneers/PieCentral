@@ -13,48 +13,53 @@
 # basis.                                                                                     #
 ##############################################################################################
 
-# Install (most) apt-get packages ############################################################
-sudo apt-get install -y make build-essential gcc git htop curl memcached libevent-dev vim
 
-FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/PieCentral/frankfurter
-cd ~
+# Assume this Beaglebone has wifi
+# Run with root
 
-# Install python, pip, and pip packages ######################################################
-sudo apt-get -y upgrade
-sudo apt-get install -y python python-dev python-pip
-sudo pip install --upgrade pyserial pyyaml python-memcached flask flask-socketio eventlet
-# there's no stable release version of pyusb in pip right now, so we need the --pre flag
-sudo pip install --pre pyusb
+HOME=/home/ubuntu
 
-# Install pygrizzly ##########################################################################
-git clone https://github.com/pioneers/python-grizzly
-cd python-grizzly
-sudo python setup.py install
-cd ..
-sudo rm -rf python-grizzly
+timedatectl set-timezone America/Los_Angeles
 
-# download hibike and runtime ################################################################
-git clone https://github.com/pioneers/daemon ~/daemon
-git clone https://github.com/pioneers/hibike ~/hibike
-ln -s ~/hibike/hibikeDevices.csv ~/daemon/runtime/hibikeDevices.csv
+# Disable default Apache server (permanently)
+service apache2 stop
+systemctl disable apache2
+systemctl daemon-reload
 
-# set up things we need to update runtime and hibike #########################################
-mkdir -p ~/updates
-cp $FRANKFURTER_DIR/resources/update.sh ~/updates/
+# Install apt packages
+apt update -y && apt upgrade -y
+apt install -y man-db make build-essential gcc git vim
+apt install -y tmux htop curl memcached libevent-dev
+apt install -y python3 python3-dev python3-pip
+apt clean -y
 
-gpg --ignore-time-conflict --import $FRANKFURTER_DIR/resources/frankfurter_vincent.gpg
-gpg --ignore-time-conflict --sign-key vincentdonato@pioneers.berkeley.edu
+# Get PieCentral
+cd $HOME
+if [ ! -d PieCentral ]; then
+  git clone https://github.com/pioneers/PieCentral.git
+  cd PieCentral
+else
+  cd PieCentral
+  git pull origin master
+fi
+PIECENTRAL_DIR=$(git rev-parse --show-toplevel)
+FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
 
-# copy .conf files into /etc/init so that hibike/dawn/runtime start on boot ##################
+if [ ! -f $PIECENTRAL_DIR/runtime/hibikeDevices.csv ]; then
+  ln -s $PIECENTRAL_DIR/hibike/hibikeDevices.csv $PIECENTRAL_DIR/runtime/hibikeDevices.csv
+fi
+# pip3 install --upgrade -r $FRANKFURTER_DIR/resources/requirements.txt
+
+# set up things we need to update runtime and hibike
+mkdir -p $HOME/updates
+cp $FRANKFURTER_DIR/resources/update.sh $HOME/updates/
+
+# copy .conf files into /etc/init so that hibike/dawn/runtime start on boot
 sudo cp $FRANKFURTER_DIR/resources/runtime.conf /etc/init
 sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc/init
 sudo rm /etc/init.d/memcached
 
-#copy config files for grizzlies, memcached, and network interfaces
-sudo cp $FRANKFURTER_DIR/resources/50-grizzlybear.rules /etc/udev/rules.d/
+# copy config files for grizzlies, memcached, and network interfaces
 sudo cp $FRANKFURTER_DIR/resources/interfaces /etc/network/interfaces
 
-echo "export PYTHONPATH=$HOME/hibike:$PYTHONPATH" >> ~/.bashrc
-
-# stop the apache server from auto-starting
-sudo rm -f /etc/init.d/apache2
+echo "export PYTHONPATH=$HOME/hibike:$PYTHONPATH" >> $HOME/.bashrc  # .profile?

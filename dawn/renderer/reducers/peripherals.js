@@ -3,7 +3,7 @@ const peripherals = (state = {}, action) => {
 
   switch (action.type) {
     case 'UPDATE_PERIPHERAL':
-      nextState[action.peripheral.id] = action.peripheral;
+      nextState[action.peripheral.device_name] = action.peripheral;
       return nextState;
     case 'PERIPHERAL_DISCONNECT':
       delete nextState[action.peripheralId];

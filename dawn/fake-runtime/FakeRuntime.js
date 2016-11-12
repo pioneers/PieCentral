@@ -9,14 +9,17 @@
 const dgram = require('dgram');
 const ProtoBuf = require('protobufjs');
 
-const builder = ProtoBuf.loadProtoFile('../ansible-protos/ansible.proto');
-const DawnData = builder.build('DawnData');
+const dawnBuilder = ProtoBuf.loadProtoFile('../ansible-protos/ansible.proto');
+const DawnData = dawnBuilder.build('DawnData');
+const runtimeBuilder = ProtoBuf.loadProtoFile('../ansible-protos/runtime.proto');
+const RuntimeData = runtimeBuilder.build('RuntimeData');
 
-const clientPort = '12346'; // send port
-const serverPort = '12345'; // receive port
+const clientPort = 12346; // send port
+const serverPort = 12345; // receive port
 const hostname = 'localhost';
 const client = dgram.createSocket('udp4');// sender
 const server = dgram.createSocket('udp4'); // receiver
+const SENDRATE = 1000;
 
 /**
  * Handler to receive messages from Dawn.
@@ -40,63 +43,17 @@ const randomFloat = (min, max) => ((max - min) * Math.random() + min);
  */
 const generateFakeData = () => [
   {
-    type: 'UPDATE_STATUS',
-    status: { value: 0 },
-  },
-  {
-    type: 'UPDATE_PERIPHERAL',
-    peripheral: {
-      name: 'Motor 1',
-      peripheralType: 'MOTOR_SCALAR',
+    robot_state: 0,
+    sensor_data: [{
+      device_type: 'MOTOR_SCALAR',
+      device_name: 'Motor 1',
       value: randomFloat(-100, 100),
-      id: '1',
     },
-  },
-  {
-    type: 'UPDATE_PERIPHERAL',
-    peripheral: {
-      name: 'Limit Switch 1',
-      peripheralType: 'LimitSwitch',
-      value: Math.round(randomFloat(0, 1)),
-      id: '2',
-    },
-  },
-  {
-    type: 'UPDATE_PERIPHERAL',
-    peripheral: {
-      name: 'Scalar Sensor 1',
-      peripheralType: 'SENSOR_SCALAR',
-      value: randomFloat(-100, 100),
-      id: '3',
-    },
-  },
-  {
-    type: 'UPDATE_PERIPHERAL',
-    peripheral: {
-      name: 'Servo 1',
-      peripheralType: 'ServoControl',
-      value: Math.round(randomFloat(0, 180)),
-      id: '4',
-    },
-  },
-  {
-    type: 'UPDATE_PERIPHERAL',
-    peripheral: {
-      name: 'Color Sensor 1',
-      peripheralType: 'ColorSensor',
-      value: [
-        Math.round(randomFloat(0, 255)),
-        Math.round(randomFloat(0, 255)),
-        Math.round(randomFloat(0, 255)),
-        Math.round(randomFloat(0, 360)),
-        Math.round(randomFloat(0, 360)),
-      ],
-      id: '5',
-    },
-  },
-  {
-    type: 'UPDATE_CONSOLE',
-    value: 'Some print statement\n',
+      {
+        device_name: 'Limit Switch 1',
+        device_type: 'LimitSwitch',
+        value: Math.round(randomFloat(0, 1)),
+      }],
   },
 ];
 
@@ -105,8 +62,8 @@ const generateFakeData = () => [
  */
 setInterval(() => {
   const fakeData = generateFakeData();
-  // Don't know what Runtime protobufs look like so
-  // we are encoding with JSON for right now.
-  const encodedData = JSON.stringify(fakeData);
-  client.send(encodedData, clientPort, hostname);
-}, 500);
+  for (const item of fakeData) {
+    const udpData = new RuntimeData(item);
+    client.send(Buffer.from(udpData.toArrayBuffer()), clientPort, hostname);
+  }
+}, SENDRATE);

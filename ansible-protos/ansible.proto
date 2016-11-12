@@ -15,4 +15,5 @@ message DawnData {
 
     StudentCodeStatus student_code_status = 1;
     repeated Gamepad gamepads = 2;
+    repeated string peripheral_names = 3;
 }

@@ -21,7 +21,6 @@ const runtimeBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
 const TCPData = runtimeBuilder.build('TCPData');
 
-const SENDRATE = 1000;
 let test = 0;
 
 const net = require('net');
@@ -77,24 +76,6 @@ ipcMain.on('stateUpdate', (event, data) => {
     }
   });
 });
-
-setInterval(() => {
-  const message = new DawnData({
-    student_code_status: 1 - test,
-    gamepads: {
-      index: 1,
-      axes: [0.2],
-      buttons: [true],
-    },
-    peripheral_names: ['Test'],
-  });
-  const buffer = message.encode().toBuffer();
-  client.send(buffer, clientPort, hostname, (err) => {
-    if (err) {
-      console.error('UDP socket error on send:', err);
-    }
-  });
-}, SENDRATE);
 
 /**
  * Handler to receive messages from the robot Runtime

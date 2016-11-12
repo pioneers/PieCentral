@@ -43,17 +43,33 @@ const randomFloat = (min, max) => ((max - min) * Math.random() + min);
  */
 const generateFakeData = () => [
   {
-    robot_state: 0,
+    robot_state: Math.floor(randomFloat(0, 4)),
     sensor_data: [{
       device_type: 'MOTOR_SCALAR',
-      device_name: 'Motor 1',
+      uid: 100,
       value: randomFloat(-100, 100),
     },
       {
-        device_name: 'Limit Switch 1',
         device_type: 'LimitSwitch',
+        uid: 101,
         value: Math.round(randomFloat(0, 1)),
-      }],
+      },
+      {
+        device_type: 'SENSOR_SCALAR',
+        uid: 102,
+        value: randomFloat(-100, 100),
+      },
+      {
+        device_type: 'ServoControl',
+        uid: 103,
+        value: Math.round(randomFloat(0, 180)),
+      },
+      {
+        device_type: 'ColorSensor',
+        uid: 104,
+        value: Math.round(randomFloat(0, 255)),
+      },
+    ],
   },
 ];
 

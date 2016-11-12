@@ -11,8 +11,6 @@
      - Atalanta, the runtime code in our beaglebones
      - Protos, our protocol buffers used by Dawn and runtime
      - DevOps, which oversees axiom, frankfurter, and chrommunal
-    
-    ***Note that Hibike and Dawn are currently using the develop branch***
 
 ### If you want to learn more about these repositories, check out their directories!
 

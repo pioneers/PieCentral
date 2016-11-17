@@ -155,7 +155,7 @@ class UDPRecvClass(AnsibleHandler):
         self.recvBuffer = TwoBuffer()        
         packName = THREAD_NAMES.UDP_UNPACKAGER
         sockRecvName = THREAD_NAMES.UDP_RECEIVER
-        host = "" #TODO: determine host between dawn-runtime comm
+        host = "" #0.0.0.0
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.bind((host, UDPRecvClass.RECV_PORT))
         self.socket.setblocking(False)

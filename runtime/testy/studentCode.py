@@ -129,6 +129,7 @@ def infiniteMainLoop_main():
 def emergencyStop_setup():
   print("E-Stop setup")
 
+
 def emergencyStop_main():
   response = Robot.getValue("incrementer")
   response -= 1

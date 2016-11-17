@@ -10,7 +10,7 @@ send_port = 1236
 recv_port = 1235
 dawn_hz = 10
 
-def dawn_packager(data):
+def dawn_packager():
     proto_message = ansible_pb2.DawnData()
     proto_message.student_code_status = ansible_pb2.DawnData.TELEOP
     test_gamepad = proto_message.gamepads.add() 
@@ -24,14 +24,10 @@ def sender(port, send_queue):
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         while True:
             next_call = time.time()
-            msg = None
-            msg = dawn_packager(0)
+            msg = dawn_packager()
             s.sendto(msg, (host, send_port))
             next_call += 1.0/dawn_hz
-            try:
-                time.sleep(nextCall - time.time())
-            except ValueError:
-                continue
+            time.sleep(max(next_call - time.time(), 0))
 
 def receiver(port, receive_queue):
     host = '127.0.0.1'
@@ -59,5 +55,4 @@ sender_thread.start()
 #Just Here for testing, should not be run regularly
 if __name__ == "__main__":
     while True:
-    	#TODO deleted print statement print(data)
     	time.sleep(1)

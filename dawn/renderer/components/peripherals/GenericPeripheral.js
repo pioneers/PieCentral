@@ -20,7 +20,7 @@ const GenericPeripheral = (props) => (
 
 GenericPeripheral.propTypes = {
   name: React.PropTypes.string,
-  id: React.PropTypes.string,
+  id: React.PropTypes.number,
   peripheralType: React.PropTypes.string,
   value: React.PropTypes.oneOfType([
     React.PropTypes.string,

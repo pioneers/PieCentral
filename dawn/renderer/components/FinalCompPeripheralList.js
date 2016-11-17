@@ -22,11 +22,11 @@ const FinalCompPeripheralList = (props) => {
         _.toArray(props.peripherals),
         (peripheral) => (
           <Peripheral
-            key={peripheral.id}
-            id={peripheral.id}
-            name={peripheral.name}
+            key={peripheral.uid.low}
+            id={peripheral.uid.low}
+            name={peripheral.device_name}
             value={peripheral.value}
-            peripheralType={peripheral.peripheralType}
+            peripheralType={peripheral.device_type}
           />
         )
       ) : errorMsg

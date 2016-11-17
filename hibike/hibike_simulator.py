@@ -1,133 +1,160 @@
 import time, random
+import threading
+import multiprocessing
+import queue
 
-#weight of each time interval for flipping.
-#for example, there is a 5% chance the data will flip within 1 sec
-cutoffs = [0.05, 0.13, 0.15, 0.27, 0.5, 0.73, 0.85, 0.95, 0.99, 1.0]
+from hibike_util import *
 
-# Sensor type: (low value, high value, noise)
-sensor_values = {
-    '0x0000': (0, 1, 0),
-    '0x0001': (200, 800, 100),
-    '0x0002': (None, None, None),
-    '0x0003': (-256, 256, 10),
-    '0x0004': (0, 1, 0),
-    '0x0005': (0, 1, 0),
-    '0x0006': (None, None, None),
-    '0x0007': (None, None, None),
-    '0x0008': (None, None, None)
-}
+DETERMINISTIC_MODE = True
 
-class Hibike:
+fake_uids = [0 << 72, 7 << 72]
 
-    def __init__(self):
-        self.UIDs = [
-            '0x000000FFFFFFFFFFFFFFFF', '0x000100FFFFFFFFFFFFFFFF',
-            '0x000200FFFFFFFFFFFFFFFF', '0x000300FFFFFFFFFFFFFFFF',
-            '0x000400FFFFFFFFFFFFFFFF', '0x000500FFFFFFFFFFFFFFFF',
-            '0x000600FFFFFFFFFFFFFFFF', '0x000700FFFFFFFFFFFFFFFF',
-            '0x000800FFFFFFFFFFFFFFFF'
-         ]
-        #format Device Type (16) + Year (8) + ones (64)
-        self.subscribedTo = {}
-        self.sensors = []
+# This is what actually "knows" about. Only updated after enumeration
+uid_to_queue = {}
 
 
-    def getEnumeratedDevices(self):
-        """ Returns a list of tuples of UIDs and device types. """
+def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
+    devices = [FakeDevice(uid, stateQueue) for uid in fake_uids]
+    for device in devices:
+        device.start()
 
-        enum_devices = []
-        for UID in self.UIDs:
-            enum_devices.append((UID, UID[:6])) # (UID - in hex, Device type - in hex)
-        return enum_devices
+    # the main thread reads instructions from statemanager and forwards them to the appropriate device write threads
+    while True:
+        instruction, args = pipeFromChild.recv()
+        if instruction == "enumerate_all":
+            for device in devices:
+                device.instruction_queue.put(("ping", []))
+        elif instruction == "subscribe_device":
+            uid = args[0]
+            if uid in uid_to_queue:
+                uid_to_queue[uid].put(("subscribe", args))
+            else:
+                print('not found uid')
 
-    def subToDevices(self, deviceList):
-        """ deviceList - List of tuples of UIDs and delays. Creates a dictionary
-        storing UID, delay, time created (ms), previous data, whether data is
-        low and flip times (the next time the data should flip). Flip is when
-        data changes low to high or high to low.
+class FakeDevice():
+    def __init__(self, uid, stateQueue):
+        self.uid = uid
+        self.stateQueue = stateQueue
 
-        """
+        # Hibike doesn't actually know about these queues. They are here
+        # to simulate the hardware serial ports.
+        self.instruction_queue = queue.Queue()
+        self.fake_device_queue = queue.Queue()
+        self.fake_device_readings = queue.Queue()
 
-        for UID, delay in deviceList:
-            if UID in self.UIDs and UID not in self.subscribedTo:
-                last_time = time.time()*1000
-                self.subscribedTo[UID] = {'delay': delay, 'time': last_time}
-                self.subscribedTo[UID]['data'] = self.__getRandomData(UID, True)
-                self.subscribedTo[UID]['is_low'] = True
-                self.subscribedTo[UID]['flip_time'] = self.__calculateFlipTime(UID)
-            elif UID in self.UIDs and  UID in self.subscribedTo:
-                self.subscribedTo[UID]['delay'] = delay
-        return 0
+    def start(self):
+        fakeWriteThread = threading.Thread(
+            target=runDeviceWrite,
+            args=(self.instruction_queue, self.fake_device_queue),
+            daemon=True)
+        fakeReadThread = threading.Thread(
+            target=runDeviceRead,
+            args=(self.fake_device_readings, self.stateQueue, self.instruction_queue),
+            daemon=True)
+        fakeDeviceThread = threading.Thread(
+            target=runFakeSubscription,
+            args=(self.uid, self.fake_device_queue, self.fake_device_readings),
+            daemon=True)
 
-    def getData(self, UID, param):
-        """ Extracts all data for specific UID. Checks whether to update data,
-        flip data, or return previous data, and returns correct appropriate
-        data.
-        """
+        threads = [fakeWriteThread, fakeReadThread, fakeDeviceThread]
+        for thread in threads:
+            thread.start()
 
-        #TODO: param is currently unused
+def runDeviceWrite(instruction_queue, fake_device_queue):
+    """instruction_queue is input
+    fake_device_queue is output to smart sensor
+    """
+    while True:
+        instruction, args = instruction_queue.get()
 
-        delay = self.subscribedTo[UID]['delay']
-        last_time = self.subscribedTo[UID]['time']
-        flip_time = self.subscribedTo[UID]['flip_time']
-        curr_time = time.time()*1000
+        if instruction == "ping":
+            fake_device_queue.put(0)
+        elif instruction == "subscribe":
+            uid, delay, params = args
+            fake_device_queue.put(delay)
+            fake_device_queue.put(params)
 
-        should_flip = curr_time - delay >= flip_time
-        should_update = curr_time - delay >= last_time
-
-        if should_flip and should_update:
-            self.subscribedTo[UID]['time'] = curr_time
-            self.subscribedTo[UID]['data'] =  self.__getRandomData(UID, self.subscribedTo[UID]['is_low'])
-            self.subscribedTo[UID]['flip_time'] = self.__calculateFlipTime(UID)
-            self.subscribedTo[UID]['is_low'] = not self.subscribedTo[UID]['is_low']
-        elif should_update:
-            self.subscribedTo[UID]['time'] = curr_time
-            self.subscribedTo[UID]['data'] = self.__getRandomData(UID, not self.subscribedTo[UID]['is_low'])
-        return self.subscribedTo[UID]['data'] #returns sensor data
-
-    def __calculateFlipTime(self, UID):
-        """ Determines time of flip. """
-
-        rand, last_time = random.random(), self.subscribedTo[UID]['time']
-        noise = random.random()
-        for i in range(len(cutoffs)):
-            if rand < cutoffs[i]:
-                return (time.time() + noise + i)*1000
-
-    def __getRandomData(self, UID, is_low):
-        """ Finds device_type of UID and returns corresponding flipped data."""
-
-        device_type = UID[:6]
-        low, high, noise = sensor_values[device_type]
-        if low is None or high is None or noise is None:
-            return 0 # TODO: what to do with these device types?
-        if is_low:
-            return high + (random.random() - .5) * noise
+def runDeviceRead(fake_device_readings, stateQueue, instruction_queue):
+    while True:
+        result, values = fake_device_readings.get()
+        res = None
+        if result == "device_values":
+            res = (result, values)
+        elif result == "device_subscribed":
+            uid = values[0]
+            if uid in uid_to_queue:
+                del uid_to_queue[uid]
+            uid_to_queue[uid] = instruction_queue
+            res = (result, values)
         else:
-            return low + (random.random() - .5) * noise
+            print("Some error code received")
+            print(result, values)
 
-############
-## MOTORS ##
-############
+        if res is not None:
+            stateQueue.put(res)
 
-    def readValue(self, UID, param):
-        #param values: 0 - delay, 1 - last_time, 2 - data
+def runFakeSubscription(uid, fake_device_queue, fake_device_readings):
+    """fake_device_queue is input commands
+    fake_device_readings is output of fake readings
+    """
+    timeout = None
+    new_delay = False
+    while True:
         try:
-            return self.subscribedTo[UID][param]
-        except:
-            return 1
-
-    def writeValue(self, UID, param, value):
-        if param >= len(self.subscribedTo[UID]):
-            return 1
-        self.subscribedTo[UID][param] = value
-        return 0
-
+            delay = fake_device_queue.get(block=True, timeout=timeout)
+            new_delay = True
+        except queue.Empty:
+            pass
+        # Simulate enumeration
+        if delay == 0:
+            params = list(paramMap[uid_to_device_id(uid)].keys())
+            fake_device_readings.put(("device_subscribed", [uid, 0, params]))
+        # Simulate subscription
+        elif delay > 0:
+            if new_delay:
+                params = fake_device_queue.get()
+            param_types = [paramMap[uid_to_device_id(uid)][param][1] for param in params]
+            params_and_values = {}
+            if DETERMINISTIC_MODE:
+                for param, param_type in zip(params, param_types):
+                    if param_type in ("bool", ):
+                        params_and_values[param] = True
+                    elif param_type in ("uint8_t", "int8_t", "uint16_t", "int16_t", "uint32_t", "int32_t", "uint64_t", "int64_t"):
+                        params_and_values[param] = 123
+                    else:
+                        params_and_values[param] = 101
+            else:
+                for param, param_type in zip(params, param_types):
+                    if param_type in ("bool", ):
+                        params_and_values[param] = random.choice([True, False])
+                    elif param_type in ("uint8_t", "int8_t", "uint16_t", "int16_t", "uint32_t", "int32_t", "uint64_t", "int64_t"):
+                        params_and_values[param] = random.randrange(256)
+                    else:
+                        params_and_values[param] = random.random()
+            fake_device_readings.put(("device_values", [uid, list(params_and_values.items())]))
+            timeout = delay / 1000.0
+            new_delay = False
+        else:
+            print("Invalid negative delay: {:d}".format(delay))
 
 #############
 ## TESTING ##
 #############
 
 if __name__ == "__main__":
-    hi = Hibike()
-    hi.subToDevices([('0x000100FFFFFFFFFFFFFFFF', 1)])
+    DETERMINISTIC_MODE = False
+    pipeToChild, pipeFromChild = multiprocessing.Pipe()
+    badThingsQueue = multiprocessing.Queue()
+    stateQueue = multiprocessing.Queue()
+    newProcess = multiprocessing.Process(target=hibike_process, name="hibike_sim", args=[badThingsQueue, stateQueue, pipeFromChild])
+    newProcess.daemon = True
+    newProcess.start()
+    print("enumerating")
+    pipeToChild.send(["enumerate_all", []])
+    print(stateQueue.get())
+    print(stateQueue.get())
+    print("sending pipeToChild")
+    pipeToChild.send(["subscribe_device", [0, 1000, ["switch0", "switch2"]]])
+    print("done sending pipe"   )
+    while True:
+        print(stateQueue.get())

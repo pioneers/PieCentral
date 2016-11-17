@@ -46,3 +46,6 @@ class Robot:
   # TODO: Only for testing. Remove in final version
   def hibikeSubscribeDevice(self, uid, delay, params):
     self.toManager.put([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])
+
+  def hibikeEnumerateDevices(self):
+    self.toManager.put([HIBIKE_COMMANDS.ENUMERATE, []])

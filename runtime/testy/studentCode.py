@@ -75,6 +75,19 @@ def createKey_main():
   restarts = Robot.getValue("Restarts")
   Robot.setValue(restarts+1, "Restarts")
 
+def hibikeEnumerateDevices_setup():
+  Robot.hibikeEnumerateDevices()
+  # Wait for hibike to respond
+  time.sleep(.5)
+
+def hibikeEnumerateDevices_main():
+  devices = Robot.getValue("hibike", "devices")
+  uids = sorted(list(devices.keys()))
+  print("UIDS: {}".format(uids))
+  for uid in uids:
+    params = sorted(list(Robot.getValue("hibike", "devices", uid).keys()))
+    print("params: {}".format(params))
+
 def hibikeSubscribeDevice_setup():
   pass
 

@@ -14,8 +14,6 @@ import Ansible
 
 from runtimeUtil import *
 
-import hibikeSim
-
 # TODO:
 # 0. Set up testing code for the following features.
 # DONE 1. Have student code go through api to modify state.
@@ -52,6 +50,8 @@ def runtime():
         print(newBadThing.event)
         if newBadThing.event in restartEvents:
           break
+        else:
+          print(newBadThing)
       stateQueue.put([SM_COMMANDS.RESET, []])
       terminate_process(allProcesses[PROCESS_NAMES.STUDENT_CODE])
       restartCount += 1
@@ -201,6 +201,8 @@ def runtimeTest(testNames):
               print(newBadThing.event)
               if newBadThing.event in restartEvents:
                 break
+              else:
+                print(newBadThing)
             except Exception as e:
               print(e)
           stateQueue.put([SM_COMMANDS.RESET, []])
@@ -240,16 +242,27 @@ def startHibike(badThingsQueue, stateQueue, pipe):
   # badThingsQueue - queue to runtime
   # stateQueue - queue to stateManager
   # pipe - pipe from statemanager
+  def addPaths():
+    """Modify sys.path so we can find hibike.
+    """
+    path = os.path.dirname(os.path.abspath(__file__))
+    parent_path = path.rstrip("runtime/testy")
+    hibike = os.path.join(parent_path, "hibike")
+    sys.path.insert(1, hibike)
+
   try:
-    hibike = hibikeSim.HibikeSimulator(badThingsQueue, stateQueue, pipe)
-    hibike.start()
+    addPaths()
+    import hibike_simulator
+    hibike_simulator.hibike_process(badThingsQueue, stateQueue, pipe)
   except Exception as e:
     badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--test', nargs='*', help='Run specified tests. If no arguments, run all tests.')
     args = parser.parse_args()
+
     if args.test == None:
       runtime()
     else:

@@ -45,7 +45,8 @@ class StateManager(object):
 
   def makeHibikeResponseMap(self):
     hibikeResponseMapping = {
-      HIBIKE_RESPONSE.DEVICE_SUBBED: self.hibikeResponseDeviceSubbed
+      HIBIKE_RESPONSE.DEVICE_SUBBED.value: self.hibikeResponseDeviceSubbed,
+      HIBIKE_RESPONSE.DEVICE_VALUES.value: self.hibikeResponseDeviceValues
     }
     return hibikeResponseMapping
 
@@ -59,7 +60,7 @@ class StateManager(object):
      "list1" : [[[70, 0], ["five", 0], [14.3, 0]], 0],
      "string1" : ["abcde", 0],
      "runtime_meta" : [{"studentCode_main_count" : [0, 0]}, 0],
-     "hibike" : [{"device_subscribed" : [0, 0]}, 0]
+     "hibike" : [{"device_subscribed" : [0, 0], "devices": [{}, 0]}, 0]
     }
 
   def addPipe(self, processName, pipe):
@@ -67,23 +68,26 @@ class StateManager(object):
     pipe.send(RUNTIME_CONFIG.PIPE_READY.value)
 
   def createKey(self, keys):
+    try:
+      self.createKeyHelper(keys)
+    except TypeError:
+      error = StudentAPIKeyError(
+        "key '{}' is defined, but does not contain a dictionary.".format(key))
+      self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
+      return
+    self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(None)
+
+  def createKeyHelper(self, keys):
     currDict = self.state
     path = []
     for key in keys:
-      try:
-        if key not in currDict:
-          currDict[key] = [{}, 0]
-        path.append(currDict[key])
-        currDict = currDict[key][0]
-      except TypeError:
-        error = StudentAPIKeyError(
-          "key '{}' is defined, but does not contain a dictionary.".format(key))
-        self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
-        return
+      if key not in currDict:
+        currDict[key] = [{}, 0]
+      path.append(currDict[key])
+      currDict = currDict[key][0]
     currTime = time.time()
     for item in path:
       item[1] = currTime
-    self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(None)
 
   def getValue(self, keys):
     result = self.state
@@ -96,27 +100,30 @@ class StateManager(object):
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
 
   def setValue(self, value, keys):
-    currDict = self.state
     try:
-      path = []
-      for i, key in enumerate(keys[:-1]):
-        path.append(currDict[key])
-        currDict = currDict[key][0]
-      if len(keys) > 1:
-        i += 1
-      else:
-        i = 0
-      if keys[i] not in currDict:
-        raise Exception
-      path.append(currDict[keys[i]])
-      currDict[keys[i]][0] = value
-      currTime = time.time();
-      for item in path:
-        item[1] = currTime
+      self.setValueHelper(value, keys)
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(value)
     except:
       error = StudentAPIKeyError(self.dictErrorMessage(i, keys, currDict))
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
+
+  def setValueHelper(self, value, keys):
+    currDict = self.state
+    path = []
+    for i, key in enumerate(keys[:-1]):
+      path.append(currDict[key])
+      currDict = currDict[key][0]
+    if len(keys) > 1:
+      i += 1
+    else:
+      i = 0
+    if keys[i] not in currDict:
+      raise Exception
+    path.append(currDict[keys[i]])
+    currDict[keys[i]][0] = value
+    currTime = time.time();
+    for item in path:
+      item[1] = currTime
 
   def send_ansible(self):
     self.processMapping[PROCESS_NAMES.UDP_SEND_PROCESS].send(self.state)
@@ -139,19 +146,26 @@ class StateManager(object):
     self.state["runtime_meta"][0]["studentCode_main_count"][0] += 1
 
   def hibikeEnumerateAll(self, pipe):
-    pipe.send([HIBIKE_COMMANDS.ENUMERATE, []])
+    pipe.send([HIBIKE_COMMANDS.ENUMERATE.value, []])
 
   def hibikeSubscribeDevice(self, pipe, uid, delay, params):
-    pipe.send([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])
+    pipe.send([HIBIKE_COMMANDS.SUBSCRIBE.value, [uid, delay, params]])
 
   def hibikeWriteParams(self, pipe, uid, param_values):
-    pipe.send([HIBIKE_COMMANDS.WRITE, [uid, param_values]])
+    pipe.send([HIBIKE_COMMANDS.WRITE.value, [uid, param_values]])
 
   def hibikeReadParams(self, pipe, uid, params):
-    pipe.send([HIBIKE_COMMANDS.READ, [uid, params]])
+    pipe.send([HIBIKE_COMMANDS.READ.value, [uid, params]])
 
   def hibikeResponseDeviceSubbed(self, uid, delay, params):
+    for param in params:
+      self.createKeyHelper(["hibike", "devices", uid, param])
+      self.setValueHelper(None, ["hibike", "devices", uid, param])
     self.state["hibike"][0]["device_subscribed"][0] += 1
+
+  def hibikeResponseDeviceValues(self, uid, params):
+    for key, value in params:
+      self.setValueHelper(value, ["hibike", "devices", uid, key])
 
   def dictErrorMessage(self, erroredIndex, keys, currDict):
     keyChain = ""

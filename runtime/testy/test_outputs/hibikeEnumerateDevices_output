@@ -1,0 +1,32 @@
+UIDS: [0, 33056565380087516495872]
+params: ['switch0', 'switch1', 'switch2', 'switch3']
+params: ['enable0', 'enable1', 'enable2', 'enable3', 'servo0', 'servo1', 'servo2', 'servo3']
+UIDS: [0, 33056565380087516495872]
+params: ['switch0', 'switch1', 'switch2', 'switch3']
+params: ['enable0', 'enable1', 'enable2', 'enable3', 'servo0', 'servo1', 'servo2', 'servo3']
+UIDS: [0, 33056565380087516495872]
+params: ['switch0', 'switch1', 'switch2', 'switch3']
+params: ['enable0', 'enable1', 'enable2', 'enable3', 'servo0', 'servo1', 'servo2', 'servo3']
+BAD_EVENTS.END_EVENT
+UIDS: [0, 33056565380087516495872]
+params: ['switch0', 'switch1', 'switch2', 'switch3']
+params: ['enable0', 'enable1', 'enable2', 'enable3', 'servo0', 'servo1', 'servo2', 'servo3']
+UIDS: [0, 33056565380087516495872]
+params: ['switch0', 'switch1', 'switch2', 'switch3']
+params: ['enable0', 'enable1', 'enable2', 'enable3', 'servo0', 'servo1', 'servo2', 'servo3']
+UIDS: [0, 33056565380087516495872]
+params: ['switch0', 'switch1', 'switch2', 'switch3']
+params: ['enable0', 'enable1', 'enable2', 'enable3', 'servo0', 'servo1', 'servo2', 'servo3']
+BAD_EVENTS.END_EVENT
+UIDS: [0, 33056565380087516495872]
+params: ['switch0', 'switch1', 'switch2', 'switch3']
+params: ['enable0', 'enable1', 'enable2', 'enable3', 'servo0', 'servo1', 'servo2', 'servo3']
+UIDS: [0, 33056565380087516495872]
+params: ['switch0', 'switch1', 'switch2', 'switch3']
+params: ['enable0', 'enable1', 'enable2', 'enable3', 'servo0', 'servo1', 'servo2', 'servo3']
+UIDS: [0, 33056565380087516495872]
+params: ['switch0', 'switch1', 'switch2', 'switch3']
+params: ['enable0', 'enable1', 'enable2', 'enable3', 'servo0', 'servo1', 'servo2', 'servo3']
+BAD_EVENTS.END_EVENT
+Funtime Runtime is done having fun.
+TERMINATING

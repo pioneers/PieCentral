@@ -25,8 +25,6 @@ class PROCESS_NAMES(Enum):
   UDP_SEND_PROCESS    = "udpSendProcess"
   UDP_RECEIVE_PROCESS = "udpReceiveProcess"
   HIBIKE              = "hibike"
-  E_STOP              = "emergency_stop"
-  RESTART             = "restart"
 
 @unique
 class HIBIKE_COMMANDS(Enum):

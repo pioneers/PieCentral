@@ -48,4 +48,4 @@ class Robot:
     self.toManager.put([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])
 
   def emergencyStop(self):
-    self.toManager.put_nowait([SM_COMMANDS.EMERGENCY_STOP, []])
+    self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])

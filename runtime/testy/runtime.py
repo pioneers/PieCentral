@@ -52,9 +52,9 @@ def runtime():
       while True:
         newBadThing = badThingsQueue.get(block=True)
         print(newBadThing.event)
-        if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
-          emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
         if newBadThing.event in restartEvents:
+          if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
+            emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
           break
       stateQueue.put([SM_COMMANDS.RESET, []])
       terminate_process(allProcesses[PROCESS_NAMES.STUDENT_CODE])
@@ -154,7 +154,7 @@ def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
 
 def terminate_process(process):
   process.terminate()
-  for i in range(10):
+  for _ in range(10): #Gives 1 sec for process to terminate but allows it to terminate quicker
     time.sleep(.01) # Give the OS a chance to terminate the other process
     if not process.is_alive():
       break
@@ -207,9 +207,9 @@ def runtimeTest(testNames):
             try:
               newBadThing = badThingsQueue.get(block=True)
               print(newBadThing.event)
-              if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
-                emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
               if newBadThing.event in restartEvents:
+                if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
+                  emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
                 break
             except Exception as e:
               print(e)
@@ -255,37 +255,6 @@ def startHibike(badThingsQueue, stateQueue, pipe):
     hibike.start()
   except Exception as e:
     badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
-
-def justin_runtime():
-  badThingsQueue = multiprocessing.Queue()
-  stateQueue = multiprocessing.Queue()
-  spawnProcess = processFactory(badThingsQueue, stateQueue, sys.stdout)
-  restartCount = 0
-  emergency_stopped = False
-
-  try:
-    spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
-    spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
-    while True:
-      if restartCount >= 3 or emergency_stopped:
-        break
-      spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, "emergencyStop", 2)
-      while True:
-        newBadThing = badThingsQueue.get(block=True)
-        print("BAD:", newBadThing.event)
-        if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
-          emergency_stopped = True
-        if newBadThing.event in restartEvents:
-          break
-      stateQueue.put([SM_COMMANDS.RESET, []])
-      os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
-      restartCount += 1
-    print("Funtime Runtime is done having fun.")
-    print("TERMINATING")
-  except:
-    print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
-    print("Funtime Runtime Had Too Much Fun")
-    print(traceback.print_exception(*sys.exc_info()))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

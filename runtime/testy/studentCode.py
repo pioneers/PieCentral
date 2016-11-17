@@ -125,3 +125,17 @@ def infiniteMainLoop_main():
   print("main")
   while True:
     time.sleep(.1)
+
+def emergencyStop_setup():
+  print("E-Stop setup")
+
+
+def emergencyStop_main():
+  Robot.hibikeSubscribeDevice(1, 2, [3, 4])
+  response = Robot.getValue("incrementer")
+  response -= 1
+  if(response < 0):
+    Robot.emergencyStop()
+
+  Robot.setValue(response, "incrementer")
+  print("HIBIKE LOOP")

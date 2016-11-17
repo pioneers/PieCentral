@@ -52,6 +52,7 @@ def runtime():
       while True:
         newBadThing = badThingsQueue.get(block=True)
         print(newBadThing.event)
+        print(newBadThing.data)
         if newBadThing.event in restartEvents:
           if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
             emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
@@ -124,7 +125,7 @@ def startStateManager(badThingsQueue, stateQueue, runtimePipe):
     SM = stateManager.StateManager(badThingsQueue, stateQueue, runtimePipe)
     SM.start()
   except Exception as e:
-    badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event = BAD_EVENTS.STATE_MANAGER_CRASH))
 
 def startUDPSender(badThingsQueue, stateQueue, smPipe):
   try:

@@ -55,6 +55,8 @@ class StateManager(object):
   def initRobotState(self):
     t = time.time()
     self.state = {
+     "studentCodeState": [2, t],
+     "limit_switch": [["limit_switch", 0, 123456], t],
      "incrementer" : [2, t],
      "int1" : [112314, t],
      "float1": [987.123, t],
@@ -125,8 +127,8 @@ class StateManager(object):
   def send_ansible(self):
     self.processMapping[PROCESS_NAMES.UDP_SEND_PROCESS].send(self.state)
 
-  def recv_ansible(self, new_state):
-    self.state["bytes"][0] = new_state
+  def recv_ansible(self, new_data):
+    self.state.update(new_data)
 
   def getTimestamp(self, keys):
     currDict = self.state

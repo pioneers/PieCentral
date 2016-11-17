@@ -3,6 +3,8 @@ import threading
 import time
 import sys
 import selectors
+import runtime_pb2
+import ansible_pb2
 
 from runtimeUtil import *
 
@@ -88,13 +90,27 @@ class UDPSendClass(AnsibleHandler):
         def package(state):
             """Helper function that packages the current state.
 
-            Currently this function converts the input into bytes. This will
-            eventually be implemented to package the rawState into protos.
+            Parses through the state dictionary in key value pairs, creates a new message in the proto
+            for each sensor, and adds corresponding data to each field. Currently only supports a single limit_switch
+            switch as the rest of the state is just test fields.
             """
-            s = "TEST" 
-            b = bytearray(map(ord, s))
-            return b 
-
+            try:
+                proto_message = runtime_pb2.RuntimeData()
+                for devID, devVal in state.items():
+                    if (devID == 'studentCodeState'):
+                        proto_message.robot_state = devVal[0] #check if we are dealing with sensor data or student code state
+                    elif devID == 'limit_switch':
+                        test_sensor = proto_message.sensor_data.add() 
+                        test_sensor.device_name = devID
+                        test_sensor.device_type = devVal[0][0]
+                        test_sensor.value = devVal[0][1]
+                        test_sensor.uid = devVal[0][2]
+                return proto_message.SerializeToString() 
+            except Exception as e:
+                badThingsQueue.put(BadThing(sys.exc_info(),
+                    "UDP packager thread has crashed with error:" + str(e),
+                    event = BAD_EVENTS.UDP_SEND_ERROR,
+                    printStackTrace = True))
         while True:
             try:
                 nextCall = time.time()
@@ -103,11 +119,10 @@ class UDPSendClass(AnsibleHandler):
                 packState = package(rawState)
                 self.sendBuffer.replace(packState)
                 nextCall += 1.0/self.packagerHZ
-                if (nextCall > time.time()):
-                    time.sleep(nextCall - time.time())
-            except Exception:
+                time.sleep(max(nextCall - time.time(), 0))
+            except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
-                    "UDP packager thread has crashed with error:",  
+                    "UDP packager thread has crashed with error:" + str(e),  
                     event = BAD_EVENTS.UDP_SEND_ERROR, 
                     printStackTrace = True))
 
@@ -117,17 +132,16 @@ class UDPSendClass(AnsibleHandler):
         The current state that has already been packaged is gotten from the 
         TwoBuffer, and is sent to Dawn via a UDP socket.
         """
-        host = '127.0.0.1' #TODO: determine host in runtime-dawn comm
+        host = '192.168.128.30' #TODO: Make this not hard coded
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
             while True: 
                 try:
                     nextCall = time.time()
                     msg = self.sendBuffer.get()
-                    if msg != 0: 
+                    if msg != 0 and msg is not None: 
                         s.sendto(msg, (host, UDPSendClass.SEND_PORT))
                     nextCall += 1.0/self.socketHZ
-                    if (nextCall > time.time()):
-                        time.sleep(nextCall - time.time())
+                    time.sleep(max(nextCall - time.time()), 0)
                 except Exception:
                     badThingsQueue.put(BadThing(sys.exc_info(), 
                     "UDP sender thread has crashed with error: " + str(e),  
@@ -141,7 +155,7 @@ class UDPRecvClass(AnsibleHandler):
         self.recvBuffer = TwoBuffer()        
         packName = THREAD_NAMES.UDP_UNPACKAGER
         sockRecvName = THREAD_NAMES.UDP_RECEIVER
-        host = '127.0.0.1' #TODO: determine host between dawn-runtime comm
+        host = "" #0.0.0.0
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.bind((host, UDPRecvClass.RECV_PORT))
         self.socket.setblocking(False)
@@ -163,15 +177,29 @@ class UDPRecvClass(AnsibleHandler):
     def unpackageData(self):
         """Unpackages data from proto and sends to stateManager on the SM stateQueue
 
-        Sending data from dawn to stateManager is supported, the unpackage
-        function is currently unimplemented.
         """
         def unpackage(data):
-            """Function that takes a packaged proto and unpackages item
+            """Function that takes a packaged proto and unpackages the item
 
-            Currently simply returns the original data. Needs to be implemented
+            Parses through the python pseudo-class created by the protobuf and stores it into a dictionary.
+            All of the axes data and the button data, enumerates each value to follow a mapping shared by dawn,
+            and stores it in the dictionary with the gamepad index as a key.
+
+            student code status is also stored in this dictionary. This dictionary is added to the overall state
+            through the update method implemented in state manager.
             """
-            return data 
+            unpackaged_data = {}
+            received_proto = ansible_pb2.DawnData()
+            received_proto.ParseFromString(data)
+            unpackaged_data["student_code_status"] = [received_proto.student_code_status, time.time()]
+            all_gamepad_dict = {}
+            for gamepad in received_proto.gamepads:
+                gamepad_dict = {}
+                gamepad_dict["axes"] = dict(enumerate(gamepad.axes))
+                gamepad_dict["buttons"] = dict(enumerate(gamepad.buttons))
+                all_gamepad_dict[gamepad.index] = gamepad_dict
+            unpackaged_data["gamepads"] = [all_gamepad_dict, time.time()]
+            return unpackaged_data
 
         unpackagedData = unpackage(self.recvBuffer.get())
         self.stateQueue.put([SM_COMMANDS.RECV_ANSIBLE, [unpackagedData]])
@@ -189,9 +217,14 @@ class UDPRecvClass(AnsibleHandler):
 
         try:
             while True:
+                nextCall = time.time()
                 event = sel.select()
                 self.udpReceiver()
                 self.unpackageData()
+                try:
+                    time.sleep(nextCall - time.time())
+                except ValueError:
+                    continue
         except Exception as e:
             self.badThingsQueue.put(BadThing(sys.exc_info(),
             "UDP receiver thread has crashed with error: " + str(e),

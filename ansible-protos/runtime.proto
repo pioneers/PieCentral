@@ -6,12 +6,14 @@ message RuntimeData {
 		STUDENT_STOPPED = 2;
 		TELEOP = 3;
 		AUTO = 4;
+		ESTOP = 5;
 	}
 	message SensorData {
 		string device_type = 1;
 		string device_name = 2;
 		float value = 3;
-		int64 uid = 4;
+		uint64 uid = 4;
+		uint32 int_device_type = 5; 
 	}
 	State robot_state = 1;
 	repeated SensorData sensor_data = 2;

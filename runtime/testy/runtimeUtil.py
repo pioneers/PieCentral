@@ -10,6 +10,7 @@ class BAD_EVENTS(Enum):
   STUDENT_CODE_TIMEOUT      = "Student Code Timed Out"
   UNKNOWN_PROCESS           = "Unknown State Manager process name"
   STATE_MANAGER_KEY_ERROR   = "Error accessing key in State Manager"
+  STATE_MANAGER_CRASH       = "State Manager has Crashed"
   EMERGENCY_STOP            = "Robot Emergency Stopped"
   END_EVENT                 = "Process terminated" # Used for testing
   UDP_SEND_ERROR            = "UDPSend Process Crashed"

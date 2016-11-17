@@ -12,7 +12,7 @@ dawn_hz = 10
 
 def dawn_packager(data):
     proto_message = ansible_pb2.DawnData()
-    proto_message.student_code_status = 1
+    proto_message.student_code_status = ansible_pb2.DawnData.TELEOP
     test_gamepad = proto_message.gamepads.add() 
     test_gamepad.index = 0
     test_gamepad.axes.append(.5)

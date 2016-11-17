@@ -154,7 +154,7 @@ def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
 
 def terminate_process(process):
   process.terminate()
-  for _ in range(10): #Gives 1 sec for process to terminate but allows it to terminate quicker
+  for _ in range(10): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
     time.sleep(.01) # Give the OS a chance to terminate the other process
     if not process.is_alive():
       break
@@ -209,7 +209,7 @@ def runtimeTest(testNames):
               print(newBadThing.event)
               if newBadThing.event in restartEvents:
                 if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
-                  emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
+                  emergency_stopped = True # somehow kill student code using other method? right now just restarting on e-stop
                 break
             except Exception as e:
               print(e)

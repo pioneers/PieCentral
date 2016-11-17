@@ -13,9 +13,9 @@ import { updatePeripheral } from '../../renderer/actions/PeripheralActions';
 
 const hostname = 'localhost';
 const runtimeIP = 'localhost';
-const clientPort = 12345; // send port
-const serverPort = 12346; // receive port
-const tcpPort = 12347;
+const clientPort = 1236; // send port
+const serverPort = 1235; // receive port
+const tcpPort = 1237;
 const client = dgram.createSocket('udp4'); // sender
 const server = dgram.createSocket('udp4'); // receiver
 

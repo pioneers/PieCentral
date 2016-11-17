@@ -119,11 +119,10 @@ class UDPSendClass(AnsibleHandler):
                 packState = package(rawState)
                 self.sendBuffer.replace(packState)
                 nextCall += 1.0/self.packagerHZ
-                if (nextCall > time.time()):
-                    try:
-                        time.sleep(nextCall - time.time())
-                    except ValueError:
-                        continue
+                try:
+                    time.sleep(nextCall - time.time())
+                except ValueError:
+                    continue
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
                     "UDP packager thread has crashed with error:" + str(e),  

@@ -7,8 +7,10 @@ export const editorUpdate = (newVal) => ({
   code: newVal,
 });
 
-export const openFileSucceeded = () => ({
+export const openFileSucceeded = (data, filepath) => ({
   type: 'OPEN_FILE_SUCCEEDED',
+  code: data,
+  filepath,
 });
 
 export const openFile = () => ({

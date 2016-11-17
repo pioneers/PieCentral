@@ -19,7 +19,6 @@ export const updateBattery = (battery) => ({
   battery,
 });
 
-export const updateStatus = (status) => ({
+export const updateStatus = () => ({
   type: 'UPDATE_STATUS',
-  status,
 });

@@ -46,3 +46,6 @@ class Robot:
   # TODO: Only for testing. Remove in final version
   def hibikeSubscribeDevice(self, uid, delay, params):
     self.toManager.put([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])
+
+  def emergencyStop(self):
+    self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])

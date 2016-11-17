@@ -30,7 +30,9 @@ class StateManager(object):
       SM_COMMANDS.CREATE_KEY : self.createKey,
       SM_COMMANDS.SEND_ANSIBLE : self.send_ansible,
       SM_COMMANDS.RECV_ANSIBLE: self.recv_ansible,
-      SM_COMMANDS.GET_TIME : self.getTimestamp
+      SM_COMMANDS.GET_TIME : self.getTimestamp,
+      SM_COMMANDS.EMERGENCY_STOP: self.emergencyStop,
+      SM_COMMANDS.EMERGENCY_RESTART: self.emergencyRestart
     }
     return commandMapping
 
@@ -39,7 +41,8 @@ class StateManager(object):
       HIBIKE_COMMANDS.ENUMERATE: self.hibikeEnumerateAll,
       HIBIKE_COMMANDS.SUBSCRIBE: self.hibikeSubscribeDevice,
       HIBIKE_COMMANDS.READ: self.hibikeReadParams,
-      HIBIKE_COMMANDS.WRITE: self.hibikeWriteParams
+      HIBIKE_COMMANDS.WRITE: self.hibikeWriteParams,
+      HIBIKE_COMMANDS.E_STOP: self.hibikeEmergencyStop
     }
     return hibikeMapping
 
@@ -50,16 +53,17 @@ class StateManager(object):
     return hibikeResponseMapping
 
   def initRobotState(self):
+    t = time.time()
     self.state = {
-     "incrementer" : [2, 0],
-     "int1" : [112314, 0],
-     "float1": [987.123, 0],
-     "bool1" : [True, 0],
-     "dict1" : [{"inner_dict1_int" : [555, 0], "inner_dict_1_string": ["hello", 0]}, 0],
-     "list1" : [[[70, 0], ["five", 0], [14.3, 0]], 0],
-     "string1" : ["abcde", 0],
-     "runtime_meta" : [{"studentCode_main_count" : [0, 0]}, 0],
-     "hibike" : [{"device_subscribed" : [0, 0]}, 0]
+     "incrementer" : [2, t],
+     "int1" : [112314, t],
+     "float1": [987.123, t],
+     "bool1" : [True, t],
+     "dict1" : [{"inner_dict1_int" : [555, t], "inner_dict_1_string": ["hello", t]}, t],
+     "list1" : [[[70, t], ["five", t], [14.3, t]], t],
+     "string1" : ["abcde", t],
+     "runtime_meta" : [{"studentCode_main_count" : [0, t], "e_stopped" : [False, t]}, t],
+     "hibike" : [{"device_subscribed" : [0, t]}, t]
     }
 
   def addPipe(self, processName, pipe):
@@ -138,6 +142,13 @@ class StateManager(object):
   def studentCodeTick(self):
     self.state["runtime_meta"][0]["studentCode_main_count"][0] += 1
 
+  def emergencyStop(self):
+    self.state["runtime_meta"][0]["e_stopped"][0] = True
+    self.badThingsQueue.put(BadThing(sys.exc_info(), "Emergency Stop Activated", event = BAD_EVENTS.EMERGENCY_STOP, printStackTrace = False))
+
+  def emergencyRestart(self):
+    self.state["runtime_meta"][0]["e_stopped"][0] = False
+
   def hibikeEnumerateAll(self, pipe):
     pipe.send([HIBIKE_COMMANDS.ENUMERATE, []])
 
@@ -152,6 +163,9 @@ class StateManager(object):
 
   def hibikeResponseDeviceSubbed(self, uid, delay, params):
     self.state["hibike"][0]["device_subscribed"][0] += 1
+
+  def hibikeEmergencyStop(self, pipe):
+    pipe.send([HIBIKE_COMMANDS.E_STOP, []])
 
   def dictErrorMessage(self, erroredIndex, keys, currDict):
     keyChain = ""
@@ -183,15 +197,15 @@ class StateManager(object):
       request = self.input.get(block=True)
       cmdType = request[0]
       args = request[1]
-
       if(len(request) != 2):
         self.badThingsQueue.put(BadThing(sys.exc_info(), "Wrong input size, need list of size 2", event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
       elif cmdType in self.commandMapping:
         command = self.commandMapping[cmdType]
         command(*args)
       elif cmdType in self.hibikeMapping:
-        command = self.hibikeMapping[cmdType]
-        command(self.processMapping[PROCESS_NAMES.HIBIKE], *args)
+        if (not self.state["runtime_meta"][0]["e_stopped"][0]):
+          command = self.hibikeMapping[cmdType]
+          command(self.processMapping[PROCESS_NAMES.HIBIKE], *args)
       elif cmdType in self.hibikeResponseMapping:
         command = self.hibikeResponseMapping[cmdType]
         command(*args)

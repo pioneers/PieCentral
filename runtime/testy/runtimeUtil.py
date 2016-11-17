@@ -10,11 +10,12 @@ class BAD_EVENTS(Enum):
   STUDENT_CODE_TIMEOUT      = "Student Code Timed Out"
   UNKNOWN_PROCESS           = "Unknown State Manager process name"
   STATE_MANAGER_KEY_ERROR   = "Error accessing key in State Manager"
+  EMERGENCY_STOP            = "Robot Emergency Stopped"
   END_EVENT                 = "Process terminated" # Used for testing
   UDP_SEND_ERROR            = "UDPSend Process Crashed"
   UDP_RECV_ERROR            = "UDPRecv Process Crashed"
 
-restartEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT]
+restartEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT, BAD_EVENTS.EMERGENCY_STOP]
 
 @unique
 class PROCESS_NAMES(Enum):
@@ -31,6 +32,7 @@ class HIBIKE_COMMANDS(Enum):
   SUBSCRIBE = "subscribe_device"
   WRITE     = "write_params"
   READ      = "read_params"
+  E_STOP    = "stop_command"
 
 # TODO: Remove when Hibike is finished
 @unique
@@ -57,6 +59,8 @@ class SM_COMMANDS(Enum):
   RECV_ANSIBLE        = ()
   CREATE_KEY          = ()
   GET_TIME            = ()
+  EMERGENCY_STOP      = ()
+  EMERGENCY_RESTART   = ()
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMELIMIT      = 1

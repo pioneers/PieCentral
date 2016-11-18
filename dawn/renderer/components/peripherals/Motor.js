@@ -16,7 +16,7 @@ const Motor = (props) => (
         {numeral(props.value).format('+0.00')}
       </h4>
     </div>
-    <ProgressBar now={Math.abs(props.value)} />
+    <ProgressBar now={props.value} min={-100} />
   </div>
 );
 

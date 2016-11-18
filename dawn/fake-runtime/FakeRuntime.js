@@ -14,8 +14,8 @@ const DawnData = dawnBuilder.build('DawnData');
 const runtimeBuilder = ProtoBuf.loadProtoFile('../ansible-protos/runtime.proto');
 const RuntimeData = runtimeBuilder.build('RuntimeData');
 
-const clientPort = 12346; // send port
-const serverPort = 12345; // receive port
+const clientPort = 1235; // send port
+const serverPort = 1236; // receive port
 const hostname = 'localhost';
 const client = dgram.createSocket('udp4');// sender
 const server = dgram.createSocket('udp4'); // receiver

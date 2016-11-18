@@ -3,10 +3,11 @@ const peripherals = (state = {}, action) => {
 
   switch (action.type) {
     case 'UPDATE_PERIPHERAL':
-      nextState[action.peripheral.uid] = action.peripheral;
+      nextState[String(action.peripheral.uid.high) +
+      String(action.peripheral.uid.low)] = action.peripheral;
       return nextState;
     case 'PERIPHERAL_DISCONNECT':
-      delete nextState[action.peripheral.uid];
+      delete nextState[action.id];
       return nextState;
     default:
       return state;

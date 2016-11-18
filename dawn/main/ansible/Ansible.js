@@ -4,11 +4,17 @@ import RendererBridge from '../RendererBridge';
 import dgram from 'dgram';
 import _ from 'lodash';
 import { clearConsole, updateConsole } from '../../renderer/actions/ConsoleActions';
+import {
+    ansibleConnect,
+    ansibleDisconnect,
+    updateStatus,
+} from '../../renderer/actions/InfoActions';
+import { updatePeripheral } from '../../renderer/actions/PeripheralActions';
 
-const hostname = 'localhost';
-const clientPort = 12345; // send port
-const serverPort = 12346; // receive port
-const tcpPort = 12347;
+const runtimeIP = '192.168.128.22';
+const clientPort = 1236; // send port
+const serverPort = 1234; // receive port
+const tcpPort = 1237;
 const client = dgram.createSocket('udp4'); // sender
 const server = dgram.createSocket('udp4'); // receiver
 
@@ -20,8 +26,6 @@ const StudentCodeStatus = DawnData.StudentCodeStatus;
 const runtimeBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
 const TCPData = runtimeBuilder.build('TCPData');
-
-let test = 0;
 
 const net = require('net');
 net.createServer((socket) => {
@@ -70,7 +74,7 @@ ipcMain.on('stateUpdate', (event, data) => {
   const message = buildProto(data);
   const buffer = message.encode().toBuffer();
   // Send the buffer over UDP to the robot.
-  client.send(buffer, clientPort, hostname, (err) => {
+  client.send(buffer, clientPort, runtimeIP, (err) => {
     if (err) {
       console.error('UDP socket error on send:', err);
     }
@@ -81,19 +85,27 @@ ipcMain.on('stateUpdate', (event, data) => {
  * Handler to receive messages from the robot Runtime
  */
 server.on('message', (msg) => {
+  RendererBridge.reduxDispatch(ansibleConnect());
+  RendererBridge.reduxDispatch(updateStatus());
   try {
     const data = RuntimeData.decode(msg);
-    console.log(`Dawn received Runtime Information at ${(new Date).toISOString()}`);
-    test = 1 - test;
+    // console.log(`Dawn received: ${JSON.stringify(data)}\n`);
     for (const sensor of data.sensor_data) {
-      RendererBridge.reduxDispatch({
-        type: 'UPDATE_PERIPHERAL',
-        peripheral: sensor,
-      });
+      RendererBridge.reduxDispatch(updatePeripheral(sensor));
     }
   } catch (e) {
     console.log(`Error decoding: ${e}`);
   }
 });
 
-server.bind(serverPort, hostname);
+server.on('error', (err) => {
+  console.log(`Server error:\n${err.stack}`);
+  server.close();
+});
+
+server.on('close', () => {
+  RendererBridge.reduxDispatch(ansibleDisconnect());
+  console.log('Server Closed');
+});
+
+server.bind(serverPort);

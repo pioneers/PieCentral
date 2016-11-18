@@ -28,7 +28,6 @@ const info = (state = {}, action) => {
     case 'UPDATE_STATUS':
       return {
         ...state,
-        isRunningCode: (action.status.value === 1),
       };
     default:
       return state;

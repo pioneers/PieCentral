@@ -140,12 +140,13 @@ function* runtimeHeartbeat() {
  * recently (they are assumed to be disconnected).
  */
 function* reapPeripheral(action) {
-  const id = action.peripheral.uid.low;
+  const id = String(action.peripheral.uid.high) + String(action.peripheral.uid.low);
   // Start a race between a delay and receiving an UPDATE_PERIPHERAL action for
   // this same peripheral (per peripheral.id). Only the winner has a value.
   const result = yield race({
     peripheralUpdate: take((nextAction) => (
-      nextAction.type === 'UPDATE_PERIPHERAL' && nextAction.peripheral.uid.low === id
+      nextAction.type === 'UPDATE_PERIPHERAL' && (String(nextAction.peripheral.uid.high)
+      + String(nextAction.peripheral.uid.low)) === id
     )),
     timeout: call(delay, 3000), // The delay is 3000 ms, or 3 seconds.
   });

@@ -23,7 +23,7 @@ const Motor = (props) => (
 Motor.propTypes = {
   name: React.PropTypes.string,
   value: React.PropTypes.number,
-  id: React.PropTypes.number,
+  id: React.PropTypes.string,
 };
 
 export default Motor;

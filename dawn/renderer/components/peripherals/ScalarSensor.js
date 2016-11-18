@@ -17,7 +17,7 @@ const ScalarSensor = (props) => (
 ScalarSensor.propTypes = {
   name: React.PropTypes.string,
   peripheralType: React.PropTypes.string,
-  id: React.PropTypes.number,
+  id: React.PropTypes.string,
   value: React.PropTypes.number,
 };
 

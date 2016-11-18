@@ -60,7 +60,7 @@ class NameEdit extends React.Component {
 
 NameEdit.propTypes = {
   name: React.PropTypes.string,
-  id: React.PropTypes.number,
+  id: React.PropTypes.string,
   peripherals: React.PropTypes.object,
 };
 

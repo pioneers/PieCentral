@@ -11,10 +11,9 @@ import {
 } from '../../renderer/actions/InfoActions';
 import { updatePeripheral } from '../../renderer/actions/PeripheralActions';
 
-const hostname = 'localhost';
-const runtimeIP = 'localhost';
+const runtimeIP = '192.168.128.22';
 const clientPort = 1236; // send port
-const serverPort = 1235; // receive port
+const serverPort = 1234; // receive port
 const tcpPort = 1237;
 const client = dgram.createSocket('udp4'); // sender
 const server = dgram.createSocket('udp4'); // receiver
@@ -90,6 +89,7 @@ server.on('message', (msg) => {
   RendererBridge.reduxDispatch(updateStatus());
   try {
     const data = RuntimeData.decode(msg);
+    // console.log(`Dawn received: ${JSON.stringify(data)}\n`);
     for (const sensor of data.sensor_data) {
       RendererBridge.reduxDispatch(updatePeripheral(sensor));
     }
@@ -108,4 +108,4 @@ server.on('close', () => {
   console.log('Server Closed');
 });
 
-server.bind(serverPort, hostname);
+server.bind(serverPort);

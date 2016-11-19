@@ -9,6 +9,7 @@ import filecmp
 
 import stateManager
 import studentAPI
+import Ansible
 
 from runtimeUtil import *
 
@@ -28,12 +29,6 @@ import hibikeSim
 
 allProcesses = {}
 
-# TODO:
-# 0. Set up testing code for the following features. 
-# 1. Have student code throw an exception. Make sure runtime catches gracefully.
-# 2. Have student code go through api to modify state. 
-
-
 def runtime():
   badThingsQueue = multiprocessing.Queue()
   stateQueue = multiprocessing.Queue()
@@ -41,6 +36,8 @@ def runtime():
   restartCount = 0
   try:
     spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
+    spawnProcess(PROCESS_NAMES.UDP_SEND_PROCESS, startUDPSender)
+    spawnProcess(PROCESS_NAMES.UDP_RECEIVE_PROCESS, startUDPReceiver)
     while True:
       if restartCount >= 5:
         print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
@@ -118,6 +115,20 @@ def startStateManager(badThingsQueue, stateQueue, runtimePipe):
     SM.start()
   except Exception as e:
     badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
+    
+def startUDPSender(badThingsQueue, stateQueue, smPipe):
+  try:
+    sendClass = Ansible.UDPSendClass(badThingsQueue, stateQueue, smPipe)
+    sendClass.start()
+  except Exception as e:
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.UDP_SEND_ERROR))
+
+def startUDPReceiver(badThingsQueue, stateQueue, smPipe):
+  try:
+    recvClass = Ansible.UDPRecvClass(badThingsQueue, stateQueue, smPipe)
+    recvClass.start()
+  except Exception as e:
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.UDP_RECV_ERROR))
 
 def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
   def spawnProcessHelper(processName, helper, *args):
@@ -209,3 +220,4 @@ def startHibike(badThingsQueue, stateQueue, pipe):
 
 if __name__ == "__main__":
   runtimeTest()
+  runtime()

@@ -11,6 +11,8 @@ class BAD_EVENTS(Enum):
   UNKNOWN_PROCESS           = "Unknown State Manager process name"
   STATE_MANAGER_KEY_ERROR   = "Error accessing key in State Manager"
   END_EVENT                 = "Process terminated" # Used for testing
+  UDP_SEND_ERROR            = "UDPSend Process Crashed"
+  UDP_RECV_ERROR            = "UDPRecv Process Crashed"
 
 restartEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT]
 
@@ -19,6 +21,8 @@ class PROCESS_NAMES(Enum):
   STUDENT_CODE        = "studentProcess"
   STATE_MANAGER       = "stateProcess"
   RUNTIME             = "runtime"
+  UDP_SEND_PROCESS    = "udpSendProcess"
+  UDP_RECEIVE_PROCESS = "udpReceiveProcess"
   HIBIKE              = "hibike"
 
 @unique
@@ -49,6 +53,8 @@ class SM_COMMANDS(Enum):
   STUDENT_MAIN_OK     = ()
   GET_VAL             = ()
   SET_VAL             = ()
+  SEND_ANSIBLE        = ()
+  RECV_ANSIBLE        = ()
   CREATE_KEY          = ()
 
 class RUNTIME_CONFIG(Enum):

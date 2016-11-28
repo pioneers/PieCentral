@@ -30,7 +30,10 @@ import hibikeSim
 
 allProcesses = {}
 
-def runtime():
+def runtime(testName=""):
+  testMode = testName != ""
+  maxIter = 3 if testMode else 0
+
   badThingsQueue = multiprocessing.Queue()
   stateQueue = multiprocessing.Queue()
   spawnProcess = processFactory(badThingsQueue, stateQueue)
@@ -42,31 +45,37 @@ def runtime():
     spawnProcess(PROCESS_NAMES.UDP_RECEIVE_PROCESS, startUDPReceiver)
     spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
     while True:
-      if restartCount >= 5 or emergency_stopped:
-        print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
-        print("Too many restarts, terminating")
+      if restartCount >= 3 or emergency_stopped:
+        if not testMode:
+          print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
+          print("Too many restarts, terminating")
         break
-      print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
-      print("Starting studentCode attempt: %s" % (restartCount,))
-      spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode)
+      if not testMode:
+        print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
+        print("Starting studentCode attempt: %s" % (restartCount,))
+      spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, maxIter)
       while True:
         newBadThing = badThingsQueue.get(block=True)
         print(newBadThing.event)
-        print(newBadThing.data)
+        if not testMode:
+          print(newBadThing.data)
         if newBadThing.event in restartEvents:
-          if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
+          if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
             emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
           break
       stateQueue.put([SM_COMMANDS.RESET, []])
-      terminate_process(allProcesses[PROCESS_NAMES.STUDENT_CODE])
+      terminate_process(PROCESS_NAMES.STUDENT_CODE)
       restartCount += 1
-    print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
+    if not testMode:
+      print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
     print("TERMINATING")
-  except:
+  except Exception as e:
     print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime Had Too Much Fun")
-    print(traceback.print_exception(*sys.exc_info()))
+    print(e)
+    print("".join(traceback.format_tb(sys.exc_info()[2])))
+
 
 def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0):
   try:
@@ -153,7 +162,8 @@ def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
     newProcess.start()
   return spawnProcessHelper
 
-def terminate_process(process):
+def terminate_process(processName):
+  process = allProcesses.pop(processName)
   process.terminate()
   for _ in range(10): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
     time.sleep(.01) # Give the OS a chance to terminate the other process
@@ -191,38 +201,10 @@ def runtimeTest(testNames):
 
       allProcesses.clear()
 
-      badThingsQueue = multiprocessing.Queue()
-      stateQueue = multiprocessing.Queue()
-      spawnProcess = processFactory(badThingsQueue, stateQueue, sys.stdout)
-      restartCount = 0
-      emergency_stopped = False
+      runtime(testName)
 
-      try:
-        spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
-        spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
-        while True:
-          if restartCount >= 3 or emergency_stopped:
-            break
-          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, 3)
-          while True:
-            try:
-              newBadThing = badThingsQueue.get(block=True)
-              print(newBadThing.event)
-              if newBadThing.event in restartEvents:
-                if(not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
-                  emergency_stopped = True # somehow kill student code using other method? right now just restarting on e-stop
-                break
-            except Exception as e:
-              print(e)
-          stateQueue.put([SM_COMMANDS.RESET, []])
-          terminate_process(allProcesses[PROCESS_NAMES.STUDENT_CODE])
-          restartCount += 1
-        print("Funtime Runtime is done having fun.")
-        print("TERMINATING")
-      except Exception as e:
-        print("Funtime Runtime Had Too Much Fun")
-        print(e)
-        print("".join(traceback.format_tb(sys.exc_info()[2])))
+      terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
+      terminate_process(PROCESS_NAMES.UDP_RECEIVE_PROCESS)
 
     if not testSuccess(testFileName):
       # Explicitly set output to terminal, since we overwrote it earlier

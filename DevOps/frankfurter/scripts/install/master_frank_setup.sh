@@ -13,51 +13,52 @@
 # basis.                                                                                     #
 ##############################################################################################
 
-
-# Assume this Beaglebone has wifi
-# Run with root
-
 HOME=/home/ubuntu
 
-timedatectl set-timezone America/Los_Angeles
+# Configure date and time
+sudo timedatectl set-timezone America/Los_Angeles
 
 # Disable default Apache server (permanently)
-service apache2 stop
-systemctl disable apache2
-systemctl daemon-reload
+sudo service apache2 stop
+sudo systemctl disable apache2
+sudo systemctl daemon-reload
 
 # Install apt packages
-apt update -y && apt upgrade -y
-apt install -y man-db make build-essential gcc git vim
-apt install -y tmux htop curl memcached libevent-dev
-apt install -y python3 python3-dev python3-pip
-apt clean -y
+sudo apt update -y && sudo apt upgrade -y
+sudo apt install -y autoconf automake libtool g++  # For compiling `protoc` from source
+sudo apt install -y man-db make build-essential gcc git vim tmux htop curl memcached libevent-dev unzip
+sudo apt install -y python3 python3-dev python3-pip  # Python dependencies
+sudo apt clean -y
+
+# Install Python packages
+sudo pip3 install -U pyserial pyyaml python-memcached flask flask-socketio eventlet pyusb protobuf
 
 # Get PieCentral
 cd $HOME
 if [ ! -d PieCentral ]; then
   git clone https://github.com/pioneers/PieCentral.git
-  cd PieCentral
-else
-  cd PieCentral
-  git pull origin master
 fi
+cd PieCentral
+
 PIECENTRAL_DIR=$(git rev-parse --show-toplevel)
 FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
 
 if [ ! -f $PIECENTRAL_DIR/runtime/hibikeDevices.csv ]; then
   ln -s $PIECENTRAL_DIR/hibike/hibikeDevices.csv $PIECENTRAL_DIR/runtime/hibikeDevices.csv
 fi
-# pip3 install --upgrade -r $FRANKFURTER_DIR/resources/requirements.txt
 
-# set up things we need to update runtime and hibike
+# Set up things we need to update runtime and hibike
 mkdir -p $HOME/updates
 cp $FRANKFURTER_DIR/resources/update.sh $HOME/updates/
 
 # copy .conf files into /etc/init so that hibike/dawn/runtime start on boot
-sudo cp $FRANKFURTER_DIR/resources/runtime.conf /etc/init
-sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc/init
-sudo rm /etc/init.d/memcached
+# cp $FRANKFURTER_DIR/resources/memcached.conf /etc
+# cp $FRANKFURTER_DIR/resources/runtime /etc/init.d
+# update-rc.d runtime defaults
+
+# sudo cp $FRANKFURTER_DIR/resources/runtime.conf /etc/init
+# sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc/init
+# sudo rm /etc/init.d/memcached
 
 # copy config files for grizzlies, memcached, and network interfaces
 sudo cp $FRANKFURTER_DIR/resources/interfaces /etc/network/interfaces

@@ -18,7 +18,6 @@ cd $UPDATES_DIR
 # fail fast. In particular, stop execution if the key cannot be verified.
 set -e
 
-# verify that the tarball came from us and not some random kid
 tar -xf $UPDATES_DIR/frankfurter-update-*.tar.gz -C $TEMP_DIR --warning=no-timestamp
 rm -rf $UPDATES_DIR/frankfurter-update*.tar.gz*
 

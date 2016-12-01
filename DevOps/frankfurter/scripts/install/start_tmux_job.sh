@@ -28,9 +28,9 @@ sudo apt-get update -y
 sudo apt-get install tmux -y
 
 # Clone frankfurter script files #############################################################
-git clone https://github.com/pioneers/PieCentral
+git clone https://github.com/pioneers/DevOps
 
-cd ~/PieCentral/DevOps/frankfurter
+cd ~/DevOps/frankfurter
 
 # Run .master_frank_setup.sh inside tmux #####################################################
 tmux new-session -d './scripts/install/master_frank_setup.sh'

@@ -33,6 +33,14 @@ sudo apt clean -y
 # Install Python packages
 sudo pip3 install -U pyserial pyyaml python-memcached flask flask-socketio eventlet pyusb protobuf
 
+# Install wireless dongle drivers
+git clone https://github.com/xtknight/mt7610u-linksys-ae6000-wifi-fixes.git drivers
+cd drivers
+make clean
+sudo apt-get install linux-headers-$(uname -r)
+make
+sudo make install
+
 # Get PieCentral
 cd $HOME
 if [ ! -d PieCentral ]; then

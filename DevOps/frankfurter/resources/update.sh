@@ -15,9 +15,10 @@ fi
 mkdir -p $TEMP_DIR
 cd $UPDATES_DIR
 
-# fail fast. In particular, stop execution if the key cannot be verified.
+# Stop execution after first failure
 set -e
 
+# Extract the tarball
 tar -xf $UPDATES_DIR/frankfurter-update-*.tar.gz -C $TEMP_DIR --warning=no-timestamp
 rm -rf $UPDATES_DIR/frankfurter-update*.tar.gz*
 

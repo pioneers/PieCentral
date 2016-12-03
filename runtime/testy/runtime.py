@@ -32,7 +32,7 @@ allProcesses = {}
 
 def runtime(testName=""):
   testMode = testName != ""
-  maxIter = 3 if testMode else 0
+  maxIter = 3 if testMode else None
 
   badThingsQueue = multiprocessing.Queue()
   stateQueue = multiprocessing.Queue()
@@ -45,11 +45,15 @@ def runtime(testName=""):
     spawnProcess(PROCESS_NAMES.UDP_RECEIVE_PROCESS, startUDPReceiver)
     spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
     while True:
-      if restartCount >= 3 or emergency_stopped:
-        if not testMode:
+      if not testMode:
+        if restartCount >= 3:
           print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
           print("Too many restarts, terminating")
-        break
+          break
+        if emergency_stopped:
+          print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
+          print("terminating due to E-Stop")
+          break
       if not testMode:
         print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
         print("Starting studentCode attempt: %s" % (restartCount,))
@@ -77,7 +81,7 @@ def runtime(testName=""):
     print("".join(traceback.format_tb(sys.exc_info()[2])))
 
 
-def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0):
+def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = None):
   try:
     import signal
 
@@ -112,7 +116,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = 0)
 
     # TODO: Replace execCount with a value in stateManager
     execCount = 0
-    while (not terminated) and (maxIter == 0 or execCount < maxIter):
+    while (not terminated) and (maxIter == None or execCount < maxIter):
       checkTimedOut(mainFunc)
       nextCall = time.time()
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
@@ -203,6 +207,7 @@ def runtimeTest(testNames):
 
       runtime(testName)
 
+      # Terminate Ansible to free up ports for further tests
       terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
       terminate_process(PROCESS_NAMES.UDP_RECEIVE_PROCESS)
 

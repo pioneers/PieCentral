@@ -54,7 +54,6 @@ def runtime(testName=""):
           print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
           print("terminating due to E-Stop")
           break
-      if not testMode:
         print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
         print("Starting studentCode attempt: %s" % (restartCount,))
       spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, maxIter)
@@ -116,7 +115,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
 
     # TODO: Replace execCount with a value in stateManager
     execCount = 0
-    while (not terminated) and (maxIter == None or execCount < maxIter):
+    while (not terminated) and (maxIter is None or execCount < maxIter):
       checkTimedOut(mainFunc)
       nextCall = time.time()
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value

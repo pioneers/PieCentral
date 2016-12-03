@@ -11,9 +11,9 @@ import {
 } from '../../renderer/actions/InfoActions';
 import { updatePeripheral } from '../../renderer/actions/PeripheralActions';
 
-const runtimeIP = '192.168.128.22';
+const runtimeIP = 'localhost';  // '192.168.128.22';
 const clientPort = 1236; // send port
-const serverPort = 1234; // receive port
+const serverPort = 1235; // receive port
 const tcpPort = 1237;
 const client = dgram.createSocket('udp4'); // sender
 const server = dgram.createSocket('udp4'); // receiver

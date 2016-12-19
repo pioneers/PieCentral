@@ -4,13 +4,11 @@
 #include "hibike_device.h"
 #include <Servo.h>
 
-#define NUM_PINS 4
-#define SERVO_0 6
-#define SERVO_1 9
-#define SERVO_2 10
-#define SERVO_3 11
+#define NUM_PINS 2
+#define SERVO_0 5
+#define SERVO_1 6
 
-#define LED_PIN 13
+#define LED_PIN 13 //unchanged
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
   SERVO_CONTROL,                      // Device Type
@@ -22,12 +20,8 @@ hibike_uid_t UID = {
 typedef enum {
   SERVOPARAM0,
   SERVOPARAM1,
-  SERVOPARAM2,
-  SERVOPARAM3,
   TOGGLE0,
   TOGGLE1,
-  TOGGLE2,
-  TOGGLE3
 } param;
 
 // function prototypes

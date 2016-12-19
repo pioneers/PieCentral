@@ -5,7 +5,7 @@
 
 #define NUM_PINS 3
 
-uint8_t pins[NUM_PINS] = {IO0, IO1, IO2};
+uint8_t pins[NUM_PINS] = {A0, A1, A2};
 
 
 //////////////// DEVICE UID ///////////////////

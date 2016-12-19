@@ -300,14 +300,30 @@ uint32_t device_status(uint8_t param) {
 //
 // You can use the helper function append_buf.
 // append_buf copies the specified amount data into the dst buffer and increments the offset
-uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
+uint8_t device_data_update(int param, uint8_t* data_update_buf, size_t buf_len) {
+
   if (buf_len < (sizeof(safe) + sizeof(connected) + sizeof(cellVoltageArrs[0][0]*NUM_CELLS) + sizeof(cellTotalArr[0]))) {
     return 0;
   }
+  if (param == 0 && MAX_PAYLOAD_SIZE - buf_len < sizeof(uint8_t)){
+    append_buf(data_update_buf, &offset, (uint8_t *)&connected, sizeof(uint8_t));
+  }
+  else if (param ==1 && MAX_PAYLOAD_SIZE - buf_len < sizeof(uint8_t) ){
+    append_buf(data_update_buf, &offset, (uint8_t *)&safe, sizeof(uint8_t));
+  }
+  else if(param >1 && param<5 && MAX_PAYLOAD_SIZE - buf_len < sizeof(float) ){
+    append_buf(data_update_buf, &offset, (uint8_t *)&safe, sizeof(safe));
+  }
+  else if(param >=2 && param<){
+    
+  }
+  else if(param >=2 && param<){
+
+  }
+  }
+  }
   uint8_t offset = 0;
   cli();
-  append_buf(data_update_buf, &offset, (uint8_t *)&safe, sizeof(safe));
-  append_buf(data_update_buf, &offset, (uint8_t *)&connected, sizeof(connected));
   append_buf(data_update_buf, &offset, (uint8_t *)&cellVoltageArrs[latestAnalogAccum][0], sizeof(cellVoltageArrs[0][0])*NUM_CELLS);
   append_buf(data_update_buf, &offset, (uint8_t *)&cellTotalArr[latestAnalogAccum], sizeof(cellTotalArr[0]));
   sei();

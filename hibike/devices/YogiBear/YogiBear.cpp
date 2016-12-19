@@ -1,7 +1,6 @@
 #include "YogiBear.h"
 
 // each device is responsible for keeping track of it's own params
-uint32_t params[NUM_PARAMS];
 
 /*
   YOGI BEAR PARAMS:
@@ -12,29 +11,48 @@ uint32_t params[NUM_PARAMS];
     inputB : {1 = High, 0 = Low}
 */
 
+/*
+   These variables have nothing to do with the
+   json file other than the fact that they have the
+   same name, but these could have been named anything.
+   They are simply dummy variables for hibike to interface with.
+   The realization of the control is reflected in the arduino
+   code.
+*/
 uint32_t duty;
 uint32_t fault;
 uint32_t forward;
 uint32_t inputA;
 uint32_t inputB;
 
+int INA = 4;
+int INB = 7;
+int PWM = 9;
+int EN = IO4;
+
+// int IN_ENA = I08;
+// int IN_ENB = IO9;
+volatile unsigned int encoder0Pos = 0; 
+//might need to process or not make unsigned
+
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
   hibike_setup();
+  pinMode(INA, OUTPUT);
+  pinMode(INB, OUTPUT);
+  pinMode(PWM, OUTPUT);
+  // pinMode(IN_ENA, INPUT); 
+  // digitalWrite(IN_ENA, HIGH);
+  // pinMode(IN_ENB, INPUT); 
+  // digitalWrite(IN_ENB, HIGH);
+  digitalWrite(INA, LOW);
+  digitalWrite(INB, HIGH);
+  // attachInterrupt(0, doEncoder, CHANGE);
 }
 
 // normal arduino loop function, you must call hibike_loop() here
 // hibike_loop will look for any packets in the serial buffer and handle them
 void loop() {
-
-  // do whatever you want here
-  // note that hibike will only process one packet per call to hibike_loop()
-  // so exessive delays here will affect hibike.
-  // value1++;
-  //   value2++;
-  //   value3++;
-  //   value4++;
-
   hibike_loop();
 }
 
@@ -61,8 +79,10 @@ uint32_t device_update(uint8_t param, uint32_t value) {
   switch (param) {
 
     case DUTY:
-      if (value <= 100) && (value >= 0) {
+      if ((value <= 100) && (value >= 0)) {
         duty = value;
+        int scaled255 = value * (255/100);
+        analogWrite(PWM, scaled255);
       }
       return duty;
       break;
@@ -71,6 +91,8 @@ uint32_t device_update(uint8_t param, uint32_t value) {
       forward = 1;
       inputA = 0;
       inputB = 1;
+      digitalWrite(INA, LOW);
+      digitalWrite(INB, HIGH);
       return forward;
       break;
 
@@ -78,8 +100,18 @@ uint32_t device_update(uint8_t param, uint32_t value) {
       forward = 0;
       inputA = 1;
       inputB = 0;
+      digitalWrite(INA, HIGH);
+      digitalWrite(INB, LOW);
       return forward;
       break;
+
+    case FAULT:
+      if (fault == 0){
+          // clearFault();
+          return fault;
+      } else {
+          return fault;
+      }
 
     default:
       return ~((uint32_t) 0);
@@ -104,6 +136,10 @@ uint32_t device_status(uint8_t param) {
     case FORWARD:
       return forward;
       break;
+
+    case REVERSE:
+      return !forward;
+      break;
   }
   return ~((uint32_t) 0);
 }
@@ -120,3 +156,63 @@ uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
   return offset;
 }
 
+
+
+uint32_t device_write(uint8_t param, uint8_t* data, size_t len){
+  uint8_t value;
+  switch (param) {
+    case PARAM_DUTY:
+      value = data[0];
+      if ((value <= 100) && (value >= 0)) {
+        duty = value;
+        int scaled255 = value * (255/100);
+        analogWrite(PWM, scaled255);
+      }
+      return sizeof(uint8_t);
+      break;
+    case PARAM_FORWARD:
+      value = data[0];
+      forward = value;
+      if (forward) {
+        forward = 1;
+        inputA = 0;
+        inputB = 1;
+        digitalWrite(INA, LOW);
+        digitalWrite(INB, HIGH);
+      } else {
+        forward = 0;
+        inputA = 1;
+        inputB = 0;
+        digitalWrite(INA, HIGH);
+        digitalWrite(INB, LOW);
+      }
+      return sizeof(uint8_t);
+      break;
+  }
+  return 0;
+}
+
+
+// you must implement this function. It is called with a buffer and a maximum buffer size.
+// The buffer should be filled with appropriate data for a DataUpdate packer, and the number of bytes
+// added to the buffer should be returned. 
+//
+// You can use the helper function append_buf.
+// append_buf copies the specified amount data into the dst buffer and increments the offset
+
+
+uint8_t device_data_update(int param, uint8_t* data_update_buf, size_t buf_len) {
+
+  switch (param) {
+    case PARAM_DUTY:
+      data_update_buf[0] = duty;
+      return sizeof(uint8_t);
+      break;
+    case PARAM_FORWARD:
+      data_update_buf[0] = forward;
+      return sizeof(uint8_t);
+      break;
+  }
+  return 0;
+
+}

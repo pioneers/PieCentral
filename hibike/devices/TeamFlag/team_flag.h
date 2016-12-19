@@ -7,34 +7,31 @@
 
 #define NUM_PINS 6
 // Team LEDs
-#define BLUE 6    // PWM
-#define YELLOW 9  // PWM
+#define BLUE 5    // PWM
+#define YELLOW 6  // PWM
 // Status LEDs
-#define STAT0 A0
-#define STAT1 A1
-#define STAT2 A2
-#define STAT3 A3
+#define LED1 A3
+#define LED2 A2
+#define LED3 A1
+#define LED4 A0
 
 #define LED_PIN 13
+
+#define PARAM_BLUE 1
+#define PARAM_YELLOW 2
+
+#define PARAM_LED1 3
+#define PARAM_LED2 4
+#define PARAM_LED3 5
+#define PARAM_LED4 6
+
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
   TEAM_FLAG,                      // Device Type
-  0,                      // Year
+  1,                      // Year
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////
-
-enum {
-  MODE_INITIAL = 0,  // Initial mode
-  MODE_DIRECT = 1,   // All LEDs controlled by the other parameters
-  MODE_DEMO = 2,     // Everything blinking quickly
-  MODE_ERROR = 3,    // Blink status LEDs quickly but leave team LEDs
-};
-enum {
-  TEAM_BLUE = 0,
-  TEAM_YELLOW = 1,
-  TEAM_NONE = 255,
-};
 
 // function prototypes
 void setup();
@@ -45,9 +42,8 @@ void update_param(uint8_t param, uint32_t value);
 
 // Device Update
 void deviceUpdate(uint8_t param, uint32_t value);
-uint16_t setLed(uint8_t pin, uint16_t value);
-void setupMode(uint8_t mode);
-void modeUpdateLeds(uint8_t mode);
+void setLed(uint8_t pin, uint16_t value);
+uint8_t getLed(uint8_t pin);
 
 // functions to control this device
 void toggleLED();

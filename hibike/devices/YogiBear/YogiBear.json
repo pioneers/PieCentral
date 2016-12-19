@@ -1,8 +1,8 @@
 {
-    "deviceID": "0x0006",
+    "deviceID": "0x0042",
     "deviceName": "YogiBear",
     "dataFormat": {
-        "formatString": "<b???",
+        "formatString": "",
         "parameters": [
         ]
     },

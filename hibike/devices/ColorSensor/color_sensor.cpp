@@ -92,16 +92,16 @@ uint32_t device_status(uint8_t param) {
 //
 // You can use the helper function append_buf.
 // append_buf copies the specified amount data into the dst buffer and increments the offset
-uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
-  if (buf_len < sizeof(uint16_t) * 4) {
+uint8_t device_data_update(int param, uint8_t* data_update_buf, size_t buf_len) {
+  if (buf_len < sizeof(uint16_t)|| param >3|| param<0) {
     return 0;
   }
   uint16_t *rgbc = (uint16_t *) data_update_buf;
 
   // this function will delay for whatever we set the integration time to ASSUMINGS ITS A VALID tcs34725IntegrationTime_t
   // because the library hardcoded delays with a switch statement instead of calculating them from the integration time...
-  tcs.getRawData(&rgbc[0], &rgbc[1], &rgbc[2], &rgbc[3]);
+  tcs.getRawData(&rgbc[param]);
 
-  return sizeof(uint16_t) * 4;
+  return sizeof(uint16_t);
 }
 

@@ -35,6 +35,7 @@ class Hibike():
         Make context.hibike point to this
         Spawn new thread
         """
+        self.virtuals = []
         self.config = {}          # {deviceType: {"deviceName": deviceName, paramName: paramID}}
         self.deviceTypes = {}     # {deviceType: DeviceType}
         self.deviceTypeFragments = {}
@@ -134,6 +135,9 @@ class Hibike():
                 json_file.close()
 
 
+    def addVirtualPort(self, port):
+        self.virtuals.append((port, None, None))
+
     def _enumerateSerialPorts(self):
         """Enumerates all devices that have a Smart Device attached. 
         Correct ports are identified by matching to port descriptors 
@@ -146,7 +150,7 @@ class Hibike():
         to denote that said device is no longer valid.
 
         """
-        portInfo = serialtools.grep('ttyACM')
+        portInfo = list(serialtools.grep('ttyACM')) + self.virtuals
         for ser, desc, hwid in portInfo:
             try:
                 delay = 0
@@ -389,7 +393,7 @@ class HibikeThread(threading.Thread):
         counter = 0
         if not self.hibike.serialToUID:
             return
-        randIter = self.hibike.serialToUID.keys()
+        randIter = list(self.hibike.serialToUID.keys())
         random.shuffle(randIter)
         for serialPort in randIter:
             packet = self.processPacket(serialPort)
@@ -519,7 +523,7 @@ class DeviceType():
             self.machineNames   = [str(param['machineName']) for param in parameters]
             self.humanNames     = [str(param['humanName']) for param in parameters]
             self.dataTuple      = namedtuple(self.deviceName, self.machineNames)
-            self.params         = map(str, json_dict["params"])
+            self.params         = list(map(str, json_dict["params"]))
             self.paramIDs       = {self.params[index]: index for index in range(len(self.params))}
         else:
             csv_row             = csv.reader(

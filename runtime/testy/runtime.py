@@ -4,12 +4,17 @@ import os
 import signal
 import sys
 import traceback
+import re
+import filecmp
+import argparse
 
 import stateManager
 import studentAPI
+import Ansible
 
 from runtimeUtil import *
 
+import hibikeSim
 
 # TODO:
 # 0. Set up testing code for the following features.
@@ -25,95 +30,224 @@ from runtimeUtil import *
 
 allProcesses = {}
 
-# TODO:
-# 0. Set up testing code for the following features. 
-# 1. Have student code throw an exception. Make sure runtime catches gracefully.
-# 2. Have student code go through api to modify state. 
+def runtime(testName=""):
+  testMode = testName != ""
+  maxIter = 3 if testMode else None
 
-
-def runtime():
   badThingsQueue = multiprocessing.Queue()
   stateQueue = multiprocessing.Queue()
   spawnProcess = processFactory(badThingsQueue, stateQueue)
   restartCount = 0
+  emergency_stopped = False
   try:
     spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
+    spawnProcess(PROCESS_NAMES.UDP_SEND_PROCESS, startUDPSender)
+    spawnProcess(PROCESS_NAMES.UDP_RECEIVE_PROCESS, startUDPReceiver)
+    spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
     while True:
-      if restartCount >= 5:
+      if not testMode:
+        if restartCount >= 3:
+          print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
+          print("Too many restarts, terminating")
+          break
+        if emergency_stopped:
+          print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
+          print("terminating due to E-Stop")
+          break
         print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
-        print("Too many restarts, terminating")
-        break
-      print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
-      print("Starting studentCode attempt: %s" % (restartCount,))
-      spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode)
+        print("Starting studentCode attempt: %s" % (restartCount,))
+      spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, maxIter)
       while True:
         newBadThing = badThingsQueue.get(block=True)
-        print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
-        print(newBadThing)
-        if (newBadThing.event == BAD_EVENTS.STUDENT_CODE_ERROR) or \
-            (newBadThing.event == BAD_EVENTS.STUDENT_CODE_TIMEOUT):
+        print(newBadThing.event)
+        if not testMode:
+          print(newBadThing.data)
+        if newBadThing.event in restartEvents:
+          if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
+            emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
           break
       stateQueue.put([SM_COMMANDS.RESET, []])
-      os.kill(allProcesses[PROCESS_NAMES.STUDENT_CODE].pid, signal.SIGKILL)
+      terminate_process(PROCESS_NAMES.STUDENT_CODE)
       restartCount += 1
-    print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
+    if not testMode:
+      print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
     print("TERMINATING")
-  except:
+  except Exception as e:
     print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime Had Too Much Fun")
-    print(traceback.print_exception(*sys.exc_info()))
+    print(e)
+    print("".join(traceback.format_tb(sys.exc_info()[2])))
 
-def runStudentCode(badThingsQueue, stateQueue, pipe):
+
+def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = None):
   try:
     import signal
-    def timed_out_handler(signum, frame):
-      raise TimeoutError("studentCode timed out")
-    signal.signal(signal.SIGALRM, timed_out_handler)
 
-    signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMEOUT.value)
+    terminated = False
+    def sigTermHandler(signum, frame):
+      nonlocal terminated
+      terminated = True
+    signal.signal(signal.SIGTERM, sigTermHandler)
+
+    def timedOutHandler(signum, frame):
+      raise TimeoutError("studentCode timed out")
+    signal.signal(signal.SIGALRM, timedOutHandler)
+
+    def checkTimedOut(func, *args):
+      signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMELIMIT.value)
+      func(*args)
+      signal.alarm(0)
+
+    signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMELIMIT.value)
     import studentCode
     signal.alarm(0)
+
+    if testName != "":
+      testName += "_"
+    setupFunc = getattr(studentCode, testName + "setup")
+    mainFunc = getattr(studentCode, testName + "main")
 
     r = studentAPI.Robot(stateQueue, pipe)
     studentCode.Robot = r
 
-    signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMEOUT.value)
-    studentCode.setup(pipe)
-    signal.alarm(0)
+    checkTimedOut(setupFunc)
 
-    nextCall = time.time()
-    while True:
-      signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMEOUT.value)
-      studentCode.main(stateQueue, pipe)
-      signal.alarm(0)
+    # TODO: Replace execCount with a value in stateManager
+    execCount = 0
+    while (not terminated) and (maxIter is None or execCount < maxIter):
+      checkTimedOut(mainFunc)
+      nextCall = time.time()
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
-      # TODO: Replace with count of times we call main
-      stateQueue.put([SM_COMMANDS.HELLO, []])
-      time.sleep(nextCall - time.time())
+      stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
+      time.sleep(max(nextCall - time.time(), 0))
+      execCount += 1
+
+    badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
+
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
-  except Exception:
+  except StudentAPIError:
+    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_VALUE_ERROR))
+  except Exception as e: #something broke in student code
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
 
 def startStateManager(badThingsQueue, stateQueue, runtimePipe):
   try:
     SM = stateManager.StateManager(badThingsQueue, stateQueue, runtimePipe)
     SM.start()
-  except Exception:
-    badThingsQueue.put(BadThing(sys.exc_info(), None))
+  except Exception as e:
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event = BAD_EVENTS.STATE_MANAGER_CRASH))
 
-def processFactory(badThingsQueue, stateQueue):
-  def spawnProcessHelper(processName, helper):
+def startUDPSender(badThingsQueue, stateQueue, smPipe):
+  try:
+    sendClass = Ansible.UDPSendClass(badThingsQueue, stateQueue, smPipe)
+    sendClass.start()
+  except Exception as e:
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.UDP_SEND_ERROR))
+
+def startUDPReceiver(badThingsQueue, stateQueue, smPipe):
+  try:
+    recvClass = Ansible.UDPRecvClass(badThingsQueue, stateQueue, smPipe)
+    recvClass.start()
+  except Exception as e:
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.UDP_RECV_ERROR))
+
+def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
+  def spawnProcessHelper(processName, helper, *args):
     pipeToChild, pipeFromChild = multiprocessing.Pipe()
     if processName != PROCESS_NAMES.STATE_MANAGER:
       stateQueue.put([SM_COMMANDS.ADD, [processName, pipeToChild]], block=True)
       pipeFromChild.recv()
-    newProcess = multiprocessing.Process(target=helper, name=processName.value, args=(badThingsQueue, stateQueue, pipeFromChild))
+    newProcess = multiprocessing.Process(target=helper, name=processName.value, args=[badThingsQueue, stateQueue, pipeFromChild] + list(args))
     allProcesses[processName] = newProcess
     newProcess.daemon = True
     newProcess.start()
   return spawnProcessHelper
 
+def terminate_process(processName):
+  process = allProcesses.pop(processName)
+  process.terminate()
+  for _ in range(10): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
+    time.sleep(.01) # Give the OS a chance to terminate the other process
+    if not process.is_alive():
+      break
+  if process.is_alive():
+    print("Termintating with EXTREME PREJUDICE")
+    print("Queue state is probably boned and we should restart entire runtime")
+    os.kill(process.pid, signal.SIGKILL)
+    raise NotImplementedError
+
+def runtimeTest(testNames):
+  # Normally dangerous. Allowed here because we put testing code there.
+  import studentCode
+
+  testNameRegex = re.compile(".*_setup")
+  allTestNames = [testName[:-len("_setup")] for testName in dir(studentCode) if testNameRegex.match(testName)]
+
+  if len(testNames) == 0:
+    print("Running all tests")
+    testNames = allTestNames
+  else:
+    for testName in testNames:
+      if testName not in allTestNames:
+        print("Error: {} not found.".format(testName))
+        return
+
+  failCount = 0
+  failedTests = []
+
+  for testName in testNames:
+    testFileName = "%s_output" % (testName,)
+    with open(testFileName, "w", buffering = 1) as testOutput:
+      sys.stdout = testOutput
+
+      allProcesses.clear()
+
+      runtime(testName)
+
+      # Terminate Ansible to free up ports for further tests
+      terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
+      terminate_process(PROCESS_NAMES.UDP_RECEIVE_PROCESS)
+
+    if not testSuccess(testFileName):
+      # Explicitly set output to terminal, since we overwrote it earlier
+      failCount += 1
+      failedTests.append(testName)
+    else:
+      os.remove(testFileName)
+
+  # Restore output to terminal
+  sys.stdout = sys.__stdout__
+  if failCount == 0:
+    print("All {0} tests passed.".format(len(testNames)))
+  else:
+    print("{0} of the {1} tests failed.".format(failCount, len(testNames)))
+    print("Output saved in {{test_name}}_output.")
+    print("Inspect with 'diff {{test_name}}_output {0}{{test_name}}_output".format(RUNTIME_CONFIG.TEST_OUTPUT_DIR.value))
+    for testName in failedTests:
+      print("    {0}".format(testName))
+
+def testSuccess(testFileName):
+  expectedOutput = RUNTIME_CONFIG.TEST_OUTPUT_DIR.value + testFileName
+  testOutput = testFileName
+  return filecmp.cmp(expectedOutput, testOutput)
+
+def startHibike(badThingsQueue, stateQueue, pipe):
+  # badThingsQueue - queue to runtime
+  # stateQueue - queue to stateManager
+  # pipe - pipe from statemanager
+  try:
+    hibike = hibikeSim.HibikeSimulator(badThingsQueue, stateQueue, pipe)
+    hibike.start()
+  except Exception as e:
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
+
 if __name__ == "__main__":
-  runtime()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--test', nargs='*', help='Run specified tests. If no arguments, run all tests.')
+    args = parser.parse_args()
+    if args.test == None:
+      runtime()
+    else:
+      runtimeTest(args.test)

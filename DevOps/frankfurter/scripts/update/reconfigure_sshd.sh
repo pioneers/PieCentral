@@ -6,7 +6,15 @@ IP=192.168.7.2
 
 cd $FRANKFURTER_DIR
 
-IDENTITY_PATH=~/.ssh/frankfurter_seiya
+DEFAULT_IDENTITY_PATH="~/.ssh/frankfurter_seiya"
+echo "Please enter the path to the identity file."
+printf "(Default: $DEFAULT_IDENTITY_PATH): "
+read IDENTITY_PATH
+if [ -z $IDENTITY_PATH ]; then
+  IDENTITY_PATH=$DEFAULT_IDENTITY_PATH
+fi
+IDENTITY_PATH="${IDENTITY_PATH/#\~/$HOME}"
+
 if [ -e $IDENTITY_PATH ]; then
   chmod 600 $IDENTITY_PATH
   echo "Restricted identity file permissions to user read/write."

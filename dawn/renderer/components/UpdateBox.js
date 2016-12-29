@@ -4,7 +4,6 @@ import {
   Button,
 } from 'react-bootstrap';
 import { remote } from 'electron';
-import Ansible from '../utils/Ansible';
 const dialog = remote.dialog;
 
 class UpdateBox extends React.Component {
@@ -40,34 +39,7 @@ class UpdateBox extends React.Component {
   }
 
   upgradeSoftware() {
-    this.setState({ isUploading: true });
-    Ansible.sendMessage('pre_update', {});
-    const updateP = new Promise((resolve, reject) => {
-      Ansible.uploadFile(this.state.updateFilepath, (err, res) => {
-        if (err) {
-          reject();
-        } else {
-          resolve(res);
-        }
-      });
-    });
-    const signatureP = new Promise((resolve, reject) => {
-      Ansible.uploadFile(this.state.signatureFilepath, (err, res) => {
-        if (err) {
-          reject();
-        } else {
-          resolve(res);
-        }
-      });
-    });
-    Promise.all([updateP, signatureP]).then((values) => {
-      Ansible.sendMessage('update', {
-        update_path: values[0].text,
-        signature_path: values[1].text,
-      });
-      this.setState({ isUploading: false });
-      this.props.hide();
-    });
+    console.log('Deprecated');
   }
 
   disableUploadUpdate() {

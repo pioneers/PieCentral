@@ -4,16 +4,41 @@ from enum import Enum, unique
 
 @unique
 class BAD_EVENTS(Enum):
-  BAD_EVENT             = "BAD THINGS HAPPENED"
-  STUDENT_CODE_ERROR    = "Student Code Crashed"
-  STUDENT_CODE_TIMEOUT  = "Student Code Timed Out"
-  UNKNOWN_PROCESS       = "Unknown State Manager process name"
+  BAD_EVENT                 = "BAD THINGS HAPPENED"
+  STUDENT_CODE_ERROR        = "Student Code Crashed"
+  STUDENT_CODE_VALUE_ERROR  = "Student Code Value Error"
+  STUDENT_CODE_TIMEOUT      = "Student Code Timed Out"
+  UNKNOWN_PROCESS           = "Unknown State Manager process name"
+  STATE_MANAGER_KEY_ERROR   = "Error accessing key in State Manager"
+  STATE_MANAGER_CRASH       = "State Manager has Crashed"
+  EMERGENCY_STOP            = "Robot Emergency Stopped"
+  END_EVENT                 = "Process terminated" # Used for testing
+  UDP_SEND_ERROR            = "UDPSend Process Crashed"
+  UDP_RECV_ERROR            = "UDPRecv Process Crashed"
+
+restartEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT, BAD_EVENTS.EMERGENCY_STOP]
 
 @unique
 class PROCESS_NAMES(Enum):
   STUDENT_CODE        = "studentProcess"
   STATE_MANAGER       = "stateProcess"
   RUNTIME             = "runtime"
+  UDP_SEND_PROCESS    = "udpSendProcess"
+  UDP_RECEIVE_PROCESS = "udpReceiveProcess"
+  HIBIKE              = "hibike"
+
+@unique
+class HIBIKE_COMMANDS(Enum):
+  ENUMERATE = "enumerate_all"
+  SUBSCRIBE = "subscribe_device"
+  WRITE     = "write_params"
+  READ      = "read_params"
+  E_STOP    = "stop_command"
+
+# TODO: Remove when Hibike is finished
+@unique
+class HIBIKE_RESPONSE(Enum):
+  DEVICE_SUBBED = "device_subscribed"
 
 @unique
 class SM_COMMANDS(Enum):
@@ -28,15 +53,22 @@ class SM_COMMANDS(Enum):
 
   RESET               = ()
   ADD                 = ()
-  HELLO               = ()
+  STUDENT_MAIN_OK     = ()
   GET_VAL             = ()
   SET_VAL             = ()
+  SEND_ANSIBLE        = ()
+  RECV_ANSIBLE        = ()
+  CREATE_KEY          = ()
+  GET_TIME            = ()
+  EMERGENCY_STOP      = ()
+  EMERGENCY_RESTART   = ()
 
 class RUNTIME_CONFIG(Enum):
-  STUDENT_CODE_TIMEOUT = 3
-  STUDENT_CODE_HZ    = 5 # Number of times to execute studentCode.main per second
-  DEBUG_DELIMITER_STRING  = "****************** RUNTIME DEBUG ******************"
-  PIPE_READY = ["ready"]
+  STUDENT_CODE_TIMELIMIT      = 1
+  STUDENT_CODE_HZ             = 20 # Number of times to execute studentCode.main per second
+  DEBUG_DELIMITER_STRING      = "****************** RUNTIME DEBUG ******************"
+  PIPE_READY                  = ["ready"]
+  TEST_OUTPUT_DIR             = "test_outputs/"
 
 class BadThing:
   def __init__(self, exc_info, data, event=BAD_EVENTS.BAD_EVENT, printStackTrace=True):
@@ -62,6 +94,12 @@ class BadThing:
       return self.stackTrace
     else:
       return str(self.data)
+
+class StudentAPIError(Exception):
+  pass
+
+class StudentAPIKeyError(StudentAPIError):
+  pass
 
 class TimeoutError(Exception):
   pass

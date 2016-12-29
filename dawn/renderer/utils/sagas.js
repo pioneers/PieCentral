@@ -5,10 +5,14 @@
  */
 
 import fs from 'fs';
-import { takeEvery, delay, eventChannel } from 'redux-saga';
-import { cps, call, put, fork, take, race, select } from 'redux-saga/effects';
-import { remote, ipcRenderer } from 'electron';
 import _ from 'lodash';
+import { delay, eventChannel, takeEvery } from 'redux-saga';
+import { call, cps, fork, put, race, select, take } from 'redux-saga/effects';
+import { ipcRenderer, remote } from 'electron';
+import { openFileSucceeded } from '../actions/EditorActions';
+import { updateGamepads } from '../actions/GamepadsActions';
+import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
+import { peripheralDisconnect } from '../actions/PeripheralActions';
 
 const dialog = remote.dialog;
 
@@ -65,11 +69,7 @@ function* openFile() {
   try {
     const filepath = yield call(openFileDialog);
     const data = yield cps(fs.readFile, filepath, 'utf8');
-    yield put({
-      type: 'OPEN_FILE_SUCCEEDED',
-      code: data,
-      filepath,
-    });
+    yield put(openFileSucceeded(data, filepath));
   } catch (e) {
     console.log('No filename specified, no file opened.');
   }
@@ -128,9 +128,9 @@ function* runtimeHeartbeat() {
 
     // If update wins, we assume we are connected, otherwise disconnected.
     if (result.update) {
-      yield put({ type: 'RUNTIME_CONNECT' });
+      yield put(runtimeConnect());
     } else {
-      yield put({ type: 'RUNTIME_DISCONNECT' });
+      yield put(runtimeDisconnect());
     }
   }
 }
@@ -140,12 +140,13 @@ function* runtimeHeartbeat() {
  * recently (they are assumed to be disconnected).
  */
 function* reapPeripheral(action) {
-  const id = action.peripheral.id;
+  const id = String(action.peripheral.uid.high) + String(action.peripheral.uid.low);
   // Start a race between a delay and receiving an UPDATE_PERIPHERAL action for
   // this same peripheral (per peripheral.id). Only the winner has a value.
   const result = yield race({
     peripheralUpdate: take((nextAction) => (
-      nextAction.type === 'UPDATE_PERIPHERAL' && nextAction.peripheral.id === id
+      nextAction.type === 'UPDATE_PERIPHERAL' && (String(nextAction.peripheral.uid.high)
+      + String(nextAction.peripheral.uid.low)) === id
     )),
     timeout: call(delay, 3000), // The delay is 3000 ms, or 3 seconds.
   });
@@ -153,7 +154,7 @@ function* reapPeripheral(action) {
   // If the delay won, then we have not received an update for this peripheral
   // recently and remove it from our state.
   if (result.timeout) {
-    yield put({ type: 'PERIPHERAL_DISCONNECT', peripheralId: id });
+    yield put(peripheralDisconnect(id));
   }
 }
 
@@ -193,14 +194,14 @@ function formatGamepads(newGamepads) {
  * Repeatedly grab gamepad data, send it over Ansible to the robot, and dispatch
  * redux action to update gamepad state.
  */
-function* updateGamepads() {
+function* ansibleGamepads() {
   while (true) {
     // navigator.getGamepads always returns a reference to the same object. This
     // confuses redux, so we use assignIn to clone to a new object each time.
     const newGamepads = _.assignIn({}, navigator.getGamepads());
     if (_needToUpdate(newGamepads)) {
       const formattedGamepads = formatGamepads(newGamepads);
-      yield put({ type: 'UPDATE_GAMEPADS', gamepads: formattedGamepads });
+      yield put(updateGamepads(formattedGamepads));
 
       // Send gamepad data to Runtime over Ansible.
       if (_.some(newGamepads)) {
@@ -235,11 +236,15 @@ function ansibleReceiver() {
  * it to the store
  */
 function* ansibleSaga() {
-  const chan = yield call(ansibleReceiver);
-  while (true) {
-    const action = yield take(chan);
-    // dispatch the action
-    yield put(action);
+  try {
+    const chan = yield call(ansibleReceiver);
+    while (true) {
+      const action = yield take(chan);
+      // dispatch the action
+      yield put(action);
+    }
+  } catch (e) {
+    console.log(e.stack);
   }
 }
 
@@ -264,7 +269,7 @@ export default function* rootSaga() {
     takeEvery('UPDATE_PERIPHERAL', reapPeripheral),
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     fork(runtimeHeartbeat),
-    fork(updateGamepads),
+    fork(ansibleGamepads),
     fork(ansibleSaga),
   ];
 }

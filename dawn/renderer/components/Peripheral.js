@@ -13,7 +13,6 @@ import GenericPeripheral from './peripherals/GenericPeripheral';
 import ScalarSensor from './peripherals/ScalarSensor';
 import Motor from './peripherals/Motor';
 import BooleanSensor from './peripherals/BooleanSensor';
-import ColorSensor from './peripherals/ColorSensor';
 
 // Mapping between peripheral types and components
 const typesToComponents = {};
@@ -24,7 +23,7 @@ typesToComponents[PeripheralTypes.LimitSwitch] = BooleanSensor;
 typesToComponents[PeripheralTypes.LineFollower] = ScalarSensor;
 typesToComponents[PeripheralTypes.Potentiometer] = ScalarSensor;
 typesToComponents[PeripheralTypes.Encoder] = ScalarSensor;
-typesToComponents[PeripheralTypes.ColorSensor] = ColorSensor;
+typesToComponents[PeripheralTypes.ColorSensor] = ScalarSensor;
 typesToComponents[PeripheralTypes.MetalDetector] = ScalarSensor;
 typesToComponents[PeripheralTypes.ServoControl] = ScalarSensor;
 

@@ -1,6 +1,7 @@
 # Welcome to the PiE Central Repo!
-
 ![alt text][logo]
+
+[![Build Status](https://travis-ci.org/pioneers/PieCentral.svg?branch=master)](https://travis-ci.org/pioneers/PieCentral)
 
 ## What is the Central Repo?
  - The PiE Central Repo is our main central repository that contains a bunch of other PiE repositories, including...
@@ -10,8 +11,6 @@
      - Atalanta, the runtime code in our beaglebones
      - Protos, our protocol buffers used by Dawn and runtime
      - DevOps, which oversees axiom, frankfurter, and chrommunal
-    
-    ***Note that Hibike and Dawn are currently using the develop branch***
 
 ### If you want to learn more about these repositories, check out their directories!
 
@@ -46,7 +45,7 @@ Merge conflicts may arise when rebasing, make sure to fix conflicts before conti
 
 ```
 $ git fetch origin master
-$ git rebase master
+$ git rebase origin/master
 $ git push origin {project_name/feature_name}
 ```
 Open a pull request to master.

@@ -2,7 +2,11 @@ language: node_js
 node_js:
 - "4"
 install:
+- cd dawn
 - make dawn-install
 script:
 - make dawn-test
 - make dawn-lint
+branches:
+  only:
+    - master

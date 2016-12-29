@@ -1,9 +1,8 @@
 #!/bin/bash
 
 ##############################################################################################
-# Pulls the newest versions of hibike and  runtime from github and packages them nicely      #
-# in a tarball along with the install_update.sh script. Then proceeds to digitally sign      #
-# the file so that the signature can be verified before the robot uses the tarball to update #
+# Pulls the newest versions of PieCentral from github and packages hibike and runtime nicely #
+# in a tarball along with the install_update.sh script.                                      #
 ##############################################################################################
 
 FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/DevOps/frankfurter
@@ -21,9 +20,9 @@ mkdir -p $TMP_DIR
 echo "Done."
 
 git pull origin master
+# Copy hibike and runtime
 cp -R $(git rev-parse --show-toplevel)/hibike $TMP_DIR/hibike
-# Copy as necessary
-# cp -R $(git rev-parse --show-toplevel)/runtime $TMP_DIR/runtime
+cp -R $(git rev-parse --show-toplevel)/runtime $TMP_DIR/runtime
 cp $FRANKFURTER_DIR/scripts/update/install_update.sh $TMP_DIR
 
 CURRENT_TIME=$(date +%s%N)

@@ -18,7 +18,10 @@ TEMP_DIR=$UPDATES_DIR/temp
 #mv $HOME_DIR/hibike $HOME_DIR/hibike_old
 #mv $HOME_DIR/hibike_new $HOME_DIR/hibike
 mv $HOME_DIR/PieCentral $HOME_DIR/PieCentral_old
-mv $TEMP_DIR/PieCentral $HOME_DIR/PieCentral
+rm -r $HOME_DIR/PieCentral/runtime
+rm -r $HOME_DIR/PieCentral/hibike
+mv $TEMP_DIR/hibike $HOME_DIR/PieCentral
+mv $TEMP_DIR/runtime $HOME_DIR/PieCentral
 
 
 ####################################################################################

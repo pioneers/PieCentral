@@ -4,11 +4,15 @@ import {
   Panel,
   Button,
   ButtonGroup,
+  ButtonToolbar,
+  DropdownButton,
+  MenuItem,
   Glyphicon,
   Row,
   Col,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
+import _ from 'lodash';
 
 // React-ace extensions and modes
 import 'brace/ext/language_tools';
@@ -141,48 +145,68 @@ class Editor extends React.Component {
               Editing: {this.pathToName(this.props.filepath)} {changeMarker}
             </Col>
             <Col md={6}>
-              <ButtonGroup className="pull-right">
-                <Button
-                  bsStyle="default"
-                  bsSize="small"
-                  onClick={this.startRobot}
-                  disabled={this.props.isRunningCode || !this.props.runtimeStatus}
-                >
-                  <Glyphicon glyph="play" />
-                </Button>
-                <Button
-                  bsStyle="default"
-                  bsSize="small"
-                  onClick={this.stopRobot}
-                  disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
-                >
-                  <Glyphicon glyph="stop" />
-                </Button>
-                <Button
-                  bsStyle="default"
-                  bsSize="small"
-                  onClick={this.upload}
-                  disabled={this.props.isRunningCode || !this.props.runtimeStatus}
-                >
-                  <Glyphicon glyph="upload" />
-                </Button>
-              </ButtonGroup>
-              <ButtonGroup className="pull-right">
-                <Button
-                  bsStyle="default"
-                  bsSize="small"
-                  onClick={this.toggleConsole}
-                >
-                  <Glyphicon glyph="console" />
-                </Button>
-                <Button
-                  bsStyle="default"
-                  bsSize="small"
-                  onClick={this.props.onClearConsole}
-                >
-                  <Glyphicon glyph="remove" />
-                </Button>
-              </ButtonGroup>
+              <ButtonToolbar className="pull-right">
+                <ButtonGroup>
+                  <Button
+                    bsStyle="default"
+                    bsSize="small"
+                    onClick={this.startRobot}
+                    disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+                  >
+                    <Glyphicon glyph="play" />
+                  </Button>
+                  <Button
+                    bsStyle="default"
+                    bsSize="small"
+                    onClick={this.stopRobot}
+                    disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
+                  >
+                    <Glyphicon glyph="stop" />
+                  </Button>
+                  <Button
+                    bsStyle="default"
+                    bsSize="small"
+                    onClick={this.upload}
+                    disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+                  >
+                    <Glyphicon glyph="upload" />
+                  </Button>
+                </ButtonGroup>
+                <ButtonGroup>
+                  <Button
+                    bsStyle="default"
+                    bsSize="small"
+                    onClick={this.toggleConsole}
+                  >
+                    <Glyphicon glyph="console" />
+                  </Button>
+                  <Button
+                    bsStyle="default"
+                    bsSize="small"
+                    onClick={this.props.onClearConsole}
+                  >
+                    <Glyphicon glyph="remove" />
+                  </Button>
+                </ButtonGroup>
+                <ButtonGroup>
+                  <DropdownButton
+                    title="Theme"
+                    bsSize="small"
+                    id="choose-theme"
+                    disabled={false}
+                  >
+                    {_.map(this.themes, (theme, index) => (
+                      <MenuItem
+                        active={theme === this.props.editorTheme}
+                        onClick={_.partial(this.props.onChangeTheme, theme)}
+                        key={index}
+                      >
+                        {theme}
+                      </MenuItem>
+                    ))}
+                  </DropdownButton>
+                </ButtonGroup>
+              </ButtonToolbar>
             </Col>
           </Row>
         }

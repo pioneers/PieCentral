@@ -52,6 +52,7 @@ class Editor extends React.Component {
     this.changeTheme = this.changeTheme.bind(this);
     this.increaseFontsize = this.increaseFontsize.bind(this);
     this.decreaseFontsize = this.decreaseFontsize.bind(this);
+    this.state = { editorHeight: this.getEditorHeight() };
   }
 
   componentDidMount() {
@@ -65,6 +66,11 @@ class Editor extends React.Component {
     storage.get('editorFontSize', (err, data) => {
       if (err) throw err;
       if (!_.isEmpty(data)) this.props.onChangeFontsize(data.editorFontSize);
+    });
+
+    // Trigger editor to re-render with window resize
+    window.addEventListener('resize', () => {
+      this.setState({ editorHeight: this.getEditorHeight() });
     });
   }
 

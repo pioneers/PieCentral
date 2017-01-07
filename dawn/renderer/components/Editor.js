@@ -8,6 +8,8 @@ import {
   DropdownButton,
   MenuItem,
   Glyphicon,
+  OverlayTrigger,
+  Tooltip,
   Row,
   Col,
 } from 'react-bootstrap';
@@ -175,6 +177,17 @@ class Editor extends React.Component {
     });
   }
 
+  renderTooltip(text, button) {
+    const tooltip = (
+      <Tooltip id="tooltip">{text}</Tooltip>
+    );
+    return (
+      <OverlayTrigger placement="top" overlay={tooltip}>
+        {button}
+      </OverlayTrigger>
+    );
+  }
+
   render() {
     const changeMarker = this.hasUnsavedChanges() ? '*' : '';
     return (
@@ -185,97 +198,111 @@ class Editor extends React.Component {
             <Col md={6}>
               Editing: {this.pathToName(this.props.filepath)} {changeMarker}
             </Col>
-            <Col md={6}>
-              <ButtonToolbar className="pull-right">
-                <ButtonGroup>
-                  <Button
-                    bsStyle="default"
-                    bsSize="small"
-                    onClick={this.startRobot}
-                    disabled={this.props.isRunningCode || !this.props.runtimeStatus}
-                  >
-                    <Glyphicon glyph="play" />
-                  </Button>
-                  <Button
-                    bsStyle="default"
-                    bsSize="small"
-                    onClick={this.stopRobot}
-                    disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
-                  >
-                    <Glyphicon glyph="stop" />
-                  </Button>
-                  <Button
-                    bsStyle="default"
-                    bsSize="small"
-                    onClick={this.upload}
-                    disabled={this.props.isRunningCode || !this.props.runtimeStatus}
-                  >
-                    <Glyphicon glyph="upload" />
-                  </Button>
-                </ButtonGroup>
-                <ButtonGroup>
-                  <Button
-                    bsStyle="default"
-                    bsSize="small"
-                    onClick={this.toggleConsole}
-                  >
-                    <Glyphicon glyph="console" />
-                  </Button>
-                  <Button
-                    bsStyle="default"
-                    bsSize="small"
-                    onClick={this.props.onClearConsole}
-                  >
-                    <Glyphicon glyph="remove" />
-                  </Button>
-                </ButtonGroup>
-                <ButtonGroup>
-                  <Button
-                    bsStyle="default"
-                    bsSize="small"
-                    onClick={this.openAPI}
-                  >
-                    <Glyphicon glyph="book" />
-                  </Button>
-                  <Button
-                    bsStyle="default"
-                    bsSize="small"
-                    onClick={this.increaseFontsize}
-                    disabled={this.props.fontSize > 28}
-                  >
-                    <Glyphicon glyph="zoom-in" />
-                  </Button>
-                  <Button
-                    bsStyle="default"
-                    bsSize="small"
-                    onClick={this.decreaseFontsize}
-                    disabled={this.props.fontSize < 8}
-                  >
-                    <Glyphicon glyph="zoom-out" />
-                  </Button>
-                </ButtonGroup>
-                <ButtonGroup>
-                  <DropdownButton
-                    title="Theme"
-                    bsSize="small"
-                    id="choose-theme"
-                  >
-                    {_.map(this.themes, (theme, index) => (
-                      <MenuItem
-                        active={theme === this.props.editorTheme}
-                        onClick={_.partial(this.changeTheme, theme)}
-                        key={index}
-                      >
-                        {theme}
-                      </MenuItem>
-                    ))}
-                  </DropdownButton>
-                </ButtonGroup>
-              </ButtonToolbar>
-            </Col>
           </Row>
         }
       >
+        <ButtonToolbar>
+          <ButtonGroup>
+            {this.renderTooltip('Run',
+              <Button
+                bsStyle="default"
+                bsSize="small"
+                onClick={this.startRobot}
+                disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+              >
+                <Glyphicon glyph="play" />
+              </Button>
+            )}
+            {this.renderTooltip('Stop',
+              <Button
+                bsStyle="default"
+                bsSize="small"
+                onClick={this.stopRobot}
+                disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
+              >
+                <Glyphicon glyph="stop" />
+              </Button>
+            )}
+            {this.renderTooltip('Upload',
+              <Button
+                bsStyle="default"
+                bsSize="small"
+                onClick={this.upload}
+                disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+              >
+                <Glyphicon glyph="upload" />
+              </Button>
+            )}
+          </ButtonGroup>
+          <ButtonGroup>
+            {this.renderTooltip('Toggle Console',
+              <Button
+                bsStyle="default"
+                bsSize="small"
+                onClick={this.toggleConsole}
+              >
+                <Glyphicon glyph="console" />
+              </Button>
+            )}
+            {this.renderTooltip('Clear Console',
+              <Button
+                bsStyle="default"
+                bsSize="small"
+                onClick={this.props.onClearConsole}
+              >
+                <Glyphicon glyph="remove" />
+              </Button>
+            )}
+          </ButtonGroup>
+          <ButtonGroup>
+            {this.renderTooltip('API Documentation',
+              <Button
+                bsStyle="default"
+                bsSize="small"
+                onClick={this.openAPI}
+              >
+                <Glyphicon glyph="book" />
+              </Button>
+            )}
+            {this.renderTooltip('Increase fontsize',
+              <Button
+                bsStyle="default"
+                bsSize="small"
+                onClick={this.increaseFontsize}
+                disabled={this.props.fontSize > 28}
+              >
+                <Glyphicon glyph="zoom-in" />
+              </Button>
+            )}
+            {this.renderTooltip('Decrease fontsize',
+              <Button
+                bsStyle="default"
+                bsSize="small"
+                onClick={this.decreaseFontsize}
+                disabled={this.props.fontSize < 8}
+              >
+                <Glyphicon glyph="zoom-out" />
+              </Button>
+            )}
+          </ButtonGroup>
+          <ButtonGroup>
+            <DropdownButton
+              title="Theme"
+              bsSize="small"
+              id="choose-theme"
+            >
+              {_.map(this.themes, (theme, index) => (
+                <MenuItem
+                  active={theme === this.props.editorTheme}
+                  onClick={_.partial(this.changeTheme, theme)}
+                  key={index}
+                >
+                  {theme}
+                </MenuItem>
+              ))}
+            </DropdownButton>
+          </ButtonGroup>
+        </ButtonToolbar>
         <AceEditor
           mode="python"
           theme={this.props.editorTheme}

@@ -16,6 +16,7 @@ import {
 import AceEditor from 'react-ace';
 import _ from 'lodash';
 import storage from 'electron-json-storage';
+import { remote } from 'electron';
 
 // React-ace extensions and modes
 import 'brace/ext/language_tools';
@@ -32,6 +33,9 @@ import 'brace/theme/textmate';
 import 'brace/theme/solarized_dark';
 import 'brace/theme/solarized_light';
 import 'brace/theme/terminal';
+
+const dialog = remote.dialog;
+const currentWindow = remote.getCurrentWindow();
 
 class Editor extends React.Component {
   constructor(props) {
@@ -58,6 +62,33 @@ class Editor extends React.Component {
   }
 
   componentDidMount() {
+    // If there are unsaved changes and the user tries to close Dawn,
+    // check if they want to save their changes first.
+    window.onbeforeunload = (e) => {
+      if (this.hasUnsavedChanges()) {
+        e.returnValue = false;
+        dialog.showMessageBox({
+          type: 'warning',
+          buttons: ['Save and exit', 'Quit without saving', 'Cancel exit'],
+          title: 'You have unsaved changes!',
+          message: 'You are trying to exit Dawn, but you have unsaved changes. ' +
+          'What do you want to do with your unsaved changes?',
+        }, (res) => {
+          // 'res' is an integer corrseponding to index in button list above.
+          if (res === 0) {
+            this.props.onSaveFile();
+            window.onbeforeunload = null;
+            currentWindow.close();
+          } else if (res === 1) {
+            window.onbeforeunload = null;
+            currentWindow.close();
+          } else {
+            console.log('Exit canceled.');
+          }
+        });
+      }
+    };
+
     this.refs.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
 
     storage.get('editorTheme', (err, data) => {
@@ -337,6 +368,7 @@ Editor.propTypes = {
   consoleData: React.PropTypes.array,
   onAlertAdd: React.PropTypes.func,
   onEditorUpdate: React.PropTypes.func,
+  onSaveFile: React.PropTypes.func,
   onChangeTheme: React.PropTypes.func,
   onChangeFontsize: React.PropTypes.func,
   onShowConsole: React.PropTypes.func,

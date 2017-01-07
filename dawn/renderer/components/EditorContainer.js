@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import Editor from './Editor';
 import {
   editorUpdate,
+  saveFile,
 } from '../actions/EditorActions.js';
 import {
   changeTheme,
@@ -30,6 +31,9 @@ const mapDispatchToProps = (dispatch) => ({
   },
   onEditorUpdate: (newVal) => {
     dispatch(editorUpdate(newVal));
+  },
+  onSaveFile: (saveAs) => {
+    dispatch(saveFile(saveAs));
   },
   onChangeTheme: (theme) => {
     dispatch(changeTheme(theme));

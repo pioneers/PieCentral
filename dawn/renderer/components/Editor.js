@@ -13,6 +13,7 @@ import {
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import _ from 'lodash';
+import storage from 'electron-json-storage';
 
 // React-ace extensions and modes
 import 'brace/ext/language_tools';
@@ -48,10 +49,23 @@ class Editor extends React.Component {
     ];
     this.toggleConsole = this.toggleConsole.bind(this);
     this.getEditorHeight = this.getEditorHeight.bind(this);
+    this.changeTheme = this.changeTheme.bind(this);
+    this.increaseFontsize = this.increaseFontsize.bind(this);
+    this.decreaseFontsize = this.decreaseFontsize.bind(this);
   }
 
   componentDidMount() {
     this.refs.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
+
+    storage.get('editorTheme', (err, data) => {
+      if (err) throw err;
+      if (!_.isEmpty(data)) this.props.onChangeTheme(data.theme);
+    });
+
+    storage.get('editorFontSize', (err, data) => {
+      if (err) throw err;
+      if (!_.isEmpty(data)) this.props.onChangeFontsize(data.editorFontSize);
+    });
   }
 
   onEditorPaste(pasteData) {
@@ -134,6 +148,27 @@ class Editor extends React.Component {
     return (this.props.latestSaveCode !== this.props.editorCode);
   }
 
+  changeTheme(theme) {
+    this.props.onChangeTheme(theme);
+    storage.set('editorTheme', { theme }, (err) => {
+      if (err) throw err;
+    });
+  }
+
+  increaseFontsize() {
+    this.props.onChangeFontsize(this.props.fontSize + 1);
+    storage.set('editorFontSize', { editorFontSize: this.props.fontSize + 1 }, (err) => {
+      if (err) throw err;
+    });
+  }
+
+  decreaseFontsize() {
+    this.props.onChangeFontsize(this.props.fontSize - 1);
+    storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err) => {
+      if (err) throw err;
+    });
+  }
+
   render() {
     const changeMarker = this.hasUnsavedChanges() ? '*' : '';
     return (
@@ -199,14 +234,16 @@ class Editor extends React.Component {
                   <Button
                     bsStyle="default"
                     bsSize="small"
-                    onClick={this.props.onIncreaseFontsize}
+                    onClick={this.increaseFontsize}
+                    disabled={this.props.fontSize > 28}
                   >
                     <Glyphicon glyph="zoom-in" />
                   </Button>
                   <Button
                     bsStyle="default"
                     bsSize="small"
-                    onClick={this.props.onDecreaseFontsize}
+                    onClick={this.decreaseFontsize}
+                    disabled={this.props.fontSize < 8}
                   >
                     <Glyphicon glyph="zoom-out" />
                   </Button>
@@ -220,7 +257,7 @@ class Editor extends React.Component {
                     {_.map(this.themes, (theme, index) => (
                       <MenuItem
                         active={theme === this.props.editorTheme}
-                        onClick={_.partial(this.props.onChangeTheme, theme)}
+                        onClick={_.partial(this.changeTheme, theme)}
                         key={index}
                       >
                         {theme}
@@ -268,8 +305,7 @@ Editor.propTypes = {
   onAlertAdd: React.PropTypes.func,
   onEditorUpdate: React.PropTypes.func,
   onChangeTheme: React.PropTypes.func,
-  onIncreaseFontsize: React.PropTypes.func,
-  onDecreaseFontsize: React.PropTypes.func,
+  onChangeFontsize: React.PropTypes.func,
   onShowConsole: React.PropTypes.func,
   onHideConsole: React.PropTypes.func,
   onClearConsole: React.PropTypes.func,

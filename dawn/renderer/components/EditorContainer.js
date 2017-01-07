@@ -5,8 +5,7 @@ import {
 } from '../actions/EditorActions.js';
 import {
   changeTheme,
-  increaseFontsize,
-  decreaseFontsize,
+  changeFontsize,
 } from '../actions/SettingsActions.js';
 import {
   showConsole,
@@ -35,11 +34,8 @@ const mapDispatchToProps = (dispatch) => ({
   onChangeTheme: (theme) => {
     dispatch(changeTheme(theme));
   },
-  onIncreaseFontsize: () => {
-    dispatch(increaseFontsize());
-  },
-  onDecreaseFontsize: () => {
-    dispatch(decreaseFontsize());
+  onChangeFontsize: (newFontsize) => {
+    dispatch(changeFontsize(newFontsize));
   },
   onShowConsole: () => {
     dispatch(showConsole());

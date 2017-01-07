@@ -189,11 +189,33 @@ class Editor extends React.Component {
                   </Button>
                 </ButtonGroup>
                 <ButtonGroup>
+                  <Button
+                    bsStyle="default"
+                    bsSize="small"
+                    onClick={this.openAPI}
+                  >
+                    <Glyphicon glyph="book" />
+                  </Button>
+                  <Button
+                    bsStyle="default"
+                    bsSize="small"
+                    onClick={this.props.onIncreaseFontsize}
+                  >
+                    <Glyphicon glyph="zoom-in" />
+                  </Button>
+                  <Button
+                    bsStyle="default"
+                    bsSize="small"
+                    onClick={this.props.onDecreaseFontsize}
+                  >
+                    <Glyphicon glyph="zoom-out" />
+                  </Button>
+                </ButtonGroup>
+                <ButtonGroup>
                   <DropdownButton
                     title="Theme"
                     bsSize="small"
                     id="choose-theme"
-                    disabled={false}
                   >
                     {_.map(this.themes, (theme, index) => (
                       <MenuItem

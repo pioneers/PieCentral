@@ -10,8 +10,6 @@ import {
   Glyphicon,
   OverlayTrigger,
   Tooltip,
-  Row,
-  Col,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import _ from 'lodash';
@@ -225,11 +223,9 @@ class Editor extends React.Component {
       <Panel
         bsStyle="primary"
         header={
-          <Row>
-            <Col md={6}>
-              Editing: {this.pathToName(this.props.filepath)} {changeMarker}
-            </Col>
-          </Row>
+          <span style={{ fontSize: '14' }}>
+            Editing: {this.pathToName(this.props.filepath)} {changeMarker}
+          </span>
         }
       >
         <ButtonToolbar>

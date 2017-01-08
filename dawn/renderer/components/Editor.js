@@ -121,7 +121,7 @@ class Editor extends React.Component {
   }
 
   getEditorHeight(windowHeight) {
-    return `${String(windowHeight - 135 - this.props.showConsole * (this.consoleHeight + 40))}px`;
+    return `${String(windowHeight - 160 - this.props.showConsole * (this.consoleHeight + 40))}px`;
   }
 
   correctText(text) {

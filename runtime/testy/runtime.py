@@ -226,7 +226,6 @@ def runtimeTest(testNames):
       sys.stdout = testOutput
 
       allProcesses.clear()
-
       runtime(testName)
 
       # Terminate Ansible to free up ports for further tests

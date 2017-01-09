@@ -71,14 +71,14 @@ function saveFileDialog() {
  *
  * @return {Promise} - fulfilled with button index.
  */
-function unsavedDialog() {
+function unsavedDialog(action) {
   return new Promise((resolve, reject) => {
     dialog.showMessageBox({
       type: 'warning',
-      buttons: ['Save and open', 'Discard and open', 'Cancel action'],
+      buttons: [`Save and ${action}`, `Discard and ${action}`, 'Cancel action'],
       title: 'You have unsaved changes!',
-      message: 'You are trying to open a new file, but you have unsaved changes to ' +
-      'your current one. What do you want to do?',
+      message: `You are trying to ${action} a new file, but you have unsaved changes to 
+your current one. What do you want to do?`,
     }, (res) => {
       // 'res' is an integer corrseponding to index in button list above.
       if (res === 0 || res === 1 || res === 2) {
@@ -125,7 +125,8 @@ function* saveFile(action) {
   }
 }
 
-function* openFile() {
+function* openFile(action) {
+  const type = (action.type === 'OPEN_FILE') ? 'open' : 'create';
   const selector = (state) => ({
     savedCode: state.editor.latestSaveCode,
     code: state.editor.editorCode,
@@ -133,7 +134,7 @@ function* openFile() {
   const result = yield select(selector);
   let res = 1;
   if (result.code !== result.savedCode) {
-    res = yield call(unsavedDialog);
+    res = yield call(unsavedDialog, type);
     if (res === 0) {
       yield* saveFile({
         type: 'SAVE_FILE',
@@ -142,15 +143,19 @@ function* openFile() {
     }
   }
   if (res === 0 || res === 1) {
-    try {
-      const filepath = yield call(openFileDialog);
-      const data = yield cps(fs.readFile, filepath, 'utf8');
-      yield put(openFileSucceeded(data, filepath));
-    } catch (e) {
-      console.log('No filename specified, no file opened.');
+    if (type === 'open') {
+      try {
+        const filepath = yield call(openFileDialog);
+        const data = yield cps(fs.readFile, filepath, 'utf8');
+        yield put(openFileSucceeded(data, filepath));
+      } catch (e) {
+        console.log('No filename specified, no file opened.');
+      }
+    } else if (type === 'create') {
+      yield put(openFileSucceeded('', null));
     }
   } else {
-    console.log('File open canceled.');
+    console.log(`File ${type} canceled.`);
   }
 }
 
@@ -310,6 +315,7 @@ export default function* rootSaga() {
   yield [
     takeEvery('OPEN_FILE', openFile),
     takeEvery('SAVE_FILE', saveFile),
+    takeEvery('CREATE_NEW_FILE', openFile),
     takeEvery('UPDATE_PERIPHERAL', reapPeripheral),
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     fork(runtimeHeartbeat),

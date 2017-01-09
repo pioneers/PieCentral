@@ -30,12 +30,7 @@ const editor = (state = defaultEditorState, action) => {
         latestSaveCode: action.code,
       };
     case 'CREATE_NEW_FILE':
-      return {
-        ...state,
-        filepath: null,
-        editorCode: '',
-        latestSaveCode: '',
-      };
+      return state;
     default:
       return state;
   }

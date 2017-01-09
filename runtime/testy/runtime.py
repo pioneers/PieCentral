@@ -221,11 +221,11 @@ def runtimeTest(testNames):
   for testName in testNames:
     testFileName = "%s_output" % (testName,)
     with open(testFileName, "w", buffering = 1) as testOutput:
-      print("Running test: {}".format(testName), end="")
-      sys.stdout.flush()
+      print("Running test: {}".format(testName), end="", flush=True)
       sys.stdout = testOutput
 
       allProcesses.clear()
+
       runtime(testName)
 
       # Terminate Ansible to free up ports for further tests

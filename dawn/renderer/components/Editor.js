@@ -1,15 +1,12 @@
 import React from 'react';
 import ConsoleOutput from './ConsoleOutput';
+import EditorButton from './EditorButton';
 import {
   Panel,
-  Button,
   ButtonGroup,
   ButtonToolbar,
   DropdownButton,
   MenuItem,
-  Glyphicon,
-  OverlayTrigger,
-  Tooltip,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import _ from 'lodash';
@@ -102,7 +99,7 @@ class Editor extends React.Component {
     // Trigger editor to re-render with window resize
     window.addEventListener('resize', () => {
       this.setState({ editorHeight: this.getEditorHeight() });
-    });
+    }, { passive: true });
   }
 
   onEditorPaste(pasteData) {
@@ -206,17 +203,6 @@ class Editor extends React.Component {
     });
   }
 
-  renderTooltip(text, button) {
-    const tooltip = (
-      <Tooltip id="tooltip">{text}</Tooltip>
-    );
-    return (
-      <OverlayTrigger placement="top" overlay={tooltip}>
-        {button}
-      </OverlayTrigger>
-    );
-  }
-
   render() {
     const changeMarker = this.hasUnsavedChanges() ? '*' : '';
     return (
@@ -229,106 +215,94 @@ class Editor extends React.Component {
         }
       >
         <ButtonToolbar>
-          <ButtonGroup>
-            {this.renderTooltip('Run',
-              <Button
-                bsStyle="default"
-                bsSize="small"
-                onClick={this.startRobot}
-                disabled={this.props.isRunningCode || !this.props.runtimeStatus}
-              >
-                <Glyphicon glyph="play" />
-              </Button>
-            )}
-            {this.renderTooltip('Stop',
-              <Button
-                bsStyle="default"
-                bsSize="small"
-                onClick={this.stopRobot}
-                disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
-              >
-                <Glyphicon glyph="stop" />
-              </Button>
-            )}
-            {this.renderTooltip('Upload',
-              <Button
-                bsStyle="default"
-                bsSize="small"
-                onClick={this.upload}
-                disabled={this.props.isRunningCode || !this.props.runtimeStatus}
-              >
-                <Glyphicon glyph="upload" />
-              </Button>
-            )}
+          <ButtonGroup id="file-operations-buttons">
+            <EditorButton
+              text="New"
+              onClick={this.props.onCreateNewFile}
+              glyph="file"
+            />
+            <EditorButton
+              text="Open"
+              onClick={this.props.onOpenFile}
+              glyph="folder-open"
+            />
+            <EditorButton
+              text="Save"
+              onClick={this.props.onSaveFile}
+              glyph="floppy-disk"
+            />
+            <EditorButton
+              text="Save As"
+              onClick={_.partial(this.props.onSaveFile, true)}
+              glyph="floppy-save"
+            />
           </ButtonGroup>
-          <ButtonGroup>
-            {this.renderTooltip('Toggle Console',
-              <Button
-                bsStyle="default"
-                bsSize="small"
-                onClick={this.toggleConsole}
-              >
-                <Glyphicon glyph="console" />
-              </Button>
-            )}
-            {this.renderTooltip('Clear Console',
-              <Button
-                bsStyle="default"
-                bsSize="small"
-                onClick={this.props.onClearConsole}
-              >
-                <Glyphicon glyph="remove" />
-              </Button>
-            )}
+          <ButtonGroup id="code-execution-buttons">
+            <EditorButton
+              text="Run"
+              onClick={this.startRobot}
+              glyph="play"
+              disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+            />
+            <EditorButton
+              text="Stop"
+              onClick={this.stopRobot}
+              glyph="stop"
+              disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
+            />
+            <EditorButton
+              text="Upload"
+              onClick={this.upload}
+              glyph="upload"
+              disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+            />
           </ButtonGroup>
-          <ButtonGroup>
-            {this.renderTooltip('API Documentation',
-              <Button
-                bsStyle="default"
-                bsSize="small"
-                onClick={this.openAPI}
-              >
-                <Glyphicon glyph="book" />
-              </Button>
-            )}
-            {this.renderTooltip('Increase fontsize',
-              <Button
-                bsStyle="default"
-                bsSize="small"
-                onClick={this.increaseFontsize}
-                disabled={this.props.fontSize > 28}
-              >
-                <Glyphicon glyph="zoom-in" />
-              </Button>
-            )}
-            {this.renderTooltip('Decrease fontsize',
-              <Button
-                bsStyle="default"
-                bsSize="small"
-                onClick={this.decreaseFontsize}
-                disabled={this.props.fontSize < 8}
-              >
-                <Glyphicon glyph="zoom-out" />
-              </Button>
-            )}
+          <ButtonGroup id="console-buttons">
+            <EditorButton
+              text="Toggle Console"
+              onClick={this.toggleConsole}
+              glyph="console"
+            />
+            <EditorButton
+              text="Clear Console"
+              onClick={this.onClearConsole}
+              glyph="remove"
+            />
           </ButtonGroup>
-          <ButtonGroup>
-            <DropdownButton
-              title="Theme"
-              bsSize="small"
-              id="choose-theme"
-            >
-              {_.map(this.themes, (theme, index) => (
-                <MenuItem
-                  active={theme === this.props.editorTheme}
-                  onClick={_.partial(this.changeTheme, theme)}
-                  key={index}
-                >
-                  {theme}
-                </MenuItem>
-              ))}
-            </DropdownButton>
+          <ButtonGroup id="misc-buttons">
+            <EditorButton
+              text="API Documentation"
+              onClick={this.openAPI}
+              glyph="book"
+            />
+            <EditorButton
+              text="Increase font size"
+              onClick={this.increaseFontsize}
+              glyph="zoom-in"
+              disabled={this.props.fontSize > 28}
+            />
+            <EditorButton
+              text="Decrease font size"
+              onClick={this.decreaseFontsize}
+              glyph="zoom-out"
+              disabled={this.props.fontSize < 7}
+            />
           </ButtonGroup>
+          <DropdownButton
+            title="Theme"
+            bsSize="small"
+            id="choose-theme"
+          >
+            {_.map(this.themes, (theme, index) => (
+              <MenuItem
+                active={theme === this.props.editorTheme}
+                onClick={_.partial(this.changeTheme, theme)}
+                key={index}
+              >
+                {theme}
+              </MenuItem>
+            ))}
+          </DropdownButton>
         </ButtonToolbar>
         <AceEditor
           mode="python"
@@ -365,6 +339,8 @@ Editor.propTypes = {
   onAlertAdd: React.PropTypes.func,
   onEditorUpdate: React.PropTypes.func,
   onSaveFile: React.PropTypes.func,
+  onOpenFile: React.PropTypes.func,
+  onCreateNewFile: React.PropTypes.func,
   onChangeTheme: React.PropTypes.func,
   onChangeFontsize: React.PropTypes.func,
   onShowConsole: React.PropTypes.func,

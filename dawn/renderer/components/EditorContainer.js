@@ -3,6 +3,8 @@ import Editor from './Editor';
 import {
   editorUpdate,
   saveFile,
+  openFile,
+  createNewFile,
 } from '../actions/EditorActions.js';
 import {
   changeTheme,
@@ -34,6 +36,12 @@ const mapDispatchToProps = (dispatch) => ({
   },
   onSaveFile: (saveAs) => {
     dispatch(saveFile(saveAs));
+  },
+  onOpenFile: () => {
+    dispatch(openFile());
+  },
+  onCreateNewFile: () => {
+    dispatch(createNewFile());
   },
   onChangeTheme: (theme) => {
     dispatch(changeTheme(theme));

@@ -137,6 +137,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
     # TODO: Replace execCount with a value in stateManager
     execCount = 0
     while (not terminated) and (maxIter is None or execCount < maxIter):
+      studentCode.Robot.handleSchedule()
       checkTimedOut(mainFunc)
       nextCall = time.time()
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value

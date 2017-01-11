@@ -1,9 +1,13 @@
+import time
+import heapq
+
 from runtimeUtil import *
 
 class Robot:
   def __init__(self, toManager, fromManager):
     self.fromManager = fromManager
     self.toManager = toManager
+    self.scheduled = []
 
   def createKey(self, key, *args):
     """ Creates a new key, or nested keys if more than 1 key is passed in.
@@ -49,3 +53,15 @@ class Robot:
 
   def emergencyStop(self):
     self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])
+
+  def schedule(self, delay, command):
+    """Execute command delay seconds from now."""
+    heapq.heappush(self.scheduled, (time.time() + delay, command))
+
+  def handleSchedule(self):
+    if len(self.scheduled) <= 0:
+      return
+    scheduledTime, command = self.scheduled[0]
+    if time.time() > scheduledTime:
+      print(command, flush=True)
+      heapq.heappop(self.scheduled)

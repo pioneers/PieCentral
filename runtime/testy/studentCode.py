@@ -138,3 +138,9 @@ def emergencyStop_main():
 
   Robot.setValue(response, "incrementer")
   print("HIBIKE LOOP")
+
+def autonomous_setup():
+  Robot.schedule(1./RUNTIME_CONFIG.STUDENT_CODE_HZ.value, "delayed print")
+
+def autonomous_main():
+  print("instant print", flush=True)

@@ -15,6 +15,9 @@ class BAD_EVENTS(Enum):
   END_EVENT                 = "Process terminated" # Used for testing
   UDP_SEND_ERROR            = "UDPSend Process Crashed"
   UDP_RECV_ERROR            = "UDPRecv Process Crashed"
+  ENTER_TELEOP              = "Dawn says enter Teleop" # TODO: BAD_EVENT best way to do this?
+  ENTER_AUTO                = "Dawn says enter Auto" # TODO: BAD_EVENT best way to do this?
+  ENTER_IDLE                = "Dawn says enter Idle" # TODO: BAD_EVENT best way to do this?
 
 restartEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT, BAD_EVENTS.EMERGENCY_STOP]
 

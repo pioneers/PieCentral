@@ -142,7 +142,7 @@ class UDPSendClass(AnsibleHandler):
                         s.sendto(msg, (host, UDPSendClass.SEND_PORT))
                     nextCall += 1.0/self.socketHZ
                     time.sleep(max(nextCall - time.time(), 0))
-                except Exception:
+                except Exception as e:
                     badThingsQueue.put(BadThing(sys.exc_info(), 
                     "UDP sender thread has crashed with error: " + str(e),  
                     event = BAD_EVENTS.UDP_SEND_ERROR, 

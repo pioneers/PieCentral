@@ -1,9 +1,19 @@
+import csv
+
 from runtimeUtil import *
 
 class Robot:
   def __init__(self, toManager, fromManager):
     self.fromManager = fromManager
     self.toManager = toManager
+    self._createSensorMapping()
+
+  def _createSensorMapping(self, filename = 'namedPeripherals.csv'):
+    self.sensorMappings = {}
+    with open(filename, 'r') as f:
+        sensorMappings = csv.reader(f)
+        for name, uid in sensorMappings:
+            self.sensorMappings[name] = int(uid)
 
   def createKey(self, key, *args):
     """ Creates a new key, or nested keys if more than 1 key is passed in.
@@ -44,8 +54,15 @@ class Robot:
     return message
 
   # TODO: Only for testing. Remove in final version
-  def hibikeSubscribeDevice(self, uid, delay, params):
+  def _hibikeSubscribeDevice(self, uid, delay, params):
+    """Uses direct uid to access hibike."""
     self.toManager.put([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])
+
+  def _hibikeGetUID(self, name):
+    if name in self.sensorMappings:
+        return self.sensorMappings[name]
+    else:
+        return None
 
   def emergencyStop(self):
     self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])

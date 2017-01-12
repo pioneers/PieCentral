@@ -8,7 +8,7 @@ class Robot:
     self.toManager = toManager
     self._createSensorMapping()
 
-  def _createSensorMapping(self, filename = 'namedSensors.csv'):
+  def _createSensorMapping(self, filename = 'namedPeripherals.csv'):
     self.sensorMappings = {}
     with open(filename, 'r') as f:
         sensorMappings = csv.reader(f)

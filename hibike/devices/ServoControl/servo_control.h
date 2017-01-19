@@ -29,6 +29,6 @@ void setup();
 void loop();
 
 // Helper functions
-uint32_t toggle_servo(int servo_num, uint32_t toggle);
+uint8_t toggle_servo(int servo_num, uint8_t toggle);
 
 #endif /* EX_DEVICE_H */

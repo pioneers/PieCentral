@@ -101,7 +101,7 @@ uint32_t device_status(uint8_t param) {
 //
 // You can use the helper function append_buf.
 // append_buf copies the specified amount data into the dst buffer and increments the offset
-uint8_t device_data_update(int param, uint8_t* data_update_buf, size_t buf_len) {
+uint8_t device_data_update(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
   return 0;
 
     

@@ -67,14 +67,6 @@ uint64_t uint64_from_message(message_t* msg, uint8_t* offset);
 
 void message_to_byte(uint8_t* data, message_t* msg);
 
-
-
-extern uint32_t device_update(uint8_t param, uint32_t value); 
-
-extern uint32_t device_status(uint8_t param); 
-
-extern uint8_t device_data_update(int param, uint8_t* data_update_buf, size_t buf_len);
-
-
+extern uint8_t device_data_update(uint8_t param, uint8_t* data_update_buf, size_t buf_len);
 
 #endif /* HIBIKE_H */

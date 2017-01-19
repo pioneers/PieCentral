@@ -1,9 +1,7 @@
 #include "potentiometer.h"
 #include <Servo.h>
 
-
-
-uint8_t pins[NUM_PINS] = {IN_0, IN_1, IN_2, IN_3};
+uint8_t pins[NUM_PINS] = {IN_0, IN_1, IN_2};
 
 void setup() {
   hibike_setup();
@@ -12,7 +10,6 @@ void setup() {
   for (int i = 0; i < NUM_PINS; i++) {
     pinMode(pins[i], INPUT);
   }
-
 }
 
 
@@ -20,30 +17,36 @@ void loop() {
   hibike_loop();
 }
 
-// you must implement this function. It is called when the device receives a DeviceUpdate packet.
-// the return value is the value field of the DeviceRespond packet hibike will respond with
-uint32_t device_update(uint8_t param, uint32_t value) {
-  return ~((uint32_t) 0);
-}
 
-// you must implement this function. It is called when the devie receives a DeviceStatus packet.
-// the return value is the value field of the DeviceRespond packet hibike will respond with
-uint32_t device_status(uint8_t param) {
-  return ~((uint32_t) 0);
-}
-
-
-// you must implement this function. It is called with a buffer and a maximum buffer size.
-// The buffer should be filled with appropriate data for a DataUpdate packer, and the number of bytes
-// added to the buffer should be returned. 
+// You must implement this function.
+// It is called when the device receives a Device Write packet.
+// Updates param to new value passed in data.
+//    param   -   Parameter index
+//    data    -   value to write, in little-endian bytes
+//    len     -   number of bytes in data
 //
-// You can use the helper function append_buf.
-// append_buf copies the specified amount data into the dst buffer and increments the offset
-uint8_t device_data_update(int param, uint8_t* data_update_buf, size_t buf_len) {
-  // Read sensor
-  if (MAX_PAYLOAD_SIZE - buf_len < sizeof(uint8_t) || param>2 || param<0) {
+//   return  -   size of bytes written on success; otherwise return 0
+
+uint32_t device_write(uint8_t param, uint8_t* data, size_t len){
+  return 0;
+}
+
+
+// You must implement this function.
+// It is called when the device receives a Device Data Update packet.
+// Modifies data_update_buf to contain the parameter value.
+//    param           -   Parameter index
+//    data_update_buf -   buffer to return data in, little-endian
+//    buf_len         -   Maximum length of the buffer
+//
+//    return          -   sizeof(param) on success; 0 otherwise
+
+uint8_t device_data_update(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
+  // Read sensor, which is in uint16
+  if (MAX_PAYLOAD_SIZE - buf_len < sizeof(float) || param > 2) {
     return 0;
   }
-  data_update_buf[0] = analogRead(pins[param]);
-  return sizeof(uint8_t);
+  float *data = (float *)data_update_buf;
+  data[0] = ((float)analogRead(pins[param])) / 1023;
+  return sizeof(float);
 }

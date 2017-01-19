@@ -17,20 +17,30 @@ void loop() {
 }
 
 
+// You must implement this function.
+// It is called when the device receives a Device Write packet.
+// Updates param to new value passed in data.
+//    param   -   Parameter index
+//    data    -   value to write, in bytes TODO: What endian?
+//    len     -   number of bytes in data
+//
+//   return  -   size of bytes written on success; otherwise return 0
+
 uint32_t device_write(uint8_t param, uint8_t* data, size_t len){
   return 0;
 }
 
 
-// you must implement this function. It is called with a buffer and a maximum buffer size.
-// The buffer should be filled with appropriate data for a DataUpdate packer, and the number of bytes
-// added to the buffer should be returned. 
+// You must implement this function.
+// It is called when the device receives a Device Data Update packet.
+// Modifies data_update_buf to contain the parameter value.
+//    param           -   Parameter index
+//    data_update_buf -   buffer to return data in
+//    buf_len         -   Maximum length of the buffer? TODO: Clarify
 //
-// You can use the helper function append_buf.
-// append_buf copies the specified amount data into the dst buffer and increments the offset
+//    return          -   sizeof(param) on success; 0 otherwise
 
-
-uint8_t device_data_update(int param, uint8_t* data_update_buf, size_t buf_len) {
+uint8_t device_data_update(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
 
   if (MAX_PAYLOAD_SIZE - buf_len < sizeof(uint8_t) || param >= NUM_SWITCHES) {
     return 0;

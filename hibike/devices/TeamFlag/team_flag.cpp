@@ -2,6 +2,8 @@
 
 const uint8_t pins[NUM_PINS] = {BLUE, YELLOW, LED1, LED2, LED3, LED4};
 uint8_t led_values[NUM_PINS] = {0, 0, 0, 0, 0, 0};
+
+
 void setup() {
   hibike_setup();
   // Setup sensor input
@@ -16,11 +18,6 @@ void loop() {
   hibike_loop();
 }
 
-uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
-  uint8_t offset = 0;
-  return offset;
-}
-
 
 void setLed(uint8_t pin, uint16_t value) {
   digitalWrite(pins[pin], value);
@@ -31,6 +28,16 @@ void setLed(uint8_t pin, uint16_t value) {
 uint8_t getLed(uint8_t pin) {
   return led_values[pin];
 }
+
+
+// You must implement this function.
+// It is called when the device receives a Device Write packet.
+// Updates param to new value passed in data.
+//    param   -   Parameter index
+//    data    -   value to write, in bytes TODO: What endian?
+//    len     -   number of bytes in data
+//
+//   return  -   size of bytes written on success; otherwise return 0
 
 uint32_t device_write(uint8_t param, uint8_t* data, size_t len){
   switch (param) {
@@ -64,7 +71,17 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len){
   return 0;
 }
 
-uint8_t device_data_update(int param, uint8_t* data_update_buf, size_t buf_len) {
+
+// You must implement this function.
+// It is called when the device receives a Device Data Update packet.
+// Modifies data_update_buf to contain the parameter value.
+//    param           -   Parameter index
+//    data_update_buf -   buffer to return data in
+//    buf_len         -   Maximum length of the buffer? TODO: Clarify
+//
+//    return          -   sizeof(param) on success; 0 otherwise
+
+uint8_t device_data_update(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
   switch (param) {
     case PARAM_BLUE:
       data_update_buf[0] = getLed(0);

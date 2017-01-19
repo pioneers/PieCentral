@@ -30,4 +30,4 @@ void setup();
 void loop();
 
 
-#endif /* YOGI_BEAR_FOLLOWER_H */
+#endif /* EX_DEVICE_H */

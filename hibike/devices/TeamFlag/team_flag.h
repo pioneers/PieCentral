@@ -37,15 +37,13 @@ hibike_uid_t UID = {
 void setup();
 void loop();
 
-// Parameter Update 
-void update_param(uint8_t param, uint32_t value);
+uint8_t device_data_update(uint8_t param, uint8_t* data_update_buf, size_t buf_len);
+uint32_t device_write(uint8_t param, uint8_t* data, size_t len);
 
-// Device Update
-void deviceUpdate(uint8_t param, uint32_t value);
-void setLed(uint8_t pin, uint16_t value);
-uint8_t getLed(uint8_t pin);
 
 // functions to control this device
 void toggleLED();
+void setLed(uint8_t pin, uint16_t value);
+uint8_t getLed(uint8_t pin);
 
 #endif /* EX_DEVICE_H */

@@ -25,7 +25,6 @@ sudo systemctl daemon-reload
 
 # Install apt packages
 sudo apt update -y && sudo apt upgrade -y
-sudo apt install -y autoconf automake libtool g++  # For compiling `protoc` from source
 sudo apt install -y man-db make build-essential gcc git vim tmux htop curl memcached libevent-dev unzip
 sudo apt install -y python3 python3-dev python3-pip  # Python dependencies
 sudo apt clean -y
@@ -41,13 +40,7 @@ sudo apt-get install linux-headers-$(uname -r)
 make
 sudo make install
 
-# Get PieCentral
-cd $HOME
-if [ ! -d PieCentral ]; then
-  git clone https://github.com/pioneers/PieCentral.git
-fi
-cd PieCentral
-
+cd $HOME/PieCentral
 PIECENTRAL_DIR=$(git rev-parse --show-toplevel)
 FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
 

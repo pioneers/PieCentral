@@ -30,3 +30,9 @@ build/ directory) and distribute them to teams.
 `deploy_update` assumes that you're USB tethered to a Beaglebone and then uploads and installs an update
 to the connected beaglebone, creating a new update using `create_update` if the build/ directory does not
 exit.
+
+
+## Some Notes
+1. Beaglebones are set-up using the master branch of PieCentral repository at the time of set-up.
+2. When we issue updates we will package both the runtime and hibike directory in a tarball hosted at p which will then be extracted into the correct locations on the Beaglebone.
+3. Student code should be kept in a separate folder called 'studentcode' 

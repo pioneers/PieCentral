@@ -1,12 +1,6 @@
 #!/bin/bash
 
-# Run this on a staff machine as root
-
-# Enables wifi on the Beaglebone by forwarding all requests
-# Network interface names may vary
-iptables --table nat --append POSTROUTING --out-interface wlp2s0 -j MASQUERADE
-iptables --append FORWARD --in-interface enp0s20f0u2 -j ACCEPT
-echo 1 > /proc/sys/net/ipv4/ip_forward
+# Assume the Beaglebone has wifi
 
 FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/DevOps/frankfurter
 cd $FRANKFURTER_DIR

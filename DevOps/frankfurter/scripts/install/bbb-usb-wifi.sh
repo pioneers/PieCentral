@@ -2,7 +2,7 @@
 
 # A hack to allow wifi on Beaglebones over USB during testing
 # Modify the interface names below as needed, and run this as root
-# Assume SSH works on the remote machine
+# Assumes SSH works on the remote machine (192.168.7.2)
 
 WIFI_INTERFACE=wlp2s0
 BBB_INTERFACE=enp0s20f0u2

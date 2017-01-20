@@ -28,40 +28,43 @@ sudo apt update -y && sudo apt upgrade -y
 sudo apt install -y man-db make build-essential gcc git vim tmux htop curl memcached libevent-dev unzip
 sudo apt install -y python3 python3-dev python3-pip  # Python dependencies
 sudo apt clean -y
+sudo apt autoremove -y
 
 # Install Python packages
 sudo pip3 install -U pyserial pyyaml python-memcached flask flask-socketio eventlet pyusb protobuf
 
 # Install wireless dongle drivers
+cd $HOME
 git clone https://github.com/xtknight/mt7610u-linksys-ae6000-wifi-fixes.git drivers
 cd drivers
 make clean
-sudo apt-get install linux-headers-$(uname -r)
+sudo apt install linux-headers-$(uname -r)
 make
 sudo make install
+echo 'mt7610u_sta' | sudo tee --append /etc/modules
 
 cd $HOME/PieCentral
 PIECENTRAL_DIR=$(git rev-parse --show-toplevel)
 FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
 
 if [ ! -f $PIECENTRAL_DIR/runtime/hibikeDevices.csv ]; then
-  ln -s $PIECENTRAL_DIR/hibike/hibikeDevices.csv $PIECENTRAL_DIR/runtime/hibikeDevices.csv
+  ln -s $PIECENTRAL_DIR/hibike/hibikeDevices.csv $PIECENTRAL_DIR/runtime/testy/hibikeDevices.csv
 fi
 
 # Set up things we need to update runtime and hibike
 mkdir -p $HOME/updates
 cp $FRANKFURTER_DIR/resources/update.sh $HOME/updates/
 
-# copy .conf files into /etc/init so that hibike/dawn/runtime start on boot
-# cp $FRANKFURTER_DIR/resources/memcached.conf /etc
-# cp $FRANKFURTER_DIR/resources/runtime /etc/init.d
-# update-rc.d runtime defaults
+mkdir -p $HOME/bin
+cp PieCentral/DevOps/frankfurter/resources/mac.py $HOME/bin/
 
-# sudo cp $FRANKFURTER_DIR/resources/runtime.conf /etc/init
-# sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc/init
-# sudo rm /etc/init.d/memcached
+# copy .conf files into /etc/init so that hibike/dawn/runtime start on boot
+sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc
+sudo cp $FRANKFURTER_DIR/resources/runtime /etc/init.d
+sudo chmod +x /etc/init.d/runtime
+sudo update-rc.d runtime defaults
 
 # copy config files for grizzlies, memcached, and network interfaces
 sudo cp $FRANKFURTER_DIR/resources/interfaces /etc/network/interfaces
 
-echo "export PYTHONPATH=$HOME/hibike:$PYTHONPATH" >> $HOME/.bashrc  # .profile?
+echo 'export PYTHONPATH="${PYTHONPATH}:/home/ubuntu/PieCentral/hibike"' >> $HOME/.bashrc  # .profile?

@@ -6,7 +6,7 @@ auto lo
 iface lo inet loopback
 
 # The primary network interface
-auto eth0
+allow-hotplug eth0
 iface eth0 inet static
     address 192.168.13.100
     network 192.168.13.0
@@ -21,10 +21,10 @@ iface eth0 inet static
 #iface eth1 inet dhcp
 
 # WiFi Example
-#auto wlan0
-#iface wlan0 inet dhcp
-#    wpa-ssid "essid"
-#    wpa-psk  "password"
+auto ra0
+iface ra0 inet dhcp
+    wpa-ssid "Mother Base"
+    wpa-psk  "pieisgreat"
 
 # Ethernet/RNDIS gadget (g_ether)
 # Used by: /opt/scripts/boot/autoconfigure_usb0.sh

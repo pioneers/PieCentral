@@ -15,7 +15,8 @@
 echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | sudo tee --append /etc/sudoers
 
 # Append DNS to /etc/resolv.conf #############################################################
-echo 'nameserver 8.8.8.8' | sudo tee --append /etc/resolv.conf
+echo 'nameserver 8.8.8.8' | sudo tee --append /etc/resolvconf/resolv.conf.d/base
+sudo service resolvconf restart
 
 # Create local file to bypass conffile prompt in apt-get ####################################
 echo 'Dpkg::Options {
@@ -24,13 +25,17 @@ echo 'Dpkg::Options {
 }' | sudo tee --append /etc/apt/apt.conf.d/local
 
 # Install tmux ###############################################################################
-sudo apt-get update -y
-sudo apt-get install tmux -y
+sudo apt-get update -y && sudo apt-get install tmux -y
 
 # Clone frankfurter script files #############################################################
-git clone https://github.com/pioneers/DevOps
+if [ ! -d PieCentral ]; then
+   git clone https://github.com/pioneers/PieCentral
+fi
 
-cd ~/DevOps/frankfurter
+cd ~/PieCentral/DevOps/frankfurter
+
+# Remove when complete install scripts are merged into master
+# git checkout devops/fix_install_scripts
 
 # Run .master_frank_setup.sh inside tmux #####################################################
 tmux new-session -d './scripts/install/master_frank_setup.sh'

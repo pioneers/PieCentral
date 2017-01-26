@@ -4,7 +4,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/home/ubuntu/runtime.sh
+ExecStart=/home/ubuntu/bin/runtime.sh
 
 [Install]
 WantedBy=multi-user.target

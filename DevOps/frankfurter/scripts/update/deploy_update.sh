@@ -1,7 +1,7 @@
 #!/bin/bash
 
 FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/DevOps/frankfurter
-IP=192.168.13.100
+IP=192.168.7.2
 
 cd $FRANKFURTER_DIR
 

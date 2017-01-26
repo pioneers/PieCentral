@@ -4,19 +4,11 @@ const initialState = {
 };
 
 const settings = (state = initialState, action) => {
-  let fontSize;
   switch (action.type) {
-    case 'INCREASE_FONTSIZE':
-      fontSize = state.fontSize;
+    case 'CHANGE_FONTSIZE':
       return {
         ...state,
-        fontSize: (fontSize <= 28) ? fontSize + 1 : fontSize,
-      };
-    case 'DECREASE_FONTSIZE':
-      fontSize = state.fontSize;
-      return {
-        ...state,
-        fontSize: (fontSize >= 8) ? fontSize - 1 : fontSize,
+        fontSize: action.newFontsize,
       };
     case 'CHANGE_THEME':
       return {

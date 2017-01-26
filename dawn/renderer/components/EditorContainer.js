@@ -2,11 +2,13 @@ import { connect } from 'react-redux';
 import Editor from './Editor';
 import {
   editorUpdate,
+  saveFile,
+  openFile,
+  createNewFile,
 } from '../actions/EditorActions.js';
 import {
   changeTheme,
-  increaseFontsize,
-  decreaseFontsize,
+  changeFontsize,
 } from '../actions/SettingsActions.js';
 import {
   showConsole,
@@ -32,14 +34,20 @@ const mapDispatchToProps = (dispatch) => ({
   onEditorUpdate: (newVal) => {
     dispatch(editorUpdate(newVal));
   },
+  onSaveFile: (saveAs) => {
+    dispatch(saveFile(saveAs));
+  },
+  onOpenFile: () => {
+    dispatch(openFile());
+  },
+  onCreateNewFile: () => {
+    dispatch(createNewFile());
+  },
   onChangeTheme: (theme) => {
     dispatch(changeTheme(theme));
   },
-  onIncreaseFontsize: () => {
-    dispatch(increaseFontsize());
-  },
-  onDecreaseFontsize: () => {
-    dispatch(decreaseFontsize());
+  onChangeFontsize: (newFontsize) => {
+    dispatch(changeFontsize(newFontsize));
   },
   onShowConsole: () => {
     dispatch(showConsole());

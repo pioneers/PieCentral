@@ -1,9 +1,6 @@
-export const increaseFontsize = () => ({
-  type: 'INCREASE_FONTSIZE',
-});
-
-export const decreaseFontsize = () => ({
-  type: 'DECREASE_FONTSIZE',
+export const changeFontsize = (newFontsize) => ({
+  type: 'CHANGE_FONTSIZE',
+  newFontsize,
 });
 
 export const changeTheme = (theme) => ({

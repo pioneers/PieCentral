@@ -25,7 +25,7 @@ sudo systemctl daemon-reload
 
 # Install apt packages
 sudo apt update -y && sudo apt upgrade -y
-sudo apt install -y man-db make build-essential gcc git vim tmux htop curl memcached libevent-dev unzip
+sudo apt install -y man-db make build-essential gcc git vim tmux htop curl memcached libevent-dev unzip systemd systemd-sysv
 sudo apt install -y python3 python3-dev python3-pip  # Python dependencies
 sudo apt clean -y
 sudo apt autoremove -y
@@ -60,9 +60,10 @@ cp PieCentral/DevOps/frankfurter/resources/mac.py $HOME/bin/
 
 # copy .conf files into /etc/init so that hibike/dawn/runtime start on boot
 sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc
-sudo cp $FRANKFURTER_DIR/resources/runtime /etc/init.d
-sudo chmod +x /etc/init.d/runtime
-sudo update-rc.d runtime defaults
+sudo cp $FRANKFURTER_DIR/resources/runtime.sh $HOME
+sudo cp $FRANKFURTER_DIR/resources/runtime.service /lib/systemd/system
+sudo chmod 644 /lib/systemd/system/runtime.service
+sudo systemctl daemon-reload && sudo systemctl enable runtime.service
 
 # copy config files for grizzlies, memcached, and network interfaces
 sudo cp $FRANKFURTER_DIR/resources/interfaces /etc/network/interfaces

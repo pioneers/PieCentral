@@ -13,48 +13,58 @@
 # basis.                                                                                     #
 ##############################################################################################
 
-# Install (most) apt-get packages ############################################################
-sudo apt-get install -y make build-essential gcc git htop curl memcached libevent-dev vim
+HOME=/home/ubuntu
 
-FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/frankfurter
-cd ~
+# Configure date and time
+sudo timedatectl set-timezone America/Los_Angeles
 
-# Install python, pip, and pip packages ######################################################
-sudo apt-get -y upgrade
-sudo apt-get install -y python python-dev python-pip
-sudo pip install --upgrade pyserial pyyaml python-memcached flask flask-socketio eventlet
-# there's no stable release version of pyusb in pip right now, so we need the --pre flag
-sudo pip install --pre pyusb
+# Disable default Apache server (permanently)
+sudo service apache2 stop
+sudo systemctl disable apache2
+sudo systemctl daemon-reload
 
-# Install pygrizzly ##########################################################################
-git clone https://github.com/pioneers/python-grizzly
-cd python-grizzly
-sudo python setup.py install
-cd ..
-sudo rm -rf python-grizzly
+# Install apt packages
+sudo apt update -y && sudo apt upgrade -y
+sudo apt install -y man-db make build-essential gcc git vim tmux htop curl memcached libevent-dev unzip
+sudo apt install -y python3 python3-dev python3-pip  # Python dependencies
+sudo apt clean -y
+sudo apt autoremove -y
 
-# download hibike and runtime ################################################################
-git clone https://github.com/pioneers/daemon ~/daemon
-git clone https://github.com/pioneers/hibike ~/hibike
-ln -s ~/hibike/hibikeDevices.csv ~/daemon/runtime/hibikeDevices.csv
+# Install Python packages
+sudo pip3 install -U pyserial pyyaml python-memcached flask flask-socketio eventlet pyusb protobuf
 
-# set up things we need to update runtime and hibike #########################################
-mkdir -p ~/updates
-cp $FRANKFURTER_DIR/resources/update.sh ~/updates/
+# Install wireless dongle drivers
+cd $HOME
+git clone https://github.com/xtknight/mt7610u-linksys-ae6000-wifi-fixes.git drivers
+cd drivers
+make clean
+sudo apt install linux-headers-$(uname -r)
+make
+sudo make install
+echo 'mt7610u_sta' | sudo tee --append /etc/modules
 
-gpg --ignore-time-conflict --import $FRANKFURTER_DIR/resources/frankfurter_vincent.gpg
-gpg --ignore-time-conflict --sign-key vincentdonato@pioneers.berkeley.edu
+cd $HOME/PieCentral
+PIECENTRAL_DIR=$(git rev-parse --show-toplevel)
+FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
 
-# copy .conf files into /etc/init so that hibike/dawn/runtime start on boot ##################
-sudo cp $FRANKFURTER_DIR/resources/runtime.conf /etc/init
-sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc/init
-sudo rm /etc/init.d/memcached
+if [ ! -f $PIECENTRAL_DIR/runtime/hibikeDevices.csv ]; then
+  ln -s $PIECENTRAL_DIR/hibike/hibikeDevices.csv $PIECENTRAL_DIR/runtime/testy/hibikeDevices.csv
+fi
 
-#copy config files for grizzlies, memcached, and network interfaces
-sudo cp $FRANKFURTER_DIR/resources/50-grizzlybear.rules /etc/udev/rules.d/
+# Set up things we need to update runtime and hibike
+mkdir -p $HOME/updates
+cp $FRANKFURTER_DIR/resources/update.sh $HOME/updates/
+
+mkdir -p $HOME/bin
+cp PieCentral/DevOps/frankfurter/resources/mac.py $HOME/bin/
+
+# copy .conf files into /etc/init so that hibike/dawn/runtime start on boot
+sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc
+sudo cp $FRANKFURTER_DIR/resources/runtime /etc/init.d
+sudo chmod +x /etc/init.d/runtime
+sudo update-rc.d runtime defaults
+
+# copy config files for grizzlies, memcached, and network interfaces
 sudo cp $FRANKFURTER_DIR/resources/interfaces /etc/network/interfaces
 
-echo "export PYTHONPATH=$HOME/hibike:$PYTHONPATH" >> ~/.bashrc
-
-# stop the apache server from auto-starting
-sudo rm -f /etc/init.d/apache2
+echo 'export PYTHONPATH="${PYTHONPATH}:/home/ubuntu/PieCentral/hibike"' >> $HOME/.bashrc  # .profile?

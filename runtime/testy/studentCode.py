@@ -79,7 +79,7 @@ def hibikeSubscribeDevice_setup():
   pass
 
 def hibikeSubscribeDevice_main():
-  Robot.hibikeSubscribeDevice(1, 2, [3, 4])
+  Robot._hibikeSubscribeDevice(1, 2, [3, 4])
   time.sleep(.01) # Wait for command to propogate to Hibike
   print(Robot.getValue("hibike", "device_subscribed"))
 
@@ -138,3 +138,12 @@ def emergencyStop_main():
 
   Robot.setValue(response, "incrementer")
   print("HIBIKE LOOP")
+
+def hibikeSensorMappings_setup():
+  pass
+
+def hibikeSensorMappings_main():
+  print(Robot._hibikeGetUID('zero'))
+  print(Robot._hibikeGetUID('one'))
+  print(Robot._hibikeGetUID('two'))
+  print(Robot._hibikeGetUID('three'))

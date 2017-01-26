@@ -1,0 +1,10 @@
+[Unit]
+Description=Robot Runtime Service
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/runtime.sh
+
+[Install]
+WantedBy=multi-user.target

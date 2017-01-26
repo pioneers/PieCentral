@@ -11,6 +11,6 @@ fi
 
 # Disable host fingerprinting
 OPTIONS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-ssh $OPTIONS ubuntu@$IP 'rm -rf ~/updates/*.tar.gz* && rm -rf ~/updates/temp'
+ssh $OPTIONS ubuntu@$IP 'rm -rf ~/updates/*.tar.gz* && rm -rf ~/updates/tmp'
 scp $OPTIONS build/* ubuntu@$IP:~/updates/
-ssh $OPTIONS ubuntu@$IP 'sudo restart runtime'
+ssh $OPTIONS ubuntu@$IP 'sudo /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service'

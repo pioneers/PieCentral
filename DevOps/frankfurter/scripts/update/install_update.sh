@@ -7,21 +7,23 @@
 
 HOME_DIR=/home/ubuntu
 UPDATES_DIR=$HOME_DIR/updates
-TEMP_DIR=$UPDATES_DIR/temp
+TMP_DIR=$UPDATES_DIR/tmp
+PIECENTRAL_BACKUP_DIR=$HOME_DIR/PieCentral.backup
 
 ####################################################################################
 # Update PieCentral:                                                                   #
 ####################################################################################
-mv $HOME_DIR/PieCentral $HOME_DIR/PieCentral_old
+rm -rf $PIECENTRAL_BACKUP_DIR
+cp -R $HOME_DIR/PieCentral $PIECENTRAL_BACKUP_DIR
 rm -r $HOME_DIR/PieCentral/runtime
 rm -r $HOME_DIR/PieCentral/hibike
-mv $TEMP_DIR/hibike $HOME_DIR/PieCentral
-mv $TEMP_DIR/runtime $HOME_DIR/PieCentral
+mv $TMP_DIR/hibike $HOME_DIR/PieCentral
+mv $TMP_DIR/runtime $HOME_DIR/PieCentral
 
 ln -s $HOME_DIR/PieCentral/hibike/hibikeDevices.csv $HOME_DIR/PieCentral/runtime/testy/hibikeDevices.csv
 
 ####################################################################################
 # Cleanup!                                                                         #
 ####################################################################################
-rm -rf $TEMP_DIR
+rm -rf $TMP_DIR
 sync

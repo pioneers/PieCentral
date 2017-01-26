@@ -19,6 +19,16 @@ def setup():
 def main():
   pass
 
+def asyncawait_test(): # I'm pretty sure I did this all wrong
+  async def practice():
+    print("This should print")
+    await delay(5.0)
+    print("This should only print once")
+
+  def loop():
+    Robot.coroutine(practice)
+    Robot.coroutine(practice)
+
 def test0_setup():
   print("test0_setup")
 

@@ -53,14 +53,18 @@ fi
 
 # Set up things we need to update runtime and hibike
 mkdir -p $HOME/updates
-cp $FRANKFURTER_DIR/resources/update.sh $HOME/updates/
+cp $FRANKFURTER_DIR/resources/update.sh $HOME/bin/
 
 mkdir -p $HOME/bin
 cp PieCentral/DevOps/frankfurter/resources/mac.py $HOME/bin/
 
+mkdir -p $HOME/studentcode
+
+chmod +x $HOME/bin/*
+
 # copy .conf files into /etc/init so that hibike/dawn/runtime start on boot
 sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc
-sudo cp $FRANKFURTER_DIR/resources/runtime.sh $HOME
+sudo cp $FRANKFURTER_DIR/resources/runtime.sh $HOME/bin/
 sudo cp $FRANKFURTER_DIR/resources/runtime.service /lib/systemd/system
 sudo chmod 644 /lib/systemd/system/runtime.service
 sudo systemctl daemon-reload && sudo systemctl enable runtime.service

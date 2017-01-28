@@ -25,6 +25,8 @@ way to easily deploy a BBB on Windows.
 
 `runtime` is started on boot by `runtime.service` by `systemd` (see pioneers/PieCentral#100, installed to `/lib/systemd/system`).
 
+To restart runtime, run `sudo systemctl restart runtime.service`.
+
 `memcached` has been configured to run on port `12357`. See `resources/memcached.conf`.
 
 ### Installed Executables
@@ -51,4 +53,4 @@ exit.
 ## Some Notes
 1. Beaglebones are set-up using the master branch of PieCentral repository at the time of set-up.
 2. When we issue updates we will package both the runtime and hibike directory in a tarball hosted at p which will then be extracted into the correct locations on the Beaglebone.
-3. Student code should be kept in a separate folder called 'studentcode'
+3. Student code should be kept in a separate folder called `studentcode`

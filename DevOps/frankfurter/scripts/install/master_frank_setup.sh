@@ -58,6 +58,8 @@ cp $FRANKFURTER_DIR/resources/update.sh $HOME/bin/
 mkdir -p $HOME/bin
 cp PieCentral/DevOps/frankfurter/resources/mac.py $HOME/bin/
 
+mkdir -p $HOME/studentcode
+
 chmod +x $HOME/bin/*
 
 # copy .conf files into /etc/init so that hibike/dawn/runtime start on boot

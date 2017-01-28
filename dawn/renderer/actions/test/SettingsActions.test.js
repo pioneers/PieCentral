@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { changeTheme, increaseFontsize, decreaseFontsize } from '../SettingsActions.js';
+import { changeTheme, changeFontsize } from '../SettingsActions.js';
 
 describe('settings actions creator', () => {
   it('should create an action to change theme', () => {
@@ -9,16 +9,11 @@ describe('settings actions creator', () => {
     };
     expect(changeTheme('monokai')).to.deep.equal(expectedAction);
   });
-  it('should create an action to increase font size', () => {
+  it('should create an action to change font size', () => {
     const expectedAction = {
-      type: 'INCREASE_FONTSIZE',
+      type: 'CHANGE_FONTSIZE',
+      newFontsize: 16
     };
-    expect(increaseFontsize()).to.deep.equal(expectedAction);
-  });
-  it('should create an action to decrease font size', () => {
-    const expectedAction = {
-      type: 'DECREASE_FONTSIZE',
-    };
-    expect(decreaseFontsize()).to.deep.equal(expectedAction);
+    expect(changeFontsize(16)).to.deep.equal(expectedAction);
   });
 });

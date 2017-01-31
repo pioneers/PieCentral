@@ -14,7 +14,7 @@ const dawnBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/ansible.proto`);
 const DawnData = dawnBuilder.build('DawnData');
 const StudentCodeStatus = DawnData.StudentCodeStatus;
 
-const runtimeBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/runtime_proto.proto`);
+const runtimeBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
 
 /**

@@ -21,3 +21,7 @@
 .invalid:hover {
   background-color: #ffffff;
 }
+
+.panelText {
+  padding: 15px;
+}

@@ -12,7 +12,8 @@ const FinalCompPeripheralList = (props) => {
   if (!props.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
   } else if (!props.runtimeStatus) {
-    errorMsg = 'There appears to be some sort of Runtime error. No data is being received.';
+    errorMsg = 'There appears to be some sort of Runtime error. ' +
+      'No data is being received.';
   }
   return (
     <PeripheralList header="Peripherals">
@@ -29,7 +30,7 @@ const FinalCompPeripheralList = (props) => {
             peripheralType={peripheral.device_type}
           />
         )
-      ) : errorMsg
+      ) : <p className="panelText">{errorMsg}</p>
     }
     </PeripheralList>
   );

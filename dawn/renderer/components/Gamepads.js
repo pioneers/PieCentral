@@ -13,7 +13,7 @@ const Gamepads = (props) => {
     );
   } else {
     interior = (
-      <p>
+      <p className="panelText">
         There don't seem to be any gamepads connected.
         Connect a gamepad and press any button on it.
       </p>

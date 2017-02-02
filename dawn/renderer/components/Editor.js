@@ -31,6 +31,7 @@ import UpdateBox from './UpdateBox';
 import ConfigBox from './ConfigBox';
 import ConsoleOutput from './ConsoleOutput';
 import EditorButton from './EditorButton';
+import { pathToName } from '../utils/utils';
 
 const Client = require('ssh2').Client;
 
@@ -38,16 +39,6 @@ const dialog = remote.dialog;
 const currentWindow = remote.getCurrentWindow();
 
 class Editor extends React.Component {
-  static pathToName(filepath) {
-    if (filepath !== null) {
-      if (process.platform === 'win32') {
-        return filepath.split('\\').pop();
-      }
-      return filepath.split('/').pop();
-    }
-    return false;
-  }
-
   constructor(props) {
     super(props);
     this.consoleHeight = 250; // pixels
@@ -70,6 +61,11 @@ class Editor extends React.Component {
     this.decreaseFontsize = this.decreaseFontsize.bind(this);
     this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
     this.toggleConfigModal = this.toggleConfigModal.bind(this);
+    this.startRobot = this.startRobot.bind(this);
+    this.stopRobot = this.stopRobot.bind(this);
+    this.upload = this.upload.bind(this);
+    this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
+    this.toggleConfigModal = this.toggleConfigModal.bind(this);
     this.state = {
       editorHeight: this.getEditorHeight(),
       showUpdateModal: false,
@@ -90,7 +86,7 @@ class Editor extends React.Component {
           message: 'You are trying to exit Dawn, but you have unsaved changes. ' +
           'What do you want to do with your unsaved changes?',
         }, (res) => {
-          // 'res' is an integer corrseponding to index in button list above.
+          // 'res' is an integer corresponding to index in button list above.
           if (res === 0) {
             this.props.onSaveFile();
             window.onbeforeunload = null;
@@ -273,7 +269,7 @@ class Editor extends React.Component {
         bsStyle="primary"
         header={
           <span style={{ fontSize: '14px' }}>
-            Editing: {Editor.pathToName(this.props.filepath) ? Editor.pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}
+            Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}
           </span>
         }
       >
@@ -283,7 +279,7 @@ class Editor extends React.Component {
           runtimeStatus={this.props.runtimeStatus}
           shouldShow={this.state.showUpdateModal}
           ipAddress={this.props.ipAddress}
-          hide={() => { this.toggleUpdateModal.call(this); }}
+          hide={this.toggleUpdateModal}
         />
         <ConfigBox
           isRunningCode={this.props.isRunningCode}
@@ -292,7 +288,7 @@ class Editor extends React.Component {
           shouldShow={this.state.showConfigModal}
           ipAddress={this.props.ipAddress}
           onIPChange={this.props.onIPChange}
-          hide={() => { this.toggleConfigModal.call(this); }}
+          hide={this.toggleConfigModal}
         />
         <ButtonToolbar>
           <ButtonGroup id="file-operations-buttons">
@@ -320,19 +316,19 @@ class Editor extends React.Component {
           <ButtonGroup id="code-execution-buttons">
             <EditorButton
               text="Run"
-              onClick={() => { this.startRobot.call(this); }}
+              onClick={this.startRobot}
               glyph="play"
               disabled={this.props.isRunningCode || !this.props.runtimeStatus}
             />
             <EditorButton
               text="Stop"
-              onClick={() => { this.stopRobot.call(this); }}
+              onClick={this.stopRobot}
               glyph="stop"
               disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
             />
             <EditorButton
               text="Upload"
-              onClick={() => { this.upload.call(this); }}
+              onClick={this.upload}
               glyph="upload"
               // disabled={this.props.isRunningCode || !this.props.runtimeStatus}
             />

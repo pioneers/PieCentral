@@ -8,6 +8,8 @@ import {
   ControlLabel,
 } from 'react-bootstrap';
 
+import { getValidationState } from '../utils/utils';
+
 class UpdateBox extends React.Component {
   constructor(props) {
     super(props);
@@ -20,23 +22,6 @@ class UpdateBox extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
-
-  getValidationState() {
-    const current = this.state.ipAddress;
-    let valid = false;
-    const regex = '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}' +
-      '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))$';
-    if ((new RegExp(regex)).test(current)) {
-      valid = true;
-    }
-    if (valid) {
-      return 'success';
-    } else if (current === 'localhost') {
-      return 'warning';
-    }
-    return 'error';
-  }
-
   saveChanges() {
     this.props.onIPChange(this.state.ipAddress);
     this.props.hide();
@@ -47,7 +32,7 @@ class UpdateBox extends React.Component {
   }
 
   disableUploadUpdate() {
-    return this.props.runtimeStatus || this.props.isRunningCode || (this.getValidationState() === 'error');
+    return this.props.runtimeStatus || this.props.isRunningCode || (getValidationState(this.state.ipAddress) === 'error');
   }
 
   render() {
@@ -60,7 +45,7 @@ class UpdateBox extends React.Component {
           <Form>
             <FormGroup
               controlId="formBasicText"
-              validationState={this.getValidationState()}
+              validationState={getValidationState(this.state.ipAddress)}
             >
               <ControlLabel>IP Address</ControlLabel>
               <FormControl

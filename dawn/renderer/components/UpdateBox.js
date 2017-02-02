@@ -4,22 +4,12 @@ import {
   Button,
 } from 'react-bootstrap';
 import { remote } from 'electron';
-import Editor from './Editor';
+import { pathToName } from '../utils/utils';
 
 const dialog = remote.dialog;
 const Client = require('ssh2').Client;
 
 class UpdateBox extends React.Component {
-  static pathToName(filepath) {
-    if (filepath !== null) {
-      if (process.platform === 'win32') {
-        return filepath.split('\\').pop();
-      }
-      return filepath.split('/').pop();
-    }
-    return '';
-  }
-
   constructor(props) {
     super(props);
     this.state = {
@@ -42,7 +32,7 @@ class UpdateBox extends React.Component {
 
   upgradeSoftware() {
     this.setState({ isUploading: true });
-    const update = Editor.pathToName(this.state.updateFilepath);
+    const update = pathToName(this.state.updateFilepath);
     if (!update) {
       this.setState({ isUploading: false });
       dialog.showMessageBox({
@@ -59,7 +49,7 @@ class UpdateBox extends React.Component {
         if (err) throw err;
         console.log('SSH Connection');
         sftp.fastPut(this.state.updateFilepath,
-          `./updates/${Editor.pathToName(this.state.updateFilepath)}`, (err2) => {
+          `./updates/${update}`, (err2) => {
             if (err2) {
               dialog.showMessageBox({
                 type: 'warning',

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
 message Notification {
-    String header = 1;
-    String msg = 2;
+    string header = 1;
+    string msg = 2;
 }

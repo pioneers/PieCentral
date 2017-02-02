@@ -17,7 +17,6 @@ class UpdateBox extends React.Component {
       ipAddress: this.props.ipAddress,
     };
     this.saveChanges = this.saveChanges.bind(this);
-    this.getValidationState = this.getValidationState.bind(this);
     this.disableUploadUpdate = this.disableUploadUpdate.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }

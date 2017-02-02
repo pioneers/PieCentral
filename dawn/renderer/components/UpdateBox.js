@@ -64,9 +64,9 @@ class UpdateBox extends React.Component {
     }).connect({
       debug: (inpt) => { console.log(inpt); },
       host: this.props.ipAddress,
-      port: 22,
-      username: 'ubuntu',
-      password: 'temppwd',
+      port: this.props.port,
+      username: this.props.username,
+      password: this.props.password,
     });
     setTimeout(() => {
       conn.end();
@@ -117,6 +117,9 @@ UpdateBox.propTypes = {
   runtimeStatus: React.PropTypes.bool.isRequired,
   isRunningCode: React.PropTypes.bool.isRequired,
   ipAddress: React.PropTypes.string.isRequired,
+  port: React.PropTypes.number.isRequired,
+  username: React.PropTypes.string.isRequired,
+  password: React.PropTypes.string.isRequired,
 };
 
 export default UpdateBox;

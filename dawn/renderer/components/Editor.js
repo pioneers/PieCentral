@@ -209,9 +209,9 @@ class Editor extends React.Component {
     }).connect({
       debug: (inpt) => { console.log(inpt); },
       host: this.props.ipAddress,
-      port: 22,
-      username: 'ubuntu',
-      password: 'temppwd',
+      port: this.props.port,
+      username: this.props.username,
+      password: this.props.password,
     });
     setTimeout(() => { conn.end(); }, 2000);
   }
@@ -279,6 +279,9 @@ class Editor extends React.Component {
           runtimeStatus={this.props.runtimeStatus}
           shouldShow={this.state.showUpdateModal}
           ipAddress={this.props.ipAddress}
+          port={this.props.port}
+          username={this.props.username}
+          password={this.props.password}
           hide={this.toggleUpdateModal}
         />
         <ConfigBox
@@ -438,6 +441,9 @@ Editor.propTypes = {
   runtimeStatus: React.PropTypes.bool,
   connectionStatus: React.PropTypes.bool,
   ipAddress: React.PropTypes.string,
+  port: React.PropTypes.number,
+  username: React.PropTypes.string,
+  password: React.PropTypes.string,
 };
 
 export default Editor;

@@ -1,5 +1,8 @@
 const initialInfoState = {
   ipAddress: '192.168.7.2',
+  port: 22,
+  username: 'ubuntu',
+  password: 'temppwd',
   studentCodeStatus: 0,
   robotState: 2,
   isRunningCode: false,

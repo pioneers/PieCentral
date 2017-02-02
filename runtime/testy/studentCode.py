@@ -19,12 +19,15 @@ def setup():
 def main():
   pass
 
-def asyncawait_test(): # I'm pretty sure I did this all wrong
-  async def practice():
-    print("This should print")
-    await delay(5.0)
-    print("This should only print once")
+def asyncawait_setup(): 
+  Robot.run(asyncawait_main)
 
+async def asyncawait_main():
+  Robot.setValue("left", 1.0)
+  await Actions.sleep(2.0)
+  Robot.setValue("left", 0.0)
+  if Robot.getValue("left") != 0.0:
+    print("Error")
   def loop():
     Robot.coroutine(practice)
     Robot.coroutine(practice)

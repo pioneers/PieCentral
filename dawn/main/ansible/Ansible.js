@@ -1,20 +1,19 @@
 import { ipcMain } from 'electron';
 import ProtoBuf from 'protobufjs';
-import RendererBridge from '../RendererBridge';
 import dgram from 'dgram';
 import _ from 'lodash';
-import { clearConsole, updateConsole } from '../../renderer/actions/ConsoleActions';
 import {
     ansibleConnect,
     ansibleDisconnect,
     updateStatus,
+    updateRobotState,
 } from '../../renderer/actions/InfoActions';
 import { updatePeripheral } from '../../renderer/actions/PeripheralActions';
+import RendererBridge from '../RendererBridge';
 
-const runtimeIP = 'localhost';  // '192.168.128.22';
+let runtimeIP = 'localhost';  // '192.168.128.22';
 const clientPort = 1236; // send port
 const serverPort = 1235; // receive port
-const tcpPort = 1237;
 const client = dgram.createSocket('udp4'); // sender
 const server = dgram.createSocket('udp4'); // receiver
 
@@ -25,23 +24,6 @@ const StudentCodeStatus = DawnData.StudentCodeStatus;
 
 const runtimeBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
-const TCPData = runtimeBuilder.build('TCPData');
-
-const net = require('net');
-net.createServer((socket) => {
-  console.log('TCP Connection Up');
-  socket.on('data', (data) => {
-    const console = TCPData.decode(data);
-    RendererBridge.reduxDispatch(clearConsole());
-    RendererBridge.reduxDispatch(updateConsole(console));
-  });
-
-  // Remove the client from the list when it leaves
-  socket.on('end', () => {
-    console.log('TCP Connection Ended');
-  });
-}).listen(tcpPort);
-
 
 /**
  * Serialize the data using protocol buffers.
@@ -81,6 +63,10 @@ ipcMain.on('stateUpdate', (event, data) => {
   });
 });
 
+ipcMain.on('ipAddress', (event, data) => {
+  runtimeIP = data;
+});
+
 /**
  * Handler to receive messages from the robot Runtime
  */
@@ -89,7 +75,7 @@ server.on('message', (msg) => {
   RendererBridge.reduxDispatch(updateStatus());
   try {
     const data = RuntimeData.decode(msg);
-    // console.log(`Dawn received: ${JSON.stringify(data)}\n`);
+    RendererBridge.reduxDispatch(updateRobotState(data.robot_state));
     for (const sensor of data.sensor_data) {
       RendererBridge.reduxDispatch(updatePeripheral(sensor));
     }

@@ -6,10 +6,10 @@ import GamepadItem from './GamepadItem';
 const Gamepads = (props) => {
   let interior;
   // if there are any gamepads
-  if (_.some(props.gamepads, (gamepad) => gamepad !== undefined)) {
+  if (_.some(props.gamepads, gamepad => gamepad !== undefined)) {
     interior = _.map(
       props.gamepads,
-      (gamepad, index) => <GamepadItem key={index} index={index} gamepad={gamepad} />
+      (gamepad, index) => <GamepadItem key={index} index={index} gamepad={gamepad} />,
     );
   } else {
     interior = (

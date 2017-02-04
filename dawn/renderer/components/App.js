@@ -1,11 +1,12 @@
 import React from 'react';
 import Joyride from 'react-joyride';
-import Dashboard from './Dashboard';
-import joyrideSteps from './JoyrideSteps';
-import smalltalk from 'smalltalk';
-import { removeAsyncAlert } from '../actions/AlertActions';
 import { remote, ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
+import smalltalk from 'smalltalk';
+import Dashboard from './Dashboard';
+import joyrideSteps from './JoyrideSteps';
+import { removeAsyncAlert } from '../actions/AlertActions';
+
 const storage = remote.require('electron-json-storage');
 
 class AppComponent extends React.Component {
@@ -120,7 +121,7 @@ AppComponent.propTypes = {
   onAlertDone: React.PropTypes.func,
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   connectionStatus: state.info.connectionStatus,
   runtimeStatus: state.info.runtimeStatus,
   batteryLevel: state.info.batteryLevel,
@@ -128,7 +129,7 @@ const mapStateToProps = (state) => ({
   asyncAlerts: state.asyncAlerts,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   onAlertDone(id) {
     dispatch(removeAsyncAlert(id));
   },

@@ -3,7 +3,6 @@
  */
 
 const defaultEditorState = {
-  showConsole: false,
   filepath: null,
   latestSaveCode: '',
   editorCode: '',

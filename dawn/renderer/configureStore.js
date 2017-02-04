@@ -1,6 +1,6 @@
-import dawnApp from './reducers/dawnApp';
 import { compose, createStore, applyMiddleware } from 'redux';
 import createSagaMiddleware from 'redux-saga';
+import dawnApp from './reducers/dawnApp';
 import rootSaga from './utils/sagas';
 import DevTools from './components/DevTools';
 
@@ -11,8 +11,8 @@ const store = createStore(
   compose(
     applyMiddleware(sagaMiddleware),
     // For memory reasons, DevTools only keeps most recent {maxAge} actions
-    DevTools.instrument({ maxAge: 30 })
-  )
+    DevTools.instrument({ maxAge: 30 }),
+  ),
 );
 
 sagaMiddleware.run(rootSaga);

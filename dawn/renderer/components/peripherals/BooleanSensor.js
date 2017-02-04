@@ -7,15 +7,10 @@ import { PeripheralTypes } from '../../constants/Constants';
  * for example a LimitSwitch.
  */
 class BooleanSensor extends React.Component {
-  constructor(props) {
-    super(props);
-    this.formatBoolean = this.formatBoolean.bind(this);
-  }
-
   /**
    * Formats data for display based on peripheralType.
    */
-  formatBoolean(peripheralType, sensorValue) {
+  static formatBoolean(peripheralType, sensorValue) {
     if (peripheralType === PeripheralTypes.LimitSwitch) {
       return (sensorValue) ? 'Open' : 'Closed';
     }
@@ -33,7 +28,7 @@ class BooleanSensor extends React.Component {
           <h4
             style={{ float: 'right' }}
           >
-            {this.formatBoolean(this.props.peripheralType, this.props.value)}
+            {BooleanSensor.formatBoolean(this.props.peripheralType, this.props.value)}
           </h4>
         </div>
       </div>
@@ -42,10 +37,10 @@ class BooleanSensor extends React.Component {
 }
 
 BooleanSensor.propTypes = {
-  name: React.PropTypes.string,
-  peripheralType: React.PropTypes.string,
-  id: React.PropTypes.string,
-  value: React.PropTypes.number,
+  name: React.PropTypes.string.isRequired,
+  peripheralType: React.PropTypes.string.isRequired,
+  id: React.PropTypes.string.isRequired,
+  value: React.PropTypes.number.isRequired,
 };
 
 export default BooleanSensor;

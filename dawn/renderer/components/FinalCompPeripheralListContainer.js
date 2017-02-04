@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import FinalCompPeripheralList from './FinalCompPeripheralList';
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   peripherals: state.peripherals,
 });
 

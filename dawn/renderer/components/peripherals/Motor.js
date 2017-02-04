@@ -1,12 +1,12 @@
 import React from 'react';
-import NameEditContainer from '../NameEditContainer';
-import numeral from 'numeral';
 import { ProgressBar } from 'react-bootstrap';
+import numeral from 'numeral';
+import NameEditContainer from '../NameEditContainer';
 
 /**
  * A component representing a motor.
  */
-const Motor = (props) => (
+const Motor = props => (
   <div style={{ overflow: 'auto' }}>
     <div style={{ overflow: 'auto', width: '100%' }}>
       <h4 style={{ float: 'left' }}><NameEditContainer name={props.name} id={props.id} />
@@ -21,9 +21,9 @@ const Motor = (props) => (
 );
 
 Motor.propTypes = {
-  name: React.PropTypes.string,
-  value: React.PropTypes.number,
-  id: React.PropTypes.string,
+  name: React.PropTypes.string.isRequired,
+  value: React.PropTypes.number.isRequired,
+  id: React.PropTypes.string.isRequired,
 };
 
 export default Motor;

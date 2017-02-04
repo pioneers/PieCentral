@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import NameEdit from './NameEdit';
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   peripherals: state.peripherals,
 });
 

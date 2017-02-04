@@ -14,7 +14,12 @@ import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { peripheralDisconnect } from '../actions/PeripheralActions';
 
+let timestamp = Date.now();
 const dialog = remote.dialog;
+
+if (!Date.now) {
+  Date.now = () => { new Date().getTime(); };
+}
 
 /**
  * The electron showOpenDialog interface does not work well
@@ -65,14 +70,29 @@ function saveFileDialog() {
   });
 }
 
-function* openFile() {
-  try {
-    const filepath = yield call(openFileDialog);
-    const data = yield cps(fs.readFile, filepath, 'utf8');
-    yield put(openFileSucceeded(data, filepath));
-  } catch (e) {
-    console.log('No filename specified, no file opened.');
-  }
+/**
+ * Using Promise for Electron message dialog functionality for the same
+ * reason as above.
+ *
+ * @return {Promise} - fulfilled with button index.
+ */
+function unsavedDialog(action) {
+  return new Promise((resolve, reject) => {
+    dialog.showMessageBox({
+      type: 'warning',
+      buttons: [`Save and ${action}`, `Discard and ${action}`, 'Cancel action'],
+      title: 'You have unsaved changes!',
+      message: `You are trying to ${action} a new file, but you have unsaved changes to 
+your current one. What do you want to do?`,
+    }, (res) => {
+      // 'res' is an integer corrseponding to index in button list above.
+      if (res === 0 || res === 1 || res === 2) {
+        resolve(res);
+      } else {
+        reject();
+      }
+    });
+  });
 }
 
 /**
@@ -89,7 +109,7 @@ function* writeFile(filepath, code) {
 }
 
 function* saveFile(action) {
-  const selector = (state) => ({
+  const selector = state => ({
     filepath: state.editor.filepath,
     code: state.editor.editorCode,
   });
@@ -98,7 +118,7 @@ function* saveFile(action) {
   const code = result.code;
   // If the action is a "save as" OR there is no filepath (ie, a new file)
   // then we open the save file dialog so the user can specify a filename before saving.
-  if (action.saveAs || !filepath) {
+  if (action.saveAs === true || !filepath) {
     try {
       filepath = yield call(saveFileDialog);
       yield* writeFile(filepath, code);
@@ -107,6 +127,40 @@ function* saveFile(action) {
     }
   } else {
     yield* writeFile(filepath, code);
+  }
+}
+
+function* openFile(action) {
+  const type = (action.type === 'OPEN_FILE') ? 'open' : 'create';
+  const selector = state => ({
+    savedCode: state.editor.latestSaveCode,
+    code: state.editor.editorCode,
+  });
+  const result = yield select(selector);
+  let res = 1;
+  if (result.code !== result.savedCode) {
+    res = yield call(unsavedDialog, type);
+    if (res === 0) {
+      yield* saveFile({
+        type: 'SAVE_FILE',
+        saveAs: false,
+      });
+    }
+  }
+  if (res === 0 || res === 1) {
+    if (type === 'open') {
+      try {
+        const filepath = yield call(openFileDialog);
+        const data = yield cps(fs.readFile, filepath, 'utf8');
+        yield put(openFileSucceeded(data, filepath));
+      } catch (e) {
+        console.log('No filename specified, no file opened.');
+      }
+    } else if (type === 'create') {
+      yield put(openFileSucceeded('', null));
+    }
+  } else {
+    console.log(`File ${type} canceled.`);
   }
 }
 
@@ -144,7 +198,7 @@ function* reapPeripheral(action) {
   // Start a race between a delay and receiving an UPDATE_PERIPHERAL action for
   // this same peripheral (per peripheral.id). Only the winner has a value.
   const result = yield race({
-    peripheralUpdate: take((nextAction) => (
+    peripheralUpdate: take(nextAction => (
       nextAction.type === 'UPDATE_PERIPHERAL' && (String(nextAction.peripheral.uid.high)
       + String(nextAction.peripheral.uid.low)) === id
     )),
@@ -199,12 +253,13 @@ function* ansibleGamepads() {
     // navigator.getGamepads always returns a reference to the same object. This
     // confuses redux, so we use assignIn to clone to a new object each time.
     const newGamepads = _.assignIn({}, navigator.getGamepads());
-    if (_needToUpdate(newGamepads)) {
+    if (_needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
       const formattedGamepads = formatGamepads(newGamepads);
       yield put(updateGamepads(formattedGamepads));
 
       // Send gamepad data to Runtime over Ansible.
-      if (_.some(newGamepads)) {
+      if (_.some(newGamepads) || Date.now() - timestamp > 100) {
+        timestamp = Date.now();
         yield put({ type: 'UPDATE_MAIN_PROCESS' });
       }
     }
@@ -252,8 +307,8 @@ function* ansibleSaga() {
  * Send the store to the main process whenever it changes.
  */
 function* updateMainProcess() {
-  const stateSlice = yield select((state) => ({
-    studentCodeStatus: true,
+  const stateSlice = yield select(state => ({
+    studentCodeStatus: state.info.studentCodeStatus,
     gamepads: state.gamepads.gamepads,
   }));
   ipcRenderer.send('stateUpdate', stateSlice);
@@ -266,6 +321,7 @@ export default function* rootSaga() {
   yield [
     takeEvery('OPEN_FILE', openFile),
     takeEvery('SAVE_FILE', saveFile),
+    takeEvery('CREATE_NEW_FILE', openFile),
     takeEvery('UPDATE_PERIPHERAL', reapPeripheral),
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     fork(runtimeHeartbeat),

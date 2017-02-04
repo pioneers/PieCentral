@@ -1,8 +1,8 @@
 import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './components/App';
 import { Provider } from 'react-redux';
+import App from './components/App';
 import { store, DevTools } from './configureStore';
 
 ReactDOM.render(
@@ -12,5 +12,5 @@ ReactDOM.render(
       <DevTools />
     </div>
   </Provider>,
-  document.getElementById('content')
+  document.getElementById('content'),
 );

@@ -2,7 +2,7 @@
  * Actions for the console state.
  */
 
-export const updateConsole = (value) => ({
+export const updateConsole = value => ({
   type: 'UPDATE_CONSOLE',
   consoleOutput: value,
 });

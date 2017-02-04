@@ -2,7 +2,7 @@
  * Actions for the editor state.
  */
 
-export const editorUpdate = (newVal) => ({
+export const editorUpdate = newVal => ({
   type: 'UPDATE_EDITOR',
   code: newVal,
 });
@@ -28,17 +28,4 @@ export const deleteFile = () => ({
 
 export const createNewFile = () => ({
   type: 'CREATE_NEW_FILE',
-});
-
-export const changeTheme = (theme) => ({
-  type: 'CHANGE_THEME',
-  theme,
-});
-
-export const increaseFontsize = () => ({
-  type: 'INCREASE_FONTSIZE',
-});
-
-export const decreaseFontsize = () => ({
-  type: 'DECREASE_FONTSIZE',
 });

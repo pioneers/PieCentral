@@ -14,13 +14,9 @@ import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { peripheralDisconnect } from '../actions/PeripheralActions';
 
-<<<<<<< HEAD
 // const dialog = remote.dialog;
 // postpone looking into remote so tests can run
-=======
 let timestamp = Date.now();
-const dialog = remote.dialog;
->>>>>>> master
 
 if (!Date.now) {
   Date.now = () => { new Date().getTime(); };
@@ -115,15 +111,7 @@ const editorState = state => ({
 });
 
 function* saveFile(action) {
-<<<<<<< HEAD
   const result = yield select(editorState);
-=======
-  const selector = state => ({
-    filepath: state.editor.filepath,
-    code: state.editor.editorCode,
-  });
-  const result = yield select(selector);
->>>>>>> master
   let filepath = result.filepath;
   const code = result.code;
   // If the action is a "save as" OR there is no filepath (ie, a new file)
@@ -147,15 +135,7 @@ const editorSavedState = state => ({
 
 function* openFile(action) {
   const type = (action.type === 'OPEN_FILE') ? 'open' : 'create';
-<<<<<<< HEAD
   const result = yield select(editorSavedState);
-=======
-  const selector = state => ({
-    savedCode: state.editor.latestSaveCode,
-    code: state.editor.editorCode,
-  });
-  const result = yield select(selector);
->>>>>>> master
   let res = 1;
   if (result.code !== result.savedCode) {
     res = yield call(unsavedDialog, type);
@@ -209,7 +189,7 @@ function* runtimeHeartbeat() {
 }
 
 let id = '';
-const actionWithSamePeripheral = (nextAction) => (
+const actionWithSamePeripheral = nextAction => (
  nextAction.type === 'UPDATE_PERIPHERAL' && (String(nextAction.peripheral.uid.high)
  + String(nextAction.peripheral.uid.low)) === id
 );
@@ -325,7 +305,7 @@ function* ansibleSaga() {
   }
 }
 
-const gamepadsState = (state) => ({
+const gamepadsState = state => ({
   studentCodeStatus: state.info.studentCodeStatus,
   gamepads: state.gamepads.gamepads,
 });

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { changeTheme, changeFontsize } from '../SettingsActions.js';
+import { changeTheme, changeFontsize } from '../SettingsActions';
 
 describe('settings actions creator', () => {
   it('should create an action to change theme', () => {

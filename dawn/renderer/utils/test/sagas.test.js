@@ -1,7 +1,6 @@
 import 'babel-polyfill';
-import fromGenerator from './redux-saga-test';
-import { assert } from 'chai';
 import fs from 'fs';
+import { assert } from 'chai';
 import { delay } from 'redux-saga';
 import { call, take } from 'redux-saga/effects';
 // import { remote } from 'electron';
@@ -23,6 +22,7 @@ import { openFileDialog,
          updateMainProcess,
          ansibleReceiver,
          ansibleSaga } from '../sagas';
+import fromGenerator from './redux-saga-test';
 
 describe('filesystem sagas', () => {
   it('should yield effects for opening file (unsaved)', () => {

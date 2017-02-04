@@ -23,9 +23,9 @@ const StatusLabel = (props) => {
 };
 
 StatusLabel.propTypes = {
-  connectionStatus: React.PropTypes.bool,
-  runtimeStatus: React.PropTypes.bool,
-  battery: React.PropTypes.number,
+  connectionStatus: React.PropTypes.bool.isRequired,
+  runtimeStatus: React.PropTypes.bool.isRequired,
+  battery: React.PropTypes.number.isRequired,
 };
 
 export default StatusLabel;

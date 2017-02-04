@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message Notification {
+    string header = 1;
+    string msg = 2;
+}

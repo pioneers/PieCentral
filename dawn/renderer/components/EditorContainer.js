@@ -5,19 +5,20 @@ import {
   saveFile,
   openFile,
   createNewFile,
-} from '../actions/EditorActions.js';
+} from '../actions/EditorActions';
 import {
   changeTheme,
   changeFontsize,
-} from '../actions/SettingsActions.js';
+} from '../actions/SettingsActions';
 import {
   showConsole,
   hideConsole,
   clearConsole,
 } from '../actions/ConsoleActions';
 import { addAsyncAlert } from '../actions/AlertActions';
+import { updateCodeStatus, ipChange } from '../actions/InfoActions';
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   editorCode: state.editor.editorCode,
   editorTheme: state.settings.editorTheme,
   filepath: state.editor.filepath,
@@ -25,9 +26,14 @@ const mapStateToProps = (state) => ({
   latestSaveCode: state.editor.latestSaveCode,
   showConsole: state.studentConsole.showConsole,
   consoleData: state.studentConsole.consoleData,
+  ipAddress: state.info.ipAddress,
+  connectionStatus: state.info.connectionStatus,
+  port: state.info.port,
+  username: state.info.username,
+  password: state.info.password,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   onAlertAdd: (heading, message) => {
     dispatch(addAsyncAlert(heading, message));
   },
@@ -57,6 +63,12 @@ const mapDispatchToProps = (dispatch) => ({
   },
   onClearConsole: () => {
     dispatch(clearConsole());
+  },
+  onUpdateCodeStatus: (status) => {
+    dispatch(updateCodeStatus(status));
+  },
+  onIPChange: (ipAddress) => {
+    dispatch(ipChange(ipAddress));
   },
 });
 

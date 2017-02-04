@@ -3,9 +3,9 @@ import {
   OverlayTrigger,
   Popover,
 } from 'react-bootstrap';
+import _ from 'lodash';
 import numeral from 'numeral';
 import NameEditContainer from '../NameEditContainer';
-import _ from 'lodash';
 
 /**
  * A component representing the ColorSensor. Test.
@@ -56,8 +56,7 @@ class ColorSensor extends React.Component {
                 height: '35px',
                 backgroundColor: this.getHexColorValue(),
               }}
-            >
-            </div>
+            />
           </OverlayTrigger>
         </div>
       </div>
@@ -66,10 +65,10 @@ class ColorSensor extends React.Component {
 }
 
 ColorSensor.propTypes = {
-  name: React.PropTypes.string,
-  peripheralType: React.PropTypes.string,
-  id: React.PropTypes.string,
-  value: React.PropTypes.array,
+  name: React.PropTypes.string.isRequired,
+  peripheralType: React.PropTypes.string.isRequired,
+  id: React.PropTypes.string.isRequired,
+  value: React.PropTypes.array.isRequired,
 };
 
 export default ColorSensor;

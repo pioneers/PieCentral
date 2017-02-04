@@ -4,6 +4,9 @@
     "VERSION": true,
     "io": true,
   },
+  "env": {
+    "browser": true
+  },
   "parserOptions": {
     "ecmaFeatures": {
       "experimentalObjectRestSpread": true,
@@ -20,7 +23,7 @@
     "no-underscore-dangle": 0,
     "no-param-reassign": 0,
     "consistent-return": 0,
-    "new-cap": [2, { "newIsCapExceptions": ["seedrandom"] }],
+    "new-cap": 0,
     "react/jsx-filename-extension": 0,
     "react/forbid-prop-types": 0,
     "react/require-default-props": 0,
@@ -33,5 +36,6 @@
     "react/no-unused-prop-types": 0,
     "no-useless-escape": 0,
     "import/prefer-default-export": 0,
+    "import/no-extraneous-dependencies": 0
   }
 }

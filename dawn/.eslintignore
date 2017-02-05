@@ -2,4 +2,4 @@ build/*
 static/*
 release.js
 webpack.*
-*.test.js
+renderer/utils/test/redux-saga-test.js

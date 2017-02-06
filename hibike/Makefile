@@ -24,7 +24,7 @@ ARDUINO_LIBS := Wire Servo
 
 ### USER_LIB_PATH
 ### Path to where the your project's libraries are stored.
-SKETCH_LIBS = hibike Adafruit_TCS34725 EEPROM
+SKETCH_LIBS = hibike Adafruit_TCS34725 EEPROM SevenSeg TimerOne TimerThree FlexiTimer2 PID_v1 Encoder
 USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
 
 ### BOARD_TAG & BOARD_SUB

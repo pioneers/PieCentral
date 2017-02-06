@@ -1,0 +1,126 @@
+#include <TimerOne.h> //arduino libraries go in <
+
+#include "current_limit.h"
+
+#include "motor.h" //our own motor.h
+
+//code that does current limiting.
+//This will be called every time the motor controller decides to adjust the PWM to the motor.
+
+int pwm_sign = 1; //separates the sign from the PWM value
+#define LIMITED 4 //when in the limit state PWM = PWM/LIMITED
+
+//CONDITIONS TO SWITCH STATES
+
+
+int in_max = 0; //how many times we have been in the CAUGHT_MAX state
+#define EXIT_MAX 250 //**FIXME** how many ms we want to be in CAUGHT_MAX before moving onto LIMIT state 
+int above_threshold = 0;
+
+int in_limit = 0; //how many times we have been in the LIMIT state
+#define EXIT_LIMIT 1000 //**FIXME** how many ms we want to be in LIMIT before moving onto SPIKE state
+
+int in_spike = 0; //how many times we have been in the SPIKE state
+#define EXIT_SPIKE 500 //**FIXME** how many ms we want to be in SPIKE before moving onto either the STANDARD or LIMIT state
+int below_threshold = 0; 
+
+//FSM STATES
+int limit_state = 0; //tells us which state the FSM is in and how we are modifying the PWM
+#define STANDARD 0 //normal state when pwm gets passed though
+#define CAUGHT_MAX 1 //alerted state where we are concerned about high current
+#define LIMIT 2 //high current for too long and PWM is now limited
+#define SPIKE 3 //checks to see if returning to full PWM is safe
+
+void current_limiting() {
+  double targetPWM;
+  
+  if (driveMode == 0) {
+    targetPWM = pwmInput;
+  }
+  else {
+    targetPWM = pwmPID;
+  }
+  
+  float current_read = readCurrent(); 
+  
+  if (targetPWM < 0) { //separate the sign to make calculations easier, we only care about magnitude
+    pwm_sign = -1;
+    targetPWM = targetPWM * -1;
+  } else {
+    pwm_sign = 1;
+  }
+
+  switch(limit_state) {
+    
+    case STANDARD: //we allow the pwm to be passed through normally and check to see if the CURRENT ever spikes above the threshold
+      if (current_read > current_threshold) {
+        limit_state = CAUGHT_MAX;
+      } else {
+        if (above_threshold > 0) {
+          above_threshold--;
+        }
+      }
+      break;
+      
+    case CAUGHT_MAX: //we have seen the max and we check to see if we are above max for EXIT_MAX consecutive cycles and then we go to LIMIT to protect the motor
+      if (in_max > EXIT_MAX) {
+        if(above_threshold >= EXIT_MAX / 2) {
+          above_threshold = 0;
+          limit_state = LIMIT;
+        } else {
+          limit_state = STANDARD;
+        }
+        in_max = 0;
+      }
+
+      if (current_read > current_threshold) {
+        above_threshold++;
+      }
+      in_max++;
+      break;
+      
+    case LIMIT: //we limit the pwm to 0.25 the value and wait EXIT_LIMIT cycles before attempting to spike and check the current again
+      targetPWM = targetPWM / LIMITED;
+      if (in_limit > EXIT_LIMIT) {
+        in_limit = 0;
+        limit_state = SPIKE;
+      } else {
+        in_limit++;
+      }
+      break;
+      
+    case SPIKE: //we bring the pwm back to the target for a brief amount of time and check to see if it can continue in standard or if we need to continue limiting
+      if (in_spike > EXIT_SPIKE) {
+        if (below_threshold >= (EXIT_SPIKE/100)*99) {
+          limit_state = STANDARD;
+        } else {
+          limit_state = LIMIT;
+        }
+        below_threshold = 0;
+        in_spike = 0;
+      } else {
+        if (current_read < current_threshold) {
+          below_threshold++;
+        }
+        in_spike++;
+      }
+      break;
+  }
+  pwmOutput = targetPWM * pwm_sign;
+}
+
+void timerOneOps() {
+  current_limiting();
+  drive(pwmOutput);
+  heartbeat++;
+}
+
+void currentLimitSetup() {
+  Timer1.initialize(1000);
+  Timer1.attachInterrupt(timerOneOps);
+}
+
+
+
+
+

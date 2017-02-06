@@ -196,6 +196,20 @@ Device Type Enumeration:
 |         |                | 7            | enable3    | bool       | yes   | yes    |
 |  0x08   | LinearActuator |              |            |            |       |        |
 |  0x09   | ColorSensor    |              |            |            |       |        |
+|  0x0A   | YogiBear       | 0            | command_state       | uint8_t    | yes   | yes    |
+|         |                | 1            | duty_cycle          | float      | no    | yes    |
+|         |                | 2            | pid_pos_setpoint    | float      | no    | yes    |
+|         |                | 3            | pid_pos_kp          | float      | no    | yes    |
+|         |                | 4            | pid_pos_ki          | float      | no    | yes    |
+|         |                | 5            | pid_pos_kd          | float      | no    | yes    |
+|         |                | 6            | pid_vel_setpoint    | float      | no    | yes    |
+|         |                | 7            | pid_vel_kp          | float      | no    | yes    |
+|         |                | 8            | pid_vel_ki          | float      | no    | yes    |
+|         |                | 9            | pid_vel_kd          | float      | no    | yes    |
+|         |                | 10           | current_thresh      | float      | no    | yes    |
+|         |                | 11           | enc_pos             | uint32_t   | yes   | yes    |
+|         |                | 12           | enc_vel             | float      | yes   | no     |
+|         |                | 13           | motor_current       | float      | yes   | no     |
 |  0x10   | DistanceSensor |              |            |            |       |        |
 |  0x11   | MetalDetector  |              |            |            |       |        |
 |  0xFFFF | ExampleDevice  | 0            | kumiko     | bool       | yes   | yes    |

@@ -1,4 +1,4 @@
-#include <TimerOne.h> //Needed to make this file compile because hibike compiler bugs.
+#include "Arduino.h" //to get digital write, etc.
 
 #include "ui.h"
 #include "motor.h"
@@ -68,7 +68,7 @@ void manual_ui()
     }
     else if (c == 'e') {
       Serial.println("Enabled");
-      enable();
+      enable ();
     }
     else if (c == 'd') {
       Serial.println("Disabled");

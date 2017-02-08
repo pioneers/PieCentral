@@ -9,5 +9,4 @@ message Notification {
 	}
     Type header = 1;
     string console_output = 2;   // Console Output From Runtime to Dawn
-    
 }

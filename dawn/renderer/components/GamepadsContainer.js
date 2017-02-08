@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import Gamepads from './Gamepads';
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   gamepads: state.gamepads.gamepads,
 });
 

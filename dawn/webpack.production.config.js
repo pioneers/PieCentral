@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack')
 
 module.exports = {
-  entry: './js/index.js',
+  entry: './renderer/index.js',
   output: { path: __dirname + '/build/', filename: 'bundle.js' },
   target: 'atom',
   module: {
@@ -12,7 +12,8 @@ module.exports = {
         exclude: /node_modules/,
         loader: "babel-loader",
         query: {
-          presets: ['es2015', 'react']
+          presets: ['es2015', 'react'],
+          plugins: [ 'transform-object-rest-spread', 'transform-regenerator' ]
         }
       },
       {

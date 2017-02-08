@@ -24,9 +24,9 @@ class ConsoleOutput extends React.Component {
                 width: '99%',
               }}
             >
-            {this.props.output.map((line, index) => (
-              <code key={index}>{line}</code>
-            ))}
+              {this.props.output.map((line, index) => (
+                <code key={index}>{line}</code>
+              ))}
             </div>
           </pre>
         </Panel>

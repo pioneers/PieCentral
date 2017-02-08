@@ -20,7 +20,7 @@ describe('alerts reducer', () => {
         heading: 'example alert',
         id: 1,
         message: 'example message',
-      }
+      },
     ]);
   });
 

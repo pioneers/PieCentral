@@ -25,7 +25,7 @@ echo 'Dpkg::Options {
 }' | sudo tee --append /etc/apt/apt.conf.d/local
 
 # Install tmux ###############################################################################
-sudo apt-get update -y && sudo apt-get install tmux -y
+sudo apt update -y && sudo apt install tmux -y
 
 # Clone frankfurter script files #############################################################
 if [ ! -d PieCentral ]; then

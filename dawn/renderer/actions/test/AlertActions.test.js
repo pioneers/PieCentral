@@ -15,14 +15,14 @@ describe('alerts action creator', () => {
       message: 'example message',
     };
     expect(addAsyncAlert(
-      'example alert', 'example message'
+      'example alert', 'example message',
     )).to.deep.equal(expectedAction);
   });
 
   it('should create an action remove an alert', () => {
     const expectedAction = {
       type: 'REMOVE_ASYNC_ALERT',
-      id: 0
+      id: 0,
     };
     expect(removeAsyncAlert(0)).to.deep.equal(expectedAction);
   });

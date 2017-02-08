@@ -26,8 +26,8 @@ class GamepadItem extends React.Component {
 
   roundedValues() {
     return {
-      axes: _.map(this.props.gamepad.axes, (axis) => numeral(axis).format('0.00000')),
-      buttons: _.map(this.props.gamepad.buttons, (button) => numeral(button).format('0')),
+      axes: _.map(this.props.gamepad.axes, axis => numeral(axis).format('0.00000')),
+      buttons: _.map(this.props.gamepad.buttons, button => numeral(button).format('0')),
     };
   }
 

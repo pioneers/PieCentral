@@ -4,7 +4,7 @@ import FinalCompPeripheralListContainer from './FinalCompPeripheralListContainer
 import GamepadsContainer from './GamepadsContainer';
 import EditorContainer from './EditorContainer';
 
-const Dashboard = (props) => (
+const Dashboard = props => (
   <Grid fluid>
     <Row>
       <Col smPush={8} sm={4}>

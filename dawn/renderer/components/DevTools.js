@@ -22,7 +22,7 @@ const DevTools = createDevTools(
     >
       <LogMonitor theme="tomorrow" />
     </FilterMonitor>
-  </DockMonitor>
+  </DockMonitor>,
 );
 
 export default DevTools;

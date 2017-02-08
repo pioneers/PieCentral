@@ -5,9 +5,6 @@ import {
   deleteFile,
   createNewFile,
   editorUpdate,
-  changeTheme,
-  increaseFontsize,
-  decreaseFontsize,
 } from '../EditorActions';
 
 
@@ -21,14 +18,14 @@ describe('editor actions creator', () => {
   it('should create an action to save file', () => {
     const expectedAction = {
       type: 'SAVE_FILE',
-      saveAs: false
+      saveAs: false,
     };
     expect(saveFile()).to.deep.equal(expectedAction);
   });
   it('should create an action to save file as', () => {
     const expectedAction = {
       type: 'SAVE_FILE',
-      saveAs: true
+      saveAs: true,
     };
     expect(saveFile(true)).to.deep.equal(expectedAction);
   });
@@ -50,24 +47,5 @@ describe('editor actions creator', () => {
       code: 'print(x)',
     };
     expect(editorUpdate('print(x)')).to.deep.equal(expectedAction);
-  });
-  it('should create an action to change theme', () => {
-    const expectedAction = {
-      type: 'CHANGE_THEME',
-      theme: 'monokai',
-    };
-    expect(changeTheme('monokai')).to.deep.equal(expectedAction);
-  });
-  it('should create an action to increase font size', () => {
-    const expectedAction = {
-      type: 'INCREASE_FONTSIZE',
-    };
-    expect(increaseFontsize()).to.deep.equal(expectedAction);
-  });
-  it('should create an action to decrease font size', () => {
-    const expectedAction = {
-      type: 'DECREASE_FONTSIZE',
-    };
-    expect(decreaseFontsize()).to.deep.equal(expectedAction);
   });
 });

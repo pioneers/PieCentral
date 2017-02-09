@@ -22,28 +22,28 @@ def main():
 def asyncawait_setup():
   Robot.createKey("right")
   Robot.createKey("counter")
-  Robot.setValue("right", 3.0) 
-  Robot.setValue("counter", 0.0)
+  Robot.setValue(3.0, "right") 
+  Robot.setValue(0.0, "counter")
   Robot.run(asyncawait_helper)
 
 def asyncawait_main():
-  Robot.setValue("counter", Robot.getValue("counter") + 1)
-  if Robot.getValue("right") != 4 and Robot.getValue("counter") == 3:
-    print("Async Error")
+  Robot.setValue(Robot.getValue("counter") + 1, "counter")
+  if Robot.getValue("right") == 4 and Robot.getValue("counter") == 3:
+    print("Async Success")
 
 async def asyncawait_helper():
-  Robot.createKey("left")
-  Robot.setValue("left", 1.0)
+  '''Robot.createKey("left")
+  Robot.setValue(1.0, "left")
   curr = time.time()
   await Actions.sleep(2.0)
   now = time.time()
   if now - curr > 1.5:
-    if now - curr < 2.5
+    if now - curr < 2.5:
       print("Success")
-  Robot.setValue("left", 0.0)
+  Robot.setValue(0.0, "left")
   if Robot.getValue("left") != 0.0:
-    print("Value Set Error")
-  Robot.setValue("right", Robot.getValue("right") + 1)
+    print("Value Set Error")'''
+  Robot.setValue(Robot.getValue("right") + 1, "right")
 
 def test0_setup():
   print("test0_setup")

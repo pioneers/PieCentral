@@ -2,8 +2,8 @@
  * Defines the debug menu.
  */
 
-import RendererBridge from '../RendererBridge';
 import { fork } from 'child_process';
+import RendererBridge from '../RendererBridge';
 
 // Reference to the child process for FakeRuntime.
 let child = null;
@@ -18,8 +18,14 @@ const DebugMenu = {
       },
     },
     {
-      label: 'Toggle Runtime',
-      child: null,
+      label: 'Toggle Fake Runtime',
+      kill() {
+        if (child) {
+          child.kill();
+          child = null;
+        }
+        return 'Done';
+      },
       click() {
         if (child) {
           child.kill();

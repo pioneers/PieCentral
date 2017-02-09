@@ -1,8 +1,9 @@
 import React from 'react';
-import NameEditContainer from '../NameEditContainer';
 import numeral from 'numeral';
 
-const ScalarSensor = (props) => (
+import NameEditContainer from '../NameEditContainer';
+
+const ScalarSensor = props => (
   <div style={{ overflow: 'auto' }}>
     <div style={{ overflow: 'auto', width: '100%' }}>
       <h4 style={{ float: 'left' }}>
@@ -15,10 +16,10 @@ const ScalarSensor = (props) => (
 );
 
 ScalarSensor.propTypes = {
-  name: React.PropTypes.string,
-  peripheralType: React.PropTypes.string,
-  id: React.PropTypes.string,
-  value: React.PropTypes.number,
+  name: React.PropTypes.string.isRequired,
+  peripheralType: React.PropTypes.string.isRequired,
+  id: React.PropTypes.string.isRequired,
+  value: React.PropTypes.number.isRequired,
 };
 
 export default ScalarSensor;

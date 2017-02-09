@@ -77,10 +77,10 @@ class UDPSendClass(AnsibleHandler):
         self.sendBuffer = TwoBuffer()
         packagerName = THREAD_NAMES.UDP_PACKAGER
         sockSendName = THREAD_NAMES.UDP_SENDER
+        stateQueue.put([SM_COMMANDS.SEND_IP, [PROCESS_NAMES.UDP_SEND_PROCESS]])
+        self.dawn_ip = pipe.recv()[0]
         super().__init__(packagerName, UDPSendClass.packageData, sockSendName,
                          UDPSendClass.udpSender, badThingsQueue, stateQueue, pipe)
-        stateQueue.put([SM_COMMANDS.SEND_IP, [PROCESS_NAMES.UDP_SEND_PROCESS]])
-        self.dawn_ip = pipe.recv()
 
     def packageData(self, badThingsQueue, stateQueue, pipe):
         """Function run as a thread that packages data to be sent.

@@ -135,7 +135,7 @@ class StateManager(object):
 
   def set_ip(self, new_ip):
     self.state["ip"] = [new_ip, time.time()]
-    self.badThingsQueue.put(BadTing(sys.exc_info(), None, BAD_EVENTS.NEW_IP, False))
+    self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.NEW_IP, False))
 
   def send_ip(self, process_name):
     self.processMapping[process_name].send(self.state["ip"][0])

@@ -4,7 +4,7 @@ import NameEditContainer from '../NameEditContainer';
 /**
  * A generic peripheral, used when the peripheralType is unknown.
  */
-const GenericPeripheral = (props) => (
+const GenericPeripheral = props => (
   <div style={{ overflow: 'auto' }}>
     <div style={{ overflow: 'auto', width: '100' }}>
       <h4 style={{ float: 'left' }}>
@@ -19,13 +19,13 @@ const GenericPeripheral = (props) => (
 );
 
 GenericPeripheral.propTypes = {
-  name: React.PropTypes.string,
-  id: React.PropTypes.string,
-  peripheralType: React.PropTypes.string,
+  name: React.PropTypes.string.isRequired,
+  id: React.PropTypes.string.isRequired,
+  peripheralType: React.PropTypes.string.isRequired,
   value: React.PropTypes.oneOfType([
     React.PropTypes.string,
     React.PropTypes.number,
-  ]),
+  ]).isRequired,
 };
 
 GenericPeripheral.defaultProps = {

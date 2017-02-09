@@ -5,7 +5,7 @@
 import React from 'react';
 import { Panel, ListGroup } from 'react-bootstrap';
 
-const PeripheralList = (props) => (
+const PeripheralList = props => (
   <Panel
     id="peripherals-panel"
     header={props.header}
@@ -22,7 +22,7 @@ PeripheralList.defaultProps = {
 };
 
 PeripheralList.propTypes = {
-  header: React.PropTypes.string,
+  header: React.PropTypes.string.isRequired,
   children: React.PropTypes.any,
 };
 

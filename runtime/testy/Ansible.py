@@ -77,7 +77,7 @@ class UDPSendClass(AnsibleHandler):
         self.sendBuffer = TwoBuffer()
         packagerName = THREAD_NAMES.UDP_PACKAGER
         sockSendName = THREAD_NAMES.UDP_SENDER
-        stateQueue.put([SM_COMMANDS.SEND_IP, [PROCESS_NAMES.UDP_SEND_PROCESS]])
+        stateQueue.put([SM_COMMANDS.SEND_ADDR, [PROCESS_NAMES.UDP_SEND_PROCESS]])
         self.dawn_ip = pipe.recv()[0]
         super().__init__(packagerName, UDPSendClass.packageData, sockSendName,
                          UDPSendClass.udpSender, badThingsQueue, stateQueue, pipe)
@@ -160,7 +160,7 @@ class UDPRecvClass(AnsibleHandler):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.bind((host, UDPRecvClass.RECV_PORT))
         self.socket.setblocking(False)
-        self.curr_ip = None
+        self.curr_addr = None
         super().__init__(packName, UDPRecvClass.unpackageData, sockRecvName,
                          UDPRecvClass.udpReceiver, badThingsQueue, stateQueue, pipe)
 
@@ -175,9 +175,9 @@ class UDPRecvClass(AnsibleHandler):
                 recv_data, addr = self.socket.recvfrom(2048)
         except BlockingIOError:
             self.recvBuffer.replace(recv_data)
-            if self.curr_ip is None:
-                self.curr_ip = addr
-                self.stateQueue.put([SM_COMMANDS.SET_IP, [addr]])
+            if self.curr_addr is None:
+                self.curr_addr = addr
+                self.stateQueue.put([SM_COMMANDS.SET_ADDR, [addr]])
 
     def unpackageData(self):
         """Unpackages data from proto and sends to stateManager on the SM stateQueue

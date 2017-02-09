@@ -19,18 +19,28 @@ def setup():
 def main():
   pass
 
-def asyncawait_setup(): 
-  Robot.run(asyncawait_main)
+def asyncawait_setup():
+  Robot.setValue("right", 3.0) 
+  Robot.setValue("counter", 0.0)
+  Robot.run(asyncawait_helper)
 
-async def asyncawait_main():
+def asyncawait_main():
+  Robot.setValue("counter", Robot.getValue("counter") + 1)
+  if Robot.getValue("right") != 4 and Robot.getValue("counter") == 3:
+    print("Async Error")
+
+async def asyncawait_helper():
   Robot.setValue("left", 1.0)
+  curr = time.time()
   await Actions.sleep(2.0)
+  now = time.time()
+  if now - curr > 1.5:
+    if now - curr < 2.5
+      print("Success")
   Robot.setValue("left", 0.0)
   if Robot.getValue("left") != 0.0:
-    print("Error")
-  def loop():
-    Robot.coroutine(practice)
-    Robot.coroutine(practice)
+    print("Value Set Error")
+  Robot.setValue("right", Robot.getValue("right") + 1)
 
 def test0_setup():
   print("test0_setup")

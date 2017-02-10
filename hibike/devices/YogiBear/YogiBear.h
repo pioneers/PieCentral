@@ -16,20 +16,21 @@ hibike_uid_t UID = {
 #define NUM_PARAMS 14
 
 typedef enum {
-  COMMAND_STATE = 0,
-  DUTY_CYCLE = 1,
-  PID_POS_SETPOINT = 2,
-  PID_POS_KP = 3,
-  PID_POS_KI = 4,
-  PID_POS_KD = 5,
-  PID_VEL_SETPOINT = 6,
-  PID_VEL_KP = 7,
-  PID_VEL_KI = 8,
-  PID_VEL_KD = 9,
-  CURRENT_THRESH = 10,
-  ENC_POS = 11,
-  ENC_VEL = 12,
-  MOTOR_CURRENT = 13
+  ENABLE = 0,
+  COMMAND_STATE = 1,
+  DUTY_CYCLE = 2,
+  PID_POS_SETPOINT = 3,
+  PID_POS_KP = 4,
+  PID_POS_KI = 5,
+  PID_POS_KD = 6,
+  PID_VEL_SETPOINT = 7,
+  PID_VEL_KP = 8,
+  PID_VEL_KI = 9,
+  PID_VEL_KD = 10,
+  CURRENT_THRESH = 11,
+  ENC_POS = 12,
+  ENC_VEL = 13,
+  MOTOR_CURRENT = 14
 } param;
 
 
@@ -37,7 +38,6 @@ typedef enum {
 void setup();
 void loop();
 
-void timerTwoOps();
 
 
 #endif /* YOGIBEAR_H */

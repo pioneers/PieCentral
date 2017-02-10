@@ -6,12 +6,16 @@
 #include "motor.h"
 
 //A space for constants.
-double pwmInput = 0; //Value that is received from hibike and is the goal PWM
-int driveMode = 0; //0 for manual, 1 for PID Velocity, 2 for PID Position
+float pwmInput = 0; //Value that is received from hibike and is the goal PWM
+uint8_t driveMode = 0; //0 for manual, 1 for PID Velocity, 2 for PID Position
+
+double pos = 0; //these both used to be volatile, but PID library doesn't convert well between volatiles and not-volatiles in c++
+double vel = 0;
+
 bool hibike = false;
 bool continualPrint = false;
 unsigned long heartbeat = 0;
-unsigned long heartbeatLimit = 0;
+unsigned long hibikeHeartbeatLimit = 500;
 
 
 
@@ -23,17 +27,11 @@ unsigned long heartbeatLimit = 0;
 
 void setup()
 {
-  //Start
-  heartbeatLimit = 30000;
-
-  FlexiTimer2::set(20, timerTwoOps); // call every 20ms.  Beware, the API has other, more complicated, ways to set it up.
-  FlexiTimer2::start();
-
-  //attachInterrupt(digitalPinToInterrupt(encoder0PinA), doEncoder_Expanded, CHANGE);  // encoder pin on interrupt 0 - pin 2
   motorSetup();
   currentLimitSetup();
   encoderSetup();
   PIDSetup();
+
   if(hibike)
   {
     hibike_setup();
@@ -75,15 +73,7 @@ void loop()
 }
 
 
-void timerTwoOps() {
-  //updatePos(); //need to make sure that encoder value is updated to the pos variable.
- if (driveMode == 2) {
-  posPID();
- } 
- else if (driveMode == 1) {
-  velPID();
- }
-}
+
 
 // You must implement this function.
 // It is called when the device receives a Device Write packet.
@@ -97,29 +87,94 @@ void timerTwoOps() {
 uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   switch (param) 
   {
+  	case ENABLE:
+  	  if (len == 1) {
+  	  	if (data[0] == 0) {
+  	  		disable();
+  	  	} else {
+  	  		enable();
+  	  	}
+  	  }
+  	  break;
     case COMMAND_STATE: 
+      if (len == 1) {
+      	driveMode = data[0];
+      	if (driveMode == 0) {
+      		disablePID();
+      	} else if (driveMode == 1) {
+      		enableVel();
+      	} else {
+      		enablePos();
+      	}
+      	return 1;
+      }
       break;
     case DUTY_CYCLE: 
+      if (len == 4) {
+      	pwmInput = data[0];
+      	return 1;
+      }
       break;
     case PID_POS_SETPOINT: 
+      if (len == 4) {
+      	setPosSetpoint(data[0]);
+      	return 1;
+      }
       break;
     case PID_POS_KP: 
+      if (len == 4) {
+      	setPosKP(data[0]);
+      	return 1;
+      }
       break;
     case PID_POS_KI: 
+      if (len == 4) {
+      	setPosKI(data[0]);
+      	return 1;
+      }
       break;
     case PID_POS_KD: 
+      if (len == 4) {
+      	setPosKD(data[0]);
+      	return 1;
+      }
       break;
     case PID_VEL_SETPOINT: 
+      if (len == 4) {
+      	setVelSetpoint(data[0]);
+      	return 1;
+      }
       break;
     case PID_VEL_KP: 
+      if (len == 4) {
+      	setVelKP(data[0]);
+      	return 1;
+      }
       break;
     case PID_VEL_KI: 
+      if (len == 4) {
+      	setVelKI(data[0]);
+      	return 1;
+      }
       break;
     case PID_VEL_KD: 
+      if (len == 4) {
+      	setVelKD(data[0]);
+      	return 1;
+      }
       break;
     case CURRENT_THRESH: 
+      if (len == 4) {
+      	setCurrentThreshold(data[0]);
+      	return 1;
+      }
       break;
     case ENC_POS: 
+      if (len == 4) {
+      	if((uint32_t) data[0] == 0) {
+      		zeroEncoder();
+      	}
+      }
       break;
     case ENC_VEL: 
       break;
@@ -174,6 +229,9 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
   switch (param) 
   {
+  	case ENABLE:
+
+  	  break;
     case COMMAND_STATE: 
       break;
     case DUTY_CYCLE: 

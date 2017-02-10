@@ -4,6 +4,7 @@
 #include "motor.h"
 #include "pid.h"
 #include "encoder.h"
+#include "current_limit.h"
 //Code here that helps deal with the human-readable UI.
 //Will contain code that will do the following:
 
@@ -13,13 +14,13 @@
 //Let the user enable/disable printing of various outputs (Position, current, etc)
 
 //This code will be called by void loop in Integrated.  It will NOT use timers or interrupts.
-
+unsigned long manualHeartbeatLimit = 30000;
 
 void manual_ui()
 {
 
 
-  if (heartbeat > heartbeatLimit) {
+  if (heartbeat > manualHeartbeatLimit) {
     disable();
     Serial.println("We ded");
   }
@@ -68,7 +69,7 @@ void manual_ui()
     }
     else if (c == 'e') {
       Serial.println("Enabled");
-      enable ();
+      enable();
     }
     else if (c == 'd') {
       Serial.println("Disabled");
@@ -98,22 +99,22 @@ void manual_ui()
       }
       else if (val1 == 'p') {
         if (val2 == 'p'){
-          PIDPosKP = Serial.parseFloat();
+          setPosKP(Serial.parseFloat());
           Serial.print("New PID position KP value: ");
           Serial.println(PIDPosKP);
         }
         else if (val2 == 'i'){
-          PIDPosKI = Serial.parseFloat();
+          setPosKI(Serial.parseFloat());
           Serial.print("New PID position KI value: ");
           Serial.println(PIDPosKI);
         }
         else if (val2 == 'd'){
-          PIDPosKD = Serial.parseFloat();
+          setPosKD(Serial.parseFloat());
           Serial.print("New PID position KD value: ");
           Serial.println(PIDPosKD);
         }
         else {
-          PIDPos = Serial.parseFloat();
+          setPosSetpoint(Serial.parseFloat());
           Serial.print("New PID position: ");
           Serial.println(PIDPos);
         }
@@ -122,22 +123,22 @@ void manual_ui()
     }
     else if (val1 == 'v') {
       if (val2 == 'p') {
-        PIDVelKP = Serial.parseFloat();
+        setVelKP(Serial.parseFloat());
         Serial.print("New PID velocity KP value: ");
         Serial.println(PIDVelKP);
       }
       else if (val2 == 'i') {
-        PIDVelKI = Serial.parseFloat();
+        setVelKI(Serial.parseFloat());
         Serial.print("New PID velocity KI value: ");
         Serial.println(PIDVelKI);
       }
       else if (val2 == 'd') {
-        PIDVelKD = Serial.parseFloat();
+        setVelKD(Serial.parseFloat());
         Serial.print("New PID velocity KD value: ");
         Serial.println(PIDVelKD);
       } 
       else {
-        PIDVel = Serial.parseFloat();
+        setVelSetpoint(Serial.parseFloat());
         Serial.print("New PID velocity: ");
         Serial.println(PIDVel);
       }
@@ -154,12 +155,10 @@ void manual_ui()
   }
   else if (c == 'h') {
     hibike = true;
-    heartbeatLimit = 500;
     Serial.println("Going to hibike mode");
   }
   else if (c == 'z') {
     hibike = false;
-    heartbeatLimit = 30000;
     Serial.println("Turning off hibike");
   }
   else if (c == '?') {

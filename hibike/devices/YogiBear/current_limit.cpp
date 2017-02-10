@@ -8,20 +8,20 @@
 //This will be called every time the motor controller decides to adjust the PWM to the motor.
 
 int pwm_sign = 1; //separates the sign from the PWM value
+float pwmOutput = 0; //Value controlled by current limiting and is what is written to the motor
+float current_threshold = 3.0; //threshold in amps
 #define LIMITED 4 //when in the limit state PWM = PWM/LIMITED
 
-//CONDITIONS TO SWITCH STATES
-
+#define EXIT_MAX 250 //how many ms we want to be in CAUGHT_MAX before moving onto LIMIT state 
+#define EXIT_LIMIT 1000 //how many ms we want to be in LIMIT before moving onto SPIKE state
+#define EXIT_SPIKE 500 //how many ms we want to be in SPIKE before moving onto either the STANDARD or LIMIT state
 
 int in_max = 0; //how many times we have been in the CAUGHT_MAX state
-#define EXIT_MAX 250 //**FIXME** how many ms we want to be in CAUGHT_MAX before moving onto LIMIT state 
 int above_threshold = 0;
 
 int in_limit = 0; //how many times we have been in the LIMIT state
-#define EXIT_LIMIT 1000 //**FIXME** how many ms we want to be in LIMIT before moving onto SPIKE state
 
 int in_spike = 0; //how many times we have been in the SPIKE state
-#define EXIT_SPIKE 500 //**FIXME** how many ms we want to be in SPIKE before moving onto either the STANDARD or LIMIT state
 int below_threshold = 0; 
 
 //FSM STATES
@@ -30,6 +30,8 @@ int limit_state = 0; //tells us which state the FSM is in and how we are modifyi
 #define CAUGHT_MAX 1 //alerted state where we are concerned about high current
 #define LIMIT 2 //high current for too long and PWM is now limited
 #define SPIKE 3 //checks to see if returning to full PWM is safe
+
+
 
 void current_limiting() {
   double targetPWM;
@@ -120,6 +122,9 @@ void currentLimitSetup() {
   Timer1.attachInterrupt(timerOneOps);
 }
 
+void setCurrentThreshold(float x) {
+  current_threshold = x;
+}
 
 
 

@@ -27,9 +27,9 @@ void manual_ui()
     Serial.print("PWM: ");
     Serial.print(pwmPID,5);
     Serial.print("  |  Encoder Pos: ");
-    Serial.print(pos);
+    Serial.print(readPos());
     Serial.print("  |  Encoder Vel: ");
-    Serial.println(vel);
+    Serial.println(readVel());
   }
   while (Serial.available()) {
     char c = Serial.read();  //gets one byte from serial buffer
@@ -76,9 +76,9 @@ void manual_ui()
     }
     else if (c == 'r') {
       Serial.print("Encoder Pos: ");
-      Serial.println(encoder());
+      Serial.println(readPos());
       Serial.print("Encoder Vel: ");
-      Serial.println(vel);
+      Serial.println(readVel());
       Serial.print("Current: ");
       Serial.println(readCurrent());
     }
@@ -92,7 +92,7 @@ void manual_ui()
       char val2 = Serial.read();
       
       if (val1 == 'c') {
-        current_threshold = Serial.parseFloat();
+        setCurrentThreshold(Serial.parseFloat());
         Serial.print("New current threshold: ");
         Serial.println(current_threshold);
       }

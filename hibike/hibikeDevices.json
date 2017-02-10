@@ -62,7 +62,8 @@
     },
 
 
-    {"id": 11,     "name": "YogiBear",      "params": [    
+    {"id": 11,     "name": "YogiBear",      "params": [   
+                                                          {"number": 0  , "name": "enable"              , "type": "bool"     , "read": true , "write": true  }, 
                                                           {"number": 0  , "name": "command_state"       , "type": "uint8_t"  , "read": true , "write": true  },
                                                           {"number": 1  , "name": "duty_cycle"          , "type": "float"    , "read": true , "write": true  },
                                                           {"number": 2  , "name": "pid_pos_setpoint"    , "type": "float"    , "read": true , "write": true  },

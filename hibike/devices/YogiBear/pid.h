@@ -4,6 +4,7 @@
 
 // function prototypes
 void PIDSetup();
+void timerTwoOps();
 void enablePos();
 void enableVel();
 void disablePID();
@@ -11,22 +12,31 @@ void updatePosPID();
 void updateVelPID();
 void posPID();
 void velPID();
-
-
-extern double PIDPos;
-extern double PIDPosKP;
-extern double PIDPosKI;
-extern double PIDPosKD;
-
-extern double PIDVel;
-extern double PIDVelKP;
-extern double PIDVelKI;
-extern double PIDVelKD;
+void setPosSetpoint(float x);
+void setPosKP(float x);
+void setPosKI(float x);
+void setPosKD(float x);
+void setVelSetpoint(float x);
+void setVelKP(float x);
+void setVelKI(float x);
+void setVelKD(float x);
 
 extern double pos;
-extern double pwmPID;
 extern double vel;
-extern double pwmPID;
+extern uint8_t driveMode;
 
+/*
+float PIDPos;
+float PIDPosKP;
+float PIDPosKI;
+float PIDPosKD;
+
+float PIDVel;
+float PIDVelKP;
+float PIDVelKI;
+float PIDVelKD;
+
+float pwmPID;
+*/
 
 #endif /* PID_H */

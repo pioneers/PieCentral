@@ -17,8 +17,7 @@ Encoder myEnc(encoder0PinA, encoder0PinB);
 // 2500/11 comes from 1000000 (1 sec) / 4400 (tick range)
 long res = 100;
 long interval_us = res*(2500/11); //interval in us
-double pos = 0; //these both used to be volatile, but PID library doesn't convert well between volatiles and not-volatiles in c++
-double vel = 0;
+
 volatile signed long old_encoder0Pos = 0;
 
 void encoderSetup(){
@@ -40,6 +39,10 @@ void updateVel(){
   double enc_reading = pos;
   vel = ((enc_reading - old_encoder0Pos)*1000000)/((float) interval_us);
   old_encoder0Pos = enc_reading; //calculate for the next vel calc
+}
+
+void zeroEncoder() {
+  myEnc.write(0);
 }
 
 void updatePos() {

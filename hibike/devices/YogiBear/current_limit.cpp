@@ -34,7 +34,7 @@ int limit_state = 0; //tells us which state the FSM is in and how we are modifyi
 
 
 void current_limiting() {
-  double targetPWM;
+  float targetPWM;
   
   if (driveMode == 0) {
     targetPWM = pwmInput;

@@ -75,7 +75,7 @@
                                                           {"number": 9  , "name": "pid_vel_ki"          , "type": "float"    , "read": true , "write": true  },
                                                           {"number": 10  , "name": "pid_vel_kd"         , "type": "float"    , "read": true , "write": true  },
                                                           {"number": 11  , "name": "current_thresh"     , "type": "float"    , "read": true , "write": true  },
-                                                          {"number": 12  , "name": "enc_pos"            , "type": "double"    , "read": true , "write": true  },
+                                                          {"number": 12  , "name": "enc_pos"            , "type": "float"    , "read": true , "write": true  },
                                                           {"number": 13  , "name": "enc_vel"            , "type": "float"    , "read": true , "write": true  },
                                                           {"number": 14  , "name": "motor_current"      , "type": "float"    , "read": true , "write": true  }
                                                      ]

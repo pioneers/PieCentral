@@ -89,95 +89,71 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   switch (param) 
   {
   	case ENABLE:
-  	  if (len == 1) {
-  	  	if (data[0] == 0) {
-  	  		enabled = false;
-  	  		disable();
-  	  	} else {
-  	  		enabled = true;
-  	  		enable();
-  	  	}
-  	  }
+	  	if (data[0] == 0) {
+	  		enabled = false;
+	  		disable();
+	  	} else {
+	  		enabled = true;
+	  		enable();
+	  	}
+      return sizeof(uint8_t);
   	  break;
     case COMMAND_STATE: 
-      if (len == 1) {
-      	driveMode = data[0];
-      	if (driveMode == 0) {
-      		disablePID();
-      	} else if (driveMode == 1) {
-      		enableVel();
-      	} else {
-      		enablePos();
-      	}
-      	return 1;
-      }
+    	driveMode = data[0];
+    	if (driveMode == 0) {
+    		disablePID();
+    	} else if (driveMode == 1) {
+    		enableVel();
+    	} else {
+    		enablePos();
+    	}
+      return sizeof(driveMode);
       break;
     case DUTY_CYCLE: 
-      if (len == 4) {
-      	pwmInput = ((float *)data)[0];
-      	return 1;
-      }
+    	pwmInput = ((float *)data)[0];
+      return sizeof(float);
       break;
     case PID_POS_SETPOINT: 
-      if (len == 4) {
-      	setPosSetpoint(((float *)data)[0]);
-      	return 1;
-      }
+    	setPosSetpoint(((float *)data)[0]);
+      return sizeof(float);
       break;
     case PID_POS_KP: 
-      if (len == 4) {
-      	setPosKP(((float *)data)[0]);
-      	return 1;
-      }
+    	setPosKP(((float *)data)[0]);
+      return sizeof(float);
       break;
     case PID_POS_KI: 
-      if (len == 4) {
-      	setPosKI(((float *)data)[0]);
-      	return 1;
-      }
+    	setPosKI(((float *)data)[0]);
+      return sizeof(float);
       break;
     case PID_POS_KD: 
-      if (len == 4) {
-      	setPosKD(((float *)data)[0]);
-      	return 1;
-      }
+    	setPosKD(((float *)data)[0]);
+      return sizeof(float);
       break;
     case PID_VEL_SETPOINT: 
-      if (len == 4) {
-      	setVelSetpoint(((float *)data)[0]);
-      	return 1;
-      }
+    	setVelSetpoint(((float *)data)[0]);
+      return sizeof(float);
       break;
     case PID_VEL_KP: 
-      if (len == 4) {
-      	setVelKP(((float *)data)[0]);
-      	return 1;
-      }
+    	setVelKP(((float *)data)[0]);
+      return sizeof(float);
       break;
     case PID_VEL_KI: 
-      if (len == 4) {
-      	setVelKI(((float *)data)[0]);
-      	return 1;
-      }
+    	setVelKI(((float *)data)[0]);
+      return sizeof(float);
       break;
     case PID_VEL_KD: 
-      if (len == 4) {
-      	setVelKD(((float *)data)[0]);
-      	return 1;
-      }
+    	setVelKD(((float *)data)[0]);
+      return sizeof(float);
       break;
     case CURRENT_THRESH: 
-      if (len == 4) {
-      	setCurrentThreshold(((float *)data)[0]);
-      	return 1;
-      }
+    	setCurrentThreshold(((float *)data)[0]);
+      return sizeof(float);
       break;
     case ENC_POS: 
-      if (len == 4) {
-      	if((float) data[0] == 0) {
-      		zeroEncoder();
-      	}
-      }
+    	if((float) data[0] == 0) {
+    		zeroEncoder();
+      return sizeof(float);
+    	}
       break;
     case ENC_VEL: 
       break;
@@ -235,42 +211,77 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
   switch (param) 
   {
   	case ENABLE:
-  	  write_num_bytes(enabled, data_update_buf, sizeof(enabled));
-  	  return sizeof(enabled);
+  	  data_update_buf[0] = enabled;
+  	  return sizeof(uint8_t);
   	  break;
     case COMMAND_STATE: 
-      write_num_bytes(driveMode, data_update_buf, sizeof(driveMode));
+      data_update_buf[0] = driveMode;
       return sizeof(driveMode);
       break;
     case DUTY_CYCLE: 
       float_buf = (float *) data_update_buf;
       float_buf[0] = pwmInput;
-      data_update_buf = (uint8_t *) float_buf;
       return sizeof(pwmInput);
       break;
     case PID_POS_SETPOINT: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = PIDPos;
+      return sizeof(float);
       break;
     case PID_POS_KP: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = PIDPosKP;
+      return sizeof(float);
       break;
-    case PID_POS_KI: 
+    case PID_POS_KI:
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = PIDPosKI;
+      return sizeof(float); 
       break;
     case PID_POS_KD: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = PIDPosKD;
+      return sizeof(float);
       break;
     case PID_VEL_SETPOINT: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = PIDVel;
+      return sizeof(float);
       break;
     case PID_VEL_KP: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = PIDVelKP;
+      return sizeof(float);
       break;
     case PID_VEL_KI: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = PIDVelKI;
+      return sizeof(float);
       break;
     case PID_VEL_KD: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = PIDVelKD;
+      return sizeof(float);
       break;
     case CURRENT_THRESH: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = current_threshold;
+      return sizeof(float);
       break;
     case ENC_POS: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = readPos();
+      return sizeof(float);
       break;
     case ENC_VEL: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = readVel();
+      return sizeof(float);
       break;
     case MOTOR_CURRENT: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = readCurrent();
+      return sizeof(float);
       break;
     default:
       return 0;

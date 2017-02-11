@@ -219,54 +219,54 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
       return sizeof(driveMode);
       break;
     case DUTY_CYCLE: 
-      float_buf = (float *) data_update_buf;
-      float_buf[0] = pwmInput;
-      return sizeof(pwmInput);
+      // float_buf = (float *) data_update_buf;
+      // float_buf[0] = pwmInput;
+      // return sizeof(pwmInput);
       break;
     case PID_POS_SETPOINT: 
-      float_buf = (float *) data_update_buf;
-      float_buf[0] = PIDPos;
-      return sizeof(float);
+      // float_buf = (float *) data_update_buf;
+      // float_buf[0] = PIDPos;
+      // return sizeof(float);
       break;
     case PID_POS_KP: 
-      float_buf = (float *) data_update_buf;
-      float_buf[0] = PIDPosKP;
-      return sizeof(float);
+      // float_buf = (float *) data_update_buf;
+      // float_buf[0] = PIDPosKP;
+      // return sizeof(float);
       break;
     case PID_POS_KI:
-      float_buf = (float *) data_update_buf;
-      float_buf[0] = PIDPosKI;
-      return sizeof(float); 
+      // float_buf = (float *) data_update_buf;
+      // float_buf[0] = PIDPosKI;
+      // return sizeof(float); 
       break;
     case PID_POS_KD: 
-      float_buf = (float *) data_update_buf;
-      float_buf[0] = PIDPosKD;
-      return sizeof(float);
+      // float_buf = (float *) data_update_buf;
+      // float_buf[0] = PIDPosKD;
+      // return sizeof(float);
       break;
     case PID_VEL_SETPOINT: 
-      float_buf = (float *) data_update_buf;
-      float_buf[0] = PIDVel;
-      return sizeof(float);
+      // float_buf = (float *) data_update_buf;
+      // float_buf[0] = PIDVel;
+      // return sizeof(float);
       break;
     case PID_VEL_KP: 
-      float_buf = (float *) data_update_buf;
-      float_buf[0] = PIDVelKP;
-      return sizeof(float);
+      // float_buf = (float *) data_update_buf;
+      // float_buf[0] = PIDVelKP;
+      // return sizeof(float);
       break;
     case PID_VEL_KI: 
-      float_buf = (float *) data_update_buf;
-      float_buf[0] = PIDVelKI;
-      return sizeof(float);
+      // float_buf = (float *) data_update_buf;
+      // float_buf[0] = PIDVelKI;
+      // return sizeof(float);
       break;
     case PID_VEL_KD: 
-      float_buf = (float *) data_update_buf;
-      float_buf[0] = PIDVelKD;
-      return sizeof(float);
+      // float_buf = (float *) data_update_buf;
+      // float_buf[0] = PIDVelKD;
+      // return sizeof(float);
       break;
     case CURRENT_THRESH: 
-      float_buf = (float *) data_update_buf;
-      float_buf[0] = current_threshold;
-      return sizeof(float);
+      // float_buf = (float *) data_update_buf;
+      // float_buf[0] = current_threshold;
+      // return sizeof(float);
       break;
     case ENC_POS: 
       float_buf = (float *) data_update_buf;

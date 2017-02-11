@@ -152,12 +152,22 @@ if __name__ == "__main__":
                         ], 0.1)
                 elif hm.devices[hm.uid_to_device_id(uid)]["name"] == "YogiBear":
                     set_interval_sequence([
-                        make_send_write(pipeToChild, uid, [("duty", 0),   ("forward", True)]),
-                        make_send_write(pipeToChild, uid, [("duty", 50),  ("forward", True)]),
-                        make_send_write(pipeToChild, uid, [("duty", 100), ("forward", True)]),
-                        make_send_write(pipeToChild, uid, [("duty", 0),   ("forward", False)]),
-                        make_send_write(pipeToChild, uid, [("duty", 50),  ("forward", False)]),
-                        make_send_write(pipeToChild, uid, [("duty", 100), ("forward", False)])
+                        #yogibear currently doesn't support sending multiple commands at once.
+                        #make_send_write(pipeToChild, uid, [("enable", True),("command_state", 0),("duty_cycle",0.0)]),
+                        make_send_write(pipeToChild, uid, [("enable", True)]),
+                        make_send_write(pipeToChild, uid, [("command_state", 0)]),
+                        make_send_write(pipeToChild, uid, [("duty_cycle",0.0)]),
+
+                        #make_send_write(pipeToChild, uid, [("command_state", 0)]),
+                        #make_send_write(pipeToChild, uid, [("command_state", 1)]),
+                        #make_send_write(pipeToChild, uid, [("command_state", 2)]),
+                        #make_send_write(pipeToChild, uid, [("command_state", 3)]),
+                        #make_send_write(pipeToChild, uid, [("command_state", 0)]),
+                        #make_send_write(pipeToChild, uid, [("duty_cycle", 0.0)]),
+                        make_send_write(pipeToChild, uid, [("duty_cycle", 0.5)]),
+                        make_send_write(pipeToChild, uid, [("duty_cycle", 1.0)]),
+                        make_send_write(pipeToChild, uid, [("enable", False)]),
+                        make_send_write(pipeToChild, uid, [("duty_cycle", 0.0)]),
                         ], 1)
                 elif hm.devices[hm.uid_to_device_id(uid)]["name"] == "ServoControl":
                     set_interval_sequence([

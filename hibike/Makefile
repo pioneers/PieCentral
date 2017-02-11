@@ -54,7 +54,7 @@ AVRDDUDE          = /usr/bin/avrdude
 CFLAGS_STD        = -std=gnu11
 
 ### CXXFLAGS_STD
-CXXFLAGS_STD      = -std=gnu++11
+CXXFLAGS_STD      = -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics  -flto -fno-devirtualize -fno-use-cxa-atexit
 
 ### CPPFLAGS
 ### Flags you might want to set for debugging purpose. Comment to stop.

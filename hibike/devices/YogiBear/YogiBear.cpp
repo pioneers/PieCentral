@@ -24,7 +24,7 @@ void setup() {
   PIDSetup();
   setup_LEDs();
   test_LEDs();
-  hibike_setup();
+  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
 
 }
 

@@ -8,11 +8,12 @@
 //A space for constants.
 float pwmInput = 0; //Value that is received from hibike and is the goal PWM
 uint8_t driveMode = 0; //0 for manual, 1 for PID Velocity, 2 for PID Position
+bool enabled = false;
 
 double pos = 0; //these both used to be volatile, but PID library doesn't convert well between volatiles and not-volatiles in c++
 double vel = 0;
 
-bool hibike = false;
+bool hibike = true;
 bool continualPrint = false;
 unsigned long heartbeat = 0;
 unsigned long hibikeHeartbeatLimit = 500;
@@ -90,8 +91,10 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   	case ENABLE:
   	  if (len == 1) {
   	  	if (data[0] == 0) {
+  	  		enabled = false;
   	  		disable();
   	  	} else {
+  	  		enabled = true;
   	  		enable();
   	  	}
   	  }
@@ -111,67 +114,67 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
       break;
     case DUTY_CYCLE: 
       if (len == 4) {
-      	pwmInput = data[0];
+      	pwmInput = ((float *)data)[0];
       	return 1;
       }
       break;
     case PID_POS_SETPOINT: 
       if (len == 4) {
-      	setPosSetpoint(data[0]);
+      	setPosSetpoint(((float *)data)[0]);
       	return 1;
       }
       break;
     case PID_POS_KP: 
       if (len == 4) {
-      	setPosKP(data[0]);
+      	setPosKP(((float *)data)[0]);
       	return 1;
       }
       break;
     case PID_POS_KI: 
       if (len == 4) {
-      	setPosKI(data[0]);
+      	setPosKI(((float *)data)[0]);
       	return 1;
       }
       break;
     case PID_POS_KD: 
       if (len == 4) {
-      	setPosKD(data[0]);
+      	setPosKD(((float *)data)[0]);
       	return 1;
       }
       break;
     case PID_VEL_SETPOINT: 
       if (len == 4) {
-      	setVelSetpoint(data[0]);
+      	setVelSetpoint(((float *)data)[0]);
       	return 1;
       }
       break;
     case PID_VEL_KP: 
       if (len == 4) {
-      	setVelKP(data[0]);
+      	setVelKP(((float *)data)[0]);
       	return 1;
       }
       break;
     case PID_VEL_KI: 
       if (len == 4) {
-      	setVelKI(data[0]);
+      	setVelKI(((float *)data)[0]);
       	return 1;
       }
       break;
     case PID_VEL_KD: 
       if (len == 4) {
-      	setVelKD(data[0]);
+      	setVelKD(((float *)data)[0]);
       	return 1;
       }
       break;
     case CURRENT_THRESH: 
       if (len == 4) {
-      	setCurrentThreshold(data[0]);
+      	setCurrentThreshold(((float *)data)[0]);
       	return 1;
       }
       break;
     case ENC_POS: 
       if (len == 4) {
-      	if((uint32_t) data[0] == 0) {
+      	if((float) data[0] == 0) {
       		zeroEncoder();
       	}
       }
@@ -224,17 +227,26 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 //    data_update_buf -   buffer to return data in, little-endian
 //    buf_len         -   Maximum length of the buffer
 //
-//    return          -   sizeof(param) on success; 0 otherwise
+//    return          -   sizeof(value) on success; 0 otherwise
 
 uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
+  double reading;
+  float* float_buf;
   switch (param) 
   {
   	case ENABLE:
-
+  	  write_num_bytes(enabled, data_update_buf, sizeof(enabled));
+  	  return sizeof(enabled);
   	  break;
     case COMMAND_STATE: 
+      write_num_bytes(driveMode, data_update_buf, sizeof(driveMode));
+      return sizeof(driveMode);
       break;
     case DUTY_CYCLE: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = pwmInput;
+      data_update_buf = (uint8_t *) float_buf;
+      return sizeof(pwmInput);
       break;
     case PID_POS_SETPOINT: 
       break;

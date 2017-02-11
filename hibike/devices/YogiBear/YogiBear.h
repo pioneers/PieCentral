@@ -13,7 +13,7 @@ hibike_uid_t UID = {
 
 
 
-#define NUM_PARAMS 14
+#define NUM_PARAMS 15
 
 typedef enum {
   ENABLE = 0,

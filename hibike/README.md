@@ -208,7 +208,7 @@ Device Type Enumeration:
 |         |                | 9            | pid_vel_ki          | float      | no    | yes    |
 |         |                | 10           | pid_vel_kd          | float      | no    | yes    |
 |         |                | 11           | current_thresh      | float      | no    | yes    |
-|         |                | 12           | enc_pos             | uint32_t   | yes   | yes    |
+|         |                | 12           | enc_pos             | float      | yes   | yes    |
 |         |                | 13           | enc_vel             | float      | yes   | no     |
 |         |                | 14           | motor_current       | float      | yes   | no     |
 |  0x10   | DistanceSensor |              |            |            |       |        |

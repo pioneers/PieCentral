@@ -22,7 +22,13 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     except IOError:
         pass
 
-    serials = [serial.Serial(port, 115200) for port in ports]
+    serials = []
+
+    for port in ports:
+        try:
+            serials.append(serial.Serial(port, 115200))
+        except serial.serialutil.SerialException as e:
+            serials.append(None)
 
     # each device has it's own write thread, with it's own instruction queue
     instruction_queues = [queue.Queue() for _ in ports]

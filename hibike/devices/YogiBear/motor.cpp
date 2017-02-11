@@ -28,7 +28,7 @@ void disable() {
 
 //returns current in amps
 float readCurrent() {
-  return (analogRead(current_pin) - 6) / 28.0;
+  return (analogRead(current_pin) - 3.7) / 30.2;
 }
 
 //takes a value from -1 to 1 inclusive and writes to the motor and sets the INA and INB pins for direction

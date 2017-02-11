@@ -219,9 +219,9 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
       return sizeof(driveMode);
       break;
     case DUTY_CYCLE: 
-      // float_buf = (float *) data_update_buf;
-      // float_buf[0] = pwmInput;
-      // return sizeof(pwmInput);
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = pwmInput;
+      return sizeof(pwmInput);
       break;
     case PID_POS_SETPOINT: 
       // float_buf = (float *) data_update_buf;

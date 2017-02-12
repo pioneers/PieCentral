@@ -1,7 +1,7 @@
 #ifndef YOGIBEAR_H
 #define YOGIBEAR_H
 
-#include "hibike_device.h" //to get the hibike frameworkd
+#include "hibike_device.h" //to get the hibike framework
 
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {

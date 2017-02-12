@@ -4,6 +4,7 @@
 #include "encoder.h"
 #include "current_limit.h"
 #include "motor.h"
+#include "LED.h"
 
 //A space for constants.
 float pwmInput = 0; //Value that is received from hibike and is the goal PWM
@@ -62,6 +63,7 @@ void setup()
 */
 void loop()
 {
+  ctrl_LEDs();
   if(hibike)
   {
     hibike_loop();

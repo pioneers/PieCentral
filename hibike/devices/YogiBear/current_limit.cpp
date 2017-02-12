@@ -126,6 +126,9 @@ void setCurrentThreshold(float x) {
   current_threshold = x;
 }
 
+int read_limit_state(){
+  return limit_state;
+}
 
 
 

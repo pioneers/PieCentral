@@ -67,7 +67,7 @@ class StateManager(object):
      "list1" : [[[70, t], ["five", t], [14.3, t]], t],
      "string1" : ["abcde", t],
      "runtime_meta" : [{"studentCode_main_count" : [0, t], "e_stopped" : [False, t]}, t],
-     "hibike" : [{"device_subscribed" : [0, t]}, t], 
+     "hibike" : [{"device_subscribed" : [0, t]}, t],
      "dawn_addr" : [None, t]
     }
 

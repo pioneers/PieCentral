@@ -69,4 +69,6 @@ Remember you will need to push with the `-f` flag.
 `git remote prune origin`
 
 # Running runtime
-In the `testy` folder: `python3 runtime.py`
+In the `testy` folder:
+* Install dependencies: `pip3 install -r requirements.txt`
+* Run the runtime: `python3 runtime.py`

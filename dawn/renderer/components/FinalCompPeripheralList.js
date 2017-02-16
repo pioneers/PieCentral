@@ -15,12 +15,13 @@ const FinalCompPeripheralList = (props) => {
     errorMsg = 'There appears to be some sort of Runtime error. ' +
       'No data is being received.';
   }
+
   return (
     <PeripheralList header="Peripherals">
     {
       !errorMsg ?
       _.map(
-        _.toArray(props.peripherals),
+        _.sortBy(_.toArray(props.peripherals), ['device_type', 'device_name']),
         (peripheral) => (
           <Peripheral
             key={String(peripheral.uid.high) + String(peripheral.uid.low)}

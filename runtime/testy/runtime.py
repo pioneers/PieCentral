@@ -179,7 +179,8 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
         await asyncio.sleep(sleep_time)
 
       badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
-      raise exception_cell[0]
+      if not (maxIter is None or execCount < maxIter):
+        raise exception_cell[0]
 
     loop = asyncio.get_event_loop()
 

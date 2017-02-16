@@ -42,7 +42,7 @@ class Robot:
 
     async def wrapped_future():
         await future
-        self._coroutines.running.remove(fn)
+        self._coroutines_running.remove(fn)
 
     asyncio.ensure_future(wrapped_future())
 

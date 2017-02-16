@@ -32,6 +32,7 @@ def asyncawait_main():
     print("Async Success")
 
 async def asyncawait_helper():
+  Robot.setValue(Robot.getValue("right") + 1, "right")
   '''Robot.createKey("left")
   Robot.setValue(1.0, "left")
   curr = time.time()
@@ -43,7 +44,6 @@ async def asyncawait_helper():
   Robot.setValue(0.0, "left")
   if Robot.getValue("left") != 0.0:
     print("Value Set Error")'''
-  Robot.setValue(Robot.getValue("right") + 1, "right")
 
 def test0_setup():
   print("test0_setup")

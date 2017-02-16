@@ -22,15 +22,12 @@
 
 // Enumerations
 typedef enum {
-  SUBSCRIPTION_REQUEST    = 0x00,
-  SUBSCRIPTION_RESPONSE   = 0x01,
-  DATA_UPDATE             = 0x02,
-  DEVICE_UPDATE           = 0x03,
-  DEVICE_STATUS           = 0x04,
-  DEVICE_RESPONSE         = 0x05,
-  PING_                   = 0x06,
-  DESCRIPTION_REQUEST     = 0x08,
-  DESCRIPTION_RESPONSE    = 0x09,
+  PING                    = 0x10,
+  SUBSCRIPTION_REQUEST    = 0x11,
+  SUBSCRIPTION_RESPONSE   = 0x12,
+  DEVICE_READ             = 0x13,
+  DEVICE_WRITE            = 0x14,
+  DEVICE_DATA             = 0x15,
 
   ERROR                   = 0xFF,
 } messageID;
@@ -57,10 +54,9 @@ uint8_t checksum(uint8_t* data, int length);
 int send_message(message_t* msg);
 int read_message(message_t* msg);
 
-int send_subscription_response(hibike_uid_t* uid, uint16_t delay);
-int send_data_update(uint8_t* data, uint8_t payload_length);
-int send_device_response(uint8_t param, uint32_t value);
-int send_description_response(char* description);
+int send_subscription_response(uint16_t params, uint16_t delay, hibike_uid_t* uid);
+int send_data_update(uint16_t params);
+int send_error_packet(uint8_t error_code);
 int append_payload(message_t* msg, uint8_t* data, uint8_t length);
 void append_buf(uint8_t* buf, uint8_t* offset, uint8_t* data, uint8_t length);
 
@@ -70,5 +66,7 @@ uint32_t uint32_from_message(message_t* msg, uint8_t* offset);
 uint64_t uint64_from_message(message_t* msg, uint8_t* offset);
 
 void message_to_byte(uint8_t* data, message_t* msg);
+
+extern uint8_t device_read(uint8_t param, uint8_t* data, size_t len);
 
 #endif /* HIBIKE_H */

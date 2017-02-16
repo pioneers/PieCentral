@@ -81,17 +81,19 @@ int read_message(message_t *msg) {
 
 }
 
-int send_subscription_response(hibike_uid_t* uid, uint16_t delay) {
+int send_subscription_response(uint16_t params, uint16_t delay, hibike_uid_t* uid) {
   message_t msg;
   msg.messageID = SUBSCRIPTION_RESPONSE;
   msg.payload_length = 0;
 
-  int status = 0;
+  int status = append_payload(&msg, (uint8_t*) &params, sizeof(params));
+  
+  status += append_payload(&msg, (uint8_t*) &delay, sizeof(delay));
+  
   status += append_payload(&msg, (uint8_t*) &uid->device_type, UID_DEVICE_BYTES);
   status += append_payload(&msg, (uint8_t*) &uid->year, UID_YEAR_BYTES);
   status += append_payload(&msg, (uint8_t*) &uid->id, UID_ID_BYTES);
 
-  status += append_payload(&msg, (uint8_t*) &delay, sizeof(delay));
 
   if (status != 0) {
     return -1;
@@ -99,69 +101,49 @@ int send_subscription_response(hibike_uid_t* uid, uint16_t delay) {
   return send_message(&msg); 
 }
 
-
-int send_data_update(uint8_t* data, uint8_t payload_length) {
+int send_data_update(uint16_t params) { 
   message_t msg;
-  msg.messageID = DATA_UPDATE;
-  msg.payload_length = 0;
-  int status = append_payload(&msg, data, payload_length);
-  
-  if (status != 0) {
+  msg.messageID = DEVICE_DATA;
+  msg.payload_length = 2;
+
+  // iterate over the params bitmap
+  for (uint16_t count = 0; (params >> count) > 0; count++) {
+
+      // check if a particular bit is set
+      if (params & (1<<count)){
+        int bytes_written = device_read((uint8_t) count, &msg.payload[msg.payload_length], (size_t) sizeof(msg.payload) - msg.payload_length);
+        if(bytes_written){
+          msg.payload_length += bytes_written;
+        }
+
+        // if we failed to write anything for a param, make sure its bit is unset
+        else{
+          params &= ~(1<<count);
+        }
+      }
+  }
+
+  *((uint16_t *) &msg.payload[0]) = params;
+
+  if (msg.payload_length > MAX_PAYLOAD_SIZE) {
     return -1;
-  }
-  return send_message(&msg); 
-}
-
-
-int send_device_response(uint8_t param, uint32_t value) {
-  message_t msg;
-  msg.messageID = DEVICE_RESPONSE;
-  msg.payload_length = 0;
-
-  int status = 0;
-  status += append_payload(&msg, &param, DEVICE_PARAM_BYTES);
-  status += append_payload(&msg, (uint8_t*) &value, DEVICE_VALUE_BYTES);
-
-  if (status != 0) {
-    return -1;
-  }
-  return send_message(&msg);
-}
-
-// fragments the description
-int send_description_response(char* description) {
-  message_t msg;
-  msg.messageID = DESCRIPTION_RESPONSE;
-  int i;
-  int description_size = strlen(description) + 1;
-  int status = 0;
-  uint8_t packet_index = 0;
-  for (i = 0; i < description_size / MAX_FRAGMENT_SIZE * MAX_FRAGMENT_SIZE; i+= MAX_FRAGMENT_SIZE) {
-    msg.payload_length = 0;
-    status += append_payload(&msg, &packet_index, sizeof(packet_index));
-    status += append_payload(&msg, (uint8_t*) &description[i], MAX_FRAGMENT_SIZE);
-    if (status != 0) {
-      return -1;
-    }
-    status += send_message(&msg);
-    packet_index++;
-  }
-
-  if (i < description_size) {
-    msg.payload_length = 0;
-    status += append_payload(&msg, &packet_index, sizeof(packet_index));
-    status += append_payload(&msg, (uint8_t *) &description[i], description_size - i);
-    if (status != 0) {
-      return -1;
-    }
-    return send_message(&msg);
   } else {
-    return status;
+    return send_message(&msg);
   }
-
-
 }
 
+int send_error_packet(uint8_t error_code) {
+  message_t msg;
+  msg.messageID = ERROR;
+  msg.payload_length = 0;
+
+  int status = append_payload(&msg, (uint8_t*) &error_code, sizeof(error_code));
+
+  if (status != 0) {
+    return -1;
+  }
+  return send_message(&msg); 
+}
 
 
 

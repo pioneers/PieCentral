@@ -144,7 +144,7 @@ class StateManager(object):
 
   def student_upload(self):
     #TODO Implement Student Upload Confirmation
-    self.processMapping[PROCES_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.STUDENT_UPLOAD, True])
+    self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.STUDENT_UPLOAD, True])
  
   def send_console(self, console_log):
     self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.CONSOLE, console_log])

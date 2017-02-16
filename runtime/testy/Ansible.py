@@ -5,6 +5,8 @@ import sys
 import selectors
 import runtime_pb2
 import ansible_pb2
+import notification_pb2
+
 
 from runtimeUtil import *
 
@@ -248,7 +250,7 @@ class TCPClass(AnsibleHandler):
         self.recvBuffer = TwoBuffer()
         sendName = THREAD_NAMES.TCP_SENDER
         recvName = THREAD_NAMES.TCP_RECEIVER
-        super().__init__(sendNAme, TCPClass.sender, recvName, TCPClass.receiver, badThingsQueue, stateQueue, pipe)
+        super().__init__(sendName, TCPClass.sender, recvName, TCPClass.receiver, badThingsQueue, stateQueue, pipe)
 
         stateQueue.put([SM_COMMANDS.SEND_ADDR, [PROCESS_NAMES.TCP_PROCESS]])
         self.dawn_ip = pipe.recv()[0]
@@ -262,11 +264,11 @@ class TCPClass(AnsibleHandler):
                 proto_message = notification_pb2.Notification()
                 proto_message.header = notification_pb2.Notification.CONSOLE_LOGGING
                 proto_message.console_output = data
-                return proto_message.SeralizeToString()
+                return proto_message.SerializeToString()
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
                     "TCP packager crashed with error: " + str(e),
-                    event = BAD_EVENTS.TCP_SEND_ERROR,
+                    event = BAD_EVENTS.TCP_ERROR,
                     printStackTrace = True))
         def packageConfirm(confirm):
             try:
@@ -275,42 +277,47 @@ class TCPClass(AnsibleHandler):
                     proto_message.header = notification_pb2.Notification.STUDENT_RECEIVED
                 else:
                     proto_message.header = notification_pb2.Notification.STUDENT_NOT_RECEIVED
-                return proto_message.SeralizeToString()
+                return proto_message.SerializeToString()
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
                     "TCP packager crashed with error: " + str(e),
-                    event = BAD_EVENTS.TCP_SEND_ERROR,
+                    event = BAD_EVENTS.TCP_ERROR,
                     printStackTrace = True))
         while True:
             try:
                 rawMessage = pipe.recv()
+                data = rawMessage[1]
                 if rawMessage[0] == ANSIBLE_COMMANDS.STUDENT_UPLOAD:
-                    packageMessage(rawMessage[1])
+                    packedMsg = packageConfirm(data)
                 elif rawMessage[0] == ANSIBLE_COMMANDS.CONSOLE:
-                    packageConfirm(rawMessage[1])
+                    packedMsg = packageMessage(data)
                 else:
                     continue
-                self.sock.sendall(packMessage)
+                if packedMsg is not None:
+                    self.sock.sendall(packedMsg)
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
-                    "TCP packager crashed with error: " + str(e),
-                    event = BAD_EVENTS.TCP_SEND_ERROR,
+                    "TCP sender crashed with error: " + str(e),
+                    event = BAD_EVENTS.TCP_ERROR,
                     printStackTrace = True))
 
     def receiver(self, badThingsQueue, stateQueue, pipe):
         def unpackage(data):
             received_proto = notification_pb2.Notification()
             received_proto.ParseFromString(data)
-            upload_status =  received_proto.header
-            if upload_status != notification_pb2.Notification.STUDENT_SENT:
-                return None
+            return received_proto
         try:
             while True:
-                recv_data, addr = self.sock.recv(2048)
+                recv_data, addr = self.sock.recvfrom(2048)
                 unpackagedData = unpackage(recv_data)
                 if not unpackagedData:
                     continue
                 stateQueue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
+        except Exception as e:
+                badThingsQueue.put(BadThing(sys.exc_info(), 
+                    "TCP receiver crashed with error: " + str(e),
+                    event = BAD_EVENTS.TCP_ERROR,
+                    printStackTrace = True))
 
 
 

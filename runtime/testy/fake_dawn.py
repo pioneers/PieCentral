@@ -44,18 +44,19 @@ def receiver(port, receive_queue):
 def tcp_relay(port):
     host = '127.0.0.1'
     msg = notification_pb2.Notification()
-    msg.header = notification_pb2.Type.STUDENT_SENT
+    msg.header = notification_pb2.Notification.STUDENT_SENT
     msg = msg.SerializeToString()
     s  = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((host, port))
+    s.bind((host, port))
+    s.listen(1)
+    conn, addr = s.accept()
     while True:
         next_call = time.time()
-        s.send(msg)
-        receive_msg, addr = s.recvfrom(2048)
+        conn.send(msg)
+        receive_msg, addr = conn.recvfrom(2048)
         if receive_msg is None:
             continue
         else:
-            msg = receive_msg
             parser = notification_pb2.Notification()
             parser.ParseFromString(receive_msg)
             print(parser.header)
@@ -69,7 +70,8 @@ sender_thread.daemon = True
 recv_thread.daemon = True
 recv_thread.start()
 sender_thread.start()
-tcp_thread = threading.Thread(target = tcp_relay, name = "fake dawn tcp", args = (tcp_port))
+tcp_thread = threading.Thread(target = tcp_relay, name = "fake dawn tcp", args = ([tcp_port]))
+tcp_thread.daemon = True
 tcp_thread.start()
 print("started threads")
 

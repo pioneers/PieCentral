@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { ListGroupItem } from 'react-bootstrap';
+import { ListGroupItem, Panel, Accordion } from 'react-bootstrap';
 import { PeripheralTypes } from '../constants/Constants';
 import GenericPeripheral from './peripherals/GenericPeripheral';
 import ScalarSensor from './peripherals/ScalarSensor';
@@ -41,9 +41,13 @@ class Peripheral extends React.Component {
   render() {
     const SpecificPeripheralComponent = this.determinePeripheralComponent() || GenericPeripheral;
     return (
-      <ListGroupItem>
-        <SpecificPeripheralComponent {...this.props} />
-      </ListGroupItem>
+      <Accordion style={{ marginBottom: '10px' }}>
+        <Panel header={this.props.peripheralType}>
+          <ListGroupItem style={{ padding: '0px' }}>
+            <SpecificPeripheralComponent {...this.props} />
+          </ListGroupItem>
+        </Panel>
+      </Accordion>
     );
   }
 }

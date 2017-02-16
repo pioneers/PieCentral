@@ -18,7 +18,7 @@
       }
     },
     "build": {
-      "command": "node ./node_modules/webpack/bin/webpack.js -p --config webpack.production.config.js",
+      "command": "cp ../ansible-protos/*.proto ./build && node ./node_modules/webpack/bin/webpack.js -p --config webpack.production.config.js",
       "env": {
         "NODE_ENV": "production"
       }

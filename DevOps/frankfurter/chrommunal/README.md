@@ -15,7 +15,15 @@ being only a few steps given in the instructions below.
 * Open a crosh developer terminal by typing `ctrl+alt+t`, and type `shell` to switch to a real unix
   shell. From there, copy/paste or type the following command, then hit enter
 
-  ```wget -O - https://raw.githubusercontent.com/pioneers/DevOps/master/chrommunal/setup-chrome.sh | bash```
+  `wget -O - https://raw.githubusercontent.com/pioneers/DevOps/master/chrommunal/setup-chrome.sh | bash`
+
+  * If you get the following error:
+  
+  ```
+  Please specify a username for the primary user: Failed to complete chroot setup. The chroot setup script may be broken. Your chroot is not fully configured. Removing the chroot setup script. You may want to update your chroot again. UID 1000 not found in trusty
+  ``` 
+  
+  run: `sudo sh ~/Downloads/crouton -u -n trusty`
 
 * After the script finishes running, enter the following into the linux terminal that your shell
   instance was replaced with.

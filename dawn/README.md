@@ -11,7 +11,7 @@ many of PiE's projects. If you have not already cloned the PieCentral repo, do s
     * Run `make dawn-watch`. This will pull all the necessary dawn dependencies and start the webpack bundler. Leave 
     this running, it will automatically rebundle the app as you make changes.
     * In a separate terminal tab/window, launch the application itself: `make dawn-start`. Leave this terminal 
-    window running also. Dawn should open.
+    window also running. Dawn should open.
     * When you make a change, the webpack watcher should automatically re-bundle your code. To see your changes in the 
     app, you can refresh by clicking `Debug > Reload` from the menu bar.
 
@@ -19,7 +19,7 @@ many of PiE's projects. If you have not already cloned the PieCentral repo, do s
 **This is only relevant if you are releasing for production.** If you are just developing you can ignore this.
 
 1. Install electron-packager: `npm install -g electron-packager`
-2. Build for production: `npm run-script build` (as opposed to `npm run-script watch` during production).
+2. Build for production: `npm run build` (as opposed to `npm run watch` during production).
 3. Package app:
     * Packaging Dawn is done via a release script. To build for all platforms, run the following from the `dawn` folder:
 

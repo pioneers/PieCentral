@@ -51,6 +51,7 @@ sender_thread.daemon = True
 recv_thread.daemon = True
 recv_thread.start()
 sender_thread.start()
+print("started threads")
 
 #Just Here for testing, should not be run regularly
 if __name__ == "__main__":

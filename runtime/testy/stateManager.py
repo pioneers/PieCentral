@@ -32,7 +32,9 @@ class StateManager(object):
       SM_COMMANDS.RECV_ANSIBLE: self.recv_ansible,
       SM_COMMANDS.GET_TIME : self.getTimestamp,
       SM_COMMANDS.EMERGENCY_STOP: self.emergencyStop,
-      SM_COMMANDS.EMERGENCY_RESTART: self.emergencyRestart
+      SM_COMMANDS.EMERGENCY_RESTART: self.emergencyRestart,
+      SM_COMMANDS.SET_ADDR: self.set_addr,
+      SM_COMMANDS.SEND_ADDR: self.send_addr
     }
     return commandMapping
 
@@ -65,7 +67,8 @@ class StateManager(object):
      "list1" : [[[70, t], ["five", t], [14.3, t]], t],
      "string1" : ["abcde", t],
      "runtime_meta" : [{"studentCode_main_count" : [0, t], "e_stopped" : [False, t]}, t],
-     "hibike" : [{"device_subscribed" : [0, t]}, t]
+     "hibike" : [{"device_subscribed" : [0, t]}, t], 
+     "dawn_addr" : [None, t]
     }
 
   def addPipe(self, processName, pipe):
@@ -129,6 +132,13 @@ class StateManager(object):
 
   def recv_ansible(self, new_data):
     self.state.update(new_data)
+
+  def set_addr(self, new_addr):
+    self.state["dawn_addr"] = [new_addr, time.time()]
+    self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.NEW_IP, False))
+
+  def send_addr(self, process_name):
+    self.processMapping[process_name].send(self.state["dawn_addr"][0])
 
   def getTimestamp(self, keys):
     currDict = self.state

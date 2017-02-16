@@ -21,7 +21,6 @@ fi
 mkdir -p $TMP_DIR
 echo "Done."
 
-git pull origin master
 protoc $PROTO_DIR/runtime.proto --python_out=$RUNTIME_PROTO
 
 # Copy hibike and runtime

@@ -261,6 +261,7 @@ def runtimeTest(testNames):
     print("Inspect with 'diff {{test_name}}_output {0}{{test_name}}_output".format(RUNTIME_CONFIG.TEST_OUTPUT_DIR.value))
     for testName in failedTests:
       print("    {0}".format(testName))
+    sys.exit(1)
 
 def testSuccess(testFileName):
   expectedOutput = RUNTIME_CONFIG.TEST_OUTPUT_DIR.value + testFileName

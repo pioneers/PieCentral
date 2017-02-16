@@ -239,9 +239,9 @@ def runtimeTest(testNames):
       runtime(testName)
 
       # Terminate Ansible to free up ports for further tests
-      terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
       terminate_process(PROCESS_NAMES.UDP_RECEIVE_PROCESS)
-
+      if PROCESS_NAMES.UDP_SEND_PROCESS in allProcesses:
+        terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
       sys.stdout = sys.__stdout__
       print("{}DONE!".format(" "*(50-len(testName))))
     if not testSuccess(testFileName):

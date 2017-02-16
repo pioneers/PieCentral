@@ -91,7 +91,7 @@ def runtime(testName=""):
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_IDLE and controlState != "idle":
           break
-        print(newBadThing)
+        print(newBadThing.event)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
           if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):

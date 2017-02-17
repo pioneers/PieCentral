@@ -38,3 +38,23 @@ void ctrl_GREEN() {
 		digitalWrite(LED_GREEN, LOW);
 	}
 }
+
+void test_LEDs()
+{
+	digitalWrite(LED_GREEN,HIGH);
+	digitalWrite(LED_RED,HIGH);
+	digitalWrite(LED_YELLOW,HIGH);
+
+	delay(1000);
+
+	digitalWrite(LED_GREEN,LOW);
+	digitalWrite(LED_RED,LOW);
+	digitalWrite(LED_YELLOW,LOW);
+}
+
+void setup_LEDs()
+{
+	pinMode(LED_GREEN, OUTPUT);
+	pinMode(LED_RED, OUTPUT);
+	pinMode(LED_YELLOW, OUTPUT);
+}

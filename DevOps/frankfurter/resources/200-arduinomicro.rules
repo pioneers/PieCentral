@@ -1,5 +1,0 @@
-# File named with a prefix of `200` so it is read last, and overwrites any earlier rules
-
-ACTION=="add", SUBSYSTEMS=="usb", KERNEL=="tty*", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="8037",
-  MODE:="0666",
-  SYMLINK:="apm%n"

@@ -33,7 +33,8 @@ void setup()
   currentLimitSetup();
   encoderSetup();
   PIDSetup();
-
+  setup_LEDs();
+  test_LEDs();
   if(hibike)
   {
     hibike_setup();

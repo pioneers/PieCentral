@@ -23,7 +23,7 @@ void ctrl_RED() {
 
 //decides when the yellow LED is on
 void ctrl_YELLOW() {
-	if(read_limit_state() == 1) { //limit state number
+	if(read_limit_state() == 2 || read_limit_state() == 3) { //limit state number
 		digitalWrite(LED_YELLOW, HIGH);
 	} else {
 		digitalWrite(LED_YELLOW, LOW);

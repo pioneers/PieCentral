@@ -38,7 +38,7 @@ void drive(float target) {
     digitalWrite(INA, LOW);
     digitalWrite(INB, HIGH);
     target = target * -1;
-  } else {
+  } else if (target > 0){
     digitalWrite(INA, HIGH);
     digitalWrite(INB, LOW);
   }

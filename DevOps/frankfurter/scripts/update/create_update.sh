@@ -21,8 +21,6 @@ fi
 mkdir -p $TMP_DIR
 echo "Done."
 
-protoc $PROTO_DIR/runtime.proto --python_out=$RUNTIME_PROTO
-
 # Copy hibike and runtime
 cp -R $(git rev-parse --show-toplevel)/hibike $TMP_DIR/hibike
 cp -R $(git rev-parse --show-toplevel)/runtime $TMP_DIR/runtime

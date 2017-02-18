@@ -1,7 +1,7 @@
-var path = require('path');
-var webpack = require('webpack')
+const path = require('path');
+const webpack = require('webpack');
 
-var modules = {
+const modules = {
   preLoaders: [
     { test: /\.js$/, loader: 'eslint-loader', exclude: /node_modules/ }
   ],
@@ -22,7 +22,7 @@ var modules = {
   ]
 };
 
-var plugins = [
+const plugins = [
   new webpack.DefinePlugin({
     VERSION: JSON.stringify(require('./package.json').version)
   }),

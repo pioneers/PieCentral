@@ -157,6 +157,7 @@ class UDPSendClass(AnsibleHandler):
 
 class UDPRecvClass(AnsibleHandler):
     RECV_PORT = 1236
+    UDP_RECV_HZ = 20
 
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.recvBuffer = TwoBuffer()        
@@ -229,11 +230,12 @@ class UDPRecvClass(AnsibleHandler):
         try:
             while True:
                 nextCall = time.time()
+                nextCall += 1.0/UDPRecvClass.UDP_RECV_HZ
                 event = sel.select()
                 self.udpReceiver()
                 self.unpackageData()
                 try:
-                    time.sleep(nextCall - time.time())
+                    time.sleep(nextCall +  - time.time())
                 except ValueError:
                     continue
         except Exception as e:
@@ -244,6 +246,7 @@ class UDPRecvClass(AnsibleHandler):
 
 class TCPClass(AnsibleHandler):
     PORT = 1234
+    TCP_HZ = 25
 
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.sendBuffer = TwoBuffer()
@@ -286,6 +289,8 @@ class TCPClass(AnsibleHandler):
         while True:
             try:
                 rawMessage = pipe.recv()
+                nextCall = time.time()
+                nextCall += 1.0/TCPClass.TCP_HZ
                 data = rawMessage[1]
                 if rawMessage[0] == ANSIBLE_COMMANDS.STUDENT_UPLOAD:
                     packedMsg = packageConfirm(data)
@@ -295,9 +300,7 @@ class TCPClass(AnsibleHandler):
                     continue
                 if packedMsg is not None:
                     self.sock.sendall(packedMsg)
-                    parser = notification_pb2.Notification()
-                    parser.ParseFromString(packedMsg)
-                    print(parser.header)
+                time.sleep(max(nextCall - time.time(), 0))
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
                     "TCP sender crashed with error: " + str(e),

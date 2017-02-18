@@ -10,7 +10,7 @@ data = [0]
 send_port = 1236
 recv_port = 1235
 tcp_port = 1234
-dawn_hz = 10
+dawn_hz = 100
 
 def dawn_packager():
     proto_message = ansible_pb2.DawnData()

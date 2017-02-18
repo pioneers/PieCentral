@@ -1,3 +1,5 @@
+import { ipcRenderer } from 'electron';
+
 const initialInfoState = {
   ipAddress: '192.168.7.2',
   port: 22,
@@ -47,7 +49,7 @@ const info = (state = initialInfoState, action) => {
         studentCodeStatus: action.studentCodeStatus,
       };
     case 'IP_CHANGE':
-
+      ipcRenderer.send('ipAddress', { ipAddress: action.ipAddress });
       return {
         ...state,
         ipAddress: action.ipAddress,

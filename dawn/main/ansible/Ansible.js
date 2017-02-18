@@ -63,7 +63,7 @@ ipcMain.on('stateUpdate', (event, data) => {
 });
 
 ipcMain.on('ipAddress', (event, data) => {
-  runtimeIP = data;
+  runtimeIP = data.ipAddress;
 });
 
 /**

@@ -12,13 +12,13 @@
   },
   "betterScripts": {
     "start": {
-      "command": "electron build/main.js",
+      "command": "cp ../ansible-protos/*.proto ./build && electron build/main.js",
       "env": {
         "NODE_ENV": "development"
       }
     },
     "build": {
-      "command": "node ./node_modules/webpack/bin/webpack.js -p --config webpack.production.config.js",
+      "command": "cp ../ansible-protos/*.proto ./build && node ./node_modules/webpack/bin/webpack.js -p --config webpack.production.config.js",
       "env": {
         "NODE_ENV": "production"
       }

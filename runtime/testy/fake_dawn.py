@@ -60,6 +60,8 @@ def tcp_relay(port):
             parser = notification_pb2.Notification()
             parser.ParseFromString(receive_msg)
             print(parser.header)
+            if parser.header == notification_pb2.Notification.CONSOLE_LOGGING:
+                print(parser.console_output)
         next_call += 1.0/dawn_hz
         time.sleep(max(next_call - time.time(), 0))
 

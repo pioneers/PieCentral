@@ -295,6 +295,9 @@ class TCPClass(AnsibleHandler):
                     continue
                 if packedMsg is not None:
                     self.sock.sendall(packedMsg)
+                    parser = notification_pb2.Notification()
+                    parser.ParseFromString(packedMsg)
+                    print(parser.header)
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
                     "TCP sender crashed with error: " + str(e),
@@ -313,6 +316,7 @@ class TCPClass(AnsibleHandler):
                 if not unpackagedData:
                     continue
                 stateQueue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
+                stateQueue.put([SM_COMMANDS.SEND_CONSOLE, ["print statement"]])
         except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
                     "TCP receiver crashed with error: " + str(e),

@@ -139,7 +139,7 @@ class UDPSendClass(AnsibleHandler):
                 try:
                     nextCall = time.time()
                     msg = self.sendBuffer.get()
-                    if msg != 0 and msg is not None and self.dawn_ip is not None: 
+                    if msg != 0 and msg is not None and self.dawn_ip is not None:
                         s.sendto(msg, (self.dawn_ip, UDPSendClass.SEND_PORT))
                     nextCall += 1.0/self.socketHZ
                     time.sleep(max(nextCall - time.time(), 0))

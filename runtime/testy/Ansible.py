@@ -318,8 +318,6 @@ class TCPClass(AnsibleHandler):
                 unpackagedData = unpackage(recv_data)
                 if not unpackagedData:
                     continue
-                stateQueue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
-                stateQueue.put([SM_COMMANDS.SEND_CONSOLE, ["print statement"]])
         except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
                     "TCP receiver crashed with error: " + str(e),

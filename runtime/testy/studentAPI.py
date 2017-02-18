@@ -1,6 +1,7 @@
 import csv
 
 from runtimeUtil import *
+import builtins as __builtin__
 
 class Robot:
   def __init__(self, toManager, fromManager):
@@ -67,6 +68,7 @@ class Robot:
   def emergencyStop(self):
     self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])
 
-  def _print(*args):
+  def _print(self, *args):
+    print(args)
     console_string = " ".join([str(arg) for arg in args])
-    self.toManager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]) 
+    self.toManager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]]) 

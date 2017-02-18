@@ -144,6 +144,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
 
     r = studentAPI.Robot(stateQueue, pipe)
     studentCode.Robot = r
+    studentCode.print = r._print
 
     checkTimedOut(setupFunc)
 

@@ -45,8 +45,12 @@ def copy_network_config_file():
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(HOST, username=USERNAME, password=PASSWORD)
 
-    scp = SCPClient(ssh.get_transport())
-    scp.put(TMP_FILE_PATH, '/etc/network')
+    with SCPClient(ssh.get_transport()) as scp:
+        scp.put(TMP_FILE_PATH, '/tmp/interfaces')
+
+    ssh.exec_command('sudo mv /tmp/interfaces /etc/network')
+    ssh.exec_command('sudo chown root /etc/network/interfaces')
+    ssh.exec_command('sudo chgrp root /etc/network/interfaces')
 
     ssh.close()
 
@@ -59,8 +63,8 @@ def main():
     team_number = read_team_number()
     lines = build_custom_config(team_number)
     write_tmp_file(lines)
-    # copy_network_config_file()
-    # delete_tmp_file()
+    copy_network_config_file()
+    delete_tmp_file()
 
 
 if __name__ == '__main__':

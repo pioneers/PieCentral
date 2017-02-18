@@ -95,8 +95,6 @@ def runtime(testName=""):
         print(newBadThing.event)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
-          if newBadThing.event in studentErrorEvents:
-            stateQueue.put([SM_COMMANDS.SEND_CONSOLE, [newBadThing.stackTrace]])
           if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
             emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
           break
@@ -252,6 +250,8 @@ def runtimeTest(testNames):
       terminate_process(PROCESS_NAMES.UDP_RECEIVE_PROCESS)
       if PROCESS_NAMES.UDP_SEND_PROCESS in allProcesses:
         terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
+      if PROCESS_NAMES.TCP_PROCESS in allProcesses:
+        terminate_process(PROCESS_NAMES.TCP_PROCESS)
       sys.stdout = sys.__stdout__
       print("{}DONE!".format(" "*(50-len(testName))))
     if not testSuccess(testFileName):

@@ -95,6 +95,8 @@ def runtime(testName=""):
         print(newBadThing.event)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
+          if newBadThing.event in studentErrorEvents:
+            stateQueue.put([SM_COMMANDS.SEND_CONSOLE, [newBadThing.stackTrace]])
           if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
             emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
           break

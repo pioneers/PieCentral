@@ -156,9 +156,7 @@ class UDPSendClass(AnsibleHandler):
                     event = BAD_EVENTS.UDP_SEND_ERROR, 
                     printStackTrace = True))
 
-class UDPRecvClass(AnsibleHandler):
-    UDP_RECV_HZ = 20
-    
+class UDPRecvClass(AnsibleHandler):    
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.recvBuffer = TwoBuffer()        
         packName = THREAD_NAMES.UDP_UNPACKAGER
@@ -316,6 +314,3 @@ class TCPClass(AnsibleHandler):
                     "TCP receiver crashed with error: " + str(e),
                     event = BAD_EVENTS.TCP_ERROR,
                     printStackTrace = True))
-
-
-

@@ -8,8 +8,8 @@ import ansible_pb2
 import notification_pb2
 from runtimeUtil import *
 
-SEND_PORT = 1235
-RECV_PORT = 1236
+UDP_SEND_PORT = 1235
+UDP_RECV_PORT = 1236
 TCP_PORT = 1234
 
 @unique
@@ -147,7 +147,7 @@ class UDPSendClass(AnsibleHandler):
                     nextCall = time.time()
                     msg = self.sendBuffer.get()
                     if msg != 0 and msg is not None and self.dawn_ip is not None:
-                        s.sendto(msg, (self.dawn_ip, SEND_PORT))
+                        s.sendto(msg, (self.dawn_ip, UDP_SEND_PORT))
                     nextCall += 1.0/self.socketHZ
                     time.sleep(max(nextCall - time.time(), 0))
                 except Exception as e:
@@ -163,7 +163,7 @@ class UDPRecvClass(AnsibleHandler):
         sockRecvName = THREAD_NAMES.UDP_RECEIVER
         host = "" #0.0.0.0
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.bind((host, RECV_PORT))
+        self.socket.bind((host, UDP_RECV_PORT))
         self.socket.setblocking(False)
         self.curr_addr = None
         super().__init__(packName, UDPRecvClass.unpackageData, sockRecvName,

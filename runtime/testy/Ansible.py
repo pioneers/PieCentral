@@ -44,7 +44,6 @@ class TwoBuffer():
     def get(self):
         return self.data[self.get_index]
 
-
 class AnsibleHandler():
     """Parent class for UDP Processes that spawns threads 
 
@@ -79,7 +78,7 @@ class AnsibleHandler():
 class UDPSendClass(AnsibleHandler):
     packagerHZ = 20.0
     socketHZ = 20.0
-    
+
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.sendBuffer = TwoBuffer()
         packagerName = THREAD_NAMES.UDP_PACKAGER

@@ -28,13 +28,13 @@ The call we make to spawn a pair of ports is socat is `socat -d -d pty,raw,echo=
 
 The python script virtual_device.py simulates a hibike_device.
 It takes in as command line arguments the type of device to emulate and a port to connect to.
-It has an external dependency on pyserial should be run with python3.
+It has an external dependency on pyserial and should be run with python3.
 
 If you wish to implement more virtual devices types, or change the behaviour of any of the virtual device types, this is the file to modify.
 
 ### spawn_virtual_devices.py
 
-This is a helper script that runs multiple instances the previous two programs, socat and virtual_device.py, to generate multiple virtual hibike devices.
+This is a helper script that runs multiple instances of the previous two programs, socat and virtual_device.py, to generate multiple virtual hibike devices.
 Furthermore, it collects all the virtual serial ports for communicating with these devices into the file `virtual_devices.txt`, which programs like `hibike_process.py` read to know where virtual_devices are.
 
 It also has an atexit handler that should clean up these child processes, though this may not always happen, for example if `spawn_virtual_devices.py` is killed with SIGKILL.

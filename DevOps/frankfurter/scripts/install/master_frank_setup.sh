@@ -19,7 +19,7 @@ HOME=/home/ubuntu
 sudo timedatectl set-timezone America/Los_Angeles
 
 # Disable default Apache server (permanently)
-sudo service apache2 stop
+sudo systemctl stop apache2
 sudo systemctl disable apache2
 sudo systemctl daemon-reload
 
@@ -52,31 +52,37 @@ if [ ! -f $PIECENTRAL_DIR/runtime/hibikeDevices.csv ]; then
   ln -s $PIECENTRAL_DIR/hibike/hibikeDevices.csv $PIECENTRAL_DIR/runtime/testy/hibikeDevices.csv
 fi
 
-# Set up things we need to update runtime and hibike
+# Set up directories needed by other projects
 mkdir -p $HOME/updates
-cp $FRANKFURTER_DIR/resources/update.sh $HOME/bin/
-
 mkdir -p $HOME/bin
-cp $FRANKFURTER_DIR/resources/mac.py $HOME/bin/
-
 mkdir -p $HOME/studentcode
 
-# copy .conf files into /etc/init so that hibike/dawn/runtime start on boot
-sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc
-cp $FRANKFURTER_DIR/resources/runtime.sh $HOME/bin/
+# Copy executables
+cp $FRANKFURTER_DIR/resources/update.sh $HOME/bin
+cp $FRANKFURTER_DIR/resources/mac.py $HOME/bin
+cp $FRANKFURTER_DIR/resources/runtime.sh $HOME/bin
+
+# Configure executable permissions
+sudo chown ubuntu $HOME/bin/*
+sudo chgrp ubuntu $HOME/bin/*
+sudo chmod +x $HOME/bin/*
+
+# Create and enable the runtime systemd service
 sudo cp $FRANKFURTER_DIR/resources/runtime.service /lib/systemd/system
 sudo chmod 644 /lib/systemd/system/runtime.service
 sudo systemctl daemon-reload && sudo systemctl enable runtime.service
 sudo systemctl start runtime.service
 
-sudo chown ubuntu $HOME/bin/*
-sudo chgrp ubuntu $HOME/bin/*
-sudo chmod +x $HOME/bin/*
-
-# copy config files for grizzlies, memcached, and network interfaces
+# Copy config files for memcached and network interfaces
+sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc
 sudo cp $FRANKFURTER_DIR/resources/interfaces /etc/network/interfaces
 
-echo 'export PYTHONPATH="${PYTHONPATH}:/home/ubuntu/PieCentral/hibike"' >> $HOME/.bashrc  # .profile?
+echo 'export PYTHONPATH="${PYTHONPATH}:/home/ubuntu/PieCentral/hibike"' >> $HOME/.bashrc
+
+# Aliases for runtime development
+echo "alias start-runtime='sudo systemctl start runtime.service'" >> $HOME/.bashrc
+echo "alias restart-runtime='sudo systemctl restart runtime.service'" >> $HOME/.bashrc
+echo "alias stop-runtime='sudo systemctl stop runtime.service'" >> $HOME/.bashrc
 
 sudo /sbin/route delete default gw 192.168.7.1
 sudo systemctl restart networking.service

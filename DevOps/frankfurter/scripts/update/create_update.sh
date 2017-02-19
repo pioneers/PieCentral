@@ -11,8 +11,6 @@ FRANKFURTER_DIR=$(git rev-parse --show-toplevel)/DevOps/frankfurter
 PROTO_DIR=$(git rev-parse --show-toplevel)/ansible-protos
 BUILD_DIR=$FRANKFURTER_DIR/build
 TMP_DIR=$BUILD_DIR/tmp
-PROTO_DIR=$(git rev-parse --show-toplevel)/ansible-protos
-RUNTIME_PROTO=$(git rev-parse --show-toplevel)/runtime/testy
 
 if [ -d "$BUILD_DIR" ]; then
     echo "Cleaning old builds ... "

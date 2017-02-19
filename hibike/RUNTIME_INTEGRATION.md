@@ -29,19 +29,19 @@ MetalDetector
 
 ## StateManager -> Hibike
 
-`["enumerate_all"]`
+`["enumerate_all", []]`
 
 - tells hibike to reenumerate all smart devices
 
-`["subscribe_device", uid, delay, [param1, param2, ...]]`
+`["subscribe_device", [uid, delay, [param1, param2, ...]]]`
 
 - tells hibike to subscribe to specific paramaters of a smart device
 
-`["write_params", uid, [(param1, value1), (param2, value2)...]]`
+`["write_params", [uid, [(param1, value1), (param2, value2)...]]]`
 
 - tells hibike to write to specific paramaters of a smart device
 
-`["read_params", uid, [param1, param2, ...]`
+`["read_params", [uid, [param1, param2, ...]]`
 
 - tells hibike to read (poll) specific paramaters of a smart device
 
@@ -50,30 +50,30 @@ MetalDetector
 
 ## Hibike -> StateManager
 
-`["device_subscribed", uid, delay, [param1, param2, ...]]`
+`["device_subscribed", [uid, delay, [param1, param2, ...]]]`
 
 - sent when the BBB either enumerates or subscribes to a smart device
 
-`["device_disconnected", uid]`
+`["device_disconnected", [uid]]`
 
 - sent when a smart device disconnects
 
-`["device_values", uid, [(param1, value1), (param2, value2)...]]`
+`["device_values", [uid, [(param1, value1), (param2, value2)...]]]`
 
 - sent when the BBB receives values from a smart device
 
-`["invalid_uid", uid]`
+`["invalid_uid", [uid]]`
 
 - sent when hibike receives a command from stateManager with a smart device that isn't connected
 
-`["invalid_param", uid, param]`
+`["invalid_param", [uid, param]]`
 
 - sent when hibike receives a command for a valid uid with a nonexistent param
 
-`["param_read_only", uid, param]`
+`["param_read_only", [uid, param]]`
 
 - sent when stateManager tries to write to a read only param
 
-`["param_write_only", uid, param]`
+`["param_write_only", [uid, param]]`
 
 - sent when stateManager tries to poll or subscribe to a write only param

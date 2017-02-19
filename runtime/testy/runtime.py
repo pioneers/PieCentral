@@ -91,7 +91,7 @@ def runtime(testName=""):
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_IDLE and controlState != "idle":
           break
-        print(newBadThing)
+        print(newBadThing.event)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
           if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
@@ -239,9 +239,9 @@ def runtimeTest(testNames):
       runtime(testName)
 
       # Terminate Ansible to free up ports for further tests
-      terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
       terminate_process(PROCESS_NAMES.UDP_RECEIVE_PROCESS)
-
+      if PROCESS_NAMES.UDP_SEND_PROCESS in allProcesses:
+        terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
       sys.stdout = sys.__stdout__
       print("{}DONE!".format(" "*(50-len(testName))))
     if not testSuccess(testFileName):
@@ -261,6 +261,7 @@ def runtimeTest(testNames):
     print("Inspect with 'diff {{test_name}}_output {0}{{test_name}}_output".format(RUNTIME_CONFIG.TEST_OUTPUT_DIR.value))
     for testName in failedTests:
       print("    {0}".format(testName))
+    sys.exit(1)
 
 def testSuccess(testFileName):
   expectedOutput = RUNTIME_CONFIG.TEST_OUTPUT_DIR.value + testFileName

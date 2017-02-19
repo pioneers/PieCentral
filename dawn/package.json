@@ -6,7 +6,7 @@
   "scripts": {
     "start": "better-npm-run start",
     "build": "better-npm-run build",
-    "lint": "eslint --config .eslintrc --ignore-path .eslintignore .",
+    "lint": "eslint .",
     "watch": "webpack --watch --progress",
     "test": "mocha --compilers js:babel-core/register --recursive renderer/**/test/*.test.js"
   },

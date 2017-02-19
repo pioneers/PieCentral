@@ -7,7 +7,6 @@ import runtime_pb2
 import ansible_pb2
 import notification_pb2
 
-
 from runtimeUtil import *
 
 @unique
@@ -229,9 +228,9 @@ class UDPRecvClass(AnsibleHandler):
 
         try:
             while True:
+                event = sel.select()
                 nextCall = time.time()
                 nextCall += 1.0/UDPRecvClass.UDP_RECV_HZ
-                event = sel.select()
                 self.udpReceiver()
                 self.unpackageData()
                 try:
@@ -300,6 +299,7 @@ class TCPClass(AnsibleHandler):
                     continue
                 if packedMsg is not None:
                     self.sock.sendall(packedMsg)
+                #Sleep for throttling thread
                 time.sleep(max(nextCall - time.time(), 0))
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 

@@ -6,8 +6,11 @@ import selectors
 import runtime_pb2
 import ansible_pb2
 import notification_pb2
-
 from runtimeUtil import *
+
+SEND_PORT = 1235
+RECV_PORT = 1236
+TCP_PORT = 1234
 
 @unique
 class THREAD_NAMES(Enum):
@@ -74,10 +77,9 @@ class AnsibleHandler():
         socketThread.join()
 
 class UDPSendClass(AnsibleHandler):
-    SEND_PORT = 1235
     packagerHZ = 20.0
     socketHZ = 20.0
-
+    
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.sendBuffer = TwoBuffer()
         packagerName = THREAD_NAMES.UDP_PACKAGER
@@ -145,7 +147,7 @@ class UDPSendClass(AnsibleHandler):
                     nextCall = time.time()
                     msg = self.sendBuffer.get()
                     if msg != 0 and msg is not None and self.dawn_ip is not None:
-                        s.sendto(msg, (self.dawn_ip, UDPSendClass.SEND_PORT))
+                        s.sendto(msg, (self.dawn_ip, SEND_PORT))
                     nextCall += 1.0/self.socketHZ
                     time.sleep(max(nextCall - time.time(), 0))
                 except Exception as e:
@@ -155,16 +157,15 @@ class UDPSendClass(AnsibleHandler):
                     printStackTrace = True))
 
 class UDPRecvClass(AnsibleHandler):
-    RECV_PORT = 1236
     UDP_RECV_HZ = 20
-
+    
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.recvBuffer = TwoBuffer()        
         packName = THREAD_NAMES.UDP_UNPACKAGER
         sockRecvName = THREAD_NAMES.UDP_RECEIVER
         host = "" #0.0.0.0
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.bind((host, UDPRecvClass.RECV_PORT))
+        self.socket.bind((host, RECV_PORT))
         self.socket.setblocking(False)
         self.curr_addr = None
         super().__init__(packName, UDPRecvClass.unpackageData, sockRecvName,
@@ -229,14 +230,8 @@ class UDPRecvClass(AnsibleHandler):
         try:
             while True:
                 event = sel.select()
-                nextCall = time.time()
-                nextCall += 1.0/UDPRecvClass.UDP_RECV_HZ
                 self.udpReceiver()
                 self.unpackageData()
-                try:
-                    time.sleep(nextCall +  - time.time())
-                except ValueError:
-                    continue
         except Exception as e:
             self.badThingsQueue.put(BadThing(sys.exc_info(),
             "UDP receiver thread has crashed with error: " + str(e),
@@ -244,9 +239,8 @@ class UDPRecvClass(AnsibleHandler):
             printStackTrace = True))
 
 class TCPClass(AnsibleHandler):
-    PORT = 1234
     TCP_HZ = 25
-
+    
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.sendBuffer = TwoBuffer()
         self.recvBuffer = TwoBuffer()
@@ -258,7 +252,7 @@ class TCPClass(AnsibleHandler):
         self.dawn_ip = pipe.recv()[0]
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((self.dawn_ip, TCPClass.PORT))
+        self.sock.connect((self.dawn_ip, TCP_PORT))
 
     def sender(self, badThingsQueue, stateQueue, pipe):
         def packageMessage(data):
@@ -316,8 +310,7 @@ class TCPClass(AnsibleHandler):
             while True:
                 recv_data, addr = self.sock.recvfrom(2048)
                 unpackagedData = unpackage(recv_data)
-                if not unpackagedData:
-                    continue
+                stateQueue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
         except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
                     "TCP receiver crashed with error: " + str(e),

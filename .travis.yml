@@ -1,15 +1,51 @@
+dist: trusty
+sudo: required
 language: node_js
 node_js:
 - "6"
 os:
-- osx
 - linux
+env:
+  - TEST_DIR=dawn
+  - TEST_DIR=runtime
+before_install:
+- mkdir -p artifacts
+- if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then
+    export DEPLOY_ARTIFACTS=1;
+  fi
+- if [[ $TEST_DIR = runtime ]] && git tag -l --points-at HEAD | grep runtime; then
+    export DEPLOY_ARTIFACTS=1;
+  fi
+- mkdir -p build-deps
+- export PATH="$PATH:$PWD/build-deps/bin"
 install:
-- cd dawn
-- make dawn-install
+- pushd $TEST_DIR
+- make install
+- if [[ $DEPLOY_ARTIFACTS = 1 ]]; then
+    make artifacts-install;
+  fi
+- popd
 script:
-- make dawn-test
-- make dawn-lint
+- pushd $TEST_DIR
+- make test
+- make lint
+- if [[ $DEPLOY_ARTIFACTS = 1 ]]; then
+    make artifacts;
+  fi
+- popd
 branches:
   only:
-    - master
+  - master
+  - /^(dawn)\/.*$/
+  - /^(runtime)\/.*$/
+  - /^(test)\/.*$/
+deploy:
+  provider: releases
+  api_key:
+    secure: "Y9p9wvz8ZLX4tM7lygUG1DaqCVOKC8qtpyNL0Nf6kgE6TLpB1fzCnndTg6sz9C6brw2pBriwXe9aHEG3QdV/u3ku4AdQqwT9PqemWJmxJT9ex+Eyk47Sp8do+tkLF44+8IkIlxSlcKfnD99fpAgrZSh3iAotJspyhckDu5R1+UNi1TBIPfBoUOtdKKFGbWNqX9lYyWompBa0Q08ZbIKW10H7HJCWQ9MhwL1Q2RxFRtLANWXLwOUW59gzfLQq07Z8b+PRmMmUiE1jr30OjnDDn+tiJk9kLG/Y5UcxzIpHaq+Wo7a5ncwHcyGaqXCs8q25wDQEsXdq6z6+kFqsi9tQkmMsrM6W9qGO8AVfxGgII6yExf6pweg02dNHMwDNI5JcpEVonP73YwuB7UH2UwUxbxzwsmnGMFYx41EpM0nYua6xHC3SZEqTurBgQMMnELJPMX2lbmFGdZPOJ5lEjnS5UEYazn1VSY00qUrQlU+nnQgbU9GJfSrHhWSJ5ycONGCBbE+dm2/vs9qnKQGXNmKeKhRSw+duNzarx648nNz6kklA9r2st0kVMfLZTMj6nKhksts88Khy1oWhFtdXOqi3daWwGz7H0jG6cvMvxSPBFA2svYy45etaXrXtJtI3kYQPl3ESdeOEWYhjPlsJXb+MVL3DUtDgMFaLRww4z/s0q/E="
+  file: artifacts/*
+  file_glob: true
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: $DEPLOY_ARTIFACTS = 1

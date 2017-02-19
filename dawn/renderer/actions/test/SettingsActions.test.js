@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { changeTheme, changeFontsize } from '../SettingsActions.js';
+import { changeTheme, changeFontsize } from '../SettingsActions';
 
 describe('settings actions creator', () => {
   it('should create an action to change theme', () => {
@@ -12,7 +12,7 @@ describe('settings actions creator', () => {
   it('should create an action to change font size', () => {
     const expectedAction = {
       type: 'CHANGE_FONTSIZE',
-      newFontsize: 16
+      newFontsize: 16,
     };
     expect(changeFontsize(16)).to.deep.equal(expectedAction);
   });

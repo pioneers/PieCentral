@@ -17,12 +17,11 @@ const serverPort = 1235; // receive port
 const client = dgram.createSocket('udp4'); // sender
 const server = dgram.createSocket('udp4'); // receiver
 
-const protoFolder = '../ansible-protos'; // Location of protobuf definitions.
-const dawnBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/ansible.proto`);
+const dawnBuilder = ProtoBuf.loadProtoFile(`${__dirname}/ansible.proto`);
 const DawnData = dawnBuilder.build('DawnData');
 const StudentCodeStatus = DawnData.StudentCodeStatus;
 
-const runtimeBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/runtime.proto`);
+const runtimeBuilder = ProtoBuf.loadProtoFile(`${__dirname}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
 
 /**

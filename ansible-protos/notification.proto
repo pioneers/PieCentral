@@ -1,6 +1,12 @@
 syntax = "proto3";
 
 message Notification {
-    string header = 1;
-    string msg = 2;
+	enum Type {
+	    CONSOLE_LOGGING = 0;
+	    STUDENT_SENT = 1;
+	    STUDENT_RECEIVED = 2;
+	    STUDENT_NOT_RECEIVED = 3;
+	}
+    Type header = 1;
+    string console_output = 2;   // Console Output From Runtime to Dawn
 }

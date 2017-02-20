@@ -59,32 +59,37 @@ const generateFakeData = () => [
       device_name: 'MS1',
       value: randomFloat(-100, 100),
       uid: 100,
-    },
-    {
+    }, {
+      device_type: 'MOTOR_SCALAR',
+      device_name: 'MS2',
+      value: randomFloat(-100, 100),
+      uid: 105,
+    }, {
       device_type: 'LimitSwitch',
       device_name: 'LS1',
       value: Math.round(randomFloat(0, 1)),
       uid: 101,
-    },
-    {
+    }, {
       device_type: 'SENSOR_SCALAR',
       device_name: 'SS1',
       value: randomFloat(-100, 100),
       uid: 102,
-    },
-    {
+    }, {
+      device_type: 'SENSOR_SCALAR',
+      device_name: 'SS2',
+      value: randomFloat(-100, 100),
+      uid: 106,
+    }, {
       device_type: 'ServoControl',
       device_name: 'SC1',
       value: Math.round(randomFloat(0, 180)),
       uid: 103,
-    },
-    {
+    }, {
       device_type: 'ColorSensor',
       device_name: 'CS1',
       value: Math.round(randomFloat(0, 255)),
       uid: 104,
-    },
-    ],
+    }],
   },
 ];
 

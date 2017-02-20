@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import _ from 'lodash';
 import { Panel, Accordion } from 'react-bootstrap';
 import { PeripheralTypes } from '../constants/Constants';
 import PeripheralList from './PeripheralList';
@@ -30,11 +31,11 @@ const handleAccordion = (array) => {
     peripheralGroups[p.device_type].push(p);
   });
   return (
-      _.map(Object.keys(peripheralGroups), (groups) => (
+      _.map(Object.keys(peripheralGroups), groups => (
         <Accordion style={{ marginBottom: '2px' }} key={`${cleanerNames[groups]}-Accordion`}>
           <Panel header={cleanerNames[groups]} key={`${cleanerNames[groups]}-Panel`}>
             {
-              _.map(peripheralGroups[groups], (peripheral) => (
+              _.map(peripheralGroups[groups], peripheral => (
                 <Peripheral
                   key={String(peripheral.uid.high) + String(peripheral.uid.low)}
                   id={String(peripheral.uid.high) + String(peripheral.uid.low)}
@@ -62,11 +63,11 @@ const FinalCompPeripheralList = (props) => {
 
   return (
     <PeripheralList header="Peripherals">
-    {
-      !errorMsg ? handleAccordion(
-        _.sortBy(_.toArray(props.peripherals), ['device_type', 'device_name']))
-      : <p className="panelText">{errorMsg}</p>
-    }
+      {
+        !errorMsg ? handleAccordion(
+          _.sortBy(_.toArray(props.peripherals), ['device_type', 'device_name']))
+        : <p className="panelText">{errorMsg}</p>
+      }
     </PeripheralList>
   );
 };

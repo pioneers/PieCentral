@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { ListGroupItem, Panel, Accordion } from 'react-bootstrap';
+import { ListGroupItem } from 'react-bootstrap';
 import { PeripheralTypes } from '../constants/Constants';
 import GenericPeripheral from './peripherals/GenericPeripheral';
 import ScalarSensor from './peripherals/ScalarSensor';

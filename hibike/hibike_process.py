@@ -99,7 +99,7 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
         elif message_type == hm.messageTypes["DeviceData"]:
             if uid is not None:
                 params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-                stateQueue.put(("device_values", params_and_values))
+                stateQueue.put(("device_values", [uid, params_and_values]))
             else:
                 print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
 

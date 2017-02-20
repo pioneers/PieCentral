@@ -27,6 +27,7 @@ typesToComponents[PeripheralTypes.ColorSensor] = ScalarSensor;
 typesToComponents[PeripheralTypes.MetalDetector] = ScalarSensor;
 typesToComponents[PeripheralTypes.ServoControl] = ScalarSensor;
 
+
 class Peripheral extends React.Component {
   /**
    * Determines the specific type of peripheral that this object represents.
@@ -36,12 +37,12 @@ class Peripheral extends React.Component {
   }
 
   /**
-   * We render the specific peripheral corrensponding to the peripheralType.
+   * We render the specific peripheral corresponding to the peripheralType.
    */
   render() {
     const SpecificPeripheralComponent = this.determinePeripheralComponent() || GenericPeripheral;
     return (
-      <ListGroupItem>
+      <ListGroupItem style={{ padding: '0px' }}>
         <SpecificPeripheralComponent {...this.props} />
       </ListGroupItem>
     );

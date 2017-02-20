@@ -16,7 +16,7 @@ import {
   clearConsole,
 } from '../actions/ConsoleActions';
 import { addAsyncAlert } from '../actions/AlertActions';
-import { updateCodeStatus, ipChange } from '../actions/InfoActions';
+import { updateCodeStatus, ipChange, notifyChange } from '../actions/InfoActions';
 
 const mapStateToProps = state => ({
   editorCode: state.editor.editorCode,
@@ -31,6 +31,7 @@ const mapStateToProps = state => ({
   port: state.info.port,
   username: state.info.username,
   password: state.info.password,
+  notificationHold: state.info.notificationHold,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -69,6 +70,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onIPChange: (ipAddress) => {
     dispatch(ipChange(ipAddress));
+  },
+  onNotifyChange: (hold) => {
+    dispatch(notifyChange(hold));
   },
 });
 

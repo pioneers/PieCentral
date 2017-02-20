@@ -9,7 +9,7 @@ import {
 import AceEditor from 'react-ace';
 import _ from 'lodash';
 import storage from 'electron-json-storage';
-import { remote } from 'electron';
+import { remote, ipcRenderer } from 'electron';
 
 // React-ace extensions and modes
 import 'brace/ext/language_tools';
@@ -66,6 +66,7 @@ class Editor extends React.Component {
     this.upload = this.upload.bind(this);
     this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
     this.toggleConfigModal = this.toggleConfigModal.bind(this);
+    this.estop = this.estop.bind(this);
     this.state = {
       editorHeight: this.getEditorHeight(),
       showUpdateModal: false,
@@ -182,6 +183,19 @@ class Editor extends React.Component {
       });
       throw err;
     });
+    ipcRenderer.send('NOTIFY_UPLOAD');
+    while (this.notificationHold === 1) {
+
+    }
+    if (this.notificationHold === 2) {
+      conn.end();
+      this.onNotifyChange(0);
+      this.props.onAlertAdd(
+        'TCP ERROR',
+        'No Reply Back from Runtime',
+      );
+      return;
+    }
     conn.on('ready', () => {
       conn.sftp((err, sftp) => {
         if (err) {
@@ -233,8 +247,8 @@ class Editor extends React.Component {
     this.setState({ showConfigModal: !this.state.showConfigModal });
   }
 
-  openAPI() {
-    window.open('https://pie-api.readthedocs.org/');
+  estop() {
+    this.props.onUpdateCodeStatus(3);
   }
 
   hasUnsavedChanges() {
@@ -350,9 +364,9 @@ class Editor extends React.Component {
           </ButtonGroup>
           <ButtonGroup id="misc-buttons">
             <EditorButton
-              text="API Documentation"
-              onClick={this.openAPI}
-              glyph="book"
+              text="E-STOP"
+              onClick={this.estop}
+              glyph="fire"
             />
             <EditorButton
               text="Increase font size"
@@ -444,6 +458,8 @@ Editor.propTypes = {
   port: React.PropTypes.number,
   username: React.PropTypes.string,
   password: React.PropTypes.string,
+  notificationHold: React.PropTypes.number,
+  onNotifyChange: React.PropTypes.func,
 };
 
 export default Editor;

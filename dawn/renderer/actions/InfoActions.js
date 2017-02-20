@@ -37,3 +37,8 @@ export const ipChange = ipAddress => ({
   type: 'IP_CHANGE',
   ipAddress,
 });
+
+export const notifyChange = hold => ({
+  type: 'NOTIFICATION_CHANGE',
+  notificationHold: hold,
+});

@@ -3,7 +3,7 @@ import webpack from 'webpack';
 import { version } from './package.json';
 
 const target = process.env.NODE_ENV === 'production' ? 'electron' : 'atom';
-const module = {
+const modules = {
   preLoaders: [
     { test: /\.js$/, loader: 'eslint-loader', exclude: /node_modules/ },
   ],
@@ -38,7 +38,7 @@ export default [
     },
     output: { path: __dirname + '/build/', filename: 'bundle.js' },
     target,
-    module,
+    module: modules,
     plugins,
   },
   {
@@ -52,7 +52,7 @@ export default [
       __dirname: false,
       __filename: false,
     },
-    module,
+    module: modules,
     plugins,
   },
 ];

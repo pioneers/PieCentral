@@ -47,8 +47,6 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     # these threads receive packets from devices and write to statequeue
     read_threads = [threading.Thread(target=device_read_thread, args=(index, ser, iq, None, stateQueue)) for index, (ser, iq) in enumerate(zip(serials, instruction_queues))]
 
-    print(ports)
-
     for read_thread in read_threads:
         read_thread.start()
     for write_thread in write_threads:
@@ -106,6 +104,8 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
                 stateQueue.put(("device_values", [uid, params_and_values]))
             else:
                 print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
+                print("Telling it to shut up")
+                hm.send(ser, hm.make_subscription_request(1, [], 0))
 
 
 #############

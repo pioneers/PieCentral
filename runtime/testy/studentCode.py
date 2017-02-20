@@ -14,10 +14,21 @@ def teleop_main():
   pass
 
 def setup():
-  pass
+  devices = Robot.getValue("hibike", "devices")
+  print(sorted(list(devices.keys())))
+  print(devices)
+  first = sorted(list(devices.keys()))[1]
+  Robot._hibikeSubscribeDevice(first, 40, ["enable", "duty_cycle"])
+  Robot.hibikeWriteValue(first, [("enable", True)])
+  Robot.hibikeWriteValue(first, [("duty_cycle", 0.0)])
+  Robot.first = first
 
 def main():
-  pass
+  try:
+    print(Robot.getValue("hibike", "devices", Robot.first, "enable"))
+    print(Robot.getValue("hibike", "devices", Robot.first, "duty_cycle"))
+  except StudentAPIKeyError:
+    print("Failed key lookup")
 
 def asyncawait_setup():
   Robot.createKey("right")
@@ -102,8 +113,8 @@ def createKey_main():
   restarts = Robot._getSMValue("Restarts")
   Robot._setSMValue(restarts+1, "Restarts")
 
-def hibikeSubscribeDevice_setup():
-  pass
+# def hibikeSubscribeDevice_setup():
+#   pass
 
 def hibikeSubscribeDevice_main():
   Robot._hibikeSubscribeDevice(1, 2, [3, 4])
@@ -191,4 +202,3 @@ def asyncIsRunning_main():
 
 async def asyncIsRunningHelper():
   await Actions.sleep(1)
-  

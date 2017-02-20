@@ -6,9 +6,9 @@
   "scripts": {
     "start": "better-npm-run start",
     "build": "better-npm-run build",
-    "lint": "node ./node_modules/eslint/bin/eslint.js -c .eslintrc --ignore-path .eslintignore .",
-    "watch": "node ./node_modules/webpack/bin/webpack.js --watch --progress",
-    "test": "./node_modules/mocha/bin/mocha --compilers js:babel-core/register --recursive renderer/**/test/*.test.js"
+    "lint": "eslint .",
+    "watch": "webpack --watch --progress",
+    "test": "mocha --compilers js:babel-core/register --recursive renderer/**/test/*.test.js"
   },
   "betterScripts": {
     "start": {
@@ -18,14 +18,11 @@
       }
     },
     "build": {
-      "command": "mkdir -p ./build && cp ../ansible-protos/*.proto ./build && node ./node_modules/webpack/bin/webpack.js -p --config webpack.production.config.js",
+      "command": "mkdir -p ./build && cp ../ansible-protos/*.proto ./build && webpack -p --config webpack.production.config.js",
       "env": {
         "NODE_ENV": "production"
       }
     }
-  },
-  "bin": {
-    "electron": "./node_modules/.bin/electron"
   },
   "devDependencies": {
     "babel-cli": "^6.22.2",

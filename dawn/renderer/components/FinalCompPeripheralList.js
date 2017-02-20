@@ -60,7 +60,6 @@ const FinalCompPeripheralList = (props) => {
       'No data is being received.';
   }
 
-
   return (
     <PeripheralList header="Peripherals">
     {

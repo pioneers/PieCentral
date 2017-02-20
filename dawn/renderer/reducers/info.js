@@ -10,6 +10,7 @@ const initialInfoState = {
   isRunningCode: false,
   connectionStatus: false,
   runtimeStatus: false,
+  notificationHold: 0,
 };
 
 const info = (state = initialInfoState, action) => {
@@ -23,6 +24,11 @@ const info = (state = initialInfoState, action) => {
       return {
         ...state,
         connectionStatus: false,
+      };
+    case 'NOTIFICATION_CHANGE':
+      return {
+        ...state,
+        notificationHold: action.notificationHold,
       };
     case 'RUNTIME_CONNECT':
       return {

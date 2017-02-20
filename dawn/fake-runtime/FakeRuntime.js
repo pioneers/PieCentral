@@ -21,6 +21,7 @@ const client = dgram.createSocket('udp4');// sender
 const server = dgram.createSocket('udp4'); // receiver
 const SENDRATE = 1000;
 const stateEnum = {
+  ESTOP: 5,
   RUNNING: 1,
   IDLE: 0,
 };
@@ -33,11 +34,13 @@ let state = stateEnum.IDLE;
 server.on('message', (msg) => {
   // Decode and get the raw object.
   const data = DawnData.decode(msg).toRaw();
-  console.log(data);
-  if (data.student_code_status !== 'IDLE') {
-    state = stateEnum.RUNNING;
-  } else {
+  // console.log(data);
+  if (data.student_code_status === 'IDLE') {
     state = stateEnum.IDLE;
+  } else if (data.student_code_status === 'ESTOP') {
+    state = stateEnum.ESTOP;
+  } else {
+    state = stateEnum.RUNNING;
   }
 });
 

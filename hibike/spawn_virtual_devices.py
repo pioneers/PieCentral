@@ -31,7 +31,8 @@ def cleanup():
 
 
 if __name__ == "__main__":
-    with open("virtual_devices.txt", "w+") as device_file:
+    virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
+    with open(virtual_device_config_file, "w+") as device_file:
         devices = [spawn_device(device_type) for device_type in devices_to_spawn]
         device_file.write(" ".join(devices))
     while True:

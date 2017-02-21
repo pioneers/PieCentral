@@ -92,7 +92,6 @@ ipcMain.on('NOTIFY_UPLOAD', (event) => {
  */
 function buildProto(data) {
   let status = null;
-  console.log(data);
   if (data.studentCodeStatus === 1) {
     status = StudentCodeStatus.TELEOP;
   } else if (data.studentCodeStatus === 3) {

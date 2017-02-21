@@ -26,8 +26,10 @@ class NameEdit extends React.Component {
   }
 
   dataChange(data) {
-    console.log('Deprecated: dataChange in NameEdit:');
-    console.log(data);
+    console.log(this);
+    if (this.validatePeripheralName(data)) {
+      this.props.onRename(this.props.id, data);
+    }
   }
 
   validatePeripheralName(name) {
@@ -62,6 +64,7 @@ NameEdit.propTypes = {
   name: React.PropTypes.string.isRequired,
   id: React.PropTypes.string.isRequired,
   peripherals: React.PropTypes.object.isRequired,
+  onRename: React.PropTypes.func,
 };
 
 export default NameEdit;

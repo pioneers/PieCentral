@@ -73,12 +73,13 @@ def runtime(testName=""):
         newBadThing = badThingsQueue.get(block=True)
         if newBadThing.event == BAD_EVENTS.NEW_IP and not dawn_connected:
           spawnProcess(PROCESS_NAMES.UDP_SEND_PROCESS, startUDPSender)
-          #spawnProcess(TCP)
+          spawnProcess(PROCESS_NAMES.TCP_PROCESS, startTCP)
           dawn_connected = True
           continue
         elif newBadThing.event == BAD_EVENTS.DAWN_DISCONNECTED and dawn_connected:
+          #TODO Impelement Dawn Timeout in Ansible.py
           terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
-          #terminate_process(tcp)
+          terminate_process(PROCESS_NAMES.TCP_PROCESS)
           dawn_connected = False
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
@@ -184,6 +185,13 @@ def startUDPReceiver(badThingsQueue, stateQueue, smPipe):
   except Exception as e:
     badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.UDP_RECV_ERROR))
 
+def startTCP(badThingsQueue, stateQueue, smPipe):
+  try:
+    recvClass = Ansible.TCPClass(badThingsQueue, stateQueue, smPipe)
+    recvClass.start()
+  except Exception as e:
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.TCP_ERROR))
+
 def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
   def spawnProcessHelper(processName, helper, *args):
     pipeToChild, pipeFromChild = multiprocessing.Pipe()
@@ -242,6 +250,8 @@ def runtimeTest(testNames):
       terminate_process(PROCESS_NAMES.UDP_RECEIVE_PROCESS)
       if PROCESS_NAMES.UDP_SEND_PROCESS in allProcesses:
         terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
+      if PROCESS_NAMES.TCP_PROCESS in allProcesses:
+        terminate_process(PROCESS_NAMES.TCP_PROCESS)
       sys.stdout = sys.__stdout__
       print("{}DONE!".format(" "*(50-len(testName))))
     if not testSuccess(testFileName):

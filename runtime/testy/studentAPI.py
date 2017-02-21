@@ -1,7 +1,6 @@
 import csv
 
 from runtimeUtil import *
-import builtins as __builtin__
 
 class Robot:
   def __init__(self, toManager, fromManager):

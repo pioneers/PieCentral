@@ -150,9 +150,9 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
     # TODO: Replace execCount with a value in stateManager
     execCount = 0
     while (not terminated) and (maxIter is None or execCount < maxIter):
-      checkTimedOut(mainFunc)
       nextCall = time.time()
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
+      checkTimedOut(mainFunc)
       stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
       time.sleep(max(nextCall - time.time(), 0))
       execCount += 1
@@ -273,6 +273,7 @@ def runtimeTest(testNames):
     print("Inspect with 'diff {{test_name}}_output {0}{{test_name}}_output".format(RUNTIME_CONFIG.TEST_OUTPUT_DIR.value))
     for testName in failedTests:
       print("    {0}".format(testName))
+    sys.exit(1)
 
 def testSuccess(testFileName):
   expectedOutput = RUNTIME_CONFIG.TEST_OUTPUT_DIR.value + testFileName

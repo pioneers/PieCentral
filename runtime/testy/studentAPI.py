@@ -10,11 +10,9 @@ class Robot:
     self._createSensorMapping()
 
   def _createSensorMapping(self, filename = 'namedPeripherals.csv'):
-    self.sensorMappings = {}
     with open(filename, 'r') as f:
-        sensorMappings = csv.reader(f)
-        for name, uid in sensorMappings:
-            self.sensorMappings[name] = int(uid)
+      sensorMappings = csv.reader(f)
+      self.sensorMappings = {name: int(uid) for name, uid in sensorMappings}
 
   def createKey(self, key, *args):
     """ Creates a new key, or nested keys if more than 1 key is passed in.
@@ -23,8 +21,7 @@ class Robot:
     self.toManager.put([SM_COMMANDS.CREATE_KEY, [[key] + list(args)]])
     message = self.fromManager.recv()
     if isinstance(message, StudentAPIKeyError):
-        raise message
-    return
+      raise message
 
   def getValue(self, key, *args):
     """Returns the value associated with key
@@ -32,7 +29,7 @@ class Robot:
     self.toManager.put([SM_COMMANDS.GET_VAL, [[key] + list(args)]])
     message = self.fromManager.recv()
     if isinstance(message, StudentAPIKeyError):
-        raise message
+      raise message
     return message
 
   def setValue(self, value, key, *args):
@@ -42,7 +39,7 @@ class Robot:
     self.toManager.put([SM_COMMANDS.SET_VAL, [value, [key] + list(args)]])
     message = self.fromManager.recv()
     if isinstance(message, StudentAPIKeyError):
-        raise message
+      raise message
     return message
 
   def getTimestamp(self, key, *args):
@@ -51,7 +48,7 @@ class Robot:
     self.toManager.put([SM_COMMANDS.GET_TIME, [[key] + list(args)]])
     message = self.fromManager.recv()
     if isinstance(message, StudentAPIKeyError):
-        raise message
+      raise message
     return message
 
   # TODO: Only for testing. Remove in final version
@@ -60,10 +57,7 @@ class Robot:
     self.toManager.put([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])
 
   def _hibikeGetUID(self, name):
-    if name in self.sensorMappings:
-        return self.sensorMappings[name]
-    else:
-        return None
+    return self.sensorMappings.get(name)
 
   def emergencyStop(self):
     self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])

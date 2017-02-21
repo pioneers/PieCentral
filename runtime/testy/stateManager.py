@@ -149,7 +149,7 @@ class StateManager(object):
   def send_console(self, console_log):
     if PROCESS_NAMES.TCP_PROCESS in self.processMapping:
       self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.CONSOLE, console_log])
-
+      
   def getTimestamp(self, keys):
     currDict = self.state
     timestamp = 0

@@ -141,6 +141,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
       testName += "_"
     setupFunc = getattr(studentCode, testName + "setup")
     mainFunc = getattr(studentCode, testName + "main")
+
     r = studentAPI.Robot(stateQueue, pipe)
     studentCode.Robot = r
     studentCode.print = r._print

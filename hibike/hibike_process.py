@@ -22,7 +22,17 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     except IOError:
         pass
 
-    serials = [serial.Serial(port, 115200) for port in ports]
+    serials = []
+
+    for port in ports:
+        try:
+            serials.append(serial.Serial(port, 115200))
+
+        # this is a hack to handle this error. 
+        # It pushes the error down to the worker threads for this device; they will try to do serial operations on a None object
+        # TODO karthik-shanmugam 97hongjun: implement cleaner management of worker threads that handles issues like this.
+        except serial.serialutil.SerialException as e:
+            serials.append(None)
 
     # each device has it's own write thread, with it's own instruction queue
     instruction_queues = [queue.Queue() for _ in ports]
@@ -89,7 +99,7 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
         elif message_type == hm.messageTypes["DeviceData"]:
             if uid is not None:
                 params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-                stateQueue.put(("device_values", params_and_values))
+                stateQueue.put(("device_values", [uid, params_and_values]))
             else:
                 print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
 

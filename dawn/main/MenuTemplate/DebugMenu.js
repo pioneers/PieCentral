@@ -17,30 +17,30 @@ const DebugMenu = {
         RendererBridge.registeredWindow.webContents.toggleDevTools();
       },
     },
-    {
-      label: 'Toggle Fake Runtime',
-      kill() {
-        if (child) {
-          child.kill();
-          child = null;
-        }
-        return 'Done';
-      },
-      click() {
-        if (child) {
-          child.kill();
-          child = null;
-        } else {
-          // Fork FakeRuntime as a child process
-          child = fork('./fake-runtime/FakeRuntime');
-        }
-      },
-    },
   ],
 };
 
 // In development mode, allow reloading to see effects of code changes.
 if (process.env.NODE_ENV === 'development') {
+  DebugMenu.submenu.unshift({
+    label: 'Toggle Fake Runtime',
+    kill() {
+      if (child) {
+        child.kill();
+        child = null;
+      }
+      return 'Done';
+    },
+    click() {
+      if (child) {
+        child.kill();
+        child = null;
+      } else {
+        // Fork FakeRuntime as a child process
+        child = fork('./fake-runtime/FakeRuntime');
+      }
+    },
+  });
   DebugMenu.submenu.unshift({
     label: 'Reload',
     accelerator: 'CommandOrControl+R',

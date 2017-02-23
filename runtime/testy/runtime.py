@@ -47,10 +47,10 @@ def runtime(testName=""):
 
   try:
     spawnProcess(PROCESS_NAMES.STATE_MANAGER, startStateManager)
-    spawnProcess(PROCESS_NAMES.UDP_SEND_PROCESS, startUDPSender)
     spawnProcess(PROCESS_NAMES.UDP_RECEIVE_PROCESS, startUDPReceiver)
     spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
     controlState = "idle"
+    dawn_connected = False
 
     while True:
       if testMode:
@@ -71,7 +71,18 @@ def runtime(testName=""):
       nonTestModePrint("Starting studentCode attempt: %s" % (restartCount,))
       while True:
         newBadThing = badThingsQueue.get(block=True)
-        if newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
+        if newBadThing.event == BAD_EVENTS.NEW_IP and not dawn_connected:
+          spawnProcess(PROCESS_NAMES.UDP_SEND_PROCESS, startUDPSender)
+          spawnProcess(PROCESS_NAMES.TCP_PROCESS, startTCP)
+          dawn_connected = True
+          continue
+        elif newBadThing.event == BAD_EVENTS.DAWN_DISCONNECTED and dawn_connected:
+          #TODO Impelement Dawn Timeout in Ansible.py
+          terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
+          terminate_process(PROCESS_NAMES.TCP_PROCESS)
+          dawn_connected = False
+          continue
+        elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
           spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, maxIter)
           controlState = "teleop"
           continue
@@ -137,9 +148,9 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
     # TODO: Replace execCount with a value in stateManager
     execCount = 0
     while (not terminated) and (maxIter is None or execCount < maxIter):
-      checkTimedOut(mainFunc)
       nextCall = time.time()
       nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
+      checkTimedOut(mainFunc)
       stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
       time.sleep(max(nextCall - time.time(), 0))
       execCount += 1
@@ -173,6 +184,13 @@ def startUDPReceiver(badThingsQueue, stateQueue, smPipe):
     recvClass.start()
   except Exception as e:
     badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.UDP_RECV_ERROR))
+
+def startTCP(badThingsQueue, stateQueue, smPipe):
+  try:
+    recvClass = Ansible.TCPClass(badThingsQueue, stateQueue, smPipe)
+    recvClass.start()
+  except Exception as e:
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.TCP_ERROR))
 
 def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
   def spawnProcessHelper(processName, helper, *args):
@@ -229,9 +247,11 @@ def runtimeTest(testNames):
       runtime(testName)
 
       # Terminate Ansible to free up ports for further tests
-      terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
       terminate_process(PROCESS_NAMES.UDP_RECEIVE_PROCESS)
-
+      if PROCESS_NAMES.UDP_SEND_PROCESS in allProcesses:
+        terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
+      if PROCESS_NAMES.TCP_PROCESS in allProcesses:
+        terminate_process(PROCESS_NAMES.TCP_PROCESS)
       sys.stdout = sys.__stdout__
       print("{}DONE!".format(" "*(50-len(testName))))
     if not testSuccess(testFileName):
@@ -251,6 +271,7 @@ def runtimeTest(testNames):
     print("Inspect with 'diff {{test_name}}_output {0}{{test_name}}_output".format(RUNTIME_CONFIG.TEST_OUTPUT_DIR.value))
     for testName in failedTests:
       print("    {0}".format(testName))
+    sys.exit(1)
 
 def testSuccess(testFileName):
   expectedOutput = RUNTIME_CONFIG.TEST_OUTPUT_DIR.value + testFileName

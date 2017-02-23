@@ -91,6 +91,7 @@ def runtime(testName=""):
           controlState = "auto"
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_IDLE and controlState != "idle":
+          controlState = "idle"
           break
         print(newBadThing.event)
         nonTestModePrint(newBadThing.data)
@@ -155,7 +156,8 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
       time.sleep(max(nextCall - time.time(), 0))
       execCount += 1
 
-    badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
+    if not terminated:
+      badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
 
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))

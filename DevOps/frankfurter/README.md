@@ -29,7 +29,7 @@ Alternatively,
 5. On your machine, run `frankfurter/scripts/install/start_frank_install.sh`. Type in `ubuntu`'s password as many times as is necessary.
 6. `ssh` in, and run `start_tmux_job.sh`. Again, enter `ubuntu`'s password as necessary.
 7. After the kernel is upgraded (to ensure `linux-headers-$(uname -r)` is available), the Beaglebone will automatically reboot. As instructed, reconnect the Beaglebone to the internet after the reboot, `ssh` in, and run `tmux new-session -d '~/PieCentral/DevOps/frankfurter/scripts/install/master_frank_setup.sh'`.
-8. Wait about one hour for the Beaglebone to configure annd install all dependencies (most of this time is used to build the wireless dongle driver). You can check on the status of your build with `tmux attach`.
+8. Wait about one hour for the Beaglebone to configure and install all dependencies (most of this time is used to build the wireless dongle driver). You can check on the status of your build with `tmux attach`.
 9. `sudo reboot`, `ssh` in again, and ensure everything is correctly configured. Try `systemctl status runtime.service`.
 
 ### `runtime` and `memcached`

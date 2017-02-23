@@ -156,7 +156,7 @@ class StateManager(object):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_AUTO, False))
 
   def enter_teleop(self):
-    self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_TELE, False))
+    self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_TELEOP, False))
 
   def enter_idle(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))

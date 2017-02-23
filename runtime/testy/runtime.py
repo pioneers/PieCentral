@@ -240,6 +240,8 @@ def runtimeTest(testNames):
   failedTests = []
 
   for testName in testNames:
+    if testName in ["autonomous", "teleop"]:
+      continue
     testFileName = "%s_output" % (testName,)
     with open(testFileName, "w", buffering = 1) as testOutput:
       print("Running test: {}".format(testName), end="", flush=True)

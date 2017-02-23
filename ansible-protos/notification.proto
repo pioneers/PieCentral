@@ -1,13 +1,13 @@
 syntax = "proto3";
 
 message Notification {
-	enum Type {
-	    CONSOLE_LOGGING = 0;
-	    STUDENT_SENT = 1;
-	    STUDENT_RECEIVED = 2;
-	    STUDENT_NOT_RECEIVED = 3;
+    enum Type {
+        CONSOLE_LOGGING = 0;
+        STUDENT_SENT = 1;
+        STUDENT_RECEIVED = 2;
+        STUDENT_NOT_RECEIVED = 3;
         SENSOR_MAPPING = 4;
-	}
+    }
     message SensorMapping {
         string device_name = 1;
         string device_new_name = 2;

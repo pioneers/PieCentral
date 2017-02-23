@@ -83,11 +83,14 @@ def runtime(testName=""):
           dawn_connected = False
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
-          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, maxIter)
+          name = "teleop"
+          if testName:
+              name = testName
+          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, name, maxIter)
           controlState = "teleop"
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_AUTO and controlState != "auto":
-          # spawnProcess(autonomous code)
+          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, "autonomous")
           controlState = "auto"
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_IDLE and controlState != "idle":

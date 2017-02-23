@@ -13,6 +13,8 @@ const dawnBuilder = ProtoBuf.loadProtoFile('../ansible-protos/ansible.proto');
 const DawnData = dawnBuilder.build('DawnData');
 const runtimeBuilder = ProtoBuf.loadProtoFile('../ansible-protos/runtime.proto');
 const RuntimeData = runtimeBuilder.build('RuntimeData');
+const notificationBuilder = ProtoBuf.loadProtoFile('../ansible-protos/notification.proto');
+const NotificationData = notificationBuilder.build('Notification');
 
 const clientPort = 1235; // send port
 const serverPort = 1236; // receive port

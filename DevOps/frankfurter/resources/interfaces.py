@@ -13,7 +13,7 @@ USERNAME, PASSWORD = 'ubuntu', 'temppwd'
 TMP_FILE_PATH = '/tmp/interfaces'
 
 
-def read_team_number(prompt='Enter the team number: '):
+def read_user_input(prompt):
     while True:
         try:
             return int(input(prompt))
@@ -21,18 +21,22 @@ def read_team_number(prompt='Enter the team number: '):
             print('Not a number.')
 
 
-def build_custom_config(team_number):
+def build_custom_config(team_number, password):
     with open('interfaces') as network_config_file:
         for line in network_config_file:
             if line.startswith('iface ra0'):
                 line = line.replace('dhcp', 'static')
+            if 'wpa-ssid' in line: 
+                line = line.replace('Mother Base', 'Team{0}'.format(team_number))
+            if 'wpa-psk' in line:
+                line = line.replace('pieisgreat', str(password))
             yield line[:-1]  # Take off the newline
             if 'wpa-psk' in line:
                 indent = ' '*4
-                yield indent + 'address 192.168.128.{0}'.format(team_number)
+                yield indent + 'address 192.168.0.{0}'.format(200 + team_number)
                 yield indent + 'netmask 255.255.255.0'
-                yield indent + 'network 192.168.128.0'
-                yield indent + 'gateway 192.168.128.1'
+                yield indent + 'network 192.168.0.0'
+                yield indent + 'gateway 192.168.0.1'
 
 
 def write_tmp_file(lines):
@@ -60,11 +64,12 @@ def delete_tmp_file():
 
 
 def main():
-    team_number = read_team_number()
-    lines = build_custom_config(team_number)
+    team_number = read_user_input('Please enter the team number: ')
+    password = read_user_input('Please enter the router password: ')
+    lines = build_custom_config(team_number, password)
     write_tmp_file(lines)
     copy_network_config_file()
-    delete_tmp_file()
+#    delete_tmp_file()
 
 
 if __name__ == '__main__':

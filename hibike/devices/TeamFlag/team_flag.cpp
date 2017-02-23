@@ -77,40 +77,40 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len){
 
 // You must implement this function.
 // It is called when the device receives a Device Data Update packet.
-// Modifies data_update_buf to contain the parameter value.
+// Modifies data to contain the parameter value.
 //    param           -   Parameter index
-//    data_update_buf -   buffer to return data in
+//    data -   buffer to return data in
 //    len         -   Maximum length of the buffer? TODO: Clarify
 //
 //    return          -   sizeof(param) on success; 0 otherwise
 
-uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t len) {
+uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
   if (len < sizeof(uint8_t)) {
     return 0;
   }
   switch (param) {
     case PARAM_BLUE:
-      data_update_buf[0] = getLed(0);
+      data[0] = getLed(0);
       return sizeof(uint8_t);
       break;
     case PARAM_YELLOW:
-      data_update_buf[0] = getLed(1);
+      data[0] = getLed(1);
       return sizeof(uint8_t);
       break;
     case PARAM_LED1:
-      data_update_buf[0] = getLed(2);
+      data[0] = getLed(2);
       return sizeof(uint8_t);
       break;
     case PARAM_LED2:
-      data_update_buf[0] = getLed(3);
+      data[0] = getLed(3);
       return sizeof(uint8_t);
       break;
     case PARAM_LED3:
-      data_update_buf[0] = getLed(4);
+      data[0] = getLed(4);
       return sizeof(uint8_t);
       break;
     case PARAM_LED4:
-      data_update_buf[0] = getLed(5);
+      data[0] = getLed(5);
       return sizeof(uint8_t);
       break;
     default:

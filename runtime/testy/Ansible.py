@@ -236,7 +236,7 @@ class UDPRecvClass(AnsibleHandler):
             printStackTrace = True))
 
 class TCPClass(AnsibleHandler):
-    TCP_HZ = 25
+    TCP_HZ = 180
     
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.sendBuffer = TwoBuffer()

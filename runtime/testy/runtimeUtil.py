@@ -80,7 +80,7 @@ class SM_COMMANDS(Enum):
   STUDENT_UPLOAD      = ()
   SEND_CONSOLE        = ()
   ENTER_IDLE          = ()
-  ENTER_TELE          = ()
+  ENTER_TELEOP        = ()
   ENTER_AUTO          = ()
 
 class RUNTIME_CONFIG(Enum):

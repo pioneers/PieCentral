@@ -157,7 +157,6 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
     ensure_is_function(testName + "setup", setupFunc)
     ensure_is_function(testName + "main", mainFunc)
     ensure_not_overridden(studentCode, 'Robot')
-    ensure_not_overridden(studentCode, 'delay')
 
     r = studentAPI.Robot(stateQueue, pipe)
     studentCode.Robot = r
@@ -179,7 +178,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
         await asyncio.sleep(sleep_time)
 
       badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
-      if not (maxIter is None or execCount < maxIter):
+      if exception_cell[0] is not None:
         raise exception_cell[0]
 
     loop = asyncio.get_event_loop()
@@ -341,8 +340,8 @@ def clarify_coroutine_warnings(exception_cell):
     Python's default error checking will print warnings of the form:
         RuntimeWarning: coroutine '???' was never awaited
 
-    This function will inject an additional clarification message about what
-    such a warning means.
+    This function will will upgrade such a warning to a fatal error, 
+    while also injecting a additional clarification message about possible causes.
     """
     import warnings
 
@@ -359,18 +358,18 @@ The PiE API has upgraded the above RuntimeWarning to a runtime error!
 
 This error typically occurs in one of the following cases:
 
-1. Calling `delay` or anything in `Robot.actions` without using `await`.
+1. Calling `Actions.sleep` or anything in `Actions` without using `await`.
 
 Incorrect code:
     async def my_coro():
-        delay(1.0)
+        Actions.sleep(1.0)
 
 Consider instead:
     async def my_coro():
-        await delay(1.0)
+        await Actions.sleep(1.0)
 
 2. Calling an `async def` function from inside `setup` or `loop` without using
-`Robot.coroutine`.
+`Robot.run`.
 
 Incorrect code:
     def loop():
@@ -378,7 +377,7 @@ Incorrect code:
 
 Consider instead:
     def loop():
-        Robot.coroutine(my_coro)
+        Robot.run(my_coro)
 """.format(coro_name=coro_name), file=file)
             exception_cell[0] = message
 

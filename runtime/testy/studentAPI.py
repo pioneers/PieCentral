@@ -25,13 +25,13 @@ class Robot:
 
     Multiple simultaneous coroutines that use the same robot actuators will
     lead to surprising behavior. To help guard against errors, calling
-    `coroutine` with a `fn` argument that is currently running is a no-op.
+    `run` with a `fn` argument that is currently running is a no-op.
     """
 
     if not inspect.isfunction(fn):
-        raise ValueError("First argument to Robot.coroutine must be a function")
+        raise ValueError("First argument to Robot.run must be a function")
     elif not inspect.iscoroutinefunction(fn):
-        raise ValueError("First argument to Robot.coroutine must be defined with `async def`, not `def`")
+        raise ValueError("First argument to Robot.run must be defined with `async def`, not `def`")
 
     if fn in self._coroutines_running:
         return

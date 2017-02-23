@@ -5,11 +5,12 @@
     "io": true
   },
   "env": {
-    "browser": true
+    "browser": true,
+    "mocha": true
   },
   "parserOptions": {
     "ecmaFeatures": {
-      "experimentalObjectRestSpread": true
+      "experimentalObjectRestSpread": true,
     }
   },
   "rules": {

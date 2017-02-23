@@ -11,22 +11,6 @@ iface lo inet loopback
 # Example to keep MAC address between reboots
 #hwaddress ether DE:AD:BE:EF:CA:FE
 
-##connman: ethX static config
-#connmanctl services
-#Using the appropriate ethernet service, tell connman to setup a static IP address for that service:
-#sudo connmanctl config <service> --ipv4 manual <ip_addr> <netmask> <gateway> --nameservers <dns_server>
-
-##connman: WiFi
-#
-#connmanctl
-#connmanctl> tether wifi disable
-#connmanctl> enable wifi
-#connmanctl> scan wifi
-#connmanctl> services
-#connmanctl> agent on
-#connmanctl> connect wifi_*_managed_psk
-#connmanctl> quit
-
 auto ra0
 iface ra0 inet dhcp
     wpa-ssid "Mother Base"

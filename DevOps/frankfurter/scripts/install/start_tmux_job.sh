@@ -37,9 +37,6 @@ fi
 
 cd ~/PieCentral/DevOps/frankfurter
 
-# To be removed
-git checkout devops/deployment
-
 # Run .master_frank_setup.sh inside tmux #####################################################
 # So that the linux headers version matches that of the kernel
 sudo /opt/scripts/tools/update_kernel.sh

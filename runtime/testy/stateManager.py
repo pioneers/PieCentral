@@ -33,6 +33,8 @@ class StateManager(object):
       SM_COMMANDS.GET_TIME : self.getTimestamp,
       SM_COMMANDS.EMERGENCY_STOP: self.emergencyStop,
       SM_COMMANDS.EMERGENCY_RESTART: self.emergencyRestart,
+      SM_COMMANDS.STUDENT_UPLOAD: self.student_upload,
+      SM_COMMANDS.SEND_CONSOLE: self.send_console,
       SM_COMMANDS.SET_ADDR: self.set_addr,
       SM_COMMANDS.SEND_ADDR: self.send_addr
     }
@@ -139,6 +141,13 @@ class StateManager(object):
 
   def send_addr(self, process_name):
     self.processMapping[process_name].send(self.state["dawn_addr"][0])
+
+  def student_upload(self):
+    #TODO Implement Student Upload Confirmation
+    self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.STUDENT_UPLOAD, True])
+ 
+  def send_console(self, console_log):
+    self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.CONSOLE, console_log])
 
   def getTimestamp(self, keys):
     currDict = self.state

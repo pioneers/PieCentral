@@ -23,7 +23,9 @@ app.on('ready', () => {
   mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
 
   mainWindow.on('closed', () => {
-    console.log(Template[3].submenu[2].kill()); // Find Less Hacky way to kill Fake Runtimes.
+    if (process.env.NODE_ENV === 'development') {
+      console.log(Template[3].submenu[1].kill()); // Find Less Hacky way to kill Fake Runtimes.
+    }
     mainWindow = null;
   });
 

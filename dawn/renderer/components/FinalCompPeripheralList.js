@@ -4,8 +4,53 @@
 
 import React from 'react';
 import _ from 'lodash';
+import { Panel, Accordion } from 'react-bootstrap';
+import { PeripheralTypes } from '../constants/Constants';
 import PeripheralList from './PeripheralList';
 import Peripheral from './Peripheral';
+
+const cleanerNames = {};
+cleanerNames[PeripheralTypes.MOTOR_SCALAR] = 'Motors';
+cleanerNames[PeripheralTypes.SENSOR_BOOLEAN] = 'Boolean Sensors';
+cleanerNames[PeripheralTypes.SENSOR_SCALAR] = 'Numerical Sensors';
+cleanerNames[PeripheralTypes.LimitSwitch] = 'Limit Switches';
+cleanerNames[PeripheralTypes.LineFollower] = 'Line Followers';
+cleanerNames[PeripheralTypes.Potentiometer] = 'Potentiometers';
+cleanerNames[PeripheralTypes.Encoder] = 'Encoders';
+cleanerNames[PeripheralTypes.ColorSensor] = 'Color Sensors';
+cleanerNames[PeripheralTypes.MetalDetector] = 'Metal Detectors';
+cleanerNames[PeripheralTypes.ServoControl] = 'Servo Controllers';
+
+
+const handleAccordion = (array) => {
+  const peripheralGroups = {};
+  array.forEach((p) => {
+    if (!(p.device_type in peripheralGroups)) {
+      peripheralGroups[p.device_type] = [];
+    }
+    peripheralGroups[p.device_type].push(p);
+  });
+  return (
+      _.map(Object.keys(peripheralGroups), groups => (
+        <Accordion style={{ marginBottom: '2px' }} key={`${cleanerNames[groups]}-Accordion`}>
+          <Panel header={cleanerNames[groups]} key={`${cleanerNames[groups]}-Panel`}>
+            {
+              _.map(peripheralGroups[groups], peripheral => (
+                <Peripheral
+                  key={String(peripheral.uid.high) + String(peripheral.uid.low)}
+                  id={String(peripheral.uid.high) + String(peripheral.uid.low)}
+                  name={peripheral.device_name}
+                  value={peripheral.value}
+                  peripheralType={peripheral.device_type}
+                />
+              ))
+            }
+          </Panel>
+        </Accordion>
+      ))
+  );
+};
+
 
 const FinalCompPeripheralList = (props) => {
   let errorMsg = null;
@@ -15,21 +60,13 @@ const FinalCompPeripheralList = (props) => {
     errorMsg = 'There appears to be some sort of Runtime error. ' +
       'No data is being received.';
   }
+
   return (
     <PeripheralList header="Peripherals">
       {
-        !errorMsg ?
-        _.map(
-          _.toArray(props.peripherals), peripheral => (
-            <Peripheral
-              key={String(peripheral.uid.high) + String(peripheral.uid.low)}
-              id={String(peripheral.uid.high) + String(peripheral.uid.low)}
-              name={peripheral.device_name}
-              value={peripheral.value}
-              peripheralType={peripheral.device_type}
-            />
-          ),
-        ) : <p className="panelText">{errorMsg}</p>
+        !errorMsg ? handleAccordion(
+          _.sortBy(_.toArray(props.peripherals), ['device_type', 'device_name']))
+        : <p className="panelText">{errorMsg}</p>
       }
     </PeripheralList>
   );

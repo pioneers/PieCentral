@@ -166,11 +166,12 @@ class UDPRecvClass(AnsibleHandler):
         self.socket.setblocking(False)
         self.curr_addr = None
         self.control_state = None
+        proto = ansible_pb2.DawnData()
         self.sm_mapping = {
-            0 : SM_COMMANDS.ENTER_IDLE,
-            1 : SM_COMMANDS.ENTER_TELEOP,
-            2 : SM_COMMANDS.ENTER_AUTO,
-            3 : SM_COMMANDS.EMERGENCY_STOP
+            proto.DawnData.IDLE       : SM_COMMANDS.ENTER_IDLE,
+            proto.DawnData.TELEOP     : SM_COMMANDS.ENTER_TELEOP,
+            proto.DawnData.AUTONOMOUS : SM_COMMANDS.ENTER_AUTO,
+            proto.DawnData.ESTOP      : SM_COMMANDS.EMERGENCY_STOP
         }
         super().__init__(packName, UDPRecvClass.unpackageData, sockRecvName,
                          UDPRecvClass.udpReceiver, badThingsQueue, stateQueue, pipe)

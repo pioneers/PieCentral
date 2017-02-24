@@ -6,6 +6,7 @@ import selectors
 import runtime_pb2
 import ansible_pb2
 import notification_pb2
+import csv
 from runtimeUtil import *
 
 UDP_SEND_PORT = 1235
@@ -250,6 +251,16 @@ class TCPClass(AnsibleHandler):
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.dawn_ip, TCP_PORT))
+
+        proto_message = notification_pb2.Notification()
+        proto_message.header = notification_pb2.Notification.SENSOR_MAPPING
+        with open('namedPeripherals.csv', 'rb') as f:
+            sensorMappings = csv.reader(f)
+            for row in sensorMappings:
+                pair = proto_message.sensor_mapping.add()
+                pair.device_new_name = row[0]
+                pair.device_name = row[1]
+        self.sock.sendall(proto_message.SerializeToString())
 
     def sender(self, badThingsQueue, stateQueue, pipe):
         def packageMessage(data):

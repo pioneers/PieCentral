@@ -254,7 +254,7 @@ class TCPClass(AnsibleHandler):
 
         proto_message = notification_pb2.Notification()
         proto_message.header = notification_pb2.Notification.SENSOR_MAPPING
-        with open('namedPeripherals.csv', 'rb') as f:
+        with open('namedPeripherals.csv', 'r') as f:
             sensorMappings = csv.reader(f)
             for row in sensorMappings:
                 pair = proto_message.sensor_mapping.add()

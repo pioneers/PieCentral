@@ -27,14 +27,20 @@ typesToComponents[PeripheralTypes.ColorSensor] = ScalarSensor;
 typesToComponents[PeripheralTypes.MetalDetector] = ScalarSensor;
 typesToComponents[PeripheralTypes.ServoControl] = ScalarSensor;
 
+let counter = 0;
 
 class Peripheral extends React.Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    counter = (counter + 1) % 20;
+    return counter === 0;
+  }
   /**
    * Determines the specific type of peripheral that this object represents.
    */
   determinePeripheralComponent() {
     return typesToComponents[this.props.peripheralType];
   }
+
 
   /**
    * We render the specific peripheral corresponding to the peripheralType.

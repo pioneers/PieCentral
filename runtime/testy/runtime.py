@@ -83,11 +83,16 @@ def runtime(testName=""):
           dawn_connected = False
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
-          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, maxIter)
+          terminate_process(PROCESS_NAMES.STUDENT_CODE)
+          name = "teleop"
+          if testName:
+              name = testName
+          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, name, maxIter)
           controlState = "teleop"
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_AUTO and controlState != "auto":
-          # spawnProcess(autonomous code)
+          terminate_process(PROCESS_NAMES.STUDENT_CODE)
+          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, "autonomous")
           controlState = "auto"
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_IDLE and controlState != "idle":
@@ -207,6 +212,8 @@ def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
   return spawnProcessHelper
 
 def terminate_process(processName):
+  if processName not in allProcesses:
+      return
   process = allProcesses.pop(processName)
   process.terminate()
   for _ in range(10): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
@@ -239,6 +246,8 @@ def runtimeTest(testNames):
   failedTests = []
 
   for testName in testNames:
+    if testName in ["autonomous", "teleop"]:
+      continue
     testFileName = "%s_output" % (testName,)
     with open(testFileName, "w", buffering = 1) as testOutput:
       print("Running test: {}".format(testName), end="", flush=True)

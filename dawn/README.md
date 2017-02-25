@@ -1,18 +1,18 @@
 # Overview
-Dawn is a cross-platform frontend for the [PiE](https://pioneers.berkeley.edu) robotics control system. It is the 
-application students will see and use when programming and testing their robots. It is written with web technologies 
+Dawn is a cross-platform frontend for the [PiE](https://pioneers.berkeley.edu) robotics control system. It is the
+application students will see and use when programming and testing their robots. It is written with web technologies
 and packaged via Electron.
 
 ### Development Quickstart
 1. Install the LTS version of [NodeJS](https://nodejs.org/en/download/)
-2. Dawn is a part of the [PieCentral](https://github.com/pioneers/PieCentral) repository, which contains the code for 
+2. Dawn is a part of the [PieCentral](https://github.com/pioneers/PieCentral) repository, which contains the code for
 many of PiE's projects. If you have not already cloned the PieCentral repo, do so now.
 3. From the Dawn folder under PieCentral:
-    * Run `make dawn-watch`. This will pull all the necessary dawn dependencies and start the webpack bundler. Leave 
+    * Run `make watch`. This will pull all the necessary dawn dependencies and start the webpack bundler. Leave
     this running, it will automatically rebundle the app as you make changes.
-    * In a separate terminal tab/window, launch the application itself: `make dawn-start`. Leave this terminal 
+    * In a separate terminal tab/window, launch the application itself: `make start`. Leave this terminal
     window also running. Dawn should open.
-    * When you make a change, the webpack watcher should automatically re-bundle your code. To see your changes in the 
+    * When you make a change, the webpack watcher should automatically re-bundle your code. To see your changes in the
     app, you can refresh by clicking `Debug > Reload` from the menu bar.
 
 ### Packaging Dawn
@@ -26,9 +26,9 @@ many of PiE's projects. If you have not already cloned the PieCentral repo, do s
     ```
     node release.js
     ```
-   
-   You can build for a specific platform and arch by adding `--platform=<PLATFORM> --arch=<ARCH>`, where `<PLATFORM>` 
-   is one of {win32, darwin, linux} and `<ARCH>` is one of {ia32, x64}. To build without pruning (which removes your 
+
+   You can build for a specific platform and arch by adding `--platform=<PLATFORM> --arch=<ARCH>`, where `<PLATFORM>`
+   is one of {win32, darwin, linux} and `<ARCH>` is one of {ia32, x64}. To build without pruning (which removes your
    devDependencies) add `--noprune`.
 
 ### Experimental builds:

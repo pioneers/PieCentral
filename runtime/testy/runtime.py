@@ -83,6 +83,7 @@ def runtime(testName=""):
           dawn_connected = False
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
+          terminate_process(PROCESS_NAMES.STUDENT_CODE)
           name = "teleop"
           if testName:
               name = testName
@@ -90,6 +91,7 @@ def runtime(testName=""):
           controlState = "teleop"
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_AUTO and controlState != "auto":
+          terminate_process(PROCESS_NAMES.STUDENT_CODE)
           spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, "autonomous")
           controlState = "auto"
           continue

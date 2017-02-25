@@ -12,6 +12,11 @@ UDP_SEND_PORT = 1235
 UDP_RECV_PORT = 1236
 TCP_PORT = 1234
 
+TCP_HZ = 25
+#Only for UDPSend Process
+packagerHZ = 20.0
+socketHZ = 20.0
+
 @unique
 class THREAD_NAMES(Enum):
     UDP_PACKAGER        = "udpPackager"
@@ -76,8 +81,6 @@ class AnsibleHandler():
         socketThread.join()
 
 class UDPSendClass(AnsibleHandler):
-    packagerHZ = 20.0
-    socketHZ = 20.0
 
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.sendBuffer = TwoBuffer()
@@ -126,7 +129,7 @@ class UDPSendClass(AnsibleHandler):
                 rawState = pipe.recv()
                 packState = package(rawState)
                 self.sendBuffer.replace(packState)
-                nextCall += 1.0/self.packagerHZ
+                nextCall += 1.0/packagerHZ
                 time.sleep(max(nextCall - time.time(), 0))
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
@@ -147,7 +150,7 @@ class UDPSendClass(AnsibleHandler):
                     msg = self.sendBuffer.get()
                     if msg != 0 and msg is not None and self.dawn_ip is not None:
                         s.sendto(msg, (self.dawn_ip, UDP_SEND_PORT))
-                    nextCall += 1.0/self.socketHZ
+                    nextCall += 1.0/socketHZ
                     time.sleep(max(nextCall - time.time(), 0))
                 except Exception as e:
                     badThingsQueue.put(BadThing(sys.exc_info(), 
@@ -236,7 +239,6 @@ class UDPRecvClass(AnsibleHandler):
             printStackTrace = True))
 
 class TCPClass(AnsibleHandler):
-    TCP_HZ = 25
     
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.sendBuffer = TwoBuffer()
@@ -280,7 +282,7 @@ class TCPClass(AnsibleHandler):
             try:
                 rawMessage = pipe.recv()
                 nextCall = time.time()
-                nextCall += 1.0/TCPClass.TCP_HZ
+                nextCall += 1.0/TCP_HZ
                 data = rawMessage[1]
                 if rawMessage[0] == ANSIBLE_COMMANDS.STUDENT_UPLOAD:
                     packedMsg = packageConfirm(data)

@@ -1,29 +1,33 @@
 #include "TimerOne.h"
-
 #include "motor.h"
 #include "pindefs.h"
 //tab to handle all controls issued to the motor including driving and braking
+
+bool motorEnabled = false;
+
 void motorSetup() {
   pinMode(current_pin,INPUT);
   pinMode(INA, OUTPUT);
   pinMode(INB, OUTPUT);
   pinMode(enable_pin, OUTPUT);
 
-  enable();  
+  motorEnable();  
   //pinMode(PWM, OUTPUT);
 }
 
-int readEnable() {
-  return digitalRead(enable_pin);
-}
-
-void enable() {
+void motorEnable() {
   clearFault();
   digitalWrite(enable_pin, HIGH);
+  motorEnabled = true;
 }
 
-void disable() {
+void motorDisable() {
   digitalWrite(enable_pin, LOW);
+  motorEnabled = false;
+}
+
+bool readMotorEnabled() {
+  return motorEnabled;
 }
 
 //returns current in amps

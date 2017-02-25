@@ -1,8 +1,8 @@
 #include <TimerOne.h> //arduino libraries go in <
-
 #include "current_limit.h"
-
 #include "motor.h" //our own motor.h
+#include "YogiBear.h"
+#include "pid.h"
 
 //code that does current limiting.
 //This will be called every time the motor controller decides to adjust the PWM to the motor.
@@ -18,29 +18,30 @@ float current_threshold = 3.0; //threshold in amps
 
 int in_max = 0; //how many times we have been in the CAUGHT_MAX state
 int above_threshold = 0;
-
 int in_limit = 0; //how many times we have been in the LIMIT state
-
 int in_spike = 0; //how many times we have been in the SPIKE state
 int below_threshold = 0; 
 
-//FSM STATES
-int limit_state = 0; //tells us which state the FSM is in and how we are modifying the PWM
-#define STANDARD 0 //normal state when pwm gets passed though
-#define CAUGHT_MAX 1 //alerted state where we are concerned about high current
-#define LIMIT 2 //high current for too long and PWM is now limited
-#define SPIKE 3 //checks to see if returning to full PWM is safe
+int limit_state = 0;
 
+//FSM STATES
+typedef enum {
+  STANDARD = 0,
+  CAUGHT_MAX = 1,
+  LIMIT = 2,
+  SPIKE = 3
+} limitState;
 
 
 void current_limiting() {
   float targetPWM;
+  uint8_t driveMode = readDriveMode();
   
-  if (driveMode == 0) {
-    targetPWM = pwmInput;
+  if (driveMode == MANUALDRIVE) {
+    targetPWM = readPWMInput();
   }
-  else {
-    targetPWM = pwmPID;
+  else if (driveMode == PID_POS || driveMode == PID_VEL) {
+    targetPWM = readPWMPID();
   }
   
   float current_read = readCurrent(); 
@@ -114,7 +115,6 @@ void current_limiting() {
 void timerOneOps() {
   current_limiting();
   drive(pwmOutput);
-  heartbeat++;
 }
 
 void currentLimitSetup() {

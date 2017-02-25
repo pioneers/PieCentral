@@ -52,9 +52,9 @@ def tcp_relay(port):
     conn, addr = s.accept()
     conn.send(msg)
     while True:
-        receive_msg, addr = conn.recvfrom(2048)
         next_call = time.time()
         next_call += 1.0/dawn_hz
+        receive_msg, addr = conn.recvfrom(2048)
         if receive_msg is None:
             continue
         else:

@@ -83,27 +83,33 @@ def runtime(testName=""):
           dawn_connected = False
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
-          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, maxIter)
+          terminate_process(PROCESS_NAMES.STUDENT_CODE)
+          name = "teleop"
+          if testName:
+              name = testName
+          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, name, maxIter)
           controlState = "teleop"
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_AUTO and controlState != "auto":
-          # spawnProcess(autonomous code)
+          terminate_process(PROCESS_NAMES.STUDENT_CODE)
+          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, "autonomous")
           controlState = "auto"
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_IDLE and controlState != "idle":
+          controlState = "idle"
           break
         print(newBadThing.event)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
           if newBadThing.event in studentErrorEvents:
             stateQueue.put([SM_COMMANDS.SEND_CONSOLE, [str(newBadThing)]])
+          controlState = "idle"
+          restartCount += 1
           if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
             emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
           break
       stateQueue.put([SM_COMMANDS.RESET, []])
       terminate_process(PROCESS_NAMES.STUDENT_CODE)
-      controlState = "idle"
-      restartCount += 1
     nonTestModePrint(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
     print("TERMINATING")
@@ -158,7 +164,8 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
       time.sleep(max(nextCall - time.time(), 0))
       execCount += 1
 
-    badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
+    if not terminated:
+      badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
 
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
@@ -208,6 +215,8 @@ def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
   return spawnProcessHelper
 
 def terminate_process(processName):
+  if processName not in allProcesses:
+      return
   process = allProcesses.pop(processName)
   process.terminate()
   for _ in range(10): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
@@ -240,6 +249,8 @@ def runtimeTest(testNames):
   failedTests = []
 
   for testName in testNames:
+    if testName in ["autonomous", "teleop"]:
+      continue
     testFileName = "%s_output" % (testName,)
     with open(testFileName, "w", buffering = 1) as testOutput:
       print("Running test: {}".format(testName), end="", flush=True)

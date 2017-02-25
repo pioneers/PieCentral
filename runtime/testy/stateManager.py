@@ -143,7 +143,7 @@ class StateManager(object):
     self.processMapping[process_name].send(self.state["dawn_addr"][0])
 
   def student_upload(self):
-    #TODO Implement Student Upload Confirmation
+    self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))
     self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.STUDENT_UPLOAD, True])
  
   def send_console(self, console_log):

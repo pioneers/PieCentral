@@ -208,6 +208,8 @@ def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
   return spawnProcessHelper
 
 def terminate_process(processName):
+  if processName not in allProcesses:
+      return
   process = allProcesses.pop(processName)
   process.terminate()
   for _ in range(10): # Gives 0.1 sec for process to terminate but allows it to terminate quicker

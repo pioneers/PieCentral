@@ -252,7 +252,7 @@ class UDPRecvClass(AnsibleHandler):
             printStackTrace = True))
 
 class TCPClass(AnsibleHandler):
-    
+
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.sendBuffer = TwoBuffer()
         self.recvBuffer = TwoBuffer()

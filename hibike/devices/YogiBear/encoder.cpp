@@ -23,7 +23,7 @@ void timerThreeOps() {
   updateVel();
 }
 
-void encoderSetup(){
+void encoderSetup() {
   
   pinMode(encoder0PinA,INPUT);
   pinMode(encoder0PinB,INPUT);
@@ -48,7 +48,7 @@ double readVel() {
   return vel;
 }
 
-void updateVel(){
+void updateVel() {
   double enc_reading = pos;
   vel = ((enc_reading - old_encoder0Pos)*1000000)/((float) interval_us);
   old_encoder0Pos = enc_reading; //calculate for the next vel calc

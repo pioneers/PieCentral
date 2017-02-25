@@ -35,10 +35,10 @@ void timerTwoOps() {
   uint8_t driveMode = readDriveMode();
  if (driveMode == PID_POS) {
   posPID();
- } 
- else if (driveMode == PID_VEL) {
+ } else if (driveMode == PID_VEL) {
   velPID();
  }
+
 }
 
 float readPWMPID() {

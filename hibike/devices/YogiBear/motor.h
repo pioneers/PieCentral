@@ -3,11 +3,8 @@
 
 //function prototypes
 void motorSetup();
-
 void motorEnable();
-
 void motorDisable();
-
 bool readMotorEnabled();
 
 //returns current in amps

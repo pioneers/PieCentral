@@ -39,8 +39,7 @@ void current_limiting() {
   
   if (driveMode == MANUALDRIVE) {
     targetPWM = readPWMInput();
-  }
-  else if (driveMode == PID_POS || driveMode == PID_VEL) {
+  } else if (driveMode == PID_POS || driveMode == PID_VEL) {
     targetPWM = readPWMPID();
   }
   
@@ -126,7 +125,7 @@ void setCurrentThreshold(float x) {
   current_threshold = x;
 }
 
-int read_limit_state(){
+int read_limit_state() {
   return limit_state;
 }
 

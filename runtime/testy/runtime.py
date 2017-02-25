@@ -82,6 +82,11 @@ def runtime(testName=""):
           terminate_process(PROCESS_NAMES.TCP_PROCESS)
           dawn_connected = False
           continue
+        elif newBadThing.event == BAD_EVENTS.RESTART_TCP:
+          terminate_process(PROCESS_NAMES.TCP_PROCESS)
+          print("RESARTING TCP")
+          spawnProcess(PROCESS_NAMES.TCP_PROCESS, startTCP)
+          continue
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
           terminate_process(PROCESS_NAMES.STUDENT_CODE)
           name = "teleop"
@@ -99,6 +104,8 @@ def runtime(testName=""):
           controlState = "idle"
           break
         print(newBadThing.event)
+        #fuck
+        print(newBadThing)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
           controlState = "idle"

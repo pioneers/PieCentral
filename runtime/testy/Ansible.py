@@ -211,6 +211,7 @@ class UDPRecvClass(AnsibleHandler):
             new_state = received_proto.student_code_status
             unpackaged_data["student_code_status"] = [new_state, time.time()]
             if not self.control_state or new_state != self.control_state:
+                print(new_state)
                 self.control_state = received_proto.student_code_status
                 sm_state_command = self.sm_mapping[new_state]
                 self.stateQueue.put([sm_state_command, []])
@@ -252,6 +253,8 @@ class TCPClass(AnsibleHandler):
     TCP_HZ = 25
     
     def __init__(self, badThingsQueue, stateQueue, pipe):
+        print("CONNECTING TCP")
+
         self.sendBuffer = TwoBuffer()
         self.recvBuffer = TwoBuffer()
         sendName = THREAD_NAMES.TCP_SENDER
@@ -259,11 +262,13 @@ class TCPClass(AnsibleHandler):
         super().__init__(sendName, TCPClass.sender, recvName, TCPClass.receiver, badThingsQueue, stateQueue, pipe)
 
         stateQueue.put([SM_COMMANDS.SEND_ADDR, [PROCESS_NAMES.TCP_PROCESS]])
+
         self.dawn_ip = pipe.recv()[0]
+
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.dawn_ip, TCP_PORT))
-
+        print("CONNECTED TCP")
         proto_message = notification_pb2.Notification()
         proto_message.header = notification_pb2.Notification.SENSOR_MAPPING
         with open('namedPeripherals.csv', 'r') as f:
@@ -315,6 +320,11 @@ class TCPClass(AnsibleHandler):
                     self.sock.sendall(packedMsg)
                 #Sleep for throttling thread
                 time.sleep(max(nextCall - time.time(), 0))
+            except BrokenPipeError: 
+                badThingsQueue.put(BadThing(sys.exc_info(), 
+                    "restarting TCP due to broken pipe", 
+                    event = BAD_EVENTS.RESTART_TCP, 
+                    printStackTrace = False))
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
                     "TCP sender crashed with error: " + str(e),

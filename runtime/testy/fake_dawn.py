@@ -50,9 +50,9 @@ def tcp_relay(port):
     s.bind((host, port))
     s.listen(1)
     conn, addr = s.accept()
+    conn.send(msg)
     while True:
         next_call = time.time()
-        conn.send(msg)
         receive_msg, addr = conn.recvfrom(2048)
         if receive_msg is None:
             continue

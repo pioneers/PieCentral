@@ -1,7 +1,9 @@
-dawn-watch:
-	npm install && npm run-script watch
+.PHONY: watch start install artifacts-install lint test artifacts
 
-dawn-start:
+watch:
+	npm install && npm run watch
+
+start:
 	npm start
 
 install:
@@ -15,13 +17,13 @@ artifacts-install:
 	sudo apt-get install -y p7zip-full
 
 lint:
-	npm run-script lint
+	npm run lint
 
 test:
 	npm test
 
 artifacts:
-	npm run-script build
+	npm run build
 	node release.js --platform=win32 --arch=ia32
 	node release.js --platform=darwin --arch=x64
 	node release.js --platform=linux --arch=x64

@@ -36,7 +36,10 @@ class StateManager(object):
       SM_COMMANDS.STUDENT_UPLOAD: self.student_upload,
       SM_COMMANDS.SEND_CONSOLE: self.send_console,
       SM_COMMANDS.SET_ADDR: self.set_addr,
-      SM_COMMANDS.SEND_ADDR: self.send_addr
+      SM_COMMANDS.SEND_ADDR: self.send_addr,
+      SM_COMMANDS.ENTER_IDLE: self.enter_idle,
+      SM_COMMANDS.ENTER_TELEOP: self.enter_teleop,
+      SM_COMMANDS.ENTER_AUTO: self.enter_auto
     }
     return commandMapping
 
@@ -143,11 +146,20 @@ class StateManager(object):
     self.processMapping[process_name].send(self.state["dawn_addr"][0])
 
   def student_upload(self):
-    #TODO Implement Student Upload Confirmation
+    self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))
     self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.STUDENT_UPLOAD, True])
  
   def send_console(self, console_log):
     self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.CONSOLE, console_log])
+
+  def enter_auto(self):
+    self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_AUTO, False))
+
+  def enter_teleop(self):
+    self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_TELEOP, False))
+
+  def enter_idle(self):
+    self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))
 
   def getTimestamp(self, keys):
     currDict = self.state

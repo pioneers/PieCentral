@@ -19,12 +19,12 @@ import time
 import argparse
 
 parser = argparse.ArgumentParser(description=
-                                 "Sets up team routers by changing ssid to be Team{teamNum}. \
-                                 Connect to the router, then run the script. \
-                                 If there is a missing driver error, download the latest for \
-                                 your system from \
-                                 https://github.com/mozilla/geckodriver/releases and \
-                                 place it into a path directory")
+                                 """Sets up team routers by changing ssid to be Team{teamNum}.
+                                 Connect to the router, then run the script.
+                                 If there is a missing driver error, download the latest for
+                                 your system from
+                                 https://github.com/mozilla/geckodriver/releases and
+                                 place it into a path directory""")
 parser.add_argument("teamNum", help="team number")
 
 args = parser.parse_args()

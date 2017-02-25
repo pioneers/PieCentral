@@ -258,8 +258,8 @@ class TCPClass(AnsibleHandler):
             sensorMappings = csv.reader(f)
             for row in sensorMappings:
                 pair = proto_message.sensor_mapping.add()
-                pair.device_new_name = row[0]
-                pair.device_name = row[1]
+                pair.device_student_name = row[0]
+                pair.device_uid = row[1]
         self.sock.sendall(proto_message.SerializeToString())
 
     def sender(self, badThingsQueue, stateQueue, pipe):

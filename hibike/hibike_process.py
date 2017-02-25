@@ -152,7 +152,6 @@ if __name__ == "__main__":
                         ], 0.1)
                 elif hm.devices[hm.uid_to_device_id(uid)]["name"] == "YogiBear":
                     set_interval_sequence([
-                        #make_send_write(pipeToChild, uid, [("enable", True),("command_state", 0),("duty_cycle",0.0)]),
                         make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0)]),
                         make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0.5)]),
                         make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 1.0)]),
@@ -171,6 +170,6 @@ if __name__ == "__main__":
                         make_send_write(pipeToChild, uid, [("servo0", 27), ("enable0", True), ("servo1", 2), ("enable1", False), ("servo2", 3), ("enable2", False), ("servo3", 14), ("enable3", False)]),
                         make_send_write(pipeToChild, uid, [("servo0", 20), ("enable0", True), ("servo1", 12), ("enable1", False), ("servo2", 20), ("enable2", False), ("servo3", 29), ("enable3", True)]),
                         ], 1)
-                pipeToChild.send(["subscribe_device", [uid, 500, [param["name"] for param in hm.devices[hm.uid_to_device_id(uid)]["params"]]]])
+                pipeToChild.send(["subscribe_device", [uid, 10, [param["name"] for param in hm.devices[hm.uid_to_device_id(uid)]["params"]]]])
         elif command == "device_values":
             print("%10.2f, %s" % (time.time(), str(args)))

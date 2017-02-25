@@ -1,56 +1,32 @@
-#ifndef EX_DEVICE_H
-#define EX_DEVICE_H
+#ifndef BATTERY_BUZZER_H
+#define BATTERY_BUZZER_H
 
 #include "hibike_device.h"
-#include "pitches.h"
+#include "eeprom.h" //implement
+#include "safety.h" //implement
+#include "voltage_sense.h"
+#include "disp_8.h"
 
-#define READ_ENABLE_PIN 9
-#define BUZZER_PIN 10
-#define BUZZER_LED_PIN 11
-#define BUZZER_FREQ NOTE_A4
-#define BUZZER_DISCONNECT_FREQ NOTE_A3
-#define BUZZER_BROKEN_FREQ NOTE_DS2
 
-#define NUM_CELLS 3
-#define BATT_0 A0
-#define BATT_1 A1
-#define BATT_2 A2
-#define BATT_0_SCALE 2.0  // From voltage divider
-#define BATT_1_SCALE 4.0
-#define BATT_2_SCALE 6.1
-#define BATT_INPUT {A0, A1, A2}
-#define BATT_CHANNELS {7, 6, 5}  // The ADC channels for A0, A1, A2 on atmega32u4
-#define NUM_SAMPLES 52  // Average this many readings per cell voltage, should not be greater than 63
-// units analogRead() uses
-#define UNITS_PER_VOLT (1023.0/5.0)  // From ADC
-#define PRESCALE (1/(NUM_SAMPLES*UNITS_PER_VOLT))
-#define DEFAULT_CALIBRATION {PRESCALE*BATT_0_SCALE, PRESCALE*BATT_1_SCALE, PRESCALE*BATT_2_SCALE}
-#define BLINK_AFTER_MEASURE 10  // At 2Hz
+extern float v_cell1;
+extern float v_cell2;
+extern float v_cell3;
+extern float v_batt;
+extern float dv_cell2;
+extern float dv_cell3;
+extern float vref_guess;
+extern bool prints;
 
-// Calibration reference (from external voltage source)
-#define MIN_REF_VOLT 4.5
-#define MAX_REF_VOLT 5.5
-#define REF_VOLT 5
+extern bool calibrated;
+extern float calib[];
+extern bool triple_calibration;
+extern int buzzer;
 
-#define LOW_VOLTAGE_ENTER_THRESHOLD 3.4
-#define LOW_VOLTAGE_EXIT_THRESHOLD 3.9
+extern unsigned long last_print_time;
 
-#define UNBALANCED_ENTER_THRESHOLD 0.7
-#define UNBALANCED_EXIT_THRESHOLD 0.1
+// extern bool unsafe_status
 
-// connectivity is checked on raw values, not computed voltages
-#define DISCONNECTED_THRESHOLD 100  // (~0.5 Volts)
-#define DISCONNECTED_COUNT 10
 
-#define MEASURE_DELAY_UNSAFE_MS 1000
-
-//////////////// DEVICE UID ///////////////////
-hibike_uid_t UID = {
-  BATTERY_BUZZER,                      // Device Type
-  0,                      // Year
-  UID_RANDOM,     // ID
-};
-///////////////////////////////////////////////
 ///
 typedef enum {
   CELL_SAFE,
@@ -63,12 +39,6 @@ typedef enum {
 void setup();
 void loop();
 
-void calibrationSetup(bool beep);
-void readTimerStart();
-void updateSafety();
-void updateCellStates();
-
-cell_state new_state(float voltage, float nextCellVoltage, bool disconnected, cell_state lastState);
-float abs_diff(float a, float b);
-
+uint32_t device_write(uint8_t param, uint8_t* data, size_t len);
+uint8_t device_read(uint8_t param, uint8_t* data, size_t len);
 #endif /* EX_DEVICE_H */

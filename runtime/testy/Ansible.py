@@ -165,6 +165,13 @@ class UDPRecvClass(AnsibleHandler):
         self.socket.bind((host, UDP_RECV_PORT))
         self.socket.setblocking(False)
         self.curr_addr = None
+        self.control_state = None
+        self.sm_mapping = {
+            ansible_pb2.DawnData.IDLE       : SM_COMMANDS.ENTER_IDLE,
+            ansible_pb2.DawnData.TELEOP     : SM_COMMANDS.ENTER_TELEOP,
+            ansible_pb2.DawnData.AUTONOMOUS : SM_COMMANDS.ENTER_AUTO,
+            ansible_pb2.DawnData.ESTOP      : SM_COMMANDS.EMERGENCY_STOP
+        }
         super().__init__(packName, UDPRecvClass.unpackageData, sockRecvName,
                          UDPRecvClass.udpReceiver, badThingsQueue, stateQueue, pipe)
 
@@ -200,7 +207,12 @@ class UDPRecvClass(AnsibleHandler):
             unpackaged_data = {}
             received_proto = ansible_pb2.DawnData()
             received_proto.ParseFromString(data)
-            unpackaged_data["student_code_status"] = [received_proto.student_code_status, time.time()]
+            new_state = received_proto.student_code_status
+            unpackaged_data["student_code_status"] = [new_state, time.time()]
+            if not self.control_state or new_state != self.control_state:
+                self.control_state = received_proto.student_code_status
+                sm_state_command = self.sm_mapping[new_state]
+                self.stateQueue.put([sm_state_command, []])
             all_gamepad_dict = {}
             for gamepad in received_proto.gamepads:
                 gamepad_dict = {}

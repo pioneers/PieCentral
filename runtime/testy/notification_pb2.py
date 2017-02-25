@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='notification.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x12notification.proto\"\xb1\x02\n\x0cNotification\x12\"\n\x06header\x18\x01 \x01(\x0e\x32\x12.Notification.Type\x12\x16\n\x0e\x63onsole_output\x18\x02 \x01(\t\x12\x33\n\x0esensor_mapping\x18\x03 \x03(\x0b\x32\x1b.Notification.SensorMapping\x1a=\n\rSensorMapping\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x17\n\x0f\x64\x65vice_new_name\x18\x02 \x01(\t\"q\n\x04Type\x12\x13\n\x0f\x43ONSOLE_LOGGING\x10\x00\x12\x10\n\x0cSTUDENT_SENT\x10\x01\x12\x14\n\x10STUDENT_RECEIVED\x10\x02\x12\x18\n\x14STUDENT_NOT_RECEIVED\x10\x03\x12\x12\n\x0eSENSOR_MAPPING\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\x12notification.proto\"\xb4\x02\n\x0cNotification\x12\"\n\x06header\x18\x01 \x01(\x0e\x32\x12.Notification.Type\x12\x16\n\x0e\x63onsole_output\x18\x02 \x01(\t\x12\x33\n\x0esensor_mapping\x18\x03 \x03(\x0b\x32\x1b.Notification.SensorMapping\x1a@\n\rSensorMapping\x12\x12\n\ndevice_uid\x18\x01 \x01(\t\x12\x1b\n\x13\x64\x65vice_student_name\x18\x02 \x01(\t\"q\n\x04Type\x12\x13\n\x0f\x43ONSOLE_LOGGING\x10\x00\x12\x10\n\x0cSTUDENT_SENT\x10\x01\x12\x14\n\x10STUDENT_RECEIVED\x10\x02\x12\x18\n\x14STUDENT_NOT_RECEIVED\x10\x03\x12\x12\n\x0eSENSOR_MAPPING\x10\x04\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -54,8 +54,8 @@ _NOTIFICATION_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=215,
-  serialized_end=328,
+  serialized_start=218,
+  serialized_end=331,
 )
 _sym_db.RegisterEnumDescriptor(_NOTIFICATION_TYPE)
 
@@ -68,14 +68,14 @@ _NOTIFICATION_SENSORMAPPING = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='device_name', full_name='Notification.SensorMapping.device_name', index=0,
+      name='device_uid', full_name='Notification.SensorMapping.device_uid', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='device_new_name', full_name='Notification.SensorMapping.device_new_name', index=1,
+      name='device_student_name', full_name='Notification.SensorMapping.device_student_name', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -94,7 +94,7 @@ _NOTIFICATION_SENSORMAPPING = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=152,
-  serialized_end=213,
+  serialized_end=216,
 )
 
 _NOTIFICATION = _descriptor.Descriptor(
@@ -139,7 +139,7 @@ _NOTIFICATION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=23,
-  serialized_end=328,
+  serialized_end=331,
 )
 
 _NOTIFICATION_SENSORMAPPING.containing_type = _NOTIFICATION

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='ansible.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\ransible.proto\"\xf7\x01\n\x08\x44\x61wnData\x12\x38\n\x13student_code_status\x18\x01 \x01(\x0e\x32\x1b.DawnData.StudentCodeStatus\x12#\n\x08gamepads\x18\x02 \x03(\x0b\x32\x11.DawnData.Gamepad\x12\x18\n\x10peripheral_names\x18\x03 \x03(\t\x1a\x37\n\x07Gamepad\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x0c\n\x04\x61xes\x18\x02 \x03(\x01\x12\x0f\n\x07\x62uttons\x18\x03 \x03(\x08\"9\n\x11StudentCodeStatus\x12\x08\n\x04IDLE\x10\x00\x12\n\n\x06TELEOP\x10\x01\x12\x0e\n\nAUTONOMOUS\x10\x02\x62\x06proto3')
+  serialized_pb=_b('\n\ransible.proto\"\x82\x02\n\x08\x44\x61wnData\x12\x38\n\x13student_code_status\x18\x01 \x01(\x0e\x32\x1b.DawnData.StudentCodeStatus\x12#\n\x08gamepads\x18\x02 \x03(\x0b\x32\x11.DawnData.Gamepad\x12\x18\n\x10peripheral_names\x18\x03 \x03(\t\x1a\x37\n\x07Gamepad\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x0c\n\x04\x61xes\x18\x02 \x03(\x01\x12\x0f\n\x07\x62uttons\x18\x03 \x03(\x08\"D\n\x11StudentCodeStatus\x12\x08\n\x04IDLE\x10\x00\x12\n\n\x06TELEOP\x10\x01\x12\x0e\n\nAUTONOMOUS\x10\x02\x12\t\n\x05\x45STOP\x10\x03\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -43,11 +43,15 @@ _DAWNDATA_STUDENTCODESTATUS = _descriptor.EnumDescriptor(
       name='AUTONOMOUS', index=2, number=2,
       options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='ESTOP', index=3, number=3,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
   serialized_start=208,
-  serialized_end=265,
+  serialized_end=276,
 )
 _sym_db.RegisterEnumDescriptor(_DAWNDATA_STUDENTCODESTATUS)
 
@@ -138,7 +142,7 @@ _DAWNDATA = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=18,
-  serialized_end=265,
+  serialized_end=276,
 )
 
 _DAWNDATA_GAMEPAD.containing_type = _DAWNDATA

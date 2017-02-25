@@ -53,16 +53,16 @@ def tcp_relay(port):
     conn.send(msg)
     while True:
         next_call = time.time()
+        next_call += 1.0/dawn_hz
         receive_msg, addr = conn.recvfrom(2048)
         if receive_msg is None:
             continue
         else:
             parser = notification_pb2.Notification()
             parser.ParseFromString(receive_msg)
-            print(parser.header)
-            if parser.header == notification_pb2.Notification.CONSOLE_LOGGING:
-                print(parser.console_output)
-        next_call += 1.0/dawn_hz
+            if parser.sensor_mapping:
+                for msg in parser.sensor_mapping:
+                    print(msg)
         time.sleep(max(next_call - time.time(), 0))
 
 

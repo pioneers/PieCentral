@@ -9,8 +9,8 @@ message Notification {
         SENSOR_MAPPING = 4;
     }
     message SensorMapping {
-        string device_name = 1;
-        string device_new_name = 2;
+        string device_uid = 1;
+        string device_student_name = 2;
     }
     Type header = 1;
     string console_output = 2;   // Console Output From Runtime to Dawn

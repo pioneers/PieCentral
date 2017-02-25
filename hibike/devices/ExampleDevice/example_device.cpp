@@ -1,6 +1,7 @@
 #include "example_device.h"
 
 #include "Arduino.h" 
+
 // each device is responsible for keeping track of it's own params
 uint8_t value0;
 uint8_t value1;

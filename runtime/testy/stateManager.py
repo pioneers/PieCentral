@@ -154,12 +154,15 @@ class StateManager(object):
 
   def enter_auto(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_AUTO, False))
+    self.state["studentCodeState"] = [STUDENT_CODE_STATE.AUTO.value, time.time()]
 
   def enter_teleop(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_TELEOP, False))
+    self.state["studentCodeState"] = [STUDENT_CODE_STATE.TELEOP.value, time.time()]
 
   def enter_idle(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))
+    self.state["studentCodeState"] = [STUDENT_CODE_STATE.IDLE.value, time.time()]
 
   def getTimestamp(self, keys):
     currDict = self.state
@@ -178,6 +181,7 @@ class StateManager(object):
   def emergencyStop(self):
     self.state["runtime_meta"][0]["e_stopped"][0] = True
     self.badThingsQueue.put(BadThing(sys.exc_info(), "Emergency Stop Activated", event = BAD_EVENTS.EMERGENCY_STOP, printStackTrace = False))
+    self.state["studentCodeState"] = [STUDENT_CODE_STATE.ESTOP.value, time.time()]
 
   def emergencyRestart(self):
     self.state["runtime_meta"][0]["e_stopped"][0] = False

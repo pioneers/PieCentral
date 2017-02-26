@@ -5,13 +5,17 @@
 #include "motor.h"
 #include "LED.h"
 
+//////////////// DEVICE UID ///////////////////
+hibike_uid_t UID = {
+YOGI_BEAR,                      // Device Type
+0x01,                      // Year
+UID_RANDOM,     // ID
+};
+///////////////////////////////////////////////
+
 //A space for constants.
 float pwmInput = 0; //Value that is received from hibike and is the goal PWM
 uint8_t driveMode = 0; 
-
-//Timers.
-#include <FlexiTimer2.h>
-
 
 void setup() {
   motorSetup();
@@ -237,7 +241,8 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
       break;
 
     default:
-    receiveseturn 0;
+      return 0;
+      break;
   }
 
   return 0;

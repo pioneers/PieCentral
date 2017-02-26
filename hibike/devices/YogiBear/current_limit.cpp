@@ -9,7 +9,7 @@
 
 int pwm_sign = 1; //separates the sign from the PWM value
 float pwmOutput = 0; //Value controlled by current limiting and is what is written to the motor
-float current_threshold = 3.0; //threshold in amps
+float current_threshold = 30.0; //threshold in amps
 #define LIMITED 4 //when in the limit state PWM = PWM/LIMITED
 
 #define EXIT_MAX 250 //how many ms we want to be in CAUGHT_MAX before moving onto LIMIT state 

@@ -5,6 +5,7 @@
 // function prototypes
 void PIDSetup();
 float readPWMPID();
+void timerTwoOps();
 void enablePos();
 void enableVel();
 void disablePID();

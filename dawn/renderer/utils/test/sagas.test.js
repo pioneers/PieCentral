@@ -6,7 +6,6 @@ import { call, take } from 'redux-saga/effects';
 // import { remote } from 'electron';
 import { openFileSucceeded, saveFileSucceeded } from '../../actions/EditorActions';
 import { runtimeConnect, runtimeDisconnect } from '../../actions/InfoActions';
-import { peripheralDisconnect } from '../../actions/PeripheralActions';
 import { openFileDialog,
          unsavedDialog,
          openFile,
@@ -16,8 +15,6 @@ import { openFileDialog,
          saveFileDialog,
          saveFile,
          runtimeHeartbeat,
-         actionWithSamePeripheral,
-         reapPeripheral,
          gamepadsState,
          updateMainProcess,
          ansibleReceiver,
@@ -113,12 +110,12 @@ describe('runtime sagas', () => {
   it('should yield effects for runtime heartbeat, connected', () => {
     const expect = fromGenerator(assert, runtimeHeartbeat());
     expect.next().race({
-      update: take('UPDATE_STATUS'),
+      update: take('PER_MESSAGE'),
       timeout: call(delay, 1000),
     });
     expect.next({
       update: {
-        type: 'UPDATE_STATUS',
+        type: 'PER_MESSAGE',
       },
     }).put(runtimeConnect());
   });
@@ -126,59 +123,12 @@ describe('runtime sagas', () => {
   it('should yield effects for runtime heartbeat, disconnected', () => {
     const expect = fromGenerator(assert, runtimeHeartbeat());
     expect.next().race({
-      update: take('UPDATE_STATUS'),
+      update: take('PER_MESSAGE'),
       timeout: call(delay, 1000),
     });
     expect.next({
       timeout: 1000,
     }).put(runtimeDisconnect());
-  });
-
-  it('should yield effects to reap peripheral, no timeout', () => {
-    const action = {
-      type: 'UPDATE_PERIPHERAL',
-      peripheral: {
-        device_type: 'SENSOR_SCALAR',
-        device_name: 'SS1',
-        value: 50,
-        uid: {
-          low: 123,
-          high: 456,
-        },
-      },
-    };
-    const expect = fromGenerator(assert, reapPeripheral(action));
-    expect.next().race({
-      peripheralUpdate: take(actionWithSamePeripheral),
-      timeout: call(delay, 3000),
-    });
-    expect.next({
-      peripheralUpdate: action,
-    }).returns();
-  });
-
-  it('should yield effects to reap peripheral, timeout', () => {
-    const action = {
-      type: 'UPDATE_PERIPHERAL',
-      peripheral: {
-        device_type: 'SENSOR_SCALAR',
-        device_name: 'SS1',
-        value: 50,
-        uid: {
-          low: 123,
-          high: 456,
-        },
-      },
-    };
-    const expect = fromGenerator(assert, reapPeripheral(action));
-    expect.next().race({
-      peripheralUpdate: take(actionWithSamePeripheral),
-      timeout: call(delay, 3000),
-    });
-    expect.next({
-      timeout: 3000,
-    }).put(peripheralDisconnect('456123'));
-    expect.next().returns();
   });
 
   it('should update main process of store changes', () => {

@@ -105,17 +105,14 @@ class UDPSendClass(AnsibleHandler):
             """
             try:
                 proto_message = runtime_pb2.RuntimeData()
-                for key, val in state.items():
-                    if key == 'studentCodeState':
-                        proto_message.robot_state = val[0]
-                    elif key == 'hibike':
-                        for uid, values in val[0]['devices'][0]:
-                            sensor = proto_message.sensor_data.add()
-                            sensor.uid = uid[0]
-                            for param, value in values[0]:
-                                param_value_pair = sensor.param_value.add()
-                                param_value_pair.param = param
-                                param_value_pair.value = value[0]
+                proto_message.robot_state = state['studentCodeState'][0]
+                for uid, values in state['hibike'][0]['devices'][0].items():
+                    sensor = proto_message.sensor_data.add()
+                    sensor.uid = uid
+                    for param, value in values[0].items():
+                        param_value_pair = sensor.param_value.add()
+                        param_value_pair.param = param
+                        param_value_pair.value = value[0]
                 return proto_message.SerializeToString() 
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(),

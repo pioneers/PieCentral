@@ -26,7 +26,7 @@ def build_custom_config(team_number, password):
         for line in network_config_file:
             if line.startswith('iface ra0'):
                 line = line.replace('dhcp', 'static')
-            if 'wpa-ssid' in line: 
+            if 'wpa-ssid' in line:
                 line = line.replace('Mother Base', 'Team{0}'.format(team_number))
             if 'wpa-psk' in line:
                 line = line.replace('pieisgreat', str(password))

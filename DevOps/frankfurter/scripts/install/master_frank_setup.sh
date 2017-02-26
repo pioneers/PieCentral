@@ -70,7 +70,9 @@ sudo chmod +x $HOME/bin/*
 # Create and enable the runtime systemd service
 sudo cp $FRANKFURTER_DIR/resources/runtime.service /lib/systemd/system
 sudo chmod 644 /lib/systemd/system/runtime.service
-sudo systemctl daemon-reload && sudo systemctl enable runtime.service
+sudo systemctl daemon-reload
+sudo systemctl enable update.service
+sudo systemctl enable runtime.service
 sudo systemctl start runtime.service
 
 # Copy config files for memcached and network interfaces

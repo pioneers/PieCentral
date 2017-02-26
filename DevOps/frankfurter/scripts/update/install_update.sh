@@ -5,22 +5,25 @@
 # distribute updates.
 ####################################################################################
 
-HOME_DIR=/home/ubuntu
-UPDATES_DIR=$HOME_DIR/updates
+HOME=/home/ubuntu
+UPDATES_DIR=$HOME/updates
 TMP_DIR=$UPDATES_DIR/tmp
-PIECENTRAL_BACKUP_DIR=$HOME_DIR/PieCentral.backup
+PIECENTRAL_BACKUP_DIR=$HOME/PieCentral.backup
 
 ####################################################################################
 # Update PieCentral:                                                                   #
 ####################################################################################
 rm -rf $PIECENTRAL_BACKUP_DIR
-cp -R $HOME_DIR/PieCentral $PIECENTRAL_BACKUP_DIR
-rm -r $HOME_DIR/PieCentral/runtime
-rm -r $HOME_DIR/PieCentral/hibike
-mv $TMP_DIR/hibike $HOME_DIR/PieCentral
-mv $TMP_DIR/runtime $HOME_DIR/PieCentral
+cp -R $HOME/PieCentral $PIECENTRAL_BACKUP_DIR
+rm -r $HOME/PieCentral/runtime
+rm -r $HOME/PieCentral/hibike
+mv $TMP_DIR/hibike $HOME/PieCentral
+mv $TMP_DIR/runtime $HOME/PieCentral
 
-ln -s $HOME_DIR/PieCentral/hibike/hibikeDevices.csv $HOME_DIR/PieCentral/runtime/testy/hibikeDevices.csv
+sudo chown ubuntu -R $PIECENTRAL_BACKUP_DIR
+sudo chgrp ubuntu -R $PIECENTRAL_BACKUP_DIR
+
+ln -s $HOME/PieCentral/hibike/hibikeDevices.csv $HOME/PieCentral/runtime/testy/hibikeDevices.csv
 
 ####################################################################################
 # Cleanup!                                                                         #

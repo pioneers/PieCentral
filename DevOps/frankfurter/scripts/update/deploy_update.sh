@@ -13,4 +13,4 @@ fi
 OPTIONS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 ssh $OPTIONS ubuntu@$IP 'rm -f ~/updates/*.tar.gz* && rm -rf ~/updates/tmp'
 scp $OPTIONS build/* ubuntu@$IP:~/updates/
-ssh -t $OPTIONS ubuntu@$IP 'sudo /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service'
+ssh -t $OPTIONS ubuntu@$IP 'sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service'

@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
-import FinalCompPeripheralList from './FinalCompPeripheralList';
+import PeripheralList from './PeripheralList';
 
 const mapStateToProps = state => ({
   peripherals: state.peripherals,
 });
 
-const FinalCompPeripheralListContainer = connect(mapStateToProps)(FinalCompPeripheralList);
+const PeripheralListContainer = connect(mapStateToProps)(PeripheralList);
 
-export default FinalCompPeripheralListContainer;
+export default PeripheralListContainer;

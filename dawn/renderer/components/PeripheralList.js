@@ -51,7 +51,7 @@ const handleAccordion = (array) => {
 };
 
 
-const FinalCompPeripheralList = (props) => {
+const PeripheralList = (props) => {
   let errorMsg = null;
   if (!props.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
@@ -77,10 +77,10 @@ const FinalCompPeripheralList = (props) => {
   );
 };
 
-FinalCompPeripheralList.propTypes = {
+PeripheralList.propTypes = {
   connectionStatus: React.PropTypes.bool,
   runtimeStatus: React.PropTypes.bool,
   peripherals: React.PropTypes.object,
 };
 
-export default FinalCompPeripheralList;
+export default PeripheralList;

@@ -15,10 +15,13 @@ const initialInfoState = {
 
 const info = (state = initialInfoState, action) => {
   switch (action.type) {
-    case 'ANSIBLE_CONNECT':
+    case 'PER_MESSAGE':
       return {
         ...state,
         connectionStatus: true,
+        robotState: action.robotState,
+        isRunningCode: (action.robotState === 1 ||
+        action.robotState === 3 || action.robotState === 4),
       };
     case 'ANSIBLE_DISCONNECT':
       return {
@@ -45,10 +48,6 @@ const info = (state = initialInfoState, action) => {
         ...state,
         batteryLevel: action.battery.value,
       };
-    case 'UPDATE_STATUS':
-      return {
-        ...state,
-      };
     case 'CODE_STATUS':
       return {
         ...state,
@@ -59,13 +58,6 @@ const info = (state = initialInfoState, action) => {
       return {
         ...state,
         ipAddress: action.ipAddress,
-      };
-    case 'ROBOT_STATE':
-      return {
-        ...state,
-        robotState: action.robotState,
-        isRunningCode: (action.robotState === 1 ||
-        action.robotState === 3 || action.robotState === 4),
       };
     default:
       return state;

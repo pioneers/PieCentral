@@ -175,7 +175,7 @@ function* runtimeHeartbeat() {
     // Start a race between a delay and receiving an UPDATE_STATUS action from
     // runtime. Only the winner will have a value.
     const result = yield race({
-      update: take('UPDATE_STATUS'),
+      update: take('PER_MESSAGE'),
       timeout: call(delay, 1000), // The delay is 1000 ms, or 1 second.
     });
 
@@ -185,32 +185,6 @@ function* runtimeHeartbeat() {
     } else {
       yield put(runtimeDisconnect());
     }
-  }
-}
-
-let id = '';
-const actionWithSamePeripheral = nextAction => (
- nextAction.type === 'UPDATE_PERIPHERAL' && (String(nextAction.peripheral.uid.high)
- + String(nextAction.peripheral.uid.low)) === id
-);
-
-/**
- * This saga removes peripherals that have not been updated by Runtime
- * recently (they are assumed to be disconnected).
- */
-function* reapPeripheral(action) {
-  id = String(action.peripheral.uid.high) + String(action.peripheral.uid.low);
-  // Start a race between a delay and receiving an UPDATE_PERIPHERAL action for
-  // this same peripheral (per peripheral.id). Only the winner has a value.
-  const result = yield race({
-    peripheralUpdate: take(actionWithSamePeripheral),
-    timeout: call(delay, 3000), // The delay is 3000 ms, or 3 seconds.
-  });
-
-  // If the delay won, then we have not received an update for this peripheral
-  // recently and remove it from our state.
-  if (result.timeout) {
-    yield put(peripheralDisconnect(id));
   }
 }
 
@@ -326,7 +300,6 @@ export default function* rootSaga() {
     takeEvery('OPEN_FILE', openFile),
     takeEvery('SAVE_FILE', saveFile),
     takeEvery('CREATE_NEW_FILE', openFile),
-    takeEvery('UPDATE_PERIPHERAL', reapPeripheral),
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),
@@ -343,8 +316,6 @@ export { openFileDialog,
          saveFileDialog,
          saveFile,
          runtimeHeartbeat,
-         actionWithSamePeripheral,
-         reapPeripheral,
          gamepadsState,
          updateMainProcess,
          ansibleReceiver,

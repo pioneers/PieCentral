@@ -48,6 +48,10 @@ class AppComponent extends React.Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps !== this.props || nextState !== this.state;
+  }
+
   addSteps(steps) {
     const joyride = this.refs.joyride;
     if (!Array.isArray(steps)) {

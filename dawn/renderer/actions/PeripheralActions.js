@@ -1,6 +1,6 @@
-export const updatePeripheral = sensor => ({
-  type: 'UPDATE_PERIPHERAL',
-  peripheral: sensor,
+export const updatePeripherals = sensors => ({
+  type: 'UPDATE_PERIPHERALS',
+  peripherals: sensors,
 });
 
 export const peripheralDisconnect = uid => ({

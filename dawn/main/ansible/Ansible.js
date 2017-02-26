@@ -4,13 +4,12 @@ import dgram from 'dgram';
 import net from 'net';
 import _ from 'lodash';
 import {
-    ansibleConnect,
-    ansibleDisconnect,
-    updateStatus,
-    updateRobotState,
-    notifyChange,
+  ansibleDisconnect,
+  updateRobotState,
+  notifyChange,
+  infoPerMessage,
 } from '../../renderer/actions/InfoActions';
-import { updatePeripheral } from '../../renderer/actions/PeripheralActions';
+import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import RendererBridge from '../RendererBridge';
 
 let runtimeIP = 'localhost';  // '192.168.128.22';
@@ -139,14 +138,10 @@ ipcMain.on('ipAddress', (event, data) => {
  * Handler to receive messages from the robot Runtime
  */
 server.on('message', (msg) => {
-  RendererBridge.reduxDispatch(ansibleConnect());
-  RendererBridge.reduxDispatch(updateStatus());
   try {
     const data = RuntimeData.decode(msg);
-    RendererBridge.reduxDispatch(updateRobotState(data.robot_state));
-    for (const sensor of data.sensor_data) {
-      RendererBridge.reduxDispatch(updatePeripheral(sensor));
-    }
+    RendererBridge.reduxDispatch(infoPerMessage(data.robot_state));
+    RendererBridge.reduxDispatch(updatePeripherals(data.sensor_data));
   } catch (e) {
     console.log(`Error decoding: ${e}`);
   }

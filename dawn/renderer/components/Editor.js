@@ -120,6 +120,10 @@ class Editor extends React.Component {
     }, { passive: true });
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps !== this.props || nextState !== this.state;
+  }
+
   onEditorPaste(pasteData) {
     // Must correct non-ASCII characters, which would crash Runtime.
     let correctedText = pasteData.text;

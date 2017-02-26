@@ -140,13 +140,12 @@ ipcMain.on('ipAddress', (event, data) => {
  */
 server.on('message', (msg) => {
   RendererBridge.reduxDispatch(ansibleConnect());
-  // RendererBridge.reduxDispatch(updateStatus());
+  RendererBridge.reduxDispatch(updateStatus());
   try {
     const data = RuntimeData.decode(msg);
-    // RendererBridge.reduxDispatch(updateRobotState(data.robot_state));
-    console.log('testing');
+    RendererBridge.reduxDispatch(updateRobotState(data.robot_state));
     for (const sensor of data.sensor_data) {
-      // RendererBridge.reduxDispatch(updatePeripheral(sensor));
+      RendererBridge.reduxDispatch(updatePeripheral(sensor));
     }
   } catch (e) {
     console.log(`Error decoding: ${e}`);

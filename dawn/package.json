@@ -8,7 +8,8 @@
     "build": "better-npm-run build",
     "lint": "eslint .",
     "watch": "webpack --watch --progress",
-    "test": "mocha --compilers js:babel-core/register --recursive renderer/**/test/*.test.js"
+    "test": "mocha --compilers js:babel-core/register --recursive renderer/**/test/*.test.js",
+    "devtools": "react-devtools"
   },
   "betterScripts": {
     "start": {
@@ -40,6 +41,7 @@
     "eslint-plugin-react": "^6.9.0",
     "minimist": "^1.2.0",
     "mocha": "^3.2.0",
+    "react-devtools": "^2.0.12",
     "redux-devtools": "^3.3.2",
     "redux-devtools-dock-monitor": "^1.1.1",
     "redux-devtools-filter-actions": "^1.2.0",

@@ -4,9 +4,8 @@
 
 import React from 'react';
 import _ from 'lodash';
-import { Panel, Accordion } from 'react-bootstrap';
+import { Panel, Accordion, ListGroup } from 'react-bootstrap';
 import { PeripheralTypes } from '../constants/Constants';
-import PeripheralList from './PeripheralList';
 import Peripheral from './Peripheral';
 
 const cleanerNames = {};
@@ -62,13 +61,19 @@ const FinalCompPeripheralList = (props) => {
   }
 
   return (
-    <PeripheralList header="Peripherals">
-      {
-        !errorMsg ? handleAccordion(
-          _.sortBy(_.toArray(props.peripherals), ['device_type', 'device_name']))
-        : <p className="panelText">{errorMsg}</p>
-      }
-    </PeripheralList>
+    <Panel
+      id="peripherals-panel"
+      header="Peripherals"
+      bsStyle="primary"
+    >
+      <ListGroup fill style={{ marginBottom: '5px' }}>
+        {
+          !errorMsg ? handleAccordion(
+            _.sortBy(_.toArray(props.peripherals), ['device_type', 'device_name']))
+          : <p className="panelText">{errorMsg}</p>
+        }
+      </ListGroup>
+    </Panel>
   );
 };
 

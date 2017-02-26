@@ -2,6 +2,8 @@ import React from 'react';
 import { RIEInput } from 'riek';
 import _ from 'lodash';
 
+
+// TODO: Check Draft.js or other alternatives
 class NameEdit extends React.Component {
   constructor(props) {
     super(props);

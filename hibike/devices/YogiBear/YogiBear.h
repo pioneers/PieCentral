@@ -3,16 +3,6 @@
 
 #include "hibike_device.h" //to get the hibike framework
 
-//////////////// DEVICE UID ///////////////////
-hibike_uid_t UID = {
-YOGI_BEAR,                      // Device Type
-0x01,                      // Year
-UID_RANDOM,     // ID
-};
-///////////////////////////////////////////////
-
-
-
 #define NUM_PARAMS 15
 typedef enum {
   MANUALDRIVE = 0,

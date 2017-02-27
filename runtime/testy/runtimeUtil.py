@@ -54,13 +54,6 @@ class ANSIBLE_COMMANDS(Enum):
   CONSOLE        = "console"
 
 @unique
-class STUDENT_CODE_STATE(Enum):
-  IDLE = 2
-  AUTO = 4
-  TELEOP = 3
-  ESTOP = 5
-
-@unique
 class SM_COMMANDS(Enum):
   # Used to autoenumerate
   # Don't ask I don't know how

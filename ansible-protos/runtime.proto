@@ -10,7 +10,10 @@ message RuntimeData {
     }
     message ParamValue {
         string param = 1;
-        float value = 2;
+        oneof kind {
+            float float_value = 2;
+            int32 int_value = 3;
+        }
     }
     message SensorData {
         reserved "value";

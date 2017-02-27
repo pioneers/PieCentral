@@ -34,13 +34,15 @@ let state = stateEnum.IDLE;
 server.on('message', (msg) => {
   // Decode and get the raw object.
   const data = DawnData.decode(msg).toRaw();
-  // console.log(data);
-  if (data.student_code_status === 'IDLE') {
-    state = stateEnum.IDLE;
-  } else if (data.student_code_status === 'ESTOP') {
-    state = stateEnum.ESTOP;
-  } else {
-    state = stateEnum.RUNNING;
+  switch (data.student_code_status) {
+    case 'IDLE':
+      state = stateEnum.IDLE;
+      break;
+    case 'ESTOP':
+      state = stateEnum.ESTOP;
+      break;
+    default:
+      state = stateEnum.RUNNING;
   }
 });
 

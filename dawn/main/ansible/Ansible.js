@@ -5,11 +5,11 @@ import net from 'net';
 import _ from 'lodash';
 import {
   ansibleDisconnect,
-  updateRobotState,
   notifyChange,
   infoPerMessage,
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
+import { uploadStatus, stateEnum } from '../../renderer/utils/utils';
 import RendererBridge from '../RendererBridge';
 
 let runtimeIP = 'localhost';  // '192.168.128.22';
@@ -32,9 +32,6 @@ const Notification = notificationBuilder.build('Notification');
 let runtimeSocket = null;
 let received = false;
 
-if (!Date.now) {
-  Date.now = () => { new Date().getTime(); };
-}
 const tcp = net.createServer((sock) => {
   console.log('Runtime Connected');
   sock.on('end', () => {
@@ -44,7 +41,7 @@ const tcp = net.createServer((sock) => {
     received = true;
     const decoded = Notification.decode(data);
     if (decoded.header === Notification.Type.STUDENT_RECEIVED) {
-      RendererBridge.reduxDispatch(notifyChange(0));
+      RendererBridge.reduxDispatch(notifyChange(uploadStatus.RECEIVED));
     }
   });
   runtimeSocket = sock;
@@ -67,7 +64,7 @@ ipcMain.on('NOTIFY_UPLOAD', (event) => {
     console.log('Runtime Notified');
   });
   received = false;
-  RendererBridge.reduxDispatch(notifyChange(1));
+  RendererBridge.reduxDispatch(notifyChange(uploadStatus.SENT));
   let count = 0;
   while ((!received) && count < 3) {
     runtimeSocket.write(message.encode().toBuffer(), () => {
@@ -81,7 +78,7 @@ ipcMain.on('NOTIFY_UPLOAD', (event) => {
   }
   if (!received) {
     console.error('No Confirmation');
-    RendererBridge.reduxDispatch(notifyChange(2));
+    RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
   }
 });
 
@@ -91,12 +88,15 @@ ipcMain.on('NOTIFY_UPLOAD', (event) => {
  */
 function buildProto(data) {
   let status = null;
-  if (data.studentCodeStatus === 1) {
-    status = StudentCodeStatus.TELEOP;
-  } else if (data.studentCodeStatus === 3) {
-    status = StudentCodeStatus.ESTOP;
-  } else {
-    status = StudentCodeStatus.IDLE;
+  switch (data.studentCodeStatus) {
+    case stateEnum.TELEOP:
+      status = StudentCodeStatus.TELEOP;
+      break;
+    case stateEnum.ESTOP:
+      status = StudentCodeStatus.ESTOP;
+      break;
+    default:
+      status = StudentCodeStatus.IDLE;
   }
   const gamepads = _.map(_.toArray(data.gamepads), (gamepad) => {
     const axes = _.toArray(gamepad.axes);

@@ -22,3 +22,16 @@ export const getValidationState = (testIPAddress) => {
   }
   return 'error';
 };
+
+export const uploadStatus = {
+  RECEIVED: 0,
+  SENT: 1,
+  ERROR: 2,
+};
+
+export const stateEnum = {
+  IDLE: 0,
+  TELEOP: 1,
+  AUTONOMOUS: 2,
+  ESTOP: 3,
+};

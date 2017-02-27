@@ -18,10 +18,6 @@ import { peripheralDisconnect } from '../actions/PeripheralActions';
 // postpone looking into remote so tests can run
 let timestamp = Date.now();
 
-if (!Date.now) {
-  Date.now = () => { new Date().getTime(); };
-}
-
 /**
  * The electron showOpenDialog interface does not work well
  * with redux-saga's 'cps' for callbacks. To make things nicer, we

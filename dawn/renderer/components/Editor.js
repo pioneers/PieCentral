@@ -31,7 +31,7 @@ import UpdateBox from './UpdateBox';
 import ConfigBox from './ConfigBox';
 import ConsoleOutput from './ConsoleOutput';
 import EditorButton from './EditorButton';
-import { pathToName } from '../utils/utils';
+import { pathToName, uploadStatus, stateEnum } from '../utils/utils';
 
 const Client = require('ssh2').Client;
 
@@ -188,10 +188,10 @@ class Editor extends React.Component {
       throw err;
     });
     ipcRenderer.send('NOTIFY_UPLOAD');
-    while (this.notificationHold === 1) {
+    while (this.notificationHold === uploadStatus.SENT) {
 
     }
-    if (this.notificationHold === 2) {
+    if (this.notificationHold === uploadStatus.ERROR) {
       conn.end();
       this.onNotifyChange(0);
       this.props.onAlertAdd(
@@ -235,12 +235,12 @@ class Editor extends React.Component {
   }
 
   startRobot() {
-    this.props.onUpdateCodeStatus(1);
+    this.props.onUpdateCodeStatus(stateEnum.TELEOP);
     this.props.onClearConsole();
   }
 
   stopRobot() {
-    this.props.onUpdateCodeStatus(0);
+    this.props.onUpdateCodeStatus(stateEnum.IDLE);
   }
 
   toggleUpdateModal() {
@@ -252,7 +252,7 @@ class Editor extends React.Component {
   }
 
   estop() {
-    this.props.onUpdateCodeStatus(3);
+    this.props.onUpdateCodeStatus(stateEnum.ESTOP);
   }
 
   hasUnsavedChanges() {

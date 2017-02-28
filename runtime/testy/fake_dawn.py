@@ -23,6 +23,7 @@ def dawn_packager():
 
 def sender(port, send_queue):
     host = '127.0.0.1'
+    time.sleep(1)
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         while True:
             next_call = time.time()

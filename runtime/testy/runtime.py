@@ -114,6 +114,7 @@ def runtime(testName=""):
           if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
             emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
           break
+      stateQueue.put([SM_COMMANDS.RESET, []])
       terminate_process(PROCESS_NAMES.STUDENT_CODE)
     nonTestModePrint(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
@@ -253,7 +254,7 @@ def terminate_process(processName):
     if not process.is_alive():
       break
   if process.is_alive():
-    print("Termintating with EXTREME PREJUDICE")
+    print("Terminating with EXTREME PREJUDICE")
     print("Queue state is probably boned and we should restart entire runtime")
     os.kill(process.pid, signal.SIGKILL)
     raise NotImplementedError

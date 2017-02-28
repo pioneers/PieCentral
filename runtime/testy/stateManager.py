@@ -139,10 +139,13 @@ class StateManager(object):
     self.state.update(new_data)
 
   def set_addr(self, new_addr):
+    print("set addr", new_addr)
     self.state["dawn_addr"] = [new_addr, time.time()]
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.NEW_IP, False))
 
   def send_addr(self, process_name):
+    #print("addr being sent", self.state["dawn_addr"][0])
+    #print(self.state)
     self.processMapping[process_name].send(self.state["dawn_addr"][0])
 
   def student_upload(self):

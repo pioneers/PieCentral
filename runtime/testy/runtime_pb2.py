@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='runtime.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\rruntime.proto\"\x93\x03\n\x0bRuntimeData\x12\'\n\x0brobot_state\x18\x01 \x01(\x0e\x32\x12.RuntimeData.State\x12,\n\x0bsensor_data\x18\x02 \x03(\x0b\x32\x17.RuntimeData.SensorData\x1a*\n\nParamValue\x12\r\n\x05param\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x02\x1a\x97\x01\n\nSensorData\x12\x13\n\x0b\x64\x65vice_type\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x04 \x01(\x04\x12\x17\n\x0fint_device_type\x18\x05 \x01(\r\x12,\n\x0bparam_value\x18\x06 \x03(\x0b\x32\x17.RuntimeData.ParamValueJ\x04\x08\x03\x10\x04R\x05value\"g\n\x05State\x12\x13\n\x0fSTUDENT_CRASHED\x10\x00\x12\x13\n\x0fSTUDENT_RUNNING\x10\x01\x12\x13\n\x0fSTUDENT_STOPPED\x10\x02\x12\n\n\x06TELEOP\x10\x03\x12\x08\n\x04\x41UTO\x10\x04\x12\t\n\x05\x45STOP\x10\x05\x62\x06proto3')
+  serialized_pb=_b('\n\rruntime.proto\"\xb8\x03\n\x0bRuntimeData\x12\'\n\x0brobot_state\x18\x01 \x01(\x0e\x32\x12.RuntimeData.State\x12,\n\x0bsensor_data\x18\x02 \x03(\x0b\x32\x17.RuntimeData.SensorData\x1aO\n\nParamValue\x12\r\n\x05param\x18\x01 \x01(\t\x12\x15\n\x0b\x66loat_value\x18\x02 \x01(\x02H\x00\x12\x13\n\tint_value\x18\x03 \x01(\x05H\x00\x42\x06\n\x04kind\x1a\x97\x01\n\nSensorData\x12\x13\n\x0b\x64\x65vice_type\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x04 \x01(\x04\x12\x17\n\x0fint_device_type\x18\x05 \x01(\r\x12,\n\x0bparam_value\x18\x06 \x03(\x0b\x32\x17.RuntimeData.ParamValueJ\x04\x08\x03\x10\x04R\x05value\"g\n\x05State\x12\x13\n\x0fSTUDENT_CRASHED\x10\x00\x12\x13\n\x0fSTUDENT_RUNNING\x10\x01\x12\x13\n\x0fSTUDENT_STOPPED\x10\x02\x12\n\n\x06TELEOP\x10\x03\x12\x08\n\x04\x41UTO\x10\x04\x12\t\n\x05\x45STOP\x10\x05\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -58,8 +58,8 @@ _RUNTIMEDATA_STATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=318,
-  serialized_end=421,
+  serialized_start=355,
+  serialized_end=458,
 )
 _sym_db.RegisterEnumDescriptor(_RUNTIMEDATA_STATE)
 
@@ -79,9 +79,16 @@ _RUNTIMEDATA_PARAMVALUE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='value', full_name='RuntimeData.ParamValue.value', index=1,
+      name='float_value', full_name='RuntimeData.ParamValue.float_value', index=1,
       number=2, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='int_value', full_name='RuntimeData.ParamValue.int_value', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -96,9 +103,12 @@ _RUNTIMEDATA_PARAMVALUE = _descriptor.Descriptor(
   syntax='proto3',
   extension_ranges=[],
   oneofs=[
+    _descriptor.OneofDescriptor(
+      name='kind', full_name='RuntimeData.ParamValue.kind',
+      index=0, containing_type=None, fields=[]),
   ],
   serialized_start=120,
-  serialized_end=162,
+  serialized_end=199,
 )
 
 _RUNTIMEDATA_SENSORDATA = _descriptor.Descriptor(
@@ -155,8 +165,8 @@ _RUNTIMEDATA_SENSORDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=165,
-  serialized_end=316,
+  serialized_start=202,
+  serialized_end=353,
 )
 
 _RUNTIMEDATA = _descriptor.Descriptor(
@@ -194,10 +204,16 @@ _RUNTIMEDATA = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=18,
-  serialized_end=421,
+  serialized_end=458,
 )
 
 _RUNTIMEDATA_PARAMVALUE.containing_type = _RUNTIMEDATA
+_RUNTIMEDATA_PARAMVALUE.oneofs_by_name['kind'].fields.append(
+  _RUNTIMEDATA_PARAMVALUE.fields_by_name['float_value'])
+_RUNTIMEDATA_PARAMVALUE.fields_by_name['float_value'].containing_oneof = _RUNTIMEDATA_PARAMVALUE.oneofs_by_name['kind']
+_RUNTIMEDATA_PARAMVALUE.oneofs_by_name['kind'].fields.append(
+  _RUNTIMEDATA_PARAMVALUE.fields_by_name['int_value'])
+_RUNTIMEDATA_PARAMVALUE.fields_by_name['int_value'].containing_oneof = _RUNTIMEDATA_PARAMVALUE.oneofs_by_name['kind']
 _RUNTIMEDATA_SENSORDATA.fields_by_name['param_value'].message_type = _RUNTIMEDATA_PARAMVALUE
 _RUNTIMEDATA_SENSORDATA.containing_type = _RUNTIMEDATA
 _RUNTIMEDATA.fields_by_name['robot_state'].enum_type = _RUNTIMEDATA_STATE

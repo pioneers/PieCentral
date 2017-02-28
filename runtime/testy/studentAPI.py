@@ -64,7 +64,7 @@ class Gamepad(StudentAPI):
     elif name in self.buttons.keys():
       return gamepad_dict["buttons"][self.buttons[name]]
     else:
-      raise StudentAPIKeyError() 
+      raise StudentAPIKeyError()
 
 class Robot(StudentAPI):
   def __init__(self, toManager, fromManager):

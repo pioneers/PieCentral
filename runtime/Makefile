@@ -15,6 +15,7 @@ test:
 	cd ../DevOps/frankfurter/scripts/update && ./create_update.sh
 	protoc -I=../ansible-protos --python_out=testy ../ansible-protos/*.proto
 	cd testy && python3 runtime.py --test
+	cd testy && python3 runtime.py --test optionalTestsWork
 
 artifacts:
 	cp ../DevOps/frankfurter/build/*.tar.gz ../artifacts

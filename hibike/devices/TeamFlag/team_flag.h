@@ -17,6 +17,7 @@
 
 #define LED_PIN 13
 
+// PARAM 0 will be mode, to be implemented later
 #define PARAM_BLUE 1
 #define PARAM_YELLOW 2
 

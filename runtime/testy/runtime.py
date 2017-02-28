@@ -84,15 +84,11 @@ def runtime(testName=""):
           terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
           terminate_process(PROCESS_NAMES.TCP_PROCESS)
           spawnProcess(PROCESS_NAMES.UDP_RECEIVE_PROCESS, startUDPReceiver)
-          stateQueue.put([SM_COMMANDS.SET_ADDR, [None]])
+          stateQueue.put([SM_COMMANDS.RESET_ADDR, []])
           dawn_connected = False
           controlState = "idle"
           continue
-        elif newBadThing.event == BAD_EVENTS.RESTART_TCP:
-          terminate_process(PROCESS_NAMES.TCP_PROCESS)
-          print("RESARTING TCP")
-          spawnProcess(PROCESS_NAMES.TCP_PROCESS, startTCP)
-          continue
+
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
           terminate_process(PROCESS_NAMES.STUDENT_CODE)
           name = "teleop"
@@ -110,8 +106,6 @@ def runtime(testName=""):
           controlState = "idle"
           break
         print(newBadThing.event)
-        #fuck
-        print(newBadThing)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
           if newBadThing.event in studentErrorEvents:

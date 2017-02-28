@@ -254,22 +254,17 @@ class UDPRecvClass(AnsibleHandler):
 class TCPClass(AnsibleHandler):
 
     def __init__(self, badThingsQueue, stateQueue, pipe):
-        print("CONNECTING TCP")
-
         self.sendBuffer = TwoBuffer()
         self.recvBuffer = TwoBuffer()
         sendName = THREAD_NAMES.TCP_SENDER
         recvName = THREAD_NAMES.TCP_RECEIVER
         super().__init__(sendName, TCPClass.sender, recvName, TCPClass.receiver, badThingsQueue, stateQueue, pipe)
-
         stateQueue.put([SM_COMMANDS.SEND_ADDR, [PROCESS_NAMES.TCP_PROCESS]])
         from_pipe = pipe.recv()
-        print("tcp pipe recv", from_pipe)
         self.dawn_ip = from_pipe[0]
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.connect((self.dawn_ip, TCP_PORT))
-        print("CONNECTED TCP")
         proto_message = notification_pb2.Notification()
         proto_message.header = notification_pb2.Notification.SENSOR_MAPPING
         with open('namedPeripherals.csv', 'r') as f:
@@ -342,7 +337,6 @@ class TCPClass(AnsibleHandler):
                     printStackTrace = False))
                     break
                 unpackagedData = unpackage(recv_data)
-                print("ANSIBLE UNPACKAGE", recv_data, addr)
                 stateQueue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
         except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 

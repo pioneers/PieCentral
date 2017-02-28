@@ -60,11 +60,11 @@ class Gamepad(StudentAPI):
   def get_value(name, gamepad_number=0):
     gamepad_dict = self._getSMValue('gamepads')[gamepad_number]
     if name in self.joysticks.keys():
-        return gamepad_dict["axes"][self.joysticks[name]]
+      return gamepad_dict["axes"][self.joysticks[name]]
     elif name in self.buttons.keys():
-        return gamepad_dict["buttons"][self.buttons[name]]
+      return gamepad_dict["buttons"][self.buttons[name]]
     else:
-        raise StudentAPIKeyError() 
+      raise StudentAPIKeyError() 
 
 class Robot(StudentAPI):
   def __init__(self, toManager, fromManager):
@@ -74,7 +74,7 @@ class Robot(StudentAPI):
 
   def run(self, fn, *args, **kwargs):
     """
-    Starts a "coroutine", i.e. a series of actions that proceed
+    Starts a "coroutine", i.e. a series of actions that proceed 
     independently of the main loop of code.
 
     The first argument must be a function defined with 'async def'.
@@ -88,54 +88,22 @@ class Robot(StudentAPI):
     """
 
     if not inspect.isfunction(fn):
-        raise ValueError("First argument to Robot.run must be a function")
+      raise ValueError("First argument to Robot.run must be a function")
     elif not inspect.iscoroutinefunction(fn):
-        raise ValueError("First argument to Robot.run must be defined with `async def`, not `def`")
+      raise ValueError("First argument to Robot.run must be defined with `async def`, not `def`")
 
     if fn in self._coroutines_running:
-        return
+      return
 
     self._coroutines_running.add(fn)
 
     future = fn(*args, **kwargs)
 
     async def wrapped_future():
-        await future
-        self._coroutines_running.remove(fn)
+      await future
+      self._coroutines_running.remove(fn)
 
     asyncio.ensure_future(wrapped_future())
-
-  def is_running(fn):
-    if not inspect.isfunction(fn):
-      raise ValueError("First argument to Robot.run must be a function")
-    elif not inspect.iscoroutinefunction(fn):
-      raise ValueError("First argument to Robot.run must be defined with `async def`, not `def`")
-
-    return fn in self._coroutines_running
-
-  def get_value(self, device_name):
-    uid = self._hibikeGetUID(device_name)
-    return self._getSMValue('hibike', uid)
-
-  def set_value(self, device_name, value):
-    uid = self._hibikeGetUID(device_name)
-    # TODO: verify that this correctly sends values to Hibike
-    self.toManager.put([HIBIKE_COMMANDS.SET_VAL, [uid, value]]) #should list be nested?
-    message = self.fromManager.recv()
-    if isinstance(message, StudentAPIKeyError):
-        raise message
-    return message
-
-  def disable(self, device_name):
-    uid = _hibikeGetUID(device_name)
-    self.toManager.put([HIBIKE_COMMANDS.DISABLE, [uid]]) #should list be nested?
-    message = self.fromManager.recv()
-    if isinstance(message, StudentAPITypeError):
-        raise message
-    return message
-
-  def set_coast(self, device_name, coast_enabled):
-    pass
 
   def _createSensorMapping(self, filename = 'namedPeripherals.csv'):
     with open(filename, 'r') as f:

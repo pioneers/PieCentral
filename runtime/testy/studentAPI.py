@@ -98,3 +98,8 @@ class Robot:
 
   def emergencyStop(self):
     self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])
+
+  def _print(self, *args):
+    print(*args)
+    console_string = " ".join([str(arg) for arg in args])
+    self.toManager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]]) 

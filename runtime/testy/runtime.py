@@ -103,6 +103,8 @@ def runtime(testName=""):
         print(newBadThing.event)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
+          if newBadThing.event in studentErrorEvents:
+            stateQueue.put([SM_COMMANDS.SEND_CONSOLE, [str(newBadThing)]])
           controlState = "idle"
           restartCount += 1
           if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
@@ -160,6 +162,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
 
     r = studentAPI.Robot(stateQueue, pipe)
     studentCode.Robot = r
+    studentCode.print = r._print
 
     checkTimedOut(setupFunc)
 

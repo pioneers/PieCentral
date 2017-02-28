@@ -14,10 +14,21 @@ def teleop_main():
   pass
 
 def setup():
-  pass
+  devices = Robot.getValue("hibike", "devices")
+  print(sorted(list(devices.keys())))
+  print(devices)
+  first = sorted(list(devices.keys()))[1]
+  Robot._hibikeSubscribeDevice(first, 40, ["enable", "duty_cycle"])
+  Robot.hibikeWriteValue(first, [("enable", True)])
+  Robot.hibikeWriteValue(first, [("duty_cycle", 0.0)])
+  Robot.first = first
 
 def main():
-  pass
+  try:
+    print(Robot.getValue("hibike", "devices", Robot.first, "enable"))
+    print(Robot.getValue("hibike", "devices", Robot.first, "duty_cycle"))
+  except StudentAPIKeyError:
+    print("Failed key lookup")
 
 def asyncawait_setup():
   Robot.createKey("right")
@@ -102,13 +113,11 @@ def createKey_main():
   restarts = Robot.getValue("Restarts")
   Robot.setValue(restarts+1, "Restarts")
 
-def hibikeSubscribeDevice_setup():
-  pass
+# def hibikeSubscribeDevice_setup():
+#   pass
 
-def hibikeSubscribeDevice_main():
-  Robot._hibikeSubscribeDevice(1, 2, [3, 4])
-  time.sleep(.01) # Wait for command to propogate to Hibike
-  print(Robot.getValue("hibike", "device_subscribed"))
+# def hibikeSubscribeDevice_main():
+#   print(Robot.getValue("hibike", "device_subscribed"))
 
 def timestamp_setup():
   pass
@@ -166,11 +175,36 @@ def emergencyStop_main():
   Robot.setValue(response, "incrementer")
   print("HIBIKE LOOP")
 
-def hibikeSensorMappings_setup():
-  pass
+# Due to interaction with hibike virtual devices, currently
+# neccessary to run these tests alone.
+# Make sure to exec `python3 spawn_virtual_devices.py` in /hibike
+# folder before running this test with the `-t` command
+# and restart the virtual_devices between tests
 
-def hibikeSensorMappings_main():
-  print(Robot._hibikeGetUID('zero'))
-  print(Robot._hibikeGetUID('one'))
-  print(Robot._hibikeGetUID('two'))
-  print(Robot._hibikeGetUID('three'))
+# TODO: Make runtime and hibike gracefully handle the case
+# Where runtime has crashed, restarts, and the sensors are already
+# sending values
+
+# def hibikeSensorMappings_setup():
+#   pass
+
+# def hibikeSensorMappings_main():
+#   print(Robot._hibikeGetUID('zero'))
+#   print(Robot._hibikeGetUID('one'))
+#   print(Robot._hibikeGetUID('two'))
+#   print(Robot._hibikeGetUID('three'))
+
+# def hibikeRead_setup():
+#   devices = Robot.getValue("hibike", "devices")
+#   first = sorted(list(devices.keys()))[1]
+#   Robot._hibikeSubscribeDevice(first, 40, ["enable", "duty_cycle"])
+#   Robot.hibikeWriteValue(first, [("enable", True)])
+#   Robot.hibikeWriteValue(first, [("duty_cycle", 0.0)])
+#   Robot.first = first
+
+# def hibikeRead_main():
+#   try:
+#     print(Robot.getValue("hibike", "devices", Robot.first, "enable"))
+#     print(Robot.getValue("hibike", "devices", Robot.first, "duty_cycle"))
+#   except StudentAPIKeyError:
+#     print("Failed key lookup")

@@ -84,11 +84,9 @@ def runtime(testName=""):
           terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
           terminate_process(PROCESS_NAMES.TCP_PROCESS)
           spawnProcess(PROCESS_NAMES.UDP_RECEIVE_PROCESS, startUDPReceiver)
-          stateQueue.put([SM_COMMANDS.RESET_ADDR, []])
           dawn_connected = False
           controlState = "idle"
           continue
-
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
           terminate_process(PROCESS_NAMES.STUDENT_CODE)
           name = "teleop"

@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron';
+import { stateEnum } from '../utils/utils';
 
 const initialInfoState = {
   ipAddress: '192.168.7.2',
@@ -42,6 +43,7 @@ const info = (state = initialInfoState, action) => {
       return {
         ...state,
         runtimeStatus: false,
+        studentCodeStatus: stateEnum.IDLE,
       };
     case 'UPDATE_BATTERY':
       return {

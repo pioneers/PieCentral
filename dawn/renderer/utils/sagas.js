@@ -12,7 +12,6 @@ import { ipcRenderer, remote } from 'electron';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
-import { peripheralDisconnect } from '../actions/PeripheralActions';
 
 // const dialog = remote.dialog;
 // postpone looking into remote so tests can run

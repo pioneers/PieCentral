@@ -77,7 +77,6 @@ class SM_COMMANDS(Enum):
   EMERGENCY_RESTART   = ()
   SET_ADDR            = ()
   SEND_ADDR           = ()
-  RESET_ADDR          = ()
   STUDENT_UPLOAD      = ()
   SEND_CONSOLE        = ()
   ENTER_IDLE          = ()

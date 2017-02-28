@@ -13,6 +13,11 @@ UDP_SEND_PORT = 1235
 UDP_RECV_PORT = 1236
 TCP_PORT = 1234
 
+TCP_HZ = 25
+#Only for UDPSend Process
+packagerHZ = 20.0
+socketHZ = 20.0
+
 @unique
 class THREAD_NAMES(Enum):
     UDP_PACKAGER        = "udpPackager"
@@ -77,8 +82,6 @@ class AnsibleHandler():
         socketThread.join()
 
 class UDPSendClass(AnsibleHandler):
-    packagerHZ = 20.0
-    socketHZ = 20.0
 
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.sendBuffer = TwoBuffer()
@@ -105,15 +108,14 @@ class UDPSendClass(AnsibleHandler):
             """
             try:
                 proto_message = runtime_pb2.RuntimeData()
-                for devID, devVal in state.items():
-                    if (devID == 'studentCodeState'):
-                        proto_message.robot_state = devVal[0] #check if we are dealing with sensor data or student code state
-                    elif devID == 'limit_switch':
-                        test_sensor = proto_message.sensor_data.add() 
-                        test_sensor.device_name = devID
-                        test_sensor.device_type = devVal[0][0]
-                        test_sensor.value = devVal[0][1]
-                        test_sensor.uid = devVal[0][2]
+                proto_message.robot_state = state['studentCodeState'][0]
+                for uid, values in state['hibike'][0]['devices'][0].items():
+                    sensor = proto_message.sensor_data.add()
+                    sensor.uid = uid
+                    for param, value in values[0].items():
+                        param_value_pair = sensor.param_value.add()
+                        param_value_pair.param = param
+                        param_value_pair.float_value = value[0]
                 return proto_message.SerializeToString() 
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(),
@@ -127,7 +129,7 @@ class UDPSendClass(AnsibleHandler):
                 rawState = pipe.recv()
                 packState = package(rawState)
                 self.sendBuffer.replace(packState)
-                nextCall += 1.0/self.packagerHZ
+                nextCall += 1.0/packagerHZ
                 time.sleep(max(nextCall - time.time(), 0))
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
@@ -148,7 +150,7 @@ class UDPSendClass(AnsibleHandler):
                     msg = self.sendBuffer.get()
                     if msg != 0 and msg is not None and self.dawn_ip is not None:
                         s.sendto(msg, (self.dawn_ip, UDP_SEND_PORT))
-                    nextCall += 1.0/self.socketHZ
+                    nextCall += 1.0/socketHZ
                     time.sleep(max(nextCall - time.time(), 0))
                 except Exception as e:
                     badThingsQueue.put(BadThing(sys.exc_info(), 
@@ -249,8 +251,7 @@ class UDPRecvClass(AnsibleHandler):
             printStackTrace = True))
 
 class TCPClass(AnsibleHandler):
-    TCP_HZ = 25
-    
+
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.sendBuffer = TwoBuffer()
         self.recvBuffer = TwoBuffer()
@@ -302,7 +303,7 @@ class TCPClass(AnsibleHandler):
             try:
                 rawMessage = pipe.recv()
                 nextCall = time.time()
-                nextCall += 1.0/TCPClass.TCP_HZ
+                nextCall += 1.0/TCP_HZ
                 data = rawMessage[1]
                 if rawMessage[0] == ANSIBLE_COMMANDS.STUDENT_UPLOAD:
                     packedMsg = packageConfirm(data)

@@ -49,12 +49,6 @@
                                                      ]
     },
 
-    {"id": 6,     "name": "YogiBear",      "params": [    
-                                                          {"number": 0  , "name": "duty"       , "type": "uint8_t" , "read": true , "write": true  },
-                                                          {"number": 1  , "name": "forward"    , "type": "bool"    , "read": true , "write": true  }
-                                                     ]
-    },
-
     {"id": 7,     "name": "ServoControl",  "params": [    
                                                           {"number": 0  , "name": "servo0"     , "type": "uint8_t" , "read": true , "write": true  },
                                                           {"number": 1  , "name": "enable0"    , "type": "bool"    , "read": true , "write": true  },
@@ -64,6 +58,26 @@
                                                           {"number": 5  , "name": "enable2"    , "type": "bool"    , "read": true , "write": true  },
                                                           {"number": 6  , "name": "servo3"     , "type": "uint8_t" , "read": true , "write": true  },
                                                           {"number": 7  , "name": "enable3"    , "type": "bool"    , "read": true , "write": true  }
+                                                     ]
+    },
+
+
+    {"id": 10,     "name": "YogiBear",      "params": [   
+                                                          {"number": 0  , "name": "enable"              , "type": "bool"     , "read": true , "write": true  }, 
+                                                          {"number": 1  , "name": "command_state"       , "type": "uint8_t"  , "read": true , "write": true  },
+                                                          {"number": 2  , "name": "duty_cycle"          , "type": "float"    , "read": true , "write": true  },
+                                                          {"number": 3  , "name": "pid_pos_setpoint"    , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 4  , "name": "pid_pos_kp"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 5  , "name": "pid_pos_ki"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 6  , "name": "pid_pos_kd"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 7  , "name": "pid_vel_setpoint"    , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 8  , "name": "pid_vel_kp"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 9  , "name": "pid_vel_ki"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 10  , "name": "pid_vel_kd"         , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 11  , "name": "current_thresh"     , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 12  , "name": "enc_pos"            , "type": "float"    , "read": true , "write": true  },
+                                                          {"number": 13  , "name": "enc_vel"            , "type": "float"    , "read": true , "write": false  },
+                                                          {"number": 14  , "name": "motor_current"      , "type": "float"    , "read": true , "write": false  }
                                                      ]
     },
 

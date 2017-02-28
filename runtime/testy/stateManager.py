@@ -1,5 +1,6 @@
 import sys
 import time
+import runtime_pb2
 
 from runtimeUtil import *
 
@@ -72,7 +73,7 @@ class StateManager(object):
      "list1" : [[[70, t], ["five", t], [14.3, t]], t],
      "string1" : ["abcde", t],
      "runtime_meta" : [{"studentCode_main_count" : [0, t], "e_stopped" : [False, t]}, t],
-     "hibike" : [{"device_subscribed" : [0, t]}, t],
+     "hibike" : [{"device_subscribed": [0, t], "devices" : [{12345 : [{"sensor0": [1, t]}, t]}, t]}, t],
      "dawn_addr" : [None, t]
     }
 
@@ -155,12 +156,15 @@ class StateManager(object):
       
   def enter_auto(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_AUTO, False))
+    self.state["studentCodeState"] = [runtime_pb2.RuntimeData.AUTO, time.time()]
 
   def enter_teleop(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_TELEOP, False))
+    self.state["studentCodeState"] = [runtime_pb2.RuntimeData.TELEOP, time.time()]
 
   def enter_idle(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))
+    self.state["studentCodeState"] = [runtime_pb2.RuntimeData.STUDENT_STOPPED, time.time()]
 
   def getTimestamp(self, keys):
     currDict = self.state
@@ -179,6 +183,7 @@ class StateManager(object):
   def emergencyStop(self):
     self.state["runtime_meta"][0]["e_stopped"][0] = True
     self.badThingsQueue.put(BadThing(sys.exc_info(), "Emergency Stop Activated", event = BAD_EVENTS.EMERGENCY_STOP, printStackTrace = False))
+    self.state["studentCodeState"] = [runtime_pb2.RuntimeData.ESTOP, time.time()]
 
   def emergencyRestart(self):
     self.state["runtime_meta"][0]["e_stopped"][0] = False

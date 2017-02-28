@@ -6,10 +6,6 @@ import time
 
 from runtimeUtil import *
 
-class Actions:
-  async def sleep(seconds):
-    await asyncio.sleep(seconds)
-
 class StudentAPI:
   def __init__(self, toManager, fromManager):
     self.fromManager = fromManager
@@ -35,8 +31,40 @@ class StudentAPI:
     return message
 
 class Gamepad(StudentAPI):
+  buttons = {
+    "button_a" : 0,
+    "button_b" : 1,
+    "button_x" : 2,
+    "button_y" : 3,
+    "l_bumper" : 4,
+    "r_bumper" : 5,
+    "l_trigger" : 6,
+    "r_trigger" : 7,
+    "button_back" : 8,
+    "button_start" : 9,
+    "l_stick" : 10,
+    "r_stick" : 11,
+    "dpad_up" : 12,
+    "dpad_down" : 13,
+    "dpad_left" : 14,
+    "dpad_right" : 15,
+    "button_xbox" : 16
+  }
+  joysticks = {
+    "joystick_left_x" : 0,
+    "joystick_left_y" : 1,
+    "joystick_right_x" : 2,
+    "joystick_right_y" : 3
+  }
+
   def get_value(name, gamepad_number=0):
-    return self._getSMValue('dawn', gamepad_number, name)
+    gamepad_dict = self._getSMValue('gamepads')[gamepad_number]
+    if name in self.joysticks.keys():
+        return gamepad_dict["axes"][self.joysticks[name]]
+    elif name in self.buttons.keys():
+        return gamepad_dict["buttons"][self.buttons[name]]
+    else:
+        raise StudentAPIKeyError() 
 
 class Robot(StudentAPI):
   def __init__(self, toManager, fromManager):

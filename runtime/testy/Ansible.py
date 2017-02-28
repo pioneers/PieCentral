@@ -330,9 +330,9 @@ class TCPClass(AnsibleHandler):
             while True:
                 recv_data, addr = self.sock.recvfrom(2048)
                 if recv_data == b'':
-                    badThingsQueue.put(BadThing(sys.exc_info(), 
-                    "restarting Ansible Processes due to disconnection", 
-                    event = BAD_EVENTS.DAWN_DISCONNECTED, 
+                    badThingsQueue.put(BadThing(sys.exc_info(),
+                    "restarting Ansible Processes due to disconnection",
+                    event = BAD_EVENTS.DAWN_DISCONNECTED,
                     printStackTrace = False))
                     break
                 unpackagedData = unpackage(recv_data)

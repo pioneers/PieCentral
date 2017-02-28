@@ -84,10 +84,9 @@ def runtime(testName=""):
           terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
           terminate_process(PROCESS_NAMES.TCP_PROCESS)
           spawnProcess(PROCESS_NAMES.UDP_RECEIVE_PROCESS, startUDPReceiver)
-          stateQueue.put([SM_COMMANDS.RESET_ADDR, []])
           dawn_connected = False
-          continue
-
+          controlState = "idle"
+          break
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
           terminate_process(PROCESS_NAMES.STUDENT_CODE)
           name = "teleop"
@@ -175,7 +174,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
 
     async def main_loop():
       execCount = 0
-      while (exception_cell[0] is None) and (maxIter is None or execCount < maxIter):
+      while not terminated and (exception_cell[0] is None) and (maxIter is None or execCount < maxIter):
         next_call = loop.time() + 1. / RUNTIME_CONFIG.STUDENT_CODE_HZ.value
         checkTimedOut(mainFunc)
 
@@ -183,8 +182,8 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
         stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
         execCount += 1
         await asyncio.sleep(sleep_time)
-
-      badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
+      if not terminated:
+        badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
       if exception_cell[0] is not None:
         raise exception_cell[0]
 

@@ -23,7 +23,6 @@ def dawn_packager():
 
 def sender(port, send_queue):
     host = '127.0.0.1'
-    time.sleep(1)
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         while True:
             next_call = time.time()
@@ -41,7 +40,7 @@ def receiver(port, receive_queue):
         runtime_message = runtime_pb2.RuntimeData()
         runtime_message.ParseFromString(msg)
         receive_queue[0]=msg
-        #print(runtime_message)
+        print(runtime_message)
 
 def tcp_relay(port):
     host = '127.0.0.1'

@@ -259,6 +259,7 @@ class TCPClass(AnsibleHandler):
         sendName = THREAD_NAMES.TCP_SENDER
         recvName = THREAD_NAMES.TCP_RECEIVER
         super().__init__(sendName, TCPClass.sender, recvName, TCPClass.receiver, badThingsQueue, stateQueue, pipe)
+
         stateQueue.put([SM_COMMANDS.SEND_ADDR, [PROCESS_NAMES.TCP_PROCESS]])
         self.dawn_ip = pipe.recv()[0]
 

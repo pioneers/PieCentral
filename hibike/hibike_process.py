@@ -6,6 +6,7 @@ import queue
 import glob
 import serial
 import os
+from platform import system
 
 __all__ = ["hibike_process"]
 
@@ -13,8 +14,11 @@ __all__ = ["hibike_process"]
 uid_to_index = {}
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
-
-    ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*")
+    
+    # Last command is included so that it's compatible with OS X Sierra
+    # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
+    # Instead access it through Volumes/vagrant/PieCentral
+    ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("dev/tty.usbmodem*")
 
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")

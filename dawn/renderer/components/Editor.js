@@ -212,7 +212,7 @@ class Editor extends React.Component {
           throw err;
         }
         console.log('SSH Connection');
-        sftp.fastPut(filepath, './studentcode/studentcode.py', (err2) => {
+        sftp.fastPut(filepath, './PiECentral/runtime/testy/studentcode.py', (err2) => {
           if (err2) {
             dialog.showMessageBox({
               type: 'warning',

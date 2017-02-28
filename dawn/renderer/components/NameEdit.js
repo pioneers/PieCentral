@@ -28,7 +28,6 @@ class NameEdit extends React.Component {
   }
 
   dataChange(data) {
-    console.log(this);
     if (this.validatePeripheralName(data)) {
       this.props.onRename(this.props.id, data);
     }

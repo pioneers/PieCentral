@@ -12,7 +12,7 @@ cleanerNames[PeripheralTypes.LimitSwitch] = 'Limit Switches';
 cleanerNames[PeripheralTypes.LineFollower] = 'Line Followers';
 cleanerNames[PeripheralTypes.Potentiometer] = 'Potentiometers';
 cleanerNames[PeripheralTypes.Encoder] = 'Encoders';
-cleanerNames[PeripheralTypes.ColorSensor] = 'Color Sensors';
+// cleanerNames[PeripheralTypes.ColorSensor] = 'Color Sensors';
 cleanerNames[PeripheralTypes.MetalDetector] = 'Metal Detectors';
 cleanerNames[PeripheralTypes.ServoControl] = 'Servo Controllers';
 
@@ -27,16 +27,16 @@ const handleAccordion = (array) => {
   });
   return (
       _.map(Object.keys(peripheralGroups), groups => (
-        <Accordion style={{ marginBottom: '2px' }} key={`${cleanerNames[groups]}-Accordion`}>
-          <Panel header={cleanerNames[groups]} key={`${cleanerNames[groups]}-Panel`}>
+        <Accordion style={{ marginBottom: '2px' }} key={`${cleanerNames[groups] || 'Default'}-Accordion`}>
+          <Panel header={cleanerNames[groups] || 'Generic'} key={`${cleanerNames[groups] || 'Default'}-Panel`}>
             {
               _.map(peripheralGroups[groups], peripheral => (
                 <Peripheral
                   key={String(peripheral.uid.high) + String(peripheral.uid.low)}
                   id={String(peripheral.uid.high) + String(peripheral.uid.low)}
-                  name={peripheral.device_name}
-                  value={peripheral.value}
-                  peripheralType={peripheral.device_type}
+                  device_name={peripheral.device_name}
+                  device_type={peripheral.device_type}
+                  param={peripheral.param_value}
                 />
               ))
             }
@@ -55,7 +55,6 @@ const PeripheralList = (props) => {
     errorMsg = 'There appears to be some sort of Runtime error. ' +
       'No data is being received.';
   }
-
   return (
     <Panel
       id="peripherals-panel"

@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import { ProgressBar } from 'react-bootstrap';
 import numeral from 'numeral';
 import NameEditContainer from '../NameEditContainer';
@@ -6,24 +7,34 @@ import NameEditContainer from '../NameEditContainer';
 /**
  * A component representing a motor.
  */
-const Motor = props => (
-  <div style={{ overflow: 'auto' }}>
-    <div style={{ overflow: 'auto', width: '100%' }}>
-      <h4 style={{ float: 'left' }}><NameEditContainer name={props.name} id={props.id} />
-        <small> Motor</small>
-      </h4>
-      <h4 style={{ float: 'right' }}>
-        {numeral(props.value).format('+0.00')}
-      </h4>
-    </div>
-    <ProgressBar now={props.value} min={-100} />
-  </div>
-);
+class Motor extends React.Component {
+  render() {
+    return (
+      <div style={{ overflow: 'auto' }}>
+        <div style={{ overflow: 'auto', width: '100%' }}>
+          <h4 style={{ float: 'left' }}>
+            <NameEditContainer name={this.props.device_name} id={this.props.id} />
+            <small>{'Motor'}</small>
+          </h4>
+          {
+            _.map(this.props.param, obj => (
+              <h4 style={{ float: 'right' }} key={`${obj.param}-${this.props.device_name}`}>
+                {`${obj.param}: ${numeral(obj[obj.kind]).format('+0.00')}`}
+                <ProgressBar now={obj[obj.kind]} min={-100} />
+              </h4>
+            ))
+          }
+        </div>
+      </div>
+    );
+  }
+}
 
 Motor.propTypes = {
-  name: React.PropTypes.string.isRequired,
-  value: React.PropTypes.number.isRequired,
-  id: React.PropTypes.string.isRequired,
+  device_name: React.PropTypes.string,
+  device_type: React.PropTypes.string,
+  id: React.PropTypes.string,
+  param: React.PropTypes.array,
 };
 
 export default Motor;

@@ -35,6 +35,7 @@
     "import/prefer-default-export": 0,
     "import/no-extraneous-dependencies": 0,
     "no-empty": 0,
-    "no-unused-vars": 0
+    "no-unused-vars": 0,
+    "react/prefer-stateless-function": 0
   }
 }

@@ -13,7 +13,6 @@ const peripherals = (state = {}, action) => {
       });
       Object.keys(nextState).forEach((el) => {
         if (keys.indexOf(el) === -1) {
-          console.log(keys);
           delete nextState[el];
         }
       });
@@ -25,9 +24,7 @@ const peripherals = (state = {}, action) => {
     }
     case 'PERIPHERAL_RENAME': {
       nextState[action.id] = state[action.id];
-      console.log(nextState[action.id]);
       nextState[action.id].name = action.name;
-      console.log(nextState[action.id]);
       return nextState;
     }
     default: {

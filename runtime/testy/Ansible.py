@@ -13,10 +13,10 @@ UDP_SEND_PORT = 1235
 UDP_RECV_PORT = 1236
 TCP_PORT = 1234
 
-TCP_HZ = 25
+TCP_HZ = 5.0
 #Only for UDPSend Process
-packagerHZ = 20.0
-socketHZ = 20.0
+packagerHZ = 5.0
+socketHZ = 5.0
 
 @unique
 class THREAD_NAMES(Enum):

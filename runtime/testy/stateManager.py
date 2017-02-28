@@ -40,7 +40,7 @@ class StateManager(object):
       SM_COMMANDS.SEND_ADDR: self.send_addr,
       SM_COMMANDS.ENTER_IDLE: self.enter_idle,
       SM_COMMANDS.ENTER_TELEOP: self.enter_teleop,
-      SM_COMMANDS.ENTER_AUTO: self.enter_auto,
+      SM_COMMANDS.ENTER_AUTO: self.enter_auto
     }
     return commandMapping
 

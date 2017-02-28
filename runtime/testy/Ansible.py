@@ -260,11 +260,12 @@ class TCPClass(AnsibleHandler):
         recvName = THREAD_NAMES.TCP_RECEIVER
         super().__init__(sendName, TCPClass.sender, recvName, TCPClass.receiver, badThingsQueue, stateQueue, pipe)
         stateQueue.put([SM_COMMANDS.SEND_ADDR, [PROCESS_NAMES.TCP_PROCESS]])
-        from_pipe = pipe.recv()
-        self.dawn_ip = from_pipe[0]
+        self.dawn_ip = pipe.recv()[0]
+
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.connect((self.dawn_ip, TCP_PORT))
+
         proto_message = notification_pb2.Notification()
         proto_message.header = notification_pb2.Notification.SENSOR_MAPPING
         with open('namedPeripherals.csv', 'r') as f:

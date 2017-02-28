@@ -39,7 +39,8 @@ class StateManager(object):
       SM_COMMANDS.SEND_ADDR: self.send_addr,
       SM_COMMANDS.ENTER_IDLE: self.enter_idle,
       SM_COMMANDS.ENTER_TELEOP: self.enter_teleop,
-      SM_COMMANDS.ENTER_AUTO: self.enter_auto
+      SM_COMMANDS.ENTER_AUTO: self.enter_auto,
+      SM_COMMANDS.RESET_ADDR: self.reset_addr
     }
     return commandMapping
 
@@ -139,14 +140,14 @@ class StateManager(object):
     self.state.update(new_data)
 
   def set_addr(self, new_addr):
-    print("set addr", new_addr)
     self.state["dawn_addr"] = [new_addr, time.time()]
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.NEW_IP, False))
 
   def send_addr(self, process_name):
-    #print("addr being sent", self.state["dawn_addr"][0])
-    #print(self.state)
     self.processMapping[process_name].send(self.state["dawn_addr"][0])
+
+  def reset_addr(self):
+    self.state["dawn_addr"] = [None, time.time()]
 
   def student_upload(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))

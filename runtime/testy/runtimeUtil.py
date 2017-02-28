@@ -21,7 +21,6 @@ class BAD_EVENTS(Enum):
   ENTER_IDLE                = "Dawn says enter Idle" # TODO: BAD_EVENT best way to do this?
   NEW_IP                    = "Connected to new instance of Dawn"
   DAWN_DISCONNECTED         = "Disconnected to Dawn"
-  RESTART_TCP               = "Restarting TCP connection"
 
 restartEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT, BAD_EVENTS.EMERGENCY_STOP]
 studentErrorEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT]
@@ -78,6 +77,7 @@ class SM_COMMANDS(Enum):
   EMERGENCY_RESTART   = ()
   SET_ADDR            = ()
   SEND_ADDR           = ()
+  RESET_ADDR          = ()
   STUDENT_UPLOAD      = ()
   SEND_CONSOLE        = ()
   ENTER_IDLE          = ()

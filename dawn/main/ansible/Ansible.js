@@ -40,6 +40,7 @@ const tcp = net.createServer((sock) => {
   sock.on('data', (data) => {
     received = true;
     const decoded = Notification.decode(data);
+    console.log('Dawn TCP-Received');
     if (decoded.header === Notification.Type.STUDENT_RECEIVED) {
       RendererBridge.reduxDispatch(notifyChange(uploadStatus.RECEIVED));
     }
@@ -98,6 +99,7 @@ function buildProto(data) {
     default:
       status = StudentCodeStatus.IDLE;
   }
+  console.log(`Student Code Status: ${status}`);
   const gamepads = _.map(_.toArray(data.gamepads), (gamepad) => {
     const axes = _.toArray(gamepad.axes);
     const buttons = _.map(_.toArray(gamepad.buttons), Boolean);
@@ -122,6 +124,7 @@ function buildProto(data) {
 ipcMain.on('stateUpdate', (event, data) => {
   const message = buildProto(data);
   const buffer = message.encode().toBuffer();
+  console.log('Dawn UDP-Sent');
   // Send the buffer over UDP to the robot.
   client.send(buffer, clientPort, runtimeIP, (err) => {
     if (err) {
@@ -140,6 +143,7 @@ ipcMain.on('ipAddress', (event, data) => {
 server.on('message', (msg) => {
   try {
     const data = RuntimeData.decode(msg);
+    console.log('Dawn Received UDP');
     RendererBridge.reduxDispatch(infoPerMessage(data.robot_state));
     RendererBridge.reduxDispatch(updatePeripherals(data.sensor_data));
   } catch (e) {

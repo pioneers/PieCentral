@@ -7,6 +7,8 @@ import traceback
 import re
 import filecmp
 import argparse
+import inspect
+import asyncio
 
 import stateManager
 import studentAPI
@@ -73,34 +75,43 @@ def runtime(testName=""):
         newBadThing = badThingsQueue.get(block=True)
         if newBadThing.event == BAD_EVENTS.NEW_IP and not dawn_connected:
           spawnProcess(PROCESS_NAMES.UDP_SEND_PROCESS, startUDPSender)
-          #spawnProcess(TCP)
+          spawnProcess(PROCESS_NAMES.TCP_PROCESS, startTCP)
           dawn_connected = True
           continue
         elif newBadThing.event == BAD_EVENTS.DAWN_DISCONNECTED and dawn_connected:
+          #TODO Impelement Dawn Timeout in Ansible.py
           terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
-          #terminate_process(tcp)
+          terminate_process(PROCESS_NAMES.TCP_PROCESS)
           dawn_connected = False
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
-          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, testName, maxIter)
+          terminate_process(PROCESS_NAMES.STUDENT_CODE)
+          name = "teleop"
+          if testName:
+              name = testName
+          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, name, maxIter)
           controlState = "teleop"
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_AUTO and controlState != "auto":
-          # spawnProcess(autonomous code)
+          terminate_process(PROCESS_NAMES.STUDENT_CODE)
+          spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, "autonomous")
           controlState = "auto"
           continue
         elif newBadThing.event == BAD_EVENTS.ENTER_IDLE and controlState != "idle":
+          controlState = "idle"
           break
         print(newBadThing.event)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
+          if newBadThing.event in studentErrorEvents:
+            stateQueue.put([SM_COMMANDS.SEND_CONSOLE, [str(newBadThing)]])
+          controlState = "idle"
+          restartCount += 1
           if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
             emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
           break
       stateQueue.put([SM_COMMANDS.RESET, []])
       terminate_process(PROCESS_NAMES.STUDENT_CODE)
-      controlState = "idle"
-      restartCount += 1
     nonTestModePrint(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
     print("TERMINATING")
@@ -136,25 +147,51 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
 
     if testName != "":
       testName += "_"
-    setupFunc = getattr(studentCode, testName + "setup")
-    mainFunc = getattr(studentCode, testName + "main")
+    try:
+      setupFunc = getattr(studentCode, testName + "setup")
+    except AttributeError:
+      raise RuntimeError("Student code failed to define '{}'".format(test_name + "setup"))
+    try:
+      mainFunc = getattr(studentCode, testName + "main")
+    except AttributeError:
+      raise RuntimeError("Student code failed to define '{}'".format(test_name + "main"))
+
+    ensure_is_function(testName + "setup", setupFunc)
+    ensure_is_function(testName + "main", mainFunc)
+    ensure_not_overridden(studentCode, 'Robot')
 
     r = studentAPI.Robot(stateQueue, pipe)
     studentCode.Robot = r
+    studentCode.print = r._print
 
     checkTimedOut(setupFunc)
 
-    # TODO: Replace execCount with a value in stateManager
-    execCount = 0
-    while (not terminated) and (maxIter is None or execCount < maxIter):
-      nextCall = time.time()
-      nextCall += 1.0/RUNTIME_CONFIG.STUDENT_CODE_HZ.value
-      checkTimedOut(mainFunc)
-      stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
-      time.sleep(max(nextCall - time.time(), 0))
-      execCount += 1
+    exception_cell = [None]
+    clarify_coroutine_warnings(exception_cell)
 
-    badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
+    async def main_loop():
+      execCount = 0
+      while (exception_cell[0] is None) and (maxIter is None or execCount < maxIter):
+        next_call = loop.time() + 1. / RUNTIME_CONFIG.STUDENT_CODE_HZ.value
+        checkTimedOut(mainFunc)
+
+        sleep_time = max(next_call - loop.time(), 0.)
+        stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
+        execCount += 1
+        await asyncio.sleep(sleep_time)
+
+      badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
+      if exception_cell[0] is not None:
+        raise exception_cell[0]
+
+    loop = asyncio.get_event_loop()
+
+    def my_exception_handler(loop, context):
+      if exception_cell[0] is None:
+        exception_cell[0] = context['exception']
+
+    loop.set_exception_handler(my_exception_handler)
+    loop.run_until_complete(main_loop())
 
   except TimeoutError:
     badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
@@ -184,6 +221,13 @@ def startUDPReceiver(badThingsQueue, stateQueue, smPipe):
   except Exception as e:
     badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.UDP_RECV_ERROR))
 
+def startTCP(badThingsQueue, stateQueue, smPipe):
+  try:
+    recvClass = Ansible.TCPClass(badThingsQueue, stateQueue, smPipe)
+    recvClass.start()
+  except Exception as e:
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.TCP_ERROR))
+
 def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
   def spawnProcessHelper(processName, helper, *args):
     pipeToChild, pipeFromChild = multiprocessing.Pipe()
@@ -197,6 +241,8 @@ def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
   return spawnProcessHelper
 
 def terminate_process(processName):
+  if processName not in allProcesses:
+      return
   process = allProcesses.pop(processName)
   process.terminate()
   for _ in range(10): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
@@ -229,6 +275,8 @@ def runtimeTest(testNames):
   failedTests = []
 
   for testName in testNames:
+    if testName in ["autonomous", "teleop"]:
+      continue
     testFileName = "%s_output" % (testName,)
     with open(testFileName, "w", buffering = 1) as testOutput:
       print("Running test: {}".format(testName), end="", flush=True)
@@ -242,6 +290,8 @@ def runtimeTest(testNames):
       terminate_process(PROCESS_NAMES.UDP_RECEIVE_PROCESS)
       if PROCESS_NAMES.UDP_SEND_PROCESS in allProcesses:
         terminate_process(PROCESS_NAMES.UDP_SEND_PROCESS)
+      if PROCESS_NAMES.TCP_PROCESS in allProcesses:
+        terminate_process(PROCESS_NAMES.TCP_PROCESS)
       sys.stdout = sys.__stdout__
       print("{}DONE!".format(" "*(50-len(testName))))
     if not testSuccess(testFileName):
@@ -277,6 +327,64 @@ def startHibike(badThingsQueue, stateQueue, pipe):
     hibike.start()
   except Exception as e:
     badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
+
+def ensure_is_function(tag, val):
+  if inspect.iscoroutinefunction(val):
+    raise RuntimeError("{} is defined with `async def` instead of `def`".format(tag))
+  if not inspect.isfunction(val):
+    raise RuntimeError("{} is not a function".format(tag))
+
+def ensure_not_overridden(module, name):
+  if hasattr(module, name):
+    raise RuntimeError("Student code overrides `{}`, which is part of the API".format(name))
+
+def clarify_coroutine_warnings(exception_cell):
+    """
+    Python's default error checking will print warnings of the form:
+        RuntimeWarning: coroutine '???' was never awaited
+
+    This function will will upgrade such a warning to a fatal error, 
+    while also injecting a additional clarification message about possible causes.
+    """
+    import warnings
+
+    default_showwarning = warnings.showwarning
+
+    def custom_showwarning(message, category, filename, lineno, file=None, line=None):
+        default_showwarning(message, category, filename, lineno, line)
+
+        if str(message).endswith('was never awaited'):
+            coro_name = str(message).split("'")[-2]
+
+            print("""
+The PiE API has upgraded the above RuntimeWarning to a runtime error!
+
+This error typically occurs in one of the following cases:
+
+1. Calling `Actions.sleep` or anything in `Actions` without using `await`.
+
+Incorrect code:
+    async def my_coro():
+        Actions.sleep(1.0)
+
+Consider instead:
+    async def my_coro():
+        await Actions.sleep(1.0)
+
+2. Calling an `async def` function from inside `setup` or `loop` without using
+`Robot.run`.
+
+Incorrect code:
+    def loop():
+        my_coro()
+
+Consider instead:
+    def loop():
+        Robot.run(my_coro)
+""".format(coro_name=coro_name), file=file)
+            exception_cell[0] = message
+
+    warnings.showwarning = custom_showwarning
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

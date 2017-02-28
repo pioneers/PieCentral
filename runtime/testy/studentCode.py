@@ -1,11 +1,38 @@
 import time
 from runtimeUtil import *
 
+def autonomous_setup():
+  pass
+
+def autonomous_main():
+  pass
+
+def teleop_setup():
+  pass
+
+def teleop_main():
+  pass
+
 def setup():
   pass
 
 def main():
   pass
+
+def asyncawait_setup():
+  Robot.createKey("right")
+  Robot.createKey("counter")
+  Robot.setValue(3.0, "right") 
+  Robot.setValue(0.0, "counter")
+  Robot.run(asyncawait_helper)
+
+def asyncawait_main():
+  Robot.setValue(Robot.getValue("counter") + 1, "counter")
+  if Robot.getValue("right") == 4 and Robot.getValue("counter") == 3:
+    print("Async Success")
+
+async def asyncawait_helper():
+  Robot.setValue(Robot.getValue("right") + 1, "right")
 
 def test0_setup():
   print("test0_setup")

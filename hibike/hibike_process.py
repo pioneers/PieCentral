@@ -152,13 +152,15 @@ if __name__ == "__main__":
                         ], 0.1)
                 elif hm.devices[hm.uid_to_device_id(uid)]["name"] == "YogiBear":
                     set_interval_sequence([
-                        make_send_write(pipeToChild, uid, [("duty", 0),   ("forward", True)]),
-                        make_send_write(pipeToChild, uid, [("duty", 50),  ("forward", True)]),
-                        make_send_write(pipeToChild, uid, [("duty", 100), ("forward", True)]),
-                        make_send_write(pipeToChild, uid, [("duty", 0),   ("forward", False)]),
-                        make_send_write(pipeToChild, uid, [("duty", 50),  ("forward", False)]),
-                        make_send_write(pipeToChild, uid, [("duty", 100), ("forward", False)])
-                        ], 1)
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0.5)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 1.0)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", -0.5)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", -1.0)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0)])
+
+                        ], 0.75)
                 elif hm.devices[hm.uid_to_device_id(uid)]["name"] == "ServoControl":
                     set_interval_sequence([
                         make_send_write(pipeToChild, uid, [("servo0", 1), ("enable0", False), ("servo1", 21), ("enable1", True), ("servo2", 30), ("enable2", True), ("servo3", 8), ("enable3", True)]),

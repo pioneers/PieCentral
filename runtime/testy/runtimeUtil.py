@@ -15,6 +15,7 @@ class BAD_EVENTS(Enum):
   END_EVENT                 = "Process terminated" # Used for testing
   UDP_SEND_ERROR            = "UDPSend Process Crashed"
   UDP_RECV_ERROR            = "UDPRecv Process Crashed"
+  TCP_ERROR                 = "TCP Process Crashed"
   ENTER_TELEOP              = "Dawn says enter Teleop" # TODO: BAD_EVENT best way to do this?
   ENTER_AUTO                = "Dawn says enter Auto" # TODO: BAD_EVENT best way to do this?
   ENTER_IDLE                = "Dawn says enter Idle" # TODO: BAD_EVENT best way to do this?
@@ -22,6 +23,7 @@ class BAD_EVENTS(Enum):
   DAWN_DISCONNECTED         = "Disconnected to Dawn"
 
 restartEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT, BAD_EVENTS.EMERGENCY_STOP]
+studentErrorEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT]
 
 @unique
 class PROCESS_NAMES(Enum):
@@ -31,6 +33,7 @@ class PROCESS_NAMES(Enum):
   UDP_SEND_PROCESS    = "udpSendProcess"
   UDP_RECEIVE_PROCESS = "udpReceiveProcess"
   HIBIKE              = "hibike"
+  TCP_PROCESS         = "tcpProcess"
 
 @unique
 class HIBIKE_COMMANDS(Enum):
@@ -44,6 +47,11 @@ class HIBIKE_COMMANDS(Enum):
 @unique
 class HIBIKE_RESPONSE(Enum):
   DEVICE_SUBBED = "device_subscribed"
+
+@unique
+class ANSIBLE_COMMANDS(Enum):
+  STUDENT_UPLOAD = "student_upload"
+  CONSOLE        = "console"
 
 @unique
 class SM_COMMANDS(Enum):
@@ -69,6 +77,11 @@ class SM_COMMANDS(Enum):
   EMERGENCY_RESTART   = ()
   SET_ADDR            = ()
   SEND_ADDR           = ()
+  STUDENT_UPLOAD      = ()
+  SEND_CONSOLE        = ()
+  ENTER_IDLE          = ()
+  ENTER_TELEOP        = ()
+  ENTER_AUTO          = ()
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMELIMIT      = 1
@@ -109,4 +122,7 @@ class StudentAPIKeyError(StudentAPIError):
   pass
 
 class TimeoutError(Exception):
+  pass
+
+class RuntimeError(Exception):
   pass

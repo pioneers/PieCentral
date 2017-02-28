@@ -42,6 +42,8 @@ class HIBIKE_COMMANDS(Enum):
   WRITE     = "write_params"
   READ      = "read_params"
   E_STOP    = "stop_command"
+  SET_VAL     = "set_value"
+  DISABLE     = "disable_device"
 
 # TODO: Remove when Hibike is finished
 @unique
@@ -119,6 +121,12 @@ class StudentAPIError(Exception):
   pass
 
 class StudentAPIKeyError(StudentAPIError):
+  pass
+
+class StudentAPIValueError(StudentAPIError):
+  pass
+
+class StudentAPITypeError(StudentAPIError):
   pass
 
 class TimeoutError(Exception):

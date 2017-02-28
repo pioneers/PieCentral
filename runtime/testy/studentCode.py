@@ -8,10 +8,36 @@ def autonomous_main():
   pass
 
 def teleop_setup():
-  pass
+  print("setup")
+  devices = Robot.getValue("hibike", "devices")
+  print(devices)
+  first = sorted(list(devices.keys()))[-1]
+  Robot._hibikeSubscribeDevice(first, 40, ["enable", "duty_cycle"])
+  Robot.hibikeWriteValue(first, [("enable", True)])
+  Robot.hibikeWriteValue(first, [("duty_cycle", 0.0)])
+  Robot.first = first
 
 def teleop_main():
-  pass
+  first = Robot.first
+  gamepad = Robot.getValue("gamepads")
+  button_val = gamepad[0]["buttons"][0]
+  print("button 0:", button_val)
+  try:
+    if button_val:
+      print('writing high')
+      speed = 1.0
+    else:
+      print('writing low')
+      speed = 0.0
+  except StudentAPIKeyError:
+    print("Failed key lookup")
+
+  flip = gamepad[0]["buttons"][1]
+  if flip:
+    speed *= -1
+
+  Robot.hibikeWriteValue(first, [("duty_cycle", speed)])
+
 
 def setup():
   devices = Robot.getValue("hibike", "devices")

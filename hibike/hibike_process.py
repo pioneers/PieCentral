@@ -52,6 +52,11 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     for write_thread in write_threads:
         write_thread.start()
 
+    # Pings all devices and tells them to stop sending data
+    for instruction_queue in instruction_queues:
+        instruction_queue.put(("ping", []))
+        instruction_queue.put(("subscribe", [1, 0, []]))
+
     # the main thread reads instructions from statemanager and forwards them to the appropriate device write threads
     while True:
         instruction, args = pipeFromChild.recv()

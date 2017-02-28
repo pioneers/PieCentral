@@ -156,9 +156,10 @@ class StateManager(object):
     self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.STUDENT_UPLOAD, True])
 
   def send_console(self, console_log):
+    return
     if PROCESS_NAMES.TCP_PROCESS in self.processMapping:
       self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.CONSOLE, console_log])
-      
+
   def enter_auto(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_AUTO, False))
     self.state["studentCodeState"] = [runtime_pb2.RuntimeData.AUTO, time.time()]

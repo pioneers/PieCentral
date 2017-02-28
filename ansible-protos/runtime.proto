@@ -1,20 +1,29 @@
 syntax = "proto3";
 message RuntimeData {
-	enum State {
-		STUDENT_CRASHED = 0;
-		STUDENT_RUNNING = 1;
-		STUDENT_STOPPED = 2;
-		TELEOP = 3;
-		AUTO = 4;
-		ESTOP = 5;
-	}
-	message SensorData {
-		string device_type = 1;
-		string device_name = 2;
-		float value = 3;
-		uint64 uid = 4;
-		uint32 int_device_type = 5; 
-	}
-	State robot_state = 1;
-	repeated SensorData sensor_data = 2;
+    enum State {
+        STUDENT_CRASHED = 0;
+        STUDENT_RUNNING = 1;
+        STUDENT_STOPPED = 2;
+        TELEOP = 3;
+        AUTO = 4;
+        ESTOP = 5;
+    }
+    message ParamValue {
+        string param = 1;
+        oneof kind {
+            float float_value = 2;
+            int32 int_value = 3;
+        }
+    }
+    message SensorData {
+        reserved "value";
+        reserved 3;
+        string device_type = 1;
+        string device_name = 2;
+        uint64 uid = 4;
+        uint32 int_device_type = 5;
+        repeated ParamValue param_value = 6;
+    }
+    State robot_state = 1;
+    repeated SensorData sensor_data = 2;
 }

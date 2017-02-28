@@ -24,7 +24,7 @@ ARDUINO_LIBS := Wire Servo
 
 ### USER_LIB_PATH
 ### Path to where the your project's libraries are stored.
-SKETCH_LIBS = hibike Adafruit_TCS34725 EEPROM
+SKETCH_LIBS = hibike Adafruit_TCS34725 EEPROM SevenSeg TimerOne TimerThree FlexiTimer2 PID_v1 Encoder
 USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
 
 ### BOARD_TAG & BOARD_SUB
@@ -54,7 +54,7 @@ AVRDDUDE          = /usr/bin/avrdude
 CFLAGS_STD        = -std=gnu11
 
 ### CXXFLAGS_STD
-CXXFLAGS_STD      = -std=gnu++11
+CXXFLAGS_STD      = -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics  -flto -fno-devirtualize -fno-use-cxa-atexit
 
 ### CPPFLAGS
 ### Flags you might want to set for debugging purpose. Comment to stop.
@@ -70,7 +70,7 @@ CXXFLAGS += -D UID_RANDOM=$(RANDOM)
 
 CXXFLAGS += -D DESCRIPTOR=$(shell python escape_json.py $(PROJECT_DIR)/devices/$(DEVICE)/*.json)
 
-LOCAL_CPP_SRCS := $(PROJECT_DIR)/devices/$(DEVICE)/*.cpp
+LOCAL_CPP_SRCS := $(wildcard $(PROJECT_DIR)/devices/$(DEVICE)/*.cpp)
 
 ### MONITOR_PORT
 ### The port your board is connected to. Using an '*' tries all the ports and finds the right one.

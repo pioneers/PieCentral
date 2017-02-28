@@ -1,4 +1,8 @@
 import csv
+import asyncio
+import inspect
+import os
+import time
 
 from runtimeUtil import *
 
@@ -7,6 +11,40 @@ class Robot:
     self.fromManager = fromManager
     self.toManager = toManager
     self._createSensorMapping()
+    self._coroutines_running = set()
+
+  def run(self, fn, *args, **kwargs):
+    """
+    Starts a "coroutine", i.e. a series of actions that proceed 
+    independently of the main loop of code.
+
+    The first argument must be a function defined with 'async def'.
+
+    The remaining arguments are then passed to that function before it is
+    called.
+
+    Multiple simultaneous coroutines that use the same robot actuators will
+    lead to surprising behavior. To help guard against errors, calling
+    `run` with a `fn` argument that is currently running is a no-op.
+    """
+
+    if not inspect.isfunction(fn):
+        raise ValueError("First argument to Robot.run must be a function")
+    elif not inspect.iscoroutinefunction(fn):
+        raise ValueError("First argument to Robot.run must be defined with `async def`, not `def`")
+
+    if fn in self._coroutines_running:
+        return
+
+    self._coroutines_running.add(fn)
+
+    future = fn(*args, **kwargs)
+
+    async def wrapped_future():
+        await future
+        self._coroutines_running.remove(fn)
+
+    asyncio.ensure_future(wrapped_future())
 
   def _createSensorMapping(self, filename = 'namedPeripherals.csv'):
     with open(filename, 'r') as f:
@@ -60,3 +98,8 @@ class Robot:
 
   def emergencyStop(self):
     self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])
+
+  def _print(self, *args):
+    print(*args)
+    console_string = " ".join([str(arg) for arg in args])
+    self.toManager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]]) 

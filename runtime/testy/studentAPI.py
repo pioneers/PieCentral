@@ -7,7 +7,7 @@ import time
 from runtimeUtil import *
 
 class Actions:
-  async def sleep(seconds):
+  async def sleep(self, seconds):
     await asyncio.sleep(seconds)
 
 class StudentAPI:

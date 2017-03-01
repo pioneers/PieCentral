@@ -174,3 +174,11 @@ def hibikeSensorMappings_main():
   print(Robot._hibikeGetUID('one'))
   print(Robot._hibikeGetUID('two'))
   print(Robot._hibikeGetUID('three'))
+
+def gamepadGetVal_setup():
+  pass
+
+def gamepadGetVal_main():
+  print("running test")
+  print(Gamepad.get_value("button_a"))
+  print(Gamepad.get_value("joystick_left_x"))

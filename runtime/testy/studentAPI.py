@@ -8,8 +8,8 @@ from runtimeUtil import *
 
 class StudentAPI:
   def __init__(self, toManager, fromManager):
-    self.fromManager = fromManager
-    self.toManager = toManager
+    StudentAPI.fromManager = fromManager
+    StudentAPI.toManager = toManager
 
   def _getSMValue(self, key, *args):
     """Returns the value associated with key
@@ -57,7 +57,10 @@ class Gamepad(StudentAPI):
     "joystick_right_y" : 3
   }
 
-  def get_value(name, gamepad_number=0):
+  def __init__(self):
+    super().__init__(self.toManager, self.fromManager)
+
+  def get_value(self, name, gamepad_number=0):
     gamepad_dict = self._getSMValue('gamepads')[gamepad_number]
     if name in self.joysticks.keys():
       return gamepad_dict["axes"][self.joysticks[name]]

@@ -16,7 +16,7 @@ class StudentAPI:
     """
     self.toManager.put([SM_COMMANDS.GET_VAL, [[key] + list(args)]])
     message = self.fromManager.recv()
-    if isinstance(message, StudentAPIKeyError):
+    if isinstance(message, Exception):
       raise message
     return message
 
@@ -26,7 +26,7 @@ class StudentAPI:
     #statemanager passes exception, then check to see if returned value is exception or not
     self.toManager.put([SM_COMMANDS.SET_VAL, [value, [key] + list(args)]])
     message = self.fromManager.recv()
-    if isinstance(message, StudentAPIKeyError):
+    if isinstance(message, Exception):
       raise message
     return message
 

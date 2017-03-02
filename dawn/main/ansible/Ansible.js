@@ -54,35 +54,33 @@ tcp.listen(tcpPort, () => {
   console.log('Server Bound');
 });
 
+function waitRuntimeConfirm(message, count) {
+  if (count > 3) {
+    console.error('No Confirmation');
+    RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
+  } else if (!received) {
+    runtimeSocket.write(message, () => {
+      console.log('Runtime Notified - Waiting on Confirm');
+    });
+    setTimeout(waitRuntimeConfirm(message, count + 1), 1000);
+  }
+}
+
 
 ipcMain.on('NOTIFY_UPLOAD', (event) => {
   console.log(event);
   const message = new Notification({
     header: Notification.Type.STUDENT_SENT,
     console_output: '',
-  });
-  runtimeSocket.write(message.encode().toBuffer(), () => {
+  }).encode().toBuffer();
+  runtimeSocket.write(message, () => {
     console.log('Runtime Notified');
   });
   received = false;
   RendererBridge.reduxDispatch(notifyChange(uploadStatus.SENT));
-  let count = 0;
-  while ((!received) && count < 3) {
-    runtimeSocket.write(message.encode().toBuffer(), () => {
-      console.log('Runtime Notified');
-    });
-    count += 1;
-    const timestamp = Date.now();
-    while (Date.now() - timestamp < 1000) {
 
-    }
-  }
-  if (!received) {
-    console.error('No Confirmation');
-    RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
-  }
+  waitRuntimeConfirm(message, 0);
 });
-
 
 /**
  * Serialize the data using protocol buffers.

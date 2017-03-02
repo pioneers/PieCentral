@@ -49,7 +49,6 @@ class AppComponent extends React.Component {
   }
 
   addSteps(steps) {
-    const joyride = this.refs.joyride;
     if (!Array.isArray(steps)) {
       steps = [steps];
     }
@@ -57,7 +56,7 @@ class AppComponent extends React.Component {
       return false;
     }
     this.setState((currentState) => {
-      currentState.steps = currentState.steps.concat(joyride.parseSteps(steps));
+      currentState.steps = currentState.steps.concat(steps);
       return currentState;
     });
   }

@@ -13,6 +13,7 @@ const EditorButton = (props) => {
   return (
     <OverlayTrigger placement="top" overlay={tooltip}>
       <Button
+        type="button"
         bsStyle="default"
         bsSize="small"
         onClick={props.onClick}

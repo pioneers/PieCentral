@@ -33,6 +33,7 @@ sudo apt clean -y
 sudo apt autoremove -y
 
 # Install Python packages
+sudo pip3 install -r $HOME/PieCentral/runtime/testy/requirements.txt
 sudo pip3 install -U pyserial pyyaml python-memcached flask flask-socketio eventlet pyusb protobuf
 
 # Install wireless dongle driver

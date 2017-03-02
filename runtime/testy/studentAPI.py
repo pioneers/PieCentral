@@ -74,10 +74,30 @@ class Gamepad(StudentAPI):
       raise StudentAPIKeyError()
 
 class Robot(StudentAPI):
+  deviceType_to_validParams = {
+    0x0A : ["duty_cycle", "enable"], 
+  }
+  param_to_valid_values = {
+    "duty_cycle" : ["float", -1, 1],
+    "enable" : ["boolean"],
+  }
+
   def __init__(self, toManager, fromManager):
     super().__init__(toManager, fromManager)
     self._createSensorMapping()
     self._coroutines_running = set()
+
+  def get_value(self, device_name, param):
+    uid = self._hibikeGetUID(device_name)
+    self._check_params(uid, param)
+    return self._getSMValue('hibike', 'devices', uid, param)
+
+  def set_value(self, device_name, param, value):
+    #TODO Implement parameter checking
+    uid = self._hibikeGetUID(device_name)
+    self._check_params(uid, param)
+    self._check_value(param, value)
+    self.toManager.put([HIBIKE_COMMANDS.WRITE, [uid, [(param, value)]]])
 
   def run(self, fn, *args, **kwargs):
     """
@@ -113,6 +133,19 @@ class Robot(StudentAPI):
       raise StudentAPIValueError("First argument to Robot.run must be defined with `async def`, not `def`")
 
     return fn in self._coroutines_running
+
+  def _check_params(self, uid, param):
+    device_type = uid >> 72
+    valid_params = self.deviceType_to_validParams[device_type]
+    if param not in self.valid_params[device_type]:
+      raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + "".join(valid_params))
+
+  def _check_value(self, param, value):
+    valid_values = self.param_to_valid_values[param]
+    if valid_values[0] == "boolean":
+      return
+    elif valid_values[0] == "float" and not (valid_values[1] < value < valid_values[2]):
+      raise StudentAPIValueError("Invalid value passed in, valid values for this param are: " + str(valid_values[1]) + " to " + str(valid_values[2])
 
   def _createSensorMapping(self, filename = 'namedPeripherals.csv'):
     with open(filename, 'r') as f:

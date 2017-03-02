@@ -78,7 +78,6 @@ ipcMain.on('NOTIFY_UPLOAD', (event) => {
   });
   received = false;
   RendererBridge.reduxDispatch(notifyChange(uploadStatus.SENT));
-
   waitRuntimeConfirm(message, 0);
 });
 

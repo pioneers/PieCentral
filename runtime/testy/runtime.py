@@ -162,8 +162,8 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName="", maxIter=None):
     ensure_not_overridden(studentCode, "Robot")
 
     studentCode.Robot = studentAPI.Robot(stateQueue, pipe)
-    studentCode.Gamepad = studentAPI.Gamepad()
-    studentCode.Actions = studentAPI.Actions()
+    studentCode.Gamepad = studentAPI.Gamepad(stateQueue, pipe)
+    studentCode.Actions = studentAPI.Actions
     studentCode.print = studentCode.Robot._print
 
     checkTimedOut(setupFunc)

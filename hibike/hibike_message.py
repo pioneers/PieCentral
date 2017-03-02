@@ -425,3 +425,9 @@ def uid_to_device_id(uid):
 
 def all_params_for_device_id(id):
   return list(paramMap[id].keys())
+
+def readable(id, param):
+  return paramMap[id][param][2]
+
+def writable(id, param):
+  return paramMap[id][param][3]

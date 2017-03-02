@@ -7,7 +7,7 @@ import atexit
 import time
 
 popens = []
-devices_to_spawn = ["LimitSwitch", "LimitSwitch", "ServoControl", "Potentiometer"]
+devices_to_spawn = ["LimitSwitch", "LimitSwitch", "ServoControl", "Potentiometer", "YogiBear"]
 
 def get_virtual_ports():
     socat = subprocess.Popen(shlex.split("socat -d -d pty,raw,echo=0 pty,raw,echo=0"), stderr=subprocess.PIPE)

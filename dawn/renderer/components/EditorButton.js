@@ -8,7 +8,7 @@ import {
 
 const EditorButton = (props) => {
   const tooltip = (
-    <Tooltip id={`tooltip-button-${props.id}`}>{props.text}</Tooltip>
+    <Tooltip id={`tooltip-editor-button-${props.id}`}>{props.text}</Tooltip>
   );
   return (
     <OverlayTrigger placement="top" overlay={tooltip}>

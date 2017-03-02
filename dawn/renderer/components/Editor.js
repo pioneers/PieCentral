@@ -7,9 +7,9 @@ import {
   MenuItem,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
-import _ from 'lodash';
-import storage from 'electron-json-storage';
 import { remote, ipcRenderer } from 'electron';
+import storage from 'electron-json-storage';
+import _ from 'lodash';
 
 // React-ace extensions and modes
 import 'brace/ext/language_tools';
@@ -27,11 +27,11 @@ import 'brace/theme/solarized_dark';
 import 'brace/theme/solarized_light';
 import 'brace/theme/terminal';
 
-import UpdateBox from './UpdateBox';
 import ConfigBox from './ConfigBox';
 import ConsoleOutput from './ConsoleOutput';
 import EditorButton from './EditorButton';
-import { pathToName, uploadStatus, stateEnum } from '../utils/utils';
+import UpdateBox from './UpdateBox';
+import { pathToName, uploadStatus, stateEnum, defaults } from '../utils/utils';
 
 const Client = require('ssh2').Client;
 
@@ -74,35 +74,37 @@ class Editor extends React.Component {
     };
   }
 
+  /*
+   * Confirmation Dialog on Quit, Stored Editor Settings, Window Size-Editor Re-render
+   */
   componentDidMount() {
-    // If there are unsaved changes and the user tries to close Dawn,
-    // check if they want to save their changes first.
-    window.onbeforeunload = (e) => {
+    window.onbeforeunload = (event) => {
       if (this.hasUnsavedChanges()) {
-        e.returnValue = false;
+        event.returnValue = false; // This forces a confirmation dialog.
         dialog.showMessageBox({
           type: 'warning',
           buttons: ['Save and exit', 'Quit without saving', 'Cancel exit'],
           title: 'You have unsaved changes!',
           message: 'You are trying to exit Dawn, but you have unsaved changes. ' +
           'What do you want to do with your unsaved changes?',
-        }, (res) => {
-          // 'res' is an integer corresponding to index in button list above.
-          if (res === 0) {
+        }, (response) => {
+          // response corresponds to indices in button list above
+          if (response === 0) {
             this.props.onSaveFile();
-            window.onbeforeunload = null;
+            window.onbeforeunload = null; // Prevents Infinite Looping
             currentWindow.close();
-          } else if (res === 1) {
+          } else if (response === 1) {
             window.onbeforeunload = null;
             currentWindow.close();
           } else {
-            console.log('Exit canceled.');
+            console.log('Exit Cancelled');
           }
         });
       }
+      console.log('Dawn Shutdown');
     };
 
-    this.refs.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
+    this.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
 
     storage.get('editorTheme', (err, data) => {
       if (err) throw err;
@@ -114,22 +116,18 @@ class Editor extends React.Component {
       if (!_.isEmpty(data)) this.props.onChangeFontsize(data.editorFontSize);
     });
 
-    // Trigger editor to re-render with window resize
+    // Trigger editor to re-render on window resizing
     window.addEventListener('resize', () => {
       this.setState({ editorHeight: this.getEditorHeight() });
     }, { passive: true });
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextProps !== this.props || nextState !== this.state;
-  }
-
+  /*
+   * ASCII Enforcement
+   */
   onEditorPaste(pasteData) {
-    // Must correct non-ASCII characters, which would crash Runtime.
     let correctedText = pasteData.text;
-    // Normalizing will allow us (in some cases) to preserve ASCII equivalents.
     correctedText = correctedText.normalize('NFD');
-    // Special case to replace fancy quotes.
     correctedText = correctedText.replace(/[”“]/g, '"');
     correctedText = correctedText.replace(/[‘’]/g, "'");
     correctedText = this.correctText(correctedText);
@@ -141,63 +139,55 @@ class Editor extends React.Component {
     return `${String(windowHeight - 160 - (this.props.showConsole * (this.consoleHeight + 40)))}px`;
   }
 
+  // TODO: Take onEditorPaste items and move to utils?
   correctText(text) {
-    // Removes non-ASCII characters from text.
     return text.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
   }
 
   toggleConsole() {
-    if (this.props.showConsole) {
-      this.props.onHideConsole();
-    } else {
-      this.props.onShowConsole();
-    }
-    // must call resize method after changing height of ace editor
-    setTimeout(() => this.refs.CodeEditor.editor.resize(), 0.1);
+    this.props.toggleConsole();
+    // Resize since the console overlaps with the editor, but enough time for console changes
+    setTimeout(() => this.CodeEditor.editor.resize(), 0.1);
   }
 
   upload() {
     const filepath = this.props.filepath;
-    if (filepath == null) {
-      dialog.showMessageBox({
-        type: 'warning',
-        buttons: ['Close'],
-        title: 'No Files',
-        message: 'No file? No upload',
-      });
-      console.log('No file? No upload');
+    if (filepath === null) {
+      this.props.onAlertAdd(
+        'Not Working on a File',
+        'Please save first',
+      );
+      console.log('Upload: Not Working on File');
       return;
     }
-    const correctedText = this.correctText(this.props.editorCode);
-    if (correctedText !== this.props.editorCode) {
+    if (this.correctText(this.props.editorCode) !== this.props.editorCode) {
       this.props.onAlertAdd(
         'Invalid characters detected',
         'Your code has non-ASCII characters, which won\'t work on the robot. ' +
         'Please remove them and try again.',
       );
+      console.log('Upload: Non-ASCII Issue');
       return;
     }
     const conn = new Client();
     conn.on('error', (err) => {
-      dialog.showMessageBox({
-        type: 'warning',
-        buttons: ['Close'],
-        title: 'Connection Issue',
-        message: 'Could Not Connect to Robot',
-      });
+      this.props.onAlertAdd(
+        'Upload Issue',
+        'Robot could not be connected',
+      );
       throw err;
     });
     ipcRenderer.send('NOTIFY_UPLOAD');
     const waiting = () => {
       let count = 0;
       const waitPromise = (resolve, reject) => {
-        if (this.notificationHold === uploadStatus.RECEIVED) {
+        if (this.props.notificationHold === uploadStatus.RECEIVED) {
           resolve();
-        } else if (this.notificationHold === uploadStatus.ERROR || count === 3) {
+        } else if (this.props.notificationHold === uploadStatus.ERROR || count === 3) {
           reject();
         } else {
           count += 1;
-          setTimeout(waitPromise.bind(this, resolve, reject), 30);
+          setTimeout(waitPromise.bind(this, resolve, reject), 2000);
         }
       };
       return new Promise(waitPromise);
@@ -207,41 +197,36 @@ class Editor extends React.Component {
       conn.on('ready', () => {
         conn.sftp((err, sftp) => {
           if (err) {
-            dialog.showMessageBox({
-              type: 'warning',
-              buttons: ['Close'],
-              title: 'Connection Issue',
-              message: 'Could Not Connect to Robot',
-            });
+            this.props.onAlertAdd(
+              'Upload Issue',
+              'SFTP session could not be initiated',
+            );
             throw err;
           }
-          console.log('SSH Connection');
-          sftp.fastPut(filepath, './PiECentral/runtime/testy/studentcode.py', (err2) => {
+          sftp.fastPut(filepath, './PieCentral/runtime/testy/studentcode.py', (err2) => {
             conn.end();
             if (err2) {
-              dialog.showMessageBox({
-                type: 'warning',
-                buttons: ['Close'],
-                title: 'Upload Issue',
-                message: 'Code Upload Failed.',
-              });
+              this.props.onAlertAdd(
+                'Upload Issue',
+                'File failed to be transmitted',
+              );
               throw err2;
             }
           });
         });
       }).connect({
-        debug: (inpt) => { console.log(inpt); },
+        debug: (input) => { console.log(input); },
         host: this.props.ipAddress,
-        port: this.props.port,
-        username: this.props.username,
-        password: this.props.password,
+        port: defaults.PORT,
+        username: defaults.USERNAME,
+        password: defaults.PASSWORD,
       });
     }, () => {
       conn.end();
-      this.onNotifyChange(0);
+      this.props.onNotifyChange(0);
       this.props.onAlertAdd(
-        'TCP ERROR',
-        'No Reply Back from Runtime',
+        'Upload Issue',
+        'Runtime unresponsive',
       );
     });
   }
@@ -309,9 +294,6 @@ class Editor extends React.Component {
           runtimeStatus={this.props.runtimeStatus}
           shouldShow={this.state.showUpdateModal}
           ipAddress={this.props.ipAddress}
-          port={this.props.port}
-          username={this.props.username}
-          password={this.props.password}
           hide={this.toggleUpdateModal}
         />
         <ConfigBox
@@ -428,7 +410,7 @@ class Editor extends React.Component {
           theme={this.props.editorTheme}
           width="100%"
           fontSize={this.props.fontSize}
-          ref="CodeEditor"
+          ref={(input) => { this.CodeEditor = input; }}
           name="CodeEditor"
           height={this.getEditorHeight(window.innerHeight)}
           value={this.props.editorCode}
@@ -462,8 +444,7 @@ Editor.propTypes = {
   onCreateNewFile: React.PropTypes.func,
   onChangeTheme: React.PropTypes.func,
   onChangeFontsize: React.PropTypes.func,
-  onShowConsole: React.PropTypes.func,
-  onHideConsole: React.PropTypes.func,
+  toggleConsole: React.PropTypes.func,
   onClearConsole: React.PropTypes.func,
   onUpdateCodeStatus: React.PropTypes.func,
   onIPChange: React.PropTypes.func,
@@ -471,9 +452,6 @@ Editor.propTypes = {
   runtimeStatus: React.PropTypes.bool,
   connectionStatus: React.PropTypes.bool,
   ipAddress: React.PropTypes.string,
-  port: React.PropTypes.number,
-  username: React.PropTypes.string,
-  password: React.PropTypes.string,
   notificationHold: React.PropTypes.number,
   onNotifyChange: React.PropTypes.func,
 };

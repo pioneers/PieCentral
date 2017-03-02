@@ -11,8 +11,7 @@ import {
   changeFontsize,
 } from '../actions/SettingsActions';
 import {
-  showConsole,
-  hideConsole,
+  toggleConsole,
   clearConsole,
 } from '../actions/ConsoleActions';
 import { addAsyncAlert } from '../actions/AlertActions';
@@ -28,9 +27,6 @@ const mapStateToProps = state => ({
   consoleData: state.studentConsole.consoleData,
   ipAddress: state.info.ipAddress,
   connectionStatus: state.info.connectionStatus,
-  port: state.info.port,
-  username: state.info.username,
-  password: state.info.password,
   notificationHold: state.info.notificationHold,
 });
 
@@ -56,11 +52,8 @@ const mapDispatchToProps = dispatch => ({
   onChangeFontsize: (newFontsize) => {
     dispatch(changeFontsize(newFontsize));
   },
-  onShowConsole: () => {
-    dispatch(showConsole());
-  },
-  onHideConsole: () => {
-    dispatch(hideConsole());
+  toggleConsole: () => {
+    dispatch(toggleConsole());
   },
   onClearConsole: () => {
     dispatch(clearConsole());

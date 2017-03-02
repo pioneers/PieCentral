@@ -35,3 +35,9 @@ export const stateEnum = {
   AUTONOMOUS: 2,
   ESTOP: 3,
 };
+
+export const defaults = {
+  PORT: 22,
+  USERNAME: 'ubuntu',
+  PASSWORD: 'temppwd',
+};

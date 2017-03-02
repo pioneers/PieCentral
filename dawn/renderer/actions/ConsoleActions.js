@@ -11,10 +11,6 @@ export const clearConsole = () => ({
   type: 'CLEAR_CONSOLE',
 });
 
-export const showConsole = () => ({
-  type: 'SHOW_CONSOLE',
-});
-
-export const hideConsole = () => ({
-  type: 'HIDE_CONSOLE',
+export const toggleConsole = () => ({
+  type: 'TOGGLE_CONSOLE',
 });

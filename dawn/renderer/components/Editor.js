@@ -55,7 +55,9 @@ class Editor extends React.Component {
       'terminal',
     ];
     this.toggleConsole = this.toggleConsole.bind(this);
+    this.onEditorPaste = this.onEditorPaste.bind(this);
     this.getEditorHeight = this.getEditorHeight.bind(this);
+    this.correctText = this.correctText.bind(this);
     this.changeTheme = this.changeTheme.bind(this);
     this.increaseFontsize = this.increaseFontsize.bind(this);
     this.decreaseFontsize = this.decreaseFontsize.bind(this);

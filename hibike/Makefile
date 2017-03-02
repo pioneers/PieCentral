@@ -24,7 +24,7 @@ ARDUINO_LIBS := Wire Servo
 
 ### USER_LIB_PATH
 ### Path to where the your project's libraries are stored.
-SKETCH_LIBS = hibike Adafruit_TCS34725 EEPROM
+SKETCH_LIBS = hibike Adafruit_TCS34725 EEPROM SevenSeg
 USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
 
 ### BOARD_TAG & BOARD_SUB
@@ -68,9 +68,7 @@ endif
 RANDOM := 0x$(shell head -c 8 /dev/urandom | xxd -p)
 CXXFLAGS += -D UID_RANDOM=$(RANDOM)
 
-CXXFLAGS += -D DESCRIPTOR=$(shell python escape_json.py $(PROJECT_DIR)/devices/$(DEVICE)/*.json)
-
-LOCAL_CPP_SRCS := $(PROJECT_DIR)/devices/$(DEVICE)/*.cpp
+LOCAL_CPP_SRCS := $(wildcard $(PROJECT_DIR)/devices/$(DEVICE)/*.cpp)
 
 ### MONITOR_PORT
 ### The port your board is connected to. Using an '*' tries all the ports and finds the right one.

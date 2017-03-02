@@ -99,29 +99,29 @@ bool is_calibrated(){
 
 // You must implement this function.
 // It is called when the device receives a Device Data Update packet.
-// Modifies data_update_buf to contain the parameter value.
+// Modifies data to contain the parameter value.
 //    param           -   Parameter index
-//    data_update_buf -   buffer to return data in, little-endian
-//    buf_len         -   Maximum length of the buffer
+//    data -   buffer to return data in, little-endian
+//    len         -   Maximum length of the buffer
 //
 //    return          -   sizeof(param) on success; 0 otherwise
 
 uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
-  if (MAX_PAYLOAD_SIZE - buf_len > sizeof(bool)) {
+  if (MAX_PAYLOAD_SIZE - len > sizeof(bool)) {
     if(param == 0){
-      data_update_buf[0] = unsafe_status;
+      data[0] = unsafe_status;
       return sizeof(bool);
     }
     if(param == 1){
-      data_update_buf[0] = is_calibrated();
+      data[0] = is_calibrated();
       return sizeof(bool);
     }
 
   }
-  if (MAX_PAYLOAD_SIZE - buf_len < sizeof(float) || param >= 8){
+  if (MAX_PAYLOAD_SIZE - len < sizeof(float) || param >= 8){
     return 0;
   }
-  float* float_buf = (float *) data_update_buf;
+  float* float_buf = (float *) data;
   if(param == 2){
     float_buf[0] = v_cell1;
   }
@@ -141,6 +141,6 @@ uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
     float_buf[0] = dv_cell3;
   }
 
-  data_update_buf = (uint8_t*) float_buf;
+  data = (uint8_t*) float_buf;
   return sizeof(float);
 }

@@ -50,6 +50,9 @@ class UpdateBox extends React.Component {
         console.log('SSH Connection');
         sftp.fastPut(this.state.updateFilepath,
           `./updates/${update}`, (err2) => {
+            conn.end();
+            this.setState({ isUploading: false });
+            this.props.hide();
             if (err2) {
               dialog.showMessageBox({
                 type: 'warning',
@@ -68,11 +71,6 @@ class UpdateBox extends React.Component {
       username: this.props.username,
       password: this.props.password,
     });
-    setTimeout(() => {
-      conn.end();
-      this.setState({ isUploading: false });
-      this.props.hide();
-    }, 5000);
   }
 
   disableUploadUpdate() {

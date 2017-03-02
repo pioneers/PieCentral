@@ -188,50 +188,62 @@ class Editor extends React.Component {
       throw err;
     });
     ipcRenderer.send('NOTIFY_UPLOAD');
-    while (this.notificationHold === uploadStatus.SENT) {
-
-    }
-    if (this.notificationHold === uploadStatus.ERROR) {
+    let waiting = () => {
+      let count = 0;
+      const waitPromise = (resolve, reject) => {
+        if (this.notificationHold === uploadStatus.RECEIVED) {
+          resolve();
+        } else if (this.notificationHold === uploadStatus.ERROR || count === 3) {
+          reject();
+        } else {
+          count++;
+          setTimeout(waitPromise.bind(this, resolve, reject), 30);
+        }
+      };
+      return new Promise(waitPromise);
+    };
+    let waitForRuntime = waiting();
+    waitForRuntime.then(() => {
+      conn.on('ready', () => {
+        conn.sftp((err, sftp) => {
+          if (err) {
+            dialog.showMessageBox({
+              type: 'warning',
+              buttons: ['Close'],
+              title: 'Connection Issue',
+              message: 'Could Not Connect to Robot',
+            });
+            throw err;
+          }
+          console.log('SSH Connection');
+          sftp.fastPut(filepath, './PiECentral/runtime/testy/studentcode.py', (err2) => {
+            conn.end();
+            if (err2) {
+              dialog.showMessageBox({
+                type: 'warning',
+                buttons: ['Close'],
+                title: 'Upload Issue',
+                message: 'Code Upload Failed.',
+              });
+              throw err2;
+            }
+          });
+        });
+      }).connect({
+        debug: (inpt) => { console.log(inpt); },
+        host: this.props.ipAddress,
+        port: this.props.port,
+        username: this.props.username,
+        password: this.props.password,
+      });
+    }, () => {
       conn.end();
       this.onNotifyChange(0);
       this.props.onAlertAdd(
         'TCP ERROR',
         'No Reply Back from Runtime',
       );
-      return;
-    }
-    conn.on('ready', () => {
-      conn.sftp((err, sftp) => {
-        if (err) {
-          dialog.showMessageBox({
-            type: 'warning',
-            buttons: ['Close'],
-            title: 'Connection Issue',
-            message: 'Could Not Connect to Robot',
-          });
-          throw err;
-        }
-        console.log('SSH Connection');
-        sftp.fastPut(filepath, './PiECentral/runtime/testy/studentcode.py', (err2) => {
-          if (err2) {
-            dialog.showMessageBox({
-              type: 'warning',
-              buttons: ['Close'],
-              title: 'Upload Issue',
-              message: 'Code Upload Failed.',
-            });
-            throw err2;
-          }
-        });
-      });
-    }).connect({
-      debug: (inpt) => { console.log(inpt); },
-      host: this.props.ipAddress,
-      port: this.props.port,
-      username: this.props.username,
-      password: this.props.password,
     });
-    setTimeout(() => { conn.end(); }, 2000);
   }
 
   startRobot() {

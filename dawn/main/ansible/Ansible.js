@@ -66,21 +66,28 @@ ipcMain.on('NOTIFY_UPLOAD', (event) => {
   });
   received = false;
   RendererBridge.reduxDispatch(notifyChange(uploadStatus.SENT));
-  let count = 0;
-  while ((!received) && count < 3) {
-    runtimeSocket.write(message.encode().toBuffer(), () => {
-      console.log('Runtime Notified');
-    });
-    count += 1;
-    const timestamp = Date.now();
-    while (Date.now() - timestamp < 1000) {
-
-    }
-  }
-  if (!received) {
-    console.error('No Confirmation');
-    RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
-  }
+  const ansibleWait = new Promise((resolve, reject) => {
+    let count = 0;
+    const check = () => {
+      if (received) { resolve(); }
+      else if (count == 3) { reject(); }
+      else {
+        runtimeSocket.write(message.encode().toBuffer(), () => {
+          console.log('Runtime Notified');
+        });
+        count++;
+        setTimeout(check, 100);
+      }
+    };
+    check();
+  });
+  ansibleWait.then(
+    () => {
+      console.log('Success');
+    }, () => {
+      console.error('No Confirmation');
+      RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
+  });
 });
 
 

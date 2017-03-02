@@ -165,6 +165,10 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
 
     r = studentAPI.Robot(stateQueue, pipe)
     studentCode.Robot = r
+    g = studentAPI.Gamepad()
+    studentCode.Gamepad = g
+    a = studentAPI.Actions()
+    studentCode.Actions = a
     studentCode.print = r._print
 
     checkTimedOut(setupFunc)

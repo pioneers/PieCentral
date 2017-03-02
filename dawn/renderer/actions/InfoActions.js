@@ -25,11 +25,6 @@ export const updateCodeStatus = studentCodeStatus => ({
   studentCodeStatus,
 });
 
-export const updateRobotState = robotState => ({
-  type: 'ROBOT_STATE',
-  robotState,
-});
-
 export const ipChange = ipAddress => ({
   type: 'IP_CHANGE',
   ipAddress,

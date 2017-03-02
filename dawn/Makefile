@@ -27,4 +27,4 @@ artifacts:
 	node release.js --platform=win32 --arch=ia32
 	node release.js --platform=darwin --arch=x64
 	node release.js --platform=linux --arch=x64
-	cp ../*.zip ../artifacts
+	cp ../*.zip artifacts

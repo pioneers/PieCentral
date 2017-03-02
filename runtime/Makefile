@@ -1,9 +1,9 @@
 .PHONY: install artifacts-install lint test artifacts
 
 install:
-	cd ../build-deps && wget https://github.com/google/protobuf/releases/download/v3.2.0/protoc-3.2.0-linux-x86_64.zip
-	cd ../build-deps && unzip protoc-3.2.0-linux-x86_64.zip
-	pip3 install protobuf
+	cd build-deps && wget https://github.com/google/protobuf/releases/download/v3.2.0/protoc-3.2.0-linux-x86_64.zip
+	cd build-deps && unzip protoc-3.2.0-linux-x86_64.zip
+	cd testy && pip3 install -r requirements.txt
 
 artifacts-install:
 	$(nop)
@@ -18,4 +18,4 @@ test:
 	cd testy && python3 runtime.py --test optionalTestsWork
 
 artifacts:
-	cp ../DevOps/frankfurter/build/*.tar.gz ../artifacts
+	cp ../DevOps/frankfurter/build/*.tar.gz artifacts

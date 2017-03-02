@@ -188,7 +188,7 @@ class Editor extends React.Component {
       throw err;
     });
     ipcRenderer.send('NOTIFY_UPLOAD');
-    let waiting = () => {
+    const waiting = () => {
       let count = 0;
       const waitPromise = (resolve, reject) => {
         if (this.notificationHold === uploadStatus.RECEIVED) {
@@ -196,13 +196,13 @@ class Editor extends React.Component {
         } else if (this.notificationHold === uploadStatus.ERROR || count === 3) {
           reject();
         } else {
-          count++;
+          count += 1;
           setTimeout(waitPromise.bind(this, resolve, reject), 30);
         }
       };
       return new Promise(waitPromise);
     };
-    let waitForRuntime = waiting();
+    const waitForRuntime = waiting();
     waitForRuntime.then(() => {
       conn.on('ready', () => {
         conn.sftp((err, sftp) => {

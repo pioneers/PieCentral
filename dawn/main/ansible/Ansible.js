@@ -69,13 +69,15 @@ ipcMain.on('NOTIFY_UPLOAD', (event) => {
   const ansibleWait = new Promise((resolve, reject) => {
     let count = 0;
     const check = () => {
-      if (received) { resolve(); }
-      else if (count == 3) { reject(); }
-      else {
+      if (received) {
+        resolve();
+      } else if (count === 3) {
+        reject();
+      } else {
         runtimeSocket.write(message.encode().toBuffer(), () => {
           console.log('Runtime Notified');
         });
-        count++;
+        count += 1;
         setTimeout(check, 100);
       }
     };
@@ -85,8 +87,8 @@ ipcMain.on('NOTIFY_UPLOAD', (event) => {
     () => {
       console.log('Success');
     }, () => {
-      console.error('No Confirmation');
-      RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
+    console.error('No Confirmation');
+    RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
   });
 });
 

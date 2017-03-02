@@ -44,7 +44,7 @@ class UpdateBox extends React.Component {
           </Modal.Header>
           <Modal.Body>
             <FormGroup
-              controlId="formBasicText"
+              controlId="ipAddress"
               validationState={getValidationState(this.state.ipAddress)}
             >
               <ControlLabel>IP Address</ControlLabel>

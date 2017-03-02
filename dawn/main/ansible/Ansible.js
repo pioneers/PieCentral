@@ -159,3 +159,5 @@ server.on('close', () => {
 });
 
 server.bind(serverPort);
+
+export default server;

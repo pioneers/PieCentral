@@ -5,7 +5,7 @@
 import { app, BrowserWindow, Menu } from 'electron';
 import RendererBridge from './RendererBridge';
 import Template from './MenuTemplate/Template';
-import './ansible/Ansible';
+import server from './ansible/Ansible';
 
 let mainWindow; // the window which displays Dawn
 
@@ -26,6 +26,7 @@ app.on('ready', () => {
     if (process.env.NODE_ENV === 'development') {
       console.log(Template[3].submenu[1].kill()); // Find Less Hacky way to kill Fake Runtimes.
     }
+    server.close();
     mainWindow = null;
   });
 

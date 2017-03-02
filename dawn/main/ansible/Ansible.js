@@ -54,44 +54,32 @@ tcp.listen(tcpPort, () => {
   console.log('Server Bound');
 });
 
+function waitRuntimeConfirm(message, count) {
+  if (count > 3) {
+    console.error('No Confirmation');
+    RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
+  } else if (!received) {
+    runtimeSocket.write(message, () => {
+      console.log('Runtime Notified - Waiting on Confirm');
+    });
+    setTimeout(waitRuntimeConfirm(message, count + 1), 1000);
+  }
+}
+
 
 ipcMain.on('NOTIFY_UPLOAD', (event) => {
   console.log(event);
   const message = new Notification({
     header: Notification.Type.STUDENT_SENT,
     console_output: '',
-  });
-  runtimeSocket.write(message.encode().toBuffer(), () => {
+  }).encode().toBuffer();
+  runtimeSocket.write(message, () => {
     console.log('Runtime Notified');
   });
   received = false;
   RendererBridge.reduxDispatch(notifyChange(uploadStatus.SENT));
-  const ansibleWait = new Promise((resolve, reject) => {
-    let count = 0;
-    const check = () => {
-      if (received) {
-        resolve();
-      } else if (count === 3) {
-        reject();
-      } else {
-        runtimeSocket.write(message.encode().toBuffer(), () => {
-          console.log('Runtime Notified');
-        });
-        count += 1;
-        setTimeout(check, 100);
-      }
-    };
-    check();
-  });
-  ansibleWait.then(
-    () => {
-      console.log('Success');
-    }, () => {
-    console.error('No Confirmation');
-    RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
-  });
+  waitRuntimeConfirm(message, 0);
 });
-
 
 /**
  * Serialize the data using protocol buffers.

@@ -8,7 +8,7 @@ const sagaMiddleware = createSagaMiddleware();
 const store = createStore(
   dawnApp,
   compose(
-    applyMiddleware(sagaMiddleware)
+    applyMiddleware(sagaMiddleware),
   ),
 );
 

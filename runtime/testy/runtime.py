@@ -104,7 +104,6 @@ def runtime(testName=""):
           controlState = "idle"
           break
         print(newBadThing.event)
-        print(newBadThing)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
           if newBadThing.event in studentErrorEvents:

@@ -3,7 +3,7 @@
  */
 import seedrandom from 'seedrandom';
 
-const rng = new seedrandom('alertseed');
+const rng = seedrandom('alertseed');
 
 export const addAsyncAlert = (heading, message) => ({
   type: 'ADD_ASYNC_ALERT',

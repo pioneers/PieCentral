@@ -75,7 +75,7 @@ class Gamepad(StudentAPI):
 
 class Robot(StudentAPI):
   deviceType_to_validParams = {
-    0x0A : ["duty_cycle", "enable"], 
+    10 : ["duty_cycle", "enable"], 
   }
   param_to_valid_values = {
     "duty_cycle" : ["float", -1, 1],
@@ -137,7 +137,7 @@ class Robot(StudentAPI):
   def _check_params(self, uid, param):
     device_type = uid >> 72
     valid_params = self.deviceType_to_validParams[device_type]
-    if param not in self.valid_params[device_type]:
+    if param not in valid_params:
       raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + "".join(valid_params))
 
   def _check_value(self, param, value):
@@ -145,7 +145,7 @@ class Robot(StudentAPI):
     if valid_values[0] == "boolean":
       return
     elif valid_values[0] == "float" and not (valid_values[1] < value < valid_values[2]):
-      raise StudentAPIValueError("Invalid value passed in, valid values for this param are: " + str(valid_values[1]) + " to " + str(valid_values[2])
+      raise StudentAPIValueError("Invalid value passed in, valid values for this param are: " + str(valid_values[1]) + " to " + str(valid_values[2]))
 
   def _createSensorMapping(self, filename = 'namedPeripherals.csv'):
     with open(filename, 'r') as f:

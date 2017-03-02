@@ -73,7 +73,7 @@ class StateManager(object):
      "list1" : [[[70, t], ["five", t], [14.3, t]], t],
      "string1" : ["abcde", t],
      "runtime_meta" : [{"studentCode_main_count" : [0, t], "e_stopped" : [False, t]}, t],
-     "hibike" : [{"device_subscribed": [0, t], "devices" : [{0x0A000000000 : [{"duty_cycle": [.5, t]}, t]}, t]}, t],
+     "hibike" : [{"device_subscribed": [0, t], "devices" : [{47223664828696452136960 : [{"duty_cycle": [.5, t]}, t]}, t]}, t],
      "dawn_addr" : [None, t],
      "gamepads" : [{0 : {"axes" : {0:0.5, 1:-0.5, 2:1, 3:-1}, "buttons" : {0:True, 1:False, 2:True, 3:False, 4:True, 5:False}}}, t],
     }

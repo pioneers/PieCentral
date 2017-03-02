@@ -192,3 +192,9 @@ def asyncIsRunning_main():
 async def asyncIsRunningHelper():
   await Actions.sleep(1)
   
+def apiGetVal_setup():
+  pass
+
+def apiGetVal_main():
+  print(Robot.get_value("motor1", "duty_cycle"))
+  

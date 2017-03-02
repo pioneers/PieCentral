@@ -25,28 +25,28 @@ const plugins = [
     VERSION: JSON.stringify(version),
   }),
   new webpack.DefinePlugin({
-    "global.GENTLY": false,
-  })
+    'global.GENTLY': false,
+  }),
 ];
 
 export default [
   {
-    entry: [ 'babel-polyfill', './renderer/index.js' ],
+    entry: ['babel-polyfill', './renderer/index.js'],
     devtool: 'cheap-module-eval-source-map',
-    eslint: {
-      configFile: './.eslintrc',
+    output: {
+      path: path.join(__dirname, 'build'),
+      filename: 'bundle.js',
     },
-    output: { path: __dirname + '/build/', filename: 'bundle.js' },
     target,
     module: modules,
     plugins,
   },
   {
     entry: './main/main-develop.js',
-    eslint: {
-      configFile: './.eslintrc',
+    output: {
+      path: path.join(__dirname, 'build'),
+      filename: 'main.js',
     },
-    output: { path: __dirname + '/build/', filename: 'main.js' },
     target,
     node: {
       __dirname: false,

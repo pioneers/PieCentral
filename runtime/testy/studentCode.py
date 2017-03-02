@@ -156,7 +156,6 @@ def infiniteMainLoop_main():
 def emergencyStop_setup():
   print("E-Stop setup")
 
-
 def emergencyStop_main():
   response = Robot._getSMValue("incrementer")
   response -= 1
@@ -182,3 +181,14 @@ def gamepadGetVal_main():
   print("running test")
   print(Gamepad.get_value("button_a"))
   print(Gamepad.get_value("joystick_left_x"))
+
+def asyncIsRunning_setup():
+  pass
+
+def asyncIsRunning_main():
+  Robot.run(asyncIsRunningHelper)
+  print(Robot.is_running(asyncIsRunningHelper))
+
+async def asyncIsRunningHelper():
+  await Actions.sleep(1)
+  

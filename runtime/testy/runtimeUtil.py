@@ -79,6 +79,9 @@ class SM_COMMANDS(Enum):
   SEND_ADDR           = ()
   STUDENT_UPLOAD      = ()
   SEND_CONSOLE        = ()
+  ENTER_IDLE          = ()
+  ENTER_TELEOP        = ()
+  ENTER_AUTO          = ()
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMELIMIT      = 1
@@ -118,5 +121,14 @@ class StudentAPIError(Exception):
 class StudentAPIKeyError(StudentAPIError):
   pass
 
+class StudentAPIValueError(StudentAPIError):
+  pass
+
+class StudentAPITypeError(StudentAPIError):
+  pass
+
 class TimeoutError(Exception):
+  pass
+
+class RuntimeError(Exception):
   pass

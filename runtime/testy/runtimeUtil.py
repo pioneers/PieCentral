@@ -121,6 +121,12 @@ class StudentAPIError(Exception):
 class StudentAPIKeyError(StudentAPIError):
   pass
 
+class StudentAPIValueError(StudentAPIError):
+  pass
+
+class StudentAPITypeError(StudentAPIError):
+  pass
+
 class TimeoutError(Exception):
   pass
 

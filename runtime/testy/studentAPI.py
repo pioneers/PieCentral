@@ -6,6 +6,10 @@ import time
 
 from runtimeUtil import *
 
+class Actions:
+  async def sleep(self, seconds):
+    await asyncio.sleep(seconds)
+
 class StudentAPI:
   def __init__(self, toManager, fromManager):
     StudentAPI.fromManager = fromManager
@@ -89,13 +93,7 @@ class Robot(StudentAPI):
     lead to surprising behavior. To help guard against errors, calling
     `run` with a `fn` argument that is currently running is a no-op.
     """
-
-    if not inspect.isfunction(fn):
-      raise ValueError("First argument to Robot.run must be a function")
-    elif not inspect.iscoroutinefunction(fn):
-      raise ValueError("First argument to Robot.run must be defined with `async def`, not `def`")
-
-    if fn in self._coroutines_running:
+    if self.is_running(fn):
       return
 
     self._coroutines_running.add(fn)
@@ -107,6 +105,14 @@ class Robot(StudentAPI):
       self._coroutines_running.remove(fn)
 
     asyncio.ensure_future(wrapped_future())
+
+  def is_running(self, fn):
+    if not inspect.isfunction(fn):
+      raise StudentAPIValueError("First argument to Robot.run must be a function")
+    elif not inspect.iscoroutinefunction(fn):
+      raise StudentAPIValueError("First argument to Robot.run must be defined with `async def`, not `def`")
+
+    return fn in self._coroutines_running
 
   def _createSensorMapping(self, filename = 'namedPeripherals.csv'):
     with open(filename, 'r') as f:

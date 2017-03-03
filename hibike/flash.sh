@@ -1,7 +1,7 @@
 #/bin/bash
 
 #make clean doesn't actually work.  Therefore,
-rm -rf ./bin
+cd `dirname $0` && rm -rf ./bin
 
 
 python reset.py /dev/ttyACM*

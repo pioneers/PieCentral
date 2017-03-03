@@ -142,7 +142,10 @@ class Editor extends React.Component {
         detail: 'Your changes will be lost if you don\'t save them.',
       });
 
-      // 'clickedId' is an integer corresponding to index in button list above.
+      // NOTE: For whatever reason, `e.preventDefault()` does not work within
+      // beforeunload events, so we use `e.returnValue = false` instead.
+      //
+      // `clickedId` is the index of the clicked button in the button list above.
       if (clickedId === 0) {
         // FIXME: Figure out a way to make Save and Close, well, close.
         event.returnValue = false;

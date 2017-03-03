@@ -194,15 +194,6 @@ def emergencyStop_main():
   Robot._setSMValue(response, "incrementer")
   print("HIBIKE LOOP")
 
-def hibikeSensorMappings_setup():
-  pass
-
-def hibikeSensorMappings_main():
-  print(Robot._hibikeGetUID('zero'))
-  print(Robot._hibikeGetUID('one'))
-  print(Robot._hibikeGetUID('two'))
-  print(Robot._hibikeGetUID('three'))
-
 def gamepadGetVal_setup():
   pass
 

@@ -5,6 +5,9 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
+cp utils/flash /etc/bash_completion.d/flash.sh
+echo "Setup Tab-complete"
+
 if [ "$(dpkg-query -W -f='${Status}' make 2>/dev/null | grep -c "ok installed")" != 1 ]; then
 	apt-get --assume-yes install make	
 fi

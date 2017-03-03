@@ -9,7 +9,7 @@ def autonomous_main():
 
 def teleop_setup():
   print("setup")
-  devices = Robot.getValue("hibike", "devices")
+  devices = Robot._getValue("hibike", "devices")
   print(devices)
   first = sorted(list(devices.keys()))[-1]
   Robot._hibikeSubscribeDevice(first, 40, ["enable", "duty_cycle"])
@@ -19,8 +19,7 @@ def teleop_setup():
 
 def teleop_main():
   first = Robot.first
-  gamepad = Robot.getValue("gamepads")
-  button_val = gamepad[0]["buttons"][0]
+  button_val = Gamepad.get_value("button_a")
   print("button 0:", button_val)
   try:
     if button_val:
@@ -32,7 +31,7 @@ def teleop_main():
   except StudentAPIKeyError:
     print("Failed key lookup")
 
-  flip = gamepad[0]["buttons"][1]
+  flip = Gamepad.get_value("button_b")
   if flip:
     speed *= -1
 
@@ -40,21 +39,10 @@ def teleop_main():
 
 
 def setup():
-  devices = Robot.getValue("hibike", "devices")
-  print(sorted(list(devices.keys())))
-  print(devices)
-  first = sorted(list(devices.keys()))[1]
-  Robot._hibikeSubscribeDevice(first, 40, ["enable", "duty_cycle"])
-  Robot.hibikeWriteValue(first, [("enable", True)])
-  Robot.hibikeWriteValue(first, [("duty_cycle", 0.0)])
-  Robot.first = first
+  pass
 
 def main():
-  try:
-    print(Robot.getValue("hibike", "devices", Robot.first, "enable"))
-    print(Robot.getValue("hibike", "devices", Robot.first, "duty_cycle"))
-  except StudentAPIKeyError:
-    print("Failed key lookup")
+  pass
 
 def asyncawait_setup():
   Robot.createKey("right")

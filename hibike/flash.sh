@@ -1,5 +1,8 @@
 #/bin/bash
-make clean
+
+#make clean doesn't actually work.  Therefore,
+rm -rf ./bin
+
 
 python reset.py /dev/ttyACM*
 sleep 0.5

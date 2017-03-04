@@ -78,8 +78,8 @@ class Robot(StudentAPI):
     10 : ["duty_cycle", "enable"], 
   }
   param_to_valid_values = {
-    "duty_cycle" : [float, -1, 1],
-    "enable" : [bool],
+    "duty_cycle" : [[float, int], -1, 1],
+    "enable" : [[bool]],
   }
 
   def __init__(self, toManager, fromManager):
@@ -145,7 +145,7 @@ class Robot(StudentAPI):
 
   def _check_value(self, param, value):
     valid_values = self.param_to_valid_values[param]
-    if not isinstance(value, valid_values[0]):
+    if not type(value) in valid_values[0]:
       raise StudentAPIValueError("Invalid value type passed in, valid types for this param are: " + valid_values[0].__name__)
     if valid_values[0] == bool:
       return

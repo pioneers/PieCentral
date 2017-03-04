@@ -114,8 +114,9 @@ def runtime(testName=""):
           if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
             emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
           break
+      stateQueue.put([SM_COMMANDS.RESET, []])
       terminate_process(PROCESS_NAMES.STUDENT_CODE)
-      stateQueue.put([SM_COMMANDS.SET_VAL, [runtime_pb2.RuntimeData.STUDENT_STOPPED, ["studentCodeState"]])
+      stateQueue.put([SM_COMMANDS.SET_VAL, [runtime_pb2.RuntimeData.STUDENT_STOPPED, ["studentCodeState"]]])
     nonTestModePrint(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
     print("TERMINATING")

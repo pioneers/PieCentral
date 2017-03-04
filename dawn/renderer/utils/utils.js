@@ -36,6 +36,16 @@ export const stateEnum = {
   ESTOP: 3,
 };
 
+// TODO: Synchronize this and the above state
+export const runtimeStateEnum = {
+  STUDENT_CRASHED: 0,
+  STUDENT_RUNNING: 1,
+  STUDENT_STOPPED: 2,
+  TELEOP: 3,
+  AUTONOMOUS: 4,
+  ESTOP: 5,
+};
+
 export const defaults = {
   PORT: 22,
   USERNAME: 'ubuntu',

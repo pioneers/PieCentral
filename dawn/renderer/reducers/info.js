@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { stateEnum } from '../utils/utils';
+import { stateEnum, runtimeStateEnum } from '../utils/utils';
 
 const initialInfoState = {
   ipAddress: '192.168.7.2',
@@ -18,8 +18,9 @@ const info = (state = initialInfoState, action) => {
         ...state,
         connectionStatus: true,
         robotState: action.robotState,
-        isRunningCode: (action.robotState === 1 ||
-        action.robotState === 3 || action.robotState === 4),
+        isRunningCode: (action.robotState === runtimeStateEnum.STUDENT_RUNNING ||
+        action.robotState === runtimeStateEnum.TELEOP ||
+        action.robotState === runtimeStateEnum.AUTONOMOUS),
       };
     case 'ANSIBLE_DISCONNECT':
       return {

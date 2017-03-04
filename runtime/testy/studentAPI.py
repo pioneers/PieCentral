@@ -143,7 +143,10 @@ class Robot(StudentAPI):
     self.toManager.put([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])
 
   def _hibikeGetUID(self, name):
-    return self.sensorMappings.get(name)
+    try:
+      return self.sensorMappings.get(name)
+    except:
+      raise StudentAPIKeyError()
 
   def emergencyStop(self):
     self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])

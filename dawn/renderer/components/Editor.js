@@ -31,7 +31,7 @@ import ConfigBox from './ConfigBox';
 import ConsoleOutput from './ConsoleOutput';
 import EditorButton from './EditorButton';
 import UpdateBox from './UpdateBox';
-import { pathToName, uploadStatus, stateEnum, defaults } from '../utils/utils';
+import { pathToName, uploadStatus, robotState, defaults } from '../utils/utils';
 
 const Client = require('ssh2').Client;
 
@@ -232,12 +232,12 @@ class Editor extends React.Component {
   }
 
   startRobot() {
-    this.props.onUpdateCodeStatus(stateEnum.TELEOP);
+    this.props.onUpdateCodeStatus(robotState.TELEOP);
     this.props.onClearConsole();
   }
 
   stopRobot() {
-    this.props.onUpdateCodeStatus(stateEnum.IDLE);
+    this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
   toggleUpdateModal() {
@@ -249,7 +249,7 @@ class Editor extends React.Component {
   }
 
   estop() {
-    this.props.onUpdateCodeStatus(stateEnum.ESTOP);
+    this.props.onUpdateCodeStatus(robotState.ESTOP);
   }
 
   hasUnsavedChanges() {

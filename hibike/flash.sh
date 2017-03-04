@@ -1,5 +1,11 @@
 #/bin/bash
-make clean
+
+#make clean doesn't actually work.  Therefore,
+
+#move to wheverever the flash script is run, 
+#and then (as long i've successfuly moved), remove the compiled bin file.
+cd `dirname $0` && rm -rf ./bin
+
 
 python reset.py /dev/ttyACM*
 sleep 0.5

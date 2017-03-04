@@ -37,7 +37,7 @@ if [ "$(dpkg-query -W -f='${Status}' avr-libc 2>/dev/null | grep -c "ok installe
     apt-get --assume-yes install avr-libc	
 fi
 
-if [ "$(dpkg-query -W -f='${Status}' python-pip 2>/dev/null | grep -c "ok installed")" != 1 ]; then
+if [ "$(dpkg-query -W -f='${Status}' python3-pip 2>/dev/null | grep -c "ok installed")" != 1 ]; then
     apt-get --assume-yes install python3-pip
 fi
 

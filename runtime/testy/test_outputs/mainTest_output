@@ -4,25 +4,17 @@ DAT: 1.0
 Get Info: 1
 Saying hello to the other side
 BAD_EVENTS.STUDENT_CODE_ERROR
-Get Info: 0
+Get Info: 2
 Saying hello to the other side
-DAT: -1.0
-Get Info: -1
+DAT: 1.0
+Get Info: 1
 Saying hello to the other side
-DAT: -0.5
-Get Info: -2
+BAD_EVENTS.STUDENT_CODE_ERROR
+Get Info: 2
 Saying hello to the other side
-DAT: -0.3333333333333333
-BAD_EVENTS.END_EVENT
-Get Info: -3
+DAT: 1.0
+Get Info: 1
 Saying hello to the other side
-DAT: -0.25
-Get Info: -4
-Saying hello to the other side
-DAT: -0.2
-Get Info: -5
-Saying hello to the other side
-DAT: -0.16666666666666666
-BAD_EVENTS.END_EVENT
+BAD_EVENTS.STUDENT_CODE_ERROR
 Funtime Runtime is done having fun.
 TERMINATING

@@ -14,7 +14,7 @@ Creating nested keys
 Success!
 BAD_EVENTS.END_EVENT
 Making sure setValue can't create new key
-ERROR: setValue can create keys :(
+Success!
 Creating key 'Klefki' and setting to value 707
 Success!
 Creating nested keys
@@ -29,7 +29,7 @@ Creating nested keys
 Success!
 BAD_EVENTS.END_EVENT
 Making sure setValue can't create new key
-ERROR: setValue can create keys :(
+Success!
 Creating key 'Klefki' and setting to value 707
 Success!
 Creating nested keys

@@ -35,6 +35,10 @@ sudo chown ubuntu $HOME/bin/*
 sudo chgrp ubuntu $HOME/bin/*
 sudo chmod 755 $HOME/bin/*
 
+# Copy bashrc with aliases
+mv $TMP_DIR/resources/bashrc $HOME/.bashrc
+sudo chmod 644 $HOME/.bashrc
+
 # Update and enable services
 sudo mv $TMP_DIR/resources/runtime.service /lib/systemd/system
 sudo mv $TMP_DIR/resources/update.service /lib/systemd/system

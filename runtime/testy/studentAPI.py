@@ -74,13 +74,24 @@ class Gamepad(StudentAPI):
     raise StudentAPIKeyError()
 
 class Robot(StudentAPI):
-  deviceType_to_validParams = {
-    0  : ["switch0", "switch1", "switch2", "switch3"],
+  deviceType_to_writeParams = {
+    5  : ["s1", "s2", "s3", "s4"],
+    7  : ["servo0", "enable0", "servo1", "enable1"],
+    10 : ["enable", "command_state", "duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos"], 
+  }
+  deviceType_to_readParams = {
+    0  : ["switch0", "switch1", "switch2"],
     1  : ["left", "center", "right"],
-    2  : ["pot0", "pot1", "pot2", "pot3"],
-    4  : ["connected", "total"],
-    7  : ["servo0", "enable0", "servo1", "enable1", "servo2", "enable2", "servo3", "enable3"],
-    10 : ["duty_cycle", "enable"], 
+    2  : ["pot0", "pot1", "pot2"],
+    10 : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"], 
+  }
+  deviceType_to_subscribeParams = {
+    0  : ["switch0", "switch1", "switch2"],
+    1  : ["left", "center", "right"],
+    2  : ["pot0", "pot1", "pot2"],
+    4  : ["total", "safe"],
+    7  : ["servo0", "servo1"],
+    10 : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"], 
   }
   param_to_valid_values = {
     "servo0" : [[int], 0, 180],
@@ -103,14 +114,14 @@ class Robot(StudentAPI):
 
   def get_value(self, device_name, param):
     uid = self._hibikeGetUID(device_name)
-    self._check_params(uid, param)
+    self._check_read_params(uid, param)
     return self._getSMValue('hibike', 'devices', uid, param)
 
   def set_value(self, device_name, param, value):
     #TODO Implement parameter checking
     uid = self._hibikeGetUID(device_name)
     self._check_params(uid, param)
-    self._check_value(param, value)
+    self._check_write_value(param, value)
     self.toManager.put([HIBIKE_COMMANDS.WRITE, [uid, [(param, value)]]])
 
   def run(self, fn, *args, **kwargs):
@@ -148,9 +159,15 @@ class Robot(StudentAPI):
 
     return fn in self._coroutines_running
 
-  def _check_params(self, uid, param):
+  def _check_write_params(self, uid, param):
     device_type = uid >> 72
-    valid_params = self.deviceType_to_validParams[device_type]
+    valid_params = self.deviceType_to_writeParams[device_type]
+    if param not in valid_params:
+      raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + "".join(valid_params))
+
+  def _check_read_params(self, uid, param):
+    device_type = uid >> 72
+    valid_params = self.deviceType_to_readParams[device_type]
     if param not in valid_params:
       raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + "".join(valid_params))
 
@@ -210,9 +227,9 @@ class Robot(StudentAPI):
     self.toManager.put([HIBIKE_COMMANDS.ENUMERATE, []])
 
   def _hibikeSubscribeAll(self):
-    all_devices = self._getSMValue("hibike", "devices")[0]
+    all_devices = self._getSMValue("hibike", "devices")
     for uid in all_devices.keys():
-      self._hibikeSubscribeDevice(uid, 20, deviceType_to_validParams[uid >> 72])
+      self._hibikeSubscribeDevice(uid, 20, self.deviceType_to_subscribeParams[uid >> 72])
 
   def hibikeWriteValue(self, uid, params):
     self.toManager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])

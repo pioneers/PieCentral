@@ -8,8 +8,7 @@
     "build": "better-npm-run build",
     "lint": "eslint .",
     "watch": "webpack --watch --progress",
-    "test": "mocha --compilers js:babel-core/register --recursive renderer/**/test/*.test.js",
-    "devtools": "react-devtools"
+    "test": "mocha --compilers js:babel-core/register --recursive renderer/**/test/*.test.js"
   },
   "betterScripts": {
     "start": {

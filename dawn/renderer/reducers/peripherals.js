@@ -23,7 +23,6 @@ const peripherals = (state = {}, action) => {
       return nextState;
     }
     case 'PERIPHERAL_RENAME': {
-      nextState[action.id] = state[action.id];
       nextState[action.id].name = action.name;
       return nextState;
     }

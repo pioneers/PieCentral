@@ -48,7 +48,7 @@ class GamepadItem extends React.Component {
       <ListGroupItem>
         <div style={{ overflow: 'auto', width: '100%' }}>
           <span style={{ float: 'left' }}>{this.renderHeader()}</span>
-          <Button bsSize="small" onClick={this.openModal} style={{ float: 'right' }}>
+          <Button type="button" bsSize="small" onClick={this.openModal} style={{ float: 'right' }}>
             Details
           </Button>
         </div>

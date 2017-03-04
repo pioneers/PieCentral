@@ -13,10 +13,10 @@ UDP_SEND_PORT = 1235
 UDP_RECV_PORT = 1236
 TCP_PORT = 1234
 
-TCP_HZ = 25
+TCP_HZ = 5.0
 #Only for UDPSend Process
-packagerHZ = 20.0
-socketHZ = 20.0
+packagerHZ = 5.0
+socketHZ = 5.0
 
 @unique
 class THREAD_NAMES(Enum):
@@ -111,7 +111,8 @@ class UDPSendClass(AnsibleHandler):
                 proto_message.robot_state = state['studentCodeState'][0]
                 for uid, values in state['hibike'][0]['devices'][0].items():
                     sensor = proto_message.sensor_data.add()
-                    sensor.uid = uid
+                    # UID (88 bits) - 24 = 64 bits, enough to easily pack for transmission to Dawn
+                    sensor.uid = uid >> 24
                     for param, value in values[0].items():
                         param_value_pair = sensor.param_value.add()
                         param_value_pair.param = param
@@ -212,7 +213,7 @@ class UDPRecvClass(AnsibleHandler):
             received_proto.ParseFromString(data)
             new_state = received_proto.student_code_status
             unpackaged_data["student_code_status"] = [new_state, time.time()]
-            if not self.control_state or new_state != self.control_state:
+            if self.control_state is None or new_state != self.control_state:
                 self.control_state = received_proto.student_code_status
                 sm_state_command = self.sm_mapping[new_state]
                 self.stateQueue.put([sm_state_command, []])
@@ -263,6 +264,7 @@ class TCPClass(AnsibleHandler):
         self.dawn_ip = pipe.recv()[0]
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.connect((self.dawn_ip, TCP_PORT))
 
         proto_message = notification_pb2.Notification()
@@ -330,6 +332,12 @@ class TCPClass(AnsibleHandler):
         try:
             while True:
                 recv_data, addr = self.sock.recvfrom(2048)
+                if recv_data == b'':
+                    badThingsQueue.put(BadThing(sys.exc_info(),
+                    "restarting Ansible Processes due to disconnection",
+                    event = BAD_EVENTS.DAWN_DISCONNECTED,
+                    printStackTrace = False))
+                    break
                 unpackagedData = unpackage(recv_data)
                 stateQueue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
         except Exception as e:

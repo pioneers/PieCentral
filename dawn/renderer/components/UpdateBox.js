@@ -93,11 +93,12 @@ class UpdateBox extends React.Component {
         <Modal.Body>
           <h4>Update Package (tar.gz file)</h4>
           <h5>{this.state.updateFilepath ? this.state.updateFilepath : ''}</h5>
-          <Button onClick={this.chooseUpdate}>Choose File</Button>
+          <Button type="button" onClick={this.chooseUpdate}>Choose File</Button>
           <br />
         </Modal.Body>
         <Modal.Footer>
           <Button
+            type="button"
             bsStyle="primary"
             onClick={this.upgradeSoftware}
             disabled={this.disableUploadUpdate()}

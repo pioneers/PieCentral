@@ -78,8 +78,8 @@ class Robot(StudentAPI):
     10 : ["duty_cycle", "enable"], 
   }
   param_to_valid_values = {
-    "duty_cycle" : ["float", -1, 1],
-    "enable" : ["boolean"],
+    "duty_cycle" : [float, -1, 1],
+    "enable" : [bool],
   }
 
   def __init__(self, toManager, fromManager):
@@ -142,9 +142,11 @@ class Robot(StudentAPI):
 
   def _check_value(self, param, value):
     valid_values = self.param_to_valid_values[param]
-    if valid_values[0] == "boolean":
+    if not isinstance(value, valid_values[0]):
+      raise StudentAPIValueError("Invalid value type passed in, valid types for this param are: " + valid_values[0].__name__)
+    if valid_values[0] == bool:
       return
-    elif valid_values[0] == "float":
+    elif valid_values[0] == float:
       if not (valid_values[1] < value < valid_values[2]):
         raise StudentAPIValueError("Invalid value passed in, valid values for this param are: " + str(valid_values[1]) + " to " + str(valid_values[2]))
 
@@ -178,7 +180,7 @@ class Robot(StudentAPI):
 
   def _hibikeGetUID(self, name):
     try:
-      return self.sensorMappings.get(name)
+      return self.sensorMappings[name]
     except:
       raise StudentAPIKeyError()
 

@@ -16,11 +16,16 @@ _flash.sh()
 {
     local cur prev opts
     COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="$(./utils/device_names.sh)"
- 
-	COMPREPLY=( $(compgen -W "${opts}" -- ${cur}))
-	return 0
+
+    if [[ $(pwd) == *PieCentral/hibike ]]
+    then
+        #ok, i'm located in the right place.  This will prevent the tab-complete from attempting unless i'm in PieCentral/hibike.
+        cur="${COMP_WORDS[COMP_CWORD]}"
+        prev="${COMP_WORDS[COMP_CWORD-1]}"
+        opts="$(./utils/device_names.sh)"
+
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}))
+    fi
+    return 0
 }
 complete -F _flash.sh flash.sh

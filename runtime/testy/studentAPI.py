@@ -75,9 +75,22 @@ class Gamepad(StudentAPI):
 
 class Robot(StudentAPI):
   deviceType_to_validParams = {
+    0  : ["switch0", "switch1", "switch2", "switch3"],
+    1  : ["left", "center", "right"],
+    2  : ["pot0", "pot1", "pot2", "pot3"],
+    4  : ["connected", "total"],
+    7  : ["servo0", "enable0", "servo1", "enable1", "servo2", "enable2", "servo3", "enable3"],
     10 : ["duty_cycle", "enable"], 
   }
   param_to_valid_values = {
+    "servo0" : [[int], 0, 180],
+    "enable0" : [[bool]],
+    "servo1" : [[int], 0, 180],
+    "enable1" : [[bool]],
+    "servo2" : [[int], 0, 180],
+    "enable2" : [[bool]],
+    "servo3" : [[int], 0, 180],
+    "enable3" : [[bool]],
     "duty_cycle" : [[float, int], -1, 1],
     "enable" : [[bool]],
   }
@@ -89,6 +102,7 @@ class Robot(StudentAPI):
     self.hibikeEnumerateDevices()
     # Wait for hibike to respond
     time.sleep(0.5)
+    self.hibikeSubscribeAll()
 
   def get_value(self, device_name, param):
     uid = self._hibikeGetUID(device_name)
@@ -197,6 +211,11 @@ class Robot(StudentAPI):
 
   def hibikeEnumerateDevices(self):
     self.toManager.put([HIBIKE_COMMANDS.ENUMERATE, []])
+
+  def hibikeSubscribeAll(self):
+    all_devices = self._getSMValue("hibike", "devices")[0]
+    for uid in all_devices.keys():
+      self._hibikeSubscribeDevice(uid, 20, deviceType_to_validParams[uid >> 72])
 
   def hibikeWriteValue(self, uid, params):
     self.toManager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])

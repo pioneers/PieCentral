@@ -25,6 +25,9 @@ class Hibike:
     def read(self, uid, params):
         self.pipeTochild.send(["read_params", [uid, params] ])
 
+    def disable(self):
+        #disables all attached devices.
+        self.pipeTochild.send(["disable_all",[]])
 if __name__ == '__main__':
     h = Hibike()
     h.enumerate()

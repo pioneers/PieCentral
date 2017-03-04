@@ -74,6 +74,10 @@ void hibike_loop() {
           toggleLED();
           break;
 
+        case DEVICE_DISABLE:
+          device_disable();
+          break;
+
         case PING:
           send_subscription_response(params, subDelay, &UID);
           break;

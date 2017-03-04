@@ -71,7 +71,10 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
         elif instruction == "read_params":
             uid = args[0]
             if uid in uid_to_index:
-                instruction_queues[uid_to_index[uid]].put(("read", args))            
+                instruction_queues[uid_to_index[uid]].put(("read", args))
+        elif instruction == "disable_all":
+            for instruction_queue in instruction_queues:
+                instruction_queue.put(("disable",[]))            
 
 
 def device_write_thread(ser, queue):
@@ -89,6 +92,8 @@ def device_write_thread(ser, queue):
         elif instruction == "write":
             uid, params_and_values = args
             hm.send(ser, hm.make_device_write(hm.uid_to_device_id(uid), params_and_values))
+        elif instruction == "disable":
+        	hm.send(ser, hm.make_disable())
 
 
 def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):

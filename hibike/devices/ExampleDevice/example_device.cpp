@@ -302,3 +302,29 @@ uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
   }
   return 0;
 }
+
+
+// You must implement this function.
+// It is called when the BBB sends a message to the Smart Device tellinng the Smart Device to disable itself.
+// Consult README.md, section 6, to see what exact functionality is expected out of disable.
+void device_disable() 
+{
+  kumiko = false;
+
+  hazuki = 0;
+  sapphire = 0;
+  reina = 0;
+  asuka = 0;
+  haruka = 0;
+  kaori = 0;
+  natsuki = 0;
+  yuko = 0;
+  mizore = 0;
+  nozomi = 0;
+  shuichi = 0;
+  takuya = 0;
+  riko = 0;
+  aoi = 0;
+  noboru = 0;
+
+}

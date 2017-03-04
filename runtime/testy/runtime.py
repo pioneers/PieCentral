@@ -13,7 +13,6 @@ import asyncio
 import stateManager
 import studentAPI
 import Ansible
-import runtime_pb2
 
 from runtimeUtil import *
 
@@ -116,7 +115,6 @@ def runtime(testName=""):
           break
       stateQueue.put([SM_COMMANDS.RESET, []])
       terminate_process(PROCESS_NAMES.STUDENT_CODE)
-      stateQueue.put([SM_COMMANDS.SET_VAL, [runtime_pb2.RuntimeData.STUDENT_STOPPED, ["studentCodeState"]]])
     nonTestModePrint(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
     print("TERMINATING")

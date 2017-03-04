@@ -99,10 +99,7 @@ class Robot(StudentAPI):
     super().__init__(toManager, fromManager)
     self._createSensorMapping()
     self._coroutines_running = set()
-    self.hibikeEnumerateDevices()
-    # Wait for hibike to respond
-    time.sleep(0.5)
-    self.hibikeSubscribeAll()
+    self._hibikeSubscribeAll()
 
   def get_value(self, device_name, param):
     uid = self._hibikeGetUID(device_name)
@@ -212,7 +209,7 @@ class Robot(StudentAPI):
   def hibikeEnumerateDevices(self):
     self.toManager.put([HIBIKE_COMMANDS.ENUMERATE, []])
 
-  def hibikeSubscribeAll(self):
+  def _hibikeSubscribeAll(self):
     all_devices = self._getSMValue("hibike", "devices")[0]
     for uid in all_devices.keys():
       self._hibikeSubscribeDevice(uid, 20, deviceType_to_validParams[uid >> 72])

@@ -116,8 +116,7 @@ class UDPSendClass(AnsibleHandler):
                     for param, value in values[0].items():
                         param_value_pair = sensor.param_value.add()
                         param_value_pair.param = param
-                        if value[0]:
-                            param_value_pair.float_value = value[0]
+                        param_value_pair.float_value = value[0]
                 return proto_message.SerializeToString() 
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(),

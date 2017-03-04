@@ -77,21 +77,13 @@ class Robot(StudentAPI):
   deviceType_to_writeParams = {
     5  : ["s1", "s2", "s3", "s4"],
     7  : ["servo0", "enable0", "servo1", "enable1"],
-    10 : ["enable", "command_state", "duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos"], 
+    10 : ["enable", "command_state", "duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos"],
   }
   deviceType_to_readParams = {
     0  : ["switch0", "switch1", "switch2"],
     1  : ["left", "center", "right"],
     2  : ["pot0", "pot1", "pot2"],
-    10 : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"], 
-  }
-  deviceType_to_subscribeParams = {
-    0  : ["switch0", "switch1", "switch2"],
-    1  : ["left", "center", "right"],
-    2  : ["pot0", "pot1", "pot2"],
-    4  : ["total", "safe"],
-    7  : ["servo0", "servo1"],
-    10 : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"], 
+    10 : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
   }
   param_to_valid_values = {
     "servo0" : [[int], 0, 180],
@@ -110,7 +102,6 @@ class Robot(StudentAPI):
     super().__init__(toManager, fromManager)
     self._createSensorMapping()
     self._coroutines_running = set()
-    self._hibikeSubscribeAll()
 
   def get_value(self, device_name, param):
     uid = self._hibikeGetUID(device_name)
@@ -225,11 +216,6 @@ class Robot(StudentAPI):
 
   def hibikeEnumerateDevices(self):
     self.toManager.put([HIBIKE_COMMANDS.ENUMERATE, []])
-
-  def _hibikeSubscribeAll(self):
-    all_devices = self._getSMValue("hibike", "devices")
-    for uid in all_devices.keys():
-      self._hibikeSubscribeDevice(uid, 20, self.deviceType_to_subscribeParams[uid >> 72])
 
   def hibikeWriteValue(self, uid, params):
     self.toManager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])

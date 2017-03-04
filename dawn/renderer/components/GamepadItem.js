@@ -127,7 +127,7 @@ class GamepadItem extends React.Component {
 
 GamepadItem.propTypes = {
   gamepad: React.PropTypes.object,
-  index: React.PropTypes.string,
+  index: React.PropTypes.number,
 };
 
 export default GamepadItem;

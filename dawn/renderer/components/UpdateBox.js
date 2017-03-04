@@ -62,19 +62,26 @@ class UpdateBox extends React.Component {
               });
               throw err2;
             } else {
-              conn.exec('./bin/update.sh', (uperr, stream) => {
-                if (uperr) {
-                  dialog.showMessageBox({
-                    type: 'warning',
-                    buttons: ['Close'],
-                    title: 'Upload Issue',
-                    message: 'Running Update Script Failed.',
+              conn.exec('sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service',
+                { pty: true }, (uperr, stream) => {
+                  if (uperr) {
+                    dialog.showMessageBox({
+                      type: 'warning',
+                      buttons: ['Close'],
+                      title: 'Upload Issue',
+                      message: 'Running Update Script Failed.',
+                    });
+                  }
+                  stream.write(`${defaults.PASSWORD}\n`);
+                  stream.on('exit', (code, signal) => {
+                    if (code === 0) {
+                      conn.end();
+                    }
                   });
-                }
-                conn.end();
-                this.setState({ isUploading: false });
-                this.props.hide();
-              });
+                  console.log('Hello');
+                  this.setState({ isUploading: false });
+                  this.props.hide();
+                });
             }
           });
       });

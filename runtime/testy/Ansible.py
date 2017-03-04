@@ -214,7 +214,6 @@ class UDPRecvClass(AnsibleHandler):
             new_state = received_proto.student_code_status
             unpackaged_data["student_code_status"] = [new_state, time.time()]
             if self.control_state is None or new_state != self.control_state:
-                print(new_state, "UDP")
                 self.control_state = received_proto.student_code_status
                 sm_state_command = self.sm_mapping[new_state]
                 self.stateQueue.put([sm_state_command, []])

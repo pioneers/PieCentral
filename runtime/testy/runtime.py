@@ -86,7 +86,7 @@ def runtime(testName=""):
           spawnProcess(PROCESS_NAMES.UDP_RECEIVE_PROCESS, startUDPReceiver)
           dawn_connected = False
           controlState = "idle"
-          continue
+          break
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
           terminate_process(PROCESS_NAMES.STUDENT_CODE)
           name = "teleop"

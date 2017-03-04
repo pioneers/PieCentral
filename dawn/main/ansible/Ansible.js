@@ -10,10 +10,13 @@ import {
 } from '../../renderer/actions/InfoActions';
 import { updatePeripheral } from '../../renderer/actions/PeripheralActions';
 import RendererBridge from '../RendererBridge';
+import { clearConsole, updateConsole } from '../../renderer/actions/ConsoleActions';
+
 
 let runtimeIP = 'localhost';  // '192.168.128.22';
 const clientPort = 1236; // send port
 const serverPort = 1235; // receive port
+const tcpPort = 1237;
 const client = dgram.createSocket('udp4'); // sender
 const server = dgram.createSocket('udp4'); // receiver
 
@@ -23,6 +26,24 @@ const StudentCodeStatus = DawnData.StudentCodeStatus;
 
 const runtimeBuilder = ProtoBuf.loadProtoFile(`${__dirname}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
+
+const NotificationBuilder = ProtoBuf.loadProtoFile(`${protoFolder}/notification.proto`);
+const NotificationData = NotificationBuilder.build('Notification');
+
+const net = require('net');
+
+net.createServer((socket) => {
+  console.log('TCP Connection Up');
+  socket.on('data', (data) => {
+    const consoleOutput = NotificationData.decode(data).toRaw();
+    if (consoleOutput.header === 'CONSOLE_LOGGING') {
+      RendererBridge.reduxDispatch(updateConsole(consoleOutput.console_output));
+    }
+  });
+  socket.on('end', () => {
+    console.log('TCP Connection Ended');
+  });
+}).listen(tcpPort);
 
 /**
  * Serialize the data using protocol buffers.

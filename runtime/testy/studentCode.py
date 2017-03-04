@@ -102,14 +102,6 @@ def createKey_main():
   restarts = Robot._getSMValue("Restarts")
   Robot._setSMValue(restarts+1, "Restarts")
 
-def hibikeSubscribeDevice_setup():
-  pass
-
-def hibikeSubscribeDevice_main():
-  Robot._hibikeSubscribeDevice(1, 2, [3, 4])
-  time.sleep(.01) # Wait for command to propogate to Hibike
-  print(Robot._getSMValue("hibike", "device_subscribed"))
-
 def timestamp_setup():
   pass
 

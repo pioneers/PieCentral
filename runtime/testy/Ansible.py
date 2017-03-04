@@ -111,7 +111,8 @@ class UDPSendClass(AnsibleHandler):
                 proto_message.robot_state = state['studentCodeState'][0]
                 for uid, values in state['hibike'][0]['devices'][0].items():
                     sensor = proto_message.sensor_data.add()
-                    sensor.uid = uid
+                    # UID (88 bits) - 24 = 64 bits, enough to easily pack for transmission to Dawn
+                    sensor.uid = uid >> 24
                     for param, value in values[0].items():
                         param_value_pair = sensor.param_value.add()
                         param_value_pair.param = param

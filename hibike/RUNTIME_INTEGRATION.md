@@ -45,6 +45,9 @@ MetalDetector
 
 - tells hibike to read (poll) specific paramaters of a smart device
 
+`["disable_all",[]]`
+
+- tells hibike to disable all devices.  Consult README.md to explain what disable does.
 
 
 

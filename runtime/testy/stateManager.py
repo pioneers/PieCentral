@@ -156,7 +156,7 @@ class StateManager(object):
     self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.STUDENT_UPLOAD, True])
 
   def send_console(self, console_log):
-    # Short circuit since console sending can't currently keep up with student code logs.
+    #TODO: Fix Console Logging
     return
     if PROCESS_NAMES.TCP_PROCESS in self.processMapping:
       self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.CONSOLE, console_log])

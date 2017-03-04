@@ -78,7 +78,7 @@ function waitRuntimeConfirm(message, count) {
  * When Runtime responds back with confirmation,
  * notifyChange sends received signal (see tcp, received variables)
  */
-ipcMain.on('NOTIFY_UPLOAD', (event) => {
+ipcMain.on('NOTIFY_UPLOAD', () => {
   const message = new Notification({
     header: Notification.Type.STUDENT_SENT,
     console_output: '',

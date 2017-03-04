@@ -73,7 +73,7 @@ class UpdateBox extends React.Component {
                     });
                   }
                   stream.write(`${defaults.PASSWORD}\n`);
-                  stream.on('exit', (code, signal) => {
+                  stream.on('exit', (code) => {
                     if (code === 0) {
                       conn.end();
                     }

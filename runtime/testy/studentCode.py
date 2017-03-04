@@ -9,7 +9,7 @@ def autonomous_main():
 
 def teleop_setup():
   print("setup")
-  devices = Robot._getValue("hibike", "devices")
+  devices = Robot._getSMValue("hibike", "devices")
   print(devices)
   first = sorted(list(devices.keys()))[-1]
   Robot._hibikeSubscribeDevice(first, 40, ["enable", "duty_cycle"])

@@ -9,6 +9,7 @@ env:
 - TEST_DIR=dawn
 - TEST_DIR=runtime
 before_install:
+- mkdir -p artifacts
 - if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then
     export DEPLOY_ARTIFACTS=1;
   fi
@@ -16,7 +17,6 @@ before_install:
     export DEPLOY_ARTIFACTS=1;
   fi
 - pushd $TEST_DIR
-- mkdir -p artifacts
 - mkdir -p build-deps
 - export PATH="$PATH:$PWD/build-deps/bin"
 - popd

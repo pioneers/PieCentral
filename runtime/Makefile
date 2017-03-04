@@ -18,4 +18,4 @@ test:
 	cd testy && python3 runtime.py --test optionalTestsWork
 
 artifacts:
-	cp ../DevOps/frankfurter/build/*.tar.gz artifacts
+	cp ../DevOps/frankfurter/build/*.tar.gz ../artifacts

@@ -6,6 +6,7 @@ import queue
 import glob
 import serial
 import os
+from platform import system
 
 __all__ = ["hibike_process"]
 
@@ -13,8 +14,11 @@ __all__ = ["hibike_process"]
 uid_to_index = {}
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
-
-    ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*")
+    
+    # Last command is included so that it's compatible with OS X Sierra
+    # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
+    # Instead access it through Volumes/vagrant/PieCentral
+    ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("dev/tty.usbmodem*")
 
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
@@ -43,12 +47,15 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     # these threads receive packets from devices and write to statequeue
     read_threads = [threading.Thread(target=device_read_thread, args=(index, ser, iq, None, stateQueue)) for index, (ser, iq) in enumerate(zip(serials, instruction_queues))]
 
-    print(ports)
-
     for read_thread in read_threads:
         read_thread.start()
     for write_thread in write_threads:
         write_thread.start()
+
+    # Pings all devices and tells them to stop sending data
+    for instruction_queue in instruction_queues:
+        instruction_queue.put(("ping", []))
+        instruction_queue.put(("subscribe", [1, 0, []]))
 
     # the main thread reads instructions from statemanager and forwards them to the appropriate device write threads
     while True:
@@ -102,6 +109,8 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
                 stateQueue.put(("device_values", [uid, params_and_values]))
             else:
                 print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
+                print("Telling it to shut up")
+                hm.send(ser, hm.make_subscription_request(1, [], 0))
 
 
 #############

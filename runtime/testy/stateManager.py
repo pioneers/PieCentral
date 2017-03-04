@@ -56,9 +56,10 @@ class StateManager(object):
 
   def makeHibikeResponseMap(self):
     hibikeResponseMapping = {
-      HIBIKE_RESPONSE.DEVICE_SUBBED: self.hibikeResponseDeviceSubbed
+      HIBIKE_RESPONSE.DEVICE_SUBBED: self.hibikeResponseDeviceSubbed,
+      HIBIKE_RESPONSE.DEVICE_VALUES: self.hibikeResponseDeviceValues
     }
-    return hibikeResponseMapping
+    return {k.value: v for k, v in hibikeResponseMapping.items()}
 
   def initRobotState(self):
     t = time.time()
@@ -74,14 +75,15 @@ class StateManager(object):
      "string1" : ["abcde", t],
      "runtime_meta" : [{"studentCode_main_count" : [0, t], "e_stopped" : [False, t]}, t],
      "hibike" : [{"device_subscribed": [0, t], "devices" : [{12345 : [{"sensor0": [1, t]}, t]}, t]}, t],
-     "dawn_addr" : [None, t]
+     "dawn_addr" : [None, t],
+     "gamepads" : [{0 : {"axes" : {0:0.5, 1:-0.5, 2:1, 3:-1}, "buttons" : {0:True, 1:False, 2:True, 3:False, 4:True, 5:False}}}, t],
     }
 
   def addPipe(self, processName, pipe):
     self.processMapping[processName] = pipe
     pipe.send(RUNTIME_CONFIG.PIPE_READY.value)
 
-  def createKey(self, keys):
+  def createKey(self, keys, send=True):
     currDict = self.state
     path = []
     for key in keys:
@@ -98,7 +100,8 @@ class StateManager(object):
     currTime = time.time()
     for item in path:
       item[1] = currTime
-    self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(None)
+    if send:
+      self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(None)
 
   def getValue(self, keys):
     result = self.state
@@ -110,7 +113,7 @@ class StateManager(object):
       error = StudentAPIKeyError(self.dictErrorMessage(i, keys, result))
       self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
 
-  def setValue(self, value, keys):
+  def setValue(self, value, keys, send=True):
     currDict = self.state
     try:
       path = []
@@ -128,10 +131,12 @@ class StateManager(object):
       currTime = time.time();
       for item in path:
         item[1] = currTime
-      self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(value)
+      if send:
+        self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(value)
     except:
       error = StudentAPIKeyError(self.dictErrorMessage(i, keys, currDict))
-      self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
+      if send:
+        self.processMapping[PROCESS_NAMES.STUDENT_CODE].send(error)
 
   def send_ansible(self):
     self.processMapping[PROCESS_NAMES.UDP_SEND_PROCESS].send(self.state)
@@ -149,11 +154,13 @@ class StateManager(object):
   def student_upload(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))
     self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.STUDENT_UPLOAD, True])
- 
+
   def send_console(self, console_log):
+    #TODO: Fix Console Logging
+    return
     if PROCESS_NAMES.TCP_PROCESS in self.processMapping:
       self.processMapping[PROCESS_NAMES.TCP_PROCESS].send([ANSIBLE_COMMANDS.CONSOLE, console_log])
-      
+
   def enter_auto(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_AUTO, False))
     self.state["studentCodeState"] = [runtime_pb2.RuntimeData.AUTO, time.time()]
@@ -189,22 +196,30 @@ class StateManager(object):
     self.state["runtime_meta"][0]["e_stopped"][0] = False
 
   def hibikeEnumerateAll(self, pipe):
-    pipe.send([HIBIKE_COMMANDS.ENUMERATE, []])
+    pipe.send([HIBIKE_COMMANDS.ENUMERATE.value, []])
 
   def hibikeSubscribeDevice(self, pipe, uid, delay, params):
-    pipe.send([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])
+    pipe.send([HIBIKE_COMMANDS.SUBSCRIBE.value, [uid, delay, params]])
 
   def hibikeWriteParams(self, pipe, uid, param_values):
-    pipe.send([HIBIKE_COMMANDS.WRITE, [uid, param_values]])
+    pipe.send([HIBIKE_COMMANDS.WRITE.value, [uid, param_values]])
 
   def hibikeReadParams(self, pipe, uid, params):
-    pipe.send([HIBIKE_COMMANDS.READ, [uid, params]])
+    pipe.send([HIBIKE_COMMANDS.READ.value, [uid, params]])
 
   def hibikeResponseDeviceSubbed(self, uid, delay, params):
+    self.createKey(["hibike", "devices", uid], send=False)
+    for param in params:
+      self.createKey(["hibike", "devices", uid, param], send=False)
+      self.setValue(None, ["hibike", "devices", uid, param], send=False)
     self.state["hibike"][0]["device_subscribed"][0] += 1
 
+  def hibikeResponseDeviceValues(self, uid, params):
+    for key, value in params:
+      self.setValue(value, ["hibike", "devices", uid, key], send=False)
+
   def hibikeEmergencyStop(self, pipe):
-    pipe.send([HIBIKE_COMMANDS.E_STOP, []])
+    pipe.send([HIBIKE_COMMANDS.E_STOP.value, []])
 
   def dictErrorMessage(self, erroredIndex, keys, currDict):
     keyChain = ""

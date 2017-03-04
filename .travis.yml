@@ -1,14 +1,15 @@
 dist: trusty
 sudo: required
-language: node_js
-node_js:
-- "6"
+language: python
+python:
+- "3.5"
 os:
 - linux
 env:
-  - TEST_DIR=dawn
-  - TEST_DIR=runtime
+- TEST_DIR=dawn
+- TEST_DIR=runtime
 before_install:
+- nvm install --lts
 - mkdir -p artifacts
 - if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then
     export DEPLOY_ARTIFACTS=1;
@@ -16,8 +17,10 @@ before_install:
 - if [[ $TEST_DIR = runtime ]] && git tag -l --points-at HEAD | grep runtime; then
     export DEPLOY_ARTIFACTS=1;
   fi
+- pushd $TEST_DIR
 - mkdir -p build-deps
 - export PATH="$PATH:$PWD/build-deps/bin"
+- popd
 install:
 - pushd $TEST_DIR
 - make install
@@ -36,9 +39,9 @@ script:
 branches:
   only:
   - master
-  - /^(dawn)\/.*$/
-  - /^(runtime)\/.*$/
-  - /^(test)\/.*$/
+  - /^dawn\/.*$/
+  - /^runtime\/.*$/
+  - /^test\/.*$/
 deploy:
   provider: releases
   api_key:

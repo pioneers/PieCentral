@@ -5,12 +5,12 @@
 #include "YogiBear.h"
 
 float PIDPos = 0;
-float PIDPosKP = 0;
+float PIDPosKP = 1;
 float PIDPosKI = 0;
 float PIDPosKD = 0;
 
 float PIDVel = 0;
-float PIDVelKP = 0;
+float PIDVelKP = 1;
 float PIDVelKI = 0;
 float PIDVelKD = 0;
 

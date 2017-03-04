@@ -1,6 +1,8 @@
 #include "TimerOne.h"
 #include "motor.h"
 #include "pindefs.h"
+#include "YogiBear.h"
+#include "pid.h"
 //tab to handle all controls issued to the motor including driving and braking
 
 bool motorEnabled = false;
@@ -23,10 +25,12 @@ void motorEnable() {
 
 void motorDisable() {
   digitalWrite(enable_pin, LOW);
+  disablePID();
+  setPWMInput(0);
   motorEnabled = false;
 }
 
-bool readMotorEnabled() {
+bool isMotorEnabled() {
   return motorEnabled;
 }
 

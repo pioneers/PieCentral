@@ -168,10 +168,15 @@ if __name__ == "__main__":
                         ], 0.1)
                 elif hm.devices[hm.uid_to_device_id(uid)]["name"] == "YogiBear":
                     set_interval_sequence([
-                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 1.0)]),
-                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0)]),
-                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 1.0)])
+                        ##This is the test to see if the motor drives correctly
+                        #make_send_write(pipeToChild, uid, [("duty_cycle", 0)]),
+                        #make_send_write(pipeToChild, uid, [("duty_cycle", -1.0)]),
+                        #make_send_write(pipeToChild, uid, [("duty_cycle", 0)]),
+                        #make_send_write(pipeToChild, uid, [("duty_cycle", 1.0)])
 
+
+                        ##This is the test to see if the current curves are correct
+                        make_send_write(pipeToChild, uid, [("duty_cycle", 1.0)])
                         ], 1.5)
                 elif hm.devices[hm.uid_to_device_id(uid)]["name"] == "ServoControl":
                     set_interval_sequence([

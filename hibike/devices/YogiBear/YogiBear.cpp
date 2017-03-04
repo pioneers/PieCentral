@@ -24,8 +24,9 @@ void setup() {
   PIDSetup();
   setup_LEDs();
   test_LEDs();
-  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
-
+  hibike_setup();
+  motorEnable();
+  driveMode = MANUALDRIVE;
 }
 
 /* 
@@ -63,43 +64,17 @@ void loop() {
 
 uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   switch (param) {
-    case ENABLE:
-      if (data[0] == 0) {
-        motorDisable();
-      } else {
-        motorEnable();
-      }
-      return sizeof(bool);
-      break;
 
-    case COMMAND_STATE: 
-      driveMode = data[0];
-
-      switch (driveMode) {
-        case MANUALDRIVE:
-          disablePID();
-          break;
-        case PID_VEL:
-          enableVel();
-          break;
-        case PID_POS:
-          enablePos();
-          break;
-        default:
-          driveMode = MANUALDRIVE;
-          disablePID();
-          break;
-      }
-
-      return sizeof(uint8_t);
-      break;
-
-    case DUTY_CYCLE: 
+    case DUTY_CYCLE:
+      disablePID(); 
+      driveMode = MANUALDRIVE;
       pwmInput = ((float *)data)[0];
       return sizeof(float);
       break;
 
     case PID_POS_SETPOINT: 
+    	driveMode = PID_POS;
+      enablePos();
       setPosSetpoint(((float *)data)[0]);
       return sizeof(float);
       break;
@@ -120,6 +95,8 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
       break;
 
     case PID_VEL_SETPOINT: 
+    	driveMode = PID_VEL;
+      enableVel();
       setVelSetpoint(((float *)data)[0]);
       return sizeof(float);
       break;
@@ -179,15 +156,6 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
   float* float_buf;
 
   switch (param) {
-    case ENABLE:
-      data_update_buf[0] = readMotorEnabled();
-      return sizeof(bool);
-      break;
-
-    case COMMAND_STATE: 
-      data_update_buf[0] = driveMode;
-      return sizeof(uint8_t);
-      break;
 
     case DUTY_CYCLE: 
       float_buf = (float *) data_update_buf;
@@ -251,6 +219,10 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
 
 float readPWMInput() {
   return pwmInput;
+}
+
+void setPWMInput(float pwm) {
+	pwmInput = pwm;
 }
 
 uint8_t readDriveMode() {

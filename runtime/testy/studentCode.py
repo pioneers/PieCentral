@@ -183,6 +183,13 @@ def asyncIsRunning_main():
 
 async def asyncIsRunningHelper():
   await Actions.sleep(1)
+  
+def apiGetVal_setup():
+  Robot.createKey("hibike", "devices", 47223664828696452136960, "duty_cycle")
+  Robot._setSMValue(0.5, "hibike", "devices", 47223664828696452136960, "duty_cycle")
+
+def apiGetVal_main():
+  print(Robot.get_value("motor1", "duty_cycle"))
 
 def optionalTestsDisabled_setup():
   assert False, "This optional test should never be run"

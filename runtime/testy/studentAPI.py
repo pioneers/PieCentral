@@ -74,6 +74,14 @@ class Gamepad(StudentAPI):
       raise StudentAPIKeyError()
 
 class Robot(StudentAPI):
+  deviceType_to_validParams = {
+    10 : ["duty_cycle", "enable"], 
+  }
+  param_to_valid_values = {
+    "duty_cycle" : [float, -1, 1],
+    "enable" : [bool],
+  }
+
   def __init__(self, toManager, fromManager):
     super().__init__(toManager, fromManager)
     self._createSensorMapping()
@@ -81,6 +89,18 @@ class Robot(StudentAPI):
     self.hibikeEnumerateDevices()
     # Wait for hibike to respond
     time.sleep(0.5)
+
+  def get_value(self, device_name, param):
+    uid = self._hibikeGetUID(device_name)
+    self._check_params(uid, param)
+    return self._getSMValue('hibike', 'devices', uid, param)
+
+  def set_value(self, device_name, param, value):
+    #TODO Implement parameter checking
+    uid = self._hibikeGetUID(device_name)
+    self._check_params(uid, param)
+    self._check_value(param, value)
+    self.toManager.put([HIBIKE_COMMANDS.WRITE, [uid, [(param, value)]]])
 
   def run(self, fn, *args, **kwargs):
     """
@@ -117,6 +137,22 @@ class Robot(StudentAPI):
 
     return fn in self._coroutines_running
 
+  def _check_params(self, uid, param):
+    device_type = uid >> 72
+    valid_params = self.deviceType_to_validParams[device_type]
+    if param not in valid_params:
+      raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + "".join(valid_params))
+
+  def _check_value(self, param, value):
+    valid_values = self.param_to_valid_values[param]
+    if not isinstance(value, valid_values[0]):
+      raise StudentAPIValueError("Invalid value type passed in, valid types for this param are: " + valid_values[0].__name__)
+    if valid_values[0] == bool:
+      return
+    elif valid_values[0] == float:
+      if not (valid_values[1] <= value <= valid_values[2]):
+        raise StudentAPIValueError("Invalid value passed in, valid values for this param are: " + str(valid_values[1]) + " to " + str(valid_values[2]))
+
   def _createSensorMapping(self, filename = 'namedPeripherals.csv'):
     with open(filename, 'r') as f:
       sensorMappings = csv.reader(f)
@@ -147,7 +183,7 @@ class Robot(StudentAPI):
 
   def _hibikeGetUID(self, name):
     try:
-      return self.sensorMappings.get(name)
+      return self.sensorMappings[name]
     except:
       raise StudentAPIKeyError()
 

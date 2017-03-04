@@ -69,7 +69,7 @@ class Gamepad(StudentAPI):
     gamepad_dict = self._getSMValue("gamepads")[gamepad_number]
     if name in self.joysticks:
       return gamepad_dict["axes"][self.joysticks[name]]
-    if name in self.buttons:
+    elif name in self.buttons:
       return gamepad_dict["buttons"][self.buttons[name]]
     raise StudentAPIKeyError()
 
@@ -109,7 +109,7 @@ class Robot(StudentAPI):
   def is_running(self, fn):
     if not inspect.isfunction(fn):
       raise StudentAPIValueError("First argument to Robot.run must be a function")
-    if not inspect.iscoroutinefunction(fn):
+    elif not inspect.iscoroutinefunction(fn):
       raise StudentAPIValueError("First argument to Robot.run must be defined with `async def`, not `def`")
 
     return fn in self._coroutines_running

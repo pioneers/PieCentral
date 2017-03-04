@@ -264,14 +264,14 @@ def runtimeTest(testNames):
   testNameRegex = re.compile(".*_setup")
   allTestNames = [testName[:-len("_setup")] for testName in dir(studentCode) if testNameRegex.match(testName)]
 
-  if testNames:
+  if not testNames:
+    print("Running all non-optional tests")
+    testNames = [testName for testName in allTestNames if not testName.startswith('optional')]
+  else:
     for testName in testNames:
       if testName not in allTestNames:
         print("Error: {} not found.".format(testName))
         return
-  else:
-    print("Running all non-optional tests")
-    testNames = [testName for testName in allTestNames if not testName.startswith('optional')]
 
   failCount = 0
   failedTests = []

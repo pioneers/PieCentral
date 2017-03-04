@@ -25,3 +25,5 @@ rm -rf $UPDATES_DIR/frankfurter-update*.tar.gz*
 # an update tarball should have all of the instructions on how to install itself in its
 # install_update.sh script, so we simply defer to it here.
 bash $TMP_DIR/install_update.sh
+
+rm -f ~/updates/*.tar.gz* && rm -rf ~/updates/tmp

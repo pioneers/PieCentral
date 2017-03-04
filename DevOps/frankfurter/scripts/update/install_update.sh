@@ -17,8 +17,10 @@ rm -rf $PIECENTRAL_BACKUP_DIR
 cp -R $HOME/PieCentral $PIECENTRAL_BACKUP_DIR
 rm -r $HOME/PieCentral/runtime
 rm -r $HOME/PieCentral/hibike
+
 mv $TMP_DIR/hibike $HOME/PieCentral
 mv $TMP_DIR/runtime $HOME/PieCentral
+mv $TMP_DIR/resources/update.sh $HOME/bin
 
 sudo chown ubuntu -R $PIECENTRAL_BACKUP_DIR
 sudo chgrp ubuntu -R $PIECENTRAL_BACKUP_DIR

@@ -7,7 +7,7 @@ echo "Don't forget to pull the latest code before running this script!"
 echo "Current commit is: $(git rev-parse HEAD)"
 echo
 
-PIECENTRAL_DIR=$(git rev-prase --show-toplevel)
+PIECENTRAL_DIR=$(git rev-parse --show-toplevel)
 FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
 PROTO_DIR=$PIECENTRAL_DIR/ansible-protos
 BUILD_DIR=$FRANKFURTER_DIR/build

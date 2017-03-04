@@ -1,14 +1,15 @@
 dist: trusty
 sudo: required
-language: node_js
-node_js:
-- "6"
+language: python
+python:
+- "3.6"
 os:
 - linux
 env:
 - TEST_DIR=dawn
 - TEST_DIR=runtime
 before_install:
+- nvm install --lts
 - mkdir -p artifacts
 - if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then
     export DEPLOY_ARTIFACTS=1;

@@ -191,4 +191,15 @@ def asyncIsRunning_main():
 
 async def asyncIsRunningHelper():
   await Actions.sleep(1)
-  
+
+def optionalTestsDisabled_setup():
+  assert False, "This optional test should never be run"
+
+def optionalTestsDisabled_main():
+  assert False, "This optional test should never be run"
+
+def optionalTestsWork_setup():
+  pass
+
+def optionalTestsWork_main():
+  pass

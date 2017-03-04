@@ -270,8 +270,8 @@ def runtimeTest(testNames):
   allTestNames = [testName[:-len("_setup")] for testName in dir(studentCode) if testNameRegex.match(testName)]
 
   if len(testNames) == 0:
-    print("Running all tests")
-    testNames = allTestNames
+    print("Running all non-optional tests")
+    testNames = [testName for testName in allTestNames if not testName.startswith('optional')]
   else:
     for testName in testNames:
       if testName not in allTestNames:

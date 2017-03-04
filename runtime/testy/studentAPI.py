@@ -147,7 +147,7 @@ class Robot(StudentAPI):
     if valid_values[0] == bool:
       return
     elif valid_values[0] == float:
-      if not (valid_values[1] < value < valid_values[2]):
+      if not (valid_values[1] <= value <= valid_values[2]):
         raise StudentAPIValueError("Invalid value passed in, valid values for this param are: " + str(valid_values[1]) + " to " + str(valid_values[2]))
 
   def _createSensorMapping(self, filename = 'namedPeripherals.csv'):

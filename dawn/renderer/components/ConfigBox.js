@@ -21,7 +21,8 @@ class UpdateBox extends React.Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
-  saveChanges() {
+  saveChanges(e) {
+    e.preventDefault();
     this.props.onIPChange(this.state.ipAddress);
     this.props.hide();
   }
@@ -37,35 +38,35 @@ class UpdateBox extends React.Component {
   render() {
     return (
       <Modal show={this.props.shouldShow} onHide={this.props.hide}>
-        <Modal.Header closeButton>
-          <Modal.Title>Configuration</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
+        <Form action="" onSubmit={this.saveChanges}>
+          <Modal.Header closeButton>
+            <Modal.Title>Configuration</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
             <FormGroup
-              controlId="formBasicText"
+              controlId="ipAddress"
               validationState={getValidationState(this.state.ipAddress)}
             >
               <ControlLabel>IP Address</ControlLabel>
               <FormControl
                 type="text"
                 value={this.state.ipAddress}
-                placeholder="i.e 192.168.100.13"
+                placeholder="i.e. 192.168.100.13"
                 onChange={this.handleChange}
               />
               <FormControl.Feedback />
             </FormGroup>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            bsStyle="primary"
-            onClick={this.saveChanges}
-            disabled={this.disableUploadUpdate()}
-          >
-            Update
-          </Button>
-        </Modal.Footer>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button
+              type="submit"
+              bsStyle="primary"
+              disabled={this.disableUploadUpdate()}
+            >
+              Update
+            </Button>
+          </Modal.Footer>
+        </Form>
       </Modal>
     );
   }

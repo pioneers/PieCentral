@@ -270,8 +270,8 @@ def runtimeTest(testNames):
   allTestNames = [testName[:-len("_setup")] for testName in dir(studentCode) if testNameRegex.match(testName)]
 
   if len(testNames) == 0:
-    print("Running all tests")
-    testNames = allTestNames
+    print("Running all non-optional tests")
+    testNames = [testName for testName in allTestNames if not testName.startswith('optional')]
   else:
     for testName in testNames:
       if testName not in allTestNames:
@@ -329,9 +329,18 @@ def startHibike(badThingsQueue, stateQueue, pipe):
   # badThingsQueue - queue to runtime
   # stateQueue - queue to stateManager
   # pipe - pipe from statemanager
+  def addPaths():
+    """Modify sys.path so we can find hibike.
+    """
+    path = os.path.dirname(os.path.abspath(__file__))
+    parent_path = path.rstrip("runtime/testy")
+    hibike = os.path.join(parent_path, "hibike")
+    sys.path.insert(1, hibike)
+
   try:
-    hibike = hibikeSim.HibikeSimulator(badThingsQueue, stateQueue, pipe)
-    hibike.start()
+    addPaths()
+    import hibike_process
+    hibike_process.hibike_process(badThingsQueue, stateQueue, pipe)
   except Exception as e:
     badThingsQueue.put(BadThing(sys.exc_info(), str(e)))
 

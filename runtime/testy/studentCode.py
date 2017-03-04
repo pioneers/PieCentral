@@ -102,14 +102,6 @@ def createKey_main():
   restarts = Robot._getSMValue("Restarts")
   Robot._setSMValue(restarts+1, "Restarts")
 
-def hibikeSubscribeDevice_setup():
-  pass
-
-def hibikeSubscribeDevice_main():
-  Robot._hibikeSubscribeDevice(1, 2, [3, 4])
-  time.sleep(.01) # Wait for command to propogate to Hibike
-  print(Robot._getSMValue("hibike", "device_subscribed"))
-
 def timestamp_setup():
   pass
 
@@ -198,4 +190,15 @@ def apiGetVal_setup():
 
 def apiGetVal_main():
   print(Robot.get_value("motor1", "duty_cycle"))
-  
+
+def optionalTestsDisabled_setup():
+  assert False, "This optional test should never be run"
+
+def optionalTestsDisabled_main():
+  assert False, "This optional test should never be run"
+
+def optionalTestsWork_setup():
+  pass
+
+def optionalTestsWork_main():
+  pass

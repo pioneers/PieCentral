@@ -47,6 +47,7 @@ class HIBIKE_COMMANDS(Enum):
 @unique
 class HIBIKE_RESPONSE(Enum):
   DEVICE_SUBBED = "device_subscribed"
+  DEVICE_VALUES = "device_values"
 
 @unique
 class ANSIBLE_COMMANDS(Enum):

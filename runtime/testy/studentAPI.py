@@ -96,6 +96,13 @@ class Robot(StudentAPI):
     "enable3" : [[bool]],
     "duty_cycle" : [[float, int], -1, 1],
     "enable" : [[bool]],
+    "pid_pos_setpoint" :[[float, int], -float("inf"), float("inf")],
+    "pid_pos_kp" : [[float, int], 0, float("inf")],
+    "pid_pos_ki" : [[float, int], 0, float("inf")],
+    "pid_pos_kd" : [[float, int], 0, float("inf")],
+    "command_state" : [[int], 0, 2],
+    "current_thresh" : [[float, int], 2, 10],
+    "enc_pos" : [[float, int], 0, 0],
   }
 
   def __init__(self, toManager, fromManager):
@@ -111,8 +118,8 @@ class Robot(StudentAPI):
   def set_value(self, device_name, param, value):
     #TODO Implement parameter checking
     uid = self._hibikeGetUID(device_name)
-    self._check_params(uid, param)
-    self._check_write_value(param, value)
+    self._check_write_params(uid, param)
+    self._check_value(param, value)
     self.toManager.put([HIBIKE_COMMANDS.WRITE, [uid, [(param, value)]]])
 
   def run(self, fn, *args, **kwargs):
@@ -166,9 +173,9 @@ class Robot(StudentAPI):
     valid_values = self.param_to_valid_values[param]
     if not type(value) in valid_values[0]:
       raise StudentAPIValueError("Invalid value type passed in, valid types for this param are: " + valid_values[0].__name__)
-    if valid_values[0] == bool:
+    if valid_values[0][0] == bool:
       return
-    elif valid_values[0] == float:
+    elif valid_values[0][0] == float or valid_values[0][0] == int:
       if not (valid_values[1] <= value <= valid_values[2]):
         raise StudentAPIValueError("Invalid value passed in, valid values for this param are: " + str(valid_values[1]) + " to " + str(valid_values[2]))
 

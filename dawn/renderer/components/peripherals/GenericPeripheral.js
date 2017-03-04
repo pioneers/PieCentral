@@ -1,35 +1,39 @@
 import React from 'react';
+import _ from 'lodash';
 import NameEditContainer from '../NameEditContainer';
 
 /**
  * A generic peripheral, used when the peripheralType is unknown.
  */
-const GenericPeripheral = props => (
-  <div style={{ overflow: 'auto' }}>
-    <div style={{ overflow: 'auto', width: '100' }}>
-      <h4 style={{ float: 'left' }}>
-        <NameEditContainer name={props.name} id={props.id} />
-        <small>{props.peripheralType}</small>
-      </h4>
-      <h4 style={{ float: 'right' }}>
-        {props.value}
-      </h4>
+const GenericPeripheral = (props) => {
+  return (
+    <div style={{ overflow: 'auto' }}>
+      <div style={{ overflow: 'auto', width: '100%' }}>
+        <h4 style={{ float: 'left' }}>
+          <NameEditContainer name={props.device_name} id={props.id} />
+          <small>{props.device_type}</small>
+        </h4>
+        {
+          _.map(props.param, obj => (
+            <h4 style={{ float: 'right' }} key={`${obj.param}-${props.device_name}`} >
+              {`${obj.param}: ${obj[obj.kind]}`}
+            </h4>
+          ))
+        }
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 GenericPeripheral.propTypes = {
-  name: React.PropTypes.string.isRequired,
-  id: React.PropTypes.string.isRequired,
-  peripheralType: React.PropTypes.string.isRequired,
-  value: React.PropTypes.oneOfType([
-    React.PropTypes.string,
-    React.PropTypes.number,
-  ]).isRequired,
+  device_name: React.PropTypes.string,
+  device_type: React.PropTypes.string,
+  id: React.PropTypes.string,
+  param: React.PropTypes.array,
 };
 
 GenericPeripheral.defaultProps = {
-  peripheralType: 'peripheralType was undefined',
+  device_type: 'Undefined Type',
 };
 
 export default GenericPeripheral;

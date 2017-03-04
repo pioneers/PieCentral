@@ -22,3 +22,32 @@ export const getValidationState = (testIPAddress) => {
   }
   return 'error';
 };
+
+export const uploadStatus = {
+  RECEIVED: 0,
+  SENT: 1,
+  ERROR: 2,
+};
+
+export const stateEnum = {
+  IDLE: 0,
+  TELEOP: 1,
+  AUTONOMOUS: 2,
+  ESTOP: 3,
+};
+
+// TODO: Synchronize this and the above state
+export const runtimeStateEnum = {
+  STUDENT_CRASHED: 0,
+  STUDENT_RUNNING: 1,
+  STUDENT_STOPPED: 2,
+  TELEOP: 3,
+  AUTONOMOUS: 4,
+  ESTOP: 5,
+};
+
+export const defaults = {
+  PORT: 22,
+  USERNAME: 'ubuntu',
+  PASSWORD: 'temppwd',
+};

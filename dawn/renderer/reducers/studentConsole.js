@@ -22,15 +22,10 @@ const studentConsole = (state = initialState, action) => {
         ...state,
         consoleData: [],
       };
-    case 'SHOW_CONSOLE':
+    case 'TOGGLE_CONSOLE':
       return {
         ...state,
-        showConsole: true,
-      };
-    case 'HIDE_CONSOLE':
-      return {
-        ...state,
-        showConsole: false,
+        showConsole: !state.showConsole,
       };
     default:
       return state;

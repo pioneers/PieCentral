@@ -4,7 +4,7 @@ import {
   Button,
 } from 'react-bootstrap';
 import { remote } from 'electron';
-import { pathToName } from '../utils/utils';
+import { pathToName, defaults } from '../utils/utils';
 
 const dialog = remote.dialog;
 const Client = require('ssh2').Client;
@@ -51,6 +51,9 @@ class UpdateBox extends React.Component {
         sftp.fastPut(this.state.updateFilepath,
           `./updates/${update}`, (err2) => {
             if (err2) {
+              conn.end();
+              this.setState({ isUploading: false });
+              this.props.hide();
               dialog.showMessageBox({
                 type: 'warning',
                 buttons: ['Close'],
@@ -58,21 +61,37 @@ class UpdateBox extends React.Component {
                 message: 'Update File Upload Failed.',
               });
               throw err2;
+            } else {
+              conn.exec('sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service',
+                { pty: true }, (uperr, stream) => {
+                  if (uperr) {
+                    dialog.showMessageBox({
+                      type: 'warning',
+                      buttons: ['Close'],
+                      title: 'Upload Issue',
+                      message: 'Running Update Script Failed.',
+                    });
+                  }
+                  stream.write(`${defaults.PASSWORD}\n`);
+                  stream.on('exit', (code) => {
+                    if (code === 0) {
+                      conn.end();
+                    }
+                  });
+                  console.log('Hello');
+                  this.setState({ isUploading: false });
+                  this.props.hide();
+                });
             }
           });
       });
     }).connect({
       debug: (inpt) => { console.log(inpt); },
       host: this.props.ipAddress,
-      port: this.props.port,
-      username: this.props.username,
-      password: this.props.password,
+      port: defaults.PORT,
+      username: defaults.USERNAME,
+      password: defaults.PASSWORD,
     });
-    setTimeout(() => {
-      conn.end();
-      this.setState({ isUploading: false });
-      this.props.hide();
-    }, 5000);
   }
 
   disableUploadUpdate() {
@@ -118,9 +137,6 @@ UpdateBox.propTypes = {
   runtimeStatus: React.PropTypes.bool.isRequired,
   isRunningCode: React.PropTypes.bool.isRequired,
   ipAddress: React.PropTypes.string.isRequired,
-  port: React.PropTypes.number.isRequired,
-  username: React.PropTypes.string.isRequired,
-  password: React.PropTypes.string.isRequired,
 };
 
 export default UpdateBox;

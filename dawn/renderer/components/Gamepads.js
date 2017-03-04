@@ -9,7 +9,7 @@ const Gamepads = (props) => {
   if (_.some(props.gamepads, gamepad => gamepad !== undefined)) {
     interior = _.map(
       props.gamepads,
-      (gamepad, index) => <GamepadItem key={index} index={index} gamepad={gamepad} />,
+      (gamepad, index) => <GamepadItem key={index} index={parseInt(index, 10)} gamepad={gamepad} />,
     );
   } else {
     interior = (

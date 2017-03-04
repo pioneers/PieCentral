@@ -1,11 +1,7 @@
-/**
- * Defines the debug menu.
- */
-
 import { fork } from 'child_process';
 import RendererBridge from '../RendererBridge';
 
-// Reference to the child process for FakeRuntime.
+// Fake Runtime Instance
 let child = null;
 
 const DebugMenu = {
@@ -20,23 +16,20 @@ const DebugMenu = {
   ],
 };
 
-// In development mode, allow reloading to see effects of code changes.
 if (process.env.NODE_ENV === 'development') {
   DebugMenu.submenu.unshift({
     label: 'Toggle Fake Runtime',
-    kill() {
+    kill() { // Also called by main-develop.js
       if (child) {
         child.kill();
         child = null;
       }
-      return 'Done';
+      return 'Fake Runtime Killed';
     },
     click() {
       if (child) {
         child.kill();
-        child = null;
       } else {
-        // Fork FakeRuntime as a child process
         child = fork('./fake-runtime/FakeRuntime');
       }
     },

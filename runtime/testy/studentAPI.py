@@ -7,16 +7,17 @@ import time
 from runtimeUtil import *
 
 class Actions:
-  async def sleep(self, seconds):
+  @staticmethod
+  async def sleep(seconds):
     await asyncio.sleep(seconds)
 
 class StudentAPI:
   def __init__(self, toManager, fromManager):
-    StudentAPI.fromManager = fromManager
-    StudentAPI.toManager = toManager
+    self.fromManager = fromManager
+    self.toManager = toManager
 
   def _getSMValue(self, key, *args):
-    """Returns the value associated with key
+    """Returns the value associated with key.
     """
     self.toManager.put([SM_COMMANDS.GET_VAL, [[key] + list(args)]])
     message = self.fromManager.recv()
@@ -25,7 +26,7 @@ class StudentAPI:
     return message
 
   def _setSMValue(self, value, key, *args):
-    """Sets the value associated with key
+    """Sets the value associated with key.
     """
     #statemanager passes exception, then check to see if returned value is exception or not
     self.toManager.put([SM_COMMANDS.SET_VAL, [value, [key] + list(args)]])
@@ -61,17 +62,16 @@ class Gamepad(StudentAPI):
     "joystick_right_y" : 3
   }
 
-  def __init__(self):
-    super().__init__(self.toManager, self.fromManager)
+  def __init__(self, toManager, fromManager):
+    super().__init__(toManager, fromManager)
 
   def get_value(self, name, gamepad_number=0):
-    gamepad_dict = self._getSMValue('gamepads')[gamepad_number]
-    if name in self.joysticks.keys():
+    gamepad_dict = self._getSMValue("gamepads")[gamepad_number]
+    if name in self.joysticks:
       return gamepad_dict["axes"][self.joysticks[name]]
-    elif name in self.buttons.keys():
+    elif name in self.buttons:
       return gamepad_dict["buttons"][self.buttons[name]]
-    else:
-      raise StudentAPIKeyError()
+    raise StudentAPIKeyError()
 
 class Robot(StudentAPI):
   deviceType_to_validParams = {
@@ -104,7 +104,7 @@ class Robot(StudentAPI):
 
   def run(self, fn, *args, **kwargs):
     """
-    Starts a "coroutine", i.e. a series of actions that proceed 
+    Starts a "coroutine", i.e. a series of actions that proceed
     independently of the main loop of code.
 
     The first argument must be a function defined with 'async def'.
@@ -153,8 +153,8 @@ class Robot(StudentAPI):
       if not (valid_values[1] <= value <= valid_values[2]):
         raise StudentAPIValueError("Invalid value passed in, valid values for this param are: " + str(valid_values[1]) + " to " + str(valid_values[2]))
 
-  def _createSensorMapping(self, filename = 'namedPeripherals.csv'):
-    with open(filename, 'r') as f:
+  def _createSensorMapping(self, filename="namedPeripherals.csv"):
+    with open(filename, "r") as f:
       sensorMappings = csv.reader(f)
       self.sensorMappings = {name: int(uid) for name, uid in sensorMappings}
 
@@ -168,7 +168,7 @@ class Robot(StudentAPI):
       raise message
 
   def getTimestamp(self, key, *args):
-    """Returns the value associated with key
+    """Returns the value associated with key.
     """
     self.toManager.put([SM_COMMANDS.GET_TIME, [[key] + list(args)]])
     message = self.fromManager.recv()
@@ -192,8 +192,8 @@ class Robot(StudentAPI):
 
   def _print(self, *args):
     print(*args)
-    console_string = " ".join([str(arg) for arg in args])
-    self.toManager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]]) 
+    console_string = " ".join(str(arg) for arg in args)
+    self.toManager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]])
 
   def hibikeEnumerateDevices(self):
     self.toManager.put([HIBIKE_COMMANDS.ENUMERATE, []])

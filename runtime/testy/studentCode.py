@@ -149,9 +149,8 @@ def emergencyStop_setup():
   print("E-Stop setup")
 
 def emergencyStop_main():
-  response = Robot._getSMValue("incrementer")
-  response -= 1
-  if(response < 0):
+  response = Robot._getSMValue("incrementer") - 1
+  if response < 0:
     Robot.emergencyStop()
 
   Robot._setSMValue(response, "incrementer")

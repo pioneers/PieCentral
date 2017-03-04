@@ -58,9 +58,9 @@ def runtime(testName=""):
       if testMode:
         # Automatically enter telop mode when running tests
         badThingsQueue.put(BadThing(sys.exc_info(),
-              "Sending initial command to enter teleop",
-              event = BAD_EVENTS.ENTER_TELEOP,
-              printStackTrace=False))
+            "Sending initial command to enter teleop",
+            event=BAD_EVENTS.ENTER_TELEOP,
+            printStackTrace=False))
       if restartCount >= 3:
         nonTestModePrint(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
         nonTestModePrint("Too many restarts, terminating")
@@ -89,9 +89,7 @@ def runtime(testName=""):
           break
         elif newBadThing.event == BAD_EVENTS.ENTER_TELEOP and controlState != "teleop":
           terminate_process(PROCESS_NAMES.STUDENT_CODE)
-          name = "teleop"
-          if testName:
-              name = testName
+          name = testName or "teleop"
           spawnProcess(PROCESS_NAMES.STUDENT_CODE, runStudentCode, name, maxIter)
           controlState = "teleop"
           continue
@@ -110,7 +108,7 @@ def runtime(testName=""):
             stateQueue.put([SM_COMMANDS.SEND_CONSOLE, [str(newBadThing)]])
           controlState = "idle"
           restartCount += 1
-          if (not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP):
+          if not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP:
             emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
           break
       stateQueue.put([SM_COMMANDS.RESET, []])
@@ -120,12 +118,12 @@ def runtime(testName=""):
     print("TERMINATING")
   except Exception as e:
     print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
-    print("Funtime Runtime Had Too Much Fun")
+    print("Funtime Runtime had too much fun.")
     print(e)
     print("".join(traceback.format_tb(sys.exc_info()[2])))
 
 
-def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = None):
+def runStudentCode(badThingsQueue, stateQueue, pipe, testName="", maxIter=None):
   try:
     import signal
 
@@ -161,15 +159,12 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
 
     ensure_is_function(testName + "setup", setupFunc)
     ensure_is_function(testName + "main", mainFunc)
-    ensure_not_overridden(studentCode, 'Robot')
+    ensure_not_overridden(studentCode, "Robot")
 
-    r = studentAPI.Robot(stateQueue, pipe)
-    studentCode.Robot = r
-    g = studentAPI.Gamepad()
-    studentCode.Gamepad = g
-    a = studentAPI.Actions()
-    studentCode.Actions = a
-    studentCode.print = r._print
+    studentCode.Robot = studentAPI.Robot(stateQueue, pipe)
+    studentCode.Gamepad = studentAPI.Gamepad(stateQueue, pipe)
+    studentCode.Actions = studentAPI.Actions
+    studentCode.print = studentCode.Robot._print
 
     checkTimedOut(setupFunc)
 
@@ -195,7 +190,7 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName = "", maxIter = No
 
     def my_exception_handler(loop, context):
       if exception_cell[0] is None:
-        exception_cell[0] = context['exception']
+        exception_cell[0] = context["exception"]
 
     loop.set_exception_handler(my_exception_handler)
     loop.run_until_complete(main_loop())
@@ -212,7 +207,7 @@ def startStateManager(badThingsQueue, stateQueue, runtimePipe):
     SM = stateManager.StateManager(badThingsQueue, stateQueue, runtimePipe)
     SM.start()
   except Exception as e:
-    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event = BAD_EVENTS.STATE_MANAGER_CRASH))
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.STATE_MANAGER_CRASH))
 
 def startUDPSender(badThingsQueue, stateQueue, smPipe):
   try:
@@ -235,7 +230,7 @@ def startTCP(badThingsQueue, stateQueue, smPipe):
   except Exception as e:
     badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.TCP_ERROR))
 
-def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
+def processFactory(badThingsQueue, stateQueue, stdoutRedirect=None):
   def spawnProcessHelper(processName, helper, *args):
     pipeToChild, pipeFromChild = multiprocessing.Pipe()
     if processName != PROCESS_NAMES.STATE_MANAGER:
@@ -249,7 +244,7 @@ def processFactory(badThingsQueue, stateQueue, stdoutRedirect = None):
 
 def terminate_process(processName):
   if processName not in allProcesses:
-      return
+    return
   process = allProcesses.pop(processName)
   process.terminate()
   for _ in range(10): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
@@ -269,7 +264,7 @@ def runtimeTest(testNames):
   testNameRegex = re.compile(".*_setup")
   allTestNames = [testName[:-len("_setup")] for testName in dir(studentCode) if testNameRegex.match(testName)]
 
-  if len(testNames) == 0:
+  if not testNames:
     print("Running all non-optional tests")
     testNames = [testName for testName in allTestNames if not testName.startswith('optional')]
   else:
@@ -285,7 +280,7 @@ def runtimeTest(testNames):
     if testName in ["autonomous", "teleop"]:
       continue
     testFileName = "%s_output" % (testName,)
-    with open(testFileName, "w", buffering = 1) as testOutput:
+    with open(testFileName, "w", buffering=1) as testOutput:
       print("Running test: {}".format(testName), end="", flush=True)
       sys.stdout = testOutput
 
@@ -300,13 +295,14 @@ def runtimeTest(testNames):
       if PROCESS_NAMES.TCP_PROCESS in allProcesses:
         terminate_process(PROCESS_NAMES.TCP_PROCESS)
       sys.stdout = sys.__stdout__
-      print("{}DONE!".format(" "*(50-len(testName))))
-    if not testSuccess(testFileName):
+      print("{}DONE!".format(" " * (50-len(testName))))
+
+    if testSuccess(testFileName):
+      os.remove(testFileName)
+    else:
       # Explicitly set output to terminal, since we overwrote it earlier
       failCount += 1
       failedTests.append(testName)
-    else:
-      os.remove(testFileName)
 
   # Restore output to terminal
   sys.stdout = sys.__stdout__
@@ -355,24 +351,24 @@ def ensure_not_overridden(module, name):
     raise RuntimeError("Student code overrides `{}`, which is part of the API".format(name))
 
 def clarify_coroutine_warnings(exception_cell):
-    """
-    Python's default error checking will print warnings of the form:
-        RuntimeWarning: coroutine '???' was never awaited
+  """
+  Python's default error checking will print warnings of the form:
+      RuntimeWarning: coroutine '???' was never awaited
 
-    This function will will upgrade such a warning to a fatal error, 
-    while also injecting a additional clarification message about possible causes.
-    """
-    import warnings
+  This function will will upgrade such a warning to a fatal error,
+  while also injecting a additional clarification message about possible causes.
+  """
+  import warnings
 
-    default_showwarning = warnings.showwarning
+  default_showwarning = warnings.showwarning
 
-    def custom_showwarning(message, category, filename, lineno, file=None, line=None):
-        default_showwarning(message, category, filename, lineno, line)
+  def custom_showwarning(message, category, filename, lineno, file=None, line=None):
+    default_showwarning(message, category, filename, lineno, line)
 
-        if str(message).endswith('was never awaited'):
-            coro_name = str(message).split("'")[-2]
+    if str(message).endswith("was never awaited"):
+      coro_name = str(message).split("'")[-2]
 
-            print("""
+      print("""
 The PiE API has upgraded the above RuntimeWarning to a runtime error!
 
 This error typically occurs in one of the following cases:
@@ -398,15 +394,16 @@ Consider instead:
     def loop():
         Robot.run(my_coro)
 """.format(coro_name=coro_name), file=file)
-            exception_cell[0] = message
+      exception_cell[0] = message
 
-    warnings.showwarning = custom_showwarning
+  warnings.showwarning = custom_showwarning
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--test', nargs='*', help='Run specified tests. If no arguments, run all tests.')
+    parser.add_argument("-t", "--test", nargs="*",
+        help="Run specified tests. If no arguments, run all tests.")
     args = parser.parse_args()
-    if args.test == None:
+    if args.test is None:
       runtime()
     else:
       runtimeTest(args.test)

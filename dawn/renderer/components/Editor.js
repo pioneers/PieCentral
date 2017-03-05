@@ -320,21 +320,25 @@ class Editor extends React.Component {
         <ButtonToolbar>
           <ButtonGroup id="file-operations-buttons">
             <EditorButton
+              id="new"
               text="New"
               onClick={this.props.onCreateNewFile}
               glyph="file"
             />
             <EditorButton
+              id="open"
               text="Open"
               onClick={this.props.onOpenFile}
               glyph="folder-open"
             />
             <EditorButton
+              id="save"
               text="Save"
               onClick={this.props.onSaveFile}
               glyph="floppy-disk"
             />
             <EditorButton
+              id="save-as"
               text="Save As"
               onClick={_.partial(this.props.onSaveFile, true)}
               glyph="floppy-save"
@@ -342,18 +346,21 @@ class Editor extends React.Component {
           </ButtonGroup>
           <ButtonGroup id="code-execution-buttons">
             <EditorButton
+              id="run"
               text="Run"
               onClick={this.startRobot}
               glyph="play"
               disabled={this.props.isRunningCode || !this.props.runtimeStatus}
             />
             <EditorButton
+              id="stop"
               text="Stop"
               onClick={this.stopRobot}
               glyph="stop"
               disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
             />
             <EditorButton
+              id="upload"
               text="Upload"
               onClick={this.upload}
               glyph="upload"
@@ -362,11 +369,13 @@ class Editor extends React.Component {
           </ButtonGroup>
           <ButtonGroup id="console-buttons">
             <EditorButton
+              id="toggle-console"
               text="Toggle Console"
               onClick={this.toggleConsole}
               glyph="console"
             />
             <EditorButton
+              id="clear-console"
               text="Clear Console"
               onClick={this.onClearConsole}
               glyph="remove"
@@ -374,28 +383,33 @@ class Editor extends React.Component {
           </ButtonGroup>
           <ButtonGroup id="misc-buttons">
             <EditorButton
+              id="e-stop"
               text="E-STOP"
               onClick={this.estop}
               glyph="fire"
             />
             <EditorButton
+              id="increase-font-size"
               text="Increase font size"
               onClick={this.increaseFontsize}
               glyph="zoom-in"
               disabled={this.props.fontSize > 28}
             />
             <EditorButton
+              id="decrease-font-size"
               text="Decrease font size"
               onClick={this.decreaseFontsize}
               glyph="zoom-out"
               disabled={this.props.fontSize < 7}
             />
             <EditorButton
+              id="updates"
               text="Updates"
               onClick={this.toggleUpdateModal}
               glyph="cloud-upload"
             />
             <EditorButton
+              id="configuration"
               text="Configuration"
               onClick={this.toggleConfigModal}
               glyph="cog"

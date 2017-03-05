@@ -10,7 +10,7 @@ message DawnData {
         repeated bool buttons = 3;
     }
 
-    RobotState student_code_status = 1;
+    RobotState robot_state = 1;
     repeated Gamepad gamepads = 2;
     repeated string peripheral_names = 3;
 }

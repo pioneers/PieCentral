@@ -18,8 +18,7 @@ const info = (state = initialInfoState, action) => {
         ...state,
         connectionStatus: true,
         robotState: action.robotState,
-        isRunningCode: (action.robotState === runtimeStateEnum.STUDENT_RUNNING ||
-        action.robotState === runtimeStateEnum.TELEOP ||
+        isRunningCode: (action.robotState === runtimeStateEnum.TELEOP ||
         action.robotState === runtimeStateEnum.AUTONOMOUS),
       };
     case 'ANSIBLE_DISCONNECT':

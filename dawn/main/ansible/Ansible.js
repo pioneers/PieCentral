@@ -53,15 +53,9 @@ function buildProto(data) {
   return message;
 }
 
-class Connection {
-  close() {}
-}
-
 const LISTEN_PORT = 1235;
-class ListenSocket extends Connection {
+class ListenSocket {
   constructor() {
-    super();
-
     // TODO: Verify if reuseAddr prevents EADDRINUSE
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
@@ -101,9 +95,8 @@ class ListenSocket extends Connection {
 }
 
 const SEND_PORT = 1236;
-class SendSocket extends Connection {
+class SendSocket {
   constructor() {
-    super();
     this.runtimeIP = '192.168.0.200';
 
     // TODO: Verify if reuseAddr prevents EADDRINUSE
@@ -145,10 +138,8 @@ class SendSocket extends Connection {
   }
 }
 
-class TCPSocket extends Connection {
+class TCPSocket {
   constructor(socket) {
-    super();
-
     this.socket = socket;
     this.received = false;
 
@@ -208,10 +199,8 @@ class TCPSocket extends Connection {
 }
 
 const TCP_PORT = 1234;
-class TCPServer extends Connection {
+class TCPServer {
   constructor() {
-    super();
-
     this.tcp = net.createServer((socket) => {
       this.socket = new TCPSocket(socket);
     });

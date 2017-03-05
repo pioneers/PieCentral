@@ -88,7 +88,7 @@ class SM_COMMANDS(Enum):
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMELIMIT      = 1
-  STUDENT_CODE_HZ             = 20 # Number of times to execute studentCode.main per second
+  STUDENT_CODE_HZ             = 25 # Number of times to execute studentCode.main per second
   DEBUG_DELIMITER_STRING      = "****************** RUNTIME DEBUG ******************"
   PIPE_READY                  = ["ready"]
   TEST_OUTPUT_DIR             = "test_outputs/"

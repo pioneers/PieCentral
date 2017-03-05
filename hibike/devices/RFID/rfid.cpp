@@ -10,6 +10,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);
 // each device is responsible for keeping track of it's own params
 uint8_t id;
 uint8_t tag_detect;
+uint8_t remembered_id;
 
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
@@ -28,16 +29,22 @@ void loop() {
   // do whatever you want here
   // note that hibike will only process one packet per call to hibike_loop()
   // so exessive delays here will affect hibike.
+  // Look for new cards
+  hibike_loop();
   if ( ! mfrc522.PICC_IsNewCardPresent()) {
+    id = remembered_id;
     tag_detect = 0;
-    id = 0;
-  } else {
-    id = mfrc522.uid.uidByte[0];
-    tag_detect = 1;
+    return;
+  }
+  // Select one of the cards
+  if ( ! mfrc522.PICC_ReadCardSerial()) {
+    id = remembered_id;
+    tag_detect = 0;
+    return;
   }
   id = mfrc522.uid.uidByte[0];
-  tag_detect = mfrc522.PICC_IsNewCardPresent();
-  hibike_loop();
+  remembered_id = id;
+  tag_detect = 1;
 }
 
 

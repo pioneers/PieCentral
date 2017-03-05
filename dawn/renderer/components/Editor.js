@@ -54,6 +54,8 @@ class Editor extends React.Component {
       'solarized_light',
       'terminal',
     ];
+    this.beforeUnload = this.beforeUnload.bind(this);
+    this.onWindowResize = this.onWindowResize.bind(this);
     this.toggleConsole = this.toggleConsole.bind(this);
     this.getEditorHeight = this.getEditorHeight.bind(this);
     this.changeTheme = this.changeTheme.bind(this);
@@ -78,32 +80,6 @@ class Editor extends React.Component {
    * Confirmation Dialog on Quit, Stored Editor Settings, Window Size-Editor Re-render
    */
   componentDidMount() {
-    window.onbeforeunload = (event) => {
-      if (this.hasUnsavedChanges()) {
-        event.returnValue = false; // This forces a confirmation dialog.
-        dialog.showMessageBox({
-          type: 'warning',
-          buttons: ['Save and exit', 'Quit without saving', 'Cancel exit'],
-          title: 'You have unsaved changes!',
-          message: 'You are trying to exit Dawn, but you have unsaved changes. ' +
-          'What do you want to do with your unsaved changes?',
-        }, (response) => {
-          // response corresponds to indices in button list above
-          if (response === 0) {
-            this.props.onSaveFile();
-            window.onbeforeunload = null; // Prevents Infinite Looping
-            currentWindow.close();
-          } else if (response === 1) {
-            window.onbeforeunload = null;
-            currentWindow.close();
-          } else {
-            console.log('Exit Cancelled');
-          }
-        });
-      }
-      console.log('Dawn Shutdown');
-    };
-
     this.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
 
     storage.get('editorTheme', (err, data) => {
@@ -116,10 +92,18 @@ class Editor extends React.Component {
       if (!_.isEmpty(data)) this.props.onChangeFontsize(data.editorFontSize);
     });
 
-    // Trigger editor to re-render on window resizing
-    window.addEventListener('resize', () => {
-      this.setState({ editorHeight: this.getEditorHeight() });
-    }, { passive: true });
+    window.addEventListener('beforeunload', this.beforeUnload);
+    window.addEventListener('resize', this.onWindowResize, { passive: true });
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('beforeunload', this.beforeUnload);
+    window.removeEventListener('resize', this.onWindowResize);
+  }
+
+  onWindowResize() {
+    // Trigger editor to re-render on window resizing.
+    this.setState({ editorHeight: this.getEditorHeight() });
   }
 
   /*
@@ -142,6 +126,34 @@ class Editor extends React.Component {
   // TODO: Take onEditorPaste items and move to utils?
   correctText(text) {
     return text.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
+  }
+
+  beforeUnload(event) {
+    // If there are unsaved changes and the user tries to close Dawn,
+    // check if they want to save their changes first.
+    if (this.hasUnsavedChanges()) {
+      const clickedId = dialog.showMessageBox(currentWindow, {
+        type: 'warning',
+        buttons: ['Save...', 'Don\'t Save', 'Cancel'],
+        defaultId: 0,
+        cancelId: 2,
+        title: 'You have unsaved changes!',
+        message: 'Do you want to save the changes made to your program?',
+        detail: 'Your changes will be lost if you don\'t save them.',
+      });
+
+      // NOTE: For whatever reason, `event.preventDefault()` does not work within
+      // beforeunload events, so we use `event.returnValue = false` instead.
+      //
+      // `clickedId` is the index of the clicked button in the button list above.
+      if (clickedId === 0) {
+        // FIXME: Figure out a way to make Save and Close, well, close.
+        event.returnValue = false;
+        this.props.onSaveFile();
+      } else if (clickedId === 2) {
+        event.returnValue = false;
+      }
+    }
   }
 
   toggleConsole() {

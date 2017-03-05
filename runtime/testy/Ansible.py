@@ -171,10 +171,10 @@ class UDPRecvClass(AnsibleHandler):
         self.curr_addr = None
         self.control_state = None
         self.sm_mapping = {
-            ansible_pb2.DawnData.IDLE       : SM_COMMANDS.ENTER_IDLE,
-            ansible_pb2.DawnData.TELEOP     : SM_COMMANDS.ENTER_TELEOP,
-            ansible_pb2.DawnData.AUTONOMOUS : SM_COMMANDS.ENTER_AUTO,
-            ansible_pb2.DawnData.ESTOP      : SM_COMMANDS.EMERGENCY_STOP
+            ansible_pb2.IDLE       : SM_COMMANDS.ENTER_IDLE,
+            ansible_pb2.TELEOP     : SM_COMMANDS.ENTER_TELEOP,
+            ansible_pb2.AUTONOMOUS : SM_COMMANDS.ENTER_AUTO,
+            ansible_pb2.ESTOP      : SM_COMMANDS.EMERGENCY_STOP
         }
         super().__init__(packName, UDPRecvClass.unpackageData, sockRecvName,
                          UDPRecvClass.udpReceiver, badThingsQueue, stateQueue, pipe)

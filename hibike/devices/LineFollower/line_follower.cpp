@@ -59,4 +59,3 @@ uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
 void device_disable() {
 
 }
-

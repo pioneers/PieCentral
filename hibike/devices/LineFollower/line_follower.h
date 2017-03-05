@@ -11,7 +11,7 @@ uint8_t pins[NUM_PINS] = {A0, A1, A2};
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
   LINE_FOLLOWER,  // Device Type
-  0,              // Year
+  1,              // Year
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////

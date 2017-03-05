@@ -21,5 +21,6 @@ hibike_uid_t UID = {
 void setup();
 void loop();
 
+uint8_t device_read(uint8_t param, uint8_t* data, size_t len);
 
 #endif /* EX_DEVICE_H */

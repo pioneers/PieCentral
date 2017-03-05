@@ -2,8 +2,7 @@
     {"id": 0,     "name": "LimitSwitch",   "params": [    
                                                           {"number": 0  , "name": "switch0"    , "type": "bool"    , "read": true , "write": false },
                                                           {"number": 1  , "name": "switch1"    , "type": "bool"    , "read": true , "write": false },
-                                                          {"number": 2  , "name": "switch2"    , "type": "bool"    , "read": true , "write": false },
-                                                          {"number": 3  , "name": "switch3"    , "type": "bool"    , "read": true , "write": false }
+                                                          {"number": 2  , "name": "switch2"    , "type": "bool"    , "read": true , "write": false }
                                                      ]
     },
 

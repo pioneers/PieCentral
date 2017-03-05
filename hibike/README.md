@@ -174,7 +174,6 @@ Device Type Enumeration:
 |  0x00   | LimitSwitch    | 0            | switch0    | bool       | yes   | no     |
 |         |                | 1            | switch1    | bool       | yes   | no     |
 |         |                | 2            | switch2    | bool       | yes   | no     |
-|         |                | 3            | switch3    | bool       | yes   | no     |
 |  0x01   | LineFollower   | 0            | left       | float      | yes   | no     |
 |         |                | 1            | center     | float      | yes   | no     |
 |         |                | 2            | right      | float      | yes   | no     |

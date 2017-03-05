@@ -39,6 +39,11 @@ const dialog = remote.dialog;
 const currentWindow = remote.getCurrentWindow();
 
 class Editor extends React.Component {
+  // TODO: Take onEditorPaste items and move to utils?
+  static correctText(text) {
+    return text.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
+  }
+
   constructor(props) {
     super(props);
     this.consoleHeight = 250; // pixels
@@ -57,6 +62,7 @@ class Editor extends React.Component {
     this.beforeUnload = this.beforeUnload.bind(this);
     this.onWindowResize = this.onWindowResize.bind(this);
     this.toggleConsole = this.toggleConsole.bind(this);
+    this.onEditorPaste = this.onEditorPaste.bind(this);
     this.getEditorHeight = this.getEditorHeight.bind(this);
     this.changeTheme = this.changeTheme.bind(this);
     this.increaseFontsize = this.increaseFontsize.bind(this);
@@ -114,18 +120,13 @@ class Editor extends React.Component {
     correctedText = correctedText.normalize('NFD');
     correctedText = correctedText.replace(/[”“]/g, '"');
     correctedText = correctedText.replace(/[‘’]/g, "'");
-    correctedText = this.correctText(correctedText);
+    correctedText = Editor.correctText(correctedText);
     // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
     pasteData.text = correctedText; // eslint-disable-line no-param-reassign
   }
 
   getEditorHeight(windowHeight) {
     return `${String(windowHeight - 160 - (this.props.showConsole * (this.consoleHeight + 40)))}px`;
-  }
-
-  // TODO: Take onEditorPaste items and move to utils?
-  correctText(text) {
-    return text.replace(/[^\x00-\x7F]/g, ''); // eslint-disable-line no-control-regex
   }
 
   beforeUnload(event) {

@@ -128,7 +128,7 @@ class Editor extends React.Component {
   getEditorHeight(windowHeight) {
     return `${String(windowHeight - 160 - (this.props.showConsole * (this.consoleHeight + 40)))}px`;
   }
-  
+
   beforeUnload(event) {
     // If there are unsaved changes and the user tries to close Dawn,
     // check if they want to save their changes first.

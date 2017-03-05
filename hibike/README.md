@@ -132,7 +132,7 @@ Each Smart Device will be assigned an 88-bit UID with the following data.
 -- uint64_t
 -- int64_t
 -- float
--- double.  CAUTION: Arduino's doubles are only 3 bytes long (same as a float), so an Arduino's Double is the same as python's Float.  Do not use this type unless your arduino is actually cranking out 8 bytes.
+-- double.  CAUTION: Arduino's doubles are only 4 bytes long (same as a float), so an Arduino's Double is the same as python's Float.  Do not use this type unless your arduino is actually cranking out 8 bytes.
 - Some paramaters are read only, some are write only, and some support both.
 - A config file will describe the paramaters for each Device Type (name, type, permissions).
 - Some packets encode sets of parameters in the form of bitmaps.

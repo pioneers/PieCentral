@@ -14,7 +14,7 @@ int32_t kaori;
 uint64_t natsuki;
 int64_t yuko;
 float  mizore;
-double nozomi;
+float nozomi;
 uint8_t shuichi;
 uint16_t takuya;
 uint32_t riko;
@@ -143,7 +143,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
       if (len < sizeof(nozomi)) {
         return 0;
       }
-      nozomi = ((double*)data)[0];
+      nozomi = ((float*)data)[0];
       return sizeof(nozomi);
       break;
     case SHUICHI:
@@ -176,7 +176,6 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
       return 0;
   }
   return 0;
-
 }
 
 
@@ -265,7 +264,7 @@ uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
       if (len < sizeof(nozomi)) {
         return 0;
       }
-      ((double*)data)[0] = nozomi;
+      ((float*)data)[0] = nozomi;
       return sizeof(nozomi);
       break;
     case SHUICHI:
@@ -307,8 +306,7 @@ uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
 // You must implement this function.
 // It is called when the BBB sends a message to the Smart Device tellinng the Smart Device to disable itself.
 // Consult README.md, section 6, to see what exact functionality is expected out of disable.
-void device_disable() 
-{
+void device_disable() {
   kumiko = false;
 
   hazuki = 0;

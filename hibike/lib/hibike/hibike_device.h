@@ -36,7 +36,7 @@ void hibike_setup();
 void hibike_loop();
 void toggleLED();
 
-//these are implimented in the device's .cpp files.
+// these are implimented in the device's .cpp files.
 extern uint32_t device_write(uint8_t param, uint8_t* data, size_t len);
 extern uint8_t device_read(uint8_t param, uint8_t* data, size_t len);
 extern void device_disable();

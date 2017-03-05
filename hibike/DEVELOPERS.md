@@ -51,3 +51,4 @@ For external libraries:
  - add the library folder to hibike/lib
    - see the libraries already there
  - go to hibike/Makefile and update the line that looks starts with `SKETCH_LIBS =`
+ 

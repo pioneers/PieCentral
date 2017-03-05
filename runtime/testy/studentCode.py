@@ -16,8 +16,12 @@ def teleop_setup():
   time.sleep(.5)
   Robot.motors = motors
   print("motors: ", motors)
+  Robot.currTime = time.time()
 
 def teleop_main():
+  currTime = time.time()
+  print("main loop ms period: ", int((currTime - Robot.currTime) * 1000))
+  Robot.currTime = currTime
   if len(Robot.motors) >= 2:
     Robot.set_value(Robot.motors[0], "duty_cycle", Gamepad.get_value("joystick_left_y"))
     Robot.set_value(Robot.motors[1], "duty_cycle", -1*Gamepad.get_value("joystick_right_y"))
@@ -26,7 +30,6 @@ def teleop_main():
       Robot.set_value(uid, "duty_cycle", Gamepad.get_value("joystick_left_y"))
   for _ in range(20):
     x = Robot.get_value(Robot.motors[0], "enc_pos")
-  print(x)
 
 def setup():
   pass

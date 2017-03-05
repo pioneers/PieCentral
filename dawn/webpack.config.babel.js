@@ -31,7 +31,7 @@ const plugins = [
 
 export default [
   {
-    entry: ['babel-polyfill', './renderer/index.js'],
+    entry: ['./renderer/index.js'],
     devtool: 'cheap-module-eval-source-map',
     output: {
       path: path.join(__dirname, 'build'),

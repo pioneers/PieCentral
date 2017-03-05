@@ -18,7 +18,7 @@
       }
     },
     "build": {
-      "command": "mkdir -p ./build && cp ../ansible-protos/*.proto ./build && webpack -p --config webpack.production.config.js",
+      "command": "mkdir -p ./build && cp ../ansible-protos/*.proto ./build && webpack -p",
       "env": {
         "NODE_ENV": "production"
       }

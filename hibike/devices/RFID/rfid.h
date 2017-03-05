@@ -17,12 +17,8 @@ hibike_uid_t UID = {
 
 // this is an optional device specific enum to make implementation easier
 typedef enum {
-  VALUE_0 = 1,
-  VALUE_1 = 11,
-  VALUE_2 = 12,
-  VALUE_3 = 13,
-  VALUE_4 = 14,
-  VALUE_5 = 7
+  ID = 0,
+  TAG_DETECT = 1,
 } ExampleDeviceParam;
 
 // function prototypes

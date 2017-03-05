@@ -8,7 +8,8 @@
 // Instantiate RFID Object
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 // each device is responsible for keeping track of it's own params
-uint8_t value0;
+uint8_t id;
+uint8_t tag_detect;
 
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
@@ -28,10 +29,14 @@ void loop() {
   // note that hibike will only process one packet per call to hibike_loop()
   // so exessive delays here will affect hibike.
   if ( ! mfrc522.PICC_IsNewCardPresent()) {
-    return;
+    tag_detect = 0;
+    id = 0;
+  } else {
+    id = mfrc522.uid.uidByte[0];
+    tag_detect = 1;
   }
-  value0 = mfrc522.uid.uidByte[0];
-
+  id = mfrc522.uid.uidByte[0];
+  tag_detect = mfrc522.PICC_IsNewCardPresent();
   hibike_loop();
 }
 
@@ -60,10 +65,24 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 //    return  -   number of bytes writted to data on success; 0 otherwise
 
 uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
-  if (len < sizeof(value0) && param == 0) {
+  switch (param) {
+    case ID:
+      if (len < sizeof(id)) {
+        return 0;
+      }
+      ((uint8_t*)data)[0] = id;
+      return sizeof(id);
+      break;
+    case TAG_DETECT:
+      if (len < sizeof(tag_detect)) {
+        return 0;
+      }
+      ((uint8_t*)data)[0] = tag_detect;
+      return sizeof(tag_detect);
+      break;
+    default:
       return 0;
   }
-  ((uint8_t*)data)[0] = value0;
-  return sizeof(value0);
   return 0;
+      
 }

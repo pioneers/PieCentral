@@ -8,16 +8,13 @@ export const pathToName = (filepath) => {
   return false;
 };
 
+const IPV4_REGEX = new RegExp('^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}' +
+    '(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$', 'g');
 export const getValidationState = (testIPAddress) => {
-  let valid = false;
-  const regex = '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}' +
-    '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))$';
-  if ((new RegExp(regex, 'g')).test(testIPAddress)) {
-    valid = true;
-  }
-  if (valid) {
+  if (IPV4_REGEX.test(testIPAddress)) {
     return 'success';
-  } else if (testIPAddress === 'localhost') {
+  }
+  if (testIPAddress === 'localhost') {
     return 'warning';
   }
   return 'error';

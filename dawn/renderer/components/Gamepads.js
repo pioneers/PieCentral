@@ -14,7 +14,7 @@ const Gamepads = (props) => {
   } else {
     interior = (
       <p className="panelText">
-        There don't seem to be any gamepads connected.
+        There doesn&apos;t seem to be any gamepads connected.
         Connect a gamepad and press any button on it.
       </p>
     );

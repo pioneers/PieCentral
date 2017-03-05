@@ -56,8 +56,8 @@ class AppComponent extends React.Component {
     if (!Array.isArray(steps)) {
       steps = [steps];
     }
-    if (!steps.length) {
-      return false;
+    if (steps.length === 0) {
+      return;
     }
     this.setState((currentState) => {
       currentState.steps = currentState.steps.concat(steps);

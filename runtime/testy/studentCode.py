@@ -13,7 +13,7 @@ def teleop_setup():
   motors = [uid for uid in uids if SENSOR_TYPE[uid >> 72] == "YogiBear"]
   for uid in motors:
     Robot._hibikeSubscribeDevice(uid, 40, ["enable", "duty_cycle", "enc_pos", "enc_pos", "enc_vel", "motor_current"])
-  time.sleep(.1)
+  time.sleep(.5)
   Robot.motors = motors
   print("motors: ", motors)
   Robot.currTime = time.time()

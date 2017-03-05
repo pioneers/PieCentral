@@ -247,12 +247,12 @@ def terminate_process(processName):
     return
   process = allProcesses.pop(processName)
   process.terminate()
-  for _ in range(10): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
+  for _ in range(100): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
     time.sleep(.01) # Give the OS a chance to terminate the other process
     if not process.is_alive():
       break
   if process.is_alive():
-    print("Terminating with EXTREME PREJUDICE")
+    print("Terminating with EXTREME PREJUDICE: ", processName)
     print("Queue state is probably boned and we should restart entire runtime")
     os.kill(process.pid, signal.SIGKILL)
     raise NotImplementedError

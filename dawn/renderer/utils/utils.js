@@ -29,7 +29,7 @@ export const uploadStatus = {
   ERROR: 2,
 };
 
-export const stateEnum = {
+export const robotState = {
   IDLE: 0,
   TELEOP: 1,
   AUTONOMOUS: 2,
@@ -37,7 +37,7 @@ export const stateEnum = {
 };
 
 // TODO: Synchronize this and the above state
-export const runtimeStateEnum = {
+export const runtimeState = {
   STUDENT_CRASHED: 0,
   STUDENT_RUNNING: 1,
   STUDENT_STOPPED: 2,

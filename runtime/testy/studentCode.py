@@ -19,18 +19,22 @@ def teleop_setup():
   Robot.currTime = time.time()
 
 def teleop_main():
-  Robot.state = StudentApi._getSMValue("hibike", "devices")
-  currTime = time.time()
-  print("main loop ms period: ", int((currTime - Robot.currTime) * 1000))
-  Robot.currTime = currTime
-  if len(Robot.motors) >= 2:
-    Robot.set_value(Robot.motors[0], "duty_cycle", Gamepad.get_value("joystick_left_y"))
-    Robot.set_value(Robot.motors[1], "duty_cycle", -1*Gamepad.get_value("joystick_right_y"))
-  else:
-    for uid in Robot.motors:
-      Robot.set_value(uid, "duty_cycle", Gamepad.get_value("joystick_left_y"))
-  for _ in range(20):
-    x = Robot.state[Robot.motors[0]][0]["enc_pos"][0]
+  try:
+    Robot.state = Robot._getSMValue("hibike", "devices")
+    currTime = time.time()
+    print("main loop ms period: ", int((currTime - Robot.currTime) * 1000))
+    Robot.currTime = currTime
+    if len(Robot.motors) >= 2:
+      Robot.set_value(Robot.motors[0], "duty_cycle", Gamepad.get_value("joystick_left_y"))
+      Robot.set_value(Robot.motors[1], "duty_cycle", -1*Gamepad.get_value("joystick_right_y"))
+    else:
+      for uid in Robot.motors:
+        Robot.set_value(uid, "duty_cycle", Gamepad.get_value("joystick_left_y"))
+    for _ in range(20):
+      x = Robot.state[Robot.motors[0]][0]["enc_pos"][0]
+  except Exception as e:
+    print(e)
+    1/0
 
 def setup():
   pass

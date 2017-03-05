@@ -21,9 +21,6 @@ const RuntimeData = runtimeBuilder.build('RuntimeData');
 const notificationBuilder = ProtoBuf.loadProtoFile(`${__dirname}/notification.proto`);
 const Notification = notificationBuilder.build('Notification');
 
-// TODO: Modify this via Redux.
-let runtimeIP = '192.168.0.200';
-
 function buildProto(data) {
   let status = null;
   switch (data.studentCodeStatus) {
@@ -107,6 +104,7 @@ const SEND_PORT = 1236;
 class SendSocket extends Connection {
   constructor() {
     super();
+    this.runtimeIP = '192.168.0.200';
 
     // TODO: Verify if reuseAddr prevents EADDRINUSE
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
@@ -117,6 +115,12 @@ class SendSocket extends Connection {
     });
 
     ipcMain.on('stateUpdate', this.sendGamepadMessages);
+
+    /*
+     * IPC Connection with ConfigBox.js' saveChanges()
+     * Receives new IP Address to send messages to.
+     */
+    ipcMain.on('ipAddress', this.ipAddressListener);
   }
 
   /*
@@ -127,12 +131,17 @@ class SendSocket extends Connection {
   sendGamepadMessages(event, data) {
     const message = buildProto(data).encode().toBuffer();
     console.log('Dawn sent UDP');
-    this.socket.send(message, SEND_PORT, runtimeIP);
+    this.socket.send(message, SEND_PORT, this.runtimeIP);
+  }
+
+  ipAddressListener(event, { ipAddress }) {
+    this.runtimeIP = ipAddress;
   }
 
   close() {
     this.socket.close();
     ipcMain.off('stateUpdate', this.sendGamepadMessages);
+    ipcMain.off('ipAddress', this.ipAddressListener);
   }
 }
 
@@ -226,33 +235,12 @@ class TCPServer extends Connection {
   }
 }
 
-class IPCConnection extends Connection {
-  constructor() {
-    super();
-
-    /*
-     * IPC Connection with ConfigBox.js' saveChanges()
-     * Receives new IP Address to send messages to
-     */
-    ipcMain.on('ipAddress', this.ipAddressListener);
-  }
-
-  ipAddressListener(event, { ipAddress }) {
-    runtimeIP = ipAddress;
-  }
-
-  close() {
-    ipcMain.off('ipAddress', this.ipAddressListener);
-  }
-}
-
 class Ansible {
   setup() {
     this.conns = [
       new ListenSocket(),
       new SendSocket(),
       new TCPServer(),
-      new IPCConnection(),
     ];
   }
 

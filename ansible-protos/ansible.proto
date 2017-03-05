@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "robotstate.proto";
+import public "robotstate.proto";
 
 
 message DawnData {

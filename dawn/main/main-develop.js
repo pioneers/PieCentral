@@ -5,7 +5,7 @@
 import { app, BrowserWindow, Menu } from 'electron';
 import RendererBridge from './RendererBridge';
 import Template from './MenuTemplate/Template';
-import './ansible/Ansible'; // Ansible is initiated here
+import ansible from './ansible/Ansible';
 
 let mainWindow;
 
@@ -13,7 +13,13 @@ app.on('window-all-closed', () => {
   app.quit();
 });
 
+app.on('will-quit', () => {
+  ansible.close();
+});
+
 app.on('ready', () => {
+  ansible.setup();
+
   mainWindow = new BrowserWindow();
 
   // Binding for the main process to inject into Redux workflow

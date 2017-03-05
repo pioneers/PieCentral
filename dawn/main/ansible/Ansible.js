@@ -13,16 +13,6 @@ import {
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { uploadStatus, robotState } from '../../renderer/utils/utils';
 
-let runtimeIP = '192.168.0.200';
-let runtimeSocket = null;
-let received = false;
-const tcpPort = 1234;
-const listenPort = 1235;
-const sendPort = 1236;
-// TODO: Verify if reuseAddr prevents EADDRINUSE
-const listenSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
-const sendSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
-
 const dawnBuilder = ProtoBuf.loadProtoFile(`${__dirname}/ansible.proto`);
 const DawnData = dawnBuilder.build('DawnData');
 const StudentCodeStatus = DawnData.StudentCodeStatus;
@@ -31,69 +21,8 @@ const RuntimeData = runtimeBuilder.build('RuntimeData');
 const notificationBuilder = ProtoBuf.loadProtoFile(`${__dirname}/notification.proto`);
 const Notification = notificationBuilder.build('Notification');
 
-
-const tcp = net.createServer((sock) => {
-  console.log('Runtime Connected');
-  sock.on('end', () => {
-    console.log('Runtime Disconnected');
-  });
-  sock.on('data', (data) => {
-    received = true;
-    const decoded = Notification.decode(data);
-    console.log('Dawn Received TCP');
-    if (decoded.header === Notification.Type.STUDENT_RECEIVED) {
-      RendererBridge.reduxDispatch(notifyChange(uploadStatus.RECEIVED));
-    }
-  });
-  // TODO: Find why broken pipes might occur
-  runtimeSocket = sock;
-  if (runtimeSocket) {
-    console.log('TCP Socket Verified');
-  }
-});
-
-tcp.on('error', (err) => {
-  console.error('TCP Error');
-  throw err;
-});
-
-tcp.listen(tcpPort, () => {
-  console.log(`Dawn Listening on ${tcpPort}`);
-});
-
-function waitRuntimeConfirm(message, count) {
-  if (count > 3) {
-    console.error('Runtime Failed to Confirm');
-    RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
-  } else if (!received) {
-    runtimeSocket.write(message, () => {
-      console.log(`Runtime Notified: Try ${count + 1}`);
-    });
-    setTimeout(waitRuntimeConfirm.bind(this, message, count + 1), 1000);
-  }
-}
-
-/*
- * IPC Connection with Editor.js' upload()
- * When Runtime responds back with confirmation,
- * notifyChange sends received signal (see tcp, received variables)
- */
-ipcMain.on('NOTIFY_UPLOAD', () => {
-  const message = new Notification({
-    header: Notification.Type.STUDENT_SENT,
-    console_output: '',
-  }).encode().toBuffer();
-  if (runtimeSocket == null) {
-    console.log('Runtime Hasn\'t Connected Yet');
-  } else {
-    runtimeSocket.write(message, () => {
-      console.log('Runtime Notified: Try 1');
-    });
-    received = false;
-    RendererBridge.reduxDispatch(notifyChange(uploadStatus.SENT));
-    waitRuntimeConfirm(message, 0);
-  }
-});
+// TODO: Modify this via Redux.
+let runtimeIP = '192.168.0.200';
 
 function buildProto(data) {
   let status = null;
@@ -107,6 +36,7 @@ function buildProto(data) {
     default:
       status = StudentCodeStatus.IDLE;
   }
+
   const gamepads = _.map(_.toArray(data.gamepads), (gamepad) => {
     const axes = _.toArray(gamepad.axes);
     const buttons = _.map(_.toArray(gamepad.buttons), Boolean);
@@ -117,62 +47,220 @@ function buildProto(data) {
     });
     return GamepadMsg;
   });
+
   const message = new DawnData({
     student_code_status: status,
     gamepads,
   });
+
   return message;
 }
 
-/*
- * IPC Connection with sagas.js' ansibleGamepads()
- * Sends messages when Gamepad information changes
- * or when 100 ms has passed (with 50 ms cooldown)
- */
-ipcMain.on('stateUpdate', (event, data) => {
-  const message = buildProto(data).encode().toBuffer();
-  console.log('Dawn Sent UDP');
-  sendSocket.send(message, sendPort, runtimeIP, (err) => {
-    if (err) {
-      console.error('UDP Sending Error');
+class Connection {
+  close() {}
+}
+
+const LISTEN_PORT = 1235;
+class ListenSocket extends Connection {
+  constructor() {
+    super();
+
+    // TODO: Verify if reuseAddr prevents EADDRINUSE
+    this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+
+    /*
+     * Runtime message handler. Sends robot state to store.info
+     * and raw sensor array to peripheral reducer
+     */
+    this.socket.on('message', (msg) => {
+      try {
+        const { robot_state, sensor_data } = RuntimeData.decode(msg);
+        console.log('Dawn received UDP');
+        RendererBridge.reduxDispatch(infoPerMessage(robot_state));
+        RendererBridge.reduxDispatch(updatePeripherals(sensor_data));
+      } catch (err) {
+        console.log('Error decoding UDP');
+        throw err;
+      }
+    });
+
+    this.socket.on('error', (err) => {
+      console.log('UDP listening error');
+      this.socket.close();
       throw err;
-    }
-  });
-});
+    });
 
-/*
- * IPC Connection with ConfigBox.js' saveChanges()
- * Receives new IP Address to send messages to
- */
-ipcMain.on('ipAddress', (event, data) => {
-  runtimeIP = data.ipAddress;
-});
+    this.socket.on('close', () => {
+      RendererBridge.reduxDispatch(ansibleDisconnect());
+      console.log('UDP listening closed');
+    });
 
-/*
- * Runtime message handler. Sends robot state to store.info
- * and raw sensor array to peripheral reducer
- */
-listenSocket.on('message', (msg) => {
-  try {
-    const data = RuntimeData.decode(msg);
-    console.log('Dawn Received UDP');
-    RendererBridge.reduxDispatch(infoPerMessage(data.robot_state));
-    RendererBridge.reduxDispatch(updatePeripherals(data.sensor_data));
-  } catch (e) {
-    console.log('Error Decoding UDP');
-    throw e;
+    this.socket.bind(LISTEN_PORT);
   }
-});
 
-listenSocket.on('error', (err) => {
-  console.log('UDP Listening Error');
-  listenSocket.close();
-  throw err;
-});
+  close() {
+    this.socket.close();
+  }
+}
 
-listenSocket.on('close', () => {
-  RendererBridge.reduxDispatch(ansibleDisconnect());
-  console.log('UDP Listening Closed');
-});
+const SEND_PORT = 1236;
+class SendSocket extends Connection {
+  constructor() {
+    super();
 
-listenSocket.bind(listenPort);
+    // TODO: Verify if reuseAddr prevents EADDRINUSE
+    this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+
+    this.socket.on('error', (err) => {
+      console.error('UDP sending error');
+      throw err;
+    });
+
+    ipcMain.on('stateUpdate', this.sendGamepadMessages);
+  }
+
+  /*
+   * IPC Connection with sagas.js' ansibleGamepads()
+   * Sends messages when Gamepad information changes
+   * or when 100 ms has passed (with 50 ms cooldown)
+   */
+  sendGamepadMessages(event, data) {
+    const message = buildProto(data).encode().toBuffer();
+    console.log('Dawn sent UDP');
+    this.socket.send(message, SEND_PORT, runtimeIP);
+  }
+
+  close() {
+    this.socket.close();
+    ipcMain.off('stateUpdate', this.sendGamepadMessages);
+  }
+}
+
+class TCPSocket extends Connection {
+  constructor(socket) {
+    super();
+
+    this.socket = socket;
+    this.received = false;
+
+    console.log('Runtime connected');
+    this.socket.on('end', () => {
+      console.log('Runtime disconnected');
+    });
+
+    this.socket.on('data', (data) => {
+      this.received = true;
+      const decoded = Notification.decode(data);
+      console.log('Dawn received TCP');
+      if (decoded.header === Notification.Type.STUDENT_RECEIVED) {
+        RendererBridge.reduxDispatch(notifyChange(uploadStatus.RECEIVED));
+      }
+    });
+
+    /*
+     * IPC Connection with Editor.js' upload()
+     * When Runtime responds back with confirmation,
+     * notifyChange sends received signal (see tcp, received variables)
+     */
+    ipcMain.on('NOTIFY_UPLOAD', this.tryUpload);
+  }
+
+  waitRuntimeConfirm(message, count) {
+    if (count > 3) {
+      console.error('Runtime failed to confirm');
+      RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
+    } else if (!this.received) {
+      this.socket.write(message, () => {
+        console.log(`Runtime notified: try ${count + 1}`);
+      });
+      setTimeout(this.waitRuntimeConfirm.bind(this, message, count + 1), 1000);
+    }
+  }
+
+  tryUpload() {
+    const message = new Notification({
+      header: Notification.Type.STUDENT_SENT,
+      console_output: '',
+    }).encode().toBuffer();
+
+    this.socket.write(message, () => {
+      console.log('Runtime notified: try 1');
+    });
+
+    this.received = false;
+    RendererBridge.reduxDispatch(notifyChange(uploadStatus.SENT));
+    this.waitRuntimeConfirm(message, 0);
+  }
+
+  close() {
+    this.socket.end();
+    ipcMain.off('NOTIFY_UPLOAD', this.receiveUpload);
+  }
+}
+
+const TCP_PORT = 1234;
+class TCPServer extends Connection {
+  constructor() {
+    super();
+
+    this.tcp = net.createServer((socket) => {
+      this.socket = new TCPSocket(socket);
+    });
+
+    this.tcp.on('error', (err) => {
+      console.error('TCP error');
+      throw err;
+    });
+
+    this.tcp.listen(TCP_PORT, () => {
+      console.log(`Dawn listening on port ${TCP_PORT}`);
+    });
+  }
+
+  close() {
+    if (this.socket) {
+      this.socket.close();
+    }
+
+    this.tcp.close();
+  }
+}
+
+class IPCConnection extends Connection {
+  constructor() {
+    super();
+
+    /*
+     * IPC Connection with ConfigBox.js' saveChanges()
+     * Receives new IP Address to send messages to
+     */
+    ipcMain.on('ipAddress', this.ipAddressListener);
+  }
+
+  ipAddressListener(event, { ipAddress }) {
+    runtimeIP = ipAddress;
+  }
+
+  close() {
+    ipcMain.off('ipAddress', this.ipAddressListener);
+  }
+}
+
+class Ansible {
+  setup() {
+    this.conns = [
+      new ListenSocket(),
+      new SendSocket(),
+      new TCPServer(),
+      new IPCConnection(),
+    ];
+  }
+
+  close() {
+    this.conns.forEach(conn => conn.close());
+  }
+}
+
+const ansible = new Ansible();
+
+export default ansible;

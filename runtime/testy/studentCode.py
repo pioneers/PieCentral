@@ -12,13 +12,14 @@ def teleop_setup():
   uids = Robot._getAllUIDs()
   motors = [uid for uid in uids if SENSOR_TYPE[uid >> 72] == "YogiBear"]
   for uid in motors:
-    Robot._hibikeSubscribeDevice(uid, 40, ["enable", "duty_cycle", "enc_pos"])
+    Robot._hibikeSubscribeDevice(uid, 40, ["enable", "duty_cycle", "enc_pos", "enc_pos", "env_vel", "motor_current"])
   time.sleep(.5)
   Robot.motors = motors
   print("motors: ", motors)
   Robot.currTime = time.time()
 
 def teleop_main():
+  Robot.state = StudentApi._getSMValue("hibike", "devices")
   currTime = time.time()
   print("main loop ms period: ", int((currTime - Robot.currTime) * 1000))
   Robot.currTime = currTime
@@ -29,7 +30,7 @@ def teleop_main():
     for uid in Robot.motors:
       Robot.set_value(uid, "duty_cycle", Gamepad.get_value("joystick_left_y"))
   for _ in range(20):
-    x = Robot.get_value(Robot.motors[0], "enc_pos")
+    x = Robot.state[Robot.motors[0]][0]["enc_pos"][0]
 
 def setup():
   pass

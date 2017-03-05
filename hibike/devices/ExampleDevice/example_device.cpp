@@ -3,12 +3,23 @@
 #include "Arduino.h" 
 
 // each device is responsible for keeping track of it's own params
-uint8_t value0;
-uint8_t value1;
-uint16_t value2;
-uint32_t value3;
-uint64_t value4;
-uint64_t value5;
+// This must match the table in hibikeDevices.json
+bool kumiko;
+uint8_t hazuki;
+int8_t sapphire;
+uint16_t reina;
+int16_t asuka;
+uint32_t haruka;
+int32_t kaori;
+uint64_t natsuki;
+int64_t yuko;
+float  mizore;
+float nozomi;
+uint8_t shuichi;
+uint16_t takuya;
+uint32_t riko;
+uint64_t aoi;
+float noboru;
 
 
 // normal arduino setup function, you must call hibike_setup() here
@@ -25,11 +36,23 @@ void loop() {
   // do whatever you want here
   // note that hibike will only process one packet per call to hibike_loop()
   // so exessive delays here will affect hibike.
-  value1 += 1;
-  value2 += 2;
-  value3 += 3;
-  value4 += 4;
-  value5 += 5;
+  //don't change Kumiko.
+
+  hazuki += 0;
+  sapphire += 1;
+  reina += 2;
+  asuka += 3;
+  haruka += 4;
+  kaori += 5;
+  natsuki += 6;
+  yuko += 7;
+  mizore += 8.8;
+  nozomi += 9.9;
+  shuichi += 10;
+  takuya += 11;
+  riko += 12;
+  aoi += 13;
+  noboru += 14.14;
 
   hibike_loop();
 }
@@ -46,47 +69,108 @@ void loop() {
 
 uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   switch (param) {
-    case VALUE_0:
-      if (len < sizeof(value0)) {
+    case KUMIKO:
+      if (len < sizeof(kumiko)) {
         return 0;
       }
-      value0 = ((uint8_t*)data)[0];
-      return sizeof(value0);
+      kumiko = ((bool*)data)[0];
+      return sizeof(kumiko);
       break;
-    case VALUE_1:
-      if (len < sizeof(value1)) {
+
+    case HAZUKI:
+      if (len < sizeof(hazuki)) {
         return 0;
       }
-      value1 = ((uint8_t*)data)[0];
-      return sizeof(value1);
+      hazuki = ((uint8_t*)data)[0];;
+      return sizeof(hazuki);
       break;
-    case VALUE_2:
-      if (len < sizeof(value2)) {
+    case SAPPHIRE:
+      if (len < sizeof(sapphire)) {
         return 0;
       }
-      value2 = ((uint16_t*)data)[0];
-      return sizeof(value2);
+      sapphire = ((int8_t*)data)[0];
+      return sizeof(sapphire);
       break;
-    case VALUE_3:
-      if (len < sizeof(value3)) {
+    case REINA:
+      if (len < sizeof(reina)) {
         return 0;
       }
-      value3 = ((uint32_t*)data)[0];
-      return sizeof(value3);
+      reina = ((uint16_t*)data)[0];
+      return sizeof(reina);
       break;
-    case VALUE_4:
-      if (len < sizeof(value4)) {
+    case ASUKA:
+      if (len < sizeof(asuka)) {
         return 0;
       }
-      value4 = ((uint64_t*)data)[0];
-      return sizeof(value4);
+      asuka = ((int16_t*)data)[0];
+      return sizeof(asuka);
       break;
-    case VALUE_5:
-      if (len < sizeof(value5)) {
+    case HARUKA:
+      if (len < sizeof(haruka)) {
         return 0;
       }
-      value5 = ((uint64_t*)data)[0];
-      return sizeof(value5);
+      haruka = ((uint32_t*)data)[0];
+      return sizeof(haruka);
+      break;
+    case KAORI:
+      if (len < sizeof(kaori)) {
+        return 0;
+      }
+      kaori = ((int32_t*)data)[0];
+      return sizeof(kaori);
+      break;
+    case NATSUKI:
+      if (len < sizeof(natsuki)) {
+        return 0;
+      }
+      natsuki = ((uint64_t*)data)[0];
+      return sizeof(natsuki);
+      break;
+    case YUKO:
+      if (len < sizeof(yuko)) {
+        return 0;
+      }
+      yuko = ((int64_t*)data)[0];
+      return sizeof(yuko);
+      break;
+    case MIZORE:
+      if (len < sizeof(mizore)) {
+        return 0;
+      }
+      mizore = ((float*)data)[0];
+      break;
+    case NOZOMI:
+      if (len < sizeof(nozomi)) {
+        return 0;
+      }
+      nozomi = ((float*)data)[0];
+      return sizeof(nozomi);
+      break;
+    case SHUICHI:
+      //not writable
+      return 0;
+      break;
+    case TAKUYA:
+      if (len < sizeof(takuya)) {
+        return 0;
+      }
+      takuya = ((uint16_t*)data)[0];
+      return sizeof(takuya);
+      break;
+    case RIKO:
+      //not writable
+      return 0;
+      break;
+    case AOI:
+      if (len < sizeof(aoi)) {
+        return 0;
+      }
+      aoi = ((uint64_t*)data)[0];
+      return sizeof(aoi);
+      break;
+    case NOBORU:
+      //not writable.
+      return 0;
       break;
     default:
       return 0;
@@ -103,53 +187,142 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 //    len     -   size of the buffer for overflow checking
 //
 //    return  -   number of bytes writted to data on success; 0 otherwise
-
 uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
-  switch (param) {
-    case VALUE_0:
-      if (len < sizeof(value0)) {
+  switch (param) 
+  {
+    case KUMIKO:
+      if (len < sizeof(kumiko)) {
         return 0;
       }
-      ((uint8_t*)data)[0] = value0;
-      return sizeof(value0);
+      ((bool*)data)[0] = kumiko;
+      return sizeof(kumiko);
       break;
-    case VALUE_1:
-      if (len < sizeof(value1)) {
+    case HAZUKI:
+      if (len < sizeof(hazuki)) {
         return 0;
       }
-      ((uint8_t*)data)[0] = value1;
-      return sizeof(value1);
+      ((uint8_t*)data)[0] = hazuki;
+      return sizeof(hazuki);
       break;
-    case VALUE_2:
-      if (len < sizeof(value2)) {
+    case SAPPHIRE:
+      if (len < sizeof(sapphire)) {
         return 0;
       }
-      ((uint16_t*)data)[0] = value2;
-      return sizeof(value2);
+      ((int8_t*)data)[0] = sapphire;
+      return sizeof(sapphire);
       break;
-    case VALUE_3:
-      if (len < sizeof(value3)) {
+    case REINA:
+      if (len < sizeof(reina)) {
         return 0;
       }
-      ((uint32_t*)data)[0] = value3;
-      return sizeof(value3);
+      ((uint16_t*)data)[0] = reina;
+      return sizeof(reina);
       break;
-    case VALUE_4:
-      if (len < sizeof(value4)) {
+    case ASUKA:
+      if (len < sizeof(asuka)) {
         return 0;
       }
-      ((uint64_t*)data)[0] = value4;
-      return sizeof(value4);
+      ((int16_t*)data)[0] = asuka;
+      return sizeof(asuka);
       break;
-    case VALUE_5:
-      if (len < sizeof(value5)) {
+    case HARUKA:
+      if (len < sizeof(haruka)) {
         return 0;
       }
-      ((uint64_t*)data)[0] = value5;
-      return sizeof(value5);
+      ((uint32_t*)data)[0] = haruka;
+      return sizeof(haruka);
+      break;
+    case KAORI:
+      if (len < sizeof(kaori)) {
+        return 0;
+      }
+      ((int32_t*)data)[0] = kaori;
+      return sizeof(kaori);
+      break;
+    case NATSUKI:
+      if (len < sizeof(natsuki)) {
+        return 0;
+      }
+      ((uint64_t*)data)[0] = natsuki;
+      return sizeof(natsuki);
+      break;
+    case YUKO:
+      if (len < sizeof(yuko)) {
+        return 0;
+      }
+      ((int64_t*)data)[0] = yuko;
+      return sizeof(yuko);
+      break;
+    case MIZORE:
+      if (len < sizeof(mizore)) {
+        return 0;
+      }
+      ((float*)data)[0] = mizore;
+      return sizeof(mizore);
+      break;
+    case NOZOMI:
+      if (len < sizeof(nozomi)) {
+        return 0;
+      }
+      ((float*)data)[0] = nozomi;
+      return sizeof(nozomi);
+      break;
+    case SHUICHI:
+      if (len < sizeof(shuichi)) {
+        return 0;
+      }
+      ((uint8_t*)data)[0] = shuichi;
+      return sizeof(shuichi);
+      break;
+    case TAKUYA:
+      //not readable
+      return 0;
+      break;
+    case RIKO:
+      if (len < sizeof(riko)) {
+        return 0;
+      }
+      ((uint32_t*)data)[0] = riko;
+      return sizeof(riko);
+      break;
+    case AOI:
+      //not readable.
+      return 0;
+      break;
+    case NOBORU:
+      if (len < sizeof(noboru)) {
+        return 0;
+      }
+      ((float*)data)[0] = noboru;
+      return sizeof(noboru);
       break;
     default:
       return 0;
   }
   return 0;
+}
+
+
+// You must implement this function.
+// It is called when the BBB sends a message to the Smart Device tellinng the Smart Device to disable itself.
+// Consult README.md, section 6, to see what exact functionality is expected out of disable.
+void device_disable() {
+  kumiko = false;
+
+  hazuki = 0;
+  sapphire = 0;
+  reina = 0;
+  asuka = 0;
+  haruka = 0;
+  kaori = 0;
+  natsuki = 0;
+  yuko = 0;
+  mizore = 0;
+  nozomi = 0;
+  shuichi = 0;
+  takuya = 0;
+  riko = 0;
+  aoi = 0;
+  noboru = 0;
+
 }

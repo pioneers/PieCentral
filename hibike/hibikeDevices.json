@@ -92,7 +92,7 @@
                                                           {"number": 7  , "name": "natsuki"    , "type": "uint64_t", "read": true , "write": true  },
                                                           {"number": 8  , "name": "yuko"       , "type": "int64_t" , "read": true , "write": true  },
                                                           {"number": 9  , "name": "mizore"     , "type": "float"   , "read": true , "write": true  },
-                                                          {"number": 10 , "name": "nozomi"     , "type": "double"  , "read": true , "write": true  },
+                                                          {"number": 10 , "name": "nozomi"     , "type": "float"  , "read": true , "write": true  },
                                                           {"number": 11 , "name": "shuichi"    , "type": "uint8_t" , "read": true , "write": false },
                                                           {"number": 12 , "name": "takuya"     , "type": "uint16_t", "read": false, "write": true  },
                                                           {"number": 13 , "name": "riko"       , "type": "uint32_t", "read": true , "write": false },

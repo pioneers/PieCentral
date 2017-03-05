@@ -121,7 +121,18 @@ Each Smart Device will be assigned an 88-bit UID with the following data.
 - Hibike abstracts every smart device as a set of parameters that map to values
 - Each smart device contains some number of paramaters, which can be read/written to.
 
-- Paramaters can have many types, such as bool, int, short, byte, float, etc.
+- Parameters can have many types.  The following types are supported
+-- bool
+-- uint8_t
+-- int8_t
+-- uint16_t
+-- int16_t
+-- uint32_t
+-- int32_t
+-- uint64_t
+-- int64_t
+-- float
+-- double.  CAUTION: Arduino's doubles are only 4 bytes long (same as a float), so an Arduino's Double is the same as python's Float.  Do not use this type unless your arduino is actually cranking out 8 bytes.
 - Some paramaters are read only, some are write only, and some support both.
 - A config file will describe the paramaters for each Device Type (name, type, permissions).
 - Some packets encode sets of parameters in the form of bitmaps.
@@ -153,6 +164,7 @@ Message ID Enumeration:
 |  0x13   |       Device Read        |
 |  0x14   |       Device Write       |
 |  0x15   |      Device Data         |
+|  0x16   |      Device Disable      |
 |  0xFF   |           Error          |
 
 Device Type Enumeration:

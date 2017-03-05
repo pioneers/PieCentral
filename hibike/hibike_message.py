@@ -44,6 +44,7 @@ messageTypes = {
   "DeviceRead" :           0x13,
   "DeviceWrite" :          0x14,
   "DeviceData" :           0x15,
+  "Disable":               0x16,
   "Error" :                0xFF
 }
 
@@ -163,6 +164,12 @@ def make_ping():
   """ Makes and returns Ping message."""
   payload = bytearray()
   message = HibikeMessage(messageTypes["Ping"], payload)
+  return message
+
+def make_disable():
+  """ Makes and returns a Disable message."""
+  payload = bytearray()
+  message = HibikeMessage(messageTypes["Disable"], payload)
   return message
 
 def make_subscription_request(device_id, params, delay):

@@ -1,4 +1,5 @@
 import time
+import asyncio
 from runtimeUtil import *
 
 def autonomous_setup():
@@ -201,3 +202,33 @@ def optionalTestsWork_setup():
 
 def optionalTestsWork_main():
   pass
+
+def asyncSleep_setup():
+  loop = asyncio.get_event_loop()
+  loop.run_until_complete(asyncSleepHelper())
+
+def asyncSleep_main():
+  pass
+
+async def asyncSleepHelper():
+  sleepTestVal = {'test': False}
+  Robot.run(asyncSleepHelper2, sleepTestVal)
+
+  await Actions.sleep(.1)
+  print('Testing sleep part 1')
+  if sleepTestVal['test']:
+    print('Success!')
+  else:
+    print('Failed to sleep for the correct amount of time')
+
+  await Actions.sleep(.5)
+  print('Testing sleep part 2')
+  if not sleepTestVal['test']:
+    print('Success!')
+  else: 
+    print('Failed to sleep for the correct amount of time')
+
+async def asyncSleepHelper2(sleepTestVal):
+  sleepTestVal['test'] = True
+  await Actions.sleep(.5)
+  sleepTestVal['test'] = False

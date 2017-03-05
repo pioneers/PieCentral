@@ -256,3 +256,10 @@ float readPWMInput() {
 uint8_t readDriveMode() {
   return driveMode;
 }
+
+// You must implement this function.
+// It is called when the BBB sends a message to the Smart Device tellinng the Smart Device to disable itself.
+// Consult README.md, section 6, to see what exact functionality is expected out of disable.
+void device_disable() {
+
+}

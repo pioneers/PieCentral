@@ -31,7 +31,7 @@ import ConfigBox from './ConfigBox';
 import ConsoleOutput from './ConsoleOutput';
 import EditorButton from './EditorButton';
 import UpdateBox from './UpdateBox';
-import { pathToName, uploadStatus, stateEnum, defaults } from '../utils/utils';
+import { pathToName, uploadStatus, robotState, defaults } from '../utils/utils';
 
 const Client = require('ssh2').Client;
 
@@ -59,6 +59,8 @@ class Editor extends React.Component {
       'solarized_light',
       'terminal',
     ];
+    this.beforeUnload = this.beforeUnload.bind(this);
+    this.onWindowResize = this.onWindowResize.bind(this);
     this.toggleConsole = this.toggleConsole.bind(this);
     this.onEditorPaste = this.onEditorPaste.bind(this);
     this.getEditorHeight = this.getEditorHeight.bind(this);
@@ -84,32 +86,6 @@ class Editor extends React.Component {
    * Confirmation Dialog on Quit, Stored Editor Settings, Window Size-Editor Re-render
    */
   componentDidMount() {
-    window.onbeforeunload = (event) => {
-      if (this.hasUnsavedChanges()) {
-        event.returnValue = false; // This forces a confirmation dialog.
-        dialog.showMessageBox({
-          type: 'warning',
-          buttons: ['Save and exit', 'Quit without saving', 'Cancel exit'],
-          title: 'You have unsaved changes!',
-          message: 'You are trying to exit Dawn, but you have unsaved changes. ' +
-          'What do you want to do with your unsaved changes?',
-        }, (response) => {
-          // response corresponds to indices in button list above
-          if (response === 0) {
-            this.props.onSaveFile();
-            window.onbeforeunload = null; // Prevents Infinite Looping
-            currentWindow.close();
-          } else if (response === 1) {
-            window.onbeforeunload = null;
-            currentWindow.close();
-          } else {
-            console.log('Exit Cancelled');
-          }
-        });
-      }
-      console.log('Dawn Shutdown');
-    };
-
     this.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
 
     storage.get('editorTheme', (err, data) => {
@@ -122,10 +98,18 @@ class Editor extends React.Component {
       if (!_.isEmpty(data)) this.props.onChangeFontsize(data.editorFontSize);
     });
 
-    // Trigger editor to re-render on window resizing
-    window.addEventListener('resize', () => {
-      this.setState({ editorHeight: this.getEditorHeight() });
-    }, { passive: true });
+    window.addEventListener('beforeunload', this.beforeUnload);
+    window.addEventListener('resize', this.onWindowResize, { passive: true });
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('beforeunload', this.beforeUnload);
+    window.removeEventListener('resize', this.onWindowResize);
+  }
+
+  onWindowResize() {
+    // Trigger editor to re-render on window resizing.
+    this.setState({ editorHeight: this.getEditorHeight() });
   }
 
   /*
@@ -143,6 +127,34 @@ class Editor extends React.Component {
 
   getEditorHeight(windowHeight) {
     return `${String(windowHeight - 160 - (this.props.showConsole * (this.consoleHeight + 40)))}px`;
+  }
+  
+  beforeUnload(event) {
+    // If there are unsaved changes and the user tries to close Dawn,
+    // check if they want to save their changes first.
+    if (this.hasUnsavedChanges()) {
+      const clickedId = dialog.showMessageBox(currentWindow, {
+        type: 'warning',
+        buttons: ['Save...', 'Don\'t Save', 'Cancel'],
+        defaultId: 0,
+        cancelId: 2,
+        title: 'You have unsaved changes!',
+        message: 'Do you want to save the changes made to your program?',
+        detail: 'Your changes will be lost if you don\'t save them.',
+      });
+
+      // NOTE: For whatever reason, `event.preventDefault()` does not work within
+      // beforeunload events, so we use `event.returnValue = false` instead.
+      //
+      // `clickedId` is the index of the clicked button in the button list above.
+      if (clickedId === 0) {
+        // FIXME: Figure out a way to make Save and Close, well, close.
+        event.returnValue = false;
+        this.props.onSaveFile();
+      } else if (clickedId === 2) {
+        event.returnValue = false;
+      }
+    }
   }
 
   toggleConsole() {
@@ -233,12 +245,12 @@ class Editor extends React.Component {
   }
 
   startRobot() {
-    this.props.onUpdateCodeStatus(stateEnum.TELEOP);
+    this.props.onUpdateCodeStatus(robotState.TELEOP);
     this.props.onClearConsole();
   }
 
   stopRobot() {
-    this.props.onUpdateCodeStatus(stateEnum.IDLE);
+    this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
   toggleUpdateModal() {
@@ -250,7 +262,7 @@ class Editor extends React.Component {
   }
 
   estop() {
-    this.props.onUpdateCodeStatus(stateEnum.ESTOP);
+    this.props.onUpdateCodeStatus(robotState.ESTOP);
   }
 
   hasUnsavedChanges() {
@@ -309,21 +321,25 @@ class Editor extends React.Component {
         <ButtonToolbar>
           <ButtonGroup id="file-operations-buttons">
             <EditorButton
+              id="new"
               text="New"
               onClick={this.props.onCreateNewFile}
               glyph="file"
             />
             <EditorButton
+              id="open"
               text="Open"
               onClick={this.props.onOpenFile}
               glyph="folder-open"
             />
             <EditorButton
+              id="save"
               text="Save"
               onClick={this.props.onSaveFile}
               glyph="floppy-disk"
             />
             <EditorButton
+              id="save-as"
               text="Save As"
               onClick={_.partial(this.props.onSaveFile, true)}
               glyph="floppy-save"
@@ -331,18 +347,21 @@ class Editor extends React.Component {
           </ButtonGroup>
           <ButtonGroup id="code-execution-buttons">
             <EditorButton
+              id="run"
               text="Run"
               onClick={this.startRobot}
               glyph="play"
               disabled={this.props.isRunningCode || !this.props.runtimeStatus}
             />
             <EditorButton
+              id="stop"
               text="Stop"
               onClick={this.stopRobot}
               glyph="stop"
               disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
             />
             <EditorButton
+              id="upload"
               text="Upload"
               onClick={this.upload}
               glyph="upload"
@@ -351,11 +370,13 @@ class Editor extends React.Component {
           </ButtonGroup>
           <ButtonGroup id="console-buttons">
             <EditorButton
+              id="toggle-console"
               text="Toggle Console"
               onClick={this.toggleConsole}
               glyph="console"
             />
             <EditorButton
+              id="clear-console"
               text="Clear Console"
               onClick={this.onClearConsole}
               glyph="remove"
@@ -363,28 +384,33 @@ class Editor extends React.Component {
           </ButtonGroup>
           <ButtonGroup id="misc-buttons">
             <EditorButton
+              id="e-stop"
               text="E-STOP"
               onClick={this.estop}
               glyph="fire"
             />
             <EditorButton
+              id="increase-font-size"
               text="Increase font size"
               onClick={this.increaseFontsize}
               glyph="zoom-in"
               disabled={this.props.fontSize > 28}
             />
             <EditorButton
+              id="decrease-font-size"
               text="Decrease font size"
               onClick={this.decreaseFontsize}
               glyph="zoom-out"
               disabled={this.props.fontSize < 7}
             />
             <EditorButton
+              id="updates"
               text="Updates"
               onClick={this.toggleUpdateModal}
               glyph="cloud-upload"
             />
             <EditorButton
+              id="configuration"
               text="Configuration"
               onClick={this.toggleConfigModal}
               glyph="cog"

@@ -28,6 +28,7 @@ typedef enum {
   DEVICE_READ             = 0x13,
   DEVICE_WRITE            = 0x14,
   DEVICE_DATA             = 0x15,
+  DEVICE_DISABLE          = 0x16,
 
   ERROR                   = 0xFF,
 } messageID;

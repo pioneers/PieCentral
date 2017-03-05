@@ -2,7 +2,7 @@ import path from 'path';
 import webpack from 'webpack';
 import { version } from './package.json';
 
-const target = process.env.NODE_ENV === 'production' ? 'electron' : 'atom';
+const target = 'electron';
 const modules = {
   preLoaders: [
     { test: /\.js$/, loader: 'eslint-loader', exclude: /node_modules/ },

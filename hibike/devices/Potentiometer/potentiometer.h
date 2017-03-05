@@ -8,11 +8,10 @@
 #define IN_1 A1
 #define IN_2 A2
 
-#define LED_PIN 13
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
   POTENTIOMETER,                      // Device Type
-  0,                      // Year
+  1,                      // Year
   UID_RANDOM,     // ID
 };
 ///////////////////////////////////////////////

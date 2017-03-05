@@ -3,13 +3,10 @@
 
 #include "hibike_device.h"
 
-#define NUM_PARAMS 5
-
-#define NUM_PINS 4
+#define NUM_PINS 3
 #define IN_0 A0
 #define IN_1 A1
 #define IN_2 A2
-#define IN_3 A3
 
 #define LED_PIN 13
 //////////////// DEVICE UID ///////////////////
@@ -24,5 +21,6 @@ hibike_uid_t UID = {
 void setup();
 void loop();
 
+uint8_t device_read(uint8_t param, uint8_t* data, size_t len);
 
 #endif /* EX_DEVICE_H */

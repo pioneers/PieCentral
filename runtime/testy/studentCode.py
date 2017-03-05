@@ -12,29 +12,25 @@ def teleop_setup():
   uids = Robot._getAllUIDs()
   motors = [uid for uid in uids if SENSOR_TYPE[uid >> 72] == "YogiBear"]
   for uid in motors:
-    Robot._hibikeSubscribeDevice(uid, 40, ["enable", "duty_cycle", "enc_pos", "enc_pos", "env_vel", "motor_current"])
-  time.sleep(.5)
+    Robot._hibikeSubscribeDevice(uid, 40, ["enable", "duty_cycle", "enc_pos", "enc_pos", "enc_vel", "motor_current"])
+  time.sleep(.1)
   Robot.motors = motors
   print("motors: ", motors)
   Robot.currTime = time.time()
 
 def teleop_main():
-  try:
-    Robot.state = Robot._getSMValue("hibike", "devices")
-    currTime = time.time()
-    print("main loop ms period: ", int((currTime - Robot.currTime) * 1000))
-    Robot.currTime = currTime
-    if len(Robot.motors) >= 2:
-      Robot.set_value(Robot.motors[0], "duty_cycle", Gamepad.get_value("joystick_left_y"))
-      Robot.set_value(Robot.motors[1], "duty_cycle", -1*Gamepad.get_value("joystick_right_y"))
-    else:
-      for uid in Robot.motors:
-        Robot.set_value(uid, "duty_cycle", Gamepad.get_value("joystick_left_y"))
-    for _ in range(20):
-      x = Robot.state[Robot.motors[0]][0]["enc_pos"][0]
-  except Exception as e:
-    print(e)
-    1/0
+  Robot.state = Robot._getSMValue("hibike", "devices")
+  currTime = time.time()
+  print("main loop ms period: ", int((currTime - Robot.currTime) * 1000))
+  Robot.currTime = currTime
+  if len(Robot.motors) >= 2:
+    Robot.set_value(Robot.motors[0], "duty_cycle", Gamepad.get_value("joystick_left_y"))
+    Robot.set_value(Robot.motors[1], "duty_cycle", -1*Gamepad.get_value("joystick_right_y"))
+  else:
+    for uid in Robot.motors:
+      Robot.set_value(uid, "duty_cycle", Gamepad.get_value("joystick_left_y"))
+  for _ in range(20):
+    x = Robot.state[Robot.motors[0]][0]["enc_pos"][0]
 
 def setup():
   pass

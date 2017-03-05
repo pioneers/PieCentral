@@ -211,6 +211,7 @@ Device Type Enumeration:
 |         |                | 12           | enc_pos             | float      | yes   | yes    |
 |         |                | 13           | enc_vel             | float      | yes   | no     |
 |         |                | 14           | motor_current       | float      | yes   | no     |
+|  0x0B   | RFID           | 0            | ID      | uint8_t | yes | no |
 |  0x10   | DistanceSensor |              |            |            |       |        |
 |  0x11   | MetalDetector  |              |            |            |       |        |
 |  0xFFFF | ExampleDevice  | 0            | kumiko     | bool       | yes   | yes    |

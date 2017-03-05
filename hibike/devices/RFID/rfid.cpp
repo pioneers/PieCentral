@@ -1,6 +1,6 @@
 #include "rfid.h"
-#include "SPI.h"
-#include "MFRC522.h" 
+#include <SPI.h>
+#include <MFRC522.h> 
 
 #define RST_PIN 9
 #define SS_PIN 10
@@ -16,7 +16,6 @@ void setup() {
   // Setup sensor input
   SPI.begin();
   mfrc522.PCD_Init();
-  pinMode(
 }
 
 
@@ -66,6 +65,5 @@ uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
   }
   ((uint8_t*)data)[0] = value0;
   return sizeof(value0);
-  break;
   return 0;
 }

@@ -35,6 +35,11 @@ class StudentAPI:
       raise message
     return message
 
+  def _getAllUIDs(self):
+    devices = self._getSMValue("hibike", "devices")
+    uids = sorted(devices.keys())
+    return uids
+
 class Gamepad(StudentAPI):
   buttons = {
     "button_a" : 0,
@@ -75,7 +80,7 @@ class Gamepad(StudentAPI):
 
 class Robot(StudentAPI):
   deviceType_to_validParams = {
-    10 : ["duty_cycle", "enable"], 
+    10 : ["duty_cycle", "enable", "enc_pos", "enc_vel", "motor_current"],
   }
   param_to_valid_values = {
     "duty_cycle" : [float, -1, 1],
@@ -183,8 +188,10 @@ class Robot(StudentAPI):
 
   def _hibikeGetUID(self, name):
     try:
+      if isinstance(name, int):
+        return name
       return self.sensorMappings[name]
-    except:
+    except Exception as e:
       raise StudentAPIKeyError()
 
   def emergencyStop(self):

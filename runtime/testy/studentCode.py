@@ -9,10 +9,24 @@ def autonomous_main():
   pass
 
 def teleop_setup():
-  pass
+  uids = Robot._getAllUIDs()
+  motors = [uid for uid in uids if SENSOR_TYPE[uid >> 72] == "YogiBear"]
+  for uid in motors:
+    Robot._hibikeSubscribeDevice(uid, 40, ["enable", "duty_cycle", "enc_pos"])
+  time.sleep(.5)
+  Robot.motors = motors
+  print("motors: ", motors)
 
 def teleop_main():
-  pass
+  if len(Robot.motors) >= 2:
+    Robot.set_value(Robot.motors[0], "duty_cycle", Gamepad.get_value("joystick_left_y"))
+    Robot.set_value(Robot.motors[1], "duty_cycle", -1*Gamepad.get_value("joystick_right_y"))
+  else:
+    for uid in Robot.motors:
+      Robot.set_value(uid, "duty_cycle", Gamepad.get_value("joystick_left_y"))
+  for _ in range(20):
+    x = Robot.get_value(Robot.motors[0], "enc_pos")
+  print(x)
 
 def setup():
   pass

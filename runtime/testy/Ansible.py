@@ -114,6 +114,8 @@ class UDPSendClass(AnsibleHandler):
                     # UID (88 bits) - 24 = 64 bits, enough to easily pack for transmission to Dawn
                     sensor.uid = uid >> 24
                     for param, value in values[0].items():
+                        if value[0] is None:
+                            continue
                         param_value_pair = sensor.param_value.add()
                         param_value_pair.param = param
                         param_value_pair.float_value = value[0]

@@ -1,12 +1,8 @@
-#ifndef EX_DEVICE_H
-#define EX_DEVICE_H
+#ifndef RFID_H
+#define RFID_H
 
 #include "hibike_device.h"
  
-// You must replace EXAMPLE_DEVICE with the device id of the device you are writing firmware for
-// The device id's are defined in hibike/lib/hibike/devices.h
-// The device id should correspond to a device id in hibike/hibikeDevices.json
-
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
   RFID,                      // Device Type

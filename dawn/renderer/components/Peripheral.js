@@ -23,17 +23,16 @@ typesToComponents[PeripheralTypes.LimitSwitch] = BooleanSensor;
 typesToComponents[PeripheralTypes.LineFollower] = ScalarSensor;
 typesToComponents[PeripheralTypes.Potentiometer] = ScalarSensor;
 typesToComponents[PeripheralTypes.Encoder] = ScalarSensor;
-typesToComponents[PeripheralTypes.ColorSensor] = ScalarSensor;
+// typesToComponents[PeripheralTypes.ColorSensor] = ScalarSensor;
 typesToComponents[PeripheralTypes.MetalDetector] = ScalarSensor;
 typesToComponents[PeripheralTypes.ServoControl] = ScalarSensor;
-
 
 class Peripheral extends React.Component {
   /**
    * Determines the specific type of peripheral that this object represents.
    */
   determinePeripheralComponent() {
-    return typesToComponents[this.props.peripheralType];
+    return typesToComponents[this.props.device_type];
   }
 
   /**
@@ -50,7 +49,7 @@ class Peripheral extends React.Component {
 }
 
 Peripheral.propTypes = {
-  peripheralType: React.PropTypes.string,
+  device_type: React.PropTypes.string,
 };
 
 export default Peripheral;

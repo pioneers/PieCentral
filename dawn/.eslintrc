@@ -10,29 +10,20 @@
   },
   "parserOptions": {
     "ecmaFeatures": {
-      "experimentalObjectRestSpread": true,
+      "experimentalObjectRestSpread": true
     }
   },
   "rules": {
-    "import/no-unresolved": [2, { ignore: ['electron'] }],
-    "no-console": 0,
-    "no-constant-condition": 0,
-    "no-underscore-dangle": 0,
-    "no-param-reassign": 0,
-    "consistent-return": 0,
-    "new-cap": 0,
-    "react/jsx-filename-extension": 0,
-    "react/forbid-prop-types": 0,
-    "react/require-default-props": 0,
-    "arrow-body-style": 0,
-    "react/no-string-refs": 0,
-    "react/no-array-index-key": 0,
-    "no-restricted-syntax": 0,
-    "react/no-unescaped-entities": 0,
-    "class-methods-use-this": 0,
-    "react/no-unused-prop-types": 0,
-    "no-useless-escape": 0,
-    "import/prefer-default-export": 0,
-    "import/no-extraneous-dependencies": 0
+    "react/forbid-prop-types": "off",
+    "react/jsx-filename-extension": "off",
+    "react/no-string-refs": "off",
+    "react/no-unused-prop-types": "off",
+    "react/require-default-props": "off",
+
+    "no-console": "off",
+    "no-constant-condition": ["error", { "checkLoops": false }],
+    "no-param-reassign": "off",
+    "no-restricted-syntax": "off",
+    "no-underscore-dangle": "off"
   }
 }

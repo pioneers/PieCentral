@@ -13,47 +13,20 @@ from google.protobuf import descriptor_pb2
 _sym_db = _symbol_database.Default()
 
 
+import robotstate_pb2 as robotstate__pb2
 
+from robotstate_pb2 import *
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='ansible.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\ransible.proto\"\x82\x02\n\x08\x44\x61wnData\x12\x38\n\x13student_code_status\x18\x01 \x01(\x0e\x32\x1b.DawnData.StudentCodeStatus\x12#\n\x08gamepads\x18\x02 \x03(\x0b\x32\x11.DawnData.Gamepad\x12\x18\n\x10peripheral_names\x18\x03 \x03(\t\x1a\x37\n\x07Gamepad\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x0c\n\x04\x61xes\x18\x02 \x03(\x01\x12\x0f\n\x07\x62uttons\x18\x03 \x03(\x08\"D\n\x11StudentCodeStatus\x12\x08\n\x04IDLE\x10\x00\x12\n\n\x06TELEOP\x10\x01\x12\x0e\n\nAUTONOMOUS\x10\x02\x12\t\n\x05\x45STOP\x10\x03\x62\x06proto3')
-)
+  serialized_pb=_b('\n\ransible.proto\x1a\x10robotstate.proto\"\xa4\x01\n\x08\x44\x61wnData\x12 \n\x0brobot_state\x18\x01 \x01(\x0e\x32\x0b.RobotState\x12#\n\x08gamepads\x18\x02 \x03(\x0b\x32\x11.DawnData.Gamepad\x12\x18\n\x10peripheral_names\x18\x03 \x03(\t\x1a\x37\n\x07Gamepad\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x0c\n\x04\x61xes\x18\x02 \x03(\x01\x12\x0f\n\x07\x62uttons\x18\x03 \x03(\x08P\x00\x62\x06proto3')
+  ,
+  dependencies=[robotstate__pb2.DESCRIPTOR,])
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
-
-_DAWNDATA_STUDENTCODESTATUS = _descriptor.EnumDescriptor(
-  name='StudentCodeStatus',
-  full_name='DawnData.StudentCodeStatus',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='IDLE', index=0, number=0,
-      options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='TELEOP', index=1, number=1,
-      options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='AUTONOMOUS', index=2, number=2,
-      options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='ESTOP', index=3, number=3,
-      options=None,
-      type=None),
-  ],
-  containing_type=None,
-  options=None,
-  serialized_start=208,
-  serialized_end=276,
-)
-_sym_db.RegisterEnumDescriptor(_DAWNDATA_STUDENTCODESTATUS)
 
 
 _DAWNDATA_GAMEPAD = _descriptor.Descriptor(
@@ -96,8 +69,8 @@ _DAWNDATA_GAMEPAD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=151,
-  serialized_end=206,
+  serialized_start=145,
+  serialized_end=200,
 )
 
 _DAWNDATA = _descriptor.Descriptor(
@@ -108,7 +81,7 @@ _DAWNDATA = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='student_code_status', full_name='DawnData.student_code_status', index=0,
+      name='robot_state', full_name='DawnData.robot_state', index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -133,7 +106,6 @@ _DAWNDATA = _descriptor.Descriptor(
   ],
   nested_types=[_DAWNDATA_GAMEPAD, ],
   enum_types=[
-    _DAWNDATA_STUDENTCODESTATUS,
   ],
   options=None,
   is_extendable=False,
@@ -141,14 +113,13 @@ _DAWNDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=18,
-  serialized_end=276,
+  serialized_start=36,
+  serialized_end=200,
 )
 
 _DAWNDATA_GAMEPAD.containing_type = _DAWNDATA
-_DAWNDATA.fields_by_name['student_code_status'].enum_type = _DAWNDATA_STUDENTCODESTATUS
+_DAWNDATA.fields_by_name['robot_state'].enum_type = robotstate__pb2._ROBOTSTATE
 _DAWNDATA.fields_by_name['gamepads'].message_type = _DAWNDATA_GAMEPAD
-_DAWNDATA_STUDENTCODESTATUS.containing_type = _DAWNDATA
 DESCRIPTOR.message_types_by_name['DawnData'] = _DAWNDATA
 
 DawnData = _reflection.GeneratedProtocolMessageType('DawnData', (_message.Message,), dict(

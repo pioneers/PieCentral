@@ -187,10 +187,10 @@ const _timestamps = [0, 0, 0, 0];
 
 function _needToUpdate(newGamepads) {
   return _.some(newGamepads, (gamepad, index) => {
-    if (!_.isUndefined(gamepad) && (gamepad.timestamp > _timestamps[index])) {
+    if (gamepad !== null && (gamepad.timestamp > _timestamps[index])) {
       _timestamps[index] = gamepad.timestamp;
       return true;
-    } else if (_.isUndefined(gamepad) && !_.isNull(_timestamps[index])) {
+    } else if (gamepad === null && _timestamps[index] !== null) {
       _timestamps[index] = null;
       return true;
     }

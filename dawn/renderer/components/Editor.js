@@ -377,7 +377,7 @@ class Editor extends React.Component {
             <EditorButton
               id="clear-console"
               text="Clear Console"
-              onClick={this.onClearConsole}
+              onClick={this.props.onClearConsole}
               glyph="remove"
             />
           </ButtonGroup>

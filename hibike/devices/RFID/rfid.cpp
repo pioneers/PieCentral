@@ -31,7 +31,11 @@ void loop() {
   // so exessive delays here will affect hibike.
   // Look for new cards
   hibike_loop();
+  // Checks if there is a card at reader
   if ( ! mfrc522.PICC_IsNewCardPresent()) {
+    // The sensor is too slow, so we have to delay the read by one loop
+    // The del makes sure that the id and tag_detect doesn't update for
+    // one cycle of the loop after finding a tag
     if (del) {
       tag_detect = 0;
       id = 0;
@@ -45,6 +49,7 @@ void loop() {
     tag_detect = 0;
     return;
   }
+  // Grab first byte of ID
   id = mfrc522.uid.uidByte[0];
   tag_detect = 1;
   del = false;

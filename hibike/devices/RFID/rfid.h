@@ -19,7 +19,7 @@ hibike_uid_t UID = {
 typedef enum {
   ID = 0,
   TAG_DETECT = 1,
-} ExampleDeviceParam;
+} Param;
 
 // function prototypes
 void setup();

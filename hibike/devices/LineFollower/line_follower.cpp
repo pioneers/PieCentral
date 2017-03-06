@@ -35,7 +35,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 
 // You must implement this function.
 // It is called when the device receives a Device Data packet.
-// Modifies data_update_buf to contain the parameter value.
+// Modifies data to contain the parameter value.
 //    param           -   Parameter index
 //    data            -   buffer to return data in, little-endian
 //    len             -   length of the buffer left to write to

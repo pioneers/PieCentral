@@ -180,7 +180,6 @@ Device Type Enumeration:
 |  0x02   | Potentiometer  | 0            | pot0       | float      | yes   | no     |
 |         |                | 1            | pot1       | float      | yes   | no     |
 |         |                | 2            | pot2       | float      | yes   | no     |
-|         |                | 3            | pot3       | float      | yes   | no     |
 |  0x03   | Encoder        | 0            | rotation   | int16_t    | yes   | no     |
 |  0x04   | BatteryBuzzer  | 0            | connected  | bool       | yes   | no     |
 |         |                | 1            | safe       | bool       | yes   | no     |

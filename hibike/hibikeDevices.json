@@ -16,8 +16,7 @@
     {"id": 2,     "name": "Potentiometer", "params": [    
                                                           {"number": 0  , "name": "pot0"       , "type": "float"   , "read": true , "write": false },
                                                           {"number": 1  , "name": "pot1"       , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 2  , "name": "pot2"       , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 3  , "name": "pot3"       , "type": "float"   , "read": true , "write": false }
+                                                          {"number": 2  , "name": "pot2"       , "type": "float"   , "read": true , "write": false }
                                                      ]
     },
 

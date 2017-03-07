@@ -97,6 +97,9 @@ def device_write_thread(ser, queue):
             hm.send(ser, hm.make_device_write(hm.uid_to_device_id(uid), params_and_values))
         elif instruction == "disable":
             hm.send(ser, hm.make_disable())
+        elif instruction == "heartResp":
+            uid = args[0]
+            hm.send(ser, hm.make_heartbeat_response(hm.uid_to_device_id(uid)))
 
 
 def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
@@ -112,6 +115,7 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
             if uid is not None:
                 params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
                 stateQueue.put(("device_values", [uid, params_and_values]))
+                instructionQueue.put(("heartResp", [uid]))
             else:
                 print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
                 print("Telling it to shut up")
@@ -137,8 +141,6 @@ if __name__ == "__main__":
         def helper():
             pipeToChild.send(["write_params", [uid, params_and_values]])
         return helper
-
-
 
     pipeToChild, pipeFromChild = multiprocessing.Pipe()
     badThingsQueue = multiprocessing.Queue()

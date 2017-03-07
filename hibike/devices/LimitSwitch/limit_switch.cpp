@@ -3,7 +3,7 @@
 uint8_t pins[NUM_SWITCHES] = {IN_0, IN_1, IN_2};
 
 void setup() {
-  hibike_setup();
+  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
   // Setup sensor input
   for (int i = 0; i < NUM_SWITCHES; i++) {
     pinMode(pins[i], INPUT);

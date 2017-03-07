@@ -24,7 +24,7 @@ float noboru;
 
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
-  hibike_setup();
+  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
 }
 
 

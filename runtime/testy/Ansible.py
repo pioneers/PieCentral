@@ -220,6 +220,8 @@ class UDPRecvClass(AnsibleHandler):
             received_proto.ParseFromString(data)
             new_state = received_proto.student_code_status
             unpackaged_data["student_code_status"] = [new_state, time.time()]
+            if self.pipe.poll():
+                self.control_state = self.pipe.recv()
             if self.control_state is None or new_state != self.control_state:
                 self.control_state = received_proto.student_code_status
                 sm_state_command = self.sm_mapping[new_state]

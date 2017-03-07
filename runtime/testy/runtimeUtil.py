@@ -83,6 +83,7 @@ class SM_COMMANDS(Enum):
   ENTER_IDLE          = ()
   ENTER_TELEOP        = ()
   ENTER_AUTO          = ()
+  END_STUDENT_CODE    = ()
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMELIMIT      = 1

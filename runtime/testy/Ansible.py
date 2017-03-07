@@ -118,11 +118,11 @@ class UDPSendClass(AnsibleHandler):
                             continue
                         param_value_pair = sensor.param_value.add()
                         param_value_pair.param = param
-                        if type(value[0]) == bool:
+                        if isinstance(value[0], bool):
                             param_value_pair.bool_value = value[0]
-                        elif type(value[0]) == float:
+                        elif isinstance(value[0], float):
                             param_value_pair.float_value = value[0]
-                        elif type(value[0]) == int:
+                        elif isinstance(value[0], int):
                             param_value_pair.int_value = value[0]
                 return proto_message.SerializeToString() 
             except Exception as e:

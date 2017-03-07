@@ -25,7 +25,7 @@ const sendSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
 const dawnBuilder = ProtoBuf.loadProtoFile(`${__dirname}/ansible.proto`);
 const DawnData = dawnBuilder.build('DawnData');
-const StudentCodeStatus = DawnData.StudentCodeStatus;
+const RobotState = DawnData.RobotState;
 const runtimeBuilder = ProtoBuf.loadProtoFile(`${__dirname}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
 const notificationBuilder = ProtoBuf.loadProtoFile(`${__dirname}/notification.proto`);
@@ -99,13 +99,13 @@ function buildProto(data) {
   let status = null;
   switch (data.studentCodeStatus) {
     case robotState.TELEOP:
-      status = StudentCodeStatus.TELEOP;
+      status = RobotState.TELEOP;
       break;
     case robotState.ESTOP:
-      status = StudentCodeStatus.ESTOP;
+      status = RobotState.ESTOP;
       break;
     default:
-      status = StudentCodeStatus.IDLE;
+      status = RobotState.IDLE;
   }
   const gamepads = _.map(_.toArray(data.gamepads), (gamepad) => {
     const axes = _.toArray(gamepad.axes);
@@ -118,7 +118,7 @@ function buildProto(data) {
     return GamepadMsg;
   });
   const message = new DawnData({
-    student_code_status: status,
+    robot_state: status,
     gamepads,
   });
   return message;

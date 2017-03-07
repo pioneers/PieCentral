@@ -1,5 +1,7 @@
 import traceback
 import multiprocessing
+import os
+import json
 from enum import Enum, unique
 
 @unique
@@ -86,7 +88,7 @@ class SM_COMMANDS(Enum):
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMELIMIT      = 1
-  STUDENT_CODE_HZ             = 20 # Number of times to execute studentCode.main per second
+  STUDENT_CODE_HZ             = 25 # Number of times to execute studentCode.main per second
   DEBUG_DELIMITER_STRING      = "****************** RUNTIME DEBUG ******************"
   PIPE_READY                  = ["ready"]
   TEST_OUTPUT_DIR             = "test_outputs/"
@@ -133,3 +135,7 @@ class TimeoutError(Exception):
 
 class RuntimeError(Exception):
   pass
+
+# Sensor type names are CamelCase, with the first letter capitalized as well
+config_file = open(os.path.join(os.path.dirname(__file__), '../../hibike/hibikeDevices.json'), 'r')
+SENSOR_TYPE = {device_data["id"]: device_data["name"] for device_data in json.load(config_file)}

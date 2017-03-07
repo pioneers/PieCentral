@@ -19,17 +19,18 @@ class StateManager(object):
     # map process names to pipes
     self.hibikeMapping = self.makeHibikeMap()
     self.hibikeResponseMapping = self.makeHibikeResponseMap()
-    self.deviceType_to_subscribeParams = self.makeSubscriptionMap()
+    self.deviceName_to_subscribeParams = self.makeSubscriptionMap()
     self.processMapping = {PROCESS_NAMES.RUNTIME: runtimePipe}
 
   def makeSubscriptionMap(self):
     subscriptionMap = {
-      0  : ["switch0", "switch1", "switch2"],
-      1  : ["left", "center", "right"],
-      2  : ["pot0", "pot1", "pot2"],
-      4  : ["total", "safe"],
-      7  : ["servo0", "servo1"],
-      10 : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
+      "LimitSwitch"  : ["switch0", "switch1", "switch2"],
+      "LineFollower"  : ["left", "center", "right"],
+      "Potentiometer"  : ["pot0", "pot1", "pot2"],
+      "BatteryBuzzer"  : ["total", "safe"],
+      "ServoControl"  : ["servo0", "servo1"],
+      "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
+      "RFID" : ["id", "tag_detect"],
     }
     return subscriptionMap
 
@@ -221,7 +222,8 @@ class StateManager(object):
 
   def hibikeResponseDeviceSubbed(self, uid, delay, params):
     if delay == 0:
-      self.hibikeSubscribeDevice(self.processMapping[PROCESS_NAMES.HIBIKE], uid, 20, self.deviceType_to_subscribeParams[uid >> 72])
+      deviceName = runtimeUtil.SENSOR_TYPE[uid >> 72]
+      self.hibikeSubscribeDevice(self.processMapping[PROCESS_NAMES.HIBIKE], uid, 20, self.deviceName_to_subscribeParams[deviceName])
     self.createKey(["hibike", "devices", uid], send=False)
     for param in params:
       self.createKey(["hibike", "devices", uid, param], send=False)

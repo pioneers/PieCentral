@@ -197,7 +197,7 @@ class StateManager(object):
     self.state["runtime_meta"][0]["e_stopped"][0] = False
 
   def endStudentCode(self):
-    self.processMapping[PROCESS_NAMES.UDP_RECEIVE_PROCESS].send(runtime_pb2.RuntimeData.STUDENT_STOPPED)
+    self.processMapping[PROCESS_NAMES.UDP_RECEIVE_PROCESS].send(runtime_pb2.IDLE)
 
   def hibikeEnumerateAll(self, pipe):
     pipe.send([HIBIKE_COMMANDS.ENUMERATE.value, []])

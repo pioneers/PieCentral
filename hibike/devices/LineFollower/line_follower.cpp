@@ -47,6 +47,6 @@ uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
     return 0;
   }
   float *data_float = (float *)data;
-  data_float[0] = analogRead(pins[param])/1023;
+  data_float[0] = ((float) analogRead(pins[param]))/1023;
   return sizeof(float);
 }

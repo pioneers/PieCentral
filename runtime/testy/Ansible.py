@@ -114,9 +114,16 @@ class UDPSendClass(AnsibleHandler):
                     # UID (88 bits) - 24 = 64 bits, enough to easily pack for transmission to Dawn
                     sensor.uid = uid >> 24
                     for param, value in values[0].items():
+                        if value[0] is None:
+                            continue
                         param_value_pair = sensor.param_value.add()
                         param_value_pair.param = param
-                        param_value_pair.float_value = value[0]
+                        if type(value[0]) == bool:
+                            param_value_pair.bool_value = value[0]
+                        elif type(value[0]) == float:
+                            param_value_pair.float_value = value[0]
+                        elif type(value[0]) == int:
+                            param_value_pair.int_value = value[0]
                 return proto_message.SerializeToString() 
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(),
@@ -213,6 +220,8 @@ class UDPRecvClass(AnsibleHandler):
             received_proto.ParseFromString(data)
             new_state = received_proto.student_code_status
             unpackaged_data["student_code_status"] = [new_state, time.time()]
+            if self.pipe.poll():
+                self.control_state = self.pipe.recv()
             if self.control_state is None or new_state != self.control_state:
                 self.control_state = received_proto.student_code_status
                 sm_state_command = self.sm_mapping[new_state]
@@ -340,6 +349,11 @@ class TCPClass(AnsibleHandler):
                     break
                 unpackagedData = unpackage(recv_data)
                 stateQueue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
+        except ConnectionResetError:
+            badThingsQueue.put(BadThing(sys.exc_info(),
+                    "restarting Ansible Processes due to disconnection",
+                    event = BAD_EVENTS.DAWN_DISCONNECTED,
+                    printStackTrace = False))
         except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
                     "TCP receiver crashed with error: " + str(e),

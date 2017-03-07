@@ -1,5 +1,4 @@
 build/*
 static/*
 release.js
-webpack.*
 renderer/utils/test/redux-saga-test.js

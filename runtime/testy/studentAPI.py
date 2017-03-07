@@ -217,8 +217,5 @@ class Robot(StudentAPI):
     console_string = " ".join(str(arg) for arg in args)
     self.toManager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]])
 
-  def hibikeEnumerateDevices(self):
-    self.toManager.put([HIBIKE_COMMANDS.ENUMERATE, []])
-
   def hibikeWriteValue(self, uid, params):
     self.toManager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])

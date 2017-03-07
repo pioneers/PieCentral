@@ -1,5 +1,6 @@
-export const ansibleConnect = () => ({
-  type: 'ANSIBLE_CONNECT',
+export const infoPerMessage = stateChange => ({
+  type: 'PER_MESSAGE',
+  robotState: stateChange,
 });
 
 export const ansibleDisconnect = () => ({
@@ -24,16 +25,12 @@ export const updateCodeStatus = studentCodeStatus => ({
   studentCodeStatus,
 });
 
-export const updateRobotState = robotState => ({
-  type: 'ROBOT_STATE',
-  robotState,
-});
-
-export const updateStatus = () => ({
-  type: 'UPDATE_STATUS',
-});
-
 export const ipChange = ipAddress => ({
   type: 'IP_CHANGE',
   ipAddress,
+});
+
+export const notifyChange = hold => ({
+  type: 'NOTIFICATION_CHANGE',
+  notificationHold: hold,
 });

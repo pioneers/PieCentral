@@ -9,12 +9,12 @@ const Gamepads = (props) => {
   if (_.some(props.gamepads, gamepad => gamepad !== undefined)) {
     interior = _.map(
       props.gamepads,
-      (gamepad, index) => <GamepadItem key={index} index={index} gamepad={gamepad} />,
+      (gamepad, index) => <GamepadItem key={index} index={parseInt(index, 10)} gamepad={gamepad} />,
     );
   } else {
     interior = (
       <p className="panelText">
-        There don't seem to be any gamepads connected.
+        There doesn&apos;t seem to be any gamepads connected.
         Connect a gamepad and press any button on it.
       </p>
     );

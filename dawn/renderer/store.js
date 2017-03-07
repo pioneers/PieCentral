@@ -14,4 +14,4 @@ const store = createStore(
 
 sagaMiddleware.run(rootSaga);
 
-export { store };
+export default store;

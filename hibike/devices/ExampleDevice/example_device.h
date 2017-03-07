@@ -16,13 +16,24 @@ hibike_uid_t UID = {
 ///////////////////////////////////////////////
 
 // this is an optional device specific enum to make implementation easier
+// The value of each parameter should match the number defined in the jason file.
 typedef enum {
-  VALUE_0 = 1,
-  VALUE_1 = 11,
-  VALUE_2 = 12,
-  VALUE_3 = 13,
-  VALUE_4 = 14,
-  VALUE_5 = 7
+	KUMIKO = 0,
+	HAZUKI = 1,
+	SAPPHIRE = 2,
+	REINA = 3,
+	ASUKA = 4,
+	HARUKA = 5,
+	KAORI = 6,
+	NATSUKI = 7,
+	YUKO = 8,
+	MIZORE = 9,
+	NOZOMI = 10,
+	SHUICHI = 11,
+	TAKUYA = 12,
+	RIKO = 13,
+	AOI = 14,
+	NOBORU = 15
 } ExampleDeviceParam;
 
 // function prototypes

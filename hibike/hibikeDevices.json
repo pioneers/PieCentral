@@ -2,8 +2,7 @@
     {"id": 0,     "name": "LimitSwitch",   "params": [    
                                                           {"number": 0  , "name": "switch0"    , "type": "bool"    , "read": true , "write": false },
                                                           {"number": 1  , "name": "switch1"    , "type": "bool"    , "read": true , "write": false },
-                                                          {"number": 2  , "name": "switch2"    , "type": "bool"    , "read": true , "write": false },
-                                                          {"number": 3  , "name": "switch3"    , "type": "bool"    , "read": true , "write": false }
+                                                          {"number": 2  , "name": "switch2"    , "type": "bool"    , "read": true , "write": false }
                                                      ]
     },
 
@@ -17,8 +16,7 @@
     {"id": 2,     "name": "Potentiometer", "params": [    
                                                           {"number": 0  , "name": "pot0"       , "type": "float"   , "read": true , "write": false },
                                                           {"number": 1  , "name": "pot1"       , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 2  , "name": "pot2"       , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 3  , "name": "pot3"       , "type": "float"   , "read": true , "write": false }
+                                                          {"number": 2  , "name": "pot2"       , "type": "float"   , "read": true , "write": false }
                                                      ]
     },
 
@@ -81,6 +79,12 @@
                                                      ]
     },
 
+    {"id": 11, "name": "RFID", "params": [    
+                                                          {"number": 0  , "name": "id"     , "type": "uint8_t"    , "read": true , "write": false  },
+                                                          {"number": 1  , "name": "tag_detect"     , "type": "uint8_t"    , "read": true , "write": false  }
+                                                     ]
+    },
+
     {"id": 65535, "name": "ExampleDevice", "params": [    
                                                           {"number": 0  , "name": "kumiko"     , "type": "bool"    , "read": true , "write": true  },
                                                           {"number": 1  , "name": "hazuki"     , "type": "uint8_t" , "read": true , "write": true  },
@@ -92,7 +96,7 @@
                                                           {"number": 7  , "name": "natsuki"    , "type": "uint64_t", "read": true , "write": true  },
                                                           {"number": 8  , "name": "yuko"       , "type": "int64_t" , "read": true , "write": true  },
                                                           {"number": 9  , "name": "mizore"     , "type": "float"   , "read": true , "write": true  },
-                                                          {"number": 10 , "name": "nozomi"     , "type": "double"  , "read": true , "write": true  },
+                                                          {"number": 10 , "name": "nozomi"     , "type": "float"  , "read": true , "write": true  },
                                                           {"number": 11 , "name": "shuichi"    , "type": "uint8_t" , "read": true , "write": false },
                                                           {"number": 12 , "name": "takuya"     , "type": "uint16_t", "read": false, "write": true  },
                                                           {"number": 13 , "name": "riko"       , "type": "uint32_t", "read": true , "write": false },

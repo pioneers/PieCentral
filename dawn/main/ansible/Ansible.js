@@ -97,6 +97,9 @@ class ListenSocket {
 const SEND_PORT = 1236;
 class SendSocket {
   constructor() {
+    this.sendGamepadMessages = this.sendGamepadMessages.bind(this);
+    this.ipAddressListener = this.ipAddressListener.bind(this);
+
     this.runtimeIP = '192.168.0.200';
 
     // TODO: Verify if reuseAddr prevents EADDRINUSE
@@ -140,6 +143,9 @@ class SendSocket {
 
 class TCPSocket {
   constructor(socket) {
+    this.waitRuntimeConfirm = this.waitRuntimeConfirm.bind(this);
+    this.tryUpload = this.tryUpload.bind(this);
+
     this.socket = socket;
     this.received = false;
 
@@ -173,7 +179,10 @@ class TCPSocket {
       this.socket.write(message, () => {
         console.log(`Runtime notified: try ${count + 1}`);
       });
-      setTimeout(this.waitRuntimeConfirm.bind(this, message, count + 1), 1000);
+
+      setTimeout(() => {
+        this.waitRuntimeConfirm(message, count + 1);
+      }, 1000);
     }
   }
 

@@ -13,55 +13,21 @@ from google.protobuf import descriptor_pb2
 _sym_db = _symbol_database.Default()
 
 
+import robotstate_pb2 as robotstate__pb2
 
+from robotstate_pb2 import *
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='runtime.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\rruntime.proto\"\xce\x03\n\x0bRuntimeData\x12\'\n\x0brobot_state\x18\x01 \x01(\x0e\x32\x12.RuntimeData.State\x12,\n\x0bsensor_data\x18\x02 \x03(\x0b\x32\x17.RuntimeData.SensorData\x1a\x65\n\nParamValue\x12\r\n\x05param\x18\x01 \x01(\t\x12\x15\n\x0b\x66loat_value\x18\x02 \x01(\x02H\x00\x12\x13\n\tint_value\x18\x03 \x01(\x05H\x00\x12\x14\n\nbool_value\x18\x04 \x01(\x08H\x00\x42\x06\n\x04kind\x1a\x97\x01\n\nSensorData\x12\x13\n\x0b\x64\x65vice_type\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x04 \x01(\x04\x12\x17\n\x0fint_device_type\x18\x05 \x01(\r\x12,\n\x0bparam_value\x18\x06 \x03(\x0b\x32\x17.RuntimeData.ParamValueJ\x04\x08\x03\x10\x04R\x05value\"g\n\x05State\x12\x13\n\x0fSTUDENT_CRASHED\x10\x00\x12\x13\n\x0fSTUDENT_RUNNING\x10\x01\x12\x13\n\x0fSTUDENT_STOPPED\x10\x02\x12\n\n\x06TELEOP\x10\x03\x12\x08\n\x04\x41UTO\x10\x04\x12\t\n\x05\x45STOP\x10\x05\x62\x06proto3')
-)
+  serialized_pb=_b('\n\rruntime.proto\x1a\x10robotstate.proto\"\xc8\x02\n\x0bRuntimeData\x12 \n\x0brobot_state\x18\x01 \x01(\x0e\x32\x0b.RobotState\x12,\n\x0bsensor_data\x18\x02 \x03(\x0b\x32\x17.RuntimeData.SensorData\x1aO\n\nParamValue\x12\r\n\x05param\x18\x01 \x01(\t\x12\x15\n\x0b\x66loat_value\x18\x02 \x01(\x02H\x00\x12\x13\n\tint_value\x18\x03 \x01(\x05H\x00\x42\x06\n\x04kind\x1a\x97\x01\n\nSensorData\x12\x13\n\x0b\x64\x65vice_type\x18\x01 \x01(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x02 \x01(\t\x12\x0b\n\x03uid\x18\x04 \x01(\x04\x12\x17\n\x0fint_device_type\x18\x05 \x01(\r\x12,\n\x0bparam_value\x18\x06 \x03(\x0b\x32\x17.RuntimeData.ParamValueJ\x04\x08\x03\x10\x04R\x05valueP\x00\x62\x06proto3')
+  ,
+  dependencies=[robotstate__pb2.DESCRIPTOR,],
+  public_dependencies=[robotstate__pb2.DESCRIPTOR,])
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
-
-_RUNTIMEDATA_STATE = _descriptor.EnumDescriptor(
-  name='State',
-  full_name='RuntimeData.State',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='STUDENT_CRASHED', index=0, number=0,
-      options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='STUDENT_RUNNING', index=1, number=1,
-      options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='STUDENT_STOPPED', index=2, number=2,
-      options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='TELEOP', index=3, number=3,
-      options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='AUTO', index=4, number=4,
-      options=None,
-      type=None),
-    _descriptor.EnumValueDescriptor(
-      name='ESTOP', index=5, number=5,
-      options=None,
-      type=None),
-  ],
-  containing_type=None,
-  options=None,
-  serialized_start=377,
-  serialized_end=480,
-)
-_sym_db.RegisterEnumDescriptor(_RUNTIMEDATA_STATE)
 
 
 _RUNTIMEDATA_PARAMVALUE = _descriptor.Descriptor(
@@ -92,13 +58,6 @@ _RUNTIMEDATA_PARAMVALUE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
-    _descriptor.FieldDescriptor(
-      name='bool_value', full_name='RuntimeData.ParamValue.bool_value', index=3,
-      number=4, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
   ],
   extensions=[
   ],
@@ -114,8 +73,8 @@ _RUNTIMEDATA_PARAMVALUE = _descriptor.Descriptor(
       name='kind', full_name='RuntimeData.ParamValue.kind',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=120,
-  serialized_end=221,
+  serialized_start=131,
+  serialized_end=210,
 )
 
 _RUNTIMEDATA_SENSORDATA = _descriptor.Descriptor(
@@ -172,8 +131,8 @@ _RUNTIMEDATA_SENSORDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=224,
-  serialized_end=375,
+  serialized_start=213,
+  serialized_end=364,
 )
 
 _RUNTIMEDATA = _descriptor.Descriptor(
@@ -202,7 +161,6 @@ _RUNTIMEDATA = _descriptor.Descriptor(
   ],
   nested_types=[_RUNTIMEDATA_PARAMVALUE, _RUNTIMEDATA_SENSORDATA, ],
   enum_types=[
-    _RUNTIMEDATA_STATE,
   ],
   options=None,
   is_extendable=False,
@@ -210,8 +168,8 @@ _RUNTIMEDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=18,
-  serialized_end=480,
+  serialized_start=36,
+  serialized_end=364,
 )
 
 _RUNTIMEDATA_PARAMVALUE.containing_type = _RUNTIMEDATA
@@ -221,14 +179,10 @@ _RUNTIMEDATA_PARAMVALUE.fields_by_name['float_value'].containing_oneof = _RUNTIM
 _RUNTIMEDATA_PARAMVALUE.oneofs_by_name['kind'].fields.append(
   _RUNTIMEDATA_PARAMVALUE.fields_by_name['int_value'])
 _RUNTIMEDATA_PARAMVALUE.fields_by_name['int_value'].containing_oneof = _RUNTIMEDATA_PARAMVALUE.oneofs_by_name['kind']
-_RUNTIMEDATA_PARAMVALUE.oneofs_by_name['kind'].fields.append(
-  _RUNTIMEDATA_PARAMVALUE.fields_by_name['bool_value'])
-_RUNTIMEDATA_PARAMVALUE.fields_by_name['bool_value'].containing_oneof = _RUNTIMEDATA_PARAMVALUE.oneofs_by_name['kind']
 _RUNTIMEDATA_SENSORDATA.fields_by_name['param_value'].message_type = _RUNTIMEDATA_PARAMVALUE
 _RUNTIMEDATA_SENSORDATA.containing_type = _RUNTIMEDATA
-_RUNTIMEDATA.fields_by_name['robot_state'].enum_type = _RUNTIMEDATA_STATE
+_RUNTIMEDATA.fields_by_name['robot_state'].enum_type = robotstate__pb2._ROBOTSTATE
 _RUNTIMEDATA.fields_by_name['sensor_data'].message_type = _RUNTIMEDATA_SENSORDATA
-_RUNTIMEDATA_STATE.containing_type = _RUNTIMEDATA
 DESCRIPTOR.message_types_by_name['RuntimeData'] = _RUNTIMEDATA
 
 RuntimeData = _reflection.GeneratedProtocolMessageType('RuntimeData', (_message.Message,), dict(

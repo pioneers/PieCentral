@@ -110,6 +110,10 @@ class SendSocket {
       throw err;
     });
 
+    this.socket.on('close', () => {
+      console.log('UDP sending closed');
+    });
+
     ipcMain.on('stateUpdate', this.sendGamepadMessages);
 
     /*
@@ -234,20 +238,18 @@ class TCPServer {
   }
 }
 
-class Ansible {
+const Ansible = {
+  conns: [],
   setup() {
     this.conns = [
       new ListenSocket(),
       new SendSocket(),
       new TCPServer(),
     ];
-  }
-
+  },
   close() {
     this.conns.forEach(conn => conn.close());
-  }
-}
+  },
+};
 
-const ansible = new Ansible();
-
-export default ansible;
+export default Ansible;

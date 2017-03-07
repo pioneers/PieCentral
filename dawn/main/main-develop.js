@@ -6,14 +6,14 @@ import { app, BrowserWindow, Menu } from 'electron';
 import RendererBridge from './RendererBridge';
 import { killFakeRuntime } from './MenuTemplate/DebugMenu';
 import Template from './MenuTemplate/Template';
-import ansible from './ansible/Ansible';
+import Ansible from './ansible/Ansible';
 
 app.on('window-all-closed', () => {
   app.quit();
 });
 
 app.on('will-quit', () => {
-  ansible.close();
+  Ansible.close();
 
   if (process.env.NODE_ENV === 'development') {
     killFakeRuntime();
@@ -21,7 +21,7 @@ app.on('will-quit', () => {
 });
 
 app.on('ready', () => {
-  ansible.setup();
+  Ansible.setup();
 
   const mainWindow = new BrowserWindow();
 

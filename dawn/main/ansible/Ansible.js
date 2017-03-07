@@ -136,8 +136,8 @@ class SendSocket {
 
   close() {
     this.socket.close();
-    ipcMain.off('stateUpdate', this.sendGamepadMessages);
-    ipcMain.off('ipAddress', this.ipAddressListener);
+    ipcMain.removeListener('stateUpdate', this.sendGamepadMessages);
+    ipcMain.removeListener('ipAddress', this.ipAddressListener);
   }
 }
 
@@ -203,7 +203,7 @@ class TCPSocket {
 
   close() {
     this.socket.end();
-    ipcMain.off('NOTIFY_UPLOAD', this.receiveUpload);
+    ipcMain.removeListener('NOTIFY_UPLOAD', this.receiveUpload);
   }
 }
 

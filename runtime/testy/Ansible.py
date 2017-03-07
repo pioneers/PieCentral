@@ -114,6 +114,8 @@ class UDPSendClass(AnsibleHandler):
                     # UID (88 bits) - 24 = 64 bits, enough to easily pack for transmission to Dawn
                     sensor.uid = uid >> 24
                     for param, value in values[0].items():
+                        if value[0] is None:
+                            continue
                         param_value_pair = sensor.param_value.add()
                         param_value_pair.param = param
                         if type(value[0]) == bool:
@@ -345,6 +347,11 @@ class TCPClass(AnsibleHandler):
                     break
                 unpackagedData = unpackage(recv_data)
                 stateQueue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
+        except ConnectionResetError:
+            badThingsQueue.put(BadThing(sys.exc_info(),
+                    "restarting Ansible Processes due to disconnection",
+                    event = BAD_EVENTS.DAWN_DISCONNECTED,
+                    printStackTrace = False))
         except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(), 
                     "TCP receiver crashed with error: " + str(e),

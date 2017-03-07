@@ -117,6 +117,7 @@ class UDPSendClass(AnsibleHandler):
                         if value[0] is None:
                             continue
                         param_value_pair = sensor.param_value.add()
+                        param_value_pair.param = param
                         if type(value[0]) == bool:
                             param_value_pair.bool_value = value[0]
                         elif type(value[0]) == float:

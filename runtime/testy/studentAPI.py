@@ -86,19 +86,19 @@ class Robot(StudentAPI):
     "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
   }
   param_to_valid_values = {
-    "servo0" : [[int], 0, 180],
-    "enable0" : [[bool]],
-    "servo1" : [[int], 0, 180],
-    "enable1" : [[bool]],
-    "duty_cycle" : [[float, int], -1, 1],
-    "enable" : [[bool]],
-    "pid_pos_setpoint" :[[float, int], -float("inf"), float("inf")],
-    "pid_pos_kp" : [[float, int], 0, float("inf")],
-    "pid_pos_ki" : [[float, int], 0, float("inf")],
-    "pid_pos_kd" : [[float, int], 0, float("inf")],
-    "command_state" : [[int], 0, 2],
-    "current_thresh" : [[float, int], 2, 10],
-    "enc_pos" : [[float, int], 0, 0],
+    "servo0" : [(int), 0, 180],
+    "enable0" : [(bool)],
+    "servo1" : [(int), 0, 180],
+    "enable1" : [(bool)],
+    "duty_cycle" : [(float, int), -1, 1],
+    "enable" : [(bool)],
+    "pid_pos_setpoint" :[(float, int), -float("inf"), float("inf")],
+    "pid_pos_kp" : [(float, int), 0, float("inf")],
+    "pid_pos_ki" : [(float, int), 0, float("inf")],
+    "pid_pos_kd" : [(float, int), 0, float("inf")],
+    "command_state" : [(int), 0, 2],
+    "current_thresh" : [(float, int), 2, 10],
+    "enc_pos" : [(float, int), 0, 0],
   }
 
   def __init__(self, toManager, fromManager):
@@ -167,8 +167,8 @@ class Robot(StudentAPI):
 
   def _check_value(self, param, value):
     valid_values = self.param_to_valid_values[param]
-    if not type(value) in valid_values[0]:
-      raise StudentAPIValueError("Invalid value type passed in, valid types for this param are: " + valid_values[0].__name__)
+    if not isinstance(value, valid_values[0]):
+      raise StudentAPIValueError("Invalid value type passed in, valid types for this param are: " + valid_values[0][0].__name__)
     if valid_values[0][0] == bool:
       return
     elif valid_values[0][0] == float or valid_values[0][0] == int:

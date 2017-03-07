@@ -108,13 +108,15 @@ def runtime(testName=""):
           if newBadThing.event in studentErrorEvents:
             stateQueue.put([SM_COMMANDS.SEND_CONSOLE, [str(newBadThing)]])
           controlState = "idle"
-          restartCount += 1
+          if testMode:
+            restartCount += 1
           if not emergency_stopped and newBadThing.event is BAD_EVENTS.EMERGENCY_STOP:
             emergency_stopped = True #somehow kill student code using other method? right now just restarting on e-stop
           break
       stateQueue.put([SM_COMMANDS.RESET, []])
       terminate_process(PROCESS_NAMES.STUDENT_CODE)
       stateQueue.put([SM_COMMANDS.SET_VAL, [runtime_pb2.RuntimeData.STUDENT_STOPPED, ["studentCodeState"]]])
+      stateQueue.put([SM_COMMANDS.END_STUDENT_CODE, []])
     nonTestModePrint(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
     print("TERMINATING")
@@ -249,7 +251,7 @@ def terminate_process(processName):
     return
   process = allProcesses.pop(processName)
   process.terminate()
-  for _ in range(10): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
+  for _ in range(100): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
     time.sleep(.01) # Give the OS a chance to terminate the other process
     if not process.is_alive():
       break

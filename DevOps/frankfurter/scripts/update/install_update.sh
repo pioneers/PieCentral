@@ -25,6 +25,7 @@ sudo rm -rf $HOME/PieCentral/hibike
 mv $TMP_DIR/hibike $HOME/PieCentral
 mv $TMP_DIR/runtime $HOME/PieCentral
 cp $PIECENTRAL_BACKUP_DIR/runtime/testy/studentCode.py $HOME/PieCentral/runtime/testy
+cp $PIECENTRAL_BACKUP_DIR/runtime/testy/namedPeripherals.scv $HOME/PieCentral/runtime/testy
 
 # Copy executables
 mv $TMP_DIR/resources/update.sh $HOME/bin

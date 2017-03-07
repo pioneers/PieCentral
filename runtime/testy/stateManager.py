@@ -41,7 +41,7 @@ class StateManager(object):
       SM_COMMANDS.ENTER_IDLE: self.enter_idle,
       SM_COMMANDS.ENTER_TELEOP: self.enter_teleop,
       SM_COMMANDS.ENTER_AUTO: self.enter_auto,
-      SM_COMMANDS.END_STUDENT_CODE: self.endStudentCode
+      SM_COMMANDS.END_STUDENT_CODE: self.endStudentCode,
     }
     return commandMapping
 

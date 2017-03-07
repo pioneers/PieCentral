@@ -74,16 +74,16 @@ class Gamepad(StudentAPI):
     raise StudentAPIKeyError()
 
 class Robot(StudentAPI):
-  deviceType_to_writeParams = {
-    5  : ["s1", "s2", "s3", "s4"],
-    7  : ["servo0", "enable0", "servo1", "enable1"],
-    10 : ["enable", "command_state", "duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos"],
+  deviceName_to_writeParams = {
+    "TeamFlag" : ["s1", "s2", "s3", "s4"],
+    "ServoControl" : ["servo0", "enable0", "servo1", "enable1"],
+    "YogiBear" : ["enable", "command_state", "duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos"],
   }
-  deviceType_to_readParams = {
-    0  : ["switch0", "switch1", "switch2"],
-    1  : ["left", "center", "right"],
-    2  : ["pot0", "pot1", "pot2"],
-    10 : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
+  deviceName_to_readParams = {
+    "LimitSwitch" : ["switch0", "switch1", "switch2"],
+    "LineFollower" : ["left", "center", "right"],
+    "Potentiometer" : ["pot0", "pot1", "pot2"],
+    "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
   }
   param_to_valid_values = {
     "servo0" : [[int], 0, 180],
@@ -155,13 +155,13 @@ class Robot(StudentAPI):
 
   def _check_write_params(self, uid, param):
     device_type = uid >> 72
-    valid_params = self.deviceType_to_writeParams[device_type]
+    valid_params = self.deviceName_to_writeParams[SENSOR_TYPE[device_type]]
     if param not in valid_params:
       raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + "".join(valid_params))
 
   def _check_read_params(self, uid, param):
     device_type = uid >> 72
-    valid_params = self.deviceType_to_readParams[device_type]
+    valid_params = self.deviceName_to_readParams[SENSOR_TYPE[device_type]]
     if param not in valid_params:
       raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + "".join(valid_params))
 

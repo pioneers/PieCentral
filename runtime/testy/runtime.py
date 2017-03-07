@@ -116,7 +116,7 @@ def runtime(testName=""):
       if testMode:
         stateQueue.put([SM_COMMANDS.RESET, []])
       terminate_process(PROCESS_NAMES.STUDENT_CODE)
-      stateQueue.put([SM_COMMANDS.SET_VAL, [runtime_pb2.RuntimeData.STUDENT_STOPPED, ["studentCodeState"]]])
+      stateQueue.put([SM_COMMANDS.SET_VAL, [runtime_pb2.RuntimeData.STUDENT_STOPPED, ["studentCodeState"], False]])
       stateQueue.put([SM_COMMANDS.END_STUDENT_CODE, []])
     nonTestModePrint(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
@@ -252,13 +252,14 @@ def terminate_process(processName):
     return
   process = allProcesses.pop(processName)
   process.terminate()
-  for _ in range(100): # Gives 0.1 sec for process to terminate but allows it to terminate quicker
+  for _ in range(100): # Gives 1 sec for process to terminate but allows it to terminate quicker
     time.sleep(.01) # Give the OS a chance to terminate the other process
     if not process.is_alive():
       break
   if process.is_alive():
     print("Terminating with EXTREME PREJUDICE")
     print("Queue state is probably boned and we should restart entire runtime")
+    print("Boned Process:", processName)
     os.kill(process.pid, signal.SIGKILL)
     raise NotImplementedError
 

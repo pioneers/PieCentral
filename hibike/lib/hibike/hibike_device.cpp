@@ -103,7 +103,7 @@ void hibike_loop() {
   }
 
   if ((currTime - resp_heartbeat) > disable_latency) {
-    disable(); //on sensor specific device
+    device_disable(); //on sensor specific device
   }
 }
 

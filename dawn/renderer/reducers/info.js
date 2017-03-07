@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { stateEnum, runtimeStateEnum } from '../utils/utils';
+import { robotState, runtimeState } from '../utils/utils';
 
 const initialInfoState = {
   ipAddress: '192.168.7.2',
@@ -40,7 +40,7 @@ const info = (state = initialInfoState, action) => {
       return {
         ...state,
         runtimeStatus: false,
-        studentCodeStatus: stateEnum.IDLE,
+        studentCodeStatus: robotState.IDLE,
       };
     case 'UPDATE_BATTERY':
       return {

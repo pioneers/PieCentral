@@ -12,20 +12,22 @@ class Hibike:
         self.hibike_process.start()
 
     def enumerate(self):
-        self.pipeTochild.send(["enumerate_all"])
+        self.pipeTochild.send(["enumerate_all", []])
 
     def subscribe(self, uid, delay, params):
-        self.pipeTochild.send(["subscribe", uid, delay, params])
+        self.pipeTochild.send(["subscribe_device",[ uid, delay, params]])
 
     def write(self, uid, params_and_values):
-        self.pipeTochild.send(["write", uid, params_and_values])
+        self.pipeTochild.send(["write_params", [uid, params_and_values]])
 
     def read(self, uid, params):
-        self.pipeTochild.send(["read", uid, params])
+        self.pipeTochild.send(["read_params", [uid, params] ])
 
+    def disable(self):
+        #disables all attached devices.
+        self.pipeTochild.send(["disable_all", []])
 if __name__ == '__main__':
     h = Hibike()
-    h.ready()
     h.enumerate()
     while True:
         print(h.stateQueue.get())

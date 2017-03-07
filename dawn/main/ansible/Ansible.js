@@ -11,7 +11,7 @@ import {
   infoPerMessage,
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
-import { uploadStatus, stateEnum } from '../../renderer/utils/utils';
+import { uploadStatus, robotState } from '../../renderer/utils/utils';
 
 let runtimeIP = '192.168.0.200';
 let runtimeSocket = null;

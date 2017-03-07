@@ -210,6 +210,7 @@ class TCPSocket {
 const TCP_PORT = 1234;
 class TCPServer {
   constructor() {
+    this.socket = null;
     this.tcp = net.createServer((socket) => {
       this.socket = new TCPSocket(socket);
     });

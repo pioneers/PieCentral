@@ -114,10 +114,15 @@ class UDPSendClass(AnsibleHandler):
                     # UID (88 bits) - 24 = 64 bits, enough to easily pack for transmission to Dawn
                     sensor.uid = uid >> 24
                     for param, value in values[0].items():
+                        if not value[0]:
+                            continue
                         param_value_pair = sensor.param_value.add()
-                        param_value_pair.param = param
-                        if value[0]:
+                        if type(value[0]) == bool:
+                            param_value_pair.bool_value = value[0]
+                        elif type(value[0]) == float:
                             param_value_pair.float_value = value[0]
+                        elif type(value[0]) == int:
+                            param_value_pair.int_value = value[0]
                 return proto_message.SerializeToString() 
             except Exception as e:
                 badThingsQueue.put(BadThing(sys.exc_info(),

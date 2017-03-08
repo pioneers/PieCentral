@@ -81,7 +81,6 @@ class ListenSocket {
 
     this.socket.on('error', (err) => {
       console.log('UDP listening error');
-      this.socket.close();
       throw err;
     });
 

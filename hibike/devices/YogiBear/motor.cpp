@@ -4,7 +4,7 @@
 //tab to handle all controls issued to the motor including driving and braking
 
 bool motorEnabled = false;
-float deadBand = 0;
+float deadBand = 0.05;
 
 void motorSetup() {
   pinMode(current_pin,INPUT);

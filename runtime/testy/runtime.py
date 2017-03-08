@@ -54,6 +54,7 @@ def runtime(testName=""):
     spawnProcess(PROCESS_NAMES.HIBIKE, startHibike)
     controlState = "idle"
     dawn_connected = False
+
     while True:
       if testMode:
         # Automatically enter telop mode when running tests

@@ -121,4 +121,5 @@ export PYTHONPATH="${PYTHONPATH}:/home/ubuntu/PieCentral/hibike"
 alias start-runtime='sudo systemctl start runtime.service'
 alias stop-runtime='sudo systemctl stop runtime.service'
 alias restart-runtime='sudo systemctl restart runtime.service'
+alias runtime-status='sudo systemctl status runtime.service'
 alias runtime-logs='sudo journalctl -u runtime.service'

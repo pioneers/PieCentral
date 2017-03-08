@@ -19,7 +19,6 @@ void ctrl_RED() {
 	} else {
 		digitalWrite(LED_RED, LOW);
 	}
-
 	if(!isMotorEnabled()) {
 		digitalWrite(LED_RED, HIGH);
 	}

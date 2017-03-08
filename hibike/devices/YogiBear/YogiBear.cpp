@@ -64,7 +64,7 @@ void loop() {
 
 uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   switch (param) {
-
+    
     case DUTY_CYCLE:
       motorEnable();
       disablePID(); 
@@ -238,3 +238,4 @@ uint8_t readDriveMode() {
 void device_disable() {
 	motorDisable();
 }
+

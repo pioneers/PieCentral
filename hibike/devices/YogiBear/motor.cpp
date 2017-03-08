@@ -29,8 +29,8 @@ void motorDisable() {
   digitalWrite(enable_pin, LOW);
   disablePID();
   resetPID();
-  zeroEncoder();
-  setPWMInput(0);
+  resetEncoder();
+  resetPWMInput();
   resetDriveMode();
   motorEnabled = false;
 }
@@ -41,7 +41,7 @@ bool isMotorEnabled() {
 
 //returns current in amps
 float readCurrent() {
-  return (analogRead(current_pin) / 33.0);
+  return (analogRead(current_pin) / 33.0); //Number was generated based on a few tests across multiple boards. Valid for majority of good boards
 }
 
 //takes a value from -1 to 1 inclusive and writes to the motor and sets the INA and INB pins for direction

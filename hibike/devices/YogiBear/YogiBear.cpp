@@ -24,7 +24,7 @@ void setup() {
   PIDSetup();
   setup_LEDs();
   test_LEDs();
-  hibike_setup();
+  hibike_setup(500);
   motorDisable();
   driveMode = MANUALDRIVE;
 }
@@ -67,7 +67,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 
     case DUTY_CYCLE:
       motorEnable();
-      disablePID(); 
+      disablePID();
       driveMode = MANUALDRIVE;
       pwmInput = ((float *)data)[0];
       return sizeof(float);
@@ -75,7 +75,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 
     case PID_POS_SETPOINT: 
       motorEnable();
-    	driveMode = PID_POS;
+      driveMode = PID_POS;
       enablePos();
       setPosSetpoint(((float *)data)[0]);
       return sizeof(float);
@@ -98,7 +98,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 
     case PID_VEL_SETPOINT:
       motorEnable(); 
-    	driveMode = PID_VEL;
+      driveMode = PID_VEL;
       enableVel();
       setVelSetpoint(((float *)data)[0]);
       return sizeof(float);
@@ -126,7 +126,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 
     case ENC_POS: 
       if((float) data[0] == 0) {
-        zeroEncoder();
+        resetEncoder();
         return sizeof(float);
       }
 
@@ -224,8 +224,8 @@ float readPWMInput() {
   return pwmInput;
 }
 
-void setPWMInput(float pwm) {
-	pwmInput = pwm;
+void resetPWMInput() {
+	pwmInput = 0;
 }
 
 uint8_t readDriveMode() {
@@ -240,6 +240,6 @@ void resetDriveMode() {
 // It is called when the BBB sends a message to the Smart Device tellinng the Smart Device to disable itself.
 // Consult README.md, section 6, to see what exact functionality is expected out of disable.
 void device_disable() {
-	motorDisable();
+  motorDisable();
 }
 

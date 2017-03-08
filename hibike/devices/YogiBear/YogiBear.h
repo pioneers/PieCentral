@@ -31,7 +31,7 @@ typedef enum {
 void setup();
 void loop();
 float readPWMInput();
-void setPWMInput(float pwm);
+void resetPWMInput();
 void resetDriveMode();
 uint8_t readDriveMode();
 

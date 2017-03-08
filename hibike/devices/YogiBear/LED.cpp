@@ -5,47 +5,58 @@
 #include "motor.h"
 #include "Arduino.h"
 
+bool redOn = false;
+bool yellowOn = false;
+bool greenOn = false;
+
 //place all LED control functions in here
 void ctrl_LEDs() {
-	ctrl_RED();
-	ctrl_YELLOW();
-	ctrl_GREEN();
-}
-
-//decides when the red LED is on
-void ctrl_RED() {
+	//control red LED state
 	if(readVel() < 0) {
+		redOn = true;
+	} else {
+		redOn = false;
+	}
+
+	//control yellow LED state
+	if(read_limit_state() == 2 || read_limit_state() == 3) { //limit state number
+		yellowOn = true;
+	} else {
+		yellowOn = false;
+	}
+
+	//control green LED state
+	if(readVel() > 0) {
+		greenOn = true;
+	} else {
+		greenOn = false;
+	}
+
+	//All LEDs on when disabled
+	if(!isMotorEnabled()) {
+		redOn = true;
+		yellowOn = true;
+		greenOn = true;
+	}
+
+	if(redOn) {
 		digitalWrite(LED_RED, HIGH);
 	} else {
 		digitalWrite(LED_RED, LOW);
 	}
-	if(!isMotorEnabled()) {
-		digitalWrite(LED_RED, HIGH);
-	}
-}
 
-//decides when the yellow LED is on
-void ctrl_YELLOW() {
-	if(read_limit_state() == 2 || read_limit_state() == 3) { //limit state number
+	if(yellowOn) {
 		digitalWrite(LED_YELLOW, HIGH);
 	} else {
 		digitalWrite(LED_YELLOW, LOW);
 	}
-	if(!isMotorEnabled()) {
-		digitalWrite(LED_YELLOW, HIGH);
-	}
-}
 
-//decides when the green LED is on
-void ctrl_GREEN() {
-	if(readVel() > 0) {
+	if(yellowOn) {
 		digitalWrite(LED_GREEN, HIGH);
 	} else {
 		digitalWrite(LED_GREEN, LOW);
 	}
-	if(!isMotorEnabled()) {
-		digitalWrite(LED_GREEN, HIGH);
-	}
+
 }
 
 void test_LEDs()

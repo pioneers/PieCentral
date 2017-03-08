@@ -32,7 +32,7 @@ void encoderSetup() {
   Timer3.attachInterrupt(timerThreeOps);
 }
 
-void zeroEncoder() {
+void resetEncoder() {
   myEnc.write(0);
 }
 

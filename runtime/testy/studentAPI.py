@@ -81,7 +81,7 @@ class Robot(StudentAPI):
   deviceName_to_writeParams = {
     "TeamFlag" : ["s1", "s2", "s3", "s4"],
     "ServoControl" : ["servo0", "enable0", "servo1", "enable1"],
-    "YogiBear" : ["enable", "command_state", "duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos"],
+    "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos"],
   }
   deviceName_to_readParams = {
     "LimitSwitch" : ["switch0", "switch1", "switch2"],
@@ -90,17 +90,15 @@ class Robot(StudentAPI):
     "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
   }
   param_to_valid_values = {
-    "servo0" : [(int), 0, 180],
-    "enable0" : [(bool)],
-    "servo1" : [(int), 0, 180],
-    "enable1" : [(bool)],
+    "servo0" : [(int,), 0, 180],
+    "enable0" : [(bool,)],
+    "servo1" : [(int,), 0, 180],
+    "enable1" : [(bool,)],
     "duty_cycle" : [(float, int), -1, 1],
-    "enable" : [(bool)],
     "pid_pos_setpoint" :[(float, int), -float("inf"), float("inf")],
     "pid_pos_kp" : [(float, int), 0, float("inf")],
     "pid_pos_ki" : [(float, int), 0, float("inf")],
     "pid_pos_kd" : [(float, int), 0, float("inf")],
-    "command_state" : [(int), 0, 2],
     "current_thresh" : [(float, int), 2, 10],
     "enc_pos" : [(float, int), 0, 0],
   }

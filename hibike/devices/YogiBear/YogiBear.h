@@ -25,7 +25,8 @@ typedef enum {
   CURRENT_THRESH = 11,
   ENC_POS = 12,
   ENC_VEL = 13,
-  MOTOR_CURRENT = 14
+  MOTOR_CURRENT = 14,
+  DEADBAND = 15
 } param;
 
 

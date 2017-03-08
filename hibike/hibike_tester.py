@@ -1,4 +1,5 @@
 import hibike_process
+import time
 from multiprocessing import Process, Pipe, Queue
 
 class Hibike:
@@ -29,5 +30,11 @@ class Hibike:
 if __name__ == '__main__':
     h = Hibike()
     h.enumerate()
+    uid = h.stateQueue.get()[1][0]
+    print(uid)
     while True:
         print(h.stateQueue.get())
+        h.write(uid, [("duty_cycle", -1)])
+        time.sleep(5)
+        h.disable()
+        time.sleep(5)

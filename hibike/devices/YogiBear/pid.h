@@ -21,5 +21,6 @@ void setVelSetpoint(float x);
 void setVelKP(float x);
 void setVelKI(float x);
 void setVelKD(float x);
+void resetPID();
 
 #endif /* PID_H */

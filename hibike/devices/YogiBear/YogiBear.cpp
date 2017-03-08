@@ -25,7 +25,7 @@ void setup() {
   setup_LEDs();
   test_LEDs();
   hibike_setup();
-  motorEnable();
+  motorDisable();
   driveMode = MANUALDRIVE;
 }
 
@@ -66,6 +66,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   switch (param) {
 
     case DUTY_CYCLE:
+      motorEnable();
       disablePID(); 
       driveMode = MANUALDRIVE;
       pwmInput = ((float *)data)[0];
@@ -73,6 +74,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
       break;
 
     case PID_POS_SETPOINT: 
+      motorEnable();
     	driveMode = PID_POS;
       enablePos();
       setPosSetpoint(((float *)data)[0]);
@@ -94,7 +96,8 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
       return sizeof(float);
       break;
 
-    case PID_VEL_SETPOINT: 
+    case PID_VEL_SETPOINT:
+      motorEnable(); 
     	driveMode = PID_VEL;
       enableVel();
       setVelSetpoint(((float *)data)[0]);
@@ -233,5 +236,5 @@ uint8_t readDriveMode() {
 // It is called when the BBB sends a message to the Smart Device tellinng the Smart Device to disable itself.
 // Consult README.md, section 6, to see what exact functionality is expected out of disable.
 void device_disable() {
-	disable();
+	motorDisable();
 }

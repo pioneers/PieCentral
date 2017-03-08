@@ -1,5 +1,4 @@
 import hibike_process
-import time
 from multiprocessing import Process, Pipe, Queue
 
 class Hibike:
@@ -32,3 +31,4 @@ if __name__ == '__main__':
     h.enumerate()
     while True:
         print(h.stateQueue.get())
+        

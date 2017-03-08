@@ -242,4 +242,3 @@ void resetDriveMode() {
 void device_disable() {
   motorDisable();
 }
-

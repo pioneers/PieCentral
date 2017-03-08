@@ -3,7 +3,7 @@
 uint8_t pins[NUM_SWITCHES] = {IN_0, IN_1, IN_2};
 
 void setup() {
-  hibike_setup();
+  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
   // Setup sensor input
   for (int i = 0; i < NUM_SWITCHES; i++) {
     pinMode(pins[i], INPUT);
@@ -45,7 +45,7 @@ uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
   if (MAX_PAYLOAD_SIZE - len < sizeof(uint8_t) || param >= NUM_SWITCHES || param<0) {
     return 0;
   }
-  data[0] = digitalRead(pins[param]) == LOW;
+  data[0] = digitalRead(pins[param]) == HIGH;
   return sizeof(bool);
 
 }

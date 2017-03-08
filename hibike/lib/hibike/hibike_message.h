@@ -29,6 +29,8 @@ typedef enum {
   DEVICE_WRITE            = 0x14,
   DEVICE_DATA             = 0x15,
   DEVICE_DISABLE          = 0x16,
+  HEART_BEAT_REQUEST      = 0x17,
+  HEART_BEAT_RESPONSE     = 0x18,
 
   ERROR                   = 0xFF,
 } messageID;
@@ -55,6 +57,8 @@ uint8_t checksum(uint8_t* data, int length);
 int send_message(message_t* msg);
 int read_message(message_t* msg);
 
+int send_heartbeat_response(uint8_t id);
+int send_heartbeat_request(uint8_t id);
 int send_subscription_response(uint16_t params, uint16_t delay, hibike_uid_t* uid);
 int send_data_update(uint16_t params);
 int send_error_packet(uint8_t error_code);

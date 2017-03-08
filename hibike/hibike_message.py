@@ -45,6 +45,8 @@ messageTypes = {
   "DeviceWrite" :          0x14,
   "DeviceData" :           0x15,
   "Disable":               0x16,
+  "HeartBeatRequest" :     0x17,
+  "HeartBeatResponse" :    0x18,
   "Error" :                0xFF
 }
 
@@ -170,6 +172,12 @@ def make_disable():
   """ Makes and returns a Disable message."""
   payload = bytearray()
   message = HibikeMessage(messageTypes["Disable"], payload)
+
+# Optional variable id is currently not supported, but will act as an id for different heartbeats sent
+def make_heartbeat_response(id = 0):
+  """ Makes and returns HeartBeat message."""
+  payload = bytearray(struct.pack('<B',id))
+  message = HibikeMessage(messageTypes["HeartBeatResponse"], payload)
   return message
 
 def make_subscription_request(device_id, params, delay):
@@ -304,8 +312,6 @@ def parse_device_data(msg, device_id):
   struct_format = "<" + format_string(device_id, params)
   values = struct.unpack(struct_format, payload[2:])
   return list(zip(params, values))
-
-
 
 def parse_bytes(bytes):
   if len(bytes) < 2:

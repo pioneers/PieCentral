@@ -19,10 +19,12 @@ const listenSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 const interval = 1000; // in ms
 
 const robotState = {
-  IDLE: 0,
-  RUNNING: 1,
-  ESTOP: 5,
+    IDLE: 0,
+    TELEOP: 1,
+    AUTONOMOUS: 2,
+    ESTOP: 3,
 };
+
 let state = robotState.IDLE;
 
 listenSocket.on('message', (msg) => {

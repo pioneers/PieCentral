@@ -25,7 +25,8 @@ const sendSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
 const dawnBuilder = ProtoBuf.loadProtoFile(`${__dirname}/ansible.proto`);
 const DawnData = dawnBuilder.build('DawnData');
-const RobotState = DawnData.RobotState;
+const robotStateBuilder = ProtoBuf.loadProtoFile(`${__dirname}/robotstate.proto`);
+const RobotState = robotStateBuilder.build('RobotState');
 const runtimeBuilder = ProtoBuf.loadProtoFile(`${__dirname}/runtime.proto`);
 const RuntimeData = runtimeBuilder.build('RuntimeData');
 const notificationBuilder = ProtoBuf.loadProtoFile(`${__dirname}/notification.proto`);

@@ -180,6 +180,8 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName="", maxIter=None):
       execCount = 0
       while not terminated and (exception_cell[0] is None) and (maxIter is None or execCount < maxIter):
         next_call = loop.time() + 1. / RUNTIME_CONFIG.STUDENT_CODE_HZ.value
+        studentCode.Robot._get_all_sensors()
+        studentCode.Gamepad._get_gamepad()
         checkTimedOut(mainFunc)
 
         sleep_time = max(next_call - loop.time(), 0.)

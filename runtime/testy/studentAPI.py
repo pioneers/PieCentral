@@ -64,9 +64,13 @@ class Gamepad(StudentAPI):
 
   def __init__(self, toManager, fromManager):
     super().__init__(toManager, fromManager)
+    self._get_gamepad()
+
+  def _get_gamepad(self):
+    self.all_gamepads = self._getSMValue("gamepads")
 
   def get_value(self, name, gamepad_number=0):
-    gamepad_dict = self._getSMValue("gamepads")[gamepad_number]
+    gamepad_dict = self.all_gamepads[gamepad_number]
     if name in self.joysticks:
       return gamepad_dict["axes"][self.joysticks[name]]
     elif name in self.buttons:
@@ -86,11 +90,15 @@ class Robot(StudentAPI):
     super().__init__(toManager, fromManager)
     self._createSensorMapping()
     self._coroutines_running = set()
+    self._get_all_sensors()
+
+  def _get_all_sensors(self):
+    self.peripherals = self._getSMValue('hibike', 'devices')
 
   def get_value(self, device_name, param):
     uid = self._hibikeGetUID(device_name)
     self._check_params(uid, param)
-    return self._getSMValue('hibike', 'devices', uid, param)
+    return self.peripherals[uid][0][param][0]
 
   def set_value(self, device_name, param, value):
     #TODO Implement parameter checking

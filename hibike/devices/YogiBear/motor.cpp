@@ -31,6 +31,7 @@ void motorDisable() {
   resetPID();
   zeroEncoder();
   setPWMInput(0);
+  resetDriveMode();
   motorEnabled = false;
 }
 

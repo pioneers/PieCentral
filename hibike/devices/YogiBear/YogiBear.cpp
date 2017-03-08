@@ -246,6 +246,9 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
       break;
 
     case DEADBAND:
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = readDeadBand();
+      return sizeof(float);
       break;
 
     default:

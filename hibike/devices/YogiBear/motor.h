@@ -14,5 +14,6 @@ float readCurrent();
 void drive(float target);
 void clearFault();
 void setDeadBand(float range);
+float readDeadBand();
 
 #endif /* MOTOR_H */

@@ -71,4 +71,6 @@ void setDeadBand(float range) {
   deadBand = range;
 }
 
-
+float readDeadBand() {
+  return deadBand;
+}

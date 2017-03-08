@@ -21,6 +21,11 @@ const RuntimeData = runtimeBuilder.build('RuntimeData');
 const notificationBuilder = ProtoBuf.loadProtoFile(`${__dirname}/notification.proto`);
 const Notification = notificationBuilder.build('Notification');
 
+const DEFAULT_IP = '192.168.0.200';
+const LISTEN_PORT = 1235;
+const SEND_PORT = 1236;
+const TCP_PORT = 1234;
+
 function buildProto(data) {
   let status = null;
   switch (data.studentCodeStatus) {
@@ -53,7 +58,6 @@ function buildProto(data) {
   return message;
 }
 
-const LISTEN_PORT = 1235;
 class ListenSocket {
   constructor() {
     // TODO: Verify if reuseAddr prevents EADDRINUSE
@@ -94,13 +98,12 @@ class ListenSocket {
   }
 }
 
-const SEND_PORT = 1236;
 class SendSocket {
   constructor() {
     this.sendGamepadMessages = this.sendGamepadMessages.bind(this);
     this.ipAddressListener = this.ipAddressListener.bind(this);
 
-    this.runtimeIP = '192.168.0.200';
+    this.runtimeIP = DEFAULT_IP;
 
     // TODO: Verify if reuseAddr prevents EADDRINUSE
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
@@ -196,10 +199,6 @@ class TCPSocket {
       console_output: '',
     }).encode().toBuffer();
 
-    this.socket.write(message, () => {
-      console.log('Runtime notified: try 1');
-    });
-
     this.received = false;
     RendererBridge.reduxDispatch(notifyChange(uploadStatus.SENT));
     this.waitRuntimeConfirm(message, 0);
@@ -211,7 +210,6 @@ class TCPSocket {
   }
 }
 
-const TCP_PORT = 1234;
 class TCPServer {
   constructor() {
     this.socket = null;

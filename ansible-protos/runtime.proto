@@ -3,7 +3,6 @@ syntax = "proto3";
 import public "robotstate.proto";
 
 message RuntimeData {
-
     message ParamValue {
         string param = 1;
         oneof kind {

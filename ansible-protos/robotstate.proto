@@ -6,4 +6,3 @@ enum RobotState {
      AUTONOMOUS = 2;
      ESTOP = 3;
 }
-

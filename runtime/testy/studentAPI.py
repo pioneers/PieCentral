@@ -93,12 +93,12 @@ class Robot(StudentAPI):
     self._get_all_sensors()
 
   def _get_all_sensors(self):
-    self.sensors = self._getSMValue('hibike', 'devices')
+    self.peripherals = self._getSMValue('hibike', 'devices')
 
   def get_value(self, device_name, param):
     uid = self._hibikeGetUID(device_name)
     self._check_params(uid, param)
-    return self.sensors[uid][0][param][0]
+    return self.peripherals[uid][0][param][0]
 
   def set_value(self, device_name, param, value):
     #TODO Implement parameter checking

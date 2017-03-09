@@ -3,7 +3,13 @@
 
 #include "battery_buzzer.h"
 
-void start_8_seg_sequence(int sequence_num);
+typedef enum {
+  NORMAL_VOLT_READ,
+  CLEAR_CALIB,
+  NEW_CALIB
+} SEQ_NUM;
+
+void start_8_seg_sequence(SEQ_NUM sequence_num);
 
 void handle_8_segment();
 
@@ -12,3 +18,4 @@ void test_display();
 void setup_display();
 
 #endif
+

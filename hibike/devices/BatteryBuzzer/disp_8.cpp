@@ -9,11 +9,11 @@ SevenSeg disp(8,9,7,2,0,15,14);
 const int numOfDigits=4;
 int digitPins[numOfDigits] = {6, 5, 4, 3};
 
-
 unsigned long last_LED_time = 0;  //Time the last LED switched
 int sequence = 0; //used to switch states for the display.  Remember that the hangle_8_segment cannot be blocking.
 
-int segment_8_run = 0;  //0 for the normal voltage readout.  1 for "Clear Calibration".  2 for "New Calibration"
+SEQ_NUM segment_8_run = NORMAL_VOLT_READ;  //0 for the normal voltage readout.  1 for "Clear Calibration".  2 for "New Calibration"
+
 
 void setup_display()
 {
@@ -21,23 +21,22 @@ void setup_display()
   disp.setDPPin(1);  //set the Decimal Point pin to #1   
 }
 
+
 void test_display() //a function to ensure that all outputs of the display are working.
 //On the current PDB, this should display "8.8.8.8."  The library is capable of handling : and ', but the wires are not hooked up to it.
 {
-	for(int i = 0; i<250; i++)
-	{
-		disp.write("8.8.8.8."); //this function call takes a surprising amount of time, probably because of how many characters are in it.
-	}
-	disp.clearDisp();
-
+  for(int i = 0; i<250; i++)
+  {
+    disp.write("8.8.8.8."); //this function call takes a surprising amount of time, probably because of how many characters are in it.
+  }
+  disp.clearDisp();
 }
-
 
 
 void handle_8_segment() //handles the 8-segment display, and prints out the global values.
 //MUST be called in the loop() without any if's
 {
-  if(segment_8_run == 0)
+  if(segment_8_run == NORMAL_VOLT_READ)
   {
     //Shows text / numbers of all voltages & then individual cells.
     //Changed every Second
@@ -84,7 +83,7 @@ void handle_8_segment() //handles the 8-segment display, and prints out the glob
       last_LED_time = millis();
     }
   }
-  else if(segment_8_run == 1)
+  else if(segment_8_run == CLEAR_CALIB)
   {
     if(sequence == 0)
     {    
@@ -106,7 +105,7 @@ void handle_8_segment() //handles the 8-segment display, and prints out the glob
     }
 
   }
-  else if(segment_8_run == 2)
+  else if(segment_8_run == NEW_CALIB)
   {
     if(triple_calibration)
     {
@@ -184,18 +183,13 @@ void handle_8_segment() //handles the 8-segment display, and prints out the glob
         last_LED_time = millis();
       }      
     }
-    /*
-    }
-    */
-
-    
   }
-  
 }
 
-void start_8_seg_sequence(int sequence_num)
+void start_8_seg_sequence(SEQ_NUM sequence_num)
 {
   segment_8_run = sequence_num; //rel the display to run the right sequence
   sequence = 0;  //and reset the step in the sequence to zero.
   last_LED_time = millis();
 }
+

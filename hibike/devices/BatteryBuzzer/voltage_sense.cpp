@@ -10,15 +10,10 @@ int cell3 = A2;
 int enable = 16;
 int calib_button = 21;
 
-
-
 void setup_sensing()
 {
-
   pinMode(enable, OUTPUT);
-  pinMode(calib_button, INPUT);
-
-  
+  pinMode(calib_button, INPUT)
 
   //for stable (if unknown) internal voltage.
   analogReference(INTERNAL);
@@ -37,10 +32,8 @@ void setup_sensing()
     {
       vref_guess = val;   
     }
-  }
-  
+  }  
 }
-
 
 
 void measure_cells() //measures the battery cells. Should call at least twice a second, but preferrably 5x a second.  No use faster.
@@ -48,12 +41,6 @@ void measure_cells() //measures the battery cells. Should call at least twice a 
     int r_cell1 = analogRead(cell1);
     int r_cell2 = analogRead(cell2);
     int r_cell3 = analogRead(cell3);
-
-    //Serial.println("Raw Voltages");
-    //Serial.println(5*float(r_cell1)/1024);
-    //Serial.println(5*float(r_cell2)/1024);
-    //Serial.println(5*float(r_cell3)/1024);
-
 
     v_cell1 = float(r_cell1) * (10 + 10.0) / 10.0 * calib[0] / 1024;  // (10k + 10k)/(10k) to extract cell voltage in counts, then convert 1024 counts per vref volts.
     v_cell2 = float(r_cell2) * (30.0 + 10) / 10.0 * calib[1] / 1024;  // (30k + 10k)/(10k) to extract cell voltage in counts, then convert 1024 counts per vref volts.
@@ -63,37 +50,6 @@ void measure_cells() //measures the battery cells. Should call at least twice a 
     dv_cell3 = v_cell3 - v_cell2;
 
     v_batt = v_cell3;
-
-    // if(prints)
-    // {
-    //   String str_cell1 = String(v_cell1, 3);
-    //   String str_cell2 = String(v_cell2, 3);
-    //   String str_cell3 = String(v_cell3, 3);
-  
-  
-  
-    //   String sdv_cell2 = String(dv_cell2, 3);
-    //   String sdv_cell3 = String(dv_cell3, 3);
-  
-
-    //   if(triple_calibration)
-    //   {
-    //     Serial.println("Triple Calibration Mode");
-    //   }
-    //   else
-    //   {
-    //     Serial.println("Single Calibration Mode");
-    //   }
-  
-    //   Serial.println("ABS: Cell1 : " + str_cell1 + " Cell2 : " + str_cell2 + " Cell3 : " + str_cell3);
-    //   Serial.println("REL: Cell1: " + str_cell1 + " Cell2 : " + sdv_cell2 + " Cell3 : " + sdv_cell3);
-    //   Serial.println("");
-    //   Serial.println("");
-
-
-    // }
-    last_print_time = millis();
-
 }
 
 void handle_calibration() //called very frequently by loop.
@@ -105,13 +61,13 @@ void handle_calibration() //called very frequently by loop.
       //i'm in triple calibration mode, but the calibration array is exactly the same as the datasheet values... which means i haven't been calibrated.
       float vref_new = calibrate();
       write_triple_eeprom(calib[0],calib[1],calib[2]);
-      start_8_seg_sequence(2); 
+      start_8_seg_sequence(NEW_CALIB); 
     }
     else if(!triple_calibration && get_calibration() == -1.0) //i'm not in triple calibration mode, and i haven't been calibrated.
     {   
       float vref_new = calibrate();
       write_single_eeprom(vref_new);
-      start_8_seg_sequence(2);
+      start_8_seg_sequence(NEW_CALIB);
     }
     else //I have arleady been calibrated with something.  reset it.
     {
@@ -120,23 +76,14 @@ void handle_calibration() //called very frequently by loop.
       {
         delay(1);
       }
-      
-      if(prints)
-      {
-        Serial.println("Clear EEPROM");
-      }
       //reset all my calibration values as well, so my calibration values that i'm using are in lockstep with the EEPROM.
-      
       vref_guess = 2.56;
       calib[0] = 2.56;
       calib[1] = 2.56;
       calib[2] = 2.56;
 
-
       clear_eeprom();
-      start_8_seg_sequence(1);
-      
-
+      start_8_seg_sequence(CLEAR_CALIB);
     }
   }
 }
@@ -145,11 +92,6 @@ float calibrate() //calibrates the device.
 //assumes that a 5V line has been put to each battery cell.
 //it then calculates its best guess for vref.
 {
-    if(prints)
-    {
-      Serial.println("I Should calibrate now");
-    }
-
     //wait untill the button press goes away.
     //This is jank debouncing.
     //Have to calibrate AFTER the button is pressed, not while.  Yes, it's wierd.  PCB issue.
@@ -159,7 +101,6 @@ float calibrate() //calibrates the device.
     }
     delay(100);
 
-
     //ok.  let's assume (for now) that every line has 5V put at it.
     //I want to calculate the best-fit for the true vref.
 
@@ -167,7 +108,6 @@ float calibrate() //calibrates the device.
     float expected_vc1 = 5 * 10.0 / (10.00 + 10.00);
     float expected_vc2 = 5 * 10.0 / (30.00 + 10.00);
     float expected_vc3 = 5 * 10.0 / (51.00 + 10.0);
-
 
     int r_cell1 = analogRead(cell1);
     int r_cell2 = analogRead(cell2);
@@ -184,29 +124,8 @@ float calibrate() //calibrates the device.
     calib[1] = vref2;
     calib[2] = vref3;
 
-
     //avg all vrefs together to get best guess value    
-    vref_guess = (vref1 + vref2 + vref3) / float(3);
-    
-    // if(prints)
-    // {
-    //   if(triple_calibration)
-    //   {
-    //     Serial.print("vref1 :");
-    //     Serial.println(vref1);
-    //     Serial.print("vref2 :");
-    //     Serial.println(vref2);
-    //     Serial.print("vref3 :");
-    //     Serial.println(vref3);
-    //   }
-    //   else
-    //   {
-    //     Serial.println("Vref Guess is " + String(vref_guess, 4));
-    //   }
-    // }
-
-
-
+    vref_guess = (vref1 + vref2 + vref3) / 3.0f;
     return vref_guess;
-
 }
+

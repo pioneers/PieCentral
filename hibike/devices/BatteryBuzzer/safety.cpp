@@ -1,4 +1,6 @@
 #include "safety.h"
+#include "battery_buzzer.h"
+#include "pitches.h"
 
 //has code that determines if the battery is safe or not, and takes appropriate action.
 //this code is regularly called (currently every 250ms)
@@ -15,17 +17,7 @@ float d_cell = .3; //max voltage difference between cells.
 float end_d_cell = 0.1; //imbalance must be less than this before i'm happy again.
 bool imbalance = false;
 
-
-
-
-void handle_safety()
-{
-  unsafe_status = is_unsafe(); //Currently, just does basic sensing.  Should get updated.
-  buzz(unsafe_status);
-  
-}
-
-bool is_unsafe() //returns if i'm safe or not based on the most recent reading.
+bool compute_safety() //returns if i'm safe or not based on the most recent reading.
 //Currently does only over and under voltage protection.  No time averaging.  So will need to be fancier later.
 {
   bool unsafe;
@@ -57,16 +49,12 @@ bool is_unsafe() //returns if i'm safe or not based on the most recent reading.
   {
     unsafe = false;
   }
-  
   return unsafe;
 }
 
 
-
 void buzz(boolean should_buzz)
 {
- 
-  //digitalWrite(buzzer,should_buzz);
   if(should_buzz)
   {
     tone(buzzer,NOTE_A5);
@@ -75,5 +63,17 @@ void buzz(boolean should_buzz)
   {
     noTone(buzzer);
   }
-  
 }
+
+
+void handle_safety()
+{
+  unsafe_status = compute_safety(); //Currently, just does basic sensing.  Should get updated.
+  buzz(unsafe_status);
+}
+
+bool is_unsafe()
+{
+  return unsafe_status;
+}
+

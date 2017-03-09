@@ -1,4 +1,3 @@
-
 #include "eeprom.h"
 
 //low-level functions that deal with storing the calibration values using the agreed upon format.
@@ -8,7 +7,7 @@ float get_calibration()  //returns calibration voltage.  Returns -1 (float) if n
    if(EEPROM.read(0)=='C' && EEPROM.read(1)=='A' && EEPROM.read(2)=='L' && EEPROM.read(3)==':')
    {
       //instantiate a float.
-      float f = 0.00000f;
+      float f = 0.0f;
       EEPROM.get(4,f); //calibration value is stored in location 4
       return f;
    }
@@ -16,24 +15,21 @@ float get_calibration()  //returns calibration voltage.  Returns -1 (float) if n
    {
       return -1.0;
    }
-
-
 }
+
 
 void update_triple_calibration() //updates the global "calib" array based on EEPROM.
 //Calib will contain datasheet values (2.56) if there's no calibration.
 //If there is, the appopriate elements will be updated.
 {
-
-  
   int next_addr = 0;
   for(int i = 1; i<=3; i++)
   {
-     if(EEPROM.read(next_addr)=='C' && EEPROM.read(next_addr+1)=='A' && EEPROM.read(next_addr+2)=='L' && EEPROM.read(next_addr+3) == char(i+48) &&EEPROM.read(next_addr+4)==':')
+     if(EEPROM.read(next_addr)=='C' && EEPROM.read(next_addr+1)=='A' && EEPROM.read(next_addr+2)=='L' && EEPROM.read(next_addr+3) == char(i+'0') &&EEPROM.read(next_addr+4)==':')
      //so i only take a valid calibration, and there's no chance of accidentally getting messed up with partial triple calibration left over in single mode.
      {
         //instantiate a float.
-        float f = 0.00000f;
+        float f = 0.0f;
         EEPROM.get(next_addr+5,f); //calibration value is stored in location 4
         calib[i-1] = f; //put value into the calibration array.
         next_addr = next_addr+5+sizeof(float);
@@ -42,13 +38,9 @@ void update_triple_calibration() //updates the global "calib" array based on EEP
      {
         return;
      }
-
-
-    
   }
-
-  
 }
+
 
 void write_single_eeprom(float val)
 {
@@ -61,9 +53,8 @@ void write_single_eeprom(float val)
 
   //needs arduino 1.6.12 or later.
   EEPROM.put(4,val);
-  
-
 }
+
 
 void write_triple_eeprom(float val1, float val2, float val3)
 {
@@ -95,51 +86,15 @@ void write_triple_eeprom(float val1, float val2, float val3)
     {
       EEPROM.put(next_addr,val3);
     }
-    
     next_addr = next_addr + sizeof(float);
-
-    
   }
-
-}
-
-
-
-
-
-
-void print_eeprom() //prints first few eeprom values as text.
-{
-   int loc = 40;  //print first 40 locs in eeprom.
-   
-   if(prints)
-   {
-     Serial.println("EEPROM values "); 
-     
-   }
-   
-   for(int i = 0; i<=loc; i++)
-   {
-     char val = EEPROM.read(i); 
-     if(prints)
-     {
-        Serial.print(val); 
-     }
-   }
-   if (prints)
-   {
-    Serial.println("");
-   }
-   
-   
 }
 
 void clear_eeprom()
 {
-
   for (int i = 0 ; i < EEPROM.length() ; i++) 
   {
     EEPROM.write(i, 0);
   }
-
 }
+

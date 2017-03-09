@@ -1,7 +1,4 @@
-#include "safety.h"
-
-// each device is responsible for keeping track of it's own params
-
+#include "battery_buzzer.h"
 
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
@@ -12,12 +9,9 @@ hibike_uid_t UID = {
 ///////////////////////////////////////////////
 
 
-
-
-
 int buzzer = 10;
 
-unsigned long last_print_time = 0; //for the loop counter...
+unsigned long last_check_time = 0; //for the loop counter...
 
 bool calibrated = false;
 bool triple_calibration = true; //decide whether to use triple calibration or the simpler single calibration.
@@ -34,15 +28,8 @@ float v_batt;   // param 4
 float dv_cell2; // param 5
 float dv_cell3; // param 6
 
-bool prints = false; // keep until all Serial methods get deleted
-
-
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
-  
-  if(prints){
-    //send working signal
-  }
   pinMode(buzzer,OUTPUT);
 
   setup_display();
@@ -63,8 +50,9 @@ void loop() {
   handle_8_segment();
   handle_calibration();
 
-  if(millis() - last_print_time>250){
+  if(millis() - last_check_time>250){
     measure_cells();
+    last_check_time = millis();
     handle_safety();
   }
   hibike_loop();
@@ -82,7 +70,6 @@ void loop() {
 
 uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   return 0;
-
 }
 
 
@@ -109,18 +96,20 @@ bool is_calibrated(){
 uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
   if (MAX_PAYLOAD_SIZE - len > sizeof(bool)) {
     if(param == 0){
-      data[0] = unsafe_status;
+      data[0] = is_unsafe();
       return sizeof(bool);
     }
     if(param == 1){
       data[0] = is_calibrated();
       return sizeof(bool);
     }
-
   }
+
   if (MAX_PAYLOAD_SIZE - len < sizeof(float) || param >= 8){
     return 0;
   }
+
+
   float* float_buf = (float *) data;
   if(param == 2){
     float_buf[0] = v_cell1;
@@ -150,3 +139,4 @@ uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
 void device_disable() {
 
 }
+

@@ -24,8 +24,9 @@ void setup() {
   PIDSetup();
   setup_LEDs();
   test_LEDs();
-  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
-
+  hibike_setup(500);
+  motorDisable();
+  driveMode = MANUALDRIVE;
 }
 
 /* 
@@ -63,43 +64,19 @@ void loop() {
 
 uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   switch (param) {
-    case ENABLE:
-      if (data[0] == 0) {
-        motorDisable();
-      } else {
-        motorEnable();
-      }
-      return sizeof(bool);
-      break;
 
-    case COMMAND_STATE: 
-      driveMode = data[0];
-
-      switch (driveMode) {
-        case MANUALDRIVE:
-          disablePID();
-          break;
-        case PID_VEL:
-          enableVel();
-          break;
-        case PID_POS:
-          enablePos();
-          break;
-        default:
-          driveMode = MANUALDRIVE;
-          disablePID();
-          break;
-      }
-
-      return sizeof(uint8_t);
-      break;
-
-    case DUTY_CYCLE: 
+    case DUTY_CYCLE:
+      motorEnable();
+      disablePID();
+      driveMode = MANUALDRIVE;
       pwmInput = ((float *)data)[0];
       return sizeof(float);
       break;
 
     case PID_POS_SETPOINT: 
+      motorEnable();
+      driveMode = PID_POS;
+      enablePos();
       setPosSetpoint(((float *)data)[0]);
       return sizeof(float);
       break;
@@ -119,7 +96,10 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
       return sizeof(float);
       break;
 
-    case PID_VEL_SETPOINT: 
+    case PID_VEL_SETPOINT:
+      motorEnable(); 
+      driveMode = PID_VEL;
+      enableVel();
       setVelSetpoint(((float *)data)[0]);
       return sizeof(float);
       break;
@@ -146,7 +126,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 
     case ENC_POS: 
       if((float) data[0] == 0) {
-        zeroEncoder();
+        resetEncoder();
         return sizeof(float);
       }
 
@@ -179,15 +159,6 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
   float* float_buf;
 
   switch (param) {
-    case ENABLE:
-      data_update_buf[0] = readMotorEnabled();
-      return sizeof(bool);
-      break;
-
-    case COMMAND_STATE: 
-      data_update_buf[0] = driveMode;
-      return sizeof(uint8_t);
-      break;
 
     case DUTY_CYCLE: 
       float_buf = (float *) data_update_buf;
@@ -253,13 +224,21 @@ float readPWMInput() {
   return pwmInput;
 }
 
+void resetPWMInput() {
+	pwmInput = 0;
+}
+
 uint8_t readDriveMode() {
   return driveMode;
+}
+
+void resetDriveMode() {
+  driveMode = MANUALDRIVE;
 }
 
 // You must implement this function.
 // It is called when the BBB sends a message to the Smart Device tellinng the Smart Device to disable itself.
 // Consult README.md, section 6, to see what exact functionality is expected out of disable.
 void device_disable() {
-
+  motorDisable();
 }

@@ -1,6 +1,10 @@
 #include "TimerOne.h"
 #include "motor.h"
 #include "pindefs.h"
+#include "YogiBear.h"
+#include "pid.h"
+#include "encoder.h"
+
 //tab to handle all controls issued to the motor including driving and braking
 
 bool motorEnabled = false;
@@ -23,16 +27,21 @@ void motorEnable() {
 
 void motorDisable() {
   digitalWrite(enable_pin, LOW);
+  disablePID();
+  resetPID();
+  resetEncoder();
+  resetPWMInput();
+  resetDriveMode();
   motorEnabled = false;
 }
 
-bool readMotorEnabled() {
+bool isMotorEnabled() {
   return motorEnabled;
 }
 
 //returns current in amps
 float readCurrent() {
-  return (analogRead(current_pin) - 3.7) / 30.2;
+  return (analogRead(current_pin) / 33.0); //Number was generated based on a few tests across multiple boards. Valid for majority of good boards
 }
 
 //takes a value from -1 to 1 inclusive and writes to the motor and sets the INA and INB pins for direction

@@ -216,7 +216,7 @@ class Editor extends React.Component {
             throw err;
           }
           sftp.fastPut(filepath, './PieCentral/runtime/testy/studentCode.py', (err2) => {
-            conn.end();
+            setTimeout(() => { conn.end(); }, 50);
             if (err2) {
               this.props.onAlertAdd(
                 'Upload Issue',

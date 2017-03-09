@@ -9,6 +9,7 @@ import {
   ansibleDisconnect,
   notifyChange,
   infoPerMessage,
+  updateCodeStatus,
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { uploadStatus, robotState } from '../../renderer/utils/utils';
@@ -72,6 +73,9 @@ class ListenSocket {
         const { robot_state, sensor_data } = RuntimeData.decode(msg);
         console.log('Dawn received UDP');
         RendererBridge.reduxDispatch(infoPerMessage(robot_state));
+        if (robot_state === RuntimeData.State.STUDENT_STOPPED) {
+          RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
+        }
         RendererBridge.reduxDispatch(updatePeripherals(sensor_data));
       } catch (err) {
         console.log('Error decoding UDP');

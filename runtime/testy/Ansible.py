@@ -112,6 +112,7 @@ class UDPSendClass(AnsibleHandler):
                 for uid, values in state['hibike'][0]['devices'][0].items():
                     sensor = proto_message.sensor_data.add()
                     sensor.uid = str(uid)
+                    sensor.device_type = SENSOR_TYPE[uid>>72]
                     for param, value in values[0].items():
                         if value[0] is None:
                             continue

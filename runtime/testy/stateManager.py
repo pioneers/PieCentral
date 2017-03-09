@@ -29,7 +29,7 @@ class StateManager(object):
       "Potentiometer"  : ["pot0", "pot1", "pot2"],
       "BatteryBuzzer"  : ["total", "safe"],
       "ServoControl"  : ["servo0", "servo1"],
-      "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
+      "YogiBear" : ["duty_cycle", "enc_pos", "enc_vel"],
       "RFID" : ["id", "tag_detect"],
     }
     return subscriptionMap
@@ -226,7 +226,8 @@ class StateManager(object):
   def hibikeResponseDeviceSubbed(self, uid, delay, params):
     if delay == 0:
       deviceName = SENSOR_TYPE[uid >> 72]
-      self.hibikeSubscribeDevice(self.processMapping[PROCESS_NAMES.HIBIKE], uid, 40, self.deviceName_to_subscribeParams[deviceName])
+      if deviceName in self.deviceName_to_subscribeParams:
+        self.hibikeSubscribeDevice(self.processMapping[PROCESS_NAMES.HIBIKE], uid, 40, self.deviceName_to_subscribeParams[deviceName])
     self.createKey(["hibike", "devices", uid], send=False)
     for param in params:
       self.createKey(["hibike", "devices", uid, param], send=False)

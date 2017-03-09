@@ -138,6 +138,11 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
     case MOTOR_CURRENT: 
       break;
 
+    case DEADBAND:
+      setDeadBand(((float *)data)[0]);
+      return sizeof(float);
+      break;
+
     default:
       return 0;
   }
@@ -208,6 +213,12 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
     case MOTOR_CURRENT: 
       float_buf = (float *) data_update_buf;
       float_buf[0] = readCurrent();
+      return sizeof(float);
+      break;
+
+    case DEADBAND:
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = readDeadBand();
       return sizeof(float);
       break;
 

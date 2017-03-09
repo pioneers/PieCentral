@@ -223,6 +223,7 @@ Device Type Enumeration:
 |         |                | 12           | enc_pos             | float      | yes   | yes    |
 |         |                | 13           | enc_vel             | float      | yes   | no     |
 |         |                | 14           | motor_current       | float      | yes   | no     |
+|         |                | 15           | deadband            | float      | yes   | yes    |
 |  0x0B   | RFID           | 0            | id      | uint8_t | yes | no |
 |         |                | 1            | detect_tag | uint8_t       | yes   | no |
 |  0x10   | DistanceSensor |              |            |            |       |        |

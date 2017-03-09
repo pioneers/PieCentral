@@ -8,6 +8,7 @@
 //tab to handle all controls issued to the motor including driving and braking
 
 bool motorEnabled = false;
+float deadBand = 0.05;
 
 void motorSetup() {
   pinMode(current_pin,INPUT);
@@ -47,13 +48,15 @@ float readCurrent() {
 //takes a value from -1 to 1 inclusive and writes to the motor and sets the INA and INB pins for direction
 void drive(float target) {
   
-  if (target < 0) { 
+  if (target < -deadBand) { 
     digitalWrite(INA, LOW);
     digitalWrite(INB, HIGH);
     target = target * -1;
-  } else if (target > 0) {
+  } else if (target > deadBand) {
     digitalWrite(INA, HIGH);
     digitalWrite(INB, LOW);
+  } else {
+    target = 0;
   }
 
   Timer1.pwm(PWM, (int) (target * 1023));
@@ -73,4 +76,10 @@ void clearFault() {
   digitalWrite(enable_pin, HIGH);
 }
 
+void setDeadBand(float range) {
+  deadBand = range;
+}
 
+float readDeadBand() {
+  return deadBand;
+}

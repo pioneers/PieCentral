@@ -101,7 +101,6 @@ class Robot(StudentAPI):
     return self.peripherals[uid][0][param][0]
 
   def set_value(self, device_name, param, value):
-    #TODO Implement parameter checking
     uid = self._hibikeGetUID(device_name)
     self._check_params(uid, param)
     self._check_value(param, value)

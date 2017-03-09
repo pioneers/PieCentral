@@ -26,13 +26,14 @@
     },
 
     {"id": 4,     "name": "BatteryBuzzer", "params": [    
-                                                          {"number": 0  , "name": "connected"  , "type": "bool"    , "read": true , "write": false },
-                                                          {"number": 1  , "name": "safe"       , "type": "bool"    , "read": true , "write": false },
-                                                          {"number": 2  , "name": "cell1"      , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 3  , "name": "cell2"      , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 4  , "name": "cell3"      , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 5  , "name": "total"      , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 6  , "name": "callibrate" , "type": "bool"    , "read": false, "write": true  }
+                                                          {"number": 0  , "name": "is_unsafe"  , "type": "bool"    , "read": true , "write": false },
+                                                          {"number": 1  , "name": "calibrated" , "type": "bool"    , "read": true, "write": false  },
+                                                          {"number": 2  , "name": "v_cell1"      , "type": "float"   , "read": true , "write": false },
+                                                          {"number": 3  , "name": "v_cell2"      , "type": "float"   , "read": true , "write": false },
+                                                          {"number": 4  , "name": "v_cell3"      , "type": "float"   , "read": true , "write": false },
+                                                          {"number": 5  , "name": "v_batt"      , "type": "float"   , "read": true , "write": false },
+                                                          {"number": 6  , "name": "dv_cell2"      , "type": "float"   , "read": true , "write": false },
+                                                          {"number": 7  , "name": "dv_cell3"      , "type": "float"   , "read": true , "write": false }
                                                      ]
     },
 

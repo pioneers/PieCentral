@@ -5,7 +5,11 @@ import { version } from './package.json';
 const target = 'electron';
 const modules = {
   preLoaders: [
-    { test: /\.js$/, loader: 'eslint-loader', exclude: /node_modules/ },
+    {
+      test: /\.js$/,
+      exclude: /node_modules/,
+      loader: 'eslint-loader',
+    },
   ],
   loaders: [
     {
@@ -31,7 +35,7 @@ const plugins = [
 
 export default [
   {
-    entry: ['babel-polyfill', './renderer/index.js'],
+    entry: './renderer/index.js',
     devtool: 'cheap-module-eval-source-map',
     output: {
       path: path.join(__dirname, 'build'),

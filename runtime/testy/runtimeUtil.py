@@ -1,5 +1,7 @@
 import traceback
 import multiprocessing
+import os
+import json
 from enum import Enum, unique
 
 @unique
@@ -134,3 +136,8 @@ class TimeoutError(Exception):
 
 class RuntimeError(Exception):
   pass
+
+# Sensor type names are CamelCase, with the first letter capitalized as well
+config_file = open(os.path.join(os.path.dirname(__file__), '../../hibike/hibikeDevices.json'), 'r')
+SENSOR_TYPE = {device_data["id"]: device_data["name"] for device_data in json.load(config_file)}
+

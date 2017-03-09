@@ -12,10 +12,8 @@ void disableAll() {
   }
 }
 
-void enableAll() {
-  for (int i = 0; i < NUM_PINS; i++) {
-    servos[i].attach(pins[i]);
-  }
+void enable(int num) {
+  servos[num].attach(pins[num]);
 }
 
 void setup() {
@@ -31,9 +29,12 @@ void loop() {
 // you must implement this function. It is called when the device receives a DeviceUpdate packet.
 // the return value is the value field of the DeviceRespond packet hibike will respond with
 uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
-  enableAll();
-  positions[param] = ((float *)data)[0];
-  //servos[0].write(180);
+  float value = ((float *)data)[0];
+  if (value < -1 || value > 1) {
+    return sizeof(float);
+  }
+  enable(param);
+  positions[param] = value;
   servos[param].writeMicroseconds(SERVO_CENTER + (positions[param] * SERVO_RANGE/2));
   return sizeof(float); 
 }

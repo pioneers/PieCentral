@@ -2,23 +2,16 @@ import React from 'react';
 import {
   Navbar,
   ButtonToolbar,
-  ButtonGroup,
-  Tooltip,
-  OverlayTrigger,
-  Button,
-  Glyphicon } from 'react-bootstrap';
+  ButtonGroup } from 'react-bootstrap';
 import { remote } from 'electron';
 import smalltalk from 'smalltalk';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';
+import TooltipButton from './TooltipButton';
 
 const storage = remote.require('electron-json-storage');
 
 class DNav extends React.Component {
-  static IPvalidate(address) {
-    return /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(address);
-  }
-
   static saveAddress(currentAddress) {
     const prompt = smalltalk.prompt(
       'Enter the IP address of the robot:',
@@ -89,54 +82,30 @@ class DNav extends React.Component {
           >
             <ButtonToolbar>
               <ButtonGroup>
-                <OverlayTrigger
+                <TooltipButton
                   placement="bottom"
-                  overlay={
-                    <Tooltip id="tour-tooltip">
-                      Tour
-                    </Tooltip>
-                  }
-                >
-                  <Button
-                    bsStyle="info"
-                    onClick={this.props.startTour}
-                    id="tour-button"
-                  >
-                    <Glyphicon glyph="info-sign" />
-                  </Button>
-                </OverlayTrigger>
-                <OverlayTrigger
+                  text="Tour"
+                  bsStyle="info"
+                  onClick={this.props.startTour}
+                  id="tour-button"
+                  glyph="info-sign"
+                />
+                <TooltipButton
                   placement="bottom"
-                  overlay={
-                    <Tooltip id="update-address-tooltip">
-                      Robot IP
-                    </Tooltip>
-                  }
-                >
-                  <Button
-                    bsStyle="info"
-                    onClick={this.updateAddress}
-                    id="update-address-button"
-                  >
-                    <Glyphicon glyph="transfer" />
-                  </Button>
-                </OverlayTrigger>
-                <OverlayTrigger
+                  text="Robot IP"
+                  bsStyle="info"
+                  onClick={this.updateAddress}
+                  id="update-address-button"
+                  glyph="transfer"
+                />
+                <TooltipButton
                   placement="bottom"
-                  overlay={
-                    <Tooltip id="upgrade-software-tooltip">
-                      Upload Upgrade
-                    </Tooltip>
-                  }
-                >
-                  <Button
-                    bsStyle="info"
-                    onClick={this.toggleUpdateModal}
-                    id="update-software-button"
-                  >
-                    <Glyphicon glyph="cloud-upload" />
-                  </Button>
-                </OverlayTrigger>
+                  text="Upload Upgrade"
+                  bsStyle="info"
+                  onClick={this.toggleUpdateModal}
+                  id="update-software-button"
+                  glyph="cloud-upload"
+                />
               </ButtonGroup>
             </ButtonToolbar>
           </Navbar.Form>

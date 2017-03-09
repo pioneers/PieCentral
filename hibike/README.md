@@ -163,8 +163,10 @@ Message ID Enumeration:
 |  0x12   |   Subscription Response  |
 |  0x13   |       Device Read        |
 |  0x14   |       Device Write       |
-|  0x15   |      Device Data         |
+|  0x15   |       Device Data        |
 |  0x16   |      Device Disable      |
+|  0x17   |    Heart Beat Request    |
+|  0x18   |   Heart Beat Response    |
 |  0xFF   |           Error          |
 
 Device Type Enumeration:
@@ -174,14 +176,12 @@ Device Type Enumeration:
 |  0x00   | LimitSwitch    | 0            | switch0    | bool       | yes   | no     |
 |         |                | 1            | switch1    | bool       | yes   | no     |
 |         |                | 2            | switch2    | bool       | yes   | no     |
-|         |                | 3            | switch3    | bool       | yes   | no     |
 |  0x01   | LineFollower   | 0            | left       | float      | yes   | no     |
 |         |                | 1            | center     | float      | yes   | no     |
 |         |                | 2            | right      | float      | yes   | no     |
 |  0x02   | Potentiometer  | 0            | pot0       | float      | yes   | no     |
 |         |                | 1            | pot1       | float      | yes   | no     |
 |         |                | 2            | pot2       | float      | yes   | no     |
-|         |                | 3            | pot3       | float      | yes   | no     |
 |  0x03   | Encoder        | 0            | rotation   | int16_t    | yes   | no     |
 |  0x04   | BatteryBuzzer  | 0            | connected  | bool       | yes   | no     |
 |         |                | 1            | safe       | bool       | yes   | no     |
@@ -223,6 +223,8 @@ Device Type Enumeration:
 |         |                | 12           | enc_pos             | float      | yes   | yes    |
 |         |                | 13           | enc_vel             | float      | yes   | no     |
 |         |                | 14           | motor_current       | float      | yes   | no     |
+|  0x0B   | RFID           | 0            | id      | uint8_t | yes | no |
+|         |                | 1            | detect_tag | uint8_t       | yes   | no |
 |  0x10   | DistanceSensor |              |            |            |       |        |
 |  0x11   | MetalDetector  |              |            |            |       |        |
 |  0xFFFF | ExampleDevice  | 0            | kumiko     | bool       | yes   | yes    |
@@ -351,7 +353,37 @@ Note: These assignments are also fairly random and may not all even be
     Direction:
     BBB <-- SD
 
-7. Error Packet: Sent to indicate an error occured. 
+7. Heart Beat Request: BBB/SD requests SD/BBB heartbeat response for connectivity purposes.
+    - This message pathway is a two way street, both BBB and SD can send requests and send responses to the other
+    - Upon receiving a Heart Beat Request, a Heart Beat Response message should be immediately sent back
+    - Payload is currently unused, but can be used for future functionality in keeping track of individual heartbeat requests and responses (for latency purposes)
+
+    Payload format:
+
+        +---------------+
+        |       ID      |
+        |    (8 bits)   |
+        +---------------+
+
+    Direction:
+    BBB --> SD   OR   BBB <-- SD
+
+8. Heart Beat Response: Sent in response to a Heart Beat Request
+    - This message pathway is a two way street, both BBB and SD can receive requests and send responses to the other
+    - Should only be sent upon receiving a Heart Beat Request
+    - Payload is currently unused, but can be used for future functionality in keeping track of individual heartbeat requests and responses (for latency purposes)
+
+    Payload format:
+
+        +---------------+
+        |       ID      |
+        |    (8 bits)   |
+        +---------------+
+
+    Direction:
+    BBB --> SD   OR   BBB <-- SD
+
+9. Error Packet: Sent to indicate an error occured.
     - Currently only used for the BBB to log statistics.
     
   Payload format:

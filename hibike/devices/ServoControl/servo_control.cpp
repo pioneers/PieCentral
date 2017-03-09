@@ -17,7 +17,7 @@ volatile uint32_t toggle2 = 1;
 volatile uint32_t toggle3 = 1; 
 
 void setup() {
-  hibike_setup();
+  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
 
   // Setup sensor input
   for (int i = 0; i < NUM_PINS; i++) {

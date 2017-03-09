@@ -81,6 +81,30 @@ int read_message(message_t *msg) {
 
 }
 
+int send_heartbeat_response(uint8_t id) { // id = for future heartbeat identification
+  message_t msg;
+  msg.messageID = HEART_BEAT_RESPONSE;
+  msg.payload_length = 0;
+  int status = append_payload(&msg, id, sizeof(id));
+
+  if(status != 0){
+    return -1;
+  }
+  return send_message(&msg);
+}
+
+int send_heartbeat_request(uint8_t id) { // id = future hearbeat identification
+  message_t msg;
+  msg.messageID = HEART_BEAT_REQUEST;
+  msg.payload_length = 0;
+  int status = append_payload(&msg, id, sizeof(id));
+
+  if(status != 0){
+    return -1;
+  }
+  return send_message(&msg);
+}
+
 int send_subscription_response(uint16_t params, uint16_t delay, hibike_uid_t* uid) {
   message_t msg;
   msg.messageID = SUBSCRIPTION_RESPONSE;

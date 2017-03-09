@@ -2,8 +2,7 @@
     {"id": 0,     "name": "LimitSwitch",   "params": [    
                                                           {"number": 0  , "name": "switch0"    , "type": "bool"    , "read": true , "write": false },
                                                           {"number": 1  , "name": "switch1"    , "type": "bool"    , "read": true , "write": false },
-                                                          {"number": 2  , "name": "switch2"    , "type": "bool"    , "read": true , "write": false },
-                                                          {"number": 3  , "name": "switch3"    , "type": "bool"    , "read": true , "write": false }
+                                                          {"number": 2  , "name": "switch2"    , "type": "bool"    , "read": true , "write": false }
                                                      ]
     },
 
@@ -17,8 +16,7 @@
     {"id": 2,     "name": "Potentiometer", "params": [    
                                                           {"number": 0  , "name": "pot0"       , "type": "float"   , "read": true , "write": false },
                                                           {"number": 1  , "name": "pot1"       , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 2  , "name": "pot2"       , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 3  , "name": "pot3"       , "type": "float"   , "read": true , "write": false }
+                                                          {"number": 2  , "name": "pot2"       , "type": "float"   , "read": true , "write": false }
                                                      ]
     },
 
@@ -78,6 +76,12 @@
                                                           {"number": 12  , "name": "enc_pos"            , "type": "float"    , "read": true , "write": true  },
                                                           {"number": 13  , "name": "enc_vel"            , "type": "float"    , "read": true , "write": false  },
                                                           {"number": 14  , "name": "motor_current"      , "type": "float"    , "read": true , "write": false  }
+                                                     ]
+    },
+
+    {"id": 11, "name": "RFID", "params": [    
+                                                          {"number": 0  , "name": "id"     , "type": "uint8_t"    , "read": true , "write": false  },
+                                                          {"number": 1  , "name": "tag_detect"     , "type": "uint8_t"    , "read": true , "write": false  }
                                                      ]
     },
 

@@ -40,7 +40,8 @@ class StateManager(object):
       SM_COMMANDS.SEND_ADDR: self.send_addr,
       SM_COMMANDS.ENTER_IDLE: self.enter_idle,
       SM_COMMANDS.ENTER_TELEOP: self.enter_teleop,
-      SM_COMMANDS.ENTER_AUTO: self.enter_auto
+      SM_COMMANDS.ENTER_AUTO: self.enter_auto,
+      SM_COMMANDS.END_STUDENT_CODE: self.endStudentCode,
     }
     return commandMapping
 
@@ -195,6 +196,9 @@ class StateManager(object):
   def emergencyRestart(self):
     self.state["runtime_meta"][0]["e_stopped"][0] = False
 
+  def endStudentCode(self):
+    self.processMapping[PROCESS_NAMES.UDP_RECEIVE_PROCESS].send(runtime_pb2.RuntimeData.STUDENT_STOPPED)
+
   def hibikeEnumerateAll(self, pipe):
     pipe.send([HIBIKE_COMMANDS.ENUMERATE.value, []])
 
@@ -248,20 +252,23 @@ class StateManager(object):
     # TODO: Make sure request is a list/tuple before attempting to access
     # And that there are the correct number of elements
     while True:
-      request = self.input.get(block=True)
-      cmdType = request[0]
-      args = request[1]
-      if(len(request) != 2):
-        self.badThingsQueue.put(BadThing(sys.exc_info(), "Wrong input size, need list of size 2", event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
-      elif cmdType in self.commandMapping:
-        command = self.commandMapping[cmdType]
-        command(*args)
-      elif cmdType in self.hibikeMapping:
-        if (not self.state["runtime_meta"][0]["e_stopped"][0]):
-          command = self.hibikeMapping[cmdType]
-          command(self.processMapping[PROCESS_NAMES.HIBIKE], *args)
-      elif cmdType in self.hibikeResponseMapping:
-        command = self.hibikeResponseMapping[cmdType]
-        command(*args)
-      else:
-        self.badThingsQueue.put(BadThing(sys.exc_info(), "Unknown process name: %s" % (request,), event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
+      try:
+        request = self.input.get(block=True)
+        cmdType = request[0]
+        args = request[1]
+        if(len(request) != 2):
+          self.badThingsQueue.put(BadThing(sys.exc_info(), "Wrong input size, need list of size 2", event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
+        elif cmdType in self.commandMapping:
+          command = self.commandMapping[cmdType]
+          command(*args)
+        elif cmdType in self.hibikeMapping:
+          if (not self.state["runtime_meta"][0]["e_stopped"][0]):
+            command = self.hibikeMapping[cmdType]
+            command(self.processMapping[PROCESS_NAMES.HIBIKE], *args)
+        elif cmdType in self.hibikeResponseMapping:
+          command = self.hibikeResponseMapping[cmdType]
+          command(*args)
+        else:
+          self.badThingsQueue.put(BadThing(sys.exc_info(), "Unknown process name: %s" % (request,), event = BAD_EVENTS.UNKNOWN_PROCESS, printStackTrace = False))
+      except Exception as e:
+        self.badThingsQueue.put(BadThing(sys.exc_info(), "State Manager Loop crash with: " + str(e), event = BAD_EVENTS.STATE_MANAGER_CRASH, printStackTrace = True))

@@ -13,6 +13,7 @@ message RuntimeData {
         oneof kind {
             float float_value = 2;
             int32 int_value = 3;
+            bool bool_value = 4;
         }
     }
     message SensorData {

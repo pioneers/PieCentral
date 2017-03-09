@@ -32,8 +32,8 @@ const handleAccordion = (array) => {
             {
               _.map(peripheralGroups[groups], peripheral => (
                 <Peripheral
-                  key={String(peripheral.uid.high) + String(peripheral.uid.low)}
-                  id={String(peripheral.uid.high) + String(peripheral.uid.low)}
+                  key={String(peripheral.uid)}
+                  id={String(peripheral.uid)}
                   device_name={peripheral.device_name}
                   device_type={peripheral.device_type}
                   param={peripheral.param_value}

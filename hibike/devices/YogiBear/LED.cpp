@@ -5,9 +5,6 @@
 #include "motor.h"
 #include "Arduino.h"
 
-
-
-
 //place all LED control functions in here
 void ctrl_LEDs() {
 	ctrl_RED();

@@ -4,6 +4,7 @@ import { remote, ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import smalltalk from 'smalltalk';
 import Dashboard from './Dashboard';
+import DNav from './DNav';
 import joyrideSteps from './JoyrideSteps';
 import { removeAsyncAlert } from '../actions/AlertActions';
 
@@ -88,6 +89,13 @@ class AppComponent extends React.Component {
   render() {
     return (
       <div>
+        <DNav
+          startTour={this.startTour}
+          runtimeStatus={this.props.runtimeStatus}
+          connection={this.props.connectionStatus}
+          battery={this.props.batteryLevel}
+          isRunningCode={this.props.isRunningCode}
+        />
         <Joyride
           ref="joyride"
           steps={this.state.steps}
@@ -101,7 +109,7 @@ class AppComponent extends React.Component {
             skip: 'Skip Tour',
           }}
         />
-        <div style={{ height: '10px' }} />
+        <div style={{ height: '60px', marginBottom: '21px' }} />
         <Dashboard
           {...this.props}
           addSteps={this.addSteps}
@@ -122,6 +130,7 @@ AppComponent.propTypes = {
   isRunningCode: React.PropTypes.bool,
   asyncAlerts: React.PropTypes.array,
   onAlertDone: React.PropTypes.func,
+  ipAddress: React.PropTypes.string,
 };
 
 const mapStateToProps = state => ({
@@ -130,6 +139,7 @@ const mapStateToProps = state => ({
   batteryLevel: state.info.batteryLevel,
   isRunningCode: state.info.isRunningCode,
   asyncAlerts: state.asyncAlerts,
+  ipAddress: state.info.ipAddress,
 });
 
 const mapDispatchToProps = dispatch => ({

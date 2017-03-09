@@ -393,3 +393,6 @@ $RECYCLE.BIN/
 
 # Hibike dynamic files
 hibike/virtual_devices.txt
+
+# Webstorm project settings
+.idea

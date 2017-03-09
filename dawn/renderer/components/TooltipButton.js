@@ -6,7 +6,7 @@ import {
   Tooltip,
 } from 'react-bootstrap';
 
-const EditorButton = (props) => {
+const TooltipButton = (props) => {
   const tooltip = (
     <Tooltip id={`tooltip-editor-button-${props.id}`}>{props.text}</Tooltip>
   );
@@ -25,7 +25,7 @@ const EditorButton = (props) => {
   );
 };
 
-EditorButton.propTypes = {
+TooltipButton.propTypes = {
   id: React.PropTypes.string.isRequired,
   text: React.PropTypes.string.isRequired,
   onClick: React.PropTypes.func.isRequired,
@@ -33,4 +33,4 @@ EditorButton.propTypes = {
   disabled: React.PropTypes.bool,
 };
 
-export default EditorButton;
+export default TooltipButton;

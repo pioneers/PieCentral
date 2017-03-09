@@ -1,4 +1,5 @@
 import hibike_process
+import time
 from multiprocessing import Process, Pipe, Queue
 
 class Hibike:

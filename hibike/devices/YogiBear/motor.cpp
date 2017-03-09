@@ -1,9 +1,14 @@
 #include "TimerOne.h"
 #include "motor.h"
 #include "pindefs.h"
+#include "YogiBear.h"
+#include "pid.h"
+#include "encoder.h"
+
 //tab to handle all controls issued to the motor including driving and braking
 
 bool motorEnabled = false;
+float deadBand = 0.05;
 
 void motorSetup() {
   pinMode(current_pin,INPUT);
@@ -23,28 +28,35 @@ void motorEnable() {
 
 void motorDisable() {
   digitalWrite(enable_pin, LOW);
+  disablePID();
+  resetPID();
+  resetEncoder();
+  resetPWMInput();
+  resetDriveMode();
   motorEnabled = false;
 }
 
-bool readMotorEnabled() {
+bool isMotorEnabled() {
   return motorEnabled;
 }
 
 //returns current in amps
 float readCurrent() {
-  return (analogRead(current_pin) - 3.7) / 30.2;
+  return (analogRead(current_pin) / 33.0); //Number was generated based on a few tests across multiple boards. Valid for majority of good boards
 }
 
 //takes a value from -1 to 1 inclusive and writes to the motor and sets the INA and INB pins for direction
 void drive(float target) {
   
-  if (target < 0) { 
+  if (target < -deadBand) { 
     digitalWrite(INA, LOW);
     digitalWrite(INB, HIGH);
     target = target * -1;
-  } else if (target > 0) {
+  } else if (target > deadBand) {
     digitalWrite(INA, HIGH);
     digitalWrite(INB, LOW);
+  } else {
+    target = 0;
   }
 
   Timer1.pwm(PWM, (int) (target * 1023));
@@ -64,4 +76,10 @@ void clearFault() {
   digitalWrite(enable_pin, HIGH);
 }
 
+void setDeadBand(float range) {
+  deadBand = range;
+}
 
+float readDeadBand() {
+  return deadBand;
+}

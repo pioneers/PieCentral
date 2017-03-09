@@ -441,7 +441,7 @@ class Editor extends React.Component {
           height={this.getEditorHeight(window.innerHeight)}
           value={this.props.editorCode}
           onChange={this.props.onEditorUpdate}
-          onPaste={this.onEditorPaste}
+          onPaste={Editor.onEditorPaste}
           editorProps={{ $blockScrolling: Infinity }}
         />
         <ConsoleOutput

@@ -28,15 +28,18 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
 
     serials = []
 
+    working_ports = []
+
     for port in ports:
         try:
             serials.append(serial.Serial(port, 115200))
+            working_ports.append(port)
 
-        # this is a hack to handle this error. 
-        # It pushes the error down to the worker threads for this device; they will try to do serial operations on a None object
-        # TODO karthik-shanmugam 97hongjun: implement cleaner management of worker threads that handles issues like this.
+            #this implimentation ensures that as long as the cannot open serial port error occurs while opening the serial port, a print will appear, but the rest of the ports will go on.
+
         except serial.serialutil.SerialException as e:
-            serials.append(None)
+            print("Cannot Open Serial Port: " + str(port))
+
 
     # each device has it's own write thread, with it's own instruction queue
     instruction_queues = [queue.Queue() for _ in ports]

@@ -80,21 +80,19 @@ class Gamepad(StudentAPI):
 class Robot(StudentAPI):
   deviceName_to_writeParams = {
     "TeamFlag" : ["s1", "s2", "s3", "s4"],
-    "ServoControl" : ["servo0", "enable0", "servo1", "enable1"],
+    "ServoControl" : ["servo0", "servo1"],
     "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos"],
   }
   deviceName_to_readParams = {
     "LimitSwitch" : ["switch0", "switch1", "switch2"],
     "LineFollower" : ["left", "center", "right"],
     "Potentiometer" : ["pot0", "pot1", "pot2"],
-    "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
+    "YogiBear" : ["duty_cycle", "enc_pos", "enc_vel"],
     "RFID" : ["id", "tag_detect"],
   }
   param_to_valid_values = {
     "servo0" : [(int,), 0, 180],
-    "enable0" : [(bool,)],
     "servo1" : [(int,), 0, 180],
-    "enable1" : [(bool,)],
     "duty_cycle" : [(float, int), -1, 1],
     "pid_pos_setpoint" :[(float, int), -float("inf"), float("inf")],
     "pid_pos_kp" : [(float, int), 0, float("inf")],

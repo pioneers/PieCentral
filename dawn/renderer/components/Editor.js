@@ -29,7 +29,7 @@ import 'brace/theme/terminal';
 
 import ConfigBox from './ConfigBox';
 import ConsoleOutput from './ConsoleOutput';
-import EditorButton from './EditorButton';
+import TooltipButton from './TooltipButton';
 import UpdateBox from './UpdateBox';
 import { pathToName, uploadStatus, robotState, defaults } from '../utils/utils';
 
@@ -84,8 +84,6 @@ class Editor extends React.Component {
     this.startRobot = this.startRobot.bind(this);
     this.stopRobot = this.stopRobot.bind(this);
     this.upload = this.upload.bind(this);
-    this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
-    this.toggleConfigModal = this.toggleConfigModal.bind(this);
     this.estop = this.estop.bind(this);
     this.state = {
       editorHeight: this.getEditorHeight(),
@@ -125,7 +123,7 @@ class Editor extends React.Component {
   }
 
   getEditorHeight(windowHeight) {
-    return `${String(windowHeight - 160 - (this.props.showConsole * (this.consoleHeight + 40)))}px`;
+    return `${String(windowHeight - 231 - (this.props.showConsole * (this.consoleHeight + 40)))}px`;
   }
 
   beforeUnload(event) {
@@ -319,25 +317,25 @@ class Editor extends React.Component {
         />
         <ButtonToolbar>
           <ButtonGroup id="file-operations-buttons">
-            <EditorButton
+            <TooltipButton
               id="new"
               text="New"
               onClick={this.props.onCreateNewFile}
               glyph="file"
             />
-            <EditorButton
+            <TooltipButton
               id="open"
               text="Open"
               onClick={this.props.onOpenFile}
               glyph="folder-open"
             />
-            <EditorButton
+            <TooltipButton
               id="save"
               text="Save"
               onClick={this.props.onSaveFile}
               glyph="floppy-disk"
             />
-            <EditorButton
+            <TooltipButton
               id="save-as"
               text="Save As"
               onClick={_.partial(this.props.onSaveFile, true)}
@@ -345,21 +343,21 @@ class Editor extends React.Component {
             />
           </ButtonGroup>
           <ButtonGroup id="code-execution-buttons">
-            <EditorButton
+            <TooltipButton
               id="run"
               text="Run"
               onClick={this.startRobot}
               glyph="play"
               disabled={this.props.isRunningCode || !this.props.runtimeStatus}
             />
-            <EditorButton
+            <TooltipButton
               id="stop"
               text="Stop"
               onClick={this.stopRobot}
               glyph="stop"
               disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
             />
-            <EditorButton
+            <TooltipButton
               id="upload"
               text="Upload"
               onClick={this.upload}
@@ -368,13 +366,13 @@ class Editor extends React.Component {
             />
           </ButtonGroup>
           <ButtonGroup id="console-buttons">
-            <EditorButton
+            <TooltipButton
               id="toggle-console"
               text="Toggle Console"
               onClick={this.toggleConsole}
               glyph="console"
             />
-            <EditorButton
+            <TooltipButton
               id="clear-console"
               text="Clear Console"
               onClick={this.props.onClearConsole}
@@ -382,33 +380,33 @@ class Editor extends React.Component {
             />
           </ButtonGroup>
           <ButtonGroup id="misc-buttons">
-            <EditorButton
+            <TooltipButton
               id="e-stop"
               text="E-STOP"
               onClick={this.estop}
               glyph="fire"
             />
-            <EditorButton
+            <TooltipButton
               id="increase-font-size"
               text="Increase font size"
               onClick={this.increaseFontsize}
               glyph="zoom-in"
               disabled={this.props.fontSize > 28}
             />
-            <EditorButton
+            <TooltipButton
               id="decrease-font-size"
               text="Decrease font size"
               onClick={this.decreaseFontsize}
               glyph="zoom-out"
               disabled={this.props.fontSize < 7}
             />
-            <EditorButton
+            <TooltipButton
               id="updates"
               text="Updates"
               onClick={this.toggleUpdateModal}
               glyph="cloud-upload"
             />
-            <EditorButton
+            <TooltipButton
               id="configuration"
               text="Configuration"
               onClick={this.toggleConfigModal}

@@ -75,13 +75,13 @@ class ListenSocket {
         RendererBridge.reduxDispatch(updatePeripherals(sensor_data));
       } catch (err) {
         console.log('Error decoding UDP');
-        throw err;
+        console.log(err);
       }
     });
 
     this.socket.on('error', (err) => {
       console.log('UDP listening error');
-      throw err;
+      console.log(err);
     });
 
     this.socket.on('close', () => {
@@ -109,7 +109,7 @@ class SendSocket {
 
     this.socket.on('error', (err) => {
       console.error('UDP sending error');
-      throw err;
+      console.log(err);
     });
 
     this.socket.on('close', () => {
@@ -218,7 +218,7 @@ class TCPServer {
 
     this.tcp.on('error', (err) => {
       console.error('TCP error');
-      throw err;
+      console.log(err);
     });
 
     this.tcp.listen(TCP_PORT, () => {

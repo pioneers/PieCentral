@@ -157,10 +157,10 @@ def emergencyStop_main():
   Robot._setSMValue(response, "incrementer")
   print("HIBIKE LOOP")
 
-def hibikeSensorMappings_setup():
+def optionalhibikeSensorMappings_setup():
   pass
 
-def hibikeSensorMappings_main():
+def optionalhibikeSensorMappings_main():
   print(Robot._hibikeGetUID('zero'))
   print(Robot._hibikeGetUID('one'))
   print(Robot._hibikeGetUID('two'))
@@ -184,11 +184,11 @@ def asyncIsRunning_main():
 async def asyncIsRunningHelper():
   await Actions.sleep(1)
   
-def apiGetVal_setup():
+def optionalapiGetVal_setup():
   Robot.createKey("hibike", "devices", 47223664828696452136960, "duty_cycle")
   Robot._setSMValue(0.5, "hibike", "devices", 47223664828696452136960, "duty_cycle")
 
-def apiGetVal_main():
+def optionalapiGetVal_main():
   print(Robot.get_value("motor1", "duty_cycle"))
 
 def optionalTestsDisabled_setup():

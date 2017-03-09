@@ -211,7 +211,9 @@ class Robot(StudentAPI):
 
   def _hibikeGetUID(self, name):
     try:
-      return self.sensorMappings[name]
+      #TODO: Implement sensor mappings, right now uid is the number (or string of number)
+      return int(name)
+      #return self.sensorMappings[name]
     except:
       raise StudentAPIKeyError()
 

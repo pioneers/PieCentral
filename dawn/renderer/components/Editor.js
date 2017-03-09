@@ -172,7 +172,7 @@ class Editor extends React.Component {
       console.log('Upload: Not Working on File');
       return;
     }
-    if (this.correctText(this.props.editorCode) !== this.props.editorCode) {
+    if (Editor.correctText(this.props.editorCode) !== this.props.editorCode) {
       this.props.onAlertAdd(
         'Invalid characters detected',
         'Your code has non-ASCII characters, which won\'t work on the robot. ' +
@@ -215,7 +215,7 @@ class Editor extends React.Component {
             );
             throw err;
           }
-          sftp.fastPut(filepath, './PieCentral/runtime/testy/studentcode.py', (err2) => {
+          sftp.fastPut(filepath, './PieCentral/runtime/testy/studentCode.py', (err2) => {
             conn.end();
             if (err2) {
               this.props.onAlertAdd(

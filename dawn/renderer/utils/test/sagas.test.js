@@ -1,4 +1,3 @@
-import 'babel-polyfill';
 import fs from 'fs';
 import { assert } from 'chai';
 import { delay } from 'redux-saga';

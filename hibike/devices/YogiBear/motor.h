@@ -5,7 +5,7 @@
 void motorSetup();
 void motorEnable();
 void motorDisable();
-bool readMotorEnabled();
+bool isMotorEnabled();
 
 //returns current in amps
 float readCurrent();

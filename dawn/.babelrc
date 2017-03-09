@@ -1,7 +1,11 @@
 {
-  "presets": ["es2015", "react"],
-  "plugins": [
-  	"transform-object-rest-spread",
-  	"transform-regenerator"
+  "presets": [
+    ["env", {
+      "targets": {
+        "electron": 1.6
+      }
+    }],
+    "react",
+    "stage-3"
   ]
 }

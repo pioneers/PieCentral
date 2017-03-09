@@ -41,8 +41,5 @@ extern uint32_t device_write(uint8_t param, uint8_t* data, size_t len);
 extern uint8_t device_read(uint8_t param, uint8_t* data, size_t len);
 extern void device_disable();
 
-uint64_t getLastHeartBeatResponse();
-uint64_t getLastHeartBeatRequest();
-
 
 #endif  // INC_HIBIKE_DEVICE

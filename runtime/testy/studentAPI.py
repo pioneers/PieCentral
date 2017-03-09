@@ -102,6 +102,10 @@ class Robot(StudentAPI):
     "pid_pos_kd" : [(float, int), 0, float("inf")],
     "current_thresh" : [(float, int), 2, 10],
     "enc_pos" : [(float, int), 0, 0],
+    "s1" : [(bool,)],
+    "s2" : [(bool,)],
+    "s3" : [(bool,)],
+    "s4" : [(bool,)],
   }
 
   def __init__(self, toManager, fromManager):

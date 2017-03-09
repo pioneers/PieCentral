@@ -19,7 +19,20 @@ class StateManager(object):
     # map process names to pipes
     self.hibikeMapping = self.makeHibikeMap()
     self.hibikeResponseMapping = self.makeHibikeResponseMap()
+    self.deviceName_to_subscribeParams = self.makeSubscriptionMap()
     self.processMapping = {PROCESS_NAMES.RUNTIME: runtimePipe}
+
+  def makeSubscriptionMap(self):
+    subscriptionMap = {
+      "LimitSwitch"  : ["switch0", "switch1", "switch2"],
+      "LineFollower"  : ["left", "center", "right"],
+      "Potentiometer"  : ["pot0", "pot1", "pot2"],
+      "BatteryBuzzer"  : ["total", "safe"],
+      "ServoControl"  : ["servo0", "servo1"],
+      "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
+      "RFID" : ["id", "tag_detect"],
+    }
+    return subscriptionMap
 
   def makeCommandMap(self):
     commandMapping = {
@@ -212,6 +225,9 @@ class StateManager(object):
     pipe.send([HIBIKE_COMMANDS.READ.value, [uid, params]])
 
   def hibikeResponseDeviceSubbed(self, uid, delay, params):
+    if delay == 0:
+      deviceName = SENSOR_TYPE[uid >> 72]
+      self.hibikeSubscribeDevice(self.processMapping[PROCESS_NAMES.HIBIKE], uid, 40, self.deviceName_to_subscribeParams[deviceName])
     self.createKey(["hibike", "devices", uid], send=False)
     for param in params:
       self.createKey(["hibike", "devices", uid, param], send=False)

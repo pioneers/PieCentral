@@ -187,10 +187,10 @@ const _timestamps = [0, 0, 0, 0];
 
 function _needToUpdate(newGamepads) {
   return _.some(newGamepads, (gamepad, index) => {
-    if (gamepad !== null && (gamepad.timestamp > _timestamps[index])) {
+    if (gamepad != null && (gamepad.timestamp > _timestamps[index])) {
       _timestamps[index] = gamepad.timestamp;
       return true;
-    } else if (gamepad === null && _timestamps[index] !== null) {
+    } else if (gamepad == null && _timestamps[index] != null) {
       _timestamps[index] = null;
       return true;
     }
@@ -223,7 +223,7 @@ function* ansibleGamepads() {
   while (true) {
     // navigator.getGamepads always returns a reference to the same object. This
     // confuses redux, so we use assignIn to clone to a new object each time.
-    const newGamepads = _.assignIn({}, navigator.getGamepads());
+    const newGamepads = Array.prototype.slice.call(navigator.getGamepads());
     if (_needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
       const formattedGamepads = formatGamepads(newGamepads);
       yield put(updateGamepads(formattedGamepads));

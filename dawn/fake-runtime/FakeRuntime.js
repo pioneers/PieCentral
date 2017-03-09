@@ -27,7 +27,7 @@ let state = robotState.IDLE;
 
 listenSocket.on('message', (msg) => {
   const data = DawnData.decode(msg);
-  switch (data.student_code_status) {
+  switch (data.robot_state) {
     case 'IDLE':
       state = robotState.IDLE;
       break;

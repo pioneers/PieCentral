@@ -177,15 +177,15 @@ class StateManager(object):
 
   def enter_auto(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_AUTO, False))
-    self.state["studentCodeState"] = [runtime_pb2.RuntimeData.AUTO, time.time()]
+    self.state["studentCodeState"] = [runtime_pb2.AUTONOMOUS, time.time()]
 
   def enter_teleop(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_TELEOP, False))
-    self.state["studentCodeState"] = [runtime_pb2.RuntimeData.TELEOP, time.time()]
+    self.state["studentCodeState"] = [runtime_pb2.TELEOP, time.time()]
 
   def enter_idle(self):
     self.badThingsQueue.put(BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))
-    self.state["studentCodeState"] = [runtime_pb2.RuntimeData.STUDENT_STOPPED, time.time()]
+    self.state["studentCodeState"] = [runtime_pb2.IDLE, time.time()]
 
   def getTimestamp(self, keys):
     currDict = self.state
@@ -204,13 +204,13 @@ class StateManager(object):
   def emergencyStop(self):
     self.state["runtime_meta"][0]["e_stopped"][0] = True
     self.badThingsQueue.put(BadThing(sys.exc_info(), "Emergency Stop Activated", event = BAD_EVENTS.EMERGENCY_STOP, printStackTrace = False))
-    self.state["studentCodeState"] = [runtime_pb2.RuntimeData.ESTOP, time.time()]
+    self.state["studentCodeState"] = [runtime_pb2.ESTOP, time.time()]
 
   def emergencyRestart(self):
     self.state["runtime_meta"][0]["e_stopped"][0] = False
 
   def endStudentCode(self):
-    self.processMapping[PROCESS_NAMES.UDP_RECEIVE_PROCESS].send(runtime_pb2.RuntimeData.STUDENT_STOPPED)
+    self.processMapping[PROCESS_NAMES.UDP_RECEIVE_PROCESS].send(runtime_pb2.IDLE)
 
   def hibikeEnumerateAll(self, pipe):
     pipe.send([HIBIKE_COMMANDS.ENUMERATE.value, []])

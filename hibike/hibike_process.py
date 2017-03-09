@@ -124,9 +124,6 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
                 instructionQueue.put(("heartResp", [uid]))
 
 
-
-
-
 #############
 ## TESTING ##
 #############

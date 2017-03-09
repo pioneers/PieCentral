@@ -101,12 +101,12 @@ class Editor extends React.Component {
     this.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
 
     storage.get('editorTheme', (err, data) => {
-      if (err) throw err;
+      if (err) console.log(err);
       if (!_.isEmpty(data)) this.props.onChangeTheme(data.theme);
     });
 
     storage.get('editorFontSize', (err, data) => {
-      if (err) throw err;
+      if (err) console.log(err);
       if (!_.isEmpty(data)) this.props.onChangeFontsize(data.editorFontSize);
     });
 
@@ -187,7 +187,7 @@ class Editor extends React.Component {
         'Upload Issue',
         'Robot could not be connected',
       );
-      throw err;
+      console.log(err);
     });
     ipcRenderer.send('NOTIFY_UPLOAD');
     const waiting = () => {
@@ -213,7 +213,7 @@ class Editor extends React.Component {
               'Upload Issue',
               'SFTP session could not be initiated',
             );
-            throw err;
+            console.log(err);
           }
           sftp.fastPut(filepath, './PieCentral/runtime/testy/studentCode.py', (err2) => {
             setTimeout(() => { conn.end(); }, 50);
@@ -222,7 +222,7 @@ class Editor extends React.Component {
                 'Upload Issue',
                 'File failed to be transmitted',
               );
-              throw err2;
+              console.log(err2);
             }
           });
         });
@@ -271,21 +271,21 @@ class Editor extends React.Component {
   changeTheme(theme) {
     this.props.onChangeTheme(theme);
     storage.set('editorTheme', { theme }, (err) => {
-      if (err) throw err;
+      if (err) console.log(err);
     });
   }
 
   increaseFontsize() {
     this.props.onChangeFontsize(this.props.fontSize + 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize + 1 }, (err) => {
-      if (err) throw err;
+      if (err) console.log(err);
     });
   }
 
   decreaseFontsize() {
     this.props.onChangeFontsize(this.props.fontSize - 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err) => {
-      if (err) throw err;
+      if (err) console.log(err);
     });
   }
 

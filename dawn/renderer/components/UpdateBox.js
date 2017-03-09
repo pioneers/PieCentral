@@ -46,7 +46,7 @@ class UpdateBox extends React.Component {
     const conn = new Client();
     conn.on('ready', () => {
       conn.sftp((err, sftp) => {
-        if (err) throw err;
+        if (err) console.log(err);
         console.log('SSH Connection');
         sftp.fastPut(this.state.updateFilepath,
           `./updates/${update}`, (err2) => {
@@ -60,7 +60,7 @@ class UpdateBox extends React.Component {
                 title: 'Upload Issue',
                 message: 'Update File Upload Failed.',
               });
-              throw err2;
+              console.log(err2);
             } else {
               conn.exec('sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service',
                 { pty: true }, (uperr, stream) => {

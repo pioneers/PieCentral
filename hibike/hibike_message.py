@@ -339,25 +339,27 @@ def blocking_read_generator(serial_conn):
   packets_buffer = bytearray()
   while True:
 
-    # wait for a 0 byte to appear
+    # Wait for a 0 byte to appear
     while packets_buffer.find(zero_byte) == -1:
       new_bytes = serial_conn.read(max(1, serial_conn.inWaiting()))
       packets_buffer.extend(new_bytes)
 
     # Truncate incomplete packets at start of buffer
     packets_buffer = packets_buffer[packets_buffer.find(zero_byte):]
+    
+    # Attempt to parse a packet
     packet = parse_bytes(packets_buffer)
 
     if packet != None:
-      # chop off a byte so we don't output this packet again
+      # Chop off a byte so we don't output this packet again
       packets_buffer = packets_buffer[1:]
       yield packet
     else:
-      # if there's another packet in the buffer we can safely jump to it for the next iteration
+      # If there's another packet in the buffer we can safely jump to it for the next iteration
       if packets_buffer.count(zero_byte) > 1:
         new_packet = packets_buffer[1:].find(zero_byte) + 1
         packets_buffer = packets_buffer[new_packet:]
-      # there might be more incoming bytes for the current packet, so we do a blocking read and try again
+      # Otherwise, there might be more incoming bytes for the current packet, so we do a blocking read and try again
       else:
         new_bytes = serial_conn.read(max(1, serial_conn.inWaiting()))
         packets_buffer.extend(new_bytes)

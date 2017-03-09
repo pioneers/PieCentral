@@ -26,7 +26,7 @@
     },
 
     {"id": 4,     "name": "BatteryBuzzer", "params": [    
-                                                          {"number": 0  , "name": "unsafe_status"  , "type": "bool"    , "read": true , "write": false },
+                                                          {"number": 0  , "name": "is_unsafe"  , "type": "bool"    , "read": true , "write": false },
                                                           {"number": 1  , "name": "calibrated" , "type": "bool"    , "read": true, "write": false  },
                                                           {"number": 2  , "name": "v_cell1"      , "type": "float"   , "read": true , "write": false },
                                                           {"number": 3  , "name": "v_cell2"      , "type": "float"   , "read": true , "write": false },

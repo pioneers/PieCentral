@@ -1,4 +1,5 @@
 #include "battery_buzzer.h"
+#include "pindefs.h"
 
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
@@ -16,8 +17,8 @@ unsigned long last_check_time = 0; //for the loop counter...
 bool calibrated = false;
 bool triple_calibration = true; //decide whether to use triple calibration or the simpler single calibration.
 
-float vref_guess = 2.56;  //initial guess, based on datasheet.
-float calib[3] = {2.56,2.56,2.56}; //initial guess, based on datasheet.
+float vref_guess = ADC_REF_NOM;  //initial guess, based on datasheet.
+float calib[3] = {ADC_REF_NOM,ADC_REF_NOM,ADC_REF_NOM}; //initial guess, based on datasheet.
 
 
 //got to keep these globals here to keep the compiler happy.
@@ -74,7 +75,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 
 
 bool is_calibrated(){
-  if(triple_calibration && calib[0] == 2.56 && calib[1] == 2.56 & calib[2] == 2.56){ // triple calibration arrays are all default values
+  if(triple_calibration && calib[0] == ADC_REF_NOM && calib[1] == ADC_REF_NOM & calib[2] == ADC_REF_NOM){ // triple calibration arrays are all default values
     return false;
   }
   if(!triple_calibration && get_calibration() == -1.0){ // calibration value is default value

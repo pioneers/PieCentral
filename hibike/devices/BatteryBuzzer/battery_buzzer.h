@@ -14,9 +14,7 @@ extern float v_batt;
 extern float dv_cell2;
 extern float dv_cell3;
 extern float vref_guess;
-extern bool prints;
 
-extern bool calibrated;
 extern float calib[];
 extern bool triple_calibration;
 extern int buzzer;

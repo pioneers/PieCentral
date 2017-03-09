@@ -333,34 +333,67 @@ def parse_bytes(bytes):
     return None
   return HibikeMessage(messageID, payload)
 
+## runs forever, yielding packets as they're parsed
+def blocking_read_generator(serial_conn):
+  zero_byte = bytes([0])
+  packets_buffer = bytearray()
+  while True:
+
+    # wait for a 0 byte to appear
+    while packets_buffer.find(zero_byte) == -1:
+      new_bytes = serial_conn.read(max(1, serial_conn.inWaiting()))
+      packets_buffer.extend(new_bytes)
+
+    # Truncate incomplete packets at start of buffer
+    packets_buffer = packets_buffer[packets_buffer.find(zero_byte):]
+    packet = parse_bytes(packets_buffer)
+
+    if packet != None:
+      # chop off a byte so we don't output this packet again
+      packets_buffer = packets_buffer[1:]
+      yield packet
+    else:
+      # if there's another packet in the buffer we can safely jump to it for the next iteration
+      if packets_buffer.count(zero_byte) > 1:
+        new_packet = packets_buffer[1:].find(zero_byte) + 1
+        packets_buffer = packets_buffer[new_packet:]
+      # there might be more incoming bytes for the current packet, so we do a blocking read and try again
+      else:
+        new_bytes = serial_conn.read(max(1, serial_conn.inWaiting()))
+        packets_buffer.extend(new_bytes)
+
 def blocking_read(serial_conn):
   zero_byte = bytes([0])
-  packets = bytes()
+  packets = bytearray()
   while packets.find(zero_byte) == -1:
-    serial_conn.read(max(1, serial_conn.inWaiting()))
+    packets.extend(serial_conn.read(max(1, serial_conn.inWaiting())))
 
   # Truncate incomplete packets at start of buffer
-  packets = packets[packets.find(zero_byte)]
+  packets = packets[packets.find(zero_byte):]
 
   # Read until we have no incomplete packets
   last_zero = packets.rfind(zero_byte)
   if last_zero == len(packets) -1:
-    packets += serial_conn.read(size=1)[0]
+    packets.extend(serial_conn.read(size=1))
   last_message_size = packets[last_zero + 1]
 
   # -2 because payload length and zero byte are not counted
   received_payload = len(packets) - last_zero - 2
 
-  # +1 because checksum not included in size
-  packets += serial_conn.read(last_message_size - received_payload + 1)
+  # We don't need to account for the checksum because it is part of the payload
+  packets.extend(serial_conn.read(last_message_size - received_payload))
 
   packet_list = []
   while len(packets) > 0:
-    packet_size = 2 + packets[1] + 1 # zero byte, length, payload, checksum
+    next_packet = packets[1:].find(zero_byte)
+    if (next_packet == -1):
+      next_packet = len(packets)
+    else:
+      next_packet += 1 # because we searched in packets[1:] instead of packets
     packet = parse_bytes(packets)
     if packet != None:
       packet_list.append(packet)
-    packets = packets[packet_size:]
+    packets = packets[next_packet:]
 
   return packet_list
 

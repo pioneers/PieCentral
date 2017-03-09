@@ -105,8 +105,7 @@ def device_write_thread(ser, queue):
 def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
     uid = None
     while True:
-        packets = hm.blocking_read(ser)
-        for packet in packets:
+        for packet in hm.blocking_read_generator(ser):
             message_type = packet.getmessageID()
             if message_type == hm.messageTypes["SubscriptionResponse"]:
                 params, delay, uid = hm.parse_subscription_response(packet)

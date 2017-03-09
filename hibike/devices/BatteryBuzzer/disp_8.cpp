@@ -3,8 +3,8 @@
 #include <SevenSeg.h>
 #include "disp_8.h"
 
-//Segment Pins, A toG then decimal pt.
-SevenSeg disp(8,9,7,2,0,15,14);
+//Segment Pins, A to G
+SevenSeg disp(A,B,C,D,E,F,G);
 
 const int numOfDigits=4;
 int digitPins[numOfDigits] = {6, 5, 4, 3};
@@ -18,7 +18,7 @@ SEQ_NUM segment_8_run = NORMAL_VOLT_READ;  //0 for the normal voltage readout.  
 void setup_display()
 {
   disp.setDigitPins(numOfDigits,digitPins);
-  disp.setDPPin(1);  //set the Decimal Point pin to #1   
+  disp.setDPPin(DECIMAL_POINT);  //set the Decimal Point pin to #1   
 }
 
 

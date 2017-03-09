@@ -20,15 +20,6 @@ bool triple_calibration = true; //decide whether to use triple calibration or th
 float vref_guess = ADC_REF_NOM;  //initial guess, based on datasheet.
 float calib[3] = {ADC_REF_NOM,ADC_REF_NOM,ADC_REF_NOM}; //initial guess, based on datasheet.
 
-
-//got to keep these globals here to keep the compiler happy.
-float v_cell1;  // param 1
-float v_cell2;  // param 2
-float v_cell3;  // param 3
-float v_batt;   // param 4
-float dv_cell2; // param 5
-float dv_cell3; // param 6
-
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
   pinMode(buzzer,OUTPUT);

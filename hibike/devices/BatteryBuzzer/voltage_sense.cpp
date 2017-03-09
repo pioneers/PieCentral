@@ -1,26 +1,26 @@
 #include "voltage_sense.h"
 #include "pindefs.h"
 
+float v_cell1;  // param 1
+float v_cell2;  // param 2
+float v_cell3;  // param 3
+float v_batt;   // param 4
+float dv_cell2; // param 5
+float dv_cell3; // param 6
+
 //code that deals with measuring cell voltages.
 //also deals with calibration.
 
-int cell1 = A0;
-int cell2 = A1;
-int cell3 = A2;
-
-int enable = 16;
-int calib_button = 21;
-
 void setup_sensing()
 {
-  pinMode(enable, OUTPUT);
-  pinMode(calib_button, INPUT);
+  pinMode(ENABLE, OUTPUT);
+  pinMode(CALIB_BUTTON, INPUT);
 
   //for stable (if unknown) internal voltage.
   analogReference(INTERNAL);
 
   //let's turn enable on, so we can measure the battery voltage.
-  digitalWrite(enable, HIGH);
+  digitalWrite(ENABLE, HIGH);
 
   if(triple_calibration)
   {
@@ -39,9 +39,9 @@ void setup_sensing()
 
 void measure_cells() //measures the battery cells. Should call at least twice a second, but preferrably 5x a second.  No use faster.
 {
-    int r_cell1 = analogRead(cell1);
-    int r_cell2 = analogRead(cell2);
-    int r_cell3 = analogRead(cell3);
+    int r_cell1 = analogRead(CELL1);
+    int r_cell2 = analogRead(CELL2);
+    int r_cell3 = analogRead(CELL3);
 
     v_cell1 = float(r_cell1) * (R2 + R5) / R5 * calib[0] / ADC_COUNTS;  // (10k + 10k)/(10k) to extract cell voltage in counts, then convert 1024 counts per vref volts.
     v_cell2 = float(r_cell2) * (R3 + R6) / R6 * calib[1] / ADC_COUNTS;  // (30k + 10k)/(10k) to extract cell voltage in counts, then convert 1024 counts per vref volts.
@@ -55,7 +55,7 @@ void measure_cells() //measures the battery cells. Should call at least twice a 
 
 void handle_calibration() //called very frequently by loop.
 {
-  if (digitalRead(calib_button)) //I pressed the button, start calibrating.
+  if (digitalRead(CALIB_BUTTON)) //I pressed the button, start calibrating.
     {
     if(triple_calibration && calib[0] == ADC_REF_NOM && calib[1] == ADC_REF_NOM & calib[2] == ADC_REF_NOM)
     {
@@ -96,7 +96,7 @@ float calibrate() //calibrates the device.
     //wait untill the button press goes away.
     //This is jank debouncing.
     //Have to calibrate AFTER the button is pressed, not while.  Yes, it's wierd.  PCB issue.
-    while (digitalRead(calib_button))
+    while (digitalRead(CALIB_BUTTON))
     {
       delay(1);
     }
@@ -110,9 +110,9 @@ float calibrate() //calibrates the device.
     float expected_vc2 = EXT_CALIB_VOLT * R6 / (R3 + R6);
     float expected_vc3 = EXT_CALIB_VOLT * R7 / (R4 + R7);
 
-    int r_cell1 = analogRead(cell1);
-    int r_cell2 = analogRead(cell2);
-    int r_cell3 = analogRead(cell3);
+    int r_cell1 = analogRead(CELL1);
+    int r_cell2 = analogRead(CELL2);
+    int r_cell3 = analogRead(CELL3);
 
 
     //as per whiteboard math.

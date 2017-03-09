@@ -7,24 +7,9 @@
 #include "voltage_sense.h"
 #include "disp_8.h"
 
-extern float v_cell1;
-extern float v_cell2;
-extern float v_cell3;
-extern float v_batt;
-extern float dv_cell2;
-extern float dv_cell3;
-extern float vref_guess;
-
-extern float calib[];
 extern bool triple_calibration;
 extern int buzzer;
 
-typedef enum {
-  CELL_SAFE,
-  CELL_LOW_VOLTAGE,
-  CELL_UNBALANCED,
-  CELL_DISCONNECTED
-} cell_state;
 
 // function prototypes
 void setup();

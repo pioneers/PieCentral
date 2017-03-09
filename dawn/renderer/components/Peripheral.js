@@ -26,6 +26,8 @@ typesToComponents[PeripheralTypes.Encoder] = ScalarSensor;
 // typesToComponents[PeripheralTypes.ColorSensor] = ScalarSensor;
 typesToComponents[PeripheralTypes.MetalDetector] = ScalarSensor;
 typesToComponents[PeripheralTypes.ServoControl] = ScalarSensor;
+typesToComponents[PeripheralTypes.YogiBear] = ScalarSensor;
+typesToComponents[PeripheralTypes.RFID] = ScalarSensor;
 
 class Peripheral extends React.Component {
   /**

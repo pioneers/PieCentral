@@ -15,7 +15,8 @@ cleanerNames[PeripheralTypes.Encoder] = 'Encoders';
 // cleanerNames[PeripheralTypes.ColorSensor] = 'Color Sensors';
 cleanerNames[PeripheralTypes.MetalDetector] = 'Metal Detectors';
 cleanerNames[PeripheralTypes.ServoControl] = 'Servo Controllers';
-
+cleanerNames[PeripheralTypes.RFID] = 'RFID';
+cleanerNames[PeripheralTypes.YogiBear] = 'Yogi Bear';
 
 const handleAccordion = (array) => {
   const peripheralGroups = {};

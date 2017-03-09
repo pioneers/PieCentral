@@ -1,5 +1,5 @@
 #include "voltage_sense.h"
-#include "pindefs.h"
+#include "pdb_defs.h"
 
 float v_cell1;  // param 1
 float v_cell2;  // param 2
@@ -43,9 +43,9 @@ void measure_cells() //measures the battery cells. Should call at least twice a 
     int r_cell2 = analogRead(CELL2);
     int r_cell3 = analogRead(CELL3);
 
-    v_cell1 = float(r_cell1) * (R2 + R5) / R5 * calib[0] / ADC_COUNTS;  // (10k + 10k)/(10k) to extract cell voltage in counts, then convert 1024 counts per vref volts.
-    v_cell2 = float(r_cell2) * (R3 + R6) / R6 * calib[1] / ADC_COUNTS;  // (30k + 10k)/(10k) to extract cell voltage in counts, then convert 1024 counts per vref volts.
-    v_cell3 = float(r_cell3) * (R4 +  R7) / R7 * calib[2] / ADC_COUNTS;  // (51k + 10k)/(10k) to extract cell voltage in counts, then convert 1024 counts per vref volts.
+    v_cell1 = float(r_cell1) * (R2 + R5) / R5 * calib[0] / ADC_COUNTS;
+    v_cell2 = float(r_cell2) * (R3 + R6) / R6 * calib[1] / ADC_COUNTS;
+    v_cell3 = float(r_cell3) * (R4 +  R7) / R7 * calib[2] / ADC_COUNTS;
   
     dv_cell2 = v_cell2 - v_cell1;
     dv_cell3 = v_cell3 - v_cell2;
@@ -70,7 +70,7 @@ void handle_calibration() //called very frequently by loop.
       write_single_eeprom(vref_new);
       start_8_seg_sequence(NEW_CALIB);
     }
-    else //I have arleady been calibrated with something.  reset it.
+    else //I have already been calibrated with something.  reset it.
     {
       //wait untill the button press goes away.
       //This is to maintain commonality with how calibrate() works.

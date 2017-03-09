@@ -1,5 +1,5 @@
 #include "battery_buzzer.h"
-#include "pindefs.h"
+#include "pdb_defs.h"
 
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
@@ -87,11 +87,11 @@ bool is_calibrated(){
 
 uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
   if (MAX_PAYLOAD_SIZE - len > sizeof(bool)) {
-    if(param == 0){
+    if(param == IS_UNSAFE){
       data[0] = is_unsafe();
       return sizeof(bool);
     }
-    if(param == 1){
+    if(param == CALIBRATED){
       data[0] = is_calibrated();
       return sizeof(bool);
     }
@@ -103,22 +103,22 @@ uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
 
 
   float* float_buf = (float *) data;
-  if(param == 2){
+  if(param == V_CELL1){
     float_buf[0] = v_cell1;
   }
-  else if(param == 3){
+  else if(param == V_CELL2){
     float_buf[0] = v_cell2;
   }
-  else if(param == 4){
+  else if(param == V_CELL3){
     float_buf[0] = v_cell3;
   }
-  else if(param == 5){
+  else if(param == V_BATT){
     float_buf[0] = v_batt;
   }
-  else if(param == 6){
+  else if(param == DV_CELL2){
     float_buf[0] = dv_cell2;
   }
-  else if(param == 7){
+  else if(param == DV_CELL3){
     float_buf[0] = dv_cell3;
   }
   data = (uint8_t*) float_buf;

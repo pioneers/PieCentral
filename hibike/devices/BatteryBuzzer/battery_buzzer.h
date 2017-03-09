@@ -10,6 +10,16 @@
 extern bool triple_calibration;
 extern int buzzer;
 
+typedef enum {
+  IS_UNSAFE,
+  CALIBRATED,
+  V_CELL1,
+  V_CELL2,
+  V_CELL3,
+  V_BATT,
+  DV_CELL2,
+  DV_CELL3
+} PARAMS;
 
 // function prototypes
 void setup();

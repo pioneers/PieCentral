@@ -2,6 +2,8 @@
   SevenSeg v.1.0
   SevenSeg.h - Library for controlling a 7-segment display
   Created by Sigvald Marholm, 02.06.2015.
+
+  http://sim.marebakken.com/SevenSeg.pdf (This links to a pdf that is a later version of SevenSeg)
 */
 
 #include <Arduino.h>

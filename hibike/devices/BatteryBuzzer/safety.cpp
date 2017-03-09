@@ -6,15 +6,15 @@
 //this code is regularly called (currently every 250ms)
 bool unsafe_status = false;
 
-float min_cell = 3.3;
-float end_undervolt = 3.6; //I have to exceed this value to remove my undervolt condition.  (Aka if loading conditions momentarily spiked the battery...)
+const float min_cell = 3.3;
+const float end_undervolt = 3.6; //I have to exceed this value to remove my undervolt condition.  (Aka if loading conditions momentarily spiked the battery...)
 bool under_volt = false; //if i undervolt, i'll have to keep track if i'm no longer in an undervolt condition to avoid momentary beeps.
 
 
-float max_cell = 4.4;
+const float max_cell = 4.4;
 
-float d_cell = .3; //max voltage difference between cells.
-float end_d_cell = 0.1; //imbalance must be less than this before i'm happy again.
+const float d_cell = .3; //max voltage difference between cells.
+const float end_d_cell = 0.1; //imbalance must be less than this before i'm happy again.
 bool imbalance = false;
 
 bool compute_safety() //returns if i'm safe or not based on the most recent reading.

@@ -70,7 +70,7 @@ void write_triple_eeprom(float val1, float val2, float val3)
     next_addr++;
     EEPROM.write(next_addr, 'L');
     next_addr++;
-    EEPROM.write(next_addr, char(i+'0'));  //plus 48 because ASCII table
+    EEPROM.write(next_addr, char(i+'0'));
     next_addr++;
     EEPROM.write(next_addr,':');
     next_addr++;

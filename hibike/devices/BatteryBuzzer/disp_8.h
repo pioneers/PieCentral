@@ -2,7 +2,6 @@
 #define DISP_8_H
 
 #include "battery_buzzer.h"
-#include "pindefs.h"
 
 typedef enum {
   NORMAL_VOLT_READ,

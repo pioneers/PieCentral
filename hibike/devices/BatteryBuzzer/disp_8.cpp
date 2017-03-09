@@ -2,12 +2,13 @@
 
 #include <SevenSeg.h>
 #include "disp_8.h"
+#include "pdb_defs.h"
 
 //Segment Pins, A to G
 SevenSeg disp(A,B,C,D,E,F,G);
 
 const int numOfDigits=4;
-int digitPins[numOfDigits] = {6, 5, 4, 3};
+int digitPins[numOfDigits] = {DISP_PIN_1, DISP_PIN_2, DISP_PIN_3, DISP_PIN_4};
 
 unsigned long last_LED_time = 0;  //Time the last LED switched
 int sequence = 0; //used to switch states for the display.  Remember that the hangle_8_segment cannot be blocking.

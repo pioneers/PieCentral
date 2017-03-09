@@ -208,7 +208,7 @@ Device Type Enumeration:
 |         |                | 7            | enable3    | bool       | yes   | yes    |
 |  0x08   | LinearActuator |              |            |            |       |        |
 |  0x09   | ColorSensor    |              |            |            |       |        |
-|  0x0A   | YogiBear       | 0            | duty_cycle          | float      | no    | yes    |
+|  0x0A   | YogiBear       | 0            | duty_cycle          | float      | yes   | yes    |
 |         |                | 1            | pid_pos_setpoint    | float      | no    | yes    |
 |         |                | 2            | pid_pos_kp          | float      | no    | yes    |
 |         |                | 3            | pid_pos_ki          | float      | no    | yes    |

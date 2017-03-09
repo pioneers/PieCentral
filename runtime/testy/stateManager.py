@@ -226,7 +226,7 @@ class StateManager(object):
 
   def hibikeResponseDeviceSubbed(self, uid, delay, params):
     if delay == 0:
-      deviceName = runtimeUtil.SENSOR_TYPE[uid >> 72]
+      deviceName = SENSOR_TYPE[uid >> 72]
       self.hibikeSubscribeDevice(self.processMapping[PROCESS_NAMES.HIBIKE], uid, 40, self.deviceName_to_subscribeParams[deviceName])
     self.createKey(["hibike", "devices", uid], send=False)
     for param in params:

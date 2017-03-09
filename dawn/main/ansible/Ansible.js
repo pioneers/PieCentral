@@ -205,7 +205,7 @@ class TCPSocket {
 
   close() {
     this.socket.end();
-    ipcMain.removeListener('NOTIFY_UPLOAD', this.receiveUpload);
+    ipcMain.removeListener('NOTIFY_UPLOAD', this.tryUpload);
   }
 }
 

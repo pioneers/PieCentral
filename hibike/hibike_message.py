@@ -44,6 +44,9 @@ messageTypes = {
   "DeviceRead" :           0x13,
   "DeviceWrite" :          0x14,
   "DeviceData" :           0x15,
+  "Disable":               0x16,
+  "HeartBeatRequest" :     0x17,
+  "HeartBeatResponse" :    0x18,
   "Error" :                0xFF
 }
 
@@ -163,6 +166,18 @@ def make_ping():
   """ Makes and returns Ping message."""
   payload = bytearray()
   message = HibikeMessage(messageTypes["Ping"], payload)
+  return message
+
+def make_disable():
+  """ Makes and returns a Disable message."""
+  payload = bytearray()
+  message = HibikeMessage(messageTypes["Disable"], payload)
+
+# Optional variable id is currently not supported, but will act as an id for different heartbeats sent
+def make_heartbeat_response(id = 0):
+  """ Makes and returns HeartBeat message."""
+  payload = bytearray(struct.pack('<B',id))
+  message = HibikeMessage(messageTypes["HeartBeatResponse"], payload)
   return message
 
 def make_subscription_request(device_id, params, delay):
@@ -298,8 +313,6 @@ def parse_device_data(msg, device_id):
   values = struct.unpack(struct_format, payload[2:])
   return list(zip(params, values))
 
-
-
 def parse_bytes(bytes):
   if len(bytes) < 2:
     return None
@@ -425,3 +438,9 @@ def uid_to_device_id(uid):
 
 def all_params_for_device_id(id):
   return list(paramMap[id].keys())
+
+def readable(id, param):
+  return paramMap[id][param][2]
+
+def writable(id, param):
+  return paramMap[id][param][3]

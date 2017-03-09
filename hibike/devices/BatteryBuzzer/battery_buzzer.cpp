@@ -38,7 +38,7 @@ void setup() {
 
   delay(100);  // Wait for the first reading to finish (50ms minimum)
 
-  hibike_setup();
+  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
 }
 
 // normal arduino loop function, you must call hibike_loop() here
@@ -314,3 +314,10 @@ uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
   return offset;
 }
 
+
+// You must implement this function.
+// It is called when the BBB sends a message to the Smart Device tellinng the Smart Device to disable itself.
+// Consult README.md, section 6, to see what exact functionality is expected out of disable.
+void device_disable() {
+
+}

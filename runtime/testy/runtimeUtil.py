@@ -22,7 +22,7 @@ class BAD_EVENTS(Enum):
   NEW_IP                    = "Connected to new instance of Dawn"
   DAWN_DISCONNECTED         = "Disconnected to Dawn"
 
-restartEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT, BAD_EVENTS.EMERGENCY_STOP]
+restartEvents = [BAD_EVENTS.STUDENT_CODE_VALUE_ERROR, BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT, BAD_EVENTS.EMERGENCY_STOP]
 studentErrorEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT]
 
 @unique
@@ -47,6 +47,7 @@ class HIBIKE_COMMANDS(Enum):
 @unique
 class HIBIKE_RESPONSE(Enum):
   DEVICE_SUBBED = "device_subscribed"
+  DEVICE_VALUES = "device_values"
 
 @unique
 class ANSIBLE_COMMANDS(Enum):
@@ -79,6 +80,10 @@ class SM_COMMANDS(Enum):
   SEND_ADDR           = ()
   STUDENT_UPLOAD      = ()
   SEND_CONSOLE        = ()
+  ENTER_IDLE          = ()
+  ENTER_TELEOP        = ()
+  ENTER_AUTO          = ()
+  END_STUDENT_CODE    = ()
 
 class RUNTIME_CONFIG(Enum):
   STUDENT_CODE_TIMELIMIT      = 1
@@ -118,5 +123,14 @@ class StudentAPIError(Exception):
 class StudentAPIKeyError(StudentAPIError):
   pass
 
+class StudentAPIValueError(StudentAPIError):
+  pass
+
+class StudentAPITypeError(StudentAPIError):
+  pass
+
 class TimeoutError(Exception):
+  pass
+
+class RuntimeError(Exception):
   pass

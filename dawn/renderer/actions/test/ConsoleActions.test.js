@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { showConsole, hideConsole, updateConsole, clearConsole } from '../ConsoleActions';
+import { toggleConsole, updateConsole, clearConsole } from '../ConsoleActions';
 
 
 describe('console actions creator', () => {
@@ -16,16 +16,10 @@ describe('console actions creator', () => {
     };
     expect(clearConsole()).to.deep.equal(expectedAction);
   });
-  it('should create an action to show console', () => {
+  it('should create an action to toggle console', () => {
     const expectedAction = {
-      type: 'SHOW_CONSOLE',
+      type: 'TOGGLE_CONSOLE',
     };
-    expect(showConsole()).to.deep.equal(expectedAction);
-  });
-  it('should create an action to hide console', () => {
-    const expectedAction = {
-      type: 'HIDE_CONSOLE',
-    };
-    expect(hideConsole()).to.deep.equal(expectedAction);
+    expect(toggleConsole()).to.deep.equal(expectedAction);
   });
 });

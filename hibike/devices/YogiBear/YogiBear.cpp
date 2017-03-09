@@ -1,122 +1,265 @@
 #include "YogiBear.h"
+#include "pid.h"
+#include "encoder.h"
+#include "current_limit.h"
+#include "motor.h"
+#include "LED.h"
 
-// each device is responsible for keeping track of it's own params
-uint32_t params[NUM_PARAMS];
+//////////////// DEVICE UID ///////////////////
+hibike_uid_t UID = {
+YOGI_BEAR,                      // Device Type
+0x01,                      // Year
+UID_RANDOM,     // ID
+};
+///////////////////////////////////////////////
 
-/*
-  YOGI BEAR PARAMS:
-    duty = percent duty cycle
-    fault : {1 = normal operation, 0 = fault}
-    forward : {1 = forward, 0 = reverse}
-    inputA : {1 = High, 0 = Low}
-    inputB : {1 = High, 0 = Low}
-*/
+//A space for constants.
+float pwmInput = 0; //Value that is received from hibike and is the goal PWM
+uint8_t driveMode = 0; 
 
-uint32_t duty;
-uint32_t fault;
-uint32_t forward;
-uint32_t inputA;
-uint32_t inputB;
-
-// normal arduino setup function, you must call hibike_setup() here
 void setup() {
-  hibike_setup();
+  motorSetup();
+  currentLimitSetup();
+  encoderSetup();
+  PIDSetup();
+  setup_LEDs();
+  test_LEDs();
+  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
+
 }
 
-// normal arduino loop function, you must call hibike_loop() here
-// hibike_loop will look for any packets in the serial buffer and handle them
-void loop() {
-
-  // do whatever you want here
-  // note that hibike will only process one packet per call to hibike_loop()
-  // so exessive delays here will affect hibike.
-  // value1++;
-  //   value2++;
-  //   value3++;
-  //   value4++;
-
-  hibike_loop();
-}
-
-
-// you must implement this function. It is called when the device receives a DeviceUpdate packet.
-// the return value is the value field of the DeviceRespond packet hibike will respond with
 /* 
-    DUTY
-    EN/DIS
-    FORWARD/REVERSE
-    FAULT LINE
-
-    future:
-    ENCODER VALUES -library?
-    PID mode vs Open Loop modes; PID Arduino library
-    Current Sense - loop update Limit the PWM if above the current for current motor
+Manual Controls:
+s <x> - sets pwm to x
+c     - clears faults
+p <x> - turns on PID mode, velocity if x = v, position if x = p
+m     - turns on manual input mode
+e     - enables motor
+d     - disables motor
+r     - displays 1 print of all readable values
+t     - toggles continual printing of pos and vel
+b     - send heartbeat
+h     - switch hibike mode
+z     - switch human controls
+w <x> <y> - writes the value y to the variable x
 */
-uint32_t device_update(uint8_t param, uint32_t value) {
-  // if (param < NUM_PARAMS) {
-  //     params[param] = value;
-  //     return params[param];
-  //   }
-  
+void loop() {
+  ctrl_LEDs();
+  hibike_loop();
+
+}
+
+
+
+
+// You must implement this function.
+// It is called when the device receives a Device Write packet.
+// Updates param to new value passed in data.
+//    param   -   Parameter index
+//    data    -   value to write, in little-endian bytes
+//    len     -   number of bytes in data
+//
+//   return  -   size of bytes written on success; otherwise return 0
+
+uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   switch (param) {
-
-    case DUTY:
-      if (value <= 100) && (value >= 0) {
-        duty = value;
+    case ENABLE:
+      if (data[0] == 0) {
+        motorDisable();
+      } else {
+        motorEnable();
       }
-      return duty;
-      break;
-      
-    case FORWARD:
-      forward = 1;
-      inputA = 0;
-      inputB = 1;
-      return forward;
+      return sizeof(bool);
       break;
 
-    case REVERSE:
-      forward = 0;
-      inputA = 1;
-      inputB = 0;
-      return forward;
+    case COMMAND_STATE: 
+      driveMode = data[0];
+
+      switch (driveMode) {
+        case MANUALDRIVE:
+          disablePID();
+          break;
+        case PID_VEL:
+          enableVel();
+          break;
+        case PID_POS:
+          enablePos();
+          break;
+        default:
+          driveMode = MANUALDRIVE;
+          disablePID();
+          break;
+      }
+
+      return sizeof(uint8_t);
+      break;
+
+    case DUTY_CYCLE: 
+      pwmInput = ((float *)data)[0];
+      return sizeof(float);
+      break;
+
+    case PID_POS_SETPOINT: 
+      setPosSetpoint(((float *)data)[0]);
+      return sizeof(float);
+      break;
+
+    case PID_POS_KP: 
+      setPosKP(((float *)data)[0]);
+      return sizeof(float);
+      break;
+
+    case PID_POS_KI: 
+      setPosKI(((float *)data)[0]);
+      return sizeof(float);
+      break;
+
+    case PID_POS_KD: 
+      setPosKD(((float *)data)[0]);
+      return sizeof(float);
+      break;
+
+    case PID_VEL_SETPOINT: 
+      setVelSetpoint(((float *)data)[0]);
+      return sizeof(float);
+      break;
+
+    case PID_VEL_KP: 
+      setVelKP(((float *)data)[0]);
+      return sizeof(float);
+      break;
+
+    case PID_VEL_KI: 
+      setVelKI(((float *)data)[0]);
+      return sizeof(float);
+      break;
+
+    case PID_VEL_KD: 
+      setVelKD(((float *)data)[0]);
+      return sizeof(float);
+      break;
+
+    case CURRENT_THRESH: 
+      setCurrentThreshold(((float *)data)[0]);
+      return sizeof(float);
+      break;
+
+    case ENC_POS: 
+      if((float) data[0] == 0) {
+        zeroEncoder();
+        return sizeof(float);
+      }
+
+      break;
+
+    case ENC_VEL: 
+      break;
+
+    case MOTOR_CURRENT: 
       break;
 
     default:
-      return ~((uint32_t) 0);
+      return 0;
   }
-}
 
-// you must implement this function. It is called when the device receives a DeviceStatus packet.
-// the return value is the value field of the DeviceRespond packet hibike will respond with
-uint32_t device_status(uint8_t param) {
-  // if (param < NUM_PARAMS) {
-  //   return params[param];
-  // }
-  switch (param) {
-    case DUTY:
-      return duty;
-      break;
-      
-    case FAULT:
-      return fault;
-      break;
-      
-    case FORWARD:
-      return forward;
-      break;
-  }
-  return ~((uint32_t) 0);
+  return 0;
 }
 
 
-// you must implement this function. It is called with a buffer and a maximum buffer size.
-// The buffer should be filled with appropriate data for a DataUpdate packer, and the number of bytes
-// added to the buffer should be returned. 
+// You must implement this function.
+// It is called when the device receives a Device Data Update packet.
+// Modifies data_update_buf to contain the parameter value.
+//    param           -   Parameter index
+//    data_update_buf -   buffer to return data in, little-endian
+//    buf_len         -   Maximum length of the buffer
 //
-// You can use the helper function append_buf.
-// append_buf copies the specified amount data into the dst buffer and increments the offset
-uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
-  uint8_t offset = 0;
-  return offset;
+//    return          -   sizeof(value) on success; 0 otherwise
+
+uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
+  float* float_buf;
+
+  switch (param) {
+    case ENABLE:
+      data_update_buf[0] = readMotorEnabled();
+      return sizeof(bool);
+      break;
+
+    case COMMAND_STATE: 
+      data_update_buf[0] = driveMode;
+      return sizeof(uint8_t);
+      break;
+
+    case DUTY_CYCLE: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = readPWMInput();
+      return sizeof(float);
+      break;
+
+    case PID_POS_SETPOINT: 
+     break;
+
+    case PID_POS_KP: 
+      break;
+
+    case PID_POS_KI:
+     break;
+
+    case PID_POS_KD: 
+     break;
+
+    case PID_VEL_SETPOINT: 
+     break;
+
+    case PID_VEL_KP: 
+     break;
+
+    case PID_VEL_KI: 
+     break;
+
+    case PID_VEL_KD: 
+     break;
+
+    case CURRENT_THRESH: 
+     break;
+
+    case ENC_POS: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = readPos();
+      return sizeof(float);
+      break;
+
+    case ENC_VEL: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = readVel();
+      return sizeof(float);
+      break;
+
+    case MOTOR_CURRENT: 
+      float_buf = (float *) data_update_buf;
+      float_buf[0] = readCurrent();
+      return sizeof(float);
+      break;
+
+    default:
+      return 0;
+      break;
+  }
+
+  return 0;
 }
 
+
+float readPWMInput() {
+  return pwmInput;
+}
+
+uint8_t readDriveMode() {
+  return driveMode;
+}
+
+// You must implement this function.
+// It is called when the BBB sends a message to the Smart Device tellinng the Smart Device to disable itself.
+// Consult README.md, section 6, to see what exact functionality is expected out of disable.
+void device_disable() {
+
+}

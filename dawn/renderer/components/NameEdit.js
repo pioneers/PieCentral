@@ -2,6 +2,8 @@ import React from 'react';
 import { RIEInput } from 'riek';
 import _ from 'lodash';
 
+
+// TODO: Check Draft.js or other alternatives
 class NameEdit extends React.Component {
   constructor(props) {
     super(props);
@@ -26,17 +28,17 @@ class NameEdit extends React.Component {
   }
 
   dataChange(data) {
-    console.log('Deprecated: dataChange in NameEdit:');
-    console.log(data);
+    if (this.validatePeripheralName(data)) {
+      this.props.onRename(this.props.id, data);
+    }
   }
 
   validatePeripheralName(name) {
     const re = new RegExp('^[A-Za-z][A-Za-z0-9]+$');
     const isValid = re.test(name);
     const allCurrentPeripherals = _.toArray(this.props.peripherals);
-    const isDuplicate = _.some(allCurrentPeripherals, (peripheral) => {
-      return peripheral.name === name && peripheral.id !== this.props.id;
-    });
+    const isDuplicate = _.some(allCurrentPeripherals,
+        peripheral => peripheral.name === name && peripheral.id !== this.props.id);
     return isValid && !isDuplicate;
   }
 
@@ -62,6 +64,7 @@ NameEdit.propTypes = {
   name: React.PropTypes.string.isRequired,
   id: React.PropTypes.string.isRequired,
   peripherals: React.PropTypes.object.isRequired,
+  onRename: React.PropTypes.func,
 };
 
 export default NameEdit;

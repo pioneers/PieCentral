@@ -5,7 +5,7 @@ import { addAsyncAlert, removeAsyncAlert } from '../AlertActions';
 
 describe('alerts action creator', () => {
   // Needs to be using the same seed as the action creator.
-  const rng = new seedrandom('alertseed');
+  const rng = seedrandom('alertseed');
 
   it('should create an action to add alert', () => {
     const expectedAction = {

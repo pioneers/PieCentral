@@ -121,7 +121,18 @@ Each Smart Device will be assigned an 88-bit UID with the following data.
 - Hibike abstracts every smart device as a set of parameters that map to values
 - Each smart device contains some number of paramaters, which can be read/written to.
 
-- Paramaters can have many types, such as bool, int, short, byte, float, etc.
+- Parameters can have many types.  The following types are supported
+-- bool
+-- uint8_t
+-- int8_t
+-- uint16_t
+-- int16_t
+-- uint32_t
+-- int32_t
+-- uint64_t
+-- int64_t
+-- float
+-- double.  CAUTION: Arduino's doubles are only 4 bytes long (same as a float), so an Arduino's Double is the same as python's Float.  Do not use this type unless your arduino is actually cranking out 8 bytes.
 - Some paramaters are read only, some are write only, and some support both.
 - A config file will describe the paramaters for each Device Type (name, type, permissions).
 - Some packets encode sets of parameters in the form of bitmaps.
@@ -152,7 +163,10 @@ Message ID Enumeration:
 |  0x12   |   Subscription Response  |
 |  0x13   |       Device Read        |
 |  0x14   |       Device Write       |
-|  0x15   |      Device Data         |
+|  0x15   |       Device Data        |
+|  0x16   |      Device Disable      |
+|  0x17   |    Heart Beat Request    |
+|  0x18   |   Heart Beat Response    |
 |  0xFF   |           Error          |
 
 Device Type Enumeration:
@@ -162,14 +176,12 @@ Device Type Enumeration:
 |  0x00   | LimitSwitch    | 0            | switch0    | bool       | yes   | no     |
 |         |                | 1            | switch1    | bool       | yes   | no     |
 |         |                | 2            | switch2    | bool       | yes   | no     |
-|         |                | 3            | switch3    | bool       | yes   | no     |
 |  0x01   | LineFollower   | 0            | left       | float      | yes   | no     |
 |         |                | 1            | center     | float      | yes   | no     |
 |         |                | 2            | right      | float      | yes   | no     |
 |  0x02   | Potentiometer  | 0            | pot0       | float      | yes   | no     |
 |         |                | 1            | pot1       | float      | yes   | no     |
 |         |                | 2            | pot2       | float      | yes   | no     |
-|         |                | 3            | pot3       | float      | yes   | no     |
 |  0x03   | Encoder        | 0            | rotation   | int16_t    | yes   | no     |
 |  0x04   | BatteryBuzzer  | 0            | connected  | bool       | yes   | no     |
 |         |                | 1            | safe       | bool       | yes   | no     |
@@ -196,6 +208,23 @@ Device Type Enumeration:
 |         |                | 7            | enable3    | bool       | yes   | yes    |
 |  0x08   | LinearActuator |              |            |            |       |        |
 |  0x09   | ColorSensor    |              |            |            |       |        |
+|  0x0A   | YogiBear       | 0            | enable              | bool       | yes   | yes    |
+|         |                | 1            | command_state       | uint8_t    | yes   | yes    |
+|         |                | 2            | duty_cycle          | float      | no    | yes    |
+|         |                | 3            | pid_pos_setpoint    | float      | no    | yes    |
+|         |                | 4            | pid_pos_kp          | float      | no    | yes    |
+|         |                | 5            | pid_pos_ki          | float      | no    | yes    |
+|         |                | 6            | pid_pos_kd          | float      | no    | yes    |
+|         |                | 7            | pid_vel_setpoint    | float      | no    | yes    |
+|         |                | 8            | pid_vel_kp          | float      | no    | yes    |
+|         |                | 9            | pid_vel_ki          | float      | no    | yes    |
+|         |                | 10           | pid_vel_kd          | float      | no    | yes    |
+|         |                | 11           | current_thresh      | float      | no    | yes    |
+|         |                | 12           | enc_pos             | float      | yes   | yes    |
+|         |                | 13           | enc_vel             | float      | yes   | no     |
+|         |                | 14           | motor_current       | float      | yes   | no     |
+|  0x0B   | RFID           | 0            | id      | uint8_t | yes | no |
+|         |                | 1            | detect_tag | uint8_t       | yes   | no |
 |  0x10   | DistanceSensor |              |            |            |       |        |
 |  0x11   | MetalDetector  |              |            |            |       |        |
 |  0xFFFF | ExampleDevice  | 0            | kumiko     | bool       | yes   | yes    |
@@ -324,7 +353,37 @@ Note: These assignments are also fairly random and may not all even be
     Direction:
     BBB <-- SD
 
-7. Error Packet: Sent to indicate an error occured. 
+7. Heart Beat Request: BBB/SD requests SD/BBB heartbeat response for connectivity purposes.
+    - This message pathway is a two way street, both BBB and SD can send requests and send responses to the other
+    - Upon receiving a Heart Beat Request, a Heart Beat Response message should be immediately sent back
+    - Payload is currently unused, but can be used for future functionality in keeping track of individual heartbeat requests and responses (for latency purposes)
+
+    Payload format:
+
+        +---------------+
+        |       ID      |
+        |    (8 bits)   |
+        +---------------+
+
+    Direction:
+    BBB --> SD   OR   BBB <-- SD
+
+8. Heart Beat Response: Sent in response to a Heart Beat Request
+    - This message pathway is a two way street, both BBB and SD can receive requests and send responses to the other
+    - Should only be sent upon receiving a Heart Beat Request
+    - Payload is currently unused, but can be used for future functionality in keeping track of individual heartbeat requests and responses (for latency purposes)
+
+    Payload format:
+
+        +---------------+
+        |       ID      |
+        |    (8 bits)   |
+        +---------------+
+
+    Direction:
+    BBB --> SD   OR   BBB <-- SD
+
+9. Error Packet: Sent to indicate an error occured.
     - Currently only used for the BBB to log statistics.
     
   Payload format:

@@ -8,11 +8,12 @@ import {
 
 const EditorButton = (props) => {
   const tooltip = (
-    <Tooltip id="tooltip">{props.text}</Tooltip>
+    <Tooltip id={`tooltip-editor-button-${props.id}`}>{props.text}</Tooltip>
   );
   return (
     <OverlayTrigger placement="top" overlay={tooltip}>
       <Button
+        type="button"
         bsStyle="default"
         bsSize="small"
         onClick={props.onClick}
@@ -25,9 +26,10 @@ const EditorButton = (props) => {
 };
 
 EditorButton.propTypes = {
-  text: React.PropTypes.string,
-  onClick: React.PropTypes.func,
-  glyph: React.PropTypes.string,
+  id: React.PropTypes.string.isRequired,
+  text: React.PropTypes.string.isRequired,
+  onClick: React.PropTypes.func.isRequired,
+  glyph: React.PropTypes.string.isRequired,
   disabled: React.PropTypes.bool,
 };
 

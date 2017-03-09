@@ -6,6 +6,7 @@ import queue
 import glob
 import serial
 import os
+from platform import system
 
 __all__ = ["hibike_process"]
 
@@ -13,8 +14,11 @@ __all__ = ["hibike_process"]
 uid_to_index = {}
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
-
-    ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*")
+    
+    # Last command is included so that it's compatible with OS X Sierra
+    # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
+    # Instead access it through Volumes/vagrant/PieCentral
+    ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("/dev/tty.usbmodem*")
 
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
@@ -43,12 +47,15 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     # these threads receive packets from devices and write to statequeue
     read_threads = [threading.Thread(target=device_read_thread, args=(index, ser, iq, None, stateQueue)) for index, (ser, iq) in enumerate(zip(serials, instruction_queues))]
 
-    print(ports)
-
     for read_thread in read_threads:
         read_thread.start()
     for write_thread in write_threads:
         write_thread.start()
+
+    # Pings all devices and tells them to stop sending data
+    for instruction_queue in instruction_queues:
+        instruction_queue.put(("ping", []))
+        instruction_queue.put(("subscribe", [1, 0, []]))
 
     # the main thread reads instructions from statemanager and forwards them to the appropriate device write threads
     while True:
@@ -67,7 +74,10 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
         elif instruction == "read_params":
             uid = args[0]
             if uid in uid_to_index:
-                instruction_queues[uid_to_index[uid]].put(("read", args))            
+                instruction_queues[uid_to_index[uid]].put(("read", args))
+        elif instruction == "disable_all":
+            for instruction_queue in instruction_queues:
+                instruction_queue.put(("disable", []))            
 
 
 def device_write_thread(ser, queue):
@@ -85,6 +95,11 @@ def device_write_thread(ser, queue):
         elif instruction == "write":
             uid, params_and_values = args
             hm.send(ser, hm.make_device_write(hm.uid_to_device_id(uid), params_and_values))
+        elif instruction == "disable":
+            hm.send(ser, hm.make_disable())
+        elif instruction == "heartResp":
+            uid = args[0]
+            hm.send(ser, hm.make_heartbeat_response(hm.uid_to_device_id(uid)))
 
 
 def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
@@ -100,8 +115,11 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
             if uid is not None:
                 params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
                 stateQueue.put(("device_values", [uid, params_and_values]))
+                instructionQueue.put(("heartResp", [uid]))
             else:
                 print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
+                print("Telling it to shut up")
+                hm.send(ser, hm.make_subscription_request(1, [], 0))
 
 
 #############
@@ -123,8 +141,6 @@ if __name__ == "__main__":
         def helper():
             pipeToChild.send(["write_params", [uid, params_and_values]])
         return helper
-
-
 
     pipeToChild, pipeFromChild = multiprocessing.Pipe()
     badThingsQueue = multiprocessing.Queue()
@@ -152,13 +168,15 @@ if __name__ == "__main__":
                         ], 0.1)
                 elif hm.devices[hm.uid_to_device_id(uid)]["name"] == "YogiBear":
                     set_interval_sequence([
-                        make_send_write(pipeToChild, uid, [("duty", 0),   ("forward", True)]),
-                        make_send_write(pipeToChild, uid, [("duty", 50),  ("forward", True)]),
-                        make_send_write(pipeToChild, uid, [("duty", 100), ("forward", True)]),
-                        make_send_write(pipeToChild, uid, [("duty", 0),   ("forward", False)]),
-                        make_send_write(pipeToChild, uid, [("duty", 50),  ("forward", False)]),
-                        make_send_write(pipeToChild, uid, [("duty", 100), ("forward", False)])
-                        ], 1)
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0.5)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 1.0)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", -0.5)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", -1.0)]),
+                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0)])
+
+                        ], 0.75)
                 elif hm.devices[hm.uid_to_device_id(uid)]["name"] == "ServoControl":
                     set_interval_sequence([
                         make_send_write(pipeToChild, uid, [("servo0", 1), ("enable0", False), ("servo1", 21), ("enable1", True), ("servo2", 30), ("enable2", True), ("servo3", 8), ("enable3", True)]),

@@ -1,24 +1,23 @@
 #include "hibike_device.h"
 
 message_t hibikeBuff;
-uint64_t prevTime, currTime, heartbeatTime;
-uint16_t params, old_params;
-uint32_t value;
-uint16_t subDelay;
+uint16_t params, old_params, subDelay;
+uint32_t value, disable_latency;
+uint64_t prevTime, currTime, sent_heartbeat, resp_heartbeat;
 led_state heartbeat_state;
 bool led_enabled;
 
-void hibike_setup() {
+void hibike_setup(uint32_t _disable_latency) {
   Serial.begin(115200);
   prevTime = millis();
   subDelay = 0;
+  disable_latency = _disable_latency;
 
   // Setup Error LED
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
   heartbeat_state = RESTING;
   led_enabled = false;
-
 }
 
 void hibike_loop() {
@@ -74,6 +73,19 @@ void hibike_loop() {
           toggleLED();
           break;
 
+        case DEVICE_DISABLE:
+          device_disable();
+          break;
+
+        case HEART_BEAT_REQUEST:
+          // send heart beat response
+          send_heartbeat_response(1);
+          break;
+
+        case HEART_BEAT_RESPONSE:
+          resp_heartbeat = currTime;
+          break;
+
         case PING:
           send_subscription_response(params, subDelay, &UID);
           break;
@@ -85,51 +97,14 @@ void hibike_loop() {
     }
   }
 
-  // Hearbeat
-  switch (heartbeat_state) {
-    case RESTING:
-      if (currTime - heartbeatTime >= 1700) {
-        heartbeatTime = currTime;
-        digitalWrite(LED_PIN, HIGH);
-        led_enabled = true;
-        heartbeat_state = FIRST_BEAT;
-      }
-      break;
-
-    case FIRST_BEAT:
-      if (currTime - heartbeatTime >= 100) {
-        heartbeatTime = currTime;
-        digitalWrite(LED_PIN, LOW);
-        led_enabled = false;
-        heartbeat_state = BREAK;
-      }
-      break;
-
-    case BREAK:
-      if (currTime - heartbeatTime >= 100) {
-        heartbeatTime = currTime;
-        digitalWrite(LED_PIN, HIGH);
-        led_enabled = true;
-        heartbeat_state = SECOND_BEAT;
-      }
-      break;
-
-    case SECOND_BEAT:
-      if (currTime - heartbeatTime >= 100) {
-        heartbeatTime = currTime;
-        digitalWrite(LED_PIN, LOW);
-        led_enabled = false;
-        heartbeat_state = RESTING;
-      }
-      break;
-  }
-
   if ((subDelay > 0) && (currTime - prevTime >= subDelay)) {
     prevTime = currTime;
     send_data_update(params);
   }
 
-
+  if ((currTime - resp_heartbeat) > disable_latency) {
+    device_disable(); //on sensor specific device
+  }
 }
 
 void toggleLED() {

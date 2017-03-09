@@ -1,9 +1,7 @@
-/**
- * Simulates the robot runtime for development and testing purposes.
- *
- * NOTE: FakeRuntime is NOT transpiled or bundled by webpack like most of the other JS code
- * It will be run "as is" as a child-process of the rest of the application.
- * Some experimental features that are used elsewhere in Dawn may not be available here.
+/*
+ * Fake Runtime is not handled by webpack like most of the other JS code but instead
+ * will be run "as is" as a child-process of the rest of the application.
+ * See DebugMenu.js for handling FakeRuntime within Dawn
  */
 
 const dgram = require('dgram');
@@ -14,92 +12,103 @@ const DawnData = dawnBuilder.build('DawnData');
 const runtimeBuilder = ProtoBuf.loadProtoFile('../ansible-protos/runtime.proto');
 const RuntimeData = runtimeBuilder.build('RuntimeData');
 
-const clientPort = 1235; // send port
-const serverPort = 1236; // receive port
-const hostname = 'localhost';
-const client = dgram.createSocket('udp4');// sender
-const server = dgram.createSocket('udp4'); // receiver
-const SENDRATE = 1000;
-const stateEnum = {
-  RUNNING: 1,
-  IDLE: 0,
-};
-let state = stateEnum.IDLE;
+const sendPort = 1235;
+const listenPort = 1236;
+const sendSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+const listenSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+const interval = 1000; // in ms
 
-/**
- * Handler to receive messages from Dawn.
- * We don't do anything besides decode it and print it out.
- */
-server.on('message', (msg) => {
-  // Decode and get the raw object.
-  const data = DawnData.decode(msg).toRaw();
-  console.log(data);
-  if (data.student_code_status !== 'IDLE') {
-    state = stateEnum.RUNNING;
-  } else {
-    state = stateEnum.IDLE;
+const robotState = {
+  IDLE: 0,
+  RUNNING: 1,
+  ESTOP: 5,
+};
+let state = robotState.IDLE;
+
+listenSocket.on('message', (msg) => {
+  const data = DawnData.decode(msg);
+  switch (data.student_code_status) {
+    case 'IDLE':
+      state = robotState.IDLE;
+      break;
+    case 'ESTOP':
+      state = robotState.ESTOP;
+      break;
+    default:
+      state = robotState.RUNNING;
   }
 });
 
-server.bind(serverPort, hostname);
+listenSocket.bind(listenPort);
 
-/**
- * Returns a random number between min and max.
- */
 const randomFloat = (min, max) => (((max - min) * Math.random()) + min);
 
-/**
- * Generate fake data to send to Dawn
- */
-const generateFakeData = () => [
+const generateFakeData = () => (
   {
     robot_state: state,
     sensor_data: [{
       device_type: 'MOTOR_SCALAR',
       device_name: 'MS1',
-      value: randomFloat(-100, 100),
+      param_value: {
+        param: 'Val',
+        float_value: randomFloat(-100, 100),
+      },
       uid: 100,
     }, {
       device_type: 'MOTOR_SCALAR',
       device_name: 'MS2',
-      value: randomFloat(-100, 100),
-      uid: 105,
+      param_value: {
+        param: 'Val',
+        float_value: randomFloat(-100, 100),
+      },
+      uid: 101,
     }, {
       device_type: 'LimitSwitch',
       device_name: 'LS1',
-      value: Math.round(randomFloat(0, 1)),
-      uid: 101,
-    }, {
-      device_type: 'SENSOR_SCALAR',
-      device_name: 'SS1',
-      value: randomFloat(-100, 100),
+      param_value: {
+        param: 'Val',
+        int_value: Math.round(randomFloat(0, 1)),
+      },
       uid: 102,
     }, {
       device_type: 'SENSOR_SCALAR',
+      device_name: 'SS1',
+      param_value: {
+        param: 'Val',
+        float_value: randomFloat(-100, 100),
+      },
+      uid: 103,
+    }, {
+      device_type: 'SENSOR_SCALAR',
       device_name: 'SS2',
-      value: randomFloat(-100, 100),
-      uid: 106,
+      param_value: {
+        param: 'Val',
+        float_value: randomFloat(-100, 100),
+      },
+      uid: 104,
     }, {
       device_type: 'ServoControl',
       device_name: 'SC1',
-      value: Math.round(randomFloat(0, 180)),
-      uid: 103,
+      param_value: {
+        param: 'Val',
+        int_value: Math.round(randomFloat(0, 180)),
+      },
+      uid: 105,
     }, {
       device_type: 'ColorSensor',
       device_name: 'CS1',
-      value: Math.round(randomFloat(0, 255)),
-      uid: 104,
+      param_value: [{
+        param: 'Val',
+        float_value: randomFloat(0, 255),
+      }, {
+        param: 'Val2',
+        float_value: randomFloat(0, 255),
+      }],
+      uid: 106,
     }],
-  },
-];
+  });
 
-/**
- * Send the encoded randomly generated data to Dawn
- */
 setInterval(() => {
-  const fakeData = generateFakeData();
-  for (const item of fakeData) {
-    const udpData = new RuntimeData(item);
-    client.send(Buffer.from(udpData.toArrayBuffer()), clientPort, hostname);
-  }
-}, SENDRATE);
+  const udpData = new RuntimeData(generateFakeData());
+  sendSocket.send(Buffer.from(udpData.toArrayBuffer()), sendPort, 'localhost');
+}, interval);

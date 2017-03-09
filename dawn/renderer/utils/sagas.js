@@ -12,15 +12,10 @@ import { ipcRenderer, remote } from 'electron';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
-import { peripheralDisconnect } from '../actions/PeripheralActions';
 
 // const dialog = remote.dialog;
 // postpone looking into remote so tests can run
 let timestamp = Date.now();
-
-if (!Date.now) {
-  Date.now = () => { new Date().getTime(); };
-}
 
 /**
  * The electron showOpenDialog interface does not work well
@@ -175,7 +170,7 @@ function* runtimeHeartbeat() {
     // Start a race between a delay and receiving an UPDATE_STATUS action from
     // runtime. Only the winner will have a value.
     const result = yield race({
-      update: take('UPDATE_STATUS'),
+      update: take('PER_MESSAGE'),
       timeout: call(delay, 1000), // The delay is 1000 ms, or 1 second.
     });
 
@@ -188,40 +183,14 @@ function* runtimeHeartbeat() {
   }
 }
 
-let id = '';
-const actionWithSamePeripheral = nextAction => (
- nextAction.type === 'UPDATE_PERIPHERAL' && (String(nextAction.peripheral.uid.high)
- + String(nextAction.peripheral.uid.low)) === id
-);
-
-/**
- * This saga removes peripherals that have not been updated by Runtime
- * recently (they are assumed to be disconnected).
- */
-function* reapPeripheral(action) {
-  id = String(action.peripheral.uid.high) + String(action.peripheral.uid.low);
-  // Start a race between a delay and receiving an UPDATE_PERIPHERAL action for
-  // this same peripheral (per peripheral.id). Only the winner has a value.
-  const result = yield race({
-    peripheralUpdate: take(actionWithSamePeripheral),
-    timeout: call(delay, 3000), // The delay is 3000 ms, or 3 seconds.
-  });
-
-  // If the delay won, then we have not received an update for this peripheral
-  // recently and remove it from our state.
-  if (result.timeout) {
-    yield put(peripheralDisconnect(id));
-  }
-}
-
 const _timestamps = [0, 0, 0, 0];
 
 function _needToUpdate(newGamepads) {
   return _.some(newGamepads, (gamepad, index) => {
-    if (!_.isUndefined(gamepad) && (gamepad.timestamp > _timestamps[index])) {
+    if (gamepad != null && (gamepad.timestamp > _timestamps[index])) {
       _timestamps[index] = gamepad.timestamp;
       return true;
-    } else if (_.isUndefined(gamepad) && !_.isNull(_timestamps[index])) {
+    } else if (gamepad == null && _timestamps[index] != null) {
       _timestamps[index] = null;
       return true;
     }
@@ -254,7 +223,7 @@ function* ansibleGamepads() {
   while (true) {
     // navigator.getGamepads always returns a reference to the same object. This
     // confuses redux, so we use assignIn to clone to a new object each time.
-    const newGamepads = _.assignIn({}, navigator.getGamepads());
+    const newGamepads = Array.prototype.slice.call(navigator.getGamepads());
     if (_needToUpdate(newGamepads) || Date.now() - timestamp > 100) {
       const formattedGamepads = formatGamepads(newGamepads);
       yield put(updateGamepads(formattedGamepads));
@@ -326,7 +295,6 @@ export default function* rootSaga() {
     takeEvery('OPEN_FILE', openFile),
     takeEvery('SAVE_FILE', saveFile),
     takeEvery('CREATE_NEW_FILE', openFile),
-    takeEvery('UPDATE_PERIPHERAL', reapPeripheral),
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),
@@ -343,8 +311,6 @@ export { openFileDialog,
          saveFileDialog,
          saveFile,
          runtimeHeartbeat,
-         actionWithSamePeripheral,
-         reapPeripheral,
          gamepadsState,
          updateMainProcess,
          ansibleReceiver,

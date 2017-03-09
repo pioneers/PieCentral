@@ -1,33 +1,35 @@
-/**
- * Entrypoint for main process of Dawn.
+/*
+ * Entrypoint for Dawn's main process
  */
 
 import { app, BrowserWindow, Menu } from 'electron';
 import RendererBridge from './RendererBridge';
+import { killFakeRuntime } from './MenuTemplate/DebugMenu';
 import Template from './MenuTemplate/Template';
-import './ansible/Ansible';
-
-let mainWindow; // the window which displays Dawn
+import Ansible from './ansible/Ansible';
 
 app.on('window-all-closed', () => {
   app.quit();
 });
 
-app.on('ready', () => {
-  mainWindow = new BrowserWindow();
+app.on('will-quit', () => {
+  Ansible.close();
 
-  // connects to window's redux state and dispatcher
+  if (process.env.NODE_ENV === 'development') {
+    killFakeRuntime();
+  }
+});
+
+app.on('ready', () => {
+  Ansible.setup();
+
+  const mainWindow = new BrowserWindow();
+
+  // Binding for the main process to inject into Redux workflow
   RendererBridge.registerWindow(mainWindow);
 
   mainWindow.maximize();
   mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
-
-  mainWindow.on('closed', () => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log(Template[3].submenu[1].kill()); // Find Less Hacky way to kill Fake Runtimes.
-    }
-    mainWindow = null;
-  });
 
   const menu = Menu.buildFromTemplate(Template);
   Menu.setApplicationMenu(menu);

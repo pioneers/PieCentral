@@ -1,36 +1,48 @@
 #!/bin/bash
 
 if [ "$(id -u)" != "0" ]; then
-	echo "Please run with sudo permissions."
-	exit 1
+    echo "Please run with sudo permissions."
+    exit 1
 fi
 
+cp utils/flash /etc/bash_completion.d/flash.sh
+echo "Setup Tab-complete"
+echo "Please restart your terminals"
+
 if [ "$(dpkg-query -W -f='${Status}' make 2>/dev/null | grep -c "ok installed")" != 1 ]; then
-	apt-get --assume-yes install make	
+    apt-get --assume-yes install make	
 fi
 
 if [ "$(dpkg-query -W -f='${Status}' gcc 2>/dev/null | grep -c "ok installed")" != 1 ]; then
-	apt-get --assume-yes install gcc	
+    apt-get --assume-yes install gcc	
 fi
 
 if [ "$(dpkg-query -W -f='${Status}' gcc-avr 2>/dev/null | grep -c "ok installed")" != 1 ]; then
-	apt-get --assume-yes install gcc-avr	
+    apt-get --assume-yes install gcc-avr	
 fi
 
 if [ "$(dpkg-query -W -f='${Status}' arduino 2>/dev/null | grep -c "ok installed")" != 1 ]; then
-	apt-get --assume-yes install arduino	
+    apt-get --assume-yes install arduino	
 fi
 
 if [ "$(dpkg-query -W -f='${Status}' arduino-core 2>/dev/null | grep -c "ok installed")" != 1 ]; then
-	apt-get --assume-yes install arduino-core	
+    apt-get --assume-yes install arduino-core	
 fi
 
 if [ "$(dpkg-query -W -f='${Status}' arduino-mk 2>/dev/null | grep -c "ok installed")" != 1 ]; then
-	apt-get --assume-yes install arduino-mk	
+    apt-get --assume-yes install arduino-mk	
 fi
 
 if [ "$(dpkg-query -W -f='${Status}' avr-libc 2>/dev/null | grep -c "ok installed")" != 1 ]; then
-	apt-get --assume-yes install avr-libc	
+    apt-get --assume-yes install avr-libc	
+fi
+
+if [ "$(dpkg-query -W -f='${Status}' python3-pip 2>/dev/null | grep -c "ok installed")" != 1 ]; then
+    apt-get --assume-yes install python3-pip
+fi
+
+if [ "$(pip3 freeze | grep -c "pyserial")" != 1]; then
+    pip3 install -r requirements.txt
 fi
 
 

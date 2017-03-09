@@ -26,13 +26,14 @@
     },
 
     {"id": 4,     "name": "BatteryBuzzer", "params": [    
-                                                          {"number": 0  , "name": "connected"  , "type": "bool"    , "read": true , "write": false },
-                                                          {"number": 1  , "name": "safe"       , "type": "bool"    , "read": true , "write": false },
-                                                          {"number": 2  , "name": "cell1"      , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 3  , "name": "cell2"      , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 4  , "name": "cell3"      , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 5  , "name": "total"      , "type": "float"   , "read": true , "write": false },
-                                                          {"number": 6  , "name": "callibrate" , "type": "bool"    , "read": false, "write": true  }
+                                                          {"number": 0  , "name": "is_unsafe"  , "type": "bool"    , "read": true , "write": false },
+                                                          {"number": 1  , "name": "calibrated" , "type": "bool"    , "read": true, "write": false  },
+                                                          {"number": 2  , "name": "v_cell1"      , "type": "float"   , "read": true , "write": false },
+                                                          {"number": 3  , "name": "v_cell2"      , "type": "float"   , "read": true , "write": false },
+                                                          {"number": 4  , "name": "v_cell3"      , "type": "float"   , "read": true , "write": false },
+                                                          {"number": 5  , "name": "v_batt"      , "type": "float"   , "read": true , "write": false },
+                                                          {"number": 6  , "name": "dv_cell2"      , "type": "float"   , "read": true , "write": false },
+                                                          {"number": 7  , "name": "dv_cell3"      , "type": "float"   , "read": true , "write": false }
                                                      ]
     },
 
@@ -61,21 +62,20 @@
 
 
     {"id": 10,     "name": "YogiBear",      "params": [   
-                                                          {"number": 0  , "name": "enable"              , "type": "bool"     , "read": true , "write": true  }, 
-                                                          {"number": 1  , "name": "command_state"       , "type": "uint8_t"  , "read": true , "write": true  },
-                                                          {"number": 2  , "name": "duty_cycle"          , "type": "float"    , "read": true , "write": true  },
-                                                          {"number": 3  , "name": "pid_pos_setpoint"    , "type": "float"    , "read": false , "write": true  },
-                                                          {"number": 4  , "name": "pid_pos_kp"          , "type": "float"    , "read": false , "write": true  },
-                                                          {"number": 5  , "name": "pid_pos_ki"          , "type": "float"    , "read": false , "write": true  },
-                                                          {"number": 6  , "name": "pid_pos_kd"          , "type": "float"    , "read": false , "write": true  },
-                                                          {"number": 7  , "name": "pid_vel_setpoint"    , "type": "float"    , "read": false , "write": true  },
-                                                          {"number": 8  , "name": "pid_vel_kp"          , "type": "float"    , "read": false , "write": true  },
-                                                          {"number": 9  , "name": "pid_vel_ki"          , "type": "float"    , "read": false , "write": true  },
-                                                          {"number": 10  , "name": "pid_vel_kd"         , "type": "float"    , "read": false , "write": true  },
-                                                          {"number": 11  , "name": "current_thresh"     , "type": "float"    , "read": false , "write": true  },
-                                                          {"number": 12  , "name": "enc_pos"            , "type": "float"    , "read": true , "write": true  },
-                                                          {"number": 13  , "name": "enc_vel"            , "type": "float"    , "read": true , "write": false  },
-                                                          {"number": 14  , "name": "motor_current"      , "type": "float"    , "read": true , "write": false  }
+                                                          {"number": 0  , "name": "duty_cycle"          , "type": "float"    , "read": true , "write": true  },
+                                                          {"number": 1  , "name": "pid_pos_setpoint"    , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 2  , "name": "pid_pos_kp"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 3  , "name": "pid_pos_ki"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 4  , "name": "pid_pos_kd"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 5  , "name": "pid_vel_setpoint"    , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 6  , "name": "pid_vel_kp"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 7  , "name": "pid_vel_ki"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 8  , "name": "pid_vel_kd"         , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 9  , "name": "current_thresh"     , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 10  , "name": "enc_pos"            , "type": "float"    , "read": true , "write": true  },
+                                                          {"number": 11  , "name": "enc_vel"            , "type": "float"    , "read": true , "write": false  },
+                                                          {"number": 12  , "name": "motor_current"      , "type": "float"    , "read": true , "write": false  },
+                                                          {"number": 13  , "name": "deadband"           , "type": "float"    , "read": true , "write": true  }
                                                      ]
     },
 

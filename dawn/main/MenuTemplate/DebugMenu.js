@@ -1,8 +1,15 @@
 import { fork } from 'child_process';
 import RendererBridge from '../RendererBridge';
 
-// Fake Runtime Instance
-let child = null;
+let fakeRuntime = null;
+
+export function killFakeRuntime() {
+  if (fakeRuntime) {
+    fakeRuntime.kill();
+    fakeRuntime = null;
+    console.log('Fake runtime killed');
+  }
+}
 
 const DebugMenu = {
   label: 'Debug',
@@ -19,21 +26,15 @@ const DebugMenu = {
 if (process.env.NODE_ENV === 'development') {
   DebugMenu.submenu.unshift({
     label: 'Toggle Fake Runtime',
-    kill() { // Also called by main-develop.js
-      if (child) {
-        child.kill();
-        child = null;
-      }
-      return 'Fake Runtime Killed';
-    },
     click() {
-      if (child) {
-        child.kill();
+      if (fakeRuntime) {
+        killFakeRuntime();
       } else {
-        child = fork('./fake-runtime/FakeRuntime');
+        fakeRuntime = fork('./fake-runtime/FakeRuntime');
       }
     },
   });
+
   DebugMenu.submenu.unshift({
     label: 'Reload',
     accelerator: 'CommandOrControl+R',

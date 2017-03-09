@@ -183,13 +183,14 @@ Device Type Enumeration:
 |         |                | 1            | pot1       | float      | yes   | no     |
 |         |                | 2            | pot2       | float      | yes   | no     |
 |  0x03   | Encoder        | 0            | rotation   | int16_t    | yes   | no     |
-|  0x04   | BatteryBuzzer  | 0            | connected  | bool       | yes   | no     |
-|         |                | 1            | safe       | bool       | yes   | no     |
-|         |                | 2            | cell1      | float      | yes   | no     |
-|         |                | 3            | cell2      | float      | yes   | no     |
-|         |                | 4            | cell3      | float      | yes   | no     |
-|         |                | 5            | total      | float      | yes   | no     |
-|         |                | 6            | calibrate | bool       | no    | yes    |
+|  0x04   | BatteryBuzzer  | 0            | is_unsafe  | bool       | yes   | no     |
+|         |                | 1            | calibrated | bool       | yes   | no     |
+|         |                | 2            | v_cell1    | float      | yes   | no     |
+|         |                | 3            | v_cell2    | float      | yes   | no     |
+|         |                | 4            | v_cell3    | float      | yes   | no     |
+|         |                | 5            | v_batt     | float      | yes   | no     |
+|         |                | 6            | dv_cell2   | float      | yes   | no     |
+|         |                | 7            | dv_cell3   | float      | yes   | no     |
 |  0x05   | TeamFlag       | 0            | mode       | bool       | yes   | yes    |
 |         |                | 1            | blue       | bool       | yes   | yes    |
 |         |                | 2            | yellow     | bool       | yes   | yes    |
@@ -208,21 +209,20 @@ Device Type Enumeration:
 |         |                | 7            | enable3    | bool       | yes   | yes    |
 |  0x08   | LinearActuator |              |            |            |       |        |
 |  0x09   | ColorSensor    |              |            |            |       |        |
-|  0x0A   | YogiBear       | 0            | enable              | bool       | yes   | yes    |
-|         |                | 1            | command_state       | uint8_t    | yes   | yes    |
-|         |                | 2            | duty_cycle          | float      | no    | yes    |
-|         |                | 3            | pid_pos_setpoint    | float      | no    | yes    |
-|         |                | 4            | pid_pos_kp          | float      | no    | yes    |
-|         |                | 5            | pid_pos_ki          | float      | no    | yes    |
-|         |                | 6            | pid_pos_kd          | float      | no    | yes    |
-|         |                | 7            | pid_vel_setpoint    | float      | no    | yes    |
-|         |                | 8            | pid_vel_kp          | float      | no    | yes    |
-|         |                | 9            | pid_vel_ki          | float      | no    | yes    |
-|         |                | 10           | pid_vel_kd          | float      | no    | yes    |
-|         |                | 11           | current_thresh      | float      | no    | yes    |
-|         |                | 12           | enc_pos             | float      | yes   | yes    |
-|         |                | 13           | enc_vel             | float      | yes   | no     |
-|         |                | 14           | motor_current       | float      | yes   | no     |
+|  0x0A   | YogiBear       | 0            | duty_cycle          | float      | yes   | yes    |
+|         |                | 1            | pid_pos_setpoint    | float      | no    | yes    |
+|         |                | 2            | pid_pos_kp          | float      | no    | yes    |
+|         |                | 3            | pid_pos_ki          | float      | no    | yes    |
+|         |                | 4            | pid_pos_kd          | float      | no    | yes    |
+|         |                | 5            | pid_vel_setpoint    | float      | no    | yes    |
+|         |                | 6            | pid_vel_kp          | float      | no    | yes    |
+|         |                | 7            | pid_vel_ki          | float      | no    | yes    |
+|         |                | 8            | pid_vel_kd          | float      | no    | yes    |
+|         |                | 9            | current_thresh      | float      | no    | yes    |
+|         |                | 10           | enc_pos             | float      | yes   | yes    |
+|         |                | 11           | enc_vel             | float      | yes   | no     |
+|         |                | 12           | motor_current       | float      | yes   | no     |
+|         |                | 13           | deadband            | float      | yes   | yes    |
 |  0x0B   | RFID           | 0            | id      | uint8_t | yes | no |
 |         |                | 1            | detect_tag | uint8_t       | yes   | no |
 |  0x10   | DistanceSensor |              |            |            |       |        |

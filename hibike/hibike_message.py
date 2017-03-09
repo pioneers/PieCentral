@@ -4,6 +4,7 @@ import struct
 import pdb
 import os
 import json
+import time
 
 config_file = open(os.path.join(os.path.dirname(__file__), 'hibikeDevices.json'), 'r')
 devices = json.load(config_file)
@@ -329,22 +330,39 @@ def parse_bytes(bytes):
   payload = message[2:2 + payloadLength]
   chk = struct.unpack('<B', message[2+payloadLength:2+payloadLength+1])[0]
   if chk != checksum(message[:-1]):
-    #print(chk, checksum(message[:-1]), list(message))
     return None
   return HibikeMessage(messageID, payload)
 
-
-
 def blocking_read(serial_conn):
-  buffer = bytearray()
-  while not parse_bytes(buffer):
-    curr = serial_conn.read()
-    if struct.unpack('<B', curr)[0] == 0:
-      buffer = bytearray(curr)
-    else:
-      buffer.extend(curr)
-  return parse_bytes(buffer)
+  zero_byte = bytes([0])
+  packets = bytes()
+  while packets.find(zero_byte) == -1:
+    serial_conn.read(max(1, serial_conn.inWaiting()))
 
+  # Truncate incomplete packets at start of buffer
+  packets = packets[packets.find(zero_byte)]
+
+  # Read until we have no incomplete packets
+  last_zero = packets.rfind(zero_byte)
+  if last_zero == len(packets) -1:
+    packets += serial_conn.read(size=1)[0]
+  last_message_size = packets[last_zero + 1]
+
+  # -2 because payload length and zero byte are not counted
+  received_payload = len(packets) - last_zero - 2
+
+  # +1 because checksum not included in size
+  packets += serial_conn.read(last_message_size - received_payload + 1)
+
+  packet_list = []
+  while len(packets) > 0:
+    packet_size = 2 + packets[1] + 1 # zero byte, length, payload, checksum
+    packet = parse_bytes(packets)
+    if packet != None:
+      packet_list.append(packet)
+    packets = packets[packet_size:]
+
+  return packet_list
 
 # constructs a new object Message by continually reading from input
 # Uses dictionary to figure out length of data to know how many bytes to read

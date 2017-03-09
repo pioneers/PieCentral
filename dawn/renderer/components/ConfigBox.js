@@ -10,7 +10,7 @@ import {
 
 import { getValidationState } from '../utils/utils';
 
-class UpdateBox extends React.Component {
+class ConfigBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -72,7 +72,7 @@ class UpdateBox extends React.Component {
   }
 }
 
-UpdateBox.propTypes = {
+ConfigBox.propTypes = {
   shouldShow: React.PropTypes.bool.isRequired,
   hide: React.PropTypes.func.isRequired,
   connectionStatus: React.PropTypes.bool.isRequired,
@@ -82,4 +82,4 @@ UpdateBox.propTypes = {
   onIPChange: React.PropTypes.func.isRequired,
 };
 
-export default UpdateBox;
+export default ConfigBox;

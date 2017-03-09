@@ -29,7 +29,7 @@ class StateManager(object):
       "Potentiometer"  : ["pot0", "pot1", "pot2"],
       "BatteryBuzzer"  : ["total", "safe"],
       "ServoControl"  : ["servo0", "servo1"],
-      "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
+      "YogiBear" : ["duty_cycle", "enc_pos", "enc_vel"],
       "RFID" : ["id", "tag_detect"],
     }
     return subscriptionMap

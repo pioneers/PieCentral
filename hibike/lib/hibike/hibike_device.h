@@ -32,7 +32,7 @@ typedef enum {
 #define LED_PIN 13
 
 extern hibike_uid_t UID;
-void hibike_setup(uint32_t _disable_latency);
+void  hibike_setup(uint32_t _disable_latency, uint32_t _heartbeatDelay);
 void hibike_loop();
 void toggleLED();
 

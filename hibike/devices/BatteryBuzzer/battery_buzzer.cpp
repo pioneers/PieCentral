@@ -38,7 +38,7 @@ void setup() {
 
   delay(100);  // Wait for the first reading to finish (50ms minimum)
 
-  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
+  hibike_setup(500, 100); //500 ms without heartbeat to disable, ask for heartbeats at 100 Hz.
 }
 
 // normal arduino loop function, you must call hibike_loop() here

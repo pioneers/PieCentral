@@ -88,6 +88,7 @@ class Robot(StudentAPI):
     "LineFollower" : ["left", "center", "right"],
     "Potentiometer" : ["pot0", "pot1", "pot2"],
     "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos", "enc_vel"],
+    "RFID" : ["id", "tag_detect"],
   }
   param_to_valid_values = {
     "servo0" : [(int,), 0, 180],

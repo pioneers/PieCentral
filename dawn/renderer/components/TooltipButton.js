@@ -11,13 +11,14 @@ const TooltipButton = (props) => {
     <Tooltip id={`tooltip-editor-button-${props.id}`}>{props.text}</Tooltip>
   );
   return (
-    <OverlayTrigger placement="top" overlay={tooltip}>
+    <OverlayTrigger placement={props.placement || 'top'} overlay={tooltip}>
       <Button
         type="button"
-        bsStyle="default"
+        bsStyle={props.bsStyle || 'default'}
         bsSize="small"
         onClick={props.onClick}
         disabled={props.disabled}
+        active={props.active}
       >
         <Glyphicon glyph={props.glyph} />
       </Button>
@@ -31,6 +32,9 @@ TooltipButton.propTypes = {
   onClick: React.PropTypes.func.isRequired,
   glyph: React.PropTypes.string.isRequired,
   disabled: React.PropTypes.bool,
+  bsStyle: React.PropTypes.string,
+  active: React.PropTypes.bool,
+  placement: React.PropTypes.string,
 };
 
 export default TooltipButton;

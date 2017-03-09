@@ -29,21 +29,6 @@ void setup() {
   driveMode = MANUALDRIVE;
 }
 
-/* 
-Manual Controls:
-s <x> - sets pwm to x
-c     - clears faults
-p <x> - turns on PID mode, velocity if x = v, position if x = p
-m     - turns on manual input mode
-e     - enables motor
-d     - disables motor
-r     - displays 1 print of all readable values
-t     - toggles continual printing of pos and vel
-b     - send heartbeat
-h     - switch hibike mode
-z     - switch human controls
-w <x> <y> - writes the value y to the variable x
-*/
 void loop() {
   ctrl_LEDs();
   hibike_loop();

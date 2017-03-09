@@ -70,13 +70,13 @@ class ListenSocket {
      */
     this.socket.on('message', (msg) => {
       try {
-        const { robot_state, sensor_data } = RuntimeData.decode(msg);
+        const { stateRobot, sensorData } = RuntimeData.decode(msg);
         console.log('Dawn received UDP');
-        RendererBridge.reduxDispatch(infoPerMessage(robot_state));
-        if (robot_state === RuntimeData.State.STUDENT_STOPPED) {
+        RendererBridge.reduxDispatch(infoPerMessage(stateRobot));
+        if (stateRobot === RuntimeData.State.STUDENT_STOPPED) {
           RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
         }
-        RendererBridge.reduxDispatch(updatePeripherals(sensor_data));
+        RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
         console.log('Error decoding UDP');
         console.log(err);

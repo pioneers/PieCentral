@@ -5,6 +5,7 @@ import {
   ButtonGroup } from 'react-bootstrap';
 import { remote } from 'electron';
 import smalltalk from 'smalltalk';
+import ConfigBox from './ConfigBox';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';
 import TooltipButton from './TooltipButton';
@@ -33,7 +34,12 @@ class DNav extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { showUpdateModal: false };
+    this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
+    this.toggleConfigModal = this.toggleConfigModal.bind(this);
+    this.state = {
+      showUpdateModal: false,
+      showConfigModal: false,
+    };
   }
 
   updateAddress() {
@@ -52,6 +58,10 @@ class DNav extends React.Component {
     this.setState({ showUpdateModal: !this.state.showUpdateModal });
   }
 
+  toggleConfigModal() {
+    this.setState({ showConfigModal: !this.state.showConfigModal });
+  }
+
   render() {
     return (
       <Navbar fixedTop fluid>
@@ -60,8 +70,17 @@ class DNav extends React.Component {
           connectionStatus={this.props.connection}
           runtimeStatus={this.props.runtimeStatus}
           shouldShow={this.state.showUpdateModal}
-          hide={this.toggleUpdateModal}
           ipAddress={this.props.ipAddress}
+          hide={this.toggleUpdateModal}
+        />
+        <ConfigBox
+          isRunningCode={this.props.isRunningCode}
+          connectionStatus={this.props.connection}
+          runtimeStatus={this.props.runtimeStatus}
+          shouldShow={this.state.showConfigModal}
+          ipAddress={this.props.ipAddress}
+          onIPChange={this.props.onIPChange}
+          hide={this.toggleConfigModal}
         />
         <Navbar.Header>
           <Navbar.Brand id="header-title">
@@ -94,7 +113,7 @@ class DNav extends React.Component {
                   placement="bottom"
                   text="Robot IP"
                   bsStyle="info"
-                  onClick={this.updateAddress}
+                  onClick={this.toggleConfigModal}
                   id="update-address-button"
                   glyph="transfer"
                 />
@@ -120,8 +139,9 @@ DNav.propTypes = {
   runtimeStatus: React.PropTypes.bool,
   battery: React.PropTypes.number,
   isRunningCode: React.PropTypes.bool,
-  startTour: React.PropTypes.func,
   ipAddress: React.PropTypes.string,
+  startTour: React.PropTypes.func,
+  onIPChange: React.PropTypes.func,
 };
 
 export default DNav;

@@ -26,8 +26,14 @@ void loop() {
   hibike_loop();
 }
 
-// you must implement this function. It is called when the device receives a DeviceUpdate packet.
-// the return value is the value field of the DeviceRespond packet hibike will respond with
+// You must implement this function.
+// It is called when the device receives a Device Write packet.
+// Updates param to new value passed in data.
+//    param   -   Parameter index
+//    data    -   value to write, in bytes TODO: What endian?
+//    len     -   number of bytes in data
+//
+//   return  -   size of bytes written on success; otherwise return 0
 uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   float value = ((float *)data)[0];
   if (value < -1 || value > 1) {
@@ -39,6 +45,14 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
   return sizeof(float); 
 }
 
+// You must implement this function.
+// It is called when the device receives a Device Data Update packet.
+// Modifies data to contain the parameter value.
+//    param           -   Parameter index
+//    data -   buffer to return data in
+//    len         -   Maximum length of the buffer? TODO: Clarify
+//
+//    return          -   sizeof(param) on success; 0 otherwise
 uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
   float* float_buf = (float *) data_update_buf;
   float_buf[0] = positions[param];

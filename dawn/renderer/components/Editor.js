@@ -101,14 +101,21 @@ class Editor extends React.Component {
     this.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
 
     storage.get('editorTheme', (err, data) => {
-      if (err) console.log(err);
-      if (!_.isEmpty(data)) this.props.onChangeTheme(data.theme);
+      if (err) {
+        console.log(err);
+      } else if (!_.isEmpty(data)) {
+        this.props.onChangeTheme(data.theme);
+      }
     });
 
     storage.get('editorFontSize', (err, data) => {
-      if (err) console.log(err);
-      if (!_.isEmpty(data)) this.props.onChangeFontsize(data.editorFontSize);
+      if (err) {
+        console.log(err);
+      } else if (!_.isEmpty(data)) {
+        this.props.onChangeFontsize(data.editorFontSize);
+      }
     });
+
 
     window.addEventListener('beforeunload', this.beforeUnload);
     window.addEventListener('resize', this.onWindowResize, { passive: true });
@@ -187,7 +194,7 @@ class Editor extends React.Component {
         'Upload Issue',
         'Robot could not be connected',
       );
-      console.log(err);
+      return console.log(err);
     });
     ipcRenderer.send('NOTIFY_UPLOAD');
     const waiting = () => {
@@ -214,6 +221,7 @@ class Editor extends React.Component {
               'SFTP session could not be initiated',
             );
             console.log(err);
+            return;
           }
           sftp.fastPut(filepath, './PieCentral/runtime/testy/studentCode.py', (err2) => {
             setTimeout(() => { conn.end(); }, 50);

@@ -16,11 +16,12 @@ class AppComponent extends React.Component {
     super(props);
     this.state = {
       steps: [],
+      tourRunning: false,
     };
     this.addSteps = this.addSteps.bind(this);
     this.addTooltip = this.addTooltip.bind(this);
     this.startTour = this.startTour.bind(this);
-    this.completeCallback = this.completeCallback.bind(this);
+    this.joyrideCallback = this.joyrideCallback.bind(this);
     this.updateAlert = this.updateAlert.bind(this);
   }
 
@@ -68,15 +69,18 @@ class AppComponent extends React.Component {
   }
 
   addTooltip(data) {
-    this.refs.joyride.addTooltip(data);
+    this.joyride.addTooltip(data);
   }
 
   startTour() {
-    this.refs.joyride.start(true);
+    this.setState({ tourRunning: true });
   }
 
-  completeCallback() {
-    this.refs.joyride.reset(false);
+  joyrideCallback(action) {
+    if (action.type === 'finished') {
+      this.setState({ tourRunning: false });
+      this.joyride.reset(false);
+    }
   }
 
   updateAlert(latestAlert) {
@@ -100,10 +104,13 @@ class AppComponent extends React.Component {
           onIPChange={this.props.onIPChange}
         />
         <Joyride
-          ref="joyride"
+          ref={c => (this.joyride = c)}
           steps={this.state.steps}
           type="continuous"
-          completeCallback={this.completeCallback}
+          showSkipButton
+          autoStart
+          run={this.state.tourRunning}
+          callback={this.joyrideCallback}
           locale={{
             back: 'Previous',
             close: 'Close',

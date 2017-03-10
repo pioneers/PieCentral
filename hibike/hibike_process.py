@@ -108,21 +108,21 @@ def device_write_thread(ser, queue):
 def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
     uid = None
     while True:
-        packet = hm.blocking_read(ser)
-        message_type = packet.getmessageID()
-        if message_type == hm.messageTypes["SubscriptionResponse"]:
-            params, delay, uid = hm.parse_subscription_response(packet)
-            uid_to_index[uid] = index
-            stateQueue.put(("device_subscribed", [uid, delay, params]))
-        elif message_type == hm.messageTypes["DeviceData"]:
-            if uid is not None:
-                params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-                stateQueue.put(("device_values", [uid, params_and_values]))
-                instructionQueue.put(("heartResp", [uid]))
-            else:
-                print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
-                print("Telling it to shut up")
-                hm.send(ser, hm.make_subscription_request(1, [], 0))
+        for packet in hm.blocking_read_generator(ser):
+            message_type = packet.getmessageID()
+            if message_type == hm.messageTypes["SubscriptionResponse"]:
+                params, delay, uid = hm.parse_subscription_response(packet)
+                uid_to_index[uid] = index
+                stateQueue.put(("device_subscribed", [uid, delay, params]))
+            elif message_type == hm.messageTypes["DeviceData"]:
+                if uid is not None:
+                    params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
+                    stateQueue.put(("device_values", [uid, params_and_values]))
+                    instructionQueue.put(("heartResp", [uid]))
+                else:
+                    print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
+                    print("Telling it to shut up")
+                    hm.send(ser, hm.make_subscription_request(1, [], 0))
 
 
 #############

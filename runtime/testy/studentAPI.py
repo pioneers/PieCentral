@@ -78,12 +78,33 @@ class Gamepad(StudentAPI):
     raise StudentAPIKeyError()
 
 class Robot(StudentAPI):
-  deviceType_to_validParams = {
-    10 : ["duty_cycle", "enable"], 
+  deviceName_to_writeParams = {
+    "TeamFlag" : ["s1", "s2", "s3", "s4"],
+    "ServoControl" : ["servo0", "servo1"],
+    "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos"],
+  }
+  deviceName_to_readParams = {
+    "LimitSwitch" : ["switch0", "switch1", "switch2"],
+    "LineFollower" : ["left", "center", "right"],
+    "Potentiometer" : ["pot0", "pot1", "pot2"],
+    "ServoControl" : ["servo0", "servo1"],
+    "YogiBear" : ["duty_cycle", "enc_pos", "enc_vel"],
+    "RFID" : ["id", "tag_detect"],
   }
   param_to_valid_values = {
-    "duty_cycle" : [float, -1, 1],
-    "enable" : [bool],
+    "servo0" : [(float, int), -1, 1],
+    "servo1" : [(float, int), -1, 1],
+    "duty_cycle" : [(float, int), -1, 1],
+    "pid_pos_setpoint" :[(float, int), -float("inf"), float("inf")],
+    "pid_pos_kp" : [(float, int), 0, float("inf")],
+    "pid_pos_ki" : [(float, int), 0, float("inf")],
+    "pid_pos_kd" : [(float, int), 0, float("inf")],
+    "current_thresh" : [(float, int), 2, 10],
+    "enc_pos" : [(float, int), 0, 0],
+    "s1" : [(bool,)],
+    "s2" : [(bool,)],
+    "s3" : [(bool,)],
+    "s4" : [(bool,)],
   }
 
   def __init__(self, toManager, fromManager):
@@ -97,13 +118,12 @@ class Robot(StudentAPI):
 
   def get_value(self, device_name, param):
     uid = self._hibikeGetUID(device_name)
-    self._check_params(uid, param)
+    self._check_read_params(uid, param)
     return self.peripherals[uid][0][param][0]
 
   def set_value(self, device_name, param, value):
-    #TODO Implement parameter checking
     uid = self._hibikeGetUID(device_name)
-    self._check_params(uid, param)
+    self._check_write_params(uid, param)
     self._check_value(param, value)
     self.toManager.put([HIBIKE_COMMANDS.WRITE, [uid, [(param, value)]]])
 
@@ -142,19 +162,25 @@ class Robot(StudentAPI):
 
     return fn in self._coroutines_running
 
-  def _check_params(self, uid, param):
+  def _check_write_params(self, uid, param):
     device_type = uid >> 72
-    valid_params = self.deviceType_to_validParams[device_type]
+    valid_params = self.deviceName_to_writeParams[SENSOR_TYPE[device_type]]
+    if param not in valid_params:
+      raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + "".join(valid_params))
+
+  def _check_read_params(self, uid, param):
+    device_type = uid >> 72
+    valid_params = self.deviceName_to_readParams[SENSOR_TYPE[device_type]]
     if param not in valid_params:
       raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + "".join(valid_params))
 
   def _check_value(self, param, value):
     valid_values = self.param_to_valid_values[param]
     if not isinstance(value, valid_values[0]):
-      raise StudentAPIValueError("Invalid value type passed in, valid types for this param are: " + valid_values[0].__name__)
-    if valid_values[0] == bool:
+      raise StudentAPIValueError("Invalid value type passed in, valid types for this param are: " + valid_values[0][0].__name__)
+    if valid_values[0][0] == bool:
       return
-    elif valid_values[0] == float:
+    elif valid_values[0][0] == float or valid_values[0][0] == int:
       if not (valid_values[1] <= value <= valid_values[2]):
         raise StudentAPIValueError("Invalid value passed in, valid values for this param are: " + str(valid_values[1]) + " to " + str(valid_values[2]))
 
@@ -188,7 +214,9 @@ class Robot(StudentAPI):
 
   def _hibikeGetUID(self, name):
     try:
-      return self.sensorMappings[name]
+      #TODO: Implement sensor mappings, right now uid is the number (or string of number)
+      return int(name)
+      #return self.sensorMappings[name]
     except:
       raise StudentAPIKeyError()
 
@@ -197,8 +225,9 @@ class Robot(StudentAPI):
 
   def _print(self, *args):
     print(*args)
-    console_string = " ".join(str(arg) for arg in args)
-    self.toManager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]])
+    #TODO reimplement when dawn can handle higher hz communication
+    #console_string = " ".join(str(arg) for arg in args)
+    #self.toManager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]])
 
   def hibikeWriteValue(self, uid, params):
     self.toManager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])

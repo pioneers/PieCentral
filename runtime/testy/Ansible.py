@@ -111,18 +111,18 @@ class UDPSendClass(AnsibleHandler):
                 proto_message.robot_state = state['studentCodeState'][0]
                 for uid, values in state['hibike'][0]['devices'][0].items():
                     sensor = proto_message.sensor_data.add()
-                    # UID (88 bits) - 24 = 64 bits, enough to easily pack for transmission to Dawn
-                    sensor.uid = uid >> 24
+                    sensor.uid = str(uid)
+                    sensor.device_type = SENSOR_TYPE[uid>>72]
                     for param, value in values[0].items():
                         if value[0] is None:
                             continue
                         param_value_pair = sensor.param_value.add()
                         param_value_pair.param = param
-                        if type(value[0]) == bool:
+                        if isinstance(value[0], bool):
                             param_value_pair.bool_value = value[0]
-                        elif type(value[0]) == float:
+                        elif isinstance(value[0], float):
                             param_value_pair.float_value = value[0]
-                        elif type(value[0]) == int:
+                        elif isinstance(value[0], int):
                             param_value_pair.int_value = value[0]
                 return proto_message.SerializeToString() 
             except Exception as e:

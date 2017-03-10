@@ -21,7 +21,7 @@ message RuntimeData {
         reserved 3;
         string device_type = 1;
         string device_name = 2;
-        uint64 uid = 4;
+        string uid = 4;
         uint32 int_device_type = 5;
         repeated ParamValue param_value = 6;
     }

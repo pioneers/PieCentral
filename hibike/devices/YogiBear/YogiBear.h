@@ -11,21 +11,20 @@ typedef enum {
 } DriveModes;
 
 typedef enum {
-  ENABLE = 0,
-  COMMAND_STATE = 1,
-  DUTY_CYCLE = 2,
-  PID_POS_SETPOINT = 3,
-  PID_POS_KP = 4,
-  PID_POS_KI = 5,
-  PID_POS_KD = 6,
-  PID_VEL_SETPOINT = 7,
-  PID_VEL_KP = 8,
-  PID_VEL_KI = 9,
-  PID_VEL_KD = 10,
-  CURRENT_THRESH = 11,
-  ENC_POS = 12,
-  ENC_VEL = 13,
-  MOTOR_CURRENT = 14
+  DUTY_CYCLE = 0,
+  PID_POS_SETPOINT = 1,
+  PID_POS_KP = 2,
+  PID_POS_KI = 3,
+  PID_POS_KD = 4,
+  PID_VEL_SETPOINT = 5,
+  PID_VEL_KP = 6,
+  PID_VEL_KI = 7,
+  PID_VEL_KD = 8,
+  CURRENT_THRESH = 9,
+  ENC_POS = 10,
+  ENC_VEL = 11,
+  MOTOR_CURRENT = 12,
+  DEADBAND = 13
 } param;
 
 
@@ -33,6 +32,8 @@ typedef enum {
 void setup();
 void loop();
 float readPWMInput();
+void resetPWMInput();
+void resetDriveMode();
 uint8_t readDriveMode();
 
 #endif /* YOGIBEAR_H */

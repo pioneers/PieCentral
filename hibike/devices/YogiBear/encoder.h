@@ -3,7 +3,7 @@
 
 //function prototypes
 void encoderSetup();
-void zeroEncoder();
+void resetEncoder();
 double readPos();
 double readVel();
 void updateVel();

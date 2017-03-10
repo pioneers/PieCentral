@@ -2,7 +2,7 @@
 #include "pindefs.h"
 #include "encoder.h"
 #include "current_limit.h"
-
+#include "motor.h"
 #include "Arduino.h"
 
 //place all LED control functions in here
@@ -14,7 +14,13 @@ void ctrl_LEDs() {
 
 //decides when the red LED is on
 void ctrl_RED() {
-	if(readVel() < 0) {
+	bool redOn = false;
+
+	if(readVel() < 0 || !isMotorEnabled()) {
+		redOn = true;
+	}
+
+	if(redOn) {
 		digitalWrite(LED_RED, HIGH);
 	} else {
 		digitalWrite(LED_RED, LOW);
@@ -23,7 +29,13 @@ void ctrl_RED() {
 
 //decides when the yellow LED is on
 void ctrl_YELLOW() {
-	if(read_limit_state() == 2 || read_limit_state() == 3) { //limit state number
+	bool yellowOn = false;
+
+	if(read_limit_state() == 2 || read_limit_state() == 3 || !isMotorEnabled()) { //limit state number
+		yellowOn = true;
+	}
+
+	if(yellowOn) {
 		digitalWrite(LED_YELLOW, HIGH);
 	} else {
 		digitalWrite(LED_YELLOW, LOW);
@@ -32,7 +44,13 @@ void ctrl_YELLOW() {
 
 //decides when the green LED is on
 void ctrl_GREEN() {
-	if(readVel() > 0) {
+	bool greenOn = false;
+
+	if(readVel() > 0 || !isMotorEnabled()) {
+		greenOn = true;
+	} 
+
+	if(greenOn) {
 		digitalWrite(LED_GREEN, HIGH);
 	} else {
 		digitalWrite(LED_GREEN, LOW);

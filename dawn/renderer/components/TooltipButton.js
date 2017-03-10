@@ -19,6 +19,7 @@ const TooltipButton = (props) => {
         onClick={props.onClick}
         disabled={props.disabled}
         active={props.active}
+        id={props.id}
       >
         <Glyphicon glyph={props.glyph} />
       </Button>

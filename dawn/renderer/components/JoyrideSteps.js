@@ -29,14 +29,14 @@ export default [
     type: 'hover',
   }, {
     title: 'Code execution',
-    text: 'Use these buttons to run and stop your code, upload your code (for the competition), toggle the output console, and clear the output console.',
+    text: 'Use these buttons to run and stop your code, upload your code (for the competition)',
     selector: '#code-execution-buttons',
     position: 'bottom',
     type: 'hover',
   }, {
-    title: 'Game mode',
-    text: 'Use these modes to simulate the progression of a match. Robots start the match in autonomous mode. Afterwards, they are disabled for a few moments while referees tabulate scores. Then the robots enter tele-operated mode.',
-    selector: '#choose-mode',
+    title: 'Console',
+    text: 'Use these buttons to toggle the output console and clear the output console.',
+    selector: '#console-buttons',
     position: 'bottom',
     type: 'hover',
   }, {

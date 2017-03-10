@@ -27,10 +27,8 @@ import 'brace/theme/solarized_dark';
 import 'brace/theme/solarized_light';
 import 'brace/theme/terminal';
 
-import ConfigBox from './ConfigBox';
 import ConsoleOutput from './ConsoleOutput';
 import TooltipButton from './TooltipButton';
-import UpdateBox from './UpdateBox';
 import { pathToName, uploadStatus, robotState, defaults } from '../utils/utils';
 
 const Client = require('ssh2').Client;
@@ -79,16 +77,12 @@ class Editor extends React.Component {
     this.changeTheme = this.changeTheme.bind(this);
     this.increaseFontsize = this.increaseFontsize.bind(this);
     this.decreaseFontsize = this.decreaseFontsize.bind(this);
-    this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
-    this.toggleConfigModal = this.toggleConfigModal.bind(this);
     this.startRobot = this.startRobot.bind(this);
     this.stopRobot = this.stopRobot.bind(this);
     this.upload = this.upload.bind(this);
     this.estop = this.estop.bind(this);
     this.state = {
       editorHeight: this.getEditorHeight(),
-      showUpdateModal: false,
-      showConfigModal: false,
     };
   }
 
@@ -250,14 +244,6 @@ class Editor extends React.Component {
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
-  toggleUpdateModal() {
-    this.setState({ showUpdateModal: !this.state.showUpdateModal });
-  }
-
-  toggleConfigModal() {
-    this.setState({ showConfigModal: !this.state.showConfigModal });
-  }
-
   estop() {
     this.props.onUpdateCodeStatus(robotState.ESTOP);
   }
@@ -298,23 +284,6 @@ class Editor extends React.Component {
           </span>
         }
       >
-        <UpdateBox
-          isRunningCode={this.props.isRunningCode}
-          connectionStatus={this.props.connectionStatus}
-          runtimeStatus={this.props.runtimeStatus}
-          shouldShow={this.state.showUpdateModal}
-          ipAddress={this.props.ipAddress}
-          hide={this.toggleUpdateModal}
-        />
-        <ConfigBox
-          isRunningCode={this.props.isRunningCode}
-          connectionStatus={this.props.connectionStatus}
-          runtimeStatus={this.props.runtimeStatus}
-          shouldShow={this.state.showConfigModal}
-          ipAddress={this.props.ipAddress}
-          onIPChange={this.props.onIPChange}
-          hide={this.toggleConfigModal}
-        />
         <ButtonToolbar>
           <ButtonGroup id="file-operations-buttons">
             <TooltipButton
@@ -344,6 +313,13 @@ class Editor extends React.Component {
           </ButtonGroup>
           <ButtonGroup id="code-execution-buttons">
             <TooltipButton
+              id="upload"
+              text="Upload"
+              onClick={this.upload}
+              glyph="upload"
+              // disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+            />
+            <TooltipButton
               id="run"
               text="Run"
               onClick={this.startRobot}
@@ -358,11 +334,10 @@ class Editor extends React.Component {
               disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
             />
             <TooltipButton
-              id="upload"
-              text="Upload"
-              onClick={this.upload}
-              glyph="upload"
-              // disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+              id="e-stop"
+              text="E-STOP"
+              onClick={this.estop}
+              glyph="fire"
             />
           </ButtonGroup>
           <ButtonGroup id="console-buttons">
@@ -381,12 +356,6 @@ class Editor extends React.Component {
           </ButtonGroup>
           <ButtonGroup id="misc-buttons">
             <TooltipButton
-              id="e-stop"
-              text="E-STOP"
-              onClick={this.estop}
-              glyph="fire"
-            />
-            <TooltipButton
               id="increase-font-size"
               text="Increase font size"
               onClick={this.increaseFontsize}
@@ -399,18 +368,6 @@ class Editor extends React.Component {
               onClick={this.decreaseFontsize}
               glyph="zoom-out"
               disabled={this.props.fontSize < 7}
-            />
-            <TooltipButton
-              id="updates"
-              text="Updates"
-              onClick={this.toggleUpdateModal}
-              glyph="cloud-upload"
-            />
-            <TooltipButton
-              id="configuration"
-              text="Configuration"
-              onClick={this.toggleConfigModal}
-              glyph="cog"
             />
           </ButtonGroup>
           <DropdownButton
@@ -471,10 +428,8 @@ Editor.propTypes = {
   toggleConsole: React.PropTypes.func,
   onClearConsole: React.PropTypes.func,
   onUpdateCodeStatus: React.PropTypes.func,
-  onIPChange: React.PropTypes.func,
   isRunningCode: React.PropTypes.bool,
   runtimeStatus: React.PropTypes.bool,
-  connectionStatus: React.PropTypes.bool,
   ipAddress: React.PropTypes.string,
   notificationHold: React.PropTypes.number,
   onNotifyChange: React.PropTypes.func,

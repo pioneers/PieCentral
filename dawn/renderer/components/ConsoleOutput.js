@@ -20,12 +20,12 @@ class ConsoleOutput extends React.Component {
                 bottom: '0',
                 maxHeight: height,
                 overflowY: 'auto',
-                padding: '5px',
+                padding: '20px',
                 width: '99%',
               }}
             >
               {this.props.output.map(line => (
-                <code key={line}>{line}</code>
+                <code key={`${line}-Code`}>{line}</code>
               ))}
             </div>
           </pre>

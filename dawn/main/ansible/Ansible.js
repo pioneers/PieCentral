@@ -5,6 +5,7 @@ import ProtoBuf from 'protobufjs';
 import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
+import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import {
   ansibleDisconnect,
   notifyChange,
@@ -173,6 +174,11 @@ class TCPSocket {
       console.log('Dawn received TCP');
       if (decoded.header === Notification.Type.STUDENT_RECEIVED) {
         RendererBridge.reduxDispatch(notifyChange(uploadStatus.RECEIVED));
+      } else if (decoded.header === Notification.Type.CONSOLE_LOGGING) {
+        console.log(decoded);
+        RendererBridge.reduxDispatch(updateConsole(decoded.console_output));
+      } else {
+        console.log(`${decoded.header}-**************************`);
       }
     });
 

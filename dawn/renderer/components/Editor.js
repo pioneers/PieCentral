@@ -117,7 +117,8 @@ class Editor extends React.Component {
   }
 
   getEditorHeight(windowHeight) {
-    return `${String(windowHeight - 231 - (this.props.showConsole * (this.consoleHeight + 40)))}px`;
+    const windowNonEditorHeight = 231 + (this.props.showConsole * (this.consoleHeight + 40));
+    return `${String(windowHeight - windowNonEditorHeight)}px`;
   }
 
   beforeUnload(event) {
@@ -374,11 +375,11 @@ class Editor extends React.Component {
               bsSize="small"
               id="choose-theme"
             >
-              {_.map(this.themes, (theme, index) => (
+              {this.themes.map(theme => (
                 <MenuItem
                   active={theme === this.props.editorTheme}
                   onClick={_.partial(this.changeTheme, theme)}
-                  key={index}
+                  key={theme}
                 >
                   {theme}
                 </MenuItem>

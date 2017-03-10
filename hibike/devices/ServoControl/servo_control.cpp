@@ -51,5 +51,3 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
 void device_disable() {
   disableAll();
 }
-
-

@@ -49,14 +49,8 @@
     },
 
     {"id": 7,     "name": "ServoControl",  "params": [    
-                                                          {"number": 0  , "name": "servo0"     , "type": "uint8_t" , "read": true , "write": true  },
-                                                          {"number": 1  , "name": "enable0"    , "type": "bool"    , "read": true , "write": true  },
-                                                          {"number": 2  , "name": "servo1"     , "type": "uint8_t" , "read": true , "write": true  },
-                                                          {"number": 3  , "name": "enable1"    , "type": "bool"    , "read": true , "write": true  },
-                                                          {"number": 4  , "name": "servo2"     , "type": "uint8_t" , "read": true , "write": true  },
-                                                          {"number": 5  , "name": "enable2"    , "type": "bool"    , "read": true , "write": true  },
-                                                          {"number": 6  , "name": "servo3"     , "type": "uint8_t" , "read": true , "write": true  },
-                                                          {"number": 7  , "name": "enable3"    , "type": "bool"    , "read": true , "write": true  }
+                                                          {"number": 0  , "name": "servo0"     , "type": "float" , "read": true , "write": true  },
+                                                          {"number": 1  , "name": "servo1"     , "type": "float" , "read": true , "write": true  }
                                                      ]
     },
 

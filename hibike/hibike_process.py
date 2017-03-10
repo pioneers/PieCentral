@@ -28,15 +28,18 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
 
     serials = []
 
+    working_ports = []
+
     for port in ports:
         try:
             serials.append(serial.Serial(port, 115200))
+            working_ports.append(port)
 
-        # this is a hack to handle this error. 
-        # It pushes the error down to the worker threads for this device; they will try to do serial operations on a None object
-        # TODO karthik-shanmugam 97hongjun: implement cleaner management of worker threads that handles issues like this.
+            #this implimentation ensures that as long as the cannot open serial port error occurs while opening the serial port, a print will appear, but the rest of the ports will go on.
+
         except serial.serialutil.SerialException as e:
-            serials.append(None)
+            print("Cannot Open Serial Port: " + str(port))
+
 
     # each device has it's own write thread, with it's own instruction queue
     instruction_queues = [queue.Queue() for _ in ports]
@@ -105,23 +108,24 @@ def device_write_thread(ser, queue):
 def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
     uid = None
     while True:
-        packet = hm.blocking_read(ser)
-        message_type = packet.getmessageID()
-        if message_type == hm.messageTypes["SubscriptionResponse"]:
-            params, delay, uid = hm.parse_subscription_response(packet)
-            uid_to_index[uid] = index
-            stateQueue.put(("device_subscribed", [uid, delay, params]))
-        elif message_type == hm.messageTypes["DeviceData"]:
-            if uid is not None:
-                params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-                stateQueue.put(("device_values", [uid, params_and_values]))
-            else:
-                print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
-                print("Telling it to shut up")
-                hm.send(ser, hm.make_subscription_request(1, [], 0))
-        elif message_type == hm.messageTypes["HeartBeatRequest"]:
-            if uid is not None:
-                instructionQueue.put(("heartResp", [uid]))
+        for packet in hm.blocking_read_generator(ser):
+            message_type = packet.getmessageID()
+            if message_type == hm.messageTypes["SubscriptionResponse"]:
+                params, delay, uid = hm.parse_subscription_response(packet)
+                uid_to_index[uid] = index
+                stateQueue.put(("device_subscribed", [uid, delay, params]))
+            elif message_type == hm.messageTypes["DeviceData"]:
+                if uid is not None:
+                    params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
+                    stateQueue.put(("device_values", [uid, params_and_values]))
+                    instructionQueue.put(("heartResp", [uid]))
+                else:
+                    print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
+                    print("Telling it to shut up")
+                    hm.send(ser, hm.make_subscription_request(1, [], 0))
+            elif message_type == hm.messageTypes["HeartBeatRequest"]:
+                if uid is not None:
+                    instructionQueue.put(("heartResp", [uid]))
 
 
 #############

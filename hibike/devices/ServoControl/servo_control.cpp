@@ -17,7 +17,7 @@ volatile uint32_t toggle2 = 1;
 volatile uint32_t toggle3 = 1; 
 
 void setup() {
-  hibike_setup(500, 100); //500 ms without heartbeat to disable, ask for heartbeats at 100 Hz.
+  hibike_setup(500, 100); //500 ms without heartbeat to disable, ask for heartbeats at 100 ms.
 
   // Setup sensor input
   for (int i = 0; i < NUM_PINS; i++) {

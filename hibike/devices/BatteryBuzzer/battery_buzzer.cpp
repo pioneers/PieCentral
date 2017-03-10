@@ -28,7 +28,7 @@ void setup() {
   test_display();    //For production to check that the LED display is working.
   setup_sensing();
 
-  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
+  hibike_setup(500, 100); //500 ms without heartbeat to disable, ask for heartbeats at 100 ms.
 }
 
 

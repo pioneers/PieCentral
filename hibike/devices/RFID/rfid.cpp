@@ -14,7 +14,7 @@ bool del = false;
 
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
-  hibike_setup(500);
+  hibike_setup(500, 100); //500 ms without heartbeat to disable, ask for heartbeats at 100 ms
   // Setup sensor input
   SPI.begin();
   mfrc522.PCD_Init();

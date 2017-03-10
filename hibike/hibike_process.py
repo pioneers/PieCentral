@@ -123,6 +123,9 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
                     print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
                     print("Telling it to shut up")
                     hm.send(ser, hm.make_subscription_request(1, [], 0))
+            elif message_type == hm.messageTypes["HeartBeatRequest"]:
+                if uid is not None:
+                    instructionQueue.put(("heartResp", [uid]))
 
 
 #############

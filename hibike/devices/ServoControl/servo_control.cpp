@@ -6,6 +6,10 @@ Servo servos[NUM_PINS] = {servo0, servo1};
 uint8_t pins[NUM_PINS] = {SERVO_0, SERVO_1};
 float positions[NUM_PINS] = {0,0};
 
+
+void setup() {
+  hibike_setup(500, 100); //500 ms without heartbeat to disable, ask for heartbeats at 100 ms.
+
 void disableAll() {
   for (int i = 0; i < NUM_PINS; i++) {
     servos[i].detach();

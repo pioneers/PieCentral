@@ -2,16 +2,19 @@
 
 message_t hibikeBuff;
 uint16_t params, old_params, subDelay;
-uint32_t value, disable_latency;
-uint64_t prevTime, currTime, sent_heartbeat, resp_heartbeat;
+uint32_t value, disable_latency, heartbeatDelay, prevHeartTimer;
+uint64_t prevSubTime, currTime, sent_heartbeat, resp_heartbeat;
 led_state heartbeat_state;
 bool led_enabled;
 
-void hibike_setup(uint32_t _disable_latency) {
+void hibike_setup(uint32_t _disable_latency, uint32_t _heartbeatDelay) {
+  //heartbeatDelay to 0 to not send heartbeat Requests
+  //disable_latency to 0 to not disable on lack of heartbeats.
   Serial.begin(115200);
-  prevTime = millis();
+  prevSubTime = millis();
   subDelay = 0;
-  disable_latency = _disable_latency;
+  disable_latency = _disable_latency;  //this long without recieving a heartbeat response to disable myself.
+  heartbeatDelay = _heartbeatDelay; //Send a quest for heartbeat this fast.
 
   // Setup Error LED
   pinMode(LED_PIN, OUTPUT);
@@ -97,12 +100,20 @@ void hibike_loop() {
     }
   }
 
-  if ((subDelay > 0) && (currTime - prevTime >= subDelay)) {
-    prevTime = currTime;
+  if ((subDelay > 0) && (currTime - prevSubTime >= subDelay)) {
+    prevSubTime = currTime;
     send_data_update(params);
   }
 
-  if ((currTime - resp_heartbeat) > disable_latency) {
+  if ( ( (heartbeatDelay) > 0) && ( (currTime - prevHeartTimer) >= heartbeatDelay) )
+  {
+    //send heartbeat request
+    send_heartbeat_request(1); //1 is just a placeholder for future use.
+    prevHeartTimer = currTime;
+  }
+
+  if ( (disable_latency > 0)  && ( (currTime - resp_heartbeat) >= disable_latency)   ) 
+  {
     device_disable(); //on sensor specific device
   }
 }

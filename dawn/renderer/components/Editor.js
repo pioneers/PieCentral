@@ -313,13 +313,6 @@ class Editor extends React.Component {
           </ButtonGroup>
           <ButtonGroup id="code-execution-buttons">
             <TooltipButton
-              id="upload"
-              text="Upload"
-              onClick={this.upload}
-              glyph="upload"
-              // disabled={this.props.isRunningCode || !this.props.runtimeStatus}
-            />
-            <TooltipButton
               id="run"
               text="Run"
               onClick={this.startRobot}
@@ -332,6 +325,13 @@ class Editor extends React.Component {
               onClick={this.stopRobot}
               glyph="stop"
               disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
+            />
+            <TooltipButton
+              id="upload"
+              text="Upload"
+              onClick={this.upload}
+              glyph="upload"
+              // disabled={this.props.isRunningCode || !this.props.runtimeStatus}
             />
             <TooltipButton
               id="e-stop"
@@ -354,7 +354,7 @@ class Editor extends React.Component {
               glyph="remove"
             />
           </ButtonGroup>
-          <ButtonGroup id="misc-buttons">
+          <ButtonGroup id="editor-settings-buttons">
             <TooltipButton
               id="increase-font-size"
               text="Increase font size"
@@ -369,22 +369,22 @@ class Editor extends React.Component {
               glyph="zoom-out"
               disabled={this.props.fontSize < 7}
             />
+            <DropdownButton
+              title="Theme"
+              bsSize="small"
+              id="choose-theme"
+            >
+              {_.map(this.themes, (theme, index) => (
+                <MenuItem
+                  active={theme === this.props.editorTheme}
+                  onClick={_.partial(this.changeTheme, theme)}
+                  key={index}
+                >
+                  {theme}
+                </MenuItem>
+              ))}
+            </DropdownButton>
           </ButtonGroup>
-          <DropdownButton
-            title="Theme"
-            bsSize="small"
-            id="choose-theme"
-          >
-            {_.map(this.themes, (theme, index) => (
-              <MenuItem
-                active={theme === this.props.editorTheme}
-                onClick={_.partial(this.changeTheme, theme)}
-                key={index}
-              >
-                {theme}
-              </MenuItem>
-            ))}
-          </DropdownButton>
         </ButtonToolbar>
         <AceEditor
           mode="python"

@@ -29,7 +29,7 @@ export default [
     type: 'hover',
   }, {
     title: 'Code execution',
-    text: 'Use these buttons to run and stop your code, upload your code (for the competition)',
+    text: 'Use these buttons to run and stop your code, upload your code (for the competition), and to E-Stop the robot.',
     selector: '#code-execution-buttons',
     position: 'bottom',
     type: 'hover',
@@ -40,9 +40,9 @@ export default [
     position: 'bottom',
     type: 'hover',
   }, {
-    title: 'Editor Theme',
-    text: 'You can choose your editor\'s theme using this dropdown. Your preferences will be saved automatically.',
-    selector: '#choose-theme',
+    title: 'Editor Settings',
+    text: 'You can change the font size of the editor and change your editor\'s theme using these buttons. Your preferences will be saved automatically.',
+    selector: '#editor-settings-buttons',
     position: 'bottom',
     type: 'hover',
   }, {

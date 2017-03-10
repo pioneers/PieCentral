@@ -87,12 +87,13 @@ class Robot(StudentAPI):
     "LimitSwitch" : ["switch0", "switch1", "switch2"],
     "LineFollower" : ["left", "center", "right"],
     "Potentiometer" : ["pot0", "pot1", "pot2"],
+    "ServoControl" : ["servo0", "servo1"],
     "YogiBear" : ["duty_cycle", "enc_pos", "enc_vel"],
     "RFID" : ["id", "tag_detect"],
   }
   param_to_valid_values = {
-    "servo0" : [(int,), 0, 180],
-    "servo1" : [(int,), 0, 180],
+    "servo0" : [(float, int), -1, 1],
+    "servo1" : [(float, int), -1, 1],
     "duty_cycle" : [(float, int), -1, 1],
     "pid_pos_setpoint" :[(float, int), -float("inf"), float("inf")],
     "pid_pos_kp" : [(float, int), 0, float("inf")],

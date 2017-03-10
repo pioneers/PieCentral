@@ -4,7 +4,6 @@ import struct
 import pdb
 import os
 import json
-import time
 
 config_file = open(os.path.join(os.path.dirname(__file__), 'hibikeDevices.json'), 'r')
 devices = json.load(config_file)

@@ -43,6 +43,10 @@ class UpdateBox extends React.Component {
             <Modal.Title>Configuration</Modal.Title>
           </Modal.Header>
           <Modal.Body>
+            <p>
+              Make sure only one computer (running instance of Dawn) is attempting
+              to connect to the robot at a time! (i.e. IP Address is not set to same one)
+            </p>
             <FormGroup
               controlId="ipAddress"
               validationState={getValidationState(this.state.ipAddress)}

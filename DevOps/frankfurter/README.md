@@ -66,4 +66,4 @@ to the connected beaglebone, creating a new update using `create_update` if the 
 ## Some Notes
 1. Beaglebones are set-up using the master branch of PieCentral repository at the time of set-up.
 2. When we issue updates we will package both the runtime and hibike directory in a tarball hosted on GitHub pages which will then be extracted into the correct locations on the Beaglebone.
-3. Student code should be kept in a separate directory at `/home/ubuntu/studentcode`.
+3. Student code is stored in `~/PieCentral/runtime/testy/studentCode.py`.

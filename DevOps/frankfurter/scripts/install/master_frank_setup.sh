@@ -82,12 +82,7 @@ sudo systemctl start runtime.service
 sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc
 sudo cp $FRANKFURTER_DIR/resources/interfaces /etc/network/interfaces
 
-echo 'export PYTHONPATH="${PYTHONPATH}:/home/ubuntu/PieCentral/hibike"' >> $HOME/.bashrc
-
-# Aliases for runtime development
-echo "alias start-runtime='sudo systemctl start runtime.service'" >> $HOME/.bashrc
-echo "alias restart-runtime='sudo systemctl restart runtime.service'" >> $HOME/.bashrc
-echo "alias stop-runtime='sudo systemctl stop runtime.service'" >> $HOME/.bashrc
+cp $FRANKFURTER_DIR/resources/bashrc $HOME/.bashrc
 
 sudo /sbin/route delete default gw 192.168.7.1
 sudo systemctl restart networking.service

@@ -7,6 +7,7 @@ import Dashboard from './Dashboard';
 import DNav from './DNav';
 import joyrideSteps from './JoyrideSteps';
 import { removeAsyncAlert } from '../actions/AlertActions';
+import { ipChange } from '../actions/InfoActions';
 
 const storage = remote.require('electron-json-storage');
 
@@ -95,6 +96,8 @@ class AppComponent extends React.Component {
           connection={this.props.connectionStatus}
           battery={this.props.batteryLevel}
           isRunningCode={this.props.isRunningCode}
+          ipAddress={this.props.ipAddress}
+          onIPChange={this.props.onIPChange}
         />
         <Joyride
           ref="joyride"
@@ -131,6 +134,7 @@ AppComponent.propTypes = {
   asyncAlerts: React.PropTypes.array,
   onAlertDone: React.PropTypes.func,
   ipAddress: React.PropTypes.string,
+  onIPChange: React.PropTypes.func,
 };
 
 const mapStateToProps = state => ({
@@ -145,6 +149,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   onAlertDone(id) {
     dispatch(removeAsyncAlert(id));
+  },
+  onIPChange: (ipAddress) => {
+    dispatch(ipChange(ipAddress));
   },
 });
 

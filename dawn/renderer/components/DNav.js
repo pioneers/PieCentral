@@ -89,7 +89,7 @@ class DNav extends React.Component {
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
-          <Navbar.Text>
+          <Navbar.Text id="battery-indicator">
             <StatusLabel
               connectionStatus={this.props.connection}
               runtimeStatus={this.props.runtimeStatus}

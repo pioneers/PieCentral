@@ -199,14 +199,8 @@ Device Type Enumeration:
 |         |                | 5            | s3         | bool       | yes   | yes    |
 |         |                | 6            | s3         | bool       | yes   | yes    |
 |  0x06   | Grizzly        |              |            |            |       |        |
-|  0x07   | ServoControl   | 0            | servo0     | uint8_t    | yes   | yes    |
-|         |                | 1            | enable0    | bool       | yes   | yes    |
-|         |                | 2            | servo1     | uint8_t    | yes   | yes    |
-|         |                | 3            | enable1    | bool       | yes   | yes    |
-|         |                | 4            | servo2     | uint8_t    | yes   | yes    |
-|         |                | 5            | enable2    | bool       | yes   | yes    |
-|         |                | 6            | servo3     | uint8_t    | yes   | yes    |
-|         |                | 7            | enable3    | bool       | yes   | yes    |
+|  0x07   | ServoControl   | 0            | servo0     | float      | yes   | yes    |
+|         |                | 1            | servo1     | float      | yes   | yes    |
 |  0x08   | LinearActuator |              |            |            |       |        |
 |  0x09   | ColorSensor    |              |            |            |       |        |
 |  0x0A   | YogiBear       | 0            | duty_cycle          | float      | yes   | yes    |

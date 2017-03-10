@@ -1,29 +1,24 @@
 #include "servo_control.h"
 
-Servo servos[NUM_PINS];
+Servo servo0;
+Servo servo1;
+Servo servos[NUM_PINS] = {servo0, servo1};
+uint8_t pins[NUM_PINS] = {SERVO_0, SERVO_1};
+float positions[NUM_PINS] = {0,0};
 
-/*uint64_t prevTime, currTime, heartbeat;
-uint8_t param, servo;
-uint32_t value;
-uint16_t subDelay;
-bool led_enabled;
-*/
+void disableAll() {
+  for (int i = 0; i < NUM_PINS; i++) {
+    servos[i].detach();
+  }
+}
 
-uint8_t pins[NUM_PINS] = {SERVO_0, SERVO_1, SERVO_2, SERVO_3};
-
-volatile uint32_t toggle0 = 1; // 0 means servo off, 1 means on
-volatile uint32_t toggle1 = 1; 
-volatile uint32_t toggle2 = 1; 
-volatile uint32_t toggle3 = 1; 
+void enable(int num) {
+  servos[num].attach(pins[num]);
+}
 
 void setup() {
   hibike_setup(500); // Time in milliseconds before timeout on heartbeat
-
-  // Setup sensor input
-  for (int i = 0; i < NUM_PINS; i++) {
-    servos[i].attach(pins[i]);
-  }
-
+  disableAll();
 }
 
 
@@ -31,75 +26,42 @@ void loop() {
   hibike_loop();
 }
 
-// you must implement this function. It is called when the device receives a DeviceUpdate packet.
-// the return value is the value field of the DeviceRespond packet hibike will respond with
-uint32_t device_update(uint8_t param, uint32_t value) {
-  if (param < NUM_PINS) {
-    servos[param].write(value);
-    return servos[param].read();
-  }
-
-  switch (param) {
-
-    case TOGGLE0:
-      toggle0 = value;
-      return toggle_servo(0, toggle0);
-      break;
-
-    case TOGGLE1:
-      toggle1 = value;
-      return toggle_servo(0, toggle1);
-      break;
-
-    case TOGGLE2:
-      toggle2 = value;
-      return toggle_servo(0, toggle2);
-      break;
-
-    case TOGGLE3:
-      toggle3 = value;
-      return toggle_servo(0, toggle3);
-      break;
-
-    default:
-      return ~((uint32_t) 0);
-  }
-}
-
-uint32_t toggle_servo(int servo_num, uint32_t toggle) {
-  if ((toggle == 1) && (!servos[servo_num].attached())) {
-    servos[servo_num].attach(pins[servo_num]);
-  } else if ((toggle == 0) && (servos[servo_num].attached())) {
-    servos[servo_num].detach();
-  }
-  return toggle;
-
-}
-
-// you must implement this function. It is called when the deviCe receives a DeviceStatus packet.
-// the return value is the value field of the DeviceRespond packet hibike will respond with
-uint32_t device_status(uint8_t param) {
-  if (param < NUM_PINS) {
-    return servos[param].read();
-  }
-  return ~((uint32_t) 0);
-}
-
-
-// you must implement this function. It is called with a buffer and a maximum buffer size.
-// The buffer should be filled with appropriate data for a DataUpdate packer, and the number of bytes
-// added to the buffer should be returned. 
+// You must implement this function.
+// It is called when the device receives a Device Write packet.
+// Updates param to new value passed in data.
+//    param   -   Parameter index
+//    data    -   value to write, in bytes TODO: What endian?
+//    len     -   number of bytes in data
 //
-// You can use the helper function append_buf.
-// append_buf copies the specified amount data into the dst buffer and increments the offset
-uint8_t data_update(uint8_t* data_update_buf, size_t buf_len) {
-  uint8_t offset = 0;
-  return offset;
+//   return  -   size of bytes written on success; otherwise return 0
+uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
+  float value = ((float *)data)[0];
+  if (value < -1 || value > 1) {
+    return sizeof(float);
+  }
+  enable(param);
+  positions[param] = value;
+  servos[param].writeMicroseconds(SERVO_CENTER + (positions[param] * SERVO_RANGE/2));
+  return sizeof(float); 
+}
+
+// You must implement this function.
+// It is called when the device receives a Device Data Update packet.
+// Modifies data to contain the parameter value.
+//    param           -   Parameter index
+//    data -   buffer to return data in
+//    len         -   Maximum length of the buffer? TODO: Clarify
+//
+//    return          -   sizeof(param) on success; 0 otherwise
+uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
+  float* float_buf = (float *) data_update_buf;
+  float_buf[0] = positions[param];
+  return sizeof(float);
 }
 
 // You must implement this function.
 // It is called when the BBB sends a message to the Smart Device tellinng the Smart Device to disable itself.
 // Consult README.md, section 6, to see what exact functionality is expected out of disable.
 void device_disable() {
-
+  disableAll();
 }

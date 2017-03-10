@@ -3,35 +3,12 @@ import {
   Navbar,
   ButtonToolbar,
   ButtonGroup } from 'react-bootstrap';
-import { remote } from 'electron';
-import smalltalk from 'smalltalk';
-import ConfigBox from './ConfigBox';
+import IPBox from './IPBox';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';
 import TooltipButton from './TooltipButton';
 
-const storage = remote.require('electron-json-storage');
-
 class DNav extends React.Component {
-  static saveAddress(currentAddress) {
-    const prompt = smalltalk.prompt(
-      'Enter the IP address of the robot:',
-      'Examples: 192.168.13.100, 127.0.0.1',
-      currentAddress,
-    );
-    prompt.then((value) => {
-      if (/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(value)) {
-        storage.set('runtimeAddress', {
-          address: value,
-        }, (err) => {
-          if (err) throw err;
-        });
-      } else if (value != null) {
-        console.log(`Bad IP: ${value}`);
-      }
-    }, () => console.log('Canceled'));
-  }
-
   constructor(props) {
     super(props);
     this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
@@ -40,18 +17,6 @@ class DNav extends React.Component {
       showUpdateModal: false,
       showConfigModal: false,
     };
-  }
-
-  updateAddress() {
-    storage.has('runtimeAddress').then((hasKey) => {
-      if (hasKey) {
-        storage.get('runtimeAddress').then((data) => {
-          this.saveAddress(data.address);
-        });
-      } else {
-        this.saveAddress('192.168.13.100');
-      }
-    });
   }
 
   toggleUpdateModal() {
@@ -73,7 +38,7 @@ class DNav extends React.Component {
           ipAddress={this.props.ipAddress}
           hide={this.toggleUpdateModal}
         />
-        <ConfigBox
+        <IPBox
           isRunningCode={this.props.isRunningCode}
           connectionStatus={this.props.connection}
           runtimeStatus={this.props.runtimeStatus}
@@ -122,6 +87,7 @@ class DNav extends React.Component {
                   text="Upload Upgrade"
                   bsStyle="info"
                   onClick={this.toggleUpdateModal}
+                  disabled={this.props.runtimeStatus || this.props.isRunningCode}
                   id="update-software-button"
                   glyph="cloud-upload"
                 />

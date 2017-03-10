@@ -9,12 +9,11 @@ import {
 } from 'react-bootstrap';
 import { remote } from 'electron';
 import _ from 'lodash';
-
 import { getValidationState } from '../utils/utils';
 
 const storage = remote.require('electron-json-storage');
 
-class ConfigBox extends React.Component {
+class IPBox extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -22,7 +21,7 @@ class ConfigBox extends React.Component {
       original: this.props.ipAddress,
     };
     this.saveChanges = this.saveChanges.bind(this);
-    this.disableUploadUpdate = this.disableUploadUpdate.bind(this);
+    this.disableIPUpdate = this.disableIPUpdate.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleClose = this.handleClose.bind(this);
   }
@@ -66,12 +65,12 @@ class ConfigBox extends React.Component {
       <Modal show={this.props.shouldShow} onHide={this.handleClose}>
         <Form action="" onSubmit={this.saveChanges}>
           <Modal.Header closeButton>
-            <Modal.Title>Configuration</Modal.Title>
+            <Modal.Title>Robot IP Address</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <p>
               Make sure only one computer (running instance of Dawn) is attempting
-              to connect to the robot at a time! (i.e. IP Address is not set to same one)
+              to connect to the robot at a time! (i.e. not trying to connect to the same IP Address)
             </p>
             <FormGroup
               controlId="ipAddress"
@@ -91,7 +90,7 @@ class ConfigBox extends React.Component {
             <Button
               type="submit"
               bsStyle="primary"
-              disabled={this.disableUploadUpdate()}
+              disabled={this.disableIPUpdate()}
             >
               Update
             </Button>
@@ -102,7 +101,7 @@ class ConfigBox extends React.Component {
   }
 }
 
-ConfigBox.propTypes = {
+IPBox.propTypes = {
   shouldShow: React.PropTypes.bool.isRequired,
   hide: React.PropTypes.func.isRequired,
   connectionStatus: React.PropTypes.bool.isRequired,
@@ -112,4 +111,4 @@ ConfigBox.propTypes = {
   onIPChange: React.PropTypes.func.isRequired,
 };
 
-export default ConfigBox;
+export default IPBox;

@@ -118,6 +118,7 @@ def runtime(testName=""):
       terminate_process(PROCESS_NAMES.STUDENT_CODE)
       stateQueue.put([SM_COMMANDS.SET_VAL, [runtime_pb2.RuntimeData.STUDENT_STOPPED, ["studentCodeState"], False]])
       stateQueue.put([SM_COMMANDS.END_STUDENT_CODE, []])
+      stateQueue.put([HIBIKE_COMMANDS.DISABLE, []])
     nonTestModePrint(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
     print("TERMINATING")

@@ -64,7 +64,7 @@ class StateManager(object):
       HIBIKE_COMMANDS.SUBSCRIBE: self.hibikeSubscribeDevice,
       HIBIKE_COMMANDS.READ: self.hibikeReadParams,
       HIBIKE_COMMANDS.WRITE: self.hibikeWriteParams,
-      HIBIKE_COMMANDS.E_STOP: self.hibikeEmergencyStop
+      HIBIKE_COMMANDS.DISABLE: self.hibikeDisable,
     }
     return hibikeMapping
 
@@ -238,8 +238,8 @@ class StateManager(object):
     for key, value in params:
       self.setValue(value, ["hibike", "devices", uid, key], send=False)
 
-  def hibikeEmergencyStop(self, pipe):
-    pipe.send([HIBIKE_COMMANDS.E_STOP.value, []])
+  def hibikeDisable(self, pipe):
+    pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])
 
   def dictErrorMessage(self, erroredIndex, keys, currDict):
     keyChain = ""

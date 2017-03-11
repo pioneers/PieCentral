@@ -63,7 +63,7 @@ function buildProto(data) {
 class ListenSocket {
   constructor() {
     this.studentCodeStatusListener = this.studentCodeStatusListener.bind(this);
-    this.statusUpdateTimeout = 0
+    this.statusUpdateTimeout = 0;
     // TODO: Verify if reuseAddr prevents EADDRINUSE
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
@@ -83,6 +83,7 @@ class ListenSocket {
           if (this.statusUpdateTimeout > 0) {
             this.statusUpdateTimeout -= 1;
           } else {
+            this.statusUpdateTimeout = 0;
             RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
           }
         }
@@ -108,7 +109,9 @@ class ListenSocket {
   }
 
   studentCodeStatusListener(event, { studentCodeStatus }) {
-    this.statusUpdateTimeout = 5;
+    if (studentCodeStatus === StudentCodeStatus.TELEOP) {
+      this.statusUpdateTimeout = 5;
+    }
   }
 
   close() {
@@ -187,7 +190,6 @@ class TCPSocket {
       if (decoded.header === Notification.Type.STUDENT_RECEIVED) {
         RendererBridge.reduxDispatch(notifyChange(uploadStatus.RECEIVED));
       } else if (decoded.header === Notification.Type.CONSOLE_LOGGING) {
-        console.log(decoded);
         RendererBridge.reduxDispatch(updateConsole(decoded.console_output));
       } else {
         console.log(`${decoded.header}-**************************`);

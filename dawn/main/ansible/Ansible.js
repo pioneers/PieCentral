@@ -104,7 +104,9 @@ class ListenSocket {
       console.log('UDP listening closed');
     });
 
-    this.socket.bind(LISTEN_PORT);
+    this.socket.bind(LISTEN_PORT, () => {
+      console.log(`UDP Bound to ${LISTEN_PORT}`);
+    });
     ipcMain.on('studentCodeStatus', this.studentCodeStatusListener);
   }
 
@@ -155,7 +157,7 @@ class SendSocket {
    */
   sendGamepadMessages(event, data) {
     const message = buildProto(data).encode().toBuffer();
-    console.log('Dawn sent UDP');
+    console.log(`Dawn sent UDP to ${this.runtimeIP}`);
     this.socket.send(message, SEND_PORT, this.runtimeIP);
   }
 

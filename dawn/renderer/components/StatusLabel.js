@@ -18,7 +18,9 @@ const StatusLabel = (props) => {
     }
   }
   return (
-    <Label bsStyle={labelStyle}>{labelText}</Label>
+    <div>
+      <Label bsStyle={labelStyle}>{labelText}</Label>
+    </div>
   );
 };
 

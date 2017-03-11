@@ -34,6 +34,9 @@ function buildProto(data) {
     case robotState.TELEOP:
       status = StudentCodeStatus.TELEOP;
       break;
+    case robotState.AUTONOMOUS:
+      status = StudentCodeStatus.AUTONOMOUS;
+      break;
     case robotState.ESTOP:
       status = StudentCodeStatus.ESTOP;
       break;

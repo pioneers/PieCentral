@@ -1,0 +1,10 @@
+[Unit]
+Description=update service
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/bin/update.sh
+
+[Install]
+WantedBy=multi-user.target

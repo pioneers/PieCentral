@@ -156,11 +156,11 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName="", maxIter=None):
     try:
       setupFunc = getattr(studentCode, testName + "setup")
     except AttributeError:
-      raise RuntimeError("Student code failed to define '{}'".format(test_name + "setup"))
+      raise RuntimeError("Student code failed to define '{}'".format(testName + "setup"))
     try:
       mainFunc = getattr(studentCode, testName + "main")
     except AttributeError:
-      raise RuntimeError("Student code failed to define '{}'".format(test_name + "main"))
+      raise RuntimeError("Student code failed to define '{}'".format(testName + "main"))
 
     ensure_is_function(testName + "setup", setupFunc)
     ensure_is_function(testName + "main", mainFunc)
@@ -183,6 +183,10 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName="", maxIter=None):
         studentCode.Robot._get_all_sensors()
         studentCode.Gamepad._get_gamepad()
         checkTimedOut(mainFunc)
+
+        # Throttle sending print statements
+        if (execCount % 5) == 0:
+          studentCode.Robot._send_prints()
 
         sleep_time = max(next_call - loop.time(), 0.)
         stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])

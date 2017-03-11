@@ -16,7 +16,10 @@ echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' | sudo tee --append /etc/sudoers
 
 # Append DNS to /etc/resolv.conf #############################################################
 echo 'nameserver 8.8.8.8' | sudo tee --append /etc/resolvconf/resolv.conf.d/base
-sudo service resolvconf restart
+sudo apt remove connman -y
+sudo systemctl restart resolvconf.service
+sudo rm /etc/resolv.conf
+sudo ln -s /run/resolvconf/resolv.conf /etc/resolv.conf
 
 # Create local file to bypass conffile prompt in apt-get ####################################
 echo 'Dpkg::Options {
@@ -34,11 +37,12 @@ fi
 
 cd ~/PieCentral/DevOps/frankfurter
 
-# Remove when complete install scripts are merged into master
-# git checkout devops/fix_install_scripts
-
 # Run .master_frank_setup.sh inside tmux #####################################################
-tmux new-session -d './scripts/install/master_frank_setup.sh'
+# So that the linux headers version matches that of the kernel
+sudo /opt/scripts/tools/update_kernel.sh
+echo 'We will now reboot to load the new kernel.'
+echo "After rebooting, connect to wifi and run: tmux new-session -d '~/PieCentral/DevOps/frankfurter/scripts/install/master_frank_setup.sh'"
+sudo reboot
 
 # Feel free to disconnect and run another script #############################################
 echo 'Disconnect OK'

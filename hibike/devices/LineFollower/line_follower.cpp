@@ -3,7 +3,7 @@
 uint16_t data[NUM_PINS];
 
 void setup() {
-  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
+  hibike_setup(500, 100); //500 ms without heartbeat to disable, ask for heartbeats at 100 ms.
 
   // Setup sensor input
   for (int i = 0; i < NUM_PINS; i++) {

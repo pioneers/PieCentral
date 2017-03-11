@@ -19,26 +19,28 @@ HOME=/home/ubuntu
 sudo timedatectl set-timezone America/Los_Angeles
 
 # Disable default Apache server (permanently)
-sudo service apache2 stop
+sudo systemctl stop apache2
 sudo systemctl disable apache2
 sudo systemctl daemon-reload
 
+alias sudo='sudo -H'
+
 # Install apt packages
 sudo apt update -y && sudo apt upgrade -y
-sudo apt install -y man-db make build-essential gcc git vim tmux htop curl memcached libevent-dev unzip systemd systemd-sysv
+sudo apt install -y man-db make build-essential gcc git vim tmux htop curl memcached libevent-dev unzip systemd systemd-sysv linux-headers-$(uname -r)
 sudo apt install -y python3 python3-dev python3-pip  # Python dependencies
 sudo apt clean -y
 sudo apt autoremove -y
 
 # Install Python packages
+sudo pip3 install -r $HOME/PieCentral/runtime/testy/requirements.txt
 sudo pip3 install -U pyserial pyyaml python-memcached flask flask-socketio eventlet pyusb protobuf
 
-# Install wireless dongle drivers
+# Install wireless dongle driver
 cd $HOME
 git clone https://github.com/xtknight/mt7610u-linksys-ae6000-wifi-fixes.git drivers
 cd drivers
 make clean
-sudo apt install linux-headers-$(uname -r)
 make
 sudo make install
 echo 'mt7610u_sta' | sudo tee --append /etc/modules
@@ -51,25 +53,35 @@ if [ ! -f $PIECENTRAL_DIR/runtime/hibikeDevices.csv ]; then
   ln -s $PIECENTRAL_DIR/hibike/hibikeDevices.csv $PIECENTRAL_DIR/runtime/testy/hibikeDevices.csv
 fi
 
-# Set up things we need to update runtime and hibike
+# Set up directories needed by other projects
 mkdir -p $HOME/updates
-cp $FRANKFURTER_DIR/resources/update.sh $HOME/bin/
-
 mkdir -p $HOME/bin
-cp PieCentral/DevOps/frankfurter/resources/mac.py $HOME/bin/
 
-mkdir -p $HOME/studentcode
+# Copy executables
+cp $FRANKFURTER_DIR/resources/update.sh $HOME/bin
+cp $FRANKFURTER_DIR/resources/mac.py $HOME/bin
+cp $FRANKFURTER_DIR/resources/runtime.sh $HOME/bin
 
-chmod +x $HOME/bin/*
+# Configure executable permissions
+sudo chown ubuntu $HOME/bin/*
+sudo chgrp ubuntu $HOME/bin/*
+sudo chmod 755 $HOME/bin/*
 
-# copy .conf files into /etc/init so that hibike/dawn/runtime start on boot
-sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc
-sudo cp $FRANKFURTER_DIR/resources/runtime.sh $HOME/bin/
+# Create and enable the `runtime` and `update` systemd services
 sudo cp $FRANKFURTER_DIR/resources/runtime.service /lib/systemd/system
+sudo cp $FRANKFURTER_DIR/resources/update.service /lib/systemd/system
 sudo chmod 644 /lib/systemd/system/runtime.service
-sudo systemctl daemon-reload && sudo systemctl enable runtime.service
+sudo chmod 644 /lib/systemd/system/update.service
+sudo systemctl daemon-reload
+sudo systemctl enable update.service
+sudo systemctl enable runtime.service
+sudo systemctl start runtime.service
 
-# copy config files for grizzlies, memcached, and network interfaces
+# Copy config files for memcached and network interfaces
+sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc
 sudo cp $FRANKFURTER_DIR/resources/interfaces /etc/network/interfaces
 
-echo 'export PYTHONPATH="${PYTHONPATH}:/home/ubuntu/PieCentral/hibike"' >> $HOME/.bashrc  # .profile?
+cp $FRANKFURTER_DIR/resources/bashrc $HOME/.bashrc
+
+sudo /sbin/route delete default gw 192.168.7.1
+sudo systemctl restart networking.service

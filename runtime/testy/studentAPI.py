@@ -222,8 +222,8 @@ class Robot(StudentAPI):
       else:
         raise StudentAPIKeyError()
       #return self.sensorMappings[name]
-    except:
-      raise StudentAPIKeyError()
+    except Exception as e:
+      raise e
 
   def emergencyStop(self):
     self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])

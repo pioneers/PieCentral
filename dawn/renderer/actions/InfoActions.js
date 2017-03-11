@@ -15,11 +15,6 @@ export const runtimeDisconnect = () => ({
   type: 'RUNTIME_DISCONNECT',
 });
 
-export const updateBattery = battery => ({
-  type: 'UPDATE_BATTERY',
-  battery,
-});
-
 export const updateCodeStatus = studentCodeStatus => ({
   type: 'CODE_STATUS',
   studentCodeStatus,

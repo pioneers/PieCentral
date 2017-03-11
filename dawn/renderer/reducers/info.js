@@ -43,11 +43,6 @@ const info = (state = initialInfoState, action) => {
         runtimeStatus: false,
         studentCodeStatus: robotState.IDLE,
       };
-    case 'UPDATE_BATTERY':
-      return {
-        ...state,
-        batteryLevel: action.battery.value,
-      };
     case 'CODE_STATUS':
       ipcRenderer.send('studentCodeStatus', { studentCodeStatus: action.studentCodeStatus });
       return {

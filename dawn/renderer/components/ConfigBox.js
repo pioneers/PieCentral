@@ -36,14 +36,13 @@ class ConfigBox extends React.Component {
         this.setState({ ipAddress: data });
       }
     });
-    this.setState({ original: this.state.ipAddress });
   }
 
   saveChanges(e) {
     e.preventDefault();
     this.props.onIPChange(this.state.ipAddress);
     this.setState({ original: this.state.ipAddress });
-    storage.set('ipAddress', this.state.ipAddress , (err) => {
+    storage.set('ipAddress', this.state.ipAddress, (err) => {
       if (err) console.log(err);
     });
     this.props.hide();

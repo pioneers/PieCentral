@@ -19,6 +19,7 @@ import { openFileDialog,
          ansibleReceiver,
          ansibleSaga } from '../sagas';
 import fromGenerator from './redux-saga-test';
+import { TIMEOUT } from '../../utils/utils';
 
 describe('filesystem sagas', () => {
   it('should yield effects for opening file (unsaved)', () => {
@@ -110,7 +111,7 @@ describe('runtime sagas', () => {
     const expect = fromGenerator(assert, runtimeHeartbeat());
     expect.next().race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, 1000),
+      timeout: call(delay, TIMEOUT),
     });
     expect.next({
       update: {
@@ -123,10 +124,10 @@ describe('runtime sagas', () => {
     const expect = fromGenerator(assert, runtimeHeartbeat());
     expect.next().race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, 1000),
+      timeout: call(delay, TIMEOUT),
     });
     expect.next({
-      timeout: 1000,
+      timeout: TIMEOUT,
     }).put(runtimeDisconnect());
   });
 

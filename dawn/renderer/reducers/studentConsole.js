@@ -14,7 +14,7 @@ const studentConsole = (state = initialState, action) => {
         ...state,
         consoleData: [
           ...state.consoleData,
-          action.value,
+          action.consoleOutput,
         ],
       };
     case 'CLEAR_CONSOLE':

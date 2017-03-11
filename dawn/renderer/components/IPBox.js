@@ -21,7 +21,7 @@ class IPBox extends React.Component {
       original: this.props.ipAddress,
     };
     this.saveChanges = this.saveChanges.bind(this);
-    this.disableIPUpdate = this.disableIPUpdate.bind(this);
+    this.disableUploadUpdate = this.disableUploadUpdate.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleClose = this.handleClose.bind(this);
   }
@@ -90,7 +90,7 @@ class IPBox extends React.Component {
             <Button
               type="submit"
               bsStyle="primary"
-              disabled={this.disableIPUpdate()}
+              disabled={this.disableUploadUpdate()}
             >
               Update
             </Button>

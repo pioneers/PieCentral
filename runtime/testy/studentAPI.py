@@ -80,7 +80,7 @@ class Gamepad(StudentAPI):
 
 class Robot(StudentAPI):
   deviceName_to_writeParams = {
-    "TeamFlag" : ["s1", "s2", "s3", "s4"],
+    "TeamFlag" : ["led1", "led2", "led3", "led4"],
     "ServoControl" : ["servo0", "servo1"],
     "YogiBear" : ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki", "pid_pos_kd", "current_thresh", "enc_pos"],
   }
@@ -102,10 +102,10 @@ class Robot(StudentAPI):
     "pid_pos_kd" : [(float, int), 0, float("inf")],
     "current_thresh" : [(float, int), 2, 10],
     "enc_pos" : [(float, int), 0, 0],
-    "s1" : [(bool,)],
-    "s2" : [(bool,)],
-    "s3" : [(bool,)],
-    "s4" : [(bool,)],
+    "led1" : [(bool,)],
+    "led2" : [(bool,)],
+    "led3" : [(bool,)],
+    "led4" : [(bool,)],
   }
 
   def __init__(self, toManager, fromManager):

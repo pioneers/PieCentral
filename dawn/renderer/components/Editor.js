@@ -348,7 +348,6 @@ class Editor extends React.Component {
                 active={this.state.mode === robotState.TELEOP}
                 onClick={() => {
                   this.setState({ mode: robotState.TELEOP });
-                  this.props.onUpdateCodeStatus(robotState.TELEOP);
                 }}
               >Tele-Operated</MenuItem>
               <MenuItem
@@ -356,7 +355,6 @@ class Editor extends React.Component {
                 active={this.state.mode === robotState.AUTONOMOUS}
                 onClick={() => {
                   this.setState({ mode: robotState.AUTONOMOUS });
-                  this.props.onUpdateCodeStatus(robotState.AUTONOMOUS);
                 }}
               >Autonomous</MenuItem>
             </DropdownButton>

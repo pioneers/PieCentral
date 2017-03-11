@@ -83,6 +83,7 @@ class Editor extends React.Component {
     this.estop = this.estop.bind(this);
     this.state = {
       editorHeight: this.getEditorHeight(),
+      mode: robotState.TELEOP,
     };
   }
 
@@ -245,7 +246,7 @@ class Editor extends React.Component {
   }
 
   startRobot() {
-    this.props.onUpdateCodeStatus(robotState.TELEOP);
+    this.props.onUpdateCodeStatus(this.state.mode);
     this.props.onClearConsole();
   }
 
@@ -341,6 +342,24 @@ class Editor extends React.Component {
               glyph="stop"
               disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
             />
+            <DropdownButton title="Mode" bsSize="small" key="dropdown" id="modeDropdown">
+              <MenuItem
+                eventKey="1"
+                active={this.state.mode === robotState.TELEOP}
+                onClick={() => {
+                  this.setState({ mode: robotState.TELEOP });
+                  this.props.onUpdateCodeStatus(robotState.TELEOP);
+                }}
+              >Tele-Operated</MenuItem>
+              <MenuItem
+                eventKey="2"
+                active={this.state.mode === robotState.AUTONOMOUS}
+                onClick={() => {
+                  this.setState({ mode: robotState.AUTONOMOUS });
+                  this.props.onUpdateCodeStatus(robotState.AUTONOMOUS);
+                }}
+              >Autonomous</MenuItem>
+            </DropdownButton>
             <TooltipButton
               id="e-stop"
               text="E-STOP"

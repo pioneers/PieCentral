@@ -143,4 +143,5 @@ class RuntimeError(Exception):
 # Sensor type names are CamelCase, with the first letter capitalized as well
 config_file = open(os.path.join(os.path.dirname(__file__), '../../hibike/hibikeDevices.json'), 'r')
 SENSOR_TYPE = {device_data["id"]: device_data["name"] for device_data in json.load(config_file)}
+SENSOR_TYPE[-1] = "runtime_version"
 

@@ -56,7 +56,6 @@ fi
 # Set up directories needed by other projects
 mkdir -p $HOME/updates
 mkdir -p $HOME/bin
-mkdir -p $HOME/studentcode
 
 # Copy executables
 cp $FRANKFURTER_DIR/resources/update.sh $HOME/bin

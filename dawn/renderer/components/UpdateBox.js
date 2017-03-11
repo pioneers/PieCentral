@@ -76,12 +76,13 @@ class UpdateBox extends React.Component {
                     }
                     stream.write(`${defaults.PASSWORD}\n`);
                     stream.on('exit', (code) => {
-                      if (code === 0) {
-                        conn.end();
-                      }
+                      console.log(`Update Script Returned ${code}`);
+                      conn.end();
                     });
-                    this.setState({ isUploading: false });
-                    this.props.hide();
+                    setTimeout(() => {
+                      this.setState({ isUploading: false });
+                      this.props.hide();
+                    }, 1000);
                   });
               }
             });

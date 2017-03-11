@@ -28,10 +28,10 @@ class BooleanSensor extends React.Component {
           {
             _.map(this.props.param, obj => (
               <div key={`${obj.param}-${this.props.device_name}-Overall`}>
-                <h4 style={{ float: 'right' }} key={`${obj.param}-${this.props.device_name}`}>
+                <h4 style={{ float: 'right', height: '10px' }} key={`${obj.param}-${this.props.device_name}`}>
                   {`${obj.param}: ${BooleanSensor.formatBoolean(this.props.device_type, obj[obj.kind])}`}
                 </h4>
-                <div style={{ clear: 'both' }} key={`${obj.param}-${this.props.device_name}-Spacing`} />
+                <div style={{ clear: 'both', height: '2px' }} key={`${obj.param}-${this.props.device_name}-Spacing`} />
               </div>
             ))
           }

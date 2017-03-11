@@ -15,10 +15,10 @@ const GenericPeripheral = props => (
       {
         _.map(props.param, obj => (
           <div key={`${obj.param}-${props.device_name}-Overall`}>
-            <h4 style={{ float: 'right' }} key={`${obj.param}-${props.device_name}`} >
+            <h4 style={{ float: 'right', height: '10px' }} key={`${obj.param}-${props.device_name}`} >
               {`${obj.param}: ${numeral(obj[obj.kind]).format('+0.00')}`}
             </h4>
-            <div style={{ clear: 'both' }} key={`${obj.param}-${props.device_name}-Spacing`} />
+            <div style={{ clear: 'both', height: '2px' }} key={`${obj.param}-${props.device_name}-Spacing`} />
           </div>
         ))
       }

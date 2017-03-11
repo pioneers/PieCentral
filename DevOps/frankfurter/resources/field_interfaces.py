@@ -26,7 +26,7 @@ def build_custom_config(team_number, password):
     first = True
     with open('field_interfaces') as network_config_file:
         for line in network_config_file:
-            if line.startswith('iface student'):
+            if line.startswith('iface ra0'):
                 line = line.replace('dhcp', 'static')
             if 'router_name' in line:
                 line = line.replace('router_name', 'Team{0}'.format(team_number))

@@ -319,6 +319,12 @@ class Editor extends React.Component {
               onClick={_.partial(this.props.onSaveFile, true)}
               glyph="floppy-save"
             />
+            <TooltipButton
+              id="upload"
+              text="Upload"
+              onClick={this.upload}
+              glyph="upload"
+            />
           </ButtonGroup>
           <ButtonGroup id="code-execution-buttons">
             <TooltipButton
@@ -334,13 +340,6 @@ class Editor extends React.Component {
               onClick={this.stopRobot}
               glyph="stop"
               disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
-            />
-            <TooltipButton
-              id="upload"
-              text="Upload"
-              onClick={this.upload}
-              glyph="upload"
-              // disabled={this.props.isRunningCode || !this.props.runtimeStatus}
             />
             <TooltipButton
               id="e-stop"

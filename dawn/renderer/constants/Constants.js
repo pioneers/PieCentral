@@ -16,4 +16,6 @@ export const PeripheralTypes = keyMirror({
   MetalDetector: null,
   ExampleDevice: null,
   ServoControl: null,
+  YogiBear: null,
+  RFID: null,
 });

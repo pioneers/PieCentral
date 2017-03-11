@@ -1,3 +1,5 @@
+export const TIMEOUT = 5000;
+
 export const pathToName = (filepath) => {
   if (filepath !== null) {
     if (process.platform === 'win32') {

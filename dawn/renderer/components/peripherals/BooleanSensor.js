@@ -1,6 +1,5 @@
 import React from 'react';
 import _ from 'lodash';
-import NameEditContainer from '../NameEditContainer';
 import { PeripheralTypes } from '../../constants/Constants';
 
 /**
@@ -23,14 +22,17 @@ class BooleanSensor extends React.Component {
       <div style={{ overflow: 'auto' }}>
         <div style={{ overflow: 'auto', width: '100%' }}>
           <h4 style={{ float: 'left' }}>
-            <NameEditContainer name={this.props.device_name} id={this.props.id} />
+            <div>{this.props.id}</div>
             <small> {this.props.device_type} </small>
           </h4>
           {
             _.map(this.props.param, obj => (
-              <h4 style={{ float: 'right' }} key={`${obj.param}-${this.props.device_name}`}>
-                {`${obj.param}: ${BooleanSensor.formatBoolean(this.props.device_type, obj[obj.kind])}`}
-              </h4>
+              <div key={`${obj.param}-${this.props.device_name}-Overall`}>
+                <h4 style={{ float: 'right' }} key={`${obj.param}-${this.props.device_name}`}>
+                  {`${obj.param}: ${BooleanSensor.formatBoolean(this.props.device_type, obj[obj.kind])}`}
+                </h4>
+                <div style={{ clear: 'both' }} key={`${obj.param}-${this.props.device_name}-Spacing`} />
+              </div>
             ))
           }
         </div>

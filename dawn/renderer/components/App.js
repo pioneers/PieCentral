@@ -31,7 +31,7 @@ class AppComponent extends React.Component {
       if (!hasKey) {
         this.startTour();
         storage.set('firstTime', { first: true }, (err) => {
-          if (err) throw err;
+          if (err) console.log(err);
         });
       }
     });

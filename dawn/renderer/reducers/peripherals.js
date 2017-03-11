@@ -4,12 +4,11 @@ const peripherals = (state = {}, action) => {
     case 'UPDATE_PERIPHERALS': {
       const keys = [];
       action.peripherals.forEach((peripheral) => {
-        const key = String(peripheral.uid.high) + String(peripheral.uid.low);
-        keys.push(key);
-        if (key in nextState) {
-          peripheral.device_name = nextState[key].device_name;
+        keys.push(peripheral.uid);
+        if (peripheral.uid in nextState) {
+          peripheral.device_name = nextState[peripheral.uid].device_name;
         }
-        nextState[key] = peripheral;
+        nextState[peripheral.uid] = peripheral;
       });
       Object.keys(nextState).forEach((el) => {
         if (keys.indexOf(el) === -1) {

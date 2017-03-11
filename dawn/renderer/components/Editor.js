@@ -47,7 +47,7 @@ class Editor extends React.Component {
     correctedText = correctedText.normalize('NFD');
     correctedText = correctedText.replace(/[”“]/g, '"');
     correctedText = correctedText.replace(/[‘’]/g, "'");
-    correctedText = this.correctText(correctedText);
+    correctedText = Editor.correctText(correctedText);
     // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
     pasteData.text = correctedText; // eslint-disable-line no-param-reassign
   }
@@ -206,7 +206,7 @@ class Editor extends React.Component {
           reject();
         } else {
           count += 1;
-          setTimeout(waitPromise.bind(this, resolve, reject), 2000);
+          setTimeout(waitPromise.bind(this, resolve, reject), 1000);
         }
       };
       return new Promise(waitPromise);

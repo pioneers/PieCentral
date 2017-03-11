@@ -209,9 +209,13 @@ class TCPSocket {
       console.error('Runtime failed to confirm');
       RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
     } else if (!this.received) {
-      this.socket.write(message, () => {
-        console.log(`Runtime notified: try ${count + 1}`);
-      });
+      try {
+        this.socket.write(message, () => {
+          console.log(`Runtime notified: try ${count + 1}`);
+        });
+      } catch (e) {
+        console.log(e);
+      }
 
       setTimeout(() => {
         this.waitRuntimeConfirm(message, count + 1);

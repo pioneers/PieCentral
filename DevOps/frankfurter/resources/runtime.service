@@ -1,6 +1,7 @@
 [Unit]
-Description=Robot Runtime Service
-After=multi-user.target
+Description=runtime service
+Wants=update.service
+After=multi-user.target update.service
 
 [Service]
 Type=simple

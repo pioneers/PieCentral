@@ -6,15 +6,30 @@ auto lo
 iface lo inet loopback
 
 # The primary network interface
-#auto eth0
-#iface eth0 inet dhcp
+allow-hotplug eth0
+iface eth0 inet dhcp
 # Example to keep MAC address between reboots
 #hwaddress ether DE:AD:BE:EF:CA:FE
 
+# The secondary network interface
+#auto eth1
+#iface eth1 inet dhcp
+
 auto ra0
-iface ra0 inet static
+mapping ra0
+    #script /home/ubuntu/whichwifi.sh
+    script guessnet-ifupdown
+    map student
+    map field
+    map default: field
+iface student inet dhcp
+#or switch to static
     wpa-ssid "router_name"
-    wpa-psk  "router_password"
+    wpa-psk "router_password"
+    test wireless essid router_name
+iface field inet dhcp
+    wpa-ssid "Mother Base"
+    wpa-psk  "pieisgreat"
 
 # Ethernet/RNDIS gadget (g_ether)
 # Used by: /opt/scripts/boot/autoconfigure_usb0.sh

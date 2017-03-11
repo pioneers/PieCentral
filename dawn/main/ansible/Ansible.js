@@ -114,7 +114,8 @@ class ListenSocket {
   }
 
   studentCodeStatusListener(event, { studentCodeStatus }) {
-    if (studentCodeStatus === StudentCodeStatus.TELEOP) {
+    if (studentCodeStatus === StudentCodeStatus.TELEOP ||
+    studentCodeStatus === StudentCodeStatus.AUTONOMOUS) {
       this.statusUpdateTimeout = 5;
     }
   }

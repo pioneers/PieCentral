@@ -105,8 +105,7 @@ def runtime(testName=""):
         print(newBadThing.event)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
-          if newBadThing.event in studentErrorEvents:
-            stateQueue.put([SM_COMMANDS.SEND_CONSOLE, [str(newBadThing)]])
+          stateQueue.put([SM_COMMANDS.SEND_CONSOLE, [str(newBadThing)]])
           controlState = "idle"
           if testMode:
             restartCount += 1
@@ -193,10 +192,10 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName="", maxIter=None):
         stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
         execCount += 1
         await asyncio.sleep(sleep_time)
-      if not terminated:
-        badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
       if exception_cell[0] is not None:
         raise exception_cell[0]
+      if not terminated:
+        badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
 
     loop = asyncio.get_event_loop()
 

@@ -208,11 +208,13 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName="", maxIter=None):
     loop.run_until_complete(main_loop())
 
   except TimeoutError:
-    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
+    event = BAD_EVENTS.STUDENT_CODE_TIMEOUT
+    badThingsQueue.put(BadThing(sys.exc_info(), event.value, event=event))
   except StudentAPIError:
-    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_VALUE_ERROR))
+    event = BAD_EVENTS.STUDENT_CODE_VALUE_ERROR
+    badThingsQueue.put(BadThing(sys.exc_info(), event.value, event=event))
   except Exception as e: #something broke in student code
-    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.STUDENT_CODE_ERROR))
 
 def startStateManager(badThingsQueue, stateQueue, runtimePipe):
   try:

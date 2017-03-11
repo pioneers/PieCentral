@@ -2,7 +2,8 @@ import React from 'react';
 import {
   Navbar,
   ButtonToolbar,
-  ButtonGroup } from 'react-bootstrap';
+  ButtonGroup,
+  Label } from 'react-bootstrap';
 import IPBox from './IPBox';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';
@@ -54,6 +55,9 @@ class DNav extends React.Component {
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
+          <Navbar.Text id="runtime-version">
+            <Label bsStyle="info">{`Runtime v${this.props.runtimeVersion}`}</Label>
+          </Navbar.Text>
           <Navbar.Text id="battery-indicator">
             <StatusLabel
               connectionStatus={this.props.connection}
@@ -110,6 +114,7 @@ DNav.propTypes = {
   ipAddress: React.PropTypes.string,
   startTour: React.PropTypes.func,
   onIPChange: React.PropTypes.func,
+  runtimeVersion: React.PropTypes.string,
 };
 
 export default DNav;

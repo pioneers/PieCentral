@@ -103,6 +103,7 @@ class AppComponent extends React.Component {
           isRunningCode={this.props.isRunningCode}
           ipAddress={this.props.ipAddress}
           onIPChange={this.props.onIPChange}
+          runtimeVersion={this.props.runtimeVersion}
         />
         <Joyride
           ref={c => (this.joyride = c)}
@@ -144,6 +145,7 @@ AppComponent.propTypes = {
   onAlertDone: React.PropTypes.func,
   ipAddress: React.PropTypes.string,
   onIPChange: React.PropTypes.func,
+  runtimeVersion: React.PropTypes.string,
 };
 
 const mapStateToProps = state => ({
@@ -154,6 +156,7 @@ const mapStateToProps = state => ({
   isRunningCode: state.info.isRunningCode,
   asyncAlerts: state.asyncAlerts,
   ipAddress: state.info.ipAddress,
+  runtimeVersion: state.peripherals.runtimeVersion,
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -225,14 +225,14 @@ class Robot(StudentAPI):
   def emergencyStop(self):
     self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])
 
-  def _print(self, *args, sep=' ', end='\n', file=sys.stdout, flush=False):
+  def _print(self, *args, sep=' ', end='\n', file=None, flush=False):
     # Handle advanced usage of "print"
-    if file is not sys.stdout:
+    if file is not None:
       return print(*args, sep=sep, end=end, file=file, flush=flush)
 
     # Print to both stdout and the send-to-dawn buffer
     print(*args, sep=sep, end=end, file=self._stdout_buffer, flush=flush)
-    return print(*args, sep=sep, end=end, file=sys.stdout, flush=flush)
+    return print(*args, sep=sep, end=end, flush=flush)
 
   def _send_prints(self):
     console_string = self._stdout_buffer.getvalue()

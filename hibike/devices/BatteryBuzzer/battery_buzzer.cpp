@@ -86,7 +86,7 @@ bool is_calibrated(){
 //    return          -   sizeof(param) on success; 0 otherwise
 
 uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
-  if (MAX_PAYLOAD_SIZE - len > sizeof(bool)) {
+  if (len > sizeof(bool)) {
     if(param == IS_UNSAFE){
       data[0] = is_unsafe();
       return sizeof(bool);
@@ -97,7 +97,7 @@ uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
     }
   }
 
-  if (MAX_PAYLOAD_SIZE - len < sizeof(float) || param >= 8){
+  if (len < sizeof(float) || param >= 8){
     return 0;
   }
 

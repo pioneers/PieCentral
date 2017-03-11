@@ -23,13 +23,13 @@ export default [
     type: 'hover',
   }, {
     title: 'File operations',
-    text: 'Use these buttons to create, open, and save code files.',
+    text: 'Use these buttons to create, open, save, and upload code files.',
     selector: '#file-operations-buttons',
     position: 'bottom',
     type: 'hover',
   }, {
     title: 'Code execution',
-    text: 'Use these buttons to run and stop your code, upload your code (for the competition), and to E-Stop the robot.',
+    text: 'Use these buttons to run and stop your code, including a last-ditch Emergency-Stop.',
     selector: '#code-execution-buttons',
     position: 'bottom',
     type: 'hover',

@@ -12,4 +12,4 @@ alias help="echo 'dawn - Launch GUI'; echo 'term - Start Terminal'; echo 'ubuntu
 clear
 screenfetch
 echo 'Welcome to Pioneers in Engineering Student Chromebook!'
-echo "Type 'help' for a list of useful commands'"
+echo "Type 'help' for a list of useful commands"

@@ -194,10 +194,10 @@ Device Type Enumeration:
 |  0x05   | TeamFlag       | 0            | mode       | bool       | yes   | yes    |
 |         |                | 1            | blue       | bool       | yes   | yes    |
 |         |                | 2            | yellow     | bool       | yes   | yes    |
-|         |                | 3            | s1         | bool       | yes   | yes    |
-|         |                | 4            | s2         | bool       | yes   | yes    |
-|         |                | 5            | s3         | bool       | yes   | yes    |
-|         |                | 6            | s3         | bool       | yes   | yes    |
+|         |                | 3            | led1       | bool       | yes   | yes    |
+|         |                | 4            | led2       | bool       | yes   | yes    |
+|         |                | 5            | led3       | bool       | yes   | yes    |
+|         |                | 6            | led4       | bool       | yes   | yes    |
 |  0x06   | Grizzly        |              |            |            |       |        |
 |  0x07   | ServoControl   | 0            | servo0     | float      | yes   | yes    |
 |         |                | 1            | servo1     | float      | yes   | yes    |

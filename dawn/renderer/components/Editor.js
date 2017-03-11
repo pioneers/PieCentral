@@ -217,16 +217,25 @@ class Editor extends React.Component {
             console.log(err);
             return;
           }
-          sftp.fastPut(filepath, './PieCentral/runtime/testy/studentCode.py', (err2) => {
-            setTimeout(() => { conn.end(); }, 50);
-            if (err2) {
-              this.props.onAlertAdd(
-                'Upload Issue',
-                'File failed to be transmitted',
-              );
-              console.log(err2);
-            }
-          });
+          sftp.fastPut(filepath, './PieCentral/runtime/testy/studentCode.py',
+            { step: (totalTransferred, chunk, total) => {
+              if (totalTransferred === total) {
+                this.props.onAlertAdd(
+                  'Upload Success',
+                  'File Uploaded Successfully',
+                );
+              }
+            } },
+            (err2) => {
+              setTimeout(() => { conn.end(); }, 50);
+              if (err2) {
+                this.props.onAlertAdd(
+                  'Upload Issue',
+                  'File failed to be transmitted',
+                );
+                console.log(err2);
+              }
+            });
         });
       }).connect({
         debug: (input) => { console.log(input); },

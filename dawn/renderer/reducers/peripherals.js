@@ -23,19 +23,11 @@ const peripherals = (state = initialPeripheralState, action) => {
             nextState.batterySafety = peripheral.param_value[1].bool_value;
           }
         } else if (peripheral.uid === '-1') {
-          let major = '';
-          let minor = '';
-          let patch = '';
+          const version = {};
           peripheral.param_value.forEach((obj) => {
-            if (obj.param === 'major') {
-              major = obj[obj.kind];
-            } else if (obj.param === 'minor') {
-              minor = obj[obj.kind];
-            } else {
-              patch = obj[obj.kind];
-            }
+            version[obj.param] = obj[obj.kind];
           });
-          nextState.runtimeVersion = `${major}.${minor}.${patch}`;
+          nextState.runtimeVersion = `${version.major}.${version.minor}.${version.patch}`;
         } else {
           keys.push(peripheral.uid);
           if (peripheral.uid in nextPeripherals) {

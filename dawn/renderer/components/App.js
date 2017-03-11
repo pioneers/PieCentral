@@ -99,6 +99,7 @@ class AppComponent extends React.Component {
           runtimeStatus={this.props.runtimeStatus}
           connection={this.props.connectionStatus}
           battery={this.props.batteryLevel}
+          batterySafety={this.props.batterySafety}
           isRunningCode={this.props.isRunningCode}
           ipAddress={this.props.ipAddress}
           onIPChange={this.props.onIPChange}
@@ -119,7 +120,7 @@ class AppComponent extends React.Component {
             skip: 'Skip Tour',
           }}
         />
-        <div style={{ height: '60px', marginBottom: '21px' }} />
+        <div style={{ height: '35px', marginBottom: '21px' }} />
         <Dashboard
           {...this.props}
           addSteps={this.addSteps}
@@ -137,6 +138,7 @@ AppComponent.propTypes = {
   connectionStatus: React.PropTypes.bool,
   runtimeStatus: React.PropTypes.bool,
   batteryLevel: React.PropTypes.number,
+  batterySafety: React.PropTypes.bool,
   isRunningCode: React.PropTypes.bool,
   asyncAlerts: React.PropTypes.array,
   onAlertDone: React.PropTypes.func,
@@ -147,7 +149,8 @@ AppComponent.propTypes = {
 const mapStateToProps = state => ({
   connectionStatus: state.info.connectionStatus,
   runtimeStatus: state.info.runtimeStatus,
-  batteryLevel: state.info.batteryLevel,
+  batteryLevel: state.peripherals.batteryLevel,
+  batterySafety: state.peripherals.batterySafety,
   isRunningCode: state.info.isRunningCode,
   asyncAlerts: state.asyncAlerts,
   ipAddress: state.info.ipAddress,

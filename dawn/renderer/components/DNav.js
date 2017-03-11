@@ -59,6 +59,7 @@ class DNav extends React.Component {
               connectionStatus={this.props.connection}
               runtimeStatus={this.props.runtimeStatus}
               battery={this.props.battery}
+              batterySafety={this.props.batterySafety}
             />
           </Navbar.Text>
           <Navbar.Form
@@ -87,7 +88,7 @@ class DNav extends React.Component {
                   text="Upload Upgrade"
                   bsStyle="info"
                   onClick={this.toggleUpdateModal}
-                  disabled={this.props.runtimeStatus || this.props.isRunningCode}
+                  disabled={!this.props.runtimeStatus}
                   id="update-software-button"
                   glyph="cloud-upload"
                 />
@@ -104,6 +105,7 @@ DNav.propTypes = {
   connection: React.PropTypes.bool,
   runtimeStatus: React.PropTypes.bool,
   battery: React.PropTypes.number,
+  batterySafety: React.PropTypes.bool,
   isRunningCode: React.PropTypes.bool,
   ipAddress: React.PropTypes.string,
   startTour: React.PropTypes.func,

@@ -65,7 +65,7 @@ const PeripheralList = (props) => {
       <ListGroup fill style={{ marginBottom: '5px' }}>
         {
           !errorMsg ? handleAccordion(
-            _.sortBy(_.toArray(props.peripherals), ['device_type', 'device_name']))
+            _.sortBy(_.toArray(props.peripherals.peripheralList), ['device_type', 'device_name']))
           : <p className="panelText">{errorMsg}</p>
         }
       </ListGroup>

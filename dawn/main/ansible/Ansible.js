@@ -5,10 +5,12 @@ import ProtoBuf from 'protobufjs';
 import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
+import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import {
   ansibleDisconnect,
   notifyChange,
   infoPerMessage,
+  updateCodeStatus,
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { uploadStatus, robotState } from '../../renderer/utils/utils';
@@ -31,6 +33,9 @@ function buildProto(data) {
   switch (data.studentCodeStatus) {
     case robotState.TELEOP:
       status = StudentCodeStatus.TELEOP;
+      break;
+    case robotState.AUTONOMOUS:
+      status = StudentCodeStatus.AUTONOMOUS;
       break;
     case robotState.ESTOP:
       status = StudentCodeStatus.ESTOP;
@@ -60,6 +65,8 @@ function buildProto(data) {
 
 class ListenSocket {
   constructor() {
+    this.studentCodeStatusListener = this.studentCodeStatusListener.bind(this);
+    this.statusUpdateTimeout = 0;
     // TODO: Verify if reuseAddr prevents EADDRINUSE
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
@@ -69,19 +76,30 @@ class ListenSocket {
      */
     this.socket.on('message', (msg) => {
       try {
-        const { robot_state, sensor_data } = RuntimeData.decode(msg);
+        const {
+          robot_state: stateRobot,
+          sensor_data: sensorData,
+        } = RuntimeData.decode(msg);
         console.log('Dawn received UDP');
-        RendererBridge.reduxDispatch(infoPerMessage(robot_state));
-        RendererBridge.reduxDispatch(updatePeripherals(sensor_data));
+        RendererBridge.reduxDispatch(infoPerMessage(stateRobot));
+        if (stateRobot === RuntimeData.State.STUDENT_STOPPED) {
+          if (this.statusUpdateTimeout > 0) {
+            this.statusUpdateTimeout -= 1;
+          } else {
+            this.statusUpdateTimeout = 0;
+            RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
+          }
+        }
+        RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
         console.log('Error decoding UDP');
-        throw err;
+        console.log(err);
       }
     });
 
     this.socket.on('error', (err) => {
       console.log('UDP listening error');
-      throw err;
+      console.log(err);
     });
 
     this.socket.on('close', () => {
@@ -89,11 +107,22 @@ class ListenSocket {
       console.log('UDP listening closed');
     });
 
-    this.socket.bind(LISTEN_PORT);
+    this.socket.bind(LISTEN_PORT, () => {
+      console.log(`UDP Bound to ${LISTEN_PORT}`);
+    });
+    ipcMain.on('studentCodeStatus', this.studentCodeStatusListener);
+  }
+
+  studentCodeStatusListener(event, { studentCodeStatus }) {
+    if (studentCodeStatus === StudentCodeStatus.TELEOP ||
+    studentCodeStatus === StudentCodeStatus.AUTONOMOUS) {
+      this.statusUpdateTimeout = 5;
+    }
   }
 
   close() {
     this.socket.close();
+    ipcMain.removeListener('studentCodeStatus', this.studentCodeStatusListener);
   }
 }
 
@@ -109,7 +138,7 @@ class SendSocket {
 
     this.socket.on('error', (err) => {
       console.error('UDP sending error');
-      throw err;
+      console.log(err);
     });
 
     this.socket.on('close', () => {
@@ -132,7 +161,7 @@ class SendSocket {
    */
   sendGamepadMessages(event, data) {
     const message = buildProto(data).encode().toBuffer();
-    console.log('Dawn sent UDP');
+    console.log(`Dawn sent UDP to ${this.runtimeIP}`);
     this.socket.send(message, SEND_PORT, this.runtimeIP);
   }
 
@@ -166,6 +195,10 @@ class TCPSocket {
       console.log('Dawn received TCP');
       if (decoded.header === Notification.Type.STUDENT_RECEIVED) {
         RendererBridge.reduxDispatch(notifyChange(uploadStatus.RECEIVED));
+      } else if (decoded.header === Notification.Type.CONSOLE_LOGGING) {
+        RendererBridge.reduxDispatch(updateConsole(decoded.console_output));
+      } else {
+        console.log(`${decoded.header}-**************************`);
       }
     });
 
@@ -182,9 +215,13 @@ class TCPSocket {
       console.error('Runtime failed to confirm');
       RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
     } else if (!this.received) {
-      this.socket.write(message, () => {
-        console.log(`Runtime notified: try ${count + 1}`);
-      });
+      try {
+        this.socket.write(message, () => {
+          console.log(`Runtime notified: try ${count + 1}`);
+        });
+      } catch (e) {
+        console.log(e);
+      }
 
       setTimeout(() => {
         this.waitRuntimeConfirm(message, count + 1);
@@ -218,7 +255,7 @@ class TCPServer {
 
     this.tcp.on('error', (err) => {
       console.error('TCP error');
-      throw err;
+      console.log(err);
     });
 
     this.tcp.listen(TCP_PORT, () => {

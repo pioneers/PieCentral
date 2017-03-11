@@ -4,6 +4,16 @@ import os
 import json
 from enum import Enum, unique
 
+class RUNTIME_CONFIG(Enum):
+  STUDENT_CODE_TIMELIMIT      = 1
+  STUDENT_CODE_HZ             = 20 # Number of times to execute studentCode.main per second
+  DEBUG_DELIMITER_STRING      = "****************** RUNTIME DEBUG ******************"
+  PIPE_READY                  = ["ready"]
+  TEST_OUTPUT_DIR             = "test_outputs/"
+  VERSION_MAJOR               = 1
+  VERSION_MINOR               = 0
+  VERSION_PATCH               = 0
+
 @unique
 class BAD_EVENTS(Enum):
   BAD_EVENT                 = "BAD THINGS HAPPENED"
@@ -43,7 +53,7 @@ class HIBIKE_COMMANDS(Enum):
   SUBSCRIBE = "subscribe_device"
   WRITE     = "write_params"
   READ      = "read_params"
-  E_STOP    = "stop_command"
+  DISABLE   = "disable_all"
 
 # TODO: Remove when Hibike is finished
 @unique
@@ -86,13 +96,6 @@ class SM_COMMANDS(Enum):
   ENTER_TELEOP        = ()
   ENTER_AUTO          = ()
   END_STUDENT_CODE    = ()
-
-class RUNTIME_CONFIG(Enum):
-  STUDENT_CODE_TIMELIMIT      = 1
-  STUDENT_CODE_HZ             = 20 # Number of times to execute studentCode.main per second
-  DEBUG_DELIMITER_STRING      = "****************** RUNTIME DEBUG ******************"
-  PIPE_READY                  = ["ready"]
-  TEST_OUTPUT_DIR             = "test_outputs/"
 
 class BadThing:
   def __init__(self, exc_info, data, event=BAD_EVENTS.BAD_EVENT, printStackTrace=True):
@@ -140,4 +143,5 @@ class RuntimeError(Exception):
 # Sensor type names are CamelCase, with the first letter capitalized as well
 config_file = open(os.path.join(os.path.dirname(__file__), '../../hibike/hibikeDevices.json'), 'r')
 SENSOR_TYPE = {device_data["id"]: device_data["name"] for device_data in json.load(config_file)}
+SENSOR_TYPE[-1] = "runtime_version"
 

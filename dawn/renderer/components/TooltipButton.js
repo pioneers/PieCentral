@@ -6,18 +6,20 @@ import {
   Tooltip,
 } from 'react-bootstrap';
 
-const EditorButton = (props) => {
+const TooltipButton = (props) => {
   const tooltip = (
     <Tooltip id={`tooltip-editor-button-${props.id}`}>{props.text}</Tooltip>
   );
   return (
-    <OverlayTrigger placement="top" overlay={tooltip}>
+    <OverlayTrigger placement={props.placement || 'top'} overlay={tooltip}>
       <Button
         type="button"
-        bsStyle="default"
+        bsStyle={props.bsStyle || 'default'}
         bsSize="small"
         onClick={props.onClick}
         disabled={props.disabled}
+        active={props.active}
+        id={props.id}
       >
         <Glyphicon glyph={props.glyph} />
       </Button>
@@ -25,12 +27,15 @@ const EditorButton = (props) => {
   );
 };
 
-EditorButton.propTypes = {
+TooltipButton.propTypes = {
   id: React.PropTypes.string.isRequired,
   text: React.PropTypes.string.isRequired,
   onClick: React.PropTypes.func.isRequired,
   glyph: React.PropTypes.string.isRequired,
   disabled: React.PropTypes.bool,
+  bsStyle: React.PropTypes.string,
+  active: React.PropTypes.bool,
+  placement: React.PropTypes.string,
 };
 
-export default EditorButton;
+export default TooltipButton;

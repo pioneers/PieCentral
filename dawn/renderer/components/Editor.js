@@ -27,10 +27,8 @@ import 'brace/theme/solarized_dark';
 import 'brace/theme/solarized_light';
 import 'brace/theme/terminal';
 
-import ConfigBox from './ConfigBox';
 import ConsoleOutput from './ConsoleOutput';
-import EditorButton from './EditorButton';
-import UpdateBox from './UpdateBox';
+import TooltipButton from './TooltipButton';
 import { pathToName, uploadStatus, robotState, defaults } from '../utils/utils';
 
 const Client = require('ssh2').Client;
@@ -47,7 +45,7 @@ class Editor extends React.Component {
     correctedText = correctedText.normalize('NFD');
     correctedText = correctedText.replace(/[”“]/g, '"');
     correctedText = correctedText.replace(/[‘’]/g, "'");
-    correctedText = this.correctText(correctedText);
+    correctedText = Editor.correctText(correctedText);
     // TODO: Create some notification that an attempt was made at correcting non-ASCII chars.
     pasteData.text = correctedText; // eslint-disable-line no-param-reassign
   }
@@ -79,18 +77,13 @@ class Editor extends React.Component {
     this.changeTheme = this.changeTheme.bind(this);
     this.increaseFontsize = this.increaseFontsize.bind(this);
     this.decreaseFontsize = this.decreaseFontsize.bind(this);
-    this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
-    this.toggleConfigModal = this.toggleConfigModal.bind(this);
     this.startRobot = this.startRobot.bind(this);
     this.stopRobot = this.stopRobot.bind(this);
     this.upload = this.upload.bind(this);
-    this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
-    this.toggleConfigModal = this.toggleConfigModal.bind(this);
     this.estop = this.estop.bind(this);
     this.state = {
       editorHeight: this.getEditorHeight(),
-      showUpdateModal: false,
-      showConfigModal: false,
+      mode: robotState.TELEOP,
     };
   }
 
@@ -101,14 +94,21 @@ class Editor extends React.Component {
     this.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
 
     storage.get('editorTheme', (err, data) => {
-      if (err) throw err;
-      if (!_.isEmpty(data)) this.props.onChangeTheme(data.theme);
+      if (err) {
+        console.log(err);
+      } else if (!_.isEmpty(data)) {
+        this.props.onChangeTheme(data.theme);
+      }
     });
 
     storage.get('editorFontSize', (err, data) => {
-      if (err) throw err;
-      if (!_.isEmpty(data)) this.props.onChangeFontsize(data.editorFontSize);
+      if (err) {
+        console.log(err);
+      } else if (!_.isEmpty(data)) {
+        this.props.onChangeFontsize(data.editorFontSize);
+      }
     });
+
 
     window.addEventListener('beforeunload', this.beforeUnload);
     window.addEventListener('resize', this.onWindowResize, { passive: true });
@@ -125,7 +125,8 @@ class Editor extends React.Component {
   }
 
   getEditorHeight(windowHeight) {
-    return `${String(windowHeight - 160 - (this.props.showConsole * (this.consoleHeight + 40)))}px`;
+    const windowNonEditorHeight = 231 + (this.props.showConsole * (this.consoleHeight + 40));
+    return `${String(windowHeight - windowNonEditorHeight)}px`;
   }
 
   beforeUnload(event) {
@@ -187,7 +188,7 @@ class Editor extends React.Component {
         'Upload Issue',
         'Robot could not be connected',
       );
-      throw err;
+      return console.log(err);
     });
     ipcRenderer.send('NOTIFY_UPLOAD');
     const waiting = () => {
@@ -199,7 +200,7 @@ class Editor extends React.Component {
           reject();
         } else {
           count += 1;
-          setTimeout(waitPromise.bind(this, resolve, reject), 2000);
+          setTimeout(waitPromise.bind(this, resolve, reject), 1000);
         }
       };
       return new Promise(waitPromise);
@@ -213,18 +214,28 @@ class Editor extends React.Component {
               'Upload Issue',
               'SFTP session could not be initiated',
             );
-            throw err;
+            console.log(err);
+            return;
           }
-          sftp.fastPut(filepath, './PieCentral/runtime/testy/studentCode.py', (err2) => {
-            conn.end();
-            if (err2) {
-              this.props.onAlertAdd(
-                'Upload Issue',
-                'File failed to be transmitted',
-              );
-              throw err2;
-            }
-          });
+          sftp.fastPut(filepath, './PieCentral/runtime/testy/studentCode.py',
+            { step: (totalTransferred, chunk, total) => {
+              if (totalTransferred === total) {
+                this.props.onAlertAdd(
+                  'Upload Success',
+                  'File Uploaded Successfully',
+                );
+              }
+            } },
+            (err2) => {
+              setTimeout(() => { conn.end(); }, 50);
+              if (err2) {
+                this.props.onAlertAdd(
+                  'Upload Issue',
+                  'File failed to be transmitted',
+                );
+                console.log(err2);
+              }
+            });
         });
       }).connect({
         debug: (input) => { console.log(input); },
@@ -244,20 +255,12 @@ class Editor extends React.Component {
   }
 
   startRobot() {
-    this.props.onUpdateCodeStatus(robotState.TELEOP);
+    this.props.onUpdateCodeStatus(this.state.mode);
     this.props.onClearConsole();
   }
 
   stopRobot() {
     this.props.onUpdateCodeStatus(robotState.IDLE);
-  }
-
-  toggleUpdateModal() {
-    this.setState({ showUpdateModal: !this.state.showUpdateModal });
-  }
-
-  toggleConfigModal() {
-    this.setState({ showConfigModal: !this.state.showConfigModal });
   }
 
   estop() {
@@ -271,21 +274,21 @@ class Editor extends React.Component {
   changeTheme(theme) {
     this.props.onChangeTheme(theme);
     storage.set('editorTheme', { theme }, (err) => {
-      if (err) throw err;
+      if (err) console.log(err);
     });
   }
 
   increaseFontsize() {
     this.props.onChangeFontsize(this.props.fontSize + 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize + 1 }, (err) => {
-      if (err) throw err;
+      if (err) console.log(err);
     });
   }
 
   decreaseFontsize() {
     this.props.onChangeFontsize(this.props.fontSize - 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err) => {
-      if (err) throw err;
+      if (err) console.log(err);
     });
   }
 
@@ -300,136 +303,122 @@ class Editor extends React.Component {
           </span>
         }
       >
-        <UpdateBox
-          isRunningCode={this.props.isRunningCode}
-          connectionStatus={this.props.connectionStatus}
-          runtimeStatus={this.props.runtimeStatus}
-          shouldShow={this.state.showUpdateModal}
-          ipAddress={this.props.ipAddress}
-          hide={this.toggleUpdateModal}
-        />
-        <ConfigBox
-          isRunningCode={this.props.isRunningCode}
-          connectionStatus={this.props.connectionStatus}
-          runtimeStatus={this.props.runtimeStatus}
-          shouldShow={this.state.showConfigModal}
-          ipAddress={this.props.ipAddress}
-          onIPChange={this.props.onIPChange}
-          hide={this.toggleConfigModal}
-        />
         <ButtonToolbar>
           <ButtonGroup id="file-operations-buttons">
-            <EditorButton
+            <TooltipButton
               id="new"
               text="New"
               onClick={this.props.onCreateNewFile}
               glyph="file"
             />
-            <EditorButton
+            <TooltipButton
               id="open"
               text="Open"
               onClick={this.props.onOpenFile}
               glyph="folder-open"
             />
-            <EditorButton
+            <TooltipButton
               id="save"
               text="Save"
               onClick={this.props.onSaveFile}
               glyph="floppy-disk"
             />
-            <EditorButton
+            <TooltipButton
               id="save-as"
               text="Save As"
               onClick={_.partial(this.props.onSaveFile, true)}
               glyph="floppy-save"
             />
+            <TooltipButton
+              id="upload"
+              text="Upload"
+              onClick={this.upload}
+              glyph="upload"
+            />
           </ButtonGroup>
           <ButtonGroup id="code-execution-buttons">
-            <EditorButton
+            <TooltipButton
               id="run"
               text="Run"
               onClick={this.startRobot}
               glyph="play"
               disabled={this.props.isRunningCode || !this.props.runtimeStatus}
             />
-            <EditorButton
+            <TooltipButton
               id="stop"
               text="Stop"
               onClick={this.stopRobot}
               glyph="stop"
               disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
             />
-            <EditorButton
-              id="upload"
-              text="Upload"
-              onClick={this.upload}
-              glyph="upload"
-              // disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+            <DropdownButton title="Mode" bsSize="small" key="dropdown" id="modeDropdown">
+              <MenuItem
+                eventKey="1"
+                active={this.state.mode === robotState.TELEOP}
+                onClick={() => {
+                  this.setState({ mode: robotState.TELEOP });
+                }}
+              >Tele-Operated</MenuItem>
+              <MenuItem
+                eventKey="2"
+                active={this.state.mode === robotState.AUTONOMOUS}
+                onClick={() => {
+                  this.setState({ mode: robotState.AUTONOMOUS });
+                }}
+              >Autonomous</MenuItem>
+            </DropdownButton>
+            <TooltipButton
+              id="e-stop"
+              text="E-STOP"
+              onClick={this.estop}
+              glyph="fire"
             />
           </ButtonGroup>
           <ButtonGroup id="console-buttons">
-            <EditorButton
+            <TooltipButton
               id="toggle-console"
               text="Toggle Console"
               onClick={this.toggleConsole}
               glyph="console"
             />
-            <EditorButton
+            <TooltipButton
               id="clear-console"
               text="Clear Console"
               onClick={this.props.onClearConsole}
               glyph="remove"
             />
           </ButtonGroup>
-          <ButtonGroup id="misc-buttons">
-            <EditorButton
-              id="e-stop"
-              text="E-STOP"
-              onClick={this.estop}
-              glyph="fire"
-            />
-            <EditorButton
+          <ButtonGroup id="editor-settings-buttons">
+            <TooltipButton
               id="increase-font-size"
               text="Increase font size"
               onClick={this.increaseFontsize}
               glyph="zoom-in"
               disabled={this.props.fontSize > 28}
             />
-            <EditorButton
+            <TooltipButton
               id="decrease-font-size"
               text="Decrease font size"
               onClick={this.decreaseFontsize}
               glyph="zoom-out"
               disabled={this.props.fontSize < 7}
             />
-            <EditorButton
-              id="updates"
-              text="Updates"
-              onClick={this.toggleUpdateModal}
-              glyph="cloud-upload"
-            />
-            <EditorButton
-              id="configuration"
-              text="Configuration"
-              onClick={this.toggleConfigModal}
-              glyph="cog"
-            />
+            <DropdownButton
+              title="Theme"
+              bsSize="small"
+              id="choose-theme"
+            >
+              {this.themes.map(theme => (
+                <MenuItem
+                  active={theme === this.props.editorTheme}
+                  onClick={_.partial(this.changeTheme, theme)}
+                  key={theme}
+                >
+                  {theme}
+                </MenuItem>
+              ))}
+            </DropdownButton>
           </ButtonGroup>
-          <DropdownButton
-            title="Theme"
-            bsSize="small"
-            id="choose-theme"
-          >
-            {_.map(this.themes, (theme, index) => (
-              <MenuItem
-                active={theme === this.props.editorTheme}
-                onClick={_.partial(this.changeTheme, theme)}
-                key={index}
-              >
-                {theme}
-              </MenuItem>
-            ))}
-          </DropdownButton>
         </ButtonToolbar>
         <AceEditor
           mode="python"
@@ -473,10 +462,8 @@ Editor.propTypes = {
   toggleConsole: React.PropTypes.func,
   onClearConsole: React.PropTypes.func,
   onUpdateCodeStatus: React.PropTypes.func,
-  onIPChange: React.PropTypes.func,
   isRunningCode: React.PropTypes.bool,
   runtimeStatus: React.PropTypes.bool,
-  connectionStatus: React.PropTypes.bool,
   ipAddress: React.PropTypes.string,
   notificationHold: React.PropTypes.number,
   onNotifyChange: React.PropTypes.func,

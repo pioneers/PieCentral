@@ -105,8 +105,7 @@ def runtime(testName=""):
         print(newBadThing.event)
         nonTestModePrint(newBadThing.data)
         if newBadThing.event in restartEvents:
-          if newBadThing.event in studentErrorEvents:
-            stateQueue.put([SM_COMMANDS.SEND_CONSOLE, [str(newBadThing)]])
+          stateQueue.put([SM_COMMANDS.SEND_CONSOLE, [str(newBadThing)]])
           controlState = "idle"
           if testMode:
             restartCount += 1
@@ -118,6 +117,7 @@ def runtime(testName=""):
       terminate_process(PROCESS_NAMES.STUDENT_CODE)
       stateQueue.put([SM_COMMANDS.SET_VAL, [runtime_pb2.RuntimeData.STUDENT_STOPPED, ["studentCodeState"], False]])
       stateQueue.put([SM_COMMANDS.END_STUDENT_CODE, []])
+      stateQueue.put([HIBIKE_COMMANDS.DISABLE, []])
     nonTestModePrint(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
     print("Funtime Runtime is done having fun.")
     print("TERMINATING")
@@ -192,10 +192,10 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName="", maxIter=None):
         stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
         execCount += 1
         await asyncio.sleep(sleep_time)
-      if not terminated:
-        badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
       if exception_cell[0] is not None:
         raise exception_cell[0]
+      if not terminated:
+        badThingsQueue.put(BadThing(sys.exc_info(), "Process Ended", event=BAD_EVENTS.END_EVENT))
 
     loop = asyncio.get_event_loop()
 
@@ -207,11 +207,13 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName="", maxIter=None):
     loop.run_until_complete(main_loop())
 
   except TimeoutError:
-    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_TIMEOUT))
+    event = BAD_EVENTS.STUDENT_CODE_TIMEOUT
+    badThingsQueue.put(BadThing(sys.exc_info(), event.value, event=event))
   except StudentAPIError:
-    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_VALUE_ERROR))
+    event = BAD_EVENTS.STUDENT_CODE_VALUE_ERROR
+    badThingsQueue.put(BadThing(sys.exc_info(), event.value, event=event))
   except Exception as e: #something broke in student code
-    badThingsQueue.put(BadThing(sys.exc_info(), None, event=BAD_EVENTS.STUDENT_CODE_ERROR))
+    badThingsQueue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.STUDENT_CODE_ERROR))
 
 def startStateManager(badThingsQueue, stateQueue, runtimePipe):
   try:

@@ -9,16 +9,18 @@ const StatusLabel = (props) => {
     if (!props.runtimeStatus) {
       labelStyle = 'danger';
       labelText = 'Runtime Error';
-    } else if (props.battery < 1) {
-      labelStyle = 'warning';
-      labelText = 'Battery Issue';
+    } else if (props.batterySafety) {
+      labelStyle = 'danger';
+      labelText = 'Unsafe Battery';
     } else {
       labelStyle = 'success';
-      labelText = `Connected. Battery: ${numeral(props.battery).format('0.00')} V`;
+      labelText = `Battery: ${numeral(props.battery).format('0.00')} V`;
     }
   }
   return (
-    <Label bsStyle={labelStyle}>{labelText}</Label>
+    <div>
+      <Label bsStyle={labelStyle}>{labelText}</Label>
+    </div>
   );
 };
 
@@ -26,6 +28,7 @@ StatusLabel.propTypes = {
   connectionStatus: React.PropTypes.bool.isRequired,
   runtimeStatus: React.PropTypes.bool.isRequired,
   battery: React.PropTypes.number.isRequired,
+  batterySafety: React.PropTypes.bool.isRequired,
 };
 
 export default StatusLabel;

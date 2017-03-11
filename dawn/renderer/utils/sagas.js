@@ -12,6 +12,7 @@ import { ipcRenderer, remote } from 'electron';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
+import { TIMEOUT } from '../utils/utils';
 
 // const dialog = remote.dialog;
 // postpone looking into remote so tests can run
@@ -171,7 +172,7 @@ function* runtimeHeartbeat() {
     // runtime. Only the winner will have a value.
     const result = yield race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, 1000), // The delay is 1000 ms, or 1 second.
+      timeout: call(delay, TIMEOUT), // The delay is 5000 ms, or 5 second.
     });
 
     // If update wins, we assume we are connected, otherwise disconnected.

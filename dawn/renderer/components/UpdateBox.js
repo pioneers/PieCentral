@@ -46,44 +46,47 @@ class UpdateBox extends React.Component {
     const conn = new Client();
     conn.on('ready', () => {
       conn.sftp((err, sftp) => {
-        if (err) throw err;
-        console.log('SSH Connection');
-        sftp.fastPut(this.state.updateFilepath,
-          `./updates/${update}`, (err2) => {
-            if (err2) {
-              conn.end();
-              this.setState({ isUploading: false });
-              this.props.hide();
-              dialog.showMessageBox({
-                type: 'warning',
-                buttons: ['Close'],
-                title: 'Upload Issue',
-                message: 'Update File Upload Failed.',
-              });
-              throw err2;
-            } else {
-              conn.exec('sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service',
-                { pty: true }, (uperr, stream) => {
-                  if (uperr) {
-                    dialog.showMessageBox({
-                      type: 'warning',
-                      buttons: ['Close'],
-                      title: 'Upload Issue',
-                      message: 'Running Update Script Failed.',
-                    });
-                  }
-                  stream.write(`${defaults.PASSWORD}\n`);
-                  stream.on('exit', (code) => {
-                    if (code === 0) {
-                      conn.end();
-                    }
-                  });
-                  console.log('Hello');
-                  this.setState({ isUploading: false });
-                  this.props.hide();
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('SSH Connection');
+          sftp.fastPut(this.state.updateFilepath,
+            `./updates/${update}`, (err2) => {
+              if (err2) {
+                conn.end();
+                this.setState({ isUploading: false });
+                this.props.hide();
+                dialog.showMessageBox({
+                  type: 'warning',
+                  buttons: ['Close'],
+                  title: 'Upload Issue',
+                  message: 'Update File Upload Failed.',
                 });
-            }
-          });
+                console.log(err2);
+              } else {
+                conn.exec('sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service',
+                  { pty: true }, (uperr, stream) => {
+                    if (uperr) {
+                      dialog.showMessageBox({
+                        type: 'warning',
+                        buttons: ['Close'],
+                        title: 'Upload Issue',
+                        message: 'Running Update Script Failed.',
+                      });
+                    }
+                    stream.write(`${defaults.PASSWORD}\n`);
+                    stream.on('exit', (code) => {
+                      console.log(`Update Script Returned ${code}`);
+                      conn.end();
+                    });
+                    setTimeout(() => {
+                      this.setState({ isUploading: false });
+                      this.props.hide();
+                    }, 1000);
+                  });
+              }
+            });
+        }
       });
     }).connect({
       debug: (inpt) => { console.log(inpt); },

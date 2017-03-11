@@ -12,7 +12,6 @@ class HibikeSimulator:
   def makeCommandMap(self):
     commandMapping = {
       HIBIKE_COMMANDS.SUBSCRIBE : self.subscribe_device,
-      HIBIKE_COMMANDS.E_STOP: self.emergency_stop
     }
     return commandMapping
 

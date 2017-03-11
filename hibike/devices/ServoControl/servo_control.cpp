@@ -58,6 +58,9 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 //
 //    return          -   sizeof(param) on success; 0 otherwise
 uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
+  if(buf_len < sizeof(float) {
+    return 0;
+  }
   float* float_buf = (float *) data_update_buf;
   float_buf[0] = positions[param];
   return sizeof(float);

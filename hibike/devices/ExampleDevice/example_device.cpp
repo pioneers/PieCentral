@@ -61,6 +61,9 @@ void loop() {
 // You must implement this function.
 // It is called when the device receives a Device Write packet from the BBB.
 // Updates param to new value passed in data.
+// There must be a check that there are enough bytes to write the desired
+// parameter value into data a.k.a len < sizeof(value)
+//
 //    param   -   Parameter index
 //    data    -   buffer to get the value from, in little-endian bytes
 //    len     -   size of the buffer for overflow checking

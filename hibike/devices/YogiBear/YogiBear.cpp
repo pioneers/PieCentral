@@ -151,6 +151,9 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
   switch (param) {
 
     case DUTY_CYCLE: 
+      if(buf_len < sizeof(float)) {
+        return 0;
+      }
       float_buf = (float *) data_update_buf;
       float_buf[0] = readPWMInput();
       return sizeof(float);
@@ -184,24 +187,36 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
      break;
 
     case ENC_POS: 
+      if(buf_len < sizeof(float)) {
+        return 0;
+      }
       float_buf = (float *) data_update_buf;
       float_buf[0] = readPos();
       return sizeof(float);
       break;
 
     case ENC_VEL: 
+      if(buf_len < sizeof(float)) {
+        return 0;
+      }
       float_buf = (float *) data_update_buf;
       float_buf[0] = readVel();
       return sizeof(float);
       break;
 
     case MOTOR_CURRENT: 
+      if(buf_len < sizeof(float)) {
+        return 0;
+      }
       float_buf = (float *) data_update_buf;
       float_buf[0] = readCurrent();
       return sizeof(float);
       break;
 
     case DEADBAND:
+      if(buf_len< sizeof(float)){
+        return 0;
+      }
       float_buf = (float *) data_update_buf;
       float_buf[0] = readDeadBand();
       return sizeof(float);

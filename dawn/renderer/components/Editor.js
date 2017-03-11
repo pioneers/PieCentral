@@ -234,8 +234,8 @@ class Editor extends React.Component {
                   'File failed to be transmitted',
                 );
                 console.log(err2);
-            }
-          });
+              }
+            });
         });
       }).connect({
         debug: (input) => { console.log(input); },

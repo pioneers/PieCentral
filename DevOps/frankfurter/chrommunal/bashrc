@@ -13,3 +13,4 @@ clear
 screenfetch
 echo 'Welcome to Pioneers in Engineering Student Chromebook!'
 echo "Type 'help' for a list of useful commands"
+cd ~

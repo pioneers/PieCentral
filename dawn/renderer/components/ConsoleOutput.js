@@ -25,7 +25,7 @@ class ConsoleOutput extends React.Component {
               }}
             >
               {this.props.output.map(line => (
-                <code key={`${line}-Code`}>{line}</code>
+                <code key={`${line}-Code-${Math.random()}`}>{line}</code>
               ))}
             </div>
           </pre>

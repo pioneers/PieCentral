@@ -62,6 +62,8 @@ function buildProto(data) {
 
 class ListenSocket {
   constructor() {
+    this.studentCodeStatusListener = this.studentCodeStatusListener.bind(this);
+    this.statusUpdateTimeout = 0
     // TODO: Verify if reuseAddr prevents EADDRINUSE
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
@@ -78,7 +80,11 @@ class ListenSocket {
         console.log('Dawn received UDP');
         RendererBridge.reduxDispatch(infoPerMessage(stateRobot));
         if (stateRobot === RuntimeData.State.STUDENT_STOPPED) {
-          RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
+          if (this.statusUpdateTimeout > 0) {
+            this.statusUpdateTimeout -= 1;
+          } else {
+            RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
+          }
         }
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
@@ -98,10 +104,16 @@ class ListenSocket {
     });
 
     this.socket.bind(LISTEN_PORT);
+    ipcMain.on('studentCodeStatus', this.studentCodeStatusListener);
+  }
+
+  studentCodeStatusListener(event, { studentCodeStatus }) {
+    this.statusUpdateTimeout = 5;
   }
 
   close() {
     this.socket.close();
+    ipcMain.removeListener('studentCodeStatus', this.studentCodeStatusListener);
   }
 }
 

@@ -156,11 +156,11 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName="", maxIter=None):
     try:
       setupFunc = getattr(studentCode, testName + "setup")
     except AttributeError:
-      raise RuntimeError("Student code failed to define '{}'".format(test_name + "setup"))
+      raise RuntimeError("Student code failed to define '{}'".format(testName + "setup"))
     try:
       mainFunc = getattr(studentCode, testName + "main")
     except AttributeError:
-      raise RuntimeError("Student code failed to define '{}'".format(test_name + "main"))
+      raise RuntimeError("Student code failed to define '{}'".format(testName + "main"))
 
     ensure_is_function(testName + "setup", setupFunc)
     ensure_is_function(testName + "main", mainFunc)

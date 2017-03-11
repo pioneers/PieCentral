@@ -172,6 +172,7 @@ def make_disable():
   """ Makes and returns a Disable message."""
   payload = bytearray()
   message = HibikeMessage(messageTypes["Disable"], payload)
+  return message
 
 # Optional variable id is currently not supported, but will act as an id for different heartbeats sent
 def make_heartbeat_response(id = 0):

@@ -184,6 +184,10 @@ def runStudentCode(badThingsQueue, stateQueue, pipe, testName="", maxIter=None):
         studentCode.Gamepad._get_gamepad()
         checkTimedOut(mainFunc)
 
+        # Throttle sending print statements
+        if (execCount % 5) == 0:
+          studentCode.Robot._send_prints()
+
         sleep_time = max(next_call - loop.time(), 0.)
         stateQueue.put([SM_COMMANDS.STUDENT_MAIN_OK, []])
         execCount += 1

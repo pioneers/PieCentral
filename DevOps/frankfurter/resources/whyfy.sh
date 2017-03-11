@@ -1,13 +1,14 @@
 #!/bin/bash
 if [ -f /tmp/whyfi.lock ]; then
-echo "checked"; 
+echo "checked";
+sleep 10
 else
   touch /tmp/whyfi.lock
-  wscan=$(iwlist scan 2>/dev/null | grep -o "\"Team37\"")
+  wscan=$(iwlist scan 2>/dev/null | grep -o "\"$(cat /home/ubuntu/teamnumber.txt)\"")
   if [ "$wscan" == "" ]; then
     echo "field";
     sudo ifdown ra0;
-    sudo ifup ra0=field; 
+    sudo ifup ra0=field;
     else
     echo "student"
   fi

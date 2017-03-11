@@ -47,7 +47,8 @@ def write_tmp_file(lines):
         print('\n'.join(lines), file=tmp_file)
 
 
-def copy_network_config_file():
+
+def copy_network_config_file(team_number):
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     ssh.connect(HOST, username=USERNAME, password=PASSWORD)
@@ -58,7 +59,7 @@ def copy_network_config_file():
     ssh.exec_command('sudo mv /tmp/interfaces /etc/network')
     ssh.exec_command('sudo chown root /etc/network/interfaces')
     ssh.exec_command('sudo chgrp root /etc/network/interfaces')
-
+    ssh.exec_command('echo {0} > /home/ubuntu/teamnumber.txt'.format(team_number))
     ssh.close()
 
 
@@ -71,7 +72,7 @@ def main():
     password = read_user_input('Please enter the router password: ')
     lines = build_custom_config(team_number, password)
     write_tmp_file(lines)
-    copy_network_config_file()
+    copy_network_config_file(team_number)
 #    delete_tmp_file()
 
 

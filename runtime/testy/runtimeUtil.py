@@ -43,7 +43,7 @@ class HIBIKE_COMMANDS(Enum):
   SUBSCRIBE = "subscribe_device"
   WRITE     = "write_params"
   READ      = "read_params"
-  E_STOP    = "stop_command"
+  DISABLE   = "disable_all"
 
 # TODO: Remove when Hibike is finished
 @unique

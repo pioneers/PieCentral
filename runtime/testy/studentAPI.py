@@ -3,6 +3,7 @@ import asyncio
 import inspect
 import os
 import time
+import sys, io
 
 from runtimeUtil import *
 
@@ -111,6 +112,7 @@ class Robot(StudentAPI):
     super().__init__(toManager, fromManager)
     self._createSensorMapping()
     self._coroutines_running = set()
+    self._stdout_buffer = io.StringIO()
     self._get_all_sensors()
 
   def _get_all_sensors(self):
@@ -223,11 +225,20 @@ class Robot(StudentAPI):
   def emergencyStop(self):
     self.toManager.put([SM_COMMANDS.EMERGENCY_STOP, []])
 
-  def _print(self, *args):
-    print(*args)
-    #TODO reimplement when dawn can handle higher hz communication
-    #console_string = " ".join(str(arg) for arg in args)
-    #self.toManager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]])
+  def _print(self, *args, sep=' ', end='\n', file=None, flush=False):
+    # Handle advanced usage of "print"
+    if file is not None:
+      return print(*args, sep=sep, end=end, file=file, flush=flush)
+
+    # Print to both stdout and the send-to-dawn buffer
+    print(*args, sep=sep, end=end, file=self._stdout_buffer, flush=flush)
+    return print(*args, sep=sep, end=end, flush=flush)
+
+  def _send_prints(self):
+    console_string = self._stdout_buffer.getvalue()
+    if console_string:
+      self._stdout_buffer = io.StringIO()
+      self.toManager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]])
 
   def hibikeWriteValue(self, uid, params):
     self.toManager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])

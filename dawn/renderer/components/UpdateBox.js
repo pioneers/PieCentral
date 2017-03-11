@@ -80,7 +80,6 @@ class UpdateBox extends React.Component {
                         conn.end();
                       }
                     });
-                    console.log('Hello');
                     this.setState({ isUploading: false });
                     this.props.hide();
                   });

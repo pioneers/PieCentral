@@ -110,7 +110,7 @@ describe('runtime sagas', () => {
     const expect = fromGenerator(assert, runtimeHeartbeat());
     expect.next().race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, 1000),
+      timeout: call(delay, 5000),
     });
     expect.next({
       update: {
@@ -123,10 +123,10 @@ describe('runtime sagas', () => {
     const expect = fromGenerator(assert, runtimeHeartbeat());
     expect.next().race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, 1000),
+      timeout: call(delay, 5000),
     });
     expect.next({
-      timeout: 1000,
+      timeout: 5000,
     }).put(runtimeDisconnect());
   });
 

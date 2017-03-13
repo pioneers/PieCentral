@@ -168,13 +168,13 @@ class Robot(StudentAPI):
     device_type = uid >> 72
     valid_params = self.deviceName_to_writeParams[SENSOR_TYPE[device_type]]
     if param not in valid_params:
-      raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + "".join(valid_params))
+      raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + ", ".join(valid_params))
 
   def _check_read_params(self, uid, param):
     device_type = uid >> 72
     valid_params = self.deviceName_to_readParams[SENSOR_TYPE[device_type]]
     if param not in valid_params:
-      raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + "".join(valid_params))
+      raise StudentAPITypeError("Invalid param passed in, valid parameters for this device are: " + ", ".join(valid_params))
 
   def _check_value(self, param, value):
     valid_values = self.param_to_valid_values[param]

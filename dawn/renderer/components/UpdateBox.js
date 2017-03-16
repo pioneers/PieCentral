@@ -4,6 +4,8 @@ import {
   Button,
 } from 'react-bootstrap';
 import { remote } from 'electron';
+import { connect } from 'react-redux';
+import { addAsyncAlert } from '../actions/AlertActions';
 import { pathToName, defaults } from '../utils/utils';
 
 const dialog = remote.dialog;
@@ -35,12 +37,10 @@ class UpdateBox extends React.Component {
     const update = pathToName(this.state.updateFilepath);
     if (!update) {
       this.setState({ isUploading: false });
-      dialog.showMessageBox({
-        type: 'warning',
-        buttons: ['Close'],
-        title: 'File Issue',
-        message: 'Update File Bad\n',
-      });
+      this.props.onAlertAdd(
+        'File Issue',
+        'Update File Bad',
+      );
       return;
     }
     const conn = new Client();
@@ -56,23 +56,19 @@ class UpdateBox extends React.Component {
                 conn.end();
                 this.setState({ isUploading: false });
                 this.props.hide();
-                dialog.showMessageBox({
-                  type: 'warning',
-                  buttons: ['Close'],
-                  title: 'Upload Issue',
-                  message: 'Update File Upload Failed.',
-                });
+                this.props.onAlertAdd(
+                  'Upload Issue',
+                  'Could not send Runtime update',
+                );
                 console.log(err2);
               } else {
                 conn.exec('sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service',
                   { pty: true }, (uperr, stream) => {
                     if (uperr) {
-                      dialog.showMessageBox({
-                        type: 'warning',
-                        buttons: ['Close'],
-                        title: 'Upload Issue',
-                        message: 'Running Update Script Failed.',
-                      });
+                      this.props.onAlertAdd(
+                        'Upload Issue',
+                        'Update Script Failed',
+                      );
                     }
                     stream.write(`${defaults.PASSWORD}\n`);
                     stream.on('exit', (code) => {
@@ -112,12 +108,17 @@ class UpdateBox extends React.Component {
         <Modal.Header closeButton>
           <Modal.Title>Upload Update</Modal.Title>
         </Modal.Header>
+        {this.state.isUploading ? <Modal.Body>
+          <h4>PLEASE DO NOT TURN OFF ROBOT</h4>
+          <br />
+        </Modal.Body> :
         <Modal.Body>
           <h4>Update Package (tar.gz file)</h4>
           <h5>{this.state.updateFilepath ? this.state.updateFilepath : ''}</h5>
           <Button type="button" onClick={this.chooseUpdate}>Choose File</Button>
           <br />
         </Modal.Body>
+        }
         <Modal.Footer>
           <Button
             type="button"
@@ -140,6 +141,15 @@ UpdateBox.propTypes = {
   runtimeStatus: React.PropTypes.bool.isRequired,
   isRunningCode: React.PropTypes.bool.isRequired,
   ipAddress: React.PropTypes.string.isRequired,
+  onAlertAdd: React.PropTypes.func.isRequired,
 };
 
-export default UpdateBox;
+const mapDispatchToProps = dispatch => ({
+  onAlertAdd: (heading, message) => {
+    dispatch(addAsyncAlert(heading, message));
+  },
+});
+
+const UpdateBoxContainer = connect(null, mapDispatchToProps)(UpdateBox);
+
+export default UpdateBoxContainer;

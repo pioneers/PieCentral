@@ -9,7 +9,7 @@ artifacts-install:
 	$(nop)
 
 lint:
-	$(nop)
+	cd testy && pylint *.py
 
 test:
 	cd ../DevOps/frankfurter/scripts/update && ./create_update.sh

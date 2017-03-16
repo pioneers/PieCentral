@@ -27,23 +27,23 @@ const handleAccordion = (array) => {
     peripheralGroups[p.device_type].push(p);
   });
   return (
-      _.map(Object.keys(peripheralGroups), groups => (
-        <Accordion style={{ marginBottom: '2px' }} key={`${cleanerNames[groups] || 'Default'}-Accordion`}>
-          <Panel header={cleanerNames[groups] || 'Generic'} key={`${cleanerNames[groups] || 'Default'}-Panel`}>
-            {
-              _.map(peripheralGroups[groups], peripheral => (
-                <Peripheral
-                  key={String(peripheral.uid)}
-                  id={String(peripheral.uid)}
-                  device_name={peripheral.device_name}
-                  device_type={peripheral.device_type}
-                  param={peripheral.param_value}
-                />
-              ))
-            }
-          </Panel>
-        </Accordion>
-      ))
+    _.map(Object.keys(peripheralGroups), groups => (
+      <Accordion style={{ marginBottom: '2px' }} key={`${cleanerNames[groups] || 'Default'}-Accordion`}>
+        <Panel header={cleanerNames[groups] || 'Generic'} key={`${cleanerNames[groups] || 'Default'}-Panel`}>
+          {
+            _.map(peripheralGroups[groups], peripheral => (
+              <Peripheral
+                key={String(peripheral.uid)}
+                id={String(peripheral.uid)}
+                device_name={peripheral.device_name}
+                device_type={peripheral.device_type}
+                param={peripheral.param_value}
+              />
+            ))
+          }
+        </Panel>
+      </Accordion>
+    ))
   );
 };
 

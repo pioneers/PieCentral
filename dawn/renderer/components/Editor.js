@@ -173,6 +173,14 @@ class Editor extends React.Component {
       console.log('Upload: Not Working on File');
       return;
     }
+    if (this.hasUnsavedChanges()) {
+      this.props.onAlertAdd(
+        'Unsaved File',
+        'Please save first',
+      );
+      console.log('Upload: Not Working on Saved File');
+      return;
+    }
     if (Editor.correctText(this.props.editorCode) !== this.props.editorCode) {
       this.props.onAlertAdd(
         'Invalid characters detected',

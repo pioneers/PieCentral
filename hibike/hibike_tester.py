@@ -30,5 +30,13 @@ class Hibike:
 if __name__ == '__main__':
     h = Hibike()
     h.enumerate()
+    uid = h.stateQueue.get()[1][0]
     while True:
         print(h.stateQueue.get())
+        h.write(uid, [("duty_cycle", 0)])
+        time.sleep(2)
+        h.write(uid, [("duty_cycle", 0)])
+        time.sleep(2)
+        
+
+

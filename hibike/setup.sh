@@ -10,7 +10,8 @@ echo "Setup Tab-complete"
 echo "Please restart your terminals"
 
 echo "Update Arduino library: First command line argument as file path to .tar (or .tar.xz)"
-if [ $# -eq 1 ]; then
+echo "Update to Arduino 1.8.1"
+if [ $# -eq 1 ] && [ $(grep -c -i "arduino" <<< $1) != 0 ] && [ $(grep -c ".tar" <<< $1) != 0 ]; then
     tar xf $1 -C /opt
     sudo usermod -a -G dialout $(whoami)
 fi

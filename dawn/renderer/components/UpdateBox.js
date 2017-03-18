@@ -35,14 +35,6 @@ class UpdateBox extends React.Component {
   upgradeSoftware() {
     this.setState({ isUploading: true });
     const update = pathToName(this.state.updateFilepath);
-    if (!update) {
-      this.setState({ isUploading: false });
-      this.props.onAlertAdd(
-        'File Issue',
-        'Update File Bad',
-      );
-      return;
-    }
     const conn = new Client();
     conn.on('ready', () => {
       conn.sftp((err, sftp) => {
@@ -57,8 +49,9 @@ class UpdateBox extends React.Component {
                 this.setState({ isUploading: false });
                 this.props.hide();
                 this.props.onAlertAdd(
-                  'Upload Issue',
-                  'Could not send Runtime update',
+                  'Robot Connectivity Error',
+                  `Dawn was unable to upload the update to the robot
+                  Please check your robot connectivity.`,
                 );
                 console.log(err2);
               } else {
@@ -66,8 +59,9 @@ class UpdateBox extends React.Component {
                   { pty: true }, (uperr, stream) => {
                     if (uperr) {
                       this.props.onAlertAdd(
-                        'Upload Issue',
-                        'Update Script Failed',
+                        'Update Script Error',
+                        `Dawn was unable to run scripts necessary for the update.
+                        Please check your robot connectivity.`,
                       );
                     }
                     stream.write(`${defaults.PASSWORD}\n`);

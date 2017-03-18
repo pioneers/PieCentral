@@ -29,7 +29,7 @@ import 'brace/theme/terminal';
 
 import ConsoleOutput from './ConsoleOutput';
 import TooltipButton from './TooltipButton';
-import { pathToName, uploadStatus, robotState, defaults } from '../utils/utils';
+import { pathToName, uploadStatus, robotState, defaults, timings } from '../utils/utils';
 
 const Client = require('ssh2').Client;
 
@@ -81,9 +81,12 @@ class Editor extends React.Component {
     this.stopRobot = this.stopRobot.bind(this);
     this.upload = this.upload.bind(this);
     this.estop = this.estop.bind(this);
+    this.simulateCompetition = this.simulateCompetition.bind(this);
     this.state = {
       editorHeight: this.getEditorHeight(),
       mode: robotState.TELEOP,
+      modeDisplay: 'Tele-Operated',
+      simulate: false,
     };
   }
 
@@ -260,11 +263,82 @@ class Editor extends React.Component {
   }
 
   stopRobot() {
+    this.setState({ simulate: false,
+      modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ? 'Autonomous' : 'Tele-Operated' });
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
   estop() {
+    this.setState({ simulate: false, modeDisplay: 'ESTOP' });
     this.props.onUpdateCodeStatus(robotState.ESTOP);
+  }
+
+  simulateCompetition() {
+    this.setState({ simulate: true, modeDisplay: 'Simulation' });
+    const simulation = new Promise((resolve, reject) => {
+      console.log('Beginning 30s Autonomous');
+      this.props.onUpdateCodeStatus(robotState.AUTONOMOUS);
+      const timestamp = Date.now();
+      const autoInt = setInterval(() => {
+        const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
+        if (diff > timings.AUTO) {
+          clearInterval(autoInt);
+          resolve();
+        } else if (!this.state.simulate) {
+          console.log('Cooldown Quit');
+          clearInterval(autoInt);
+          reject();
+        } else {
+          this.setState({ modeDisplay: `Autonomous: ${timings.AUTO - diff}` });
+        }
+      }, timings.SEC);
+    });
+
+    simulation.then(() =>
+      new Promise((resolve, reject) => {
+        console.log('Beginning 5s Cooldown');
+        this.props.onUpdateCodeStatus(robotState.IDLE);
+        const timestamp = Date.now();
+        const coolInt = setInterval(() => {
+          const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
+          if (diff > timings.IDLE) {
+            clearInterval(coolInt);
+            resolve();
+          } else if (!this.state.simulate) {
+            clearInterval(coolInt);
+            console.log('Autonomous Quit');
+            reject();
+          } else {
+            this.setState({ modeDisplay: `Cooldown: ${timings.IDLE - diff}` });
+          }
+        }, timings.SEC);
+      }),
+    ).then(() => {
+      new Promise((resolve, reject) => {
+        console.log('Beginning 2m Teleop');
+        this.props.onUpdateCodeStatus(robotState.TELEOP);
+        const timestamp = Date.now();
+        const teleInt = setInterval(() => {
+          const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
+          if (diff > timings.TELEOP) {
+            clearInterval(teleInt);
+            resolve();
+          } else if (!this.state.simulate) {
+            clearInterval(teleInt);
+            console.log('Teleop Quit');
+            reject();
+          } else {
+            this.setState({ modeDisplay: `Teleop: ${timings.TELEOP - diff}` });
+          }
+        }, timings.SEC);
+      }).then(() => {
+        console.log('Simulation Finished');
+        this.props.onUpdateCodeStatus(robotState.IDLE);
+      }, () => {
+        console.log('Simulation Aborted');
+        this.props.onUpdateCodeStatus(robotState.IDLE);
+      });
+    });
   }
 
   hasUnsavedChanges() {
@@ -349,23 +423,34 @@ class Editor extends React.Component {
               text="Stop"
               onClick={this.stopRobot}
               glyph="stop"
-              disabled={!(this.props.isRunningCode && this.props.runtimeStatus)}
+              disabled={!(this.props.isRunningCode || this.state.simulate)}
             />
-            <DropdownButton title="Mode" bsSize="small" key="dropdown" id="modeDropdown">
+            <DropdownButton
+              title={this.state.modeDisplay}
+              bsSize="small"
+              key="dropdown"
+              id="modeDropdown"
+              disabled={this.state.simulate}
+            >
               <MenuItem
                 eventKey="1"
-                active={this.state.mode === robotState.TELEOP}
+                active={this.state.mode === robotState.TELEOP && !this.state.simulate}
                 onClick={() => {
-                  this.setState({ mode: robotState.TELEOP });
+                  this.setState({ mode: robotState.TELEOP, modeDisplay: 'Tele-Operated' });
                 }}
               >Tele-Operated</MenuItem>
               <MenuItem
                 eventKey="2"
-                active={this.state.mode === robotState.AUTONOMOUS}
+                active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
                 onClick={() => {
-                  this.setState({ mode: robotState.AUTONOMOUS });
+                  this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: 'Autonomous' });
                 }}
               >Autonomous</MenuItem>
+              <MenuItem
+                eventKey="3"
+                active={this.state.simulate}
+                onClick={this.simulateCompetition}
+              >Simulate Competition</MenuItem>
             </DropdownButton>
             <TooltipButton
               id="e-stop"

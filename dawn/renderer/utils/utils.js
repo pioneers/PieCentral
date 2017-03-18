@@ -49,3 +49,10 @@ export const defaults = {
   USERNAME: 'ubuntu',
   PASSWORD: 'temppwd',
 };
+
+export const timings = {
+  AUTO: 30,
+  IDLE: 5,
+  TELEOP: 120,
+  SEC: 1000,
+};

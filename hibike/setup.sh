@@ -41,7 +41,7 @@ if [ "$(dpkg-query -W -f='${Status}' python3-pip 2>/dev/null | grep -c "ok insta
     apt-get --assume-yes install python3-pip
 fi
 
-if [ "$(pip3 freeze | grep -c "pyserial")" != 1]; then
+if [ "$(pip3 freeze | grep -c "pyserial")" != 1 ]; then
     pip3 install -r requirements.txt
 fi
 

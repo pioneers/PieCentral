@@ -6,7 +6,7 @@ from hid import HIDWrapper as hid
 devices = hid.open_all()
 
 def print_uid(i, device):
-    for packet in hm.hid_blocking_read_generator(device)
+    for packet in hm.hid_blocking_read_generator(device):
         if packet.getmessageID() == hm.messageTypes["SubscriptionResponse"]:
             params, delay, uid = hm.parse_subscription_response(packet)
             print("thread %d enumerated %s with uid %d" % (i, hm.uid_to_device_name(uid), uid))

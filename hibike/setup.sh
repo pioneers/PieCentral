@@ -9,6 +9,12 @@ cp utils/flash /etc/bash_completion.d/flash.sh
 echo "Setup Tab-complete"
 echo "Please restart your terminals"
 
+echo "Update Arduino library: First command line argument as file path to .tar (or .tar.xz)"
+if [ $# -eq 1 ]; then
+    tar xf $1 -C /opt
+    sudo usermod -a -G dialout $(whoami)
+fi
+
 if [ "$(dpkg-query -W -f='${Status}' make 2>/dev/null | grep -c "ok installed")" != 1 ]; then
     apt-get --assume-yes install make	
 fi
@@ -41,7 +47,7 @@ if [ "$(dpkg-query -W -f='${Status}' python3-pip 2>/dev/null | grep -c "ok insta
     apt-get --assume-yes install python3-pip
 fi
 
-if [ "$(pip3 freeze | grep -c "pyserial")" != 1]; then
+if [ "$(pip3 freeze | grep -c "pyserial")" != 1 ]; then
     pip3 install -r requirements.txt
 fi
 

@@ -4,6 +4,11 @@
 # Modify the interface names below as needed, and run this as root
 # Assumes SSH works on the remote machine (192.168.7.2)
 
+ERROR="\e[1;31m"    # Bold red
+WARNING="\e[1;33m"  # Bold yellow
+SUCCESS="\e[1;32m"  # Bold green
+CLEAR="\e[0m"
+
 WIFI_INTERFACE=wlp2s0
 BBB_INTERFACE=enp0s20f0u2
 

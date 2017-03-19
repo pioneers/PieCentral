@@ -60,7 +60,7 @@ class UpdateBox extends React.Component {
                     if (uperr) {
                       this.props.onAlertAdd(
                         'Update Script Error',
-                        `Dawn was unable to run scripts necessary for the update.
+                        `Dawn was unable to run update scripts.
                         Please check your robot connectivity.`,
                       );
                     }

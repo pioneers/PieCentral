@@ -59,7 +59,7 @@ export default [
     type: 'hover',
   }, {
     title: 'Updates',
-    text: 'Occasionally we may release updates to the robot\'s software. When this happens, you will download two files, an update package and its signature, and click on this button to upload those updates to the robot.',
+    text: 'Occasionally we may release updates to the robot\'s software. When this happens, you will download the update package and click on this button to upload it to the robot. Please do not restart your robot.',
     selector: '#update-software-button',
     position: 'left',
     type: 'hover',

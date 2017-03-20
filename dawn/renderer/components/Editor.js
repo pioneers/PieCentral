@@ -85,7 +85,7 @@ class Editor extends React.Component {
     this.state = {
       editorHeight: this.getEditorHeight(),
       mode: robotState.TELEOP,
-      modeDisplay: 'Tele-Operated',
+      modeDisplay: robotState.TELEOPSTR,
       simulate: false,
     };
   }
@@ -264,19 +264,20 @@ class Editor extends React.Component {
 
   stopRobot() {
     this.setState({ simulate: false,
-      modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ? 'Autonomous' : 'Tele-Operated' });
+      modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
+        robotState.AUTOSTR : robotState.TELEOPSTR });
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
   estop() {
-    this.setState({ simulate: false, modeDisplay: 'ESTOP' });
+    this.setState({ simulate: false, modeDisplay: robotState.ESTOPSTR });
     this.props.onUpdateCodeStatus(robotState.ESTOP);
   }
 
   simulateCompetition() {
-    this.setState({ simulate: true, modeDisplay: 'Simulation' });
+    this.setState({ simulate: true, modeDisplay: robotState.SIMSTR });
     const simulation = new Promise((resolve, reject) => {
-      console.log('Beginning 30s Autonomous');
+      console.log(`Beginning ${timings.AUTO}s ${robotState.AUTOSTR}`);
       this.props.onUpdateCodeStatus(robotState.AUTONOMOUS);
       const timestamp = Date.now();
       const autoInt = setInterval(() => {
@@ -285,18 +286,18 @@ class Editor extends React.Component {
           clearInterval(autoInt);
           resolve();
         } else if (!this.state.simulate) {
-          console.log('Cooldown Quit');
+          console.log(`${robotState.AUTOSTR} Quit`);
           clearInterval(autoInt);
           reject();
         } else {
-          this.setState({ modeDisplay: `Autonomous: ${timings.AUTO - diff}` });
+          this.setState({ modeDisplay: `${robotState.AUTOSTR}: ${timings.AUTO - diff}` });
         }
       }, timings.SEC);
     });
 
     simulation.then(() =>
       new Promise((resolve, reject) => {
-        console.log('Beginning 5s Cooldown');
+        console.log(`Beginning ${timings.IDLE}s Cooldown`);
         this.props.onUpdateCodeStatus(robotState.IDLE);
         const timestamp = Date.now();
         const coolInt = setInterval(() => {
@@ -306,7 +307,7 @@ class Editor extends React.Component {
             resolve();
           } else if (!this.state.simulate) {
             clearInterval(coolInt);
-            console.log('Autonomous Quit');
+            console.log('Cooldown Quit');
             reject();
           } else {
             this.setState({ modeDisplay: `Cooldown: ${timings.IDLE - diff}` });
@@ -315,7 +316,7 @@ class Editor extends React.Component {
       }),
     ).then(() => {
       new Promise((resolve, reject) => {
-        console.log('Beginning 2m Teleop');
+        console.log(`Beginning ${timings.TELEOP}s ${robotState.TELEOPSTR}`);
         this.props.onUpdateCodeStatus(robotState.TELEOP);
         const timestamp = Date.now();
         const teleInt = setInterval(() => {
@@ -325,10 +326,10 @@ class Editor extends React.Component {
             resolve();
           } else if (!this.state.simulate) {
             clearInterval(teleInt);
-            console.log('Teleop Quit');
+            console.log(`${robotState.TELEOPSTR} Quit`);
             reject();
           } else {
-            this.setState({ modeDisplay: `Teleop: ${timings.TELEOP - diff}` });
+            this.setState({ modeDisplay: `${robotState.TELEOPSTR}: ${timings.TELEOP - diff}` });
           }
         }, timings.SEC);
       }).then(() => {
@@ -436,14 +437,14 @@ class Editor extends React.Component {
                 eventKey="1"
                 active={this.state.mode === robotState.TELEOP && !this.state.simulate}
                 onClick={() => {
-                  this.setState({ mode: robotState.TELEOP, modeDisplay: 'Tele-Operated' });
+                  this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
                 }}
               >Tele-Operated</MenuItem>
               <MenuItem
                 eventKey="2"
                 active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
                 onClick={() => {
-                  this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: 'Autonomous' });
+                  this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
                 }}
               >Autonomous</MenuItem>
               <MenuItem

@@ -1,5 +1,23 @@
 #include "hibike_message.h"
 
+uint8_t hid_recv_buffer[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES + 3];
+
+void hibike_message_setup() {
+  #ifdef HIBIKE_HID_MODE
+  RawHID.begin(hid_recv_buffer, sizeof(hid_recv_buffer));
+  #else
+  Serial.begin(115200);
+  #endif
+}
+
+int hibike_message_available() {
+  #ifdef HIBIKE_HID_MODE
+  return RawHID.available();
+  #else
+  return Serial.available();
+  #endif
+}
+
 uint8_t checksum(uint8_t data[], int length) {
   uint8_t chk = data[0];
   for (int i=1; i<length; i++) {
@@ -9,7 +27,7 @@ uint8_t checksum(uint8_t data[], int length) {
 }
 
 
-int send_message(message_t *msg) {
+int send_message_serial(message_t *msg) {
   uint8_t data[msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES];
   // TODO karthik-shanmugam: check buffer size
   uint8_t cobs_buf[2 + msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES + 1];
@@ -27,10 +45,28 @@ int send_message(message_t *msg) {
   return 0;
 }
 
-int read_message(message_t *msg) {
+int send_message_hid(message_t *msg) {
+  uint8_t data[msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES];
+  // TODO karthik-shanmugam: check buffer size
+  uint8_t cobs_buf[2 + msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES + 1];
+  message_to_byte(data, msg);
+  data[msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES] = checksum(data, msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
+
+  // cobs encoding, leading 0 to signal start of packet and then a length byte
+  cobs_buf[0] = 0x00;
+  size_t cobs_len = cobs_encode(&cobs_buf[2], data, msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES);
+  cobs_buf[1] = (byte) cobs_len;
+  size_t written = RawHID.write(cobs_buf, 2 + cobs_len);
+  if (written != 2 + cobs_len) {
+    return -1;
+  }
+  return 0;
+}
+
+int read_message_serial(message_t *msg) {
   uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES];
   // TODO karthik-shanmugam: check buffer size
-  uint8_t cobs_buf[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES + 1];
+  uint8_t cobs_buf[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES + 3];
 
   // find the start of packet
   int last_byte_read = -1;
@@ -79,6 +115,55 @@ int read_message(message_t *msg) {
   memcpy(msg->payload, &data[MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES], payload_length);
   return 0;
 
+}
+
+// reads everything available on hid and returns -1
+// convenience function for read_message_hid
+int hid_clear() {
+  size_t hid_len = RawHID.available();
+  for (int i=0;i<hid_len;i++){RawHID.read();}
+  return -1;
+}
+
+int read_message_hid(message_t *msg) {
+  uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES];
+  size_t hid_len = RawHID.available();
+  if (hid_len < 2) return hid_clear();
+  if (hid_recv_buffer[0] != 0) return hid_clear();
+  cobs_len = hid_recv_buffer[1];
+  if (hid_len < cobs_len + 2) return hid_clear();
+  if (cobs_decode(data, hid_recv_buffer, cobs_len) < 3) return hid_clear();
+
+  // we're done with the hid_recv_buffer at this point
+  hid_clear();
+  uint8_t messageID = data[0];
+  uint8_t payload_length = data[1];
+  uint8_t expected_chk = checksum(data, payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
+  uint8_t received_chk = data[MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+payload_length];
+
+  if (received_chk != expected_chk) {
+    return -1;
+  }
+  msg->messageID = messageID;
+  msg->payload_length = payload_length;
+  memcpy(msg->payload, &data[MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES], payload_length);
+  return 0;
+}
+
+int send_message(message_t* msg) {
+  #ifdef HIBIKE_HID_MODE
+  return send_message_hid(msg);
+  #else
+  return send_message_serial(msg);
+  #endif
+}
+
+int read_message(message_t* msg) {
+  #ifdef HIBIKE_HID_MODE
+  return send_message_hid(msg);
+  #else
+  return send_message_serial(msg);
+  #endif
 }
 
 int send_heartbeat_response(uint8_t id) { // id = for future heartbeat identification

@@ -1,5 +1,6 @@
 #ifndef HIBIKE_H
 #define HIBIKE_H
+#define HIBIKE_HID_MODE
 #include "Arduino.h"
 #include "devices.h"
 #include "cobs.h"

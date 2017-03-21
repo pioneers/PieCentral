@@ -29,9 +29,13 @@ export const uploadStatus = {
 
 export const robotState = {
   IDLE: 0,
+  SIMSTR: 'Simulation',
   TELEOP: 1,
+  TELEOPSTR: 'Tele-Operated',
   AUTONOMOUS: 2,
+  AUTOSTR: 'Autonomous',
   ESTOP: 3,
+  ESTOPSTR: 'ESTOP',
 };
 
 // TODO: Synchronize this and the above state
@@ -48,4 +52,11 @@ export const defaults = {
   PORT: 22,
   USERNAME: 'ubuntu',
   PASSWORD: 'temppwd',
+};
+
+export const timings = {
+  AUTO: 30,
+  IDLE: 5,
+  TELEOP: 120,
+  SEC: 1000,
 };

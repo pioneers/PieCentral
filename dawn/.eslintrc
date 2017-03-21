@@ -19,7 +19,7 @@
     "react/no-string-refs": "off",
     "react/no-unused-prop-types": "off",
     "react/require-default-props": "off",
-
+    "react/jsx-indent": "off",
     "no-console": "off",
     "no-constant-condition": ["error", { "checkLoops": false }],
     "no-param-reassign": "off",

@@ -9,7 +9,7 @@ artifacts-install:
 	$(nop)
 
 lint:
-	$(nop)
+	@:
 
 test:
 	cd ../DevOps/frankfurter/scripts/update && ./create_update.sh

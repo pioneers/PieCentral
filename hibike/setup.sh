@@ -11,7 +11,7 @@ echo "Please restart your terminals"
 
 sudo usermod -a -G dialout $(whoami)
 
-if [ $# -eq 1 ] && [ $(echo $1 | grep -c -i ".*arduino.*\.tar") != 0 ]; then
+if [ $# -eq 1 ] && [ $(echo $1 | grep -c -i ".*arduino.*(\.tar|\.tar\.xz)") != 0 ]; then
     tar xf $1 -C /opt
     
 elif [ $# -eq 1 ]; then

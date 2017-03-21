@@ -134,7 +134,7 @@ int read_message_hid(message_t *msg) {
   size_t hid_len = RawHID.available();
   if (hid_len < 2) return hid_clear();
   if (hid_recv_buffer[0] != 0) return hid_clear();
-  cobs_len = hid_recv_buffer[1];
+  size_t cobs_len = hid_recv_buffer[1];
   if (hid_len < cobs_len + 2) return hid_clear();
   if (cobs_decode(data, hid_recv_buffer, cobs_len) < 3) return hid_clear();
 

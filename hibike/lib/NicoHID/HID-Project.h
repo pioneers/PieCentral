@@ -27,9 +27,9 @@ THE SOFTWARE.
 // Software version
 #define HID_PROJECT_VERSION 244
 
-#if ARDUINO < 10607
-#error HID Project requires Arduino IDE 1.6.7 or greater. Please update your IDE.
-#endif
+// #if ARDUINO < 10607
+// #error HID Project requires Arduino IDE 1.6.7 or greater. Please update your IDE.
+// #endif
 
 #if !defined(USBCON)
 #error HID Project can only be used with an USB MCU.

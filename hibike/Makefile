@@ -20,7 +20,7 @@ ARDMK_DIR         = $(PROJECT_DIR)/Arduino-Makefile
 ### Path to the Arduino application and ressources directory.
 ARDUINO_DIR       = /opt/arduino-1.8.1
 
-ARDUINO_LIBS := Wire Servo
+ARDUINO_LIBS := Wire Servo HID
 
 ### USER_LIB_PATH
 ### Path to where the your project's libraries are stored.

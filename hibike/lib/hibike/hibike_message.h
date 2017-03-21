@@ -4,6 +4,10 @@
 #include "devices.h"
 #include "cobs.h"
 
+#ifdef HIBIKE_HID_MODE
+#include "HID-Project.h"
+#endif
+
 #define MAX_PAYLOAD_SIZE    60
 #define MESSAGEID_BYTES     1
 #define PAYLOAD_SIZE_BYTES  1

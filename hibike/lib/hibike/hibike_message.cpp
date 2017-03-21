@@ -1,5 +1,7 @@
 #include "hibike_message.h"
 
+
+
 uint8_t hid_recv_buffer[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES + 3];
 
 void hibike_message_setup() {
@@ -26,7 +28,7 @@ uint8_t checksum(uint8_t data[], int length) {
   return chk;
 }
 
-
+#ifndef HIBIKE_HID_MODE
 int send_message_serial(message_t *msg) {
   uint8_t data[msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES];
   // TODO karthik-shanmugam: check buffer size
@@ -44,7 +46,7 @@ int send_message_serial(message_t *msg) {
   }
   return 0;
 }
-
+#else
 int send_message_hid(message_t *msg) {
   uint8_t data[msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES];
   // TODO karthik-shanmugam: check buffer size
@@ -62,7 +64,9 @@ int send_message_hid(message_t *msg) {
   }
   return 0;
 }
+#endif
 
+#ifndef HIBIKE_HID_MODE
 int read_message_serial(message_t *msg) {
   uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES];
   // TODO karthik-shanmugam: check buffer size
@@ -116,7 +120,7 @@ int read_message_serial(message_t *msg) {
   return 0;
 
 }
-
+#else
 // reads everything available on hid and returns -1
 // convenience function for read_message_hid
 int hid_clear() {
@@ -149,6 +153,7 @@ int read_message_hid(message_t *msg) {
   memcpy(msg->payload, &data[MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES], payload_length);
   return 0;
 }
+#endif
 
 int send_message(message_t* msg) {
   #ifdef HIBIKE_HID_MODE

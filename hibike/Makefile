@@ -18,13 +18,13 @@ ARDMK_DIR         = $(PROJECT_DIR)/Arduino-Makefile
 
 ### ARDUINO_DIR
 ### Path to the Arduino application and ressources directory.
-ARDUINO_DIR       = /usr/share/arduino
+ARDUINO_DIR       = /opt/arduino-1.8.1
 
 ARDUINO_LIBS := Wire Servo
 
 ### USER_LIB_PATH
 ### Path to where the your project's libraries are stored.
-SKETCH_LIBS = hibike Adafruit_TCS34725 EEPROM SevenSeg TimerOne TimerThree FlexiTimer2 PID_v1 Encoder MFRC522 SPI
+SKETCH_LIBS = hibike Adafruit_TCS34725 EEPROM SevenSeg TimerOne TimerThree FlexiTimer2 PID_v1 Encoder MFRC522 SPI NicoHID NicoHID/SingleReport
 USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
 
 ### BOARD_TAG & BOARD_SUB
@@ -44,11 +44,11 @@ MONITOR_BAUDRATE  = 115200
 
 ### AVR_TOOLS_DIR
 ### Path to the AVR tools directory such as avr-gcc, avr-g++, etc.
-AVR_TOOLS_DIR     = /usr
+AVR_TOOLS_DIR     = /opt/arduino-1.8.1/hardware/tools/avr
 
 ### AVRDDUDE
 ### Path to avrdude directory.
-AVRDDUDE          = /usr/bin/avrdude
+AVRDDUDE          = /opt/arduino-1.8.1/hardware/tools/avr/bin/avrdude
 
 ### CFLAGS_STD
 CFLAGS_STD        = -std=gnu11

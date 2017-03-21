@@ -38,6 +38,7 @@ paramTypes = {
 
 # Dictionary of message types: message id
 messageTypes = {
+  "WTF" : 0x00,
   "Ping" :                 0x10,
   "SubscriptionRequest" :  0x11,
   "SubscriptionResponse" : 0x12,
@@ -61,7 +62,7 @@ MAX_PACKET_SIZE = 64
 
 class HibikeMessage:
   def __init__(self, messageID, payload):
-    assert messageID in messageTypes.values()
+    assert messageID in messageTypes.values(), "invalid message id: %d" % messageID
     self._messageID = messageID
     self._payload = payload[:]
     self._length = len(payload)

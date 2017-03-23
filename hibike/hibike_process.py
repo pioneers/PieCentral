@@ -94,6 +94,8 @@ def device_write_thread(dev, queue):
             print("flushing queue, size is %d" % queue.qsize())
             while instruction != "disable" and not queue.empty():
                 instruction, args = queue.get()
+        else:
+            print("did not need to flush queue")
 
         if instruction == "ping":
             hm.hid_send(dev, hm.make_ping())
@@ -130,9 +132,9 @@ def device_read_thread(index, dev, instructionQueue, errorQueue, stateQueue):
                     print("[HIBIKE] Device %s received data before enumerating!!!" % dev)
                     print("Telling it to shut up")
                     hm.hid_send(dev, hm.make_subscription_request(1, [], 0))
-            # elif message_type == hm.messageTypes["HeartBeatRequest"]:
-            #     if uid is not None:
-            #         instructionQueue.put(("heartResp", [uid]))
+            elif message_type == hm.messageTypes["HeartBeatRequest"]:
+                if uid is not None:
+                    instructionQueue.put(("heartResp", [uid]))
 
 
 #############

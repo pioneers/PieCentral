@@ -52,3 +52,6 @@ deploy:
   on:
     tags: true
     condition: $DEPLOY_ARTIFACTS = 1
+
+notifications:
+  slack: pierobotics:4NsPGDKKtiUSdqjl3bxUMlbw

@@ -24,7 +24,7 @@
       }
     },
     "build": {
-      "command": "mkdir -p ./build && cp ../ansible-protos/*.proto ./build && webpack -p",
+      "command": "mkdir -p ./build && cp ../ansible-protos/*.proto ./build && webpack --progress",
       "env": {
         "NODE_ENV": "production"
       }

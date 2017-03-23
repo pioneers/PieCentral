@@ -89,6 +89,11 @@ def device_write_thread(dev, queue):
     while True:
         instruction, args = queue.get()
 
+        # flush the queue if it's too big
+        if queue.qsize() > 10:
+            while instruction != "disable" and not queue.empty():
+                instruction, args = queue.get()
+
         if instruction == "ping":
             hm.hid_send(dev, hm.make_ping())
         elif instruction == "subscribe":

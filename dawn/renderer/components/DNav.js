@@ -40,9 +40,6 @@ class DNav extends React.Component {
           hide={this.toggleUpdateModal}
         />
         <IPBox
-          isRunningCode={this.props.isRunningCode}
-          connectionStatus={this.props.connection}
-          runtimeStatus={this.props.runtimeStatus}
           shouldShow={this.state.showConfigModal}
           ipAddress={this.props.ipAddress}
           onIPChange={this.props.onIPChange}

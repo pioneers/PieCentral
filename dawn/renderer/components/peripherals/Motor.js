@@ -30,7 +30,6 @@ const Motor = props => (
 
 Motor.propTypes = {
   device_name: React.PropTypes.string,
-  device_type: React.PropTypes.string,
   id: React.PropTypes.string,
   param: React.PropTypes.array,
 };

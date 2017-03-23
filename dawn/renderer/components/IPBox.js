@@ -104,9 +104,6 @@ class IPBox extends React.Component {
 IPBox.propTypes = {
   shouldShow: React.PropTypes.bool.isRequired,
   hide: React.PropTypes.func.isRequired,
-  connectionStatus: React.PropTypes.bool.isRequired,
-  runtimeStatus: React.PropTypes.bool.isRequired,
-  isRunningCode: React.PropTypes.bool.isRequired,
   ipAddress: React.PropTypes.string.isRequired,
   onIPChange: React.PropTypes.func.isRequired,
 };

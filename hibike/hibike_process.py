@@ -91,6 +91,7 @@ def device_write_thread(dev, queue):
 
         # flush the queue if it's too big
         if queue.qsize() > 10:
+            print("flushing queue, size is %d", queue.qsize())
             while instruction != "disable" and not queue.empty():
                 instruction, args = queue.get()
 

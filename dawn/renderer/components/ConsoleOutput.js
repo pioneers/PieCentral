@@ -12,8 +12,20 @@ class ConsoleOutput extends React.Component {
     const height = `${String(this.props.height)}px`;
     return (
       <div>
-        <Panel collapsible expanded={this.props.show}>
-          <pre style={{ position: 'relative', height }}>
+        <Panel
+          style={{
+            display: this.props.show ? 'block' : 'none',
+            marginBottom: '0',
+            borderRadius: '0',
+          }}
+        >
+          <pre
+            style={{
+              position: 'relative',
+              margin: '0',
+              height,
+            }}
+          >
             <div
               style={{
                 position: 'absolute',

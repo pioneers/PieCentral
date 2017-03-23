@@ -64,7 +64,7 @@ class HIDWrapper(object):
             try:
                 return self.device.ctrl_transfer(0x21, 0x09, 0x0200, self.interface_num, data)
             except usb.core.USBError as e:
-                time.sleep(0.05)
+                time.sleep(0.01)
 
     def read(self, maximum_len):
         return self.device.read(self.endpoint_address, maximum_len)

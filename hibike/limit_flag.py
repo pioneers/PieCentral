@@ -44,8 +44,6 @@ class HibikeCommunicator:
       """
       while True:
          output = self.stateQueue.get()
-         print(output)
-
          #Now, get or remove the uid if it is appropriate to do so
          command = output[0]
          if command == "device_subscribed":

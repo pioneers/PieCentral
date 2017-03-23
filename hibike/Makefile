@@ -46,15 +46,16 @@ MONITOR_BAUDRATE  = 115200
 ### Path to the AVR tools directory such as avr-gcc, avr-g++, etc.
 AVR_TOOLS_DIR     = /opt/arduino-1.8.1/hardware/tools/avr
 
-### AVRDDUDE
+### AVRDUDE
 ### Path to avrdude directory.
-AVRDDUDE          = /opt/arduino-1.8.1/hardware/tools/avr/bin/avrdude
+AVRDUDE          = /opt/arduino-1.8.1/hardware/tools/avr/bin/avrdude
+AVRDUDE_CONF		 = /opt/arduino-1.8.1/hardware/tools/avr/etc/avrdude.conf
 
 ### CFLAGS_STD
 CFLAGS_STD        = -std=gnu11
 
 ### CXXFLAGS_STD
-CXXFLAGS_STD      = -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics  -flto -fno-devirtualize -fno-use-cxa-atexit
+CXXFLAGS_STD      = -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -fno-devirtualize -fno-use-cxa-atexit
 
 ### CPPFLAGS
 ### Flags you might want to set for debugging purpose. Comment to stop.

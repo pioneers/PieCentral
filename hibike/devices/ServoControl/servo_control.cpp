@@ -9,6 +9,8 @@ float positions[NUM_PINS] = {0,0};
 
 void setup() {
   hibike_setup(500, 100); //500 ms without heartbeat to disable, ask for heartbeats at 100 ms.
+  disableAll();
+}
 
 void disableAll() {
   for (int i = 0; i < NUM_PINS; i++) {
@@ -19,12 +21,6 @@ void disableAll() {
 void enable(int num) {
   servos[num].attach(pins[num]);
 }
-
-void setup() {
-  hibike_setup(500); // Time in milliseconds before timeout on heartbeat
-  disableAll();
-}
-
 
 void loop() {
   hibike_loop();
@@ -58,7 +54,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 //
 //    return          -   sizeof(param) on success; 0 otherwise
 uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
-  if(buf_len < sizeof(float) {
+  if(buf_len < sizeof(float)) {
     return 0;
   }
   float* float_buf = (float *) data_update_buf;

@@ -215,17 +215,24 @@ if __name__ == "__main__":
       elif name == "TeamFlag":
         team_flag = uid
       elif name == "ExampleDevice":
-        comms.subscribe(uid, 40, ["kumiko", "hazuki", "sapphire", "reina", "asuka", "haruka", "kaori", "natsuki", "yuko", "mizore", "nozomi", "shuichi", "takuya", "riko", "aoi", "noboru"])
+        comms.subscribe(uid, 40, ["kaori"])#, "hazuki", "sapphire", "reina", "asuka", "haruka", "kaori", "natsuki", "yuko", "mizore", "nozomi", "shuichi", "takuya", "riko", "aoi", "noboru"])
    if limit_switch is None or team_flag is None:
       print("failed to enumerate LimitSwitch and/or TeamFlag")
    time.sleep(1)
    while True:
+      curr = False
       if comms.get_last_cached(limit_switch, "switch0")[0]:
+         if curr != True:
+            print("switched true")
+            curr = True
          comms.write(team_flag, [("led1", True)])
          comms.write(team_flag, [("led2", False)])
          comms.write(team_flag, [("led3", True)])
          comms.write(team_flag, [("led4", False)])
       else:
+         if curr != False
+            print("switched false")
+            curr = False
          comms.write(team_flag, [("led1", False)])
          comms.write(team_flag, [("led2", True)])
          comms.write(team_flag, [("led3", False)])

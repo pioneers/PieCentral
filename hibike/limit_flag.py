@@ -228,9 +228,9 @@ if __name__ == "__main__":
          comms.write(team_flag, [("led3", True)])
          comms.write(team_flag, [("led4", False)])
       else:
-         comms.write(team_flag, [("led1", True)])
-         comms.write(team_flag, [("led2", False)])
-         comms.write(team_flag, [("led3", True)])
-         comms.write(team_flag, [("led4", False)])
+         comms.write(team_flag, [("led1", False)])
+         comms.write(team_flag, [("led2", True)])
+         comms.write(team_flag, [("led3", False)])
+         comms.write(team_flag, [("led4", True)])
       time.sleep(0.05)
    

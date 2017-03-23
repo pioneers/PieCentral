@@ -216,6 +216,8 @@ if __name__ == "__main__":
         comms.subscribe(uid, 40, ["switch0", "switch1", "switch2"])
       elif name == "TeamFlag":
         team_flag = uid
+      elif name == "ExampleDevice":
+        comms.subscribe(uid, 40, ["kumiko", "hazuki", "sapphire", "reina", "asuka", "haruka", "kaori", "natsuki", "yuko", "mizore", "nozomi", "shuichi", "takuya", "riko", "aoi", "noboru"])
    if limit_switch is None or team_flag is None:
       print("failed to enumerate LimitSwitch and/or TeamFlag")
    time.sleep(1)

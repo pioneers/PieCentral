@@ -221,8 +221,14 @@ if __name__ == "__main__":
    time.sleep(1)
    while True:
       if comms.get_last_cached(limit_switch, "switch0")[0]:
-         comms.write(team_flag, [("led1", True), ("led2", True), ("led3", True), ("led4", True)]) 
+         comms.write(team_flag, [("led1", True)])
+         comms.write(team_flag, [("led2", True)])
+         comms.write(team_flag, [("led3", True)])
+         comms.write(team_flag, [("led4", True)])
       else:
-         comms.write(team_flag, [("led1", False), ("led2", False), ("led3", False), ("led4", False)])
-      time.sleep(0.2)
+         comms.write(team_flag, [("led1", False)])
+         comms.write(team_flag, [("led2", False)])
+         comms.write(team_flag, [("led3", False)])
+         comms.write(team_flag, [("led4", False)])
+      time.sleep(0.05)
    

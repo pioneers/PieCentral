@@ -2,7 +2,7 @@
 
 
 
-uint8_t hid_recv_buffer[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES + 3];
+uint8_t hid_recv_buffer[COBS_DELIM_BYTES+COBS_LENGTH_BYTES+MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES+COBS_OVERHEAD_BYTES];
 
 void hibike_message_setup() {
   #ifdef HIBIKE_HID_MODE
@@ -32,17 +32,14 @@ uint8_t checksum(uint8_t data[], int length) {
 int send_message_hid(message_t *msg) {
   uint8_t data[MAX_PAYLOAD_SIZE+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES];
   // TODO karthik-shanmugam: check buffer size
-  uint8_t cobs_buf[2 + MAX_PAYLOAD_SIZE+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES + 1];
+  uint8_t cobs_buf[COBS_DELIM_BYTES+COBS_LENGTH_BYTES+MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES+COBS_OVERHEAD_BYTES];
   message_to_byte(data, msg);
   data[msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES] = checksum(data, msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
 
-  // uint8_t fake_data[] = {0x12, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x12^15};
   // cobs encoding, leading 0 to signal start of packet and then a length byte
   cobs_buf[0] = 0x00;
   size_t cobs_len = cobs_encode(&cobs_buf[2], data, msg->payload_length+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES);
   
-
-  // cobs_len = cobs_encode(&cobs_buf[2], fake_data, sizeof(fake_data));
 
 
   cobs_buf[1] = (byte) cobs_len;
@@ -56,7 +53,7 @@ int send_message_hid(message_t *msg) {
 int send_message_serial(message_t *msg) {
   uint8_t data[MAX_PAYLOAD_SIZE+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES];
   // TODO karthik-shanmugam: check buffer size
-  uint8_t cobs_buf[2 + MAX_PAYLOAD_SIZE+ MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES + 1];
+  uint8_t cobs_buf[COBS_DELIM_BYTES+COBS_LENGTH_BYTES+MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES+COBS_OVERHEAD_BYTES];
   message_to_byte(data, msg);
   data[msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES] = checksum(data, msg->payload_length+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES);
   
@@ -81,6 +78,8 @@ int hid_clear() {
   return -1;
 }
 // TODO karthik-shanmugam : debug this and investigate if we can use it
+// this is supposed to be a function that reads directly from the RawHID buffer
+// currently the other function, read_message_hid_stream, which uses RawHID's byte-stream-like API, is the one used
 int read_message_hid(message_t *msg) {
   uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES];
   size_t hid_len = RawHID.available();
@@ -105,6 +104,8 @@ int read_message_hid(message_t *msg) {
   memcpy(msg->payload, &data[MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES], payload_length);
   return 0;
 }
+
+// simulates the behaviour of Serial.readBytesUntil()
 size_t raw_hid_read_bytes_until(uint8_t term, uint8_t* buf, size_t len) {
   size_t read = 0;
   for (int i = 0; i < len; i++) {
@@ -115,10 +116,13 @@ size_t raw_hid_read_bytes_until(uint8_t term, uint8_t* buf, size_t len) {
   }
   return read;
 }
+
+// nearly a 1:1 copy of the serial version of this function
+// potentially suboptimal because HID is packet-based but this uses a byte stream API
 int read_message_hid_stream(message_t *msg) {
-  uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES];
+  uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES];
   // TODO karthik-shanmugam: check buffer size
-  uint8_t cobs_buf[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES + 3];
+  uint8_t cobs_buf[COBS_DELIM_BYTES+COBS_LENGTH_BYTES+MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES+COBS_OVERHEAD_BYTES];
 
   // find the start of packet
   int last_byte_read = -1;
@@ -160,9 +164,9 @@ int read_message_hid_stream(message_t *msg) {
 }
 #else
 int read_message_serial(message_t *msg) {
-  uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES];
+  uint8_t data[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES];
   // TODO karthik-shanmugam: check buffer size
-  uint8_t cobs_buf[MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES + 3];
+  uint8_t cobs_buf[COBS_DELIM_BYTES+COBS_LENGTH_BYTES+MAX_PAYLOAD_SIZE+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES+CHECKSUM_BYTES+COBS_OVERHEAD_BYTES];
 
   // find the start of packet
   int last_byte_read = -1;

@@ -7,6 +7,7 @@ import hibike_process as hp
 import multiprocessing
 import threading
 import time
+import queue
 
 class HibikeCommunicator:
   
@@ -42,7 +43,20 @@ class HibikeCommunicator:
          If it's a subscription response from a device whose uid is not in self.uids, the uid will be added to self.uids
          If it's a device disconnection from a device whose uid in self.uids, the uid will be removed from self.uids
       """
+      ctr = 0
+      start_time = time.time()
       while True:
+         ctr += 1
+         if ctr % 100 == 0:
+            print("iteration %d, stateQueue size is %d, %f iterations/second" % (ctr, self.stateQueue.qsize(), ctr/(time.time()-start_time)))
+         if self.stateQueue.qsize() > 30:
+            print("flushing stateQueue!!!")
+            while self.stateQueue.qsize() > 10:
+               try:
+                  self.stateQueue.get_nowait()
+               except queue.Empty as e:
+                  break
+            print("!!!flushed Queue")
          output = self.stateQueue.get()
          #Now, get or remove the uid if it is appropriate to do so
          command = output[0]
@@ -208,34 +222,47 @@ if __name__ == "__main__":
    print(device_info)
    limit_switch = None
    team_flag = None
+   yogi_bears = []
    for uid, name in device_info:
       if name == "LimitSwitch":
         limit_switch = uid
         comms.subscribe(uid, 40, ["switch0", "switch1", "switch2"])
+      elif name == "YogiBear":
+        yogi_bears.append(uid)
       elif name == "TeamFlag":
         team_flag = uid
       elif name == "ExampleDevice":
-        comms.subscribe(uid, 40, ["kaori"])#, "hazuki", "sapphire", "reina", "asuka", "haruka", "kaori", "natsuki", "yuko", "mizore", "nozomi", "shuichi", "takuya", "riko", "aoi", "noboru"])
+        pass
+        comms.subscribe(uid, 40, ["kumiko", "hazuki", "sapphire", "reina", "asuka", "haruka", "kaori", "natsuki", "yuko", "mizore", "nozomi", "shuichi", "takuya", "riko", "aoi", "noboru"])
    if limit_switch is None or team_flag is None:
       print("failed to enumerate LimitSwitch and/or TeamFlag")
    time.sleep(1)
+   curr = False
+   ctr = 0
+   press_counter = 0
    while True:
-      curr = False
+      ctr += 1
+      if ctr % 2 == 0:
+         comms.write(team_flag, [("led1", True)])
+      else:
+         comms.write(team_flag, [("led1", False)])
+
       if comms.get_last_cached(limit_switch, "switch0")[0]:
          if curr != True:
             print("switched true")
             curr = True
-         comms.write(team_flag, [("led1", True)])
+            press_counter += 1
          comms.write(team_flag, [("led2", False)])
          comms.write(team_flag, [("led3", True)])
          comms.write(team_flag, [("led4", False)])
       else:
-         if curr != False
+         if curr != False:
             print("switched false")
             curr = False
-         comms.write(team_flag, [("led1", False)])
          comms.write(team_flag, [("led2", True)])
          comms.write(team_flag, [("led3", False)])
          comms.write(team_flag, [("led4", True)])
+      for yogi_bear in yogi_bears:
+         comms.write(yogi_bear, [("duty_cycle", (((press_counter + 2) % 5) - 2)/2)])
       time.sleep(0.05)
    

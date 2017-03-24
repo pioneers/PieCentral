@@ -94,8 +94,6 @@ def device_write_thread(dev, queue):
             print("flushing queue, size is %d" % queue.qsize())
             while instruction != "disable" and not queue.empty():
                 instruction, args = queue.get()
-        else:
-            print("did not need to flush queue")
 
         if instruction == "ping":
             hm.hid_send(dev, hm.make_ping())
@@ -114,11 +112,21 @@ def device_write_thread(dev, queue):
             uid = args[0]
             hm.hid_send(dev, hm.make_heartbeat_response())
 
-
+ctr = 0
+start_time = time.time()
+parse_time = 0
 def device_read_thread(index, dev, instructionQueue, errorQueue, stateQueue):
     uid = None
+    global ctr
+    global start_time
+    global parse_time
+    start_time = time.time()
     while True:
         for packet in hm.hid_blocking_receive_generator(dev):
+            ctr += 1
+            if ctr % 100 == 0:
+                print("%f reads/second, %f seconds/read" % (ctr/(time.time() - start_time), parse_time/ctr))
+            before_time = time.time()
             message_type = packet.getmessageID()
             if message_type == hm.messageTypes["SubscriptionResponse"]:
                 params, delay, uid = hm.parse_subscription_response(packet)
@@ -135,6 +143,8 @@ def device_read_thread(index, dev, instructionQueue, errorQueue, stateQueue):
             elif message_type == hm.messageTypes["HeartBeatRequest"]:
                 if uid is not None:
                     instructionQueue.put(("heartResp", [uid]))
+            parse_time += time.time() - before_time
+
 
 
 #############

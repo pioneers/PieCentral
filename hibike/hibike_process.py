@@ -15,31 +15,6 @@ __all__ = ["hibike_process"]
 uid_to_index = {}
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
-    
-    # # Last command is included so that it's compatible with OS X Sierra
-    # # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
-    # # Instead access it through Volumes/vagrant/PieCentral
-    # ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("/dev/tty.usbmodem*")
-
-    # try:
-    #     virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
-    #     ports.extend(open(virtual_device_config_file, "r").read().split())
-    # except IOError:
-    #     pass
-
-    # serials = []
-
-    # working_ports = []
-
-    # for port in ports:
-    #     try:
-    #         serials.append(serial.Serial(port, 115200))
-    #         working_ports.append(port)
-
-    #         #this implimentation ensures that as long as the cannot open serial port error occurs while opening the serial port, a print will appear, but the rest of the ports will go on.
-
-    #     except serial.serialutil.SerialException as e:
-    #         print("Cannot Open Serial Port: " + str(port))
 
     devices = hid.open_all()
 
@@ -112,9 +87,14 @@ def device_write_thread(dev, queue):
             uid = args[0]
             hm.hid_send(dev, hm.make_heartbeat_response())
 
+# global counters for tracking statistics
+
+# number of packets read
 ctr = 0
 start_time = time.time()
+# total time spent parsing received packets
 parse_time = 0
+
 def device_read_thread(index, dev, instructionQueue, errorQueue, stateQueue):
     uid = None
     global ctr
@@ -125,6 +105,7 @@ def device_read_thread(index, dev, instructionQueue, errorQueue, stateQueue):
         for packet in hm.hid_blocking_receive_generator(dev):
             ctr += 1
             if ctr % 100 == 0:
+                # these are not direct inverses of each other because the second only counts time spent in the loop body
                 print("%f reads/second, %f seconds/read" % (ctr/(time.time() - start_time), parse_time/ctr))
             before_time = time.time()
             message_type = packet.getmessageID()
@@ -173,9 +154,6 @@ if __name__ == "__main__":
     newProcess = multiprocessing.Process(target=hibike_process, name="hibike_sim", args=[badThingsQueue, stateQueue, pipeFromChild])
     newProcess.daemon = True
     newProcess.start()
-    pipeToChild.send(["enumerate_all", []])
-    pipeToChild.send(["enumerate_all", []])
-    pipeToChild.send(["enumerate_all", []])
     pipeToChild.send(["enumerate_all", []])
     uids = set()
     while True:

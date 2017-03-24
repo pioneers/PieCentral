@@ -38,7 +38,6 @@ paramTypes = {
 
 # Dictionary of message types: message id
 messageTypes = {
-  "WTF" : 0x00,
   "Ping" :                 0x10,
   "SubscriptionRequest" :  0x11,
   "SubscriptionResponse" : 0x12,

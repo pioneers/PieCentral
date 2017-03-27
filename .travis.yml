@@ -54,4 +54,7 @@ deploy:
     condition: $DEPLOY_ARTIFACTS = 1
 
 notifications:
-  slack: pierobotics:4NsPGDKKtiUSdqjl3bxUMlbw
+  slack:
+    rooms:
+      - secure: "4NsPGDKKtiUSdqjl3bxUMlbw"
+    on_success: always

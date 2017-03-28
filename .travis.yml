@@ -2,7 +2,7 @@ dist: trusty
 sudo: required
 language: python
 python:
-- "3.5"
+- '3.5'
 os:
 - linux
 env:
@@ -11,12 +11,10 @@ env:
 before_install:
 - nvm install --lts
 - mkdir -p artifacts
-- if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then
-    export DEPLOY_ARTIFACTS=1;
-  fi
+- if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then export
+  DEPLOY_ARTIFACTS=1; fi
 - if [[ $TEST_DIR = runtime ]] && git tag -l --points-at HEAD | grep runtime; then
-    export DEPLOY_ARTIFACTS=1;
-  fi
+  export DEPLOY_ARTIFACTS=1; fi
 - pushd $TEST_DIR
 - mkdir -p build-deps
 - export PATH="$PATH:$PWD/build-deps/bin"
@@ -24,17 +22,13 @@ before_install:
 install:
 - pushd $TEST_DIR
 - make install
-- if [[ $DEPLOY_ARTIFACTS = 1 ]]; then
-    make artifacts-install;
-  fi
+- if [[ $DEPLOY_ARTIFACTS = 1 ]]; then make artifacts-install; fi
 - popd
 script:
 - pushd $TEST_DIR
 - make test
 - make lint
-- if [[ $DEPLOY_ARTIFACTS = 1 ]]; then
-    make artifacts;
-  fi
+- if [[ $DEPLOY_ARTIFACTS = 1 ]]; then make artifacts; fi
 - popd
 branches:
   only:
@@ -45,10 +39,16 @@ branches:
 deploy:
   provider: releases
   api_key:
-    secure: "Y9p9wvz8ZLX4tM7lygUG1DaqCVOKC8qtpyNL0Nf6kgE6TLpB1fzCnndTg6sz9C6brw2pBriwXe9aHEG3QdV/u3ku4AdQqwT9PqemWJmxJT9ex+Eyk47Sp8do+tkLF44+8IkIlxSlcKfnD99fpAgrZSh3iAotJspyhckDu5R1+UNi1TBIPfBoUOtdKKFGbWNqX9lYyWompBa0Q08ZbIKW10H7HJCWQ9MhwL1Q2RxFRtLANWXLwOUW59gzfLQq07Z8b+PRmMmUiE1jr30OjnDDn+tiJk9kLG/Y5UcxzIpHaq+Wo7a5ncwHcyGaqXCs8q25wDQEsXdq6z6+kFqsi9tQkmMsrM6W9qGO8AVfxGgII6yExf6pweg02dNHMwDNI5JcpEVonP73YwuB7UH2UwUxbxzwsmnGMFYx41EpM0nYua6xHC3SZEqTurBgQMMnELJPMX2lbmFGdZPOJ5lEjnS5UEYazn1VSY00qUrQlU+nnQgbU9GJfSrHhWSJ5ycONGCBbE+dm2/vs9qnKQGXNmKeKhRSw+duNzarx648nNz6kklA9r2st0kVMfLZTMj6nKhksts88Khy1oWhFtdXOqi3daWwGz7H0jG6cvMvxSPBFA2svYy45etaXrXtJtI3kYQPl3ESdeOEWYhjPlsJXb+MVL3DUtDgMFaLRww4z/s0q/E="
+    secure: Y9p9wvz8ZLX4tM7lygUG1DaqCVOKC8qtpyNL0Nf6kgE6TLpB1fzCnndTg6sz9C6brw2pBriwXe9aHEG3QdV/u3ku4AdQqwT9PqemWJmxJT9ex+Eyk47Sp8do+tkLF44+8IkIlxSlcKfnD99fpAgrZSh3iAotJspyhckDu5R1+UNi1TBIPfBoUOtdKKFGbWNqX9lYyWompBa0Q08ZbIKW10H7HJCWQ9MhwL1Q2RxFRtLANWXLwOUW59gzfLQq07Z8b+PRmMmUiE1jr30OjnDDn+tiJk9kLG/Y5UcxzIpHaq+Wo7a5ncwHcyGaqXCs8q25wDQEsXdq6z6+kFqsi9tQkmMsrM6W9qGO8AVfxGgII6yExf6pweg02dNHMwDNI5JcpEVonP73YwuB7UH2UwUxbxzwsmnGMFYx41EpM0nYua6xHC3SZEqTurBgQMMnELJPMX2lbmFGdZPOJ5lEjnS5UEYazn1VSY00qUrQlU+nnQgbU9GJfSrHhWSJ5ycONGCBbE+dm2/vs9qnKQGXNmKeKhRSw+duNzarx648nNz6kklA9r2st0kVMfLZTMj6nKhksts88Khy1oWhFtdXOqi3daWwGz7H0jG6cvMvxSPBFA2svYy45etaXrXtJtI3kYQPl3ESdeOEWYhjPlsJXb+MVL3DUtDgMFaLRww4z/s0q/E=
   file: artifacts/*
   file_glob: true
   skip_cleanup: true
   on:
     tags: true
     condition: $DEPLOY_ARTIFACTS = 1
+notifications:
+  slack:
+    rooms:
+      -  secure: iByImumEaLfRhxD5wxER3qovftyqSeaQdtdp5y80MSPZMa9AL6NkpyhZPl8WaQxUYvvzWo4/dbal+Qb17ew4hRDsprKbvXh3SP/0SLSe0QAK3ShB+iLBAFX04ZoTRMxdgKvU4LZPbJGSizBWD6lHHz3JCILSpjXtfgL1g74vejVJY2VqMW4Vn4YXfPx39z5v23O9GNzx9S2zGb0dN77ilSRJr/wVzsYqZD8jcgaD63pZ/TCSgxJcVQAvztVaWKkbh19qrP6M4WV1rxIZN8ksnBe1gUJ/VIylMWnf3CRwLaJw4+Z+aqm1GUbD7tsi9BA2D7gmlJC/yv4vzejMCtOpU8z4ymBpvJ6A7uBdv5CMGcOWx35FEpB5LwSGKXk0/5/Ar3HjHzQtB/K7a7PuzvHUROdNUi+9Q6kUAZlEfzEsbEd/sxMy09m6kBKUpluDueJCBcS0qGYlZ+7roQwEs5CEPBqOUhZne3kNH+HXsyHgs4r83FlPEqqnhdswqQYgWYOdrIQVUXX3L8CnCpuFojevwdN+nb/ahwsl0XQl5lgaFcIsU4tZpYHxXExzpWJfN7Y3MvRbFOfNab8LSodAHjvvzXJrmh8lrlv3TYtW5mWDyPg56CTysMOuVRyc74bvvhidff3tUTw62VqH13XESVcdsOEv0g8Jz4ZnzInxJTimX9o=
+    on_success: change
+    on_failure: always  

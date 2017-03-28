@@ -43,7 +43,6 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
         dawn_connected = False
 
         while True:
-            print("Meatballs")
             if test_mode:
                 # Automatically enter telop mode when running tests
                 bad_things_queue.put(

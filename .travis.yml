@@ -56,5 +56,6 @@ deploy:
 notifications:
   slack:
     rooms:
-      - secure: "4NsPGDKKtiUSdqjl3bxUMlbw"
+    - secure: "4NsPGDKKtiUSdqjl3bxUMlbw"
     on_success: always
+    on_failure: always

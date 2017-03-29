@@ -102,7 +102,7 @@ def device_write_thread(ser, queue):
             hm.send(ser, hm.make_disable())
         elif instruction == "heartResp":
             uid = args[0]
-            hm.send(ser, hm.make_heartbeat_response(hm.uid_to_device_id(uid)))
+            hm.send(ser, hm.make_heartbeat_response())
 
 
 def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):

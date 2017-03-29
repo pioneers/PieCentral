@@ -38,8 +38,8 @@ void loop() {
   // so exessive delays here will affect hibike.
   //don't change Kumiko.
 
-  hazuki += 0;
-  sapphire += 1;
+  // hazuki += 0;
+  // sapphire += 1;
   reina += 2;
   asuka += 3;
   haruka += 4;

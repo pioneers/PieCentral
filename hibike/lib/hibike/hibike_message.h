@@ -1,13 +1,21 @@
 #ifndef HIBIKE_H
 #define HIBIKE_H
+#define HIBIKE_HID_MODE
 #include "Arduino.h"
 #include "devices.h"
 #include "cobs.h"
 
-#define MAX_PAYLOAD_SIZE    100
+#ifdef HIBIKE_HID_MODE
+#include "HID-Project.h"
+#endif
+
+#define MAX_PAYLOAD_SIZE    60
 #define MESSAGEID_BYTES     1
 #define PAYLOAD_SIZE_BYTES  1
 #define CHECKSUM_BYTES      1
+#define COBS_DELIM_BYTES    1
+#define COBS_LENGTH_BYTES   1
+#define COBS_OVERHEAD_BYTES 1
 
 #define MAX_FRAGMENT_SIZE   (MAX_PAYLOAD_SIZE - 1)
 
@@ -19,6 +27,7 @@
 #define DEVICE_PARAM_BYTES   1
 #define DEVICE_VALUE_BYTES   4
 #define DEVICE_BYTES         (DEVICE_PARAM_BYTES+DEVICE_VALUE_BYTES)
+
 
 // Enumerations
 typedef enum {
@@ -53,6 +62,8 @@ typedef struct hibike_uid {
 } hibike_uid_t;
 
 // Function prototypes
+void hibike_message_setup();
+int hibike_message_available();
 uint8_t checksum(uint8_t* data, int length);
 int send_message(message_t* msg);
 int read_message(message_t* msg);

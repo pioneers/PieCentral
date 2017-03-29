@@ -20,7 +20,7 @@ ARDMK_DIR         = $(PROJECT_DIR)/Arduino-Makefile
 ### Path to the Arduino application and ressources directory.
 ARDUINO_DIR       = /opt/arduino-1.8.1
 
-ARDUINO_LIBS := Wire Servo
+ARDUINO_LIBS := Wire Servo HID
 
 ### USER_LIB_PATH
 ### Path to where the your project's libraries are stored.
@@ -69,7 +69,7 @@ endif
 RANDOM := 0x$(shell head -c 8 /dev/urandom | xxd -p)
 CXXFLAGS += -D UID_RANDOM=$(RANDOM)
 
-CXXFLAGS += -D DESCRIPTOR=$(shell python escape_json.py $(PROJECT_DIR)/devices/$(DEVICE)/*.json)
+# CXXFLAGS += -D DESCRIPTOR=$(shell python escape_json.py $(PROJECT_DIR)/devices/$(DEVICE)/*.json)
 
 LOCAL_CPP_SRCS := $(wildcard $(PROJECT_DIR)/devices/$(DEVICE)/*.cpp)
 

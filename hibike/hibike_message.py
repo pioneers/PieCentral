@@ -57,9 +57,11 @@ errorCodes = {
   "GenericError"        : 0xFF
 }
 
+MAX_PACKET_SIZE = 64
+
 class HibikeMessage:
   def __init__(self, messageID, payload):
-    assert messageID in messageTypes.values()
+    assert messageID in messageTypes.values(), "invalid message id: %d" % messageID
     self._messageID = messageID
     self._payload = payload[:]
     self._length = len(payload)
@@ -110,17 +112,6 @@ def checksum(data):
   for i in range(1, len(data)):
     chk ^= data[i]
   return chk
-
-# Sends this message
-# Computes the checksum
-# Then sends each byte of the message, and finally sends the checksum byte
-def send(serial_conn, message):
-  m_buff = message.toByte()
-  chk = checksum(m_buff)
-  m_buff.append(chk)
-  encoded = cobs_encode(m_buff)
-  out_buf = bytearray([0x00, len(encoded)]) + encoded
-  serial_conn.write(out_buf)
 
 def encode_params(device_id, params):
   """ Encodes a list of params into a bitmask
@@ -333,6 +324,17 @@ def parse_bytes(bytes):
     return None
   return HibikeMessage(messageID, payload)
 
+# Sends this message
+# Computes the checksum
+# Then sends each byte of the message, and finally sends the checksum byte
+def send(serial_conn, message):
+  m_buff = message.toByte()
+  chk = checksum(m_buff)
+  m_buff.append(chk)
+  encoded = cobs_encode(m_buff)
+  out_buf = bytearray([0x00, len(encoded)]) + encoded
+  serial_conn.write(out_buf)
+
 ## runs forever, yielding packets as they're parsed
 def blocking_read_generator(serial_conn):
   zero_byte = bytes([0])
@@ -431,6 +433,43 @@ def read(serial_conn):
     return -1
 
   return HibikeMessage(messageID, payload)
+
+# Sends this message
+# Computes the checksum
+# Then sends each byte of the message, and finally sends the checksum byte
+def hid_send(hid, message):
+
+  """ Sends this message
+      Computes the checksum
+      Then sends each byte of the message, and finally sends the checksum byte
+
+      returns whether or not it sent sucessfully
+  """
+  m_buff = message.toByte()
+  chk = checksum(m_buff)
+  m_buff.append(chk)
+  encoded = cobs_encode(m_buff)
+  out_buf = bytearray([0x00, len(encoded)]) + encoded
+  if (len(out_buf) > MAX_PACKET_SIZE):
+    return False
+  else:
+    hid.write(out_buf)
+    return True
+
+# behold the beauty of sending packets over a packet based communication protocol
+def hid_blocking_receive(hid):
+  while True:
+    incoming = hid.read(MAX_PACKET_SIZE)
+    packet = parse_bytes(incoming)
+    if packet is not None:
+      return packet
+
+def hid_blocking_receive_generator(hid):
+  while True:
+    incoming = hid.read(MAX_PACKET_SIZE)
+    packet = parse_bytes(incoming)
+    if packet is not None:
+      yield packet
 
 # cobs helper functions
 def cobs_encode(data):

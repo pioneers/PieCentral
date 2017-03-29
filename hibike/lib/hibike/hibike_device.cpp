@@ -10,7 +10,7 @@ bool led_enabled;
 void hibike_setup(uint32_t _disable_latency, uint32_t _heartbeatDelay) {
   //heartbeatDelay to 0 to not send heartbeat Requests
   //disable_latency to 0 to not disable on lack of heartbeats.
-  Serial.begin(115200);
+  hibike_message_setup();
   prevSubTime = millis();
   subDelay = 0;
   disable_latency = _disable_latency;  //this long without recieving a heartbeat response to disable myself.
@@ -26,7 +26,7 @@ void hibike_setup(uint32_t _disable_latency, uint32_t _heartbeatDelay) {
 void hibike_loop() {
   currTime = millis();
   // Check for Hibike packets
-  if (Serial.available() > 1) {
+  if (hibike_message_available() > 1) {
     if (read_message(&hibikeBuff) == -1) {
       toggleLED();
     } else {

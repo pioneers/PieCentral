@@ -33,6 +33,7 @@ class StateManager(object):
             "ServoControl": ["servo0", "servo1"],
             "YogiBear": ["duty_cycle", "enc_pos", "enc_vel"],
             "RFID": ["id", "tag_detect"],
+            "ExampleDevice": ["hazuki", "sapphire", "reina", "asuka"]
         }
         return subscription_map
 

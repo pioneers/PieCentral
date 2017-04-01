@@ -3,8 +3,7 @@
 uint8_t pins[NUM_PINS] = {IN_0, IN_1, IN_2};
 
 void setup() {
-  hibike_setup(1000, 200); //1000 ms without heartbeat to disable, ask for heartbeats every 200 ms.
-
+  hibike_setup(); //use default heartbeat rates. (1000ms timeout, heartbeats ever 200ms)
   // Setup sensor input
   for (int i = 0; i < NUM_PINS; i++) {
     pinMode(pins[i], INPUT);

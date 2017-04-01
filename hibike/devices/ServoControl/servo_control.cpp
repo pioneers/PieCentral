@@ -8,7 +8,7 @@ float positions[NUM_PINS] = {0,0};
 
 
 void setup() {
-  hibike_setup(1000, 200); //1000 ms without heartbeat to disable, ask for heartbeats every 200 ms.
+  hibike_setup(); //use default heartbeat rates. (1000ms timeout, heartbeats ever 200ms)
   disableAll();
 }
 

@@ -3,7 +3,7 @@
 uint16_t data[NUM_PINS];
 
 void setup() {
-  hibike_setup(); //use default heartbeat rates. (1000ms timeout, heartbeats ever 200ms)
+  hibike_setup(); //use default heartbeat rates. look at /lib/hibike/hibike_device.cpp for exact values
   // Setup sensor input
   for (int i = 0; i < NUM_PINS; i++) {
     pinMode(pins[i], INPUT);

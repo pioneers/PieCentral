@@ -24,7 +24,7 @@ float noboru;
 
 // normal arduino setup function, you must call hibike_setup() here
 void setup() {
-  hibike_setup(); //use default heartbeat rates. (1000ms timeout, heartbeats ever 200ms)
+  hibike_setup(); //use default heartbeat rates. look at /lib/hibike/hibike_device.cpp for exact values
   
   //alternatively, you can set up custom heartbeat periods:
   //hibike_setup(750, 100); //750 ms without heartbeat to disable, ask for heartbeats every 100 ms.

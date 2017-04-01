@@ -2,25 +2,38 @@
 
 message_t hibikeBuff;
 uint16_t params, old_params, subDelay;
-uint32_t value, disable_latency, heartbeatDelay, prevHeartTimer;
-uint64_t prevSubTime, currTime, sent_heartbeat, resp_heartbeat;
+
+//Heartbeat settings.  
+uint32_t disable_latency, heartbeat_Delay;
+uint32_t default_disable_latency = 1000; //number of ms without heartbeat untill disable.  default
+uint32_t default_heartbeat_Delay = 200; //default time between sending heartbeat requests.
+
+//a bunch of values that are used to store times, for the various hearbeat states.
+uint64_t prevSubTime, currTime, sent_heartbeat, resp_heartbeat, prevHeartTimer;
+
+//various options to show LED on pin 13, if one exists, as a hibike indicator.  Don't use with APMs.
 led_state heartbeat_state;
 bool led_enabled;
 
-void hibike_setup(uint32_t _disable_latency, uint32_t _heartbeatDelay) {
-  //heartbeatDelay to 0 to not send heartbeat Requests
+void hibike_setup(uint32_t _disable_latency, uint32_t _heartbeat_Delay) {
+  //heartbeat_Delay to 0 to not send heartbeat Requests
   //disable_latency to 0 to not disable on lack of heartbeats.
   Serial.begin(115200);
   prevSubTime = millis();
-  subDelay = 0;
+  subDelay = 0;  //0 is a default that means that nothing is subscribed to it. 
   disable_latency = _disable_latency;  //this long without recieving a heartbeat response to disable myself.
-  heartbeatDelay = _heartbeatDelay; //Send a quest for heartbeat this fast.
+  heartbeat_Delay = _heartbeat_Delay; //Send a quest for heartbeat this fast.
 
   // Setup Error LED
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
   heartbeat_state = RESTING;
   led_enabled = false;
+}
+
+void hibike_setup() //call hibike_setup with default values.  Useful since most devices will probably do it this way
+{
+	hibike_setup(default_disable_latency,default_heartbeat_Delay);
 }
 
 void hibike_loop() {
@@ -105,7 +118,7 @@ void hibike_loop() {
     send_data_update(params);
   }
 
-  if ( ( (heartbeatDelay) > 0) && ( (currTime - prevHeartTimer) >= heartbeatDelay) )
+  if ( ( (heartbeat_Delay) > 0) && ( (currTime - prevHeartTimer) >= heartbeat_Delay) )
   {
     //send heartbeat request
     send_heartbeat_request(1); //1 is just a placeholder for future use.

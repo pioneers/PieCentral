@@ -23,5 +23,6 @@ hibike_uid_t UID = {
 // function prototypes
 void setup();
 void loop();
+void disableAll();
 
 #endif /* EX_DEVICE_H */

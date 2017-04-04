@@ -11,4 +11,4 @@ lint:
 	$(nop)
 
 test:
-	$(nop)
+	cd .. && rm -rf ./bin && make DEVICE=ExampleDevice

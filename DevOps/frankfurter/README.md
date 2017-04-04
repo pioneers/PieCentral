@@ -24,7 +24,7 @@ Alternatively,
 
 1. Download a [stock Ubuntu prebuilt image](http://elinux.org/BeagleBoardUbuntu#eMMC:_All_BeagleBone_Varients_with_eMMC) (preferably 16.04).
 2. Follow the instructions given by the link in step 1 to bring up a Beaglebone running stock Ubuntu.
-3. Be sure you can `ssh ubuntu@192.168.7.2`. You may need to configure your computer to be able to see the Beaglebone. If you can't `ssh`, run `ifconfig`, identify the name of the interface shared with the Beaglebone, and run `sudo ifconfig <interface> 192.168.7.1`.
+3. Be sure you can `ssh ubuntu@192.168.7.2`. See the [networking section](#networking) for setup instructions.
 4. Connect the Beaglebone to the internet. You should be able to get a response from `ping 8.8.8.8`, but not necessarily from `ping google.com`. One way to do this is to open  `frankfurter/scripts/install/bbb-usb-wifi.sh` in a text editor, carefully modify it to work on your machine, `sudo su`, and run the script. Afterwards, `exit` from `sudo`.
 5. On your machine, run `frankfurter/scripts/install/start_frank_install.sh`. Type in `ubuntu`'s password as many times as is necessary.
 6. `ssh` in, and run `start_tmux_job.sh`. Again, enter `ubuntu`'s password as necessary.
@@ -62,6 +62,33 @@ into a tarball. From here, we can take the files created (they're placed in the
 ## Update deployment
 `deploy_update` assumes that you're USB tethered to a Beaglebone and then uploads and installs an update
 to the connected beaglebone, creating a new update using `create_update` if the `frankfurter/build` directory does not exist.
+
+## Networking
+
+### [Unsupported] USB
+
+**With the implementation of the USB fix, `ssh` over USB is now disabled. These instructions remain for working with pre-USB-fix Beaglebones.**
+
+To `ssh` over USB:
+
+1. Power on the Beaglebone with a mini-USB cable.
+2. Try `ssh ubuntu@192.168.7.2`. If your computer can see the Beaglebone (that is, you get a `Connection refused` error or receive a prompt for `ubuntu`'s password), stop. Otherwise, continue.
+3. Run `ifconfig` and identify the name of the interface shared with the Beaglebone.
+4. Run `ifconfig <iface-name> 192.168.7.1`. This may require `sudo`.
+5. Once connected, the Beaglebone will be available at `192.168.7.2`.
+
+### Ethernet
+
+To `ssh` over Ethernet:
+
+1. Before powering on the Beaglebone, disconnect the Beaglebone from Ethernet.
+2. Power on the Beaglebone.
+3. After the Beaglebone has finished booting (that is, when there is a single blue light blinking regularly), connect the Beaglebone to your machine over Ethernet (this may require an Ethernet-to-USB adapter).
+4. On your machine, run `ifconfig` and identify the new interface.
+5. Run `ifconfig <iface-name> 192.168.1.1` on your machine. This may require `sudo`.
+6. Once connected, the Beaglebone will be available at `192.168.1.2`.
+
+These IP addresses were chosen to mimic the USB network, where `192.168.7.1` is the address of the host machine, and `192.168.7.2` is the address of the Beaglebone.
 
 ## Some Notes
 1. Beaglebones are set-up using the master branch of PieCentral repository at the time of set-up.

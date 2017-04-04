@@ -9,6 +9,8 @@ is possible.
 
 ## Setting up a Beaglebone Black
 
+### Base Installation
+
 There likely won't ever be a way to easily deploy a BBB on Windows. On macOS/Linux, the preferred way of bringing up a Beaglebone is:
 
 1. Get a prebuilt micro SD card from the DevOps box (currently, they are labeled "Frank III").
@@ -19,6 +21,7 @@ There likely won't ever be a way to easily deploy a BBB on Windows. On macOS/Lin
 6. Wait about 15 minutes for the image to be flashed.
 7. Power down with `sudo shutdown now`.
 8. Remove the card.
+9. Continue to the [team-specific configuration instructions](#team-specific-configuration).
 
 Alternatively,
 
@@ -30,9 +33,20 @@ Alternatively,
 6. `ssh` in, and run `start_tmux_job.sh`. Again, enter `ubuntu`'s password as necessary.
 7. After the kernel is upgraded (to ensure `linux-headers-$(uname -r)` is available), the Beaglebone will automatically reboot. As instructed, reconnect the Beaglebone to the internet after the reboot, `ssh` in, and run `tmux new-session -d '~/PieCentral/DevOps/frankfurter/scripts/install/master_frank_setup.sh'`.
 8. Wait about one hour for the Beaglebone to configure and install all dependencies (most of this time is used to build the wireless dongle driver). You can check on the status of your build with `tmux attach`.
-9. `sudo reboot`, `ssh` in again, and ensure everything is correctly configured. Try `systemctl status runtime.service`.
+9. Power down with `sudo shutdown now`.
+10. Continue to the [team-specific configuration instructions](#team-specific-configuration).
 
-### `runtime` and `memcached`
+### Team-Specific Configuration
+
+1. Power on the Beaglebone.
+2. Navigate to `frankfurter/resources`.
+3. Run `python3 interfaces.py`. Follow the prompts. This configures the Beaglebone to connect to a team-specific router.
+4. Navigate to `frankfurter/scripts/update`.
+5. Acquire or build an update zipped tarball that is placed in `frankfurter/build`, and run `./deploy_update.sh`.
+6. Navigate to `frankfurter/scripts/tools`.
+7. Run `./usb-fix.sh`. The Beaglebone should reboot.
+
+## `runtime` and `memcached`
 
 `runtime` is started on boot by `runtime.service` by `systemd` (see pioneers/PieCentral#100, installed to `/lib/systemd/system`).
 
@@ -44,7 +58,7 @@ To interact with the runtime service, run `sudo systemctl <command> runtime.serv
 
 `memcached` has been configured to run on port `12357`. See `resources/memcached.conf`.
 
-### Installed Executables
+## Installed Executables
 
 After setup, the following executables are available in `/home/ubuntu/bin`:
 

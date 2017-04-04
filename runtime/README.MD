@@ -76,4 +76,4 @@ In the `testy` folder:
 
 # Runtime Documentation
 ### Runtime Diagram
-![Runtime Diagram] (https://raw.github.com/pioneers/PieCentral/runtime/documentation/runtime/testy/Runtime.png)
+![Runtime Diagram](https://raw.github.com/pioneers/PieCentral/runtime/documentation/runtime/testy/Runtime.png)

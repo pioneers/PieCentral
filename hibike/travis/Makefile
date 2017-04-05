@@ -11,4 +11,7 @@ lint:
 	$(nop)
 
 test:
-	cd .. && rm -rf ./bin && make DEVICE=ExampleDevice
+	cd .. && for dev in ./devices/*; do \
+		rm -rf ./bin; \
+		make DEVICE=$$(basename $$dev); \
+	done

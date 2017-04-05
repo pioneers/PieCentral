@@ -1,4 +1,6 @@
-.PHONY: install artifacts-install lint test
+DEVICES := $(notdir $(wildcard ../devices/*))
+
+.PHONY: install artifacts-install lint test $(DEVICES)
 
 install:
 	cd .. && wget https://downloads.arduino.cc/arduino-1.8.1-linux64.tar.xz
@@ -10,8 +12,8 @@ artifacts-install:
 lint:
 	$(nop)
 
-test:
-	cd .. && for dev in ./devices/*; do \
-		rm -rf ./bin; \
-		make DEVICE=$$(basename $$dev); \
-	done
+test: $(DEVICES)
+
+$(DEVICES):
+	cd .. && rm -rf ./bin
+	cd .. && make DEVICE=$@

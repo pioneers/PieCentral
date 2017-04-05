@@ -9,11 +9,11 @@ cp utils/flash /etc/bash_completion.d/flash.sh
 echo "Setup Tab-complete"
 echo "Please restart your terminals"
 
-sudo usermod -a -G dialout $(whoami)
+sudo usermod -a -G dialout "$(whoami)"
 
-if [ $# -eq 1 ] && [ $(echo $1 | grep -c -i -E ".*arduino.*(\.tar|\.tar\.xz)") != 0 ]; then
+if [ $# -eq 1 ] && [ "$(echo "$1" | grep -c -i -E ".*arduino.*(\.tar|\.tar\.xz)")" != 0 ]; then
     echo "Extracting Arduino file..."
-    tar xf $1 -C /opt
+    tar xf "$1" -C /opt
     echo "Successfully installed Arduino 1.8.1 into /opt"
 elif [ $# -eq 1 ]; then
     echo "You must download Arduino 1.8.1 from https://www.arduino.cc/en/Main/Software"

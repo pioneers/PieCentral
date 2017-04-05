@@ -1,4 +1,3 @@
-### Build targets for Travis.
 .PHONY: install artifacts-install lint test
 
 install:

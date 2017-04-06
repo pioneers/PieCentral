@@ -11,7 +11,7 @@ is possible.
 
 ### Base Installation
 
-There likely won't ever be a way to easily deploy a BBB on Windows. On macOS/Linux, the preferred way of bringing up a Beaglebone is:
+The preferred way of bringing up a Beaglebone is:
 
 1. Get a prebuilt micro SD card from the DevOps box (currently, they are labeled "Frank III").
 2. Insert the card into the Beaglebone you wish to flash while the Beaglebone is off.
@@ -28,11 +28,11 @@ Alternatively,
 1. Download a [stock Ubuntu prebuilt image](http://elinux.org/BeagleBoardUbuntu#eMMC:_All_BeagleBone_Varients_with_eMMC) (preferably 16.04).
 2. Follow the instructions given by the link in step 1 to bring up a Beaglebone running stock Ubuntu.
 3. Be sure you can `ssh ubuntu@192.168.7.2`. See the [networking section](#networking) for setup instructions.
-4. Connect the Beaglebone to the internet. You should be able to get a response from `ping 8.8.8.8`, but not necessarily from `ping google.com`. One way to do this is to open  `frankfurter/scripts/install/bbb-usb-wifi.sh` in a text editor, carefully modify it to work on your machine, `sudo su`, and run the script. Afterwards, `exit` from `sudo`.
+4. Connect the Beaglebone to the internet. You should be able to get a response from `ping 8.8.8.8`, but not necessarily from `ping google.com`. One way to do this is to run  `frankfurter/scripts/toos/usb-fwd.sh`, possibly as `sudo`.
 5. On your machine, run `frankfurter/scripts/install/start_frank_install.sh`. Type in `ubuntu`'s password as many times as is necessary.
 6. `ssh` in, and run `start_tmux_job.sh`. Again, enter `ubuntu`'s password as necessary.
 7. After the kernel is upgraded (to ensure `linux-headers-$(uname -r)` is available), the Beaglebone will automatically reboot. As instructed, reconnect the Beaglebone to the internet after the reboot, `ssh` in, and run `tmux new-session -d '~/PieCentral/DevOps/frankfurter/scripts/install/master_frank_setup.sh'`.
-8. Wait about one hour for the Beaglebone to configure and install all dependencies (most of this time is used to build the wireless dongle driver). You can check on the status of your build with `tmux attach`.
+8. Wait about one hour for the Beaglebone to configure and install all dependencies (most of this time is used to install the `linux-headers` package and build the wireless dongle driver). You can check on the status of your installation with `tmux attach`.
 9. Power down with `sudo shutdown now`.
 10. Continue to the [team-specific configuration instructions](#team-specific-configuration).
 
@@ -91,18 +91,9 @@ To `ssh` over USB:
 4. Run `ifconfig <iface-name> 192.168.7.1`. This may require `sudo`.
 5. Once connected, the Beaglebone will be available at `192.168.7.2`.
 
-### Ethernet
+### FTDI USB to Serial Adapter
 
-To `ssh` over Ethernet:
-
-1. Before powering on the Beaglebone, disconnect the Beaglebone from Ethernet.
-2. Power on the Beaglebone.
-3. After the Beaglebone has finished booting (that is, when there is a single blue light blinking regularly), connect the Beaglebone to your machine over Ethernet (this may require an Ethernet-to-USB adapter).
-4. On your machine, run `ifconfig` and identify the new interface.
-5. Run `ifconfig <iface-name> 192.168.1.1` on your machine. This may require `sudo`.
-6. Once connected, the Beaglebone will be available at `192.168.1.2`.
-
-These IP addresses were chosen to mimic the USB network, where `192.168.7.1` is the address of the host machine, and `192.168.7.2` is the address of the Beaglebone.
+See [these instructions](https://dave.cheney.net/2013/09/22/two-point-five-ways-to-access-the-serial-console-on-your-beaglebone-black).
 
 ## Some Notes
 1. Beaglebones are set-up using the master branch of PieCentral repository at the time of set-up.

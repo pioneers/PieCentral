@@ -50,7 +50,6 @@ void loop() {
   }
   // Grab first byte of ID
   id = mfrc522.uid.uidByte[0];
-  id = id / 2;
   tag_detect = 1;
   del = false;
 }

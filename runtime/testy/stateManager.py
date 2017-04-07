@@ -256,9 +256,10 @@ class StateManager(object):
             self.set_value(None, ["hibike", "devices", uid, param], send=False)
         self.state["hibike"][0]["device_subscribed"][0] += 1
 
-    def hibike_response_device_values(self, uid, params):
-        for key, value in params:
-            self.set_value(value, ["hibike", "devices", uid, key], send=False)
+    def hibike_response_device_values(self, data):
+        for uid, params in data.items():
+            for key, value in params:
+                self.set_value(value, ["hibike", "devices", uid, key], send=False)
 
     def hibike_disable(self, pipe):
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])

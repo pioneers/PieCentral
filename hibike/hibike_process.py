@@ -12,6 +12,8 @@ __all__ = ["hibike_process"]
 
 
 uid_to_index = {}
+# .04 milliseconds sleep is the same frequency we subscribe to devices at
+BATCH_SLEEP_TIME = .04
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     
@@ -132,7 +134,7 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue, bat
 
 def batch_data(data, stateQueue):
     while True:
-        time.sleep(.04)
+        time.sleep(BATCH_SLEEP_TIME)
         stateQueue.put(("device_values", [data]))
 
 

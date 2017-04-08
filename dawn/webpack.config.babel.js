@@ -31,7 +31,6 @@ const plugins = [
   new webpack.DefinePlugin({
     'global.GENTLY': false,
   }),
-  new webpack.EnvironmentPlugin(['NODE_ENV']),
 ];
 
 export default [

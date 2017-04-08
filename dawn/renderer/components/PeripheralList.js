@@ -18,13 +18,18 @@ cleanerNames[PeripheralTypes.ServoControl] = 'Servo Controllers';
 cleanerNames[PeripheralTypes.RFID] = 'RFID';
 cleanerNames[PeripheralTypes.YogiBear] = 'Yogi Bear';
 
+const filter = [PeripheralTypes.TeamFlag];
+
 const handleAccordion = (array) => {
   const peripheralGroups = {};
+
   array.forEach((p) => {
-    if (!(p.device_type in peripheralGroups)) {
-      peripheralGroups[p.device_type] = [];
+    if (!(filter.includes(p.device_type))) {
+      if (!(p.device_type in peripheralGroups)) {
+        peripheralGroups[p.device_type] = [];
+      }
+      peripheralGroups[p.device_type].push(p);
     }
-    peripheralGroups[p.device_type].push(p);
   });
   return (
     _.map(Object.keys(peripheralGroups), groups => (

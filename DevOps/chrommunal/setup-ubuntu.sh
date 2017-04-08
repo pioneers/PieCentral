@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DAWN_URL=https://storage.googleapis.com/pie-software-builds/latest/dawn-linux-x64.zip
+DAWN_URL=https://github.com/pioneers/PieCentral/releases/download/test%2Fdawn%2F2017-03-11c/dawn-linux-x64.zip
 
 declare -a APT_PACKAGES=(
   arduino

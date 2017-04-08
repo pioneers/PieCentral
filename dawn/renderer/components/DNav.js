@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import {
   Navbar,
   ButtonToolbar,
@@ -8,8 +9,9 @@ import IPBox from './IPBox';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';
 import TooltipButton from './TooltipButton';
+import { runtimeState } from '../utils/utils';
 
-class DNav extends React.Component {
+class DNavComponent extends React.Component {
   constructor(props) {
     super(props);
     this.toggleUpdateModal = this.toggleUpdateModal.bind(this);
@@ -52,9 +54,11 @@ class DNav extends React.Component {
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
-          <Navbar.Text id="runtime-version">
-            <Label bsStyle="info">{`Runtime v${this.props.runtimeVersion}`}</Label>
-          </Navbar.Text>
+          {this.props.runtimeStatus ?
+            <Navbar.Text id="runtime-version">
+              <Label bsStyle="info">{`Runtime v${this.props.runtimeVersion}: ${runtimeState[this.props.robotState]}`}</Label>
+            </Navbar.Text> : ''
+          }
           <Navbar.Text id="battery-indicator">
             <StatusLabel
               connectionStatus={this.props.connection}
@@ -102,7 +106,7 @@ class DNav extends React.Component {
   }
 }
 
-DNav.propTypes = {
+DNavComponent.propTypes = {
   connection: React.PropTypes.bool,
   runtimeStatus: React.PropTypes.bool,
   battery: React.PropTypes.number,
@@ -112,6 +116,14 @@ DNav.propTypes = {
   startTour: React.PropTypes.func,
   onIPChange: React.PropTypes.func,
   runtimeVersion: React.PropTypes.string,
+  robotState: React.PropTypes.number,
 };
+
+const mapStateToProps = state => ({
+  robotState: state.info.robotState,
+});
+
+
+const DNav = connect(mapStateToProps)(DNavComponent);
 
 export default DNav;

@@ -7,7 +7,7 @@ import {
   MenuItem,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
-import { remote, ipcRenderer } from 'electron';
+import { remote, ipcRenderer, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 
@@ -57,7 +57,6 @@ class Editor extends React.Component {
 
   constructor(props) {
     super(props);
-    this.consoleHeight = 250; // pixels
     this.themes = [
       'monokai',
       'github',
@@ -82,8 +81,12 @@ class Editor extends React.Component {
     this.upload = this.upload.bind(this);
     this.estop = this.estop.bind(this);
     this.simulateCompetition = this.simulateCompetition.bind(this);
+    this.raiseConsole = this.raiseConsole.bind(this);
+    this.lowerConsole = this.lowerConsole.bind(this);
+    this.copyConsole = this.copyConsole.bind(this);
     this.state = {
-      editorHeight: this.getEditorHeight(),
+      consoleHeight: 250, // px
+      editorHeight: 231,
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
       simulate: false,
@@ -95,7 +98,7 @@ class Editor extends React.Component {
    */
   componentDidMount() {
     this.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
-
+    this.onWindowResize();
     storage.get('editorTheme', (err, data) => {
       if (err) {
         console.log(err);
@@ -128,7 +131,7 @@ class Editor extends React.Component {
   }
 
   getEditorHeight(windowHeight) {
-    const windowNonEditorHeight = 231 + (this.props.showConsole * (this.consoleHeight + 40));
+    const windowNonEditorHeight = 235 + (this.props.showConsole * (this.state.consoleHeight + 40));
     return `${String(windowHeight - windowNonEditorHeight)}px`;
   }
 
@@ -368,6 +371,22 @@ class Editor extends React.Component {
     });
   }
 
+  raiseConsole() {
+    this.setState({ consoleHeight: this.state.consoleHeight + 10 }, () => {
+      this.CodeEditor.editor.resize();
+    });
+  }
+
+  lowerConsole() {
+    this.setState({ consoleHeight: this.state.consoleHeight - 10 }, () => {
+      this.CodeEditor.editor.resize();
+    });
+  }
+
+  copyConsole() {
+    clipboard.writeText(this.props.consoleData.join(''));
+  }
+
   decreaseFontsize() {
     this.props.onChangeFontsize(this.props.fontSize - 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err) => {
@@ -481,6 +500,26 @@ class Editor extends React.Component {
               onClick={this.props.onClearConsole}
               glyph="remove"
             />
+            <TooltipButton
+              id="raise-console"
+              text="Raise Console"
+              onClick={this.raiseConsole}
+              glyph="arrow-up"
+              disabled={this.state.consoleHeight > 350}
+            />
+            <TooltipButton
+              id="lower-console"
+              text="Lower Console"
+              onClick={this.lowerConsole}
+              glyph="arrow-down"
+              disabled={this.state.consoleHeight < 100}
+            />
+            <TooltipButton
+              id="copy-console"
+              text="Copy Console"
+              onClick={this.copyConsole}
+              glyph="copy"
+            />
           </ButtonGroup>
           <ButtonGroup id="editor-settings-buttons">
             <TooltipButton
@@ -530,7 +569,7 @@ class Editor extends React.Component {
         <ConsoleOutput
           toggleConsole={this.toggleConsole}
           show={this.props.showConsole}
-          height={this.consoleHeight}
+          height={this.state.consoleHeight}
           output={this.props.consoleData}
         />
       </Panel>

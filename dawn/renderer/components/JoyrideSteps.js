@@ -29,13 +29,13 @@ export default [
     type: 'hover',
   }, {
     title: 'Code execution',
-    text: 'Use these buttons to run and stop your code, including a last-ditch Emergency-Stop.',
+    text: 'Use these buttons to run and stop your code, including a last-ditch Emergency-Stop. In addition to changing state,  you can simulate competition timings.',
     selector: '#code-execution-buttons',
     position: 'bottom',
     type: 'hover',
   }, {
-    title: 'Console',
-    text: 'Use these buttons to toggle the output console and clear the output console.',
+    title: 'Output Console',
+    text: 'Use these buttons to see and clear the console, along with changing its size and copying console text.',
     selector: '#console-buttons',
     position: 'bottom',
     type: 'hover',

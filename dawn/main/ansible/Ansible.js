@@ -280,9 +280,9 @@ class TCPServer {
 
 class Logger {
   constructor() {
-    console.log(__dirname);
-    this.log_file = fs.createWriteStream(`${__dirname}/${Date.now()}-ansible.log`, { flags: 'w' });
-    this.log_file.write(Date.now().toString());
+    const d = new Date();
+    this.log_file = fs.createWriteStream(`./${d.valueOf()}-ansible.log`, { flags: 'w' });
+    this.log_file.write(d.toString());
     this.lastStr = '';
   }
   log(output) {

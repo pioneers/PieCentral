@@ -140,7 +140,7 @@ class SendSocket {
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
     this.socket.on('error', (err) => {
-      this.logger.error('UDP sending error');
+      this.logger.log('UDP sending error');
       this.logger.log(err);
     });
 
@@ -216,7 +216,7 @@ class TCPSocket {
 
   waitRuntimeConfirm(message, count) {
     if (count > 3) {
-      this.logger.error('Runtime failed to confirm');
+      this.logger.log('Runtime failed to confirm');
       RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
     } else if (!this.received) {
       try {
@@ -260,7 +260,7 @@ class TCPServer {
     this.logger = logger;
 
     this.tcp.on('error', (err) => {
-      this.logger.error('TCP error');
+      this.logger.log('TCP error');
       this.logger.log(err);
     });
 

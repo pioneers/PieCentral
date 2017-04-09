@@ -60,3 +60,10 @@ export const timings = {
   TELEOP: 120,
   SEC: 1000,
 };
+
+export const windowInfo = {
+  UNIT: 10,
+  NONEDITOR: 235,
+  CONSOLEPAD: 40,
+  CONSOLESTART: 250,
+};

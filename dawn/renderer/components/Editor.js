@@ -29,7 +29,7 @@ import 'brace/theme/terminal';
 
 import ConsoleOutput from './ConsoleOutput';
 import TooltipButton from './TooltipButton';
-import { pathToName, uploadStatus, robotState, defaults, timings } from '../utils/utils';
+import { pathToName, uploadStatus, robotState, defaults, timings, windowInfo } from '../utils/utils';
 
 const Client = require('ssh2').Client;
 
@@ -85,8 +85,8 @@ class Editor extends React.Component {
     this.lowerConsole = this.lowerConsole.bind(this);
     this.copyConsole = this.copyConsole.bind(this);
     this.state = {
-      consoleHeight: 250, // px
-      editorHeight: 231,
+      consoleHeight: windowInfo.CONSOLESTART,
+      editorHeight: 0,
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
       simulate: false,
@@ -131,7 +131,8 @@ class Editor extends React.Component {
   }
 
   getEditorHeight(windowHeight) {
-    const windowNonEditorHeight = 235 + (this.props.showConsole * (this.state.consoleHeight + 40));
+    const windowNonEditorHeight = windowInfo.NONEDITOR +
+      (this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
     return `${String(windowHeight - windowNonEditorHeight)}px`;
   }
 
@@ -372,13 +373,13 @@ class Editor extends React.Component {
   }
 
   raiseConsole() {
-    this.setState({ consoleHeight: this.state.consoleHeight + 10 }, () => {
+    this.setState({ consoleHeight: this.state.consoleHeight + windowInfo.UNIT }, () => {
       this.CodeEditor.editor.resize();
     });
   }
 
   lowerConsole() {
-    this.setState({ consoleHeight: this.state.consoleHeight - 10 }, () => {
+    this.setState({ consoleHeight: this.state.consoleHeight - windowInfo.UNIT }, () => {
       this.CodeEditor.editor.resize();
     });
   }

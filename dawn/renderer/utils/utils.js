@@ -73,13 +73,14 @@ class Logger {
   }
 
   log(output) {
+    console.log(output);
+    output = String(output);
     if (output !== this.lastStr) {
       this.log_file.write(`\n${output}`);
       this.lastStr = output;
     } else {
       this.log_file.write('*');
     }
-    console.log(output);
   }
 }
 

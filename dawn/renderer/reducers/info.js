@@ -1,8 +1,8 @@
 import { ipcRenderer } from 'electron';
-import { robotState, runtimeState } from '../utils/utils';
+import { robotState, runtimeState, defaults } from '../utils/utils';
 
 const initialInfoState = {
-  ipAddress: '192.168.7.2',
+  ipAddress: defaults.IPADDRESS,
   studentCodeStatus: 0,
   robotState: 2,
   isRunningCode: false,

@@ -52,6 +52,7 @@ export const defaults = {
   PORT: 22,
   USERNAME: 'ubuntu',
   PASSWORD: 'temppwd',
+  IPADDRESS: '192.168.7.2',
 };
 
 export const timings = {

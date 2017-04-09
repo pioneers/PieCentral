@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 export const TIMEOUT = 5000;
 
 export const pathToName = (filepath) => {
@@ -59,4 +61,31 @@ export const timings = {
   IDLE: 5,
   TELEOP: 120,
   SEC: 1000,
+};
+
+let _log = null;
+class Logger {
+  constructor() {
+    const d = new Date();
+    this.log_file = fs.createWriteStream(`./${d.valueOf()}-dawn.log`, { flags: 'w' });
+    this.log_file.write(d.toString());
+    this.lastStr = '';
+  }
+
+  log(output) {
+    if (output !== this.lastStr) {
+      this.log_file.write(`\n${output}`);
+      this.lastStr = output;
+    } else {
+      this.log_file.write('*');
+    }
+    console.log(output);
+  }
+}
+
+export const logging = () => {
+  if (_log == null) {
+    _log = new Logger();
+  }
+  return _log;
 };

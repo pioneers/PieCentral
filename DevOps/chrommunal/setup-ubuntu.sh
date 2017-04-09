@@ -1,6 +1,9 @@
 #!/bin/sh
 
-DAWN_URL=https://storage.googleapis.com/pie-software-builds/latest/dawn-linux-x64.zip
+PYTHON_CMD="import json, sys"
+PYTHON_CMD="$PYTHON_CMD; assets = json.loads(sys.stdin.read())['assets']"
+PYTHON_CMD="$PYTHON_CMD; print([asset['browser_download_url'] for asset in assets if asset['name'].startswith('dawn-linux-x64')][0])"
+DAWN_URL=$(curl https://api.github.com/repos/pioneers/PieCentral/releases/latest | python -c "$PYTHON_CMD")
 
 declare -a APT_PACKAGES=(
   arduino

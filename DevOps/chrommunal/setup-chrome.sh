@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BASHRC_URL=https://raw.githubusercontent.com/pioneers/DevOps/master/chrommunal/bashrc
+BASHRC_URL=https://raw.githubusercontent.com/pioneers/PieCentral/master/DevOps/chrommunal/bashrc
 CROUTON_URL=https://goo.gl/fd3zc
 CROUTON_DIST=trusty
 CROUTON_TARGETS=audio,chrome,cli-extra,core,extension,gtk-extra,keyboard,touch,unity-desktop,xiwi,xorg
@@ -17,5 +17,5 @@ wget $BASHRC_URL -O ~/.bashrc
 
 echo 'crouton setup complete! Now logging you into a linux shell.'
 echo 'Please run the following script within that shell to complete setup:'
-echo 'wget -O - https://raw.githubusercontent.com/pioneers/DevOps/master/chrommunal/setup-ubuntu.sh | bash'
+echo 'wget -O - https://raw.githubusercontent.com/pioneers/PieCentral/master/DevOps/chrommunal/setup-ubuntu.sh | bash'
 sudo enter-chroot

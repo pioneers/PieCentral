@@ -70,12 +70,10 @@ export const timings = {
   SEC: 1000,
 };
 
-let _log = null;
-class Logger {
-  constructor() {
-    const d = new Date();
-    this.log_file = fs.createWriteStream(`./${d.valueOf()}-dawn.log`, { flags: 'w' });
-    this.log_file.write(d.toString());
+export class Logger {
+  constructor(processname, firstline) {
+    this.log_file = fs.createWriteStream(`./${Date.now()}-${processname}.log`, { flags: 'w' });
+    this.log_file.write(firstline);
     this.lastStr = '';
   }
 
@@ -83,7 +81,7 @@ class Logger {
     console.log(output);
     output = String(output);
     if (output !== this.lastStr) {
-      this.log_file.write(`\n${output}`);
+      this.log_file.write(`\n[${(new Date()).toString()}] ${output}`);
       this.lastStr = output;
     } else {
       this.log_file.write('*');
@@ -91,9 +89,8 @@ class Logger {
   }
 }
 
-export const logging = () => {
-  if (_log == null) {
-    _log = new Logger();
-  }
-  return _log;
+export let logging;
+
+export const startLog = () => {
+  logging = new Logger('dawn', 'Renderer Debug');
 };

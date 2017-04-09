@@ -1,6 +1,5 @@
 import dgram from 'dgram';
 import net from 'net';
-import fs from 'fs';
 import { ipcMain } from 'electron';
 import ProtoBuf from 'protobufjs';
 import _ from 'lodash';
@@ -14,7 +13,7 @@ import {
   updateCodeStatus,
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
-import { uploadStatus, robotState } from '../../renderer/utils/utils';
+import { uploadStatus, robotState, Logger } from '../../renderer/utils/utils';
 
 const dawnBuilder = ProtoBuf.loadProtoFile(`${__dirname}/ansible.proto`);
 const DawnData = dawnBuilder.build('DawnData');
@@ -278,29 +277,9 @@ class TCPServer {
   }
 }
 
-class Logger {
-  constructor() {
-    const d = new Date();
-    this.log_file = fs.createWriteStream(`./${d.valueOf()}-ansible.log`, { flags: 'w' });
-    this.log_file.write(d.toString());
-    this.lastStr = '';
-  }
-
-  log(output) {
-    console.log(output);
-    output = String(output);
-    if (output !== this.lastStr) {
-      this.log_file.write(`\n${output}`);
-      this.lastStr = output;
-    } else {
-      this.log_file.write('*');
-    }
-  }
-}
-
 const Ansible = {
   conns: [],
-  logger: new Logger(),
+  logger: new Logger('ansible', 'Ansible Debug'),
   setup() {
     this.conns = [
       new ListenSocket(this.logger),

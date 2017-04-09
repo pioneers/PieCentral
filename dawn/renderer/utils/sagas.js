@@ -9,13 +9,14 @@ import _ from 'lodash';
 import { delay, eventChannel, takeEvery } from 'redux-saga';
 import { call, cps, fork, put, race, select, take } from 'redux-saga/effects';
 import { ipcRenderer, remote } from 'electron';
+import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
-import { TIMEOUT } from '../utils/utils';
+import { TIMEOUT, defaults } from '../utils/utils';
 
-// const dialog = remote.dialog;
-// postpone looking into remote so tests can run
+const Client = require('ssh2').Client;
+
 let timestamp = Date.now();
 
 /**
@@ -288,6 +289,46 @@ function* updateMainProcess() {
   ipcRenderer.send('stateUpdate', stateSlice);
 }
 
+function* restartRuntime() {
+  const conn = new Client();
+  const stateSlice = yield select(state => ({
+    runtimeStatus: state.info.runtimeStatus,
+    ipAddress: state.info.ipAddress,
+  }));
+  if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
+    const network = yield call(() => new Promise((resolve) => {
+      conn.on('ready', () => {
+        conn.exec('sudo systemctl restart runtime.service',
+          { pty: true }, (uperr, stream) => {
+            if (uperr) {
+              resolve(1);
+            }
+            stream.write(`${defaults.PASSWORD}\n`);
+            stream.on('exit', (code) => {
+              console.log(`Runtime Restart: Returned ${code}`);
+              conn.end();
+              resolve(0);
+            });
+          });
+      }).connect({
+        debug: (inpt) => {
+          console.log(inpt);
+        },
+        host: stateSlice.ipAddress,
+        port: defaults.PORT,
+        username: defaults.USERNAME,
+        password: defaults.PASSWORD,
+      });
+    }));
+    if (network === 1) {
+      yield addAsyncAlert(
+      'Runtime Restart Error',
+      'Dawn was unable to run restart commands. Please check your robot connectivity.',
+      );
+    }
+  }
+}
+
 /**
  * The root saga combines all the other sagas together into one.
  */
@@ -297,6 +338,7 @@ export default function* rootSaga() {
     takeEvery('SAVE_FILE', saveFile),
     takeEvery('CREATE_NEW_FILE', openFile),
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
+    takeEvery('RESTART_RUNTIME', restartRuntime),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),
     fork(ansibleSaga),

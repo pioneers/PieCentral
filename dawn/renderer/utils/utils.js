@@ -43,17 +43,24 @@ export const robotState = {
 // TODO: Synchronize this and the above state
 export const runtimeState = {
   STUDENT_CRASHED: 0,
+  0: 'Crashed',
   STUDENT_RUNNING: 1,
+  1: 'Running',
   STUDENT_STOPPED: 2,
+  2: 'Stopped',
   TELEOP: 3,
+  3: 'Tele-Operated',
   AUTONOMOUS: 4,
+  4: 'Autonomous',
   ESTOP: 5,
+  5: 'E-Stop',
 };
 
 export const defaults = {
   PORT: 22,
   USERNAME: 'ubuntu',
   PASSWORD: 'temppwd',
+  IPADDRESS: '192.168.7.2',
 };
 
 export const timings = {

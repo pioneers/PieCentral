@@ -11,6 +11,7 @@ import { remote, ipcRenderer, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 
+
 // React-ace extensions and modes
 import 'brace/ext/language_tools';
 import 'brace/ext/searchbox';
@@ -29,7 +30,7 @@ import 'brace/theme/terminal';
 
 import ConsoleOutput from './ConsoleOutput';
 import TooltipButton from './TooltipButton';
-import { pathToName, uploadStatus, robotState, defaults, timings, windowInfo } from '../utils/utils';
+import { pathToName, uploadStatus, robotState, defaults, timings, logging, windowInfo } from '../utils/utils';
 
 const Client = require('ssh2').Client;
 
@@ -101,7 +102,7 @@ class Editor extends React.Component {
     this.onWindowResize();
     storage.get('editorTheme', (err, data) => {
       if (err) {
-        console.log(err);
+        logging.log(err);
       } else if (!_.isEmpty(data)) {
         this.props.onChangeTheme(data.theme);
       }
@@ -109,7 +110,7 @@ class Editor extends React.Component {
 
     storage.get('editorFontSize', (err, data) => {
       if (err) {
-        console.log(err);
+        logging.log(err);
       } else if (!_.isEmpty(data)) {
         this.props.onChangeFontsize(data.editorFontSize);
       }
@@ -177,7 +178,7 @@ class Editor extends React.Component {
         'Not Working on a File',
         'Please save first',
       );
-      console.log('Upload: Not Working on File');
+      logging.log('Upload: Not Working on File');
       return;
     }
     if (this.hasUnsavedChanges()) {
@@ -185,7 +186,7 @@ class Editor extends React.Component {
         'Unsaved File',
         'Please save first',
       );
-      console.log('Upload: Not Working on Saved File');
+      logging.log('Upload: Not Working on Saved File');
       return;
     }
     if (Editor.correctText(this.props.editorCode) !== this.props.editorCode) {
@@ -194,7 +195,7 @@ class Editor extends React.Component {
         'Your code has non-ASCII characters, which won\'t work on the robot. ' +
         'Please remove them and try again.',
       );
-      console.log('Upload: Non-ASCII Issue');
+      logging.log('Upload: Non-ASCII Issue');
       return;
     }
     const conn = new Client();
@@ -203,7 +204,7 @@ class Editor extends React.Component {
         'Upload Issue',
         'Robot could not be connected',
       );
-      return console.log(err);
+      return logging.log(err);
     });
     ipcRenderer.send('NOTIFY_UPLOAD');
     const waiting = () => {
@@ -229,7 +230,7 @@ class Editor extends React.Component {
               'Upload Issue',
               'SFTP session could not be initiated',
             );
-            console.log(err);
+            logging.log(err);
             return;
           }
           sftp.fastPut(filepath, './PieCentral/runtime/testy/studentCode.py',
@@ -248,12 +249,12 @@ class Editor extends React.Component {
                   'Upload Issue',
                   'File failed to be transmitted',
                 );
-                console.log(err2);
+                logging.log(err2);
               }
             });
         });
       }).connect({
-        debug: (input) => { console.log(input); },
+        debug: (input) => { logging.log(input); },
         host: this.props.ipAddress,
         port: defaults.PORT,
         username: defaults.USERNAME,
@@ -289,7 +290,7 @@ class Editor extends React.Component {
   simulateCompetition() {
     this.setState({ simulate: true, modeDisplay: robotState.SIMSTR });
     const simulation = new Promise((resolve, reject) => {
-      console.log(`Beginning ${timings.AUTO}s ${robotState.AUTOSTR}`);
+      logging.log(`Beginning ${timings.AUTO}s ${robotState.AUTOSTR}`);
       this.props.onUpdateCodeStatus(robotState.AUTONOMOUS);
       const timestamp = Date.now();
       const autoInt = setInterval(() => {
@@ -298,7 +299,7 @@ class Editor extends React.Component {
           clearInterval(autoInt);
           resolve();
         } else if (!this.state.simulate) {
-          console.log(`${robotState.AUTOSTR} Quit`);
+          logging.log(`${robotState.AUTOSTR} Quit`);
           clearInterval(autoInt);
           reject();
         } else {
@@ -309,7 +310,7 @@ class Editor extends React.Component {
 
     simulation.then(() =>
       new Promise((resolve, reject) => {
-        console.log(`Beginning ${timings.IDLE}s Cooldown`);
+        logging.log(`Beginning ${timings.IDLE}s Cooldown`);
         this.props.onUpdateCodeStatus(robotState.IDLE);
         const timestamp = Date.now();
         const coolInt = setInterval(() => {
@@ -319,7 +320,7 @@ class Editor extends React.Component {
             resolve();
           } else if (!this.state.simulate) {
             clearInterval(coolInt);
-            console.log('Cooldown Quit');
+            logging.log('Cooldown Quit');
             reject();
           } else {
             this.setState({ modeDisplay: `Cooldown: ${timings.IDLE - diff}` });
@@ -328,7 +329,7 @@ class Editor extends React.Component {
       }),
     ).then(() => {
       new Promise((resolve, reject) => {
-        console.log(`Beginning ${timings.TELEOP}s ${robotState.TELEOPSTR}`);
+        logging.log(`Beginning ${timings.TELEOP}s ${robotState.TELEOPSTR}`);
         this.props.onUpdateCodeStatus(robotState.TELEOP);
         const timestamp = Date.now();
         const teleInt = setInterval(() => {
@@ -338,17 +339,17 @@ class Editor extends React.Component {
             resolve();
           } else if (!this.state.simulate) {
             clearInterval(teleInt);
-            console.log(`${robotState.TELEOPSTR} Quit`);
+            logging.log(`${robotState.TELEOPSTR} Quit`);
             reject();
           } else {
             this.setState({ modeDisplay: `${robotState.TELEOPSTR}: ${timings.TELEOP - diff}` });
           }
         }, timings.SEC);
       }).then(() => {
-        console.log('Simulation Finished');
+        logging.log('Simulation Finished');
         this.props.onUpdateCodeStatus(robotState.IDLE);
       }, () => {
-        console.log('Simulation Aborted');
+        logging.log('Simulation Aborted');
         this.props.onUpdateCodeStatus(robotState.IDLE);
       });
     });
@@ -361,14 +362,14 @@ class Editor extends React.Component {
   changeTheme(theme) {
     this.props.onChangeTheme(theme);
     storage.set('editorTheme', { theme }, (err) => {
-      if (err) console.log(err);
+      if (err) logging.log(err);
     });
   }
 
   increaseFontsize() {
     this.props.onChangeFontsize(this.props.fontSize + 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize + 1 }, (err) => {
-      if (err) console.log(err);
+      if (err) logging.log(err);
     });
   }
 
@@ -391,7 +392,7 @@ class Editor extends React.Component {
   decreaseFontsize() {
     this.props.onChangeFontsize(this.props.fontSize - 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err) => {
-      if (err) console.log(err);
+      if (err) logging.log(err);
     });
   }
 

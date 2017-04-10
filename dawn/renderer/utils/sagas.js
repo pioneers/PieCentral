@@ -13,7 +13,7 @@ import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
-import { TIMEOUT, defaults } from '../utils/utils';
+import { TIMEOUT, defaults, logging } from '../utils/utils';
 
 const Client = require('ssh2').Client;
 
@@ -118,7 +118,7 @@ function* saveFile(action) {
       filepath = yield call(saveFileDialog);
       yield* writeFile(filepath, code);
     } catch (e) {
-      console.log('No filename specified, file not saved.');
+      logging.log('No filename specified, file not saved.');
     }
   } else {
     yield* writeFile(filepath, code);
@@ -150,13 +150,13 @@ function* openFile(action) {
         const data = yield cps(fs.readFile, filepath, 'utf8');
         yield put(openFileSucceeded(data, filepath));
       } catch (e) {
-        console.log('No filename specified, no file opened.');
+        logging.log('No filename specified, no file opened.');
       }
     } else if (type === 'create') {
       yield put(openFileSucceeded('', null));
     }
   } else {
-    console.log(`File ${type} canceled.`);
+    logging.log(`File ${type} canceled.`);
   }
 }
 
@@ -272,7 +272,7 @@ function* ansibleSaga() {
       yield put(action);
     }
   } catch (e) {
-    console.log(e.stack);
+    logging.log(e.stack);
   }
 }
 

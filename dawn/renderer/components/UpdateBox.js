@@ -6,7 +6,7 @@ import {
 import { remote } from 'electron';
 import { connect } from 'react-redux';
 import { addAsyncAlert } from '../actions/AlertActions';
-import { pathToName, defaults } from '../utils/utils';
+import { pathToName, defaults, logging } from '../utils/utils';
 
 const dialog = remote.dialog;
 const Client = require('ssh2').Client;
@@ -39,9 +39,9 @@ class UpdateBox extends React.Component {
     conn.on('ready', () => {
       conn.sftp((err, sftp) => {
         if (err) {
-          console.log(err);
+          logging.log(err);
         } else {
-          console.log('SSH Connection');
+          logging.log('SSH Connection');
           sftp.fastPut(this.state.updateFilepath,
             `./updates/${update}`, (err2) => {
               if (err2) {
@@ -53,7 +53,7 @@ class UpdateBox extends React.Component {
                   `Dawn was unable to upload the update to the robot
                   Please check your robot connectivity.`,
                 );
-                console.log(err2);
+                logging.log(err2);
               } else {
                 conn.exec('sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service',
                   { pty: true }, (uperr, stream) => {
@@ -66,7 +66,7 @@ class UpdateBox extends React.Component {
                     }
                     stream.write(`${defaults.PASSWORD}\n`);
                     stream.on('exit', (code) => {
-                      console.log(`Update Script Returned ${code}`);
+                      logging.log(`Update Script Returned ${code}`);
                       setTimeout(() => {
                         this.setState({ isUploading: false });
                         this.props.hide();
@@ -79,7 +79,7 @@ class UpdateBox extends React.Component {
         }
       });
     }).connect({
-      debug: (inpt) => { console.log(inpt); },
+      debug: (inpt) => { logging.log(inpt); },
       host: this.props.ipAddress,
       port: defaults.PORT,
       username: defaults.USERNAME,

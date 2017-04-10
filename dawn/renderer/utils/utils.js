@@ -70,7 +70,7 @@ export const timings = {
   SEC: 1000,
 };
 
-export const windowInfo ={
+export const windowInfo = {
   UNIT: 10,
   NONEDITOR: 235,
   CONSOLEPAD: 40,

@@ -18,9 +18,12 @@ cleanerNames[PeripheralTypes.ServoControl] = 'Servo Controllers';
 cleanerNames[PeripheralTypes.RFID] = 'RFID';
 cleanerNames[PeripheralTypes.YogiBear] = 'Yogi Bear';
 
+const filter = new Set([PeripheralTypes.TeamFlag]);
+
 const handleAccordion = (array) => {
   const peripheralGroups = {};
-  array.forEach((p) => {
+
+  array.filter(p => !filter.has(p.device_type)).forEach((p) => {
     if (!(p.device_type in peripheralGroups)) {
       peripheralGroups[p.device_type] = [];
     }

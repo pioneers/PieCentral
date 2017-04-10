@@ -305,14 +305,14 @@ function* restartRuntime() {
             }
             stream.write(`${defaults.PASSWORD}\n`);
             stream.on('exit', (code) => {
-              console.log(`Runtime Restart: Returned ${code}`);
+              logging.log(`Runtime Restart: Returned ${code}`);
               conn.end();
               resolve(0);
             });
           });
       }).connect({
         debug: (inpt) => {
-          console.log(inpt);
+          logging.log(inpt);
         },
         host: stateSlice.ipAddress,
         port: defaults.PORT,

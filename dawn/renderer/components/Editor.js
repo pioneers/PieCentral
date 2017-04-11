@@ -507,14 +507,14 @@ class Editor extends React.Component {
               text="Raise Console"
               onClick={this.raiseConsole}
               glyph="arrow-up"
-              disabled={this.state.consoleHeight > 350}
+              disabled={this.state.consoleHeight > windowInfo.CONSOLEMAX}
             />
             <TooltipButton
               id="lower-console"
               text="Lower Console"
               onClick={this.lowerConsole}
               glyph="arrow-down"
-              disabled={this.state.consoleHeight < 100}
+              disabled={this.state.consoleHeight < windowInfo.CONSOLEMIN}
             />
             <TooltipButton
               id="copy-console"

@@ -75,6 +75,8 @@ export const windowInfo = {
   NONEDITOR: 235,
   CONSOLEPAD: 40,
   CONSOLESTART: 250,
+  CONSOLEMAX: 350,
+  CONSOLEMIN: 100,
 };
 
 export class Logger {

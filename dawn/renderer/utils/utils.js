@@ -70,6 +70,15 @@ export const timings = {
   SEC: 1000,
 };
 
+export const windowInfo = {
+  UNIT: 10,
+  NONEDITOR: 235,
+  CONSOLEPAD: 40,
+  CONSOLESTART: 250,
+  CONSOLEMAX: 350,
+  CONSOLEMIN: 100,
+};
+
 export class Logger {
   constructor(processname, firstline) {
     this.log_file = fs.createWriteStream(`./${Date.now()}-${processname}.log`, { flags: 'w' });

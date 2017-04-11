@@ -7,7 +7,7 @@ import {
   MenuItem,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
-import { remote, ipcRenderer } from 'electron';
+import { remote, ipcRenderer, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 
@@ -30,7 +30,7 @@ import 'brace/theme/terminal';
 
 import ConsoleOutput from './ConsoleOutput';
 import TooltipButton from './TooltipButton';
-import { pathToName, uploadStatus, robotState, defaults, timings, logging } from '../utils/utils';
+import { pathToName, uploadStatus, robotState, defaults, timings, logging, windowInfo } from '../utils/utils';
 
 const Client = require('ssh2').Client;
 
@@ -58,7 +58,6 @@ class Editor extends React.Component {
 
   constructor(props) {
     super(props);
-    this.consoleHeight = 250; // pixels
     this.themes = [
       'monokai',
       'github',
@@ -83,8 +82,12 @@ class Editor extends React.Component {
     this.upload = this.upload.bind(this);
     this.estop = this.estop.bind(this);
     this.simulateCompetition = this.simulateCompetition.bind(this);
+    this.raiseConsole = this.raiseConsole.bind(this);
+    this.lowerConsole = this.lowerConsole.bind(this);
+    this.copyConsole = this.copyConsole.bind(this);
     this.state = {
-      editorHeight: this.getEditorHeight(),
+      consoleHeight: windowInfo.CONSOLESTART,
+      editorHeight: 0,
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
       simulate: false,
@@ -96,7 +99,7 @@ class Editor extends React.Component {
    */
   componentDidMount() {
     this.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
-
+    this.onWindowResize();
     storage.get('editorTheme', (err, data) => {
       if (err) {
         logging.log(err);
@@ -129,7 +132,8 @@ class Editor extends React.Component {
   }
 
   getEditorHeight(windowHeight) {
-    const windowNonEditorHeight = 231 + (this.props.showConsole * (this.consoleHeight + 40));
+    const windowNonEditorHeight = windowInfo.NONEDITOR +
+      (this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
     return `${String(windowHeight - windowNonEditorHeight)}px`;
   }
 
@@ -369,6 +373,22 @@ class Editor extends React.Component {
     });
   }
 
+  raiseConsole() {
+    this.setState({ consoleHeight: this.state.consoleHeight + windowInfo.UNIT }, () => {
+      this.CodeEditor.editor.resize();
+    });
+  }
+
+  lowerConsole() {
+    this.setState({ consoleHeight: this.state.consoleHeight - windowInfo.UNIT }, () => {
+      this.CodeEditor.editor.resize();
+    });
+  }
+
+  copyConsole() {
+    clipboard.writeText(this.props.consoleData.join(''));
+  }
+
   decreaseFontsize() {
     this.props.onChangeFontsize(this.props.fontSize - 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err) => {
@@ -482,6 +502,26 @@ class Editor extends React.Component {
               onClick={this.props.onClearConsole}
               glyph="remove"
             />
+            <TooltipButton
+              id="raise-console"
+              text="Raise Console"
+              onClick={this.raiseConsole}
+              glyph="arrow-up"
+              disabled={this.state.consoleHeight > windowInfo.CONSOLEMAX}
+            />
+            <TooltipButton
+              id="lower-console"
+              text="Lower Console"
+              onClick={this.lowerConsole}
+              glyph="arrow-down"
+              disabled={this.state.consoleHeight < windowInfo.CONSOLEMIN}
+            />
+            <TooltipButton
+              id="copy-console"
+              text="Copy Console"
+              onClick={this.copyConsole}
+              glyph="copy"
+            />
           </ButtonGroup>
           <ButtonGroup id="editor-settings-buttons">
             <TooltipButton
@@ -531,7 +571,7 @@ class Editor extends React.Component {
         <ConsoleOutput
           toggleConsole={this.toggleConsole}
           show={this.props.showConsole}
-          height={this.consoleHeight}
+          height={this.state.consoleHeight}
           output={this.props.consoleData}
         />
       </Panel>

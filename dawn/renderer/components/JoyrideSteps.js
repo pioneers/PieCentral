@@ -29,7 +29,7 @@ export default [
     type: 'hover',
   }, {
     title: 'Code execution',
-    text: 'Use these buttons to run and stop your code, including a last-ditch Emergency-Stop. In addition to changing state,  you can simulate competition timings.',
+    text: 'Use these buttons to run and stop your code, including a last-ditch Emergency-Stop. In addition to changing state, there is an option to simulate the autonomous and teleop timings of a real match.',
     selector: '#code-execution-buttons',
     position: 'bottom',
     type: 'hover',

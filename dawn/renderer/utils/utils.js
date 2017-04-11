@@ -105,7 +105,7 @@ export class Logger {
   }
 }
 
-export let logging;
+export let logging; // eslint-disable-line import/no-mutable-exports
 
 export const startLog = () => {
   logging = new Logger('dawn', 'Renderer Debug');

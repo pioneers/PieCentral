@@ -32,11 +32,16 @@ class AppComponent extends React.Component {
     ipcRenderer.on('start-interactive-tour', () => {
       this.startTour();
     });
-    storage.has('firstTime').then((hasKey) => {
+    storage.has('firstTime', (hasErr, hasKey) => {
+      if (hasErr) {
+        logging.log(hasErr);
+        return;
+      }
+
       if (!hasKey) {
         this.startTour();
-        storage.set('firstTime', { first: true }, (err) => {
-          if (err) logging.log(err);
+        storage.set('firstTime', { first: true }, (setErr) => {
+          if (setErr) logging.log(setErr);
         });
       }
     });

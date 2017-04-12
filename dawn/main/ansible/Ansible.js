@@ -13,7 +13,7 @@ import {
   updateCodeStatus,
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
-import { uploadStatus, robotState, Logger } from '../../renderer/utils/utils';
+import { uploadStatus, robotState, Logger, defaults } from '../../renderer/utils/utils';
 
 const dawnBuilder = ProtoBuf.loadProtoFile(`${__dirname}/ansible.proto`);
 const DawnData = dawnBuilder.build('DawnData');
@@ -23,7 +23,6 @@ const RuntimeData = runtimeBuilder.build('RuntimeData');
 const notificationBuilder = ProtoBuf.loadProtoFile(`${__dirname}/notification.proto`);
 const Notification = notificationBuilder.build('Notification');
 
-const DEFAULT_IP = '192.168.0.200';
 const LISTEN_PORT = 1235;
 const SEND_PORT = 1236;
 const TCP_PORT = 1234;
@@ -47,29 +46,25 @@ function buildProto(data) {
   const gamepads = _.map(_.toArray(data.gamepads), (gamepad) => {
     const axes = _.toArray(gamepad.axes);
     const buttons = _.map(_.toArray(gamepad.buttons), Boolean);
-    const GamepadMsg = new DawnData.Gamepad({
+    return new DawnData.Gamepad({
       index: gamepad.index,
       axes,
       buttons,
     });
-    return GamepadMsg;
   });
 
-  const message = new DawnData({
+  return new DawnData({
     student_code_status: status,
     gamepads,
   });
-
-  return message;
 }
 
 class ListenSocket {
   constructor(logger) {
     this.logger = logger;
-    this.studentCodeStatusListener = this.studentCodeStatusListener.bind(this);
     this.statusUpdateTimeout = 0;
-    // TODO: Verify if reuseAddr prevents EADDRINUSE
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+    this.studentCodeStatusListener = this.studentCodeStatusListener.bind(this);
 
     /*
      * Runtime message handler. Sends robot state to store.info
@@ -130,13 +125,10 @@ class ListenSocket {
 class SendSocket {
   constructor(logger) {
     this.logger = logger;
+    this.runtimeIP = defaults.IPADDRESS;
+    this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
     this.sendGamepadMessages = this.sendGamepadMessages.bind(this);
     this.ipAddressListener = this.ipAddressListener.bind(this);
-
-    this.runtimeIP = DEFAULT_IP;
-
-    // TODO: Verify if reuseAddr prevents EADDRINUSE
-    this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
     this.socket.on('error', (err) => {
       this.logger.log('UDP sending error');

@@ -23,9 +23,6 @@ const plugins = [
   new webpack.DefinePlugin({
     VERSION: JSON.stringify(version),
   }),
-  new webpack.DefinePlugin({
-    'global.GENTLY': false,
-  }),
 ];
 
 export default [

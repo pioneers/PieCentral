@@ -52,19 +52,14 @@
     "brace": "0.10.0",
     "electron": "1.6.2",
     "electron-json-storage": "3.0.4",
-    "immutable": "3.8.1",
-    "json-loader": "0.5.4",
     "keymirror": "0.1.1",
     "lodash": "4.17.4",
-    "mousetrap": "1.6.1",
     "numeral": "2.0.6",
-    "object-assign": "4.1.1",
     "protobufjs": "5.0.1",
     "react": "15.5.4",
     "react-ace": "4.2.0",
     "react-bootstrap": "0.30.8",
     "react-dom": "15.5.4",
-    "react-immutable-proptypes": "2.1.0",
     "react-joyride": "1.10.1",
     "react-redux": "5.0.4",
     "redux": "3.6.0",
@@ -72,7 +67,6 @@
     "riek": "1.0.7",
     "seedrandom": "2.4.2",
     "smalltalk": "2.2.0",
-    "ssh2": "0.5.4",
-    "superagent": "3.5.2"
+    "ssh2": "0.5.4"
   }
 }

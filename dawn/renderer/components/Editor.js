@@ -216,7 +216,7 @@ class Editor extends React.Component {
           reject();
         } else {
           count += 1;
-          setTimeout(waitPromise.bind(this, resolve, reject), 1000);
+          setTimeout(waitPromise.bind(this, resolve, reject), 2000);
         }
       };
       return new Promise(waitPromise);

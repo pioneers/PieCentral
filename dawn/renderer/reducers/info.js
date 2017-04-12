@@ -3,8 +3,8 @@ import { robotState, runtimeState, defaults } from '../utils/utils';
 
 const initialInfoState = {
   ipAddress: defaults.IPADDRESS,
-  studentCodeStatus: 0,
-  robotState: 2,
+  studentCodeStatus: robotState.IDLE,
+  robotState: runtimeState.STUDENT_STOPPED,
   isRunningCode: false,
   connectionStatus: false,
   runtimeStatus: false,

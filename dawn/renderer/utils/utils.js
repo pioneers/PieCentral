@@ -81,16 +81,13 @@ export const windowInfo = {
 
 export class Logger {
   constructor(processname, firstline) {
-    let path = '';
-    if (processname === 'ansible') {
-      path = __dirname;
-      while (path.includes('dawn.')) {
-        path = path.substring(0, path.lastIndexOf('/'));
-      }
+    let path;
+    if (processname === 'dawn') {
+      path = require('electron').remote.app.getPath('desktop'); // eslint-disable-line global-require
     } else {
-      path = './../../..';
+      const { app } = require('electron'); // eslint-disable-line global-require
+      path = app.getPath('desktop');
     }
-    console.log(path);
     this.log_file = fs.createWriteStream(`${path}/${Date.now()}-${processname}.log`, { flags: 'w' });
     this.log_file.write(firstline);
     this.lastStr = '';

@@ -240,7 +240,7 @@ class Robot(StudentAPI):
                 raise StudentAPIKeyError()
             # return self.sensor_mappings[name]
         except Exception as e:
-            raise e
+            raise e # pylint: disable=raising-bad-type
 
     def emergency_stop(self):
         self.to_manager.put([SM_COMMANDS.EMERGENCY_STOP, []])

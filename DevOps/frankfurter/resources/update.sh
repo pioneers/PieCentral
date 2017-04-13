@@ -1,31 +1,39 @@
 #!/bin/bash
 
-####################################################################################
-# Robot-side script for installing an update. Unpacks the tarball given in an
-# individual update, then proceeds to defer to the individual update script to
-# complete the process.
-####################################################################################
+# update.sh -- Robot-side script for installing an update
+#
+# Unpacks a zipped tarball and calls an included script to perform the update.
 
-# We cannot assume this runs as `ubuntu` (e.g. `systemd` running as `root`)
-HOME=/home/ubuntu
+USER=ubuntu
+HOME=/home/$USER
 UPDATES_DIR=$HOME/updates
 TMP_DIR=$UPDATES_DIR/tmp
-
-if ! ls $UPDATES_DIR/frankfurter-update-*.tar.gz 1> /dev/null 2>&1; then
-  exit
-fi
 
 # Stop execution after first failure
 set -e
 
-sudo -u ubuntu mkdir -p $TMP_DIR
-cd $UPDATES_DIR
+echo 'Starting update: scanning for files ...'
 
-# Extract the tarball
-sudo -u ubuntu tar -xf $UPDATES_DIR/frankfurter-update-*.tar.gz -C $TMP_DIR --warning=no-timestamp
+for filename in $(ls -At $UPDATES_DIR); do
+  if [[ ! -z $(file $UPDATES_DIR/$filename | grep 'gzip compressed data') ]]; then
+    echo "Extracting $UPDATES_DIR/$filename ..."
+    sudo -u $USER mkdir -p $TMP_DIR
+    sudo -u $USER tar -xf $UPDATES_DIR/$filename -C $TMP_DIR --warning=no-timestamp
 
-# an update tarball should have all of the instructions on how to install itself in its
-# install_update.sh script, so we simply defer to it here.
-sudo -u ubuntu bash $TMP_DIR/install_update.sh
+    installer=$TMP_DIR/install_update.sh
+    if [ -e $installer ]; then
+      echo 'Running install script ...'
+      sudo -u $USER bash $installer
+    else
+      echo "Error: expected, but could not find '$installer'"
+    fi
 
-rm -f $UPDATES_DIR/*.tar.gz && rm -rf $UPDATES_DIR/tmp
+    echo 'Cleaning up temporary directory ...'
+    rm -f $UPDATES_DIR/$filename
+    rm -rf $TMP_DIR
+
+    break
+  fi
+done
+
+echo 'Done.'

@@ -460,7 +460,7 @@ class Editor extends React.Component {
               bsSize="small"
               key="dropdown"
               id="modeDropdown"
-              disabled={this.state.simulate}
+              disabled={this.state.simulate || !this.props.runtimeStatus}
             >
               <MenuItem
                 eventKey="1"

@@ -5,7 +5,10 @@ import ProtoBuf from 'protobufjs';
 import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
-import { updateConsole } from '../../renderer/actions/ConsoleActions';
+import {
+  updateConsole,
+  clearConsole,
+} from '../../renderer/actions/ConsoleActions';
 import {
   ansibleDisconnect,
   notifyChange,
@@ -267,6 +270,32 @@ class TCPServer {
 
     this.tcp.close();
   }
+}
+
+const onUpdateCodeStatus = (status) => {
+  RendererBridge.reduxDispatch(updateCodeStatus(status));
+}
+
+const onClearConsole = () => {
+  RendererBridge.reduxDispatch(clearConsole());
+}
+
+/* Redux short-circuiting for when field control wants to start/stop robot
+ */
+const startRobot = () => {
+  onUpdateCodeStatus(this.state.mode);
+  onClearConsole();
+}
+
+const stopRobot = () => {
+  /*
+  this.setState({ simulate: false,
+    modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
+      robotState.AUTOSTR : robotState.TELEOPSTR });
+  */
+  // TODO: be able to update editor gui to show "autonomous" or
+  // "teleop", etc. when needed
+  onUpdateCodeStatus(robotState.IDLE);
 }
 
 const Ansible = {

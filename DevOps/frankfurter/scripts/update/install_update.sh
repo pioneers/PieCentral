@@ -54,6 +54,8 @@ sudo systemctl enable runtime.service
 sudo systemctl enable update.service
 sudo systemctl enable field-mode.service
 
+sudo mv $TMP_DIR/resources/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
+
 ln -s $HOME/PieCentral/hibike/hibikeDevices.csv $HOME/PieCentral/runtime/testy/hibikeDevices.csv
 
 # Cleanup temporary directory

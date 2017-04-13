@@ -31,7 +31,6 @@ cp $PIECENTRAL_BACKUP_DIR/runtime/testy/namedPeripherals.csv $HOME/PieCentral/ru
 mv $TMP_DIR/resources/update.sh $HOME/bin
 mv $TMP_DIR/resources/mac.py $HOME/bin
 mv $TMP_DIR/resources/runtime.sh $HOME/bin
-mv $TMP_DIR/resources/whyfy.sh $HOME/bin
 
 # Configure executable permissions
 sudo chown ubuntu $HOME/bin/*
@@ -45,14 +44,11 @@ sudo chmod 644 $HOME/.bashrc
 # Update and enable services
 sudo mv $TMP_DIR/resources/runtime.service /lib/systemd/system
 sudo mv $TMP_DIR/resources/update.service /lib/systemd/system
-sudo mv $TMP_DIR/resources/field-mode.service /lib/systemd/system
 sudo chmod 644 /lib/systemd/system/runtime.service
 sudo chmod 644 /lib/systemd/system/update.service
-sudo chmod 644 /lib/systemd/system/field-mode.service
 sudo systemctl daemon-reload
 sudo systemctl enable runtime.service
 sudo systemctl enable update.service
-sudo systemctl enable field-mode.service
 
 sudo mv $TMP_DIR/resources/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
 

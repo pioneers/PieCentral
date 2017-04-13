@@ -21,18 +21,31 @@ function read-team-number() {
 
 set -e
 
+# Read user input
 read-team-number
 until [[ ! -z $(echo $teamnumber | grep -E '^[0-9]+$') ]]; do
   echo -e $WARNING"'$teamnumber' is not a valid team number."$CLEAR
   read-team-number
 done
-
 read -e -p 'Enter the team router password: ' teampsk
 
+# Copy template files
 cp $FRANKFURTER_DIR/resources/interfaces $BUILD_DIR
 cp $FRANKFURTER_DIR/resources/wpa_supplicant.conf $BUILD_DIR
 
+# Perform substitutions
 sed -i "22s/<field-addr>/$teamnumber/" $BUILD_DIR/interfaces
 sed -i "27s/<team-addr>/$(($teamnumber + 200))/" $BUILD_DIR/interfaces
 sed -i "9s/<team-ssid>/Team$teamnumber/" $BUILD_DIR/wpa_supplicant.conf
 sed -i "10s/<team-psk>/$teampsk/" $BUILD_DIR/wpa_supplicant.conf
+
+# Copy and move files
+scp $BUILD_DIR/interfaces $USER@$IP:~
+scp $BUILD_DIR/wpa_supplicant.conf $USER@$IP:~
+CMD='sudo mv ~/interfaces /etc/network/interfaces'
+CMD="$CMD && sudo mv ~/wpa_supplicant.conf /etc/wpa_supplicant"
+ssh -t $USER@$IP $CMD
+
+# Clean up
+rm $BUILD_DIR/interfaces
+rm $BUILD_DIR/wpa_supplicant.conf

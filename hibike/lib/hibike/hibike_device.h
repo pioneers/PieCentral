@@ -33,6 +33,7 @@ typedef enum {
 
 extern hibike_uid_t UID;
 void hibike_setup(uint32_t _disable_latency, uint32_t _heartbeatDelay);
+void hibike_setup(); //calls hibike_setup(args) with default values.
 void hibike_loop();
 void toggleLED();
 

@@ -48,10 +48,7 @@ const peripherals = (state = initialPeripheralState, action) => {
       });
       return nextState;
     }
-    case 'PERIPHERAL_DISCONNECT': {
-      delete nextPeripherals[action.id];
-      return nextState;
-    }
+    // Note: This is not being used since NameEdit is still broken
     case 'PERIPHERAL_RENAME': {
       nextPeripherals[action.id].name = action.name;
       return nextState;

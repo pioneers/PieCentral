@@ -29,13 +29,13 @@ export default [
     type: 'hover',
   }, {
     title: 'Code execution',
-    text: 'Use these buttons to run and stop your code, including a last-ditch Emergency-Stop.',
+    text: 'Use these buttons to run and stop your code, including a last-ditch Emergency-Stop. In addition to changing state, there is an option to simulate the autonomous and teleop timings of a real match.',
     selector: '#code-execution-buttons',
     position: 'bottom',
     type: 'hover',
   }, {
-    title: 'Console',
-    text: 'Use these buttons to toggle the output console and clear the output console.',
+    title: 'Output Console',
+    text: 'Use these buttons to see and clear the console, along with changing its size and copying console text.',
     selector: '#console-buttons',
     position: 'bottom',
     type: 'hover',
@@ -59,7 +59,7 @@ export default [
     type: 'hover',
   }, {
     title: 'Updates',
-    text: 'Occasionally we may release updates to the robot\'s software. When this happens, you will download two files, an update package and its signature, and click on this button to upload those updates to the robot.',
+    text: 'Occasionally we may release updates to the robot\'s software. When this happens, you will download the update package and click on this button to upload it to the robot. Please do not restart your robot.',
     selector: '#update-software-button',
     position: 'left',
     type: 'hover',

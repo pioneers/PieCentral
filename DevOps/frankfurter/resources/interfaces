@@ -5,7 +5,6 @@
 auto lo
 iface lo inet loopback
 
-# The primary network interface
 auto ra0
 iface ra0 inet static
     wpa-ssid "router_name"

@@ -1,10 +1,10 @@
 import { ipcRenderer } from 'electron';
-import { robotState, runtimeState } from '../utils/utils';
+import { robotState, runtimeState, defaults } from '../utils/utils';
 
 const initialInfoState = {
-  ipAddress: '192.168.7.2',
-  studentCodeStatus: 0,
-  robotState: 2,
+  ipAddress: defaults.IPADDRESS,
+  studentCodeStatus: robotState.IDLE,
+  robotState: runtimeState.STUDENT_STOPPED,
   isRunningCode: false,
   connectionStatus: false,
   runtimeStatus: false,
@@ -43,12 +43,8 @@ const info = (state = initialInfoState, action) => {
         runtimeStatus: false,
         studentCodeStatus: robotState.IDLE,
       };
-    case 'UPDATE_BATTERY':
-      return {
-        ...state,
-        batteryLevel: action.battery.value,
-      };
     case 'CODE_STATUS':
+      ipcRenderer.send('studentCodeStatus', { studentCodeStatus: action.studentCodeStatus });
       return {
         ...state,
         studentCodeStatus: action.studentCodeStatus,

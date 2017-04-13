@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+message FieldControlToDawn {
+    enum TeamColor {
+        NONE = 0;
+        BLUE = 1;
+        GOLD = 2;
+    }
+
+    enum StudentCodeStatus {
+        IDLE = 0;
+        TELEOP = 1;
+        AUTONOMOUS = 2;
+        ESTOP = 3;
+    }
+
+    TeamColor team_color = 1;
+    StudentCodeStatus student_code_status = 2;
+}
+
+message DawnToFieldControl {
+    enum DawnStatus {
+        STUDENT_DISCONNECT = 0;
+        IDLE = 1;
+        TELEOP = 2;
+        AUTO = 3;
+        ESTOP = 4;
+    }
+
+    DawnStatus dawn_status = 1;
+}

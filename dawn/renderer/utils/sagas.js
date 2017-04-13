@@ -9,12 +9,14 @@ import _ from 'lodash';
 import { delay, eventChannel, takeEvery } from 'redux-saga';
 import { call, cps, fork, put, race, select, take } from 'redux-saga/effects';
 import { ipcRenderer, remote } from 'electron';
+import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
+import { TIMEOUT, defaults, logging } from '../utils/utils';
 
-// const dialog = remote.dialog;
-// postpone looking into remote so tests can run
+const Client = require('ssh2').Client;
+
 let timestamp = Date.now();
 
 /**
@@ -116,7 +118,7 @@ function* saveFile(action) {
       filepath = yield call(saveFileDialog);
       yield* writeFile(filepath, code);
     } catch (e) {
-      console.log('No filename specified, file not saved.');
+      logging.log('No filename specified, file not saved.');
     }
   } else {
     yield* writeFile(filepath, code);
@@ -148,13 +150,13 @@ function* openFile(action) {
         const data = yield cps(fs.readFile, filepath, 'utf8');
         yield put(openFileSucceeded(data, filepath));
       } catch (e) {
-        console.log('No filename specified, no file opened.');
+        logging.log('No filename specified, no file opened.');
       }
     } else if (type === 'create') {
       yield put(openFileSucceeded('', null));
     }
   } else {
-    console.log(`File ${type} canceled.`);
+    logging.log(`File ${type} canceled.`);
   }
 }
 
@@ -171,7 +173,7 @@ function* runtimeHeartbeat() {
     // runtime. Only the winner will have a value.
     const result = yield race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, 1000), // The delay is 1000 ms, or 1 second.
+      timeout: call(delay, TIMEOUT), // The delay is 5000 ms, or 5 second.
     });
 
     // If update wins, we assume we are connected, otherwise disconnected.
@@ -270,7 +272,7 @@ function* ansibleSaga() {
       yield put(action);
     }
   } catch (e) {
-    console.log(e.stack);
+    logging.log(e.stack);
   }
 }
 
@@ -287,6 +289,46 @@ function* updateMainProcess() {
   ipcRenderer.send('stateUpdate', stateSlice);
 }
 
+function* restartRuntime() {
+  const conn = new Client();
+  const stateSlice = yield select(state => ({
+    runtimeStatus: state.info.runtimeStatus,
+    ipAddress: state.info.ipAddress,
+  }));
+  if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
+    const network = yield call(() => new Promise((resolve) => {
+      conn.on('ready', () => {
+        conn.exec('sudo systemctl restart runtime.service',
+          { pty: true }, (uperr, stream) => {
+            if (uperr) {
+              resolve(1);
+            }
+            stream.write(`${defaults.PASSWORD}\n`);
+            stream.on('exit', (code) => {
+              logging.log(`Runtime Restart: Returned ${code}`);
+              conn.end();
+              resolve(0);
+            });
+          });
+      }).connect({
+        debug: (inpt) => {
+          logging.log(inpt);
+        },
+        host: stateSlice.ipAddress,
+        port: defaults.PORT,
+        username: defaults.USERNAME,
+        password: defaults.PASSWORD,
+      });
+    }));
+    if (network === 1) {
+      yield addAsyncAlert(
+      'Runtime Restart Error',
+      'Dawn was unable to run restart commands. Please check your robot connectivity.',
+      );
+    }
+  }
+}
+
 /**
  * The root saga combines all the other sagas together into one.
  */
@@ -296,6 +338,7 @@ export default function* rootSaga() {
     takeEvery('SAVE_FILE', saveFile),
     takeEvery('CREATE_NEW_FILE', openFile),
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
+    takeEvery('RESTART_RUNTIME', restartRuntime),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),
     fork(ansibleSaga),

@@ -15,34 +15,38 @@ cleanerNames[PeripheralTypes.Encoder] = 'Encoders';
 // cleanerNames[PeripheralTypes.ColorSensor] = 'Color Sensors';
 cleanerNames[PeripheralTypes.MetalDetector] = 'Metal Detectors';
 cleanerNames[PeripheralTypes.ServoControl] = 'Servo Controllers';
+cleanerNames[PeripheralTypes.RFID] = 'RFID';
+cleanerNames[PeripheralTypes.YogiBear] = 'Yogi Bear';
 
+const filter = new Set([PeripheralTypes.TeamFlag]);
 
 const handleAccordion = (array) => {
   const peripheralGroups = {};
-  array.forEach((p) => {
+
+  array.filter(p => !filter.has(p.device_type)).forEach((p) => {
     if (!(p.device_type in peripheralGroups)) {
       peripheralGroups[p.device_type] = [];
     }
     peripheralGroups[p.device_type].push(p);
   });
   return (
-      _.map(Object.keys(peripheralGroups), groups => (
-        <Accordion style={{ marginBottom: '2px' }} key={`${cleanerNames[groups] || 'Default'}-Accordion`}>
-          <Panel header={cleanerNames[groups] || 'Generic'} key={`${cleanerNames[groups] || 'Default'}-Panel`}>
-            {
-              _.map(peripheralGroups[groups], peripheral => (
-                <Peripheral
-                  key={String(peripheral.uid.high) + String(peripheral.uid.low)}
-                  id={String(peripheral.uid.high) + String(peripheral.uid.low)}
-                  device_name={peripheral.device_name}
-                  device_type={peripheral.device_type}
-                  param={peripheral.param_value}
-                />
-              ))
-            }
-          </Panel>
-        </Accordion>
-      ))
+    _.map(Object.keys(peripheralGroups), groups => (
+      <Accordion style={{ marginBottom: '2px' }} key={`${cleanerNames[groups] || 'Default'}-Accordion`}>
+        <Panel header={cleanerNames[groups] || 'Generic'} key={`${cleanerNames[groups] || 'Default'}-Panel`}>
+          {
+            _.map(peripheralGroups[groups], peripheral => (
+              <Peripheral
+                key={String(peripheral.uid)}
+                id={String(peripheral.uid)}
+                device_name={peripheral.device_name}
+                device_type={peripheral.device_type}
+                param={peripheral.param_value}
+              />
+            ))
+          }
+        </Panel>
+      </Accordion>
+    ))
   );
 };
 
@@ -64,7 +68,7 @@ const PeripheralList = (props) => {
       <ListGroup fill style={{ marginBottom: '5px' }}>
         {
           !errorMsg ? handleAccordion(
-            _.sortBy(_.toArray(props.peripherals), ['device_type', 'device_name']))
+            _.sortBy(_.toArray(props.peripherals.peripheralList), ['device_type', 'device_name']))
           : <p className="panelText">{errorMsg}</p>
         }
       </ListGroup>

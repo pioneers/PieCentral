@@ -23,26 +23,26 @@ export default [
     type: 'hover',
   }, {
     title: 'File operations',
-    text: 'Use these buttons to create, open, and save code files.',
+    text: 'Use these buttons to create, open, save, and upload code files.',
     selector: '#file-operations-buttons',
     position: 'bottom',
     type: 'hover',
   }, {
     title: 'Code execution',
-    text: 'Use these buttons to run and stop your code, upload your code (for the competition), toggle the output console, and clear the output console.',
+    text: 'Use these buttons to run and stop your code, including a last-ditch Emergency-Stop. In addition to changing state, there is an option to simulate the autonomous and teleop timings of a real match.',
     selector: '#code-execution-buttons',
     position: 'bottom',
     type: 'hover',
   }, {
-    title: 'Game mode',
-    text: 'Use these modes to simulate the progression of a match. Robots start the match in autonomous mode. Afterwards, they are disabled for a few moments while referees tabulate scores. Then the robots enter tele-operated mode.',
-    selector: '#choose-mode',
+    title: 'Output Console',
+    text: 'Use these buttons to see and clear the console, along with changing its size and copying console text.',
+    selector: '#console-buttons',
     position: 'bottom',
     type: 'hover',
   }, {
-    title: 'Editor Theme',
-    text: 'You can choose your editor\'s theme using this dropdown. Your preferences will be saved automatically.',
-    selector: '#choose-theme',
+    title: 'Editor Settings',
+    text: 'You can change the font size of the editor and change your editor\'s theme using these buttons. Your preferences will be saved automatically.',
+    selector: '#editor-settings-buttons',
     position: 'bottom',
     type: 'hover',
   }, {
@@ -59,7 +59,7 @@ export default [
     type: 'hover',
   }, {
     title: 'Updates',
-    text: 'Occasionally we may release updates to the robot\'s software. When this happens, you will download two files, an update package and its signature, and click on this button to upload those updates to the robot.',
+    text: 'Occasionally we may release updates to the robot\'s software. When this happens, you will download the update package and click on this button to upload it to the robot. Please do not restart your robot.',
     selector: '#update-software-button',
     position: 'left',
     type: 'hover',

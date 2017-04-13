@@ -18,24 +18,34 @@ const sendSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 const listenSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 const interval = 1000; // in ms
 
-const robotState = {
-  IDLE: 0,
-  RUNNING: 1,
-  ESTOP: 5,
-};
-let state = robotState.IDLE;
+let state = RuntimeData.State.STUDENT_STOPPED;
 
 listenSocket.on('message', (msg) => {
   const data = DawnData.decode(msg);
   switch (data.student_code_status) {
-    case 'IDLE':
-      state = robotState.IDLE;
+    case DawnData.StudentCodeStatus.TELEOP:
+      if (state !== RuntimeData.State.TELEOP) {
+        console.log('Fake Runtime in Teleop');
+        state = RuntimeData.State.TELEOP;
+      }
       break;
-    case 'ESTOP':
-      state = robotState.ESTOP;
+    case DawnData.StudentCodeStatus.ESTOP:
+      if (state !== RuntimeData.State.ESTOP) {
+        console.log('Fake Runtime Estopped');
+        state = RuntimeData.State.ESTOP;
+      }
+      break;
+    case DawnData.StudentCodeStatus.AUTONOMOUS:
+      if (state !== RuntimeData.State.AUTO) {
+        console.log('Fake Runtime in Autonomous');
+        state = RuntimeData.State.AUTO;
+      }
       break;
     default:
-      state = robotState.RUNNING;
+      if (state !== RuntimeData.State.STUDENT_STOPPED) {
+        console.log('Fake Runtime in IDLE');
+      }
+      state = RuntimeData.State.STUDENT_STOPPED;
   }
 });
 
@@ -49,51 +59,51 @@ const generateFakeData = () => (
     sensor_data: [{
       device_type: 'MOTOR_SCALAR',
       device_name: 'MS1',
-      param_value: {
+      param_value: [{
         param: 'Val',
         float_value: randomFloat(-100, 100),
-      },
-      uid: 100,
+      }],
+      uid: '100',
     }, {
       device_type: 'MOTOR_SCALAR',
       device_name: 'MS2',
-      param_value: {
+      param_value: [{
         param: 'Val',
         float_value: randomFloat(-100, 100),
-      },
-      uid: 101,
+      }],
+      uid: '101',
     }, {
       device_type: 'LimitSwitch',
       device_name: 'LS1',
-      param_value: {
+      param_value: [{
         param: 'Val',
         int_value: Math.round(randomFloat(0, 1)),
-      },
-      uid: 102,
+      }],
+      uid: '102',
     }, {
       device_type: 'SENSOR_SCALAR',
       device_name: 'SS1',
-      param_value: {
+      param_value: [{
         param: 'Val',
         float_value: randomFloat(-100, 100),
-      },
-      uid: 103,
+      }],
+      uid: '103',
     }, {
       device_type: 'SENSOR_SCALAR',
       device_name: 'SS2',
-      param_value: {
+      param_value: [{
         param: 'Val',
         float_value: randomFloat(-100, 100),
-      },
-      uid: 104,
+      }],
+      uid: '104',
     }, {
       device_type: 'ServoControl',
       device_name: 'SC1',
-      param_value: {
+      param_value: [{
         param: 'Val',
         int_value: Math.round(randomFloat(0, 180)),
-      },
-      uid: 105,
+      }],
+      uid: '105',
     }, {
       device_type: 'ColorSensor',
       device_name: 'CS1',
@@ -104,7 +114,7 @@ const generateFakeData = () => (
         param: 'Val2',
         float_value: randomFloat(0, 255),
       }],
-      uid: 106,
+      uid: '106',
     }],
   });
 

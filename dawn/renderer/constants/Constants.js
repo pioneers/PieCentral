@@ -1,9 +1,6 @@
 import keyMirror from 'keymirror';
 
-export const VERSION = '0.4.0';
-export const ActionTypes = keyMirror({
-  UPDATE_GAMEPADS: null,
-});
+export const VERSION = '0.6.0';
 export const PeripheralTypes = keyMirror({
   MOTOR_SCALAR: null,
   SENSOR_BOOLEAN: null,
@@ -16,4 +13,8 @@ export const PeripheralTypes = keyMirror({
   MetalDetector: null,
   ExampleDevice: null,
   ServoControl: null,
+  YogiBear: null,
+  RFID: null,
+  BatteryBuzzer: null,
+  TeamFlag: null,
 });

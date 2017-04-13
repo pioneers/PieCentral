@@ -12,6 +12,8 @@ __all__ = ["hibike_process"]
 
 
 uid_to_index = {}
+# .04 milliseconds sleep is the same frequency we subscribe to devices at
+BATCH_SLEEP_TIME = .04
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     
@@ -47,13 +49,17 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     # these threads receive instructions from the main thread and write to devices
     write_threads = [threading.Thread(target=device_write_thread, args=(ser, iq)) for ser, iq in zip(serials, instruction_queues)]
 
-    # these threads receive packets from devices and write to statequeue
-    read_threads = [threading.Thread(target=device_read_thread, args=(index, ser, iq, None, stateQueue)) for index, (ser, iq) in enumerate(zip(serials, instruction_queues))]
+    # these threads receive packets from devices and write to stateQueue
+    batched_data = {}
+    read_threads = [threading.Thread(target=device_read_thread, args=(index, ser, iq, None, stateQueue, batched_data)) for index, (ser, iq) in enumerate(zip(serials, instruction_queues))]
+
+    batch_thread = threading.Thread(target=batch_data, args=(batched_data, stateQueue))
 
     for read_thread in read_threads:
         read_thread.start()
     for write_thread in write_threads:
         write_thread.start()
+    batch_thread.start()
 
     # Pings all devices and tells them to stop sending data
     for instruction_queue in instruction_queues:
@@ -102,10 +108,10 @@ def device_write_thread(ser, queue):
             hm.send(ser, hm.make_disable())
         elif instruction == "heartResp":
             uid = args[0]
-            hm.send(ser, hm.make_heartbeat_response(hm.uid_to_device_id(uid)))
+            hm.send(ser, hm.make_heartbeat_response())
 
 
-def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
+def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue, batched_data):
     uid = None
     while True:
         for packet in hm.blocking_read_generator(ser):
@@ -117,8 +123,7 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
             elif message_type == hm.messageTypes["DeviceData"]:
                 if uid is not None:
                     params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-                    stateQueue.put(("device_values", [uid, params_and_values]))
-                    instructionQueue.put(("heartResp", [uid]))
+                    batched_data[uid] = params_and_values
                 else:
                     print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
                     print("Telling it to shut up")
@@ -126,6 +131,11 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
             elif message_type == hm.messageTypes["HeartBeatRequest"]:
                 if uid is not None:
                     instructionQueue.put(("heartResp", [uid]))
+
+def batch_data(data, stateQueue):
+    while True:
+        time.sleep(BATCH_SLEEP_TIME)
+        stateQueue.put(("device_values", [data]))
 
 
 #############
@@ -174,13 +184,13 @@ if __name__ == "__main__":
                         ], 0.1)
                 elif hm.devices[hm.uid_to_device_id(uid)]["name"] == "YogiBear":
                     set_interval_sequence([
-                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0)]),
-                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0.5)]),
-                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 1.0)]),
-                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0)]),
-                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", -0.5)]),
-                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", -1.0)]),
-                        make_send_write(pipeToChild, uid, [("enable", True),("duty_cycle", 0)])
+                        make_send_write(pipeToChild, uid, [("duty_cycle", 0)]),
+                        make_send_write(pipeToChild, uid, [("duty_cycle", 0.5)]),
+                        make_send_write(pipeToChild, uid, [("duty_cycle", 1.0)]),
+                        make_send_write(pipeToChild, uid, [("duty_cycle", 0)]),
+                        make_send_write(pipeToChild, uid, [("duty_cycle", -0.5)]),
+                        make_send_write(pipeToChild, uid, [("duty_cycle", -1.0)]),
+                        make_send_write(pipeToChild, uid, [("duty_cycle", 0)])
                         ], 0.75)
                 elif hm.devices[hm.uid_to_device_id(uid)]["name"] == "ServoControl":
                     set_interval_sequence([

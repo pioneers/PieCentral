@@ -9,7 +9,9 @@ is possible.
 
 ## Setting up a Beaglebone Black
 
-There likely won't ever be a way to easily deploy a BBB on Windows. On macOS/Linux, the preferred way of bringing up a Beaglebone is:
+### Base Installation
+
+The preferred way of bringing up a Beaglebone is:
 
 1. Get a prebuilt micro SD card from the DevOps box (currently, they are labeled "Frank III").
 2. Insert the card into the Beaglebone you wish to flash while the Beaglebone is off.
@@ -19,20 +21,32 @@ There likely won't ever be a way to easily deploy a BBB on Windows. On macOS/Lin
 6. Wait about 15 minutes for the image to be flashed.
 7. Power down with `sudo shutdown now`.
 8. Remove the card.
+9. Continue to the [team-specific configuration instructions](#team-specific-configuration).
 
 Alternatively,
 
 1. Download a [stock Ubuntu prebuilt image](http://elinux.org/BeagleBoardUbuntu#eMMC:_All_BeagleBone_Varients_with_eMMC) (preferably 16.04).
 2. Follow the instructions given by the link in step 1 to bring up a Beaglebone running stock Ubuntu.
-3. Be sure you can `ssh ubuntu@192.168.7.2`. You may need to configure your computer to be able to see the Beaglebone. If you can't `ssh`, run `ifconfig`, identify the name of the interface shared with the Beaglebone, and run `sudo ifconfig <interface> 192.168.7.1`.
-4. Connect the Beaglebone to the internet. You should be able to get a response from `ping 8.8.8.8`, but not necessarily from `ping google.com`. One way to do this is to open  `frankfurter/scripts/install/bbb-usb-wifi.sh` in a text editor, carefully modify it to work on your machine, `sudo su`, and run the script. Afterwards, `exit` from `sudo`.
+3. Be sure you can `ssh ubuntu@192.168.7.2`. See the [networking section](#networking) for setup instructions.
+4. Connect the Beaglebone to the internet. You should be able to get a response from `ping 8.8.8.8`, but not necessarily from `ping google.com`. One way to do this is to run  `frankfurter/scripts/toos/usb-fwd.sh`, possibly as `sudo`.
 5. On your machine, run `frankfurter/scripts/install/start_frank_install.sh`. Type in `ubuntu`'s password as many times as is necessary.
 6. `ssh` in, and run `start_tmux_job.sh`. Again, enter `ubuntu`'s password as necessary.
 7. After the kernel is upgraded (to ensure `linux-headers-$(uname -r)` is available), the Beaglebone will automatically reboot. As instructed, reconnect the Beaglebone to the internet after the reboot, `ssh` in, and run `tmux new-session -d '~/PieCentral/DevOps/frankfurter/scripts/install/master_frank_setup.sh'`.
-8. Wait about one hour for the Beaglebone to configure and install all dependencies (most of this time is used to build the wireless dongle driver). You can check on the status of your build with `tmux attach`.
-9. `sudo reboot`, `ssh` in again, and ensure everything is correctly configured. Try `systemctl status runtime.service`.
+8. Wait about one hour for the Beaglebone to configure and install all dependencies (most of this time is used to install the `linux-headers` package and build the wireless dongle driver). You can check on the status of your installation with `tmux attach`.
+9. Power down with `sudo shutdown now`.
+10. Continue to the [team-specific configuration instructions](#team-specific-configuration).
 
-### `runtime` and `memcached`
+### Team-Specific Configuration
+
+1. Power on the Beaglebone.
+2. Navigate to `frankfurter/resources`.
+3. Run `python3 interfaces.py`. Follow the prompts. This configures the Beaglebone to connect to a team-specific router.
+4. Navigate to `frankfurter/scripts/update`.
+5. Acquire or build an update zipped tarball that is placed in `frankfurter/build`, and run `./deploy_update.sh`.
+6. Navigate to `frankfurter/scripts/tools`.
+7. Run `./usb-fix.sh`. The Beaglebone should reboot.
+
+## `runtime` and `memcached`
 
 `runtime` is started on boot by `runtime.service` by `systemd` (see pioneers/PieCentral#100, installed to `/lib/systemd/system`).
 
@@ -44,7 +58,7 @@ To interact with the runtime service, run `sudo systemctl <command> runtime.serv
 
 `memcached` has been configured to run on port `12357`. See `resources/memcached.conf`.
 
-### Installed Executables
+## Installed Executables
 
 After setup, the following executables are available in `/home/ubuntu/bin`:
 
@@ -62,6 +76,24 @@ into a tarball. From here, we can take the files created (they're placed in the
 ## Update deployment
 `deploy_update` assumes that you're USB tethered to a Beaglebone and then uploads and installs an update
 to the connected beaglebone, creating a new update using `create_update` if the `frankfurter/build` directory does not exist.
+
+## Networking
+
+### [Unsupported] USB
+
+**With the implementation of the USB fix, `ssh` over USB is now disabled. These instructions remain for working with pre-USB-fix Beaglebones.**
+
+To `ssh` over USB:
+
+1. Power on the Beaglebone with a mini-USB cable.
+2. Try `ssh ubuntu@192.168.7.2`. If your computer can see the Beaglebone (that is, you get a `Connection refused` error or receive a prompt for `ubuntu`'s password), stop. Otherwise, continue.
+3. Run `ifconfig` and identify the name of the interface shared with the Beaglebone.
+4. Run `ifconfig <iface-name> 192.168.7.1`. This may require `sudo`.
+5. Once connected, the Beaglebone will be available at `192.168.7.2`.
+
+### FTDI USB to Serial Adapter
+
+See [these instructions](https://dave.cheney.net/2013/09/22/two-point-five-ways-to-access-the-serial-console-on-your-beaglebone-black).
 
 ## Some Notes
 1. Beaglebones are set-up using the master branch of PieCentral repository at the time of set-up.

@@ -3,8 +3,7 @@
 uint16_t data[NUM_PINS];
 
 void setup() {
-  hibike_setup(500, 100); //500 ms without heartbeat to disable, ask for heartbeats at 100 ms.
-
+  hibike_setup(); //use default heartbeat rates. look at /lib/hibike/hibike_device.cpp for exact values
   // Setup sensor input
   for (int i = 0; i < NUM_PINS; i++) {
     pinMode(pins[i], INPUT);
@@ -43,7 +42,7 @@ uint32_t device_write(uint8_t param, uint8_t* data, size_t len) {
 //    return          -   sizeof(param) on success; 0 otherwise 
 
 uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
-  if (MAX_PAYLOAD_SIZE - len < sizeof(uint8_t)|| param > 2 || param < 0) {
+  if (len < sizeof(uint8_t)|| param > 2) {
     return 0;
   }
   float *data_float = (float *)data;

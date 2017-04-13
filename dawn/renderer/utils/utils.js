@@ -81,7 +81,17 @@ export const windowInfo = {
 
 export class Logger {
   constructor(processname, firstline) {
-    this.log_file = fs.createWriteStream(`${__dirname}/${Date.now()}-${processname}.log`, { flags: 'w' });
+    let path = '';
+    if (processname === 'ansible') {
+      path = __dirname;
+      while (path.includes('dawn.')) {
+        path = path.substring(0, path.lastIndexOf('/'));
+      }
+    } else {
+      path = './../../..';
+    }
+    console.log(path);
+    this.log_file = fs.createWriteStream(`${path}/${Date.now()}-${processname}.log`, { flags: 'w' });
     this.log_file.write(firstline);
     this.lastStr = '';
   }

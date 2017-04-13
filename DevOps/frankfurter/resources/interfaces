@@ -7,9 +7,10 @@ iface lo inet loopback
 
 auto eth0
 iface eth0 inet static
-    address 192.168.1.2
+    address 192.168.6.2
     netmask 255.255.255.0
-    gateway 192.168.1.1
+    network 192.168.0.0
+    gateway 192.168.0.1
 
 auto ra0
 allow-hotplog ra0
@@ -18,12 +19,12 @@ wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
 
 # From the networking spec
 iface field inet static
-    address 245.245.245.37
+    address 245.245.245.<field-addr>
     gateway 245.245.245.245
     netmask 245.245.245.0
 
 iface team inet static
-    address 192.168.0.200
+    address 192.168.0.<team-addr>
     netmask 255.255.255.0
     network 192.168.0.0
     gateway 192.168.0.1

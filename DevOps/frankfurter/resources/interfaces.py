@@ -7,18 +7,19 @@ interfaces -- Create and copy a custom network interface
 import os
 import paramiko
 from scp import SCPClient
+import readline
 
 HOST = '192.168.7.2'
 USERNAME, PASSWORD = 'ubuntu', 'temppwd'
 TMP_FILE_PATH = '/tmp/interfaces'
 
 
-def read_user_input(prompt):
+def read_int(prompt):
     while True:
         try:
             return int(input(prompt))
         except ValueError:
-            print('Not a number.')
+            print('Not an integer.')
 
 
 def build_custom_config(team_number, password):
@@ -68,8 +69,8 @@ def delete_tmp_file():
 
 
 def main():
-    team_number = read_user_input('Please enter the team number: ')
-    password = read_user_input('Please enter the router password: ')
+    team_number = read_int('Please enter the team number: ')
+    password = input('Please enter the router password: ')
     lines = build_custom_config(team_number, password)
     write_tmp_file(lines)
     copy_files(team_number)

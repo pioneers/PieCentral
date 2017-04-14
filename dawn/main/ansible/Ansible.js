@@ -283,19 +283,14 @@ const onClearConsole = () => {
 /* Redux short-circuiting for when field control wants to start/stop robot
  */
 const startRobot = () => { // eslint-disable-line no-unused-vars
-  onUpdateCodeStatus(this.state.mode);
-  onClearConsole();
+  // TODO: Probably move this to Editor using ipcRenderer/ipcMain. this.state.mode doesn't exist here.
+  RendererBridge.reduxDispatch(onUpdateCodeStatus(this.state.mode));
+  RendererBridge.reduxDispatch(onClearConsole());
 };
 
 const stopRobot = () => { // eslint-disable-line no-unused-vars
-  /*
-  this.setState({ simulate: false,
-    modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
-      robotState.AUTOSTR : robotState.TELEOPSTR });
-  */
-  // TODO: be able to update editor gui to show "autonomous" or
-  // "teleop", etc. when needed
-  onUpdateCodeStatus(robotState.IDLE);
+  // TODO: Probably move this to Editor using ipcRenderer/ipcMain. GUI can't change here.
+  RendererBridge.reduxDispatch(onUpdateCodeStatus(robotState.IDLE));
 };
 
 const Ansible = {

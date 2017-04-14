@@ -207,7 +207,7 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
         event = BAD_EVENTS.STUDENT_CODE_TIMEOUT
         bad_things_queue.put(BadThing(sys.exc_info(), event.value, event=event))
     except StudentAPIError:
-        event = BAD_EVENTS.STUDENT_CODE_VALUE_ERROR # pylint: disable=redefined-variable-type
+        event = BAD_EVENTS.STUDENT_CODE_VALUE_ERROR
         bad_things_queue.put(BadThing(sys.exc_info(), event.value, event=event))
     except Exception as e:  # something broke in student code
         bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.STUDENT_CODE_ERROR))

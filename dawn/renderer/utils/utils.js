@@ -81,7 +81,14 @@ export const windowInfo = {
 
 export class Logger {
   constructor(processname, firstline) {
-    this.log_file = fs.createWriteStream(`./${Date.now()}-${processname}.log`, { flags: 'w' });
+    let path;
+    if (processname === 'dawn') {
+      path = require('electron').remote.app.getPath('desktop'); // eslint-disable-line global-require
+    } else {
+      const { app } = require('electron'); // eslint-disable-line global-require
+      path = app.getPath('desktop');
+    }
+    this.log_file = fs.createWriteStream(`${path}/${Date.now()}-${processname}.log`, { flags: 'w' });
     this.log_file.write(firstline);
     this.lastStr = '';
   }

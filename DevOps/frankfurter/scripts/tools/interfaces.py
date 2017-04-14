@@ -21,25 +21,20 @@ def read_user_input(prompt):
             print('Not a number.')
 
 
-
 def build_custom_config(team_number, password):
-    first = True
-    with open('field_interfaces') as network_config_file:
+    with open('interfaces') as network_config_file:
         for line in network_config_file:
-            if line.startswith('iface student'):
-                line = line.replace('dhcp', 'static')
             if 'router_name' in line:
                 line = line.replace('router_name', 'Team{0}'.format(team_number))
             if 'router_password' in line:
                 line = line.replace('router_password', str(password))
             yield line[:-1]  # Take off the newline
-            if 'wpa-psk' in line and first:
+            if 'wpa-psk' in line:
                 indent = ' '*4
                 yield indent + 'address 192.168.0.{0}'.format(200 + team_number)
                 yield indent + 'netmask 255.255.255.0'
                 yield indent + 'network 192.168.0.0'
                 yield indent + 'gateway 192.168.0.1'
-                first = False
 
 
 def write_tmp_file(lines):
@@ -72,7 +67,7 @@ def main():
     lines = build_custom_config(team_number, password)
     write_tmp_file(lines)
     copy_network_config_file()
-#    delete_tmp_file()
+    delete_tmp_file()
 
 
 if __name__ == '__main__':

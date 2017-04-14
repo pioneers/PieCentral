@@ -274,20 +274,20 @@ class TCPServer {
 
 const onUpdateCodeStatus = (status) => {
   RendererBridge.reduxDispatch(updateCodeStatus(status));
-}
+};
 
 const onClearConsole = () => {
   RendererBridge.reduxDispatch(clearConsole());
-}
+};
 
 /* Redux short-circuiting for when field control wants to start/stop robot
  */
-const startRobot = () => {
+const startRobot = () => { // eslint-disable-line no-unused-vars
   onUpdateCodeStatus(this.state.mode);
   onClearConsole();
-}
+};
 
-const stopRobot = () => {
+const stopRobot = () => { // eslint-disable-line no-unused-vars
   /*
   this.setState({ simulate: false,
     modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
@@ -296,7 +296,7 @@ const stopRobot = () => {
   // TODO: be able to update editor gui to show "autonomous" or
   // "teleop", etc. when needed
   onUpdateCodeStatus(robotState.IDLE);
-}
+};
 
 const Ansible = {
   conns: [],

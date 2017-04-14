@@ -1,6 +1,6 @@
 import keyMirror from 'keymirror';
 
-export const VERSION = '0.6.0';
+export const VERSION = 'FCD-0.1.0';
 export const PeripheralTypes = keyMirror({
   MOTOR_SCALAR: null,
   SENSOR_BOOLEAN: null,
@@ -17,4 +17,29 @@ export const PeripheralTypes = keyMirror({
   RFID: null,
   BatteryBuzzer: null,
   TeamFlag: null,
+});
+
+export const ActionTypes = keyMirror({
+  UPDATE_BATTERY: null,
+  UPDATE_GAMEPADS: null,
+  UPDATE_EDITOR: null,
+  UPDATE_FILENAMES: null,
+  UPDATE_FILENAME: null,
+  UPDATE_PERIPHERAL: null,
+  UPDATE_STATUS: null,
+  UPDATE_CONNECTION: null,
+  UPDATE_LIGHTHOUSETIMER: null,
+  SAVE_FILE: null,
+  OPEN_FILE: null,
+  CLEAR_EDITOR: null,
+  UPDATE_CONSOLE: null,
+  UPDATE_TIMER: null,
+  UPDATE_HEART: null,
+  UPDATE_ROBOT: null,
+  UPDATE_MATCH: null,
+  UPDATE_SCORE: null,
+  ADD_ALERT: null,
+  REMOVE_ALERT: null,
+  CLEAR_CONSOLE: null,
+  runtime_version: null,
 });

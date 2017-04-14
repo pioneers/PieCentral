@@ -1,77 +1,85 @@
-import LCM from './lcm_ws_bridge'
-import FieldActions from '../actions/FieldActions.js'
-import RobotInfoStore from '../stores/RobotInfoStore'
-
 import fs from 'fs';
-export const stationNumber = parseInt(fs.readFileSync('/opt/driver_station/station_number.txt'));
-export const bridgeAddress = fs.readFileSync('/opt/driver_station/lcm_bridge_addr.txt');
-console.log("station: " + stationNumber);
-console.log("bridge: " + bridgeAddress);
+import LCM from './lcm_ws_bridge';
+import { updateTimer,
+        updateHeart,
+        updateRobot,
+        updateMatch,
+        updateScore,
+        updateLighthouseTimer }
+        from '../actions/FieldActions';
+import store from '../store';
 
+export const stationNumber = parseInt(fs.readFileSync('/opt/driver_station/station_number.txt'), 10);
+export const bridgeAddress = fs.readFileSync('/opt/driver_station/lcm_bridge_addr.txt');
+console.log(`Station: ${stationNumber}`);
+console.log(`Bridge: ${bridgeAddress}`);
 
 let lcm = null;
-let lcm_ready = false;
-let queued_publish = null;
+let lcmReady = false;
+let queuedPublish = null;
 
-function makeLCM(){
-    lcm = new LCM('ws://' + bridgeAddress + ':8000/');
-    function subscribeAll() {
-        lcm_ready = true;
-        console.log('Connected to LCM Bridge');
-        if (queued_publish !== null) {
-            lcm.publish(queued_publish[0], queued_publish[1]);
-            queued_publish = null;
-        }
+function lcmPublish(channel, msg) {
+  if (lcmReady) {
+    lcm.publish(channel, msg);
+  } else {
+    console.log('lcm publish queued');
+    queuedPublish = [channel, msg];
+  }
+}
 
-        lcm.subscribe("Timer/Time", "Time", function(msg) {
-           FieldActions.updateTimer(msg)
-        });
-        lcm.subscribe("Heartbeat/Beat", "Heartbeat", function(msg) {
-           FieldActions.updateHeart(msg)
-        });
-        lcm.subscribe("Robot" + stationNumber + "/RobotControl", "RobotControl", function(msg) {
-            FieldActions.updateRobot(msg)
-        });
-        lcm.subscribe("Timer/Match", "Match", function(msg) {
-            FieldActions.updateMatch(msg)
-        });
-        lcm.subscribe("LiveScore/LiveScore", "LiveScore", function(msg) {
-            FieldActions.updateScore(msg)
-        });
-        lcm.subscribe("LighthouseTimer/LighthouseTime", "LighthouseTime", FieldActions.updateLighthouseTimer)
+function makeLCM() {
+  lcm = new LCM(`ws://${bridgeAddress}:8000/`);
+  lcm.on_ready(() => {
+    lcmReady = true;
+    console.log('Connected to LCM Bridge');
+    if (queuedPublish !== null) {
+      lcm.publish(queuedPublish[0], queuedPublish[1]);
+      queuedPublish = null;
     }
-    lcm.on_ready(subscribeAll);
-    lcm.on_close(makeLCM);
+    lcm.subscribe('Timer/Time', 'Time', (msg) => {
+      updateTimer(msg);
+    });
+    lcm.subscribe('Heartbeat/Beat', 'Heartbeat', (msg) => {
+      updateHeart(msg);
+    });
+    lcm.subscribe(`Robot${stationNumber}/RobotControl`, 'RobotControl', (msg) => {
+      updateRobot(msg);
+    });
+    lcm.subscribe('Timer/Match', 'Match', (msg) => {
+      updateMatch(msg);
+    });
+    lcm.subscribe('LiveScore/LiveScore', 'LiveScore', (msg) => {
+      updateScore(msg);
+    });
+    lcm.subscribe('LighthouseTimer/LighthouseTime', 'LighthouseTime', updateLighthouseTimer);
+  });
+  lcm.on_close(makeLCM);
 }
 makeLCM();
 
-const updateStatus = function() {
-    const connected = RobotInfoStore.getConnectionStatus();
-    const ok = RobotInfoStore.getRuntimeStatus();
-    let msg = {__type__: 'StatusLight', red: false, yellow: false, green: false, buzzer: false};
-    if (connected) {
-        if (ok) {
-            msg.green = true;
-        } else {
-            msg.red = true;
-        }
+function updateStatus() {
+  const state = store.getState();
+  const connected = state.info.connectionStatus;
+  const ok = state.info.runtimeStatus;
+  const msg = {
+    __type__: 'StatusLight',
+    red: false,
+    yellow: false,
+    green: false,
+    buzzer: false,
+  };
+  if (connected) {
+    if (ok) {
+      msg.green = true;
     } else {
-        msg.red = true;
+      msg.red = true;
     }
-    lcm_publish("StatusLight" + stationNumber + "/StatusLight", msg)
-
-}
-RobotInfoStore.on("change", updateStatus);
-updateStatus();
-
-function lcm_publish(channel, msg) {
-    if (lcm_ready) {
-        lcm.publish(channel, msg)
-    } else {
-        console.log("lcm publish queued");
-        queued_publish = [channel, msg];
-    }
+  } else {
+    msg.red = true;
+  }
+  lcmPublish(`StatusLight${stationNumber}/StatusLight`, msg);
 }
 
+store.subscribe(updateStatus);
 
-export default lcm_publish;
+export default lcmPublish;

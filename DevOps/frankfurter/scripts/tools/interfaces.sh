@@ -40,8 +40,7 @@ sed -i "9s/<team-ssid>/Team$teamnumber/" $BUILD_DIR/wpa_supplicant.conf
 sed -i "10s/<team-psk>/$teampsk/" $BUILD_DIR/wpa_supplicant.conf
 
 # Copy and move files
-scp $BUILD_DIR/interfaces $USER@$IP:~
-scp $BUILD_DIR/wpa_supplicant.conf $USER@$IP:~
+scp $BUILD_DIR/interfaces $BUILD_DIR/wpa_supplicant.conf $USER@$IP:~
 CMD='sudo mv ~/interfaces /etc/network/interfaces'
 CMD="$CMD && sudo mv ~/wpa_supplicant.conf /etc/wpa_supplicant"
 ssh -t $USER@$IP $CMD

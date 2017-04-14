@@ -8,8 +8,20 @@ import { updateTimer,
 import store from '../store';
 
 // TODO: Due to JavaScript's asynchronous nature, verify if this can be read before makeLCM runs.
-export const stationNumber = parseInt(fs.readFileSync('/opt/driver_station/station_number.txt'), 10);
-export const bridgeAddress = fs.readFileSync('/opt/driver_station/lcm_bridge_addr.txt');
+export let stationNumber;
+try {
+  stationNumber = parseInt(fs.readFileSync('/opt/driver_station/station_number.txt'), 10);
+} catch (err) {
+  stationNumber = 2;
+}
+
+export let bridgeAddress;
+try {
+  bridgeAddress = fs.readFileSync('/opt/driver_station/lcm_bridge_addr.txt');
+} catch (err) {
+  bridgeAddress = 'localhost';
+}
+
 console.log(`Station: ${stationNumber}`);
 console.log(`Bridge: ${bridgeAddress}`);
 
@@ -50,7 +62,12 @@ function makeLCM() {
   });
   lcm.on_close(makeLCM);
 }
-makeLCM();
+
+try {
+  makeLCM();
+} catch (err) {
+  console.log('LCM Unable to start');
+}
 
 // TODO: Make clearer protocol on how lights should change
 function updateStatus() {
@@ -76,6 +93,11 @@ function updateStatus() {
   lcmPublish(`StatusLight${stationNumber}/StatusLight`, msg);
 }
 
-store.subscribe(updateStatus);
+try {
+  store.subscribe(updateStatus);
+} catch (err) {
+  console.log(this);
+  console.log(store);
+}
 
 export default lcmPublish;

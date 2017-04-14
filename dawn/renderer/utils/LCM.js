@@ -3,12 +3,11 @@ import LCM from './lcm_ws_bridge';
 import { updateTimer,
         updateHeart,
         updateRobot,
-        updateMatch,
-        updateScore,
-        updateLighthouseTimer }
+        updateMatch }
         from '../actions/FieldActions';
 import store from '../store';
 
+// TODO: Due to JavaScript's asynchronous nature, verify if this can be read before makeLCM runs.
 export const stationNumber = parseInt(fs.readFileSync('/opt/driver_station/station_number.txt'), 10);
 export const bridgeAddress = fs.readFileSync('/opt/driver_station/lcm_bridge_addr.txt');
 console.log(`Station: ${stationNumber}`);
@@ -32,7 +31,7 @@ function makeLCM() {
   lcm.on_ready(() => {
     lcmReady = true;
     console.log('Connected to LCM Bridge');
-    if (queuedPublish !== null) {
+    if (queuedPublish !== null) { // TODO: Why is this here?
       lcm.publish(queuedPublish[0], queuedPublish[1]);
       queuedPublish = null;
     }
@@ -48,15 +47,12 @@ function makeLCM() {
     lcm.subscribe('Timer/Match', 'Match', (msg) => {
       updateMatch(msg);
     });
-    lcm.subscribe('LiveScore/LiveScore', 'LiveScore', (msg) => {
-      updateScore(msg);
-    });
-    lcm.subscribe('LighthouseTimer/LighthouseTime', 'LighthouseTime', updateLighthouseTimer);
   });
   lcm.on_close(makeLCM);
 }
 makeLCM();
 
+// TODO: Make clearer protocol on how lights should change
 function updateStatus() {
   const state = store.getState();
   const connected = state.info.connectionStatus;

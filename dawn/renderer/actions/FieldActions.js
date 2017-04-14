@@ -20,18 +20,7 @@ export const updateMatch = msg => ({
   teamNumbers: msg.team_numbers,
 });
 
-export const updateScore = msg => ({
-  type: ActionTypes.UPDATE_SCORE,
-  state: msg.state,
-  match_number: msg.matchNumber,
-  pearl: msg.pearl,
-  water_autonomous: msg.water_autonomous,
-  treasure_autonomous: msg.treasure_autonomous,
-  water_teleop: msg.water_teleop,
-  treasure_teleop: msg.treasure_teleop,
-});
-
-/* TODO
+/* TODO: This logic really shouldn't be here.
 if (msg.running) {
   Ansible.sendMessage('execute', {});
 } else {
@@ -41,11 +30,4 @@ export const updateRobot = msg => ({
   type: ActionTypes.UPDATE_ROBOT,
   autonomous: msg.autonomous,
   enabled: msg.enabled,
-});
-
-export const updateLighthouseTimer = msg => ({
-  type: ActionTypes.UPDATE_LIGHTHOUSETIMER,
-  timeLeft: msg.time_left,
-  enabled: msg.enabled,
-  available: msg.available,
 });

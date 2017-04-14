@@ -19,9 +19,9 @@ wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
 
 # From the networking spec
 iface field inet static
-    address 245.245.245.<field-addr>
-    gateway 245.245.245.245
-    netmask 245.245.245.0
+    address 192.168.0.<field-addr>
+    gateway 192.168.128.1
+    netmask 255.255.255.0
 
 iface team inet static
     address 192.168.0.<team-addr>

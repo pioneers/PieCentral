@@ -34,7 +34,7 @@ cp $FRANKFURTER_DIR/resources/interfaces $BUILD_DIR
 cp $FRANKFURTER_DIR/resources/wpa_supplicant.conf $BUILD_DIR
 
 # Perform substitutions
-sed -i "22s/<field-addr>/$teamnumber/" $BUILD_DIR/interfaces
+sed -i "22s/<field-addr>/$((teamnumber + 200))/" $BUILD_DIR/interfaces
 sed -i "27s/<team-addr>/$(($teamnumber + 200))/" $BUILD_DIR/interfaces
 sed -i "9s/<team-ssid>/Team$teamnumber/" $BUILD_DIR/wpa_supplicant.conf
 sed -i "10s/<team-psk>/$teampsk/" $BUILD_DIR/wpa_supplicant.conf

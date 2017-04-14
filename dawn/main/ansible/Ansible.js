@@ -283,7 +283,8 @@ const onClearConsole = () => {
 /* Redux short-circuiting for when field control wants to start/stop robot
  */
 const startRobot = () => { // eslint-disable-line no-unused-vars
-  // TODO: Probably move this to Editor using ipcRenderer/ipcMain. this.state.mode doesn't exist here.
+  // TODO: Probably move this to Editor using ipcRenderer/ipcMain.
+  // this.state.mode doesn't exist here.
   RendererBridge.reduxDispatch(onUpdateCodeStatus(this.state.mode));
   RendererBridge.reduxDispatch(onClearConsole());
 };

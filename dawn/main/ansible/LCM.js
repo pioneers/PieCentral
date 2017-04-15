@@ -114,7 +114,11 @@ class LCMInternals {
   }
 
   quit() {
-    this.lcm.ws.close();
+    try {
+      this.lcm.ws.close();
+    } catch (err) {
+      console.log(err);
+    }
     this.lcm = null;
   }
 }

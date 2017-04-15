@@ -24,7 +24,11 @@ app.on('will-quit', () => {
 
 app.on('ready', () => {
   Ansible.setup();
-  LCMObject.setup();
+  try {
+    LCMObject.setup();
+  } catch (err) {
+    console.log(err);
+  }
 
   const mainWindow = new BrowserWindow();
 

@@ -13,7 +13,6 @@ iface eth0 inet static
     gateway 192.168.0.1
 
 auto ra0
-allow-hotplog ra0
 iface ra0 inet manual
 wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
 

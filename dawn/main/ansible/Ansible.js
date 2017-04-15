@@ -160,7 +160,7 @@ class SendSocket {
    */
   sendGamepadMessages(event, data) {
     const message = buildProto(data).encode().toBuffer();
-    this.logger.log(`Dawn sent UDP to ${this.runtimeIP}`);
+    // this.logger.log(`Dawn sent UDP to ${this.runtimeIP}`);
     this.socket.send(message, SEND_PORT, this.runtimeIP);
   }
 

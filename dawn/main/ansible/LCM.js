@@ -8,35 +8,40 @@ import { updateTimer,
         from '../../renderer/actions/FieldActions';
 import RendererBridge from '../RendererBridge';
 
+const { app } = require('electron'); // eslint-disable-line global-require
+
 export let stationNumber;
 try {
-  stationNumber = parseInt(fs.readFileSync('/opt/driver_station/station_number.txt'), 10);
+  stationNumber = parseInt(fs.readFileSync(`${app.getPath('desktop')}/station_number.txt`), 10);
+  console.log(`1Station: ${stationNumber}`);
 } catch (err) {
   stationNumber = 2;
+  console.log(`2Station: ${stationNumber}`);
 }
-console.log(`Station: ${stationNumber}`);
 
 export let bridgeAddress;
 try {
-  bridgeAddress = fs.readFileSync('/opt/driver_station/lcm_bridge_addr.txt');
+  bridgeAddress = fs.readFileSync(`${app.getPath('desktop')}/bridge_address.txt`);
+  console.log(`3Bridge: ${bridgeAddress}`);
 } catch (err) {
-  bridgeAddress = '192.168.128.138';
+  bridgeAddress = 'localhost';
+  console.log(`4Bridge: ${bridgeAddress}`);
 }
-console.log(`Bridge: ${bridgeAddress}`);
 
 class LCMInternals {
   constructor() {
     this.lcm = null;
     this.lcmReady = false;
     this.queuedPublish = null;
+    console.log(`Actual Value ${stationNumber}`);
     this.stationNumber = stationNumber;
     this.bridgeAddress = String(bridgeAddress).trim();
     this.init = this.init.bind(this);
     this.quit = this.quit.bind(this);
     this.lcmPublish = this.lcmPublish.bind(this);
     this.updateStatus = this.updateStatus.bind(this);
-    this.changeStationNumber = this.changeStationNumber.bind(this);
-    this.changeBridgeAddress = this.changeBridgeAddress.bind(this);
+    // this.changeStationNumber = this.changeStationNumber.bind(this);
+    // this.changeBridgeAddress = this.changeBridgeAddress.bind(this);
 
     ipcMain.on('LCM_STATUS_UPDATE', this.updateStatus);
   }
@@ -89,21 +94,21 @@ class LCMInternals {
     this.lcmPublish(`StatusLight${stationNumber}/StatusLight`, msg);
   }
 
-  changeBridgeAddress(newVal) {
-    this.bridgeAddress = newVal;
-    bridgeAddress = newVal; // TODO: See if only one needs to be changed
-    console.log(`Bridge: ${this.bridgeAddress}`);
-    this.quit();
-    this.init();
-  }
-
-  changeStationNumber(newVal) {
-    this.stationNumber = newVal;
-    stationNumber = newVal;
-    console.log(`Station: ${this.bridgeAddress}`);
-    this.quit();
-    this.init();
-  }
+  // changeBridgeAddress(newVal) {
+  //   this.bridgeAddress = newVal;
+  //   bridgeAddress = newVal; // TODO: See if only one needs to be changed
+  //   console.log(`Bridge: ${this.bridgeAddress}`);
+  //   this.quit();
+  //   this.init();
+  // }
+  //
+  // changeStationNumber(newVal) {
+  //   this.stationNumber = newVal;
+  //   stationNumber = newVal;
+  //   console.log(`Station: ${this.bridgeAddress}`);
+  //   this.quit();
+  //   this.init();
+  // }
 
   lcmPublish(channel, msg) {
     if (this.lcmReady) {

@@ -12,7 +12,7 @@ const { app } = require('electron'); // eslint-disable-line global-require
 
 export let stationNumber;
 try {
-  stationNumber = parseInt(fs.readFileSync(`${app.getPath('desktop')}/station_number.txt`), 10);
+  stationNumber = parseInt(fs.readFileSync(`${app.getPath('Desktop')}/station_number.txt`), 10);
   console.log(`1Station: ${stationNumber}`);
 } catch (err) {
   stationNumber = 2;
@@ -21,7 +21,7 @@ try {
 
 export let bridgeAddress;
 try {
-  bridgeAddress = fs.readFileSync(`${app.getPath('desktop')}/bridge_address.txt`);
+  bridgeAddress = fs.readFileSync(`${app.getPath('Desktop')}/bridge_address.txt`);
   console.log(`3Bridge: ${bridgeAddress}`);
 } catch (err) {
   bridgeAddress = 'localhost';

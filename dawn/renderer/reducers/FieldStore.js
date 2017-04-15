@@ -1,5 +1,5 @@
 import { ActionTypes } from '../constants/Constants';
-import { stationNumber } from '../utils/LCM';
+import { stationNumber } from '../../main/ansible/LCM';
 
 const initialFieldState = {
   rStation: stationNumber,

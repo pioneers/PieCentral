@@ -281,12 +281,20 @@ const gamepadsState = state => ({
   gamepads: state.gamepads.gamepads,
 });
 
+const lcmState = state => ({
+  connectionStatus: state.info.connectionStatus,
+  runtimeStatus: state.info.runtimeStatus,
+});
+
+
 /**
  * Send the store to the main process whenever it changes.
  */
 function* updateMainProcess() {
   const stateSlice = yield select(gamepadsState);
   ipcRenderer.send('stateUpdate', stateSlice);
+  const lcmSlice = yield select(lcmState);
+  ipcRenderer.send('LCM_STATUS_UPDATE', lcmSlice);
 }
 
 function* restartRuntime() {

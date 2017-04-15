@@ -7,6 +7,7 @@ import RendererBridge from './RendererBridge';
 import { killFakeRuntime } from './MenuTemplate/DebugMenu';
 import Template from './MenuTemplate/Template';
 import Ansible from './ansible/Ansible';
+import LCMObject from './ansible/LCM';
 
 app.on('window-all-closed', () => {
   app.quit();
@@ -14,6 +15,7 @@ app.on('window-all-closed', () => {
 
 app.on('will-quit', () => {
   Ansible.close();
+  LCMObject.LCMInternal.quit();
 
   if (process.env.NODE_ENV === 'development') {
     killFakeRuntime();
@@ -22,6 +24,7 @@ app.on('will-quit', () => {
 
 app.on('ready', () => {
   Ansible.setup();
+  LCMObject.setup();
 
   const mainWindow = new BrowserWindow();
 

@@ -172,7 +172,8 @@ class StateManager(object): # pylint: disable=too-many-public-methods
     def set_team(self, team):
         if self.state["team_flag_uid"][0] is not None:
             self.hibike_write_params(self.process_mapping[PROCESS_NAMES.HIBIKE],
-                                     self.state["team_flag_uid"][0], (team, True))
+                                     self.state["team_flag_uid"][0], [(team, True)])
+            self.state["team_flag_uid"] = [None, 0]
 
     def set_addr(self, new_addr):
         self.state["dawn_addr"] = [new_addr, time.time()]

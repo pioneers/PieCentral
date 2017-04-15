@@ -30,7 +30,7 @@ class LCMInternals {
     this.lcmReady = false;
     this.queuedPublish = null;
     this.stationNumber = stationNumber;
-    this.bridgeAddress = bridgeAddress.replace(/^\s+|\s+$/gm, '');
+    this.bridgeAddress = String(bridgeAddress).trim();
     this.init = this.init.bind(this);
     this.quit = this.quit.bind(this);
     this.lcmPublish = this.lcmPublish.bind(this);

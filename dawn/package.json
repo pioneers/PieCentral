@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "brace": "^0.9.1",
+    "circular-json": "^0.3.1",
     "electron": "^1.6.1",
     "electron-json-storage": "^1.0.0",
     "immutable": "^3.8.1",

@@ -15,7 +15,6 @@ app.on('window-all-closed', () => {
 
 app.on('will-quit', () => {
   Ansible.close();
-  LCMObject.LCMInternal.quit();
 
   if (process.env.NODE_ENV === 'development') {
     killFakeRuntime();

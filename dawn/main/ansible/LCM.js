@@ -20,7 +20,7 @@ export let bridgeAddress;
 try {
   bridgeAddress = fs.readFileSync('/opt/driver_station/lcm_bridge_addr.txt');
 } catch (err) {
-  bridgeAddress = 'localhost';
+  bridgeAddress = '192.168.128.138';
 }
 console.log(`Bridge: ${bridgeAddress}`);
 
@@ -30,7 +30,7 @@ class LCMInternals {
     this.lcmReady = false;
     this.queuedPublish = null;
     this.stationNumber = stationNumber;
-    this.bridgeAddress = bridgeAddress;
+    this.bridgeAddress = bridgeAddress.replace(/^\s+|\s+$/gm, '');
     this.init = this.init.bind(this);
     this.quit = this.quit.bind(this);
     this.lcmPublish = this.lcmPublish.bind(this);
@@ -38,14 +38,13 @@ class LCMInternals {
     this.changeStationNumber = this.changeStationNumber.bind(this);
     this.changeBridgeAddress = this.changeBridgeAddress.bind(this);
 
-    ipcMain.on('LCM_STATUS_UPDATE', this.lcmPublish);
+    ipcMain.on('LCM_STATUS_UPDATE', this.updateStatus);
   }
 
   init() {
-    this.lcm = new LCM(`ws://${this.bridgeAddress}:8000/`);
+    this.lcm = new LCM(`ws://${this.bridgeAddress}:8000`);
     this.lcm.on_ready(() => {
       this.lcmReady = true;
-      console.log('Connected to LCM Bridge');
       if (this.queuedPublish !== null) { // TODO: Why is this here?
         this.lcm.publish(this.queuedPublish[0], this.queuedPublish[1]);
         this.queuedPublish = null;

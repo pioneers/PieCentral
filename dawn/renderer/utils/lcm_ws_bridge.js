@@ -46,15 +46,16 @@
 */
 import WebSocket from 'ws';
 
+
+const CircularJSON = require('circular-json');
+
 class LCM {
   constructor(wsUri) {
     this.ws = new WebSocket(wsUri);
-    console.log(this.ws);
     this.ws.onmessage = (evt) => {
-      this.delegate(JSON.parse(evt.data));
+      this.delegate(CircularJSON.parse(evt.data));
     };
     this.callbacks = {}; // indexed by subscription id
-
     this.on_ready = this.on_ready.bind(this);
     this.on_close = this.on_close.bind(this);
     this.ws_send = this.ws_send.bind(this);
@@ -77,7 +78,12 @@ class LCM {
 
   ws_send(type, data) { // eslint-disable-line camelcase
     // Internal convenience method for sending data over the websocket
-    this.ws.send(JSON.stringify({ type, data }));
+    try {
+      this.ws.send(CircularJSON.stringify({ type, data }));
+      console.log(CircularJSON.stringify({ type, data }));
+    } catch (err) {
+      console.log('*');
+    }
   }
 
   delegate(request) {

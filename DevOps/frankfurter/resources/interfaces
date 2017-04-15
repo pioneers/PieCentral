@@ -5,10 +5,30 @@
 auto lo
 iface lo inet loopback
 
+auto eth0
+iface eth0 inet static
+    address 192.168.6.2
+    netmask 255.255.255.0
+    network 192.168.0.0
+    gateway 192.168.0.1
+
 auto ra0
-iface ra0 inet static
-    wpa-ssid "router_name"
-    wpa-psk  "router_password"
+allow-hotplog ra0
+iface ra0 inet manual
+wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+
+# From the networking spec
+iface field inet static
+    address 192.168.128.<field-addr>
+    gateway 192.168.128.1
+    netmask 255.255.255.0
+    network 192.168.128.0
+
+iface team inet static
+    address 192.168.0.<team-addr>
+    netmask 255.255.255.0
+    network 192.168.0.0
+    gateway 192.168.0.1
 
 # Ethernet/RNDIS gadget (g_ether)
 # Used by: /opt/scripts/boot/autoconfigure_usb0.sh

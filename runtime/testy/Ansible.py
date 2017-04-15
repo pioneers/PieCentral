@@ -211,6 +211,10 @@ class UDPRecvClass(AnsibleHandler):
             ansible_pb2.DawnData.AUTONOMOUS: SM_COMMANDS.ENTER_AUTO,
             ansible_pb2.DawnData.ESTOP: SM_COMMANDS.EMERGENCY_STOP
         }
+        self.team_color_mapping = {
+            ansible_pb2.DawnData.BLUE: "blue",
+            ansible_pb2.DawnData.GOLD: "yellow",
+        }
         super().__init__(
             packager_name,
             UDPRecvClass.unpackage_data,
@@ -268,6 +272,9 @@ class UDPRecvClass(AnsibleHandler):
                 gamepad_dict["buttons"] = dict(enumerate(gamepad.buttons))
                 all_gamepad_dict[gamepad.index] = gamepad_dict
             unpackaged_data["gamepads"] = [all_gamepad_dict, time.time()]
+            if received_proto.team_color != ansible_pb2.DawnData.NONE:
+                self.state_queue.put([SM_COMMANDS.SET_TEAM,
+                                      [self.team_color_mapping[received_proto.team_color]]])
             return unpackaged_data
 
         unpackaged_data = unpackage(self.recv_buffer.get())

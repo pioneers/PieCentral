@@ -59,6 +59,7 @@ function buildProto(data) {
   return new DawnData({
     student_code_status: status,
     gamepads,
+    team_color: 0,
   });
 }
 

@@ -56,7 +56,11 @@ class DNavComponent extends React.Component {
         <Navbar.Collapse>
           {this.props.runtimeStatus ?
             <Navbar.Text id="runtime-version">
-              <Label bsStyle="info">{`Runtime v${this.props.runtimeVersion}: ${runtimeState[this.props.robotState]}`}</Label>
+              <Label bsStyle="info">{
+                `Runtime v${this.props.runtimeVersion}: ${runtimeState[this.props.robotState]}
+                ${(this.props.heart) ? ' +' : ' -'}`
+              }
+              </Label>
             </Navbar.Text> : ''
           }
           <Navbar.Text id="battery-indicator">
@@ -117,10 +121,12 @@ DNavComponent.propTypes = {
   onIPChange: React.PropTypes.func,
   runtimeVersion: React.PropTypes.string,
   robotState: React.PropTypes.number,
+  heart: React.PropTypes.bool,
 };
 
 const mapStateToProps = state => ({
   robotState: state.info.robotState,
+  heart: state.fieldStore.heart,
 });
 
 

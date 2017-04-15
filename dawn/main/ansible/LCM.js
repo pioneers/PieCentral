@@ -6,6 +6,7 @@ import { updateTimer,
         updateRobot,
         updateMatch }
         from '../../renderer/actions/FieldActions';
+import RendererBridge from '../RendererBridge';
 
 export let stationNumber;
 try {
@@ -50,16 +51,16 @@ class LCMInternals {
         this.queuedPublish = null;
       }
       this.lcm.subscribe('Timer/Time', 'Time', (msg) => {
-        updateTimer(msg);
+        RendererBridge.reduxDispatch(updateTimer(msg));
       });
       this.lcm.subscribe('Heartbeat/Beat', 'Heartbeat', (msg) => {
-        updateHeart(msg);
+        RendererBridge.reduxDispatch(updateHeart(msg));
       });
       this.lcm.subscribe(`Robot${this.stationNumber}/RobotControl`, 'RobotControl', (msg) => {
-        updateRobot(msg);
+        RendererBridge.reduxDispatch(updateRobot(msg));
       });
       this.lcm.subscribe('Timer/Match', 'Match', (msg) => {
-        updateMatch(msg);
+        RendererBridge.reduxDispatch(updateMatch(msg));
       });
     });
     this.lcm.on_close(this.init);

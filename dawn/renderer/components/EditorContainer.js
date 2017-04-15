@@ -28,6 +28,7 @@ const mapStateToProps = state => ({
   ipAddress: state.info.ipAddress,
   connectionStatus: state.info.connectionStatus,
   notificationHold: state.info.notificationHold,
+  fieldControlActivity: state.info.fieldControlActivity,
 });
 
 const mapDispatchToProps = dispatch => ({

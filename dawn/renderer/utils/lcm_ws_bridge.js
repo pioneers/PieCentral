@@ -80,7 +80,6 @@ class LCM {
     // Internal convenience method for sending data over the websocket
     try {
       this.ws.send(CircularJSON.stringify({ type, data }));
-      console.log(CircularJSON.stringify({ type, data }));
     } catch (err) {
       console.log('*');
     }

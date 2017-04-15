@@ -9,6 +9,7 @@ import IPBox from './IPBox';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';
 import TooltipButton from './TooltipButton';
+import { VERSION } from '../constants/Constants';
 import { runtimeState } from '../utils/utils';
 
 class DNavComponent extends React.Component {

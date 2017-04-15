@@ -49,7 +49,7 @@ class DNavComponent extends React.Component {
         />
         <Navbar.Header>
           <Navbar.Brand id="header-title">
-            {`Dawn v${VERSION}`}
+            {`Dawn v${VERSION} ${(this.props.heart) ? '+' : '-'}`}
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>
@@ -57,8 +57,7 @@ class DNavComponent extends React.Component {
           {this.props.runtimeStatus ?
             <Navbar.Text id="runtime-version">
               <Label bsStyle="info">{
-                `Runtime v${this.props.runtimeVersion}: ${runtimeState[this.props.robotState]}
-                ${(this.props.heart) ? ' +' : ' -'}`
+                `Runtime v${this.props.runtimeVersion}: ${runtimeState[this.props.robotState]}`
               }
               </Label>
             </Navbar.Text> : ''

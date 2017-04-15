@@ -7,7 +7,7 @@ import runtime_pb2
 from runtimeUtil import *
 
 
-class StateManager(object):
+class StateManager(object): # pylint: disable=too-many-public-methods
 
     """input is a multiprocessing.Queue object to support multiple
     processes requesting state data

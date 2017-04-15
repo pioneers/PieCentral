@@ -2,7 +2,6 @@ import { ActionTypes } from '../constants/Constants';
 import { stationNumber } from '../../main/ansible/LCM';
 
 const initialFieldState = {
-  rIsBlue: stationNumber < 2,
   rTeamNumber: 0,
   rTeamName: 'Unknown',
   rStationTag: (stationNumber < 2) ? `Blue ${stationNumber + 1} ` : `Gold ${stationNumber - 1} `,

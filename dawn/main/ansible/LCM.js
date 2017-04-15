@@ -56,6 +56,7 @@ class LCMInternals {
         RendererBridge.reduxDispatch(updateHeart(msg));
       });
       this.lcm.subscribe(`Robot${this.stationNumber}/RobotControl`, 'RobotControl', (msg) => {
+        console.log(msg);
         RendererBridge.reduxDispatch(updateRobot(msg));
       });
       this.lcm.subscribe('Timer/Match', 'Match', (msg) => {

@@ -58,16 +58,16 @@ const info = (state = initialInfoState, action) => {
         ...state,
         ipAddress: action.ipAddress,
       };
-    case ActionTypes.UPDATE_ROBOT:
+    case ActionTypes.UPDATE_ROBOT: {
+      const stateChange = (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP;
       return {
         ...state,
-        fieldControlDirective: (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP,
+        fieldControlDirective: stateChange,
         fieldControlActivity: action.enabled,
         // eslint-disable-next-line no-nested-ternary
-        studentCodeStatus: (state.fieldControlActivity && !action.enabled)
-          ? robotState.IDLE :
-          (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP,
+        studentCodeStatus: (!action.enabled) ? robotState.IDLE : stateChange,
       };
+    }
     default:
       return state;
   }

@@ -13,8 +13,8 @@ class RUNTIME_CONFIG(Enum):
     PIPE_READY                  = ["ready"]
     TEST_OUTPUT_DIR             = "test_outputs/"
     VERSION_MAJOR               = 1
-    VERSION_MINOR               = 0
-    VERSION_PATCH               = 1
+    VERSION_MINOR               = 1
+    VERSION_PATCH               = 0
 
 @unique
 class BAD_EVENTS(Enum):

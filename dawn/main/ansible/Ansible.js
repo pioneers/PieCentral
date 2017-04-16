@@ -77,7 +77,7 @@ class ListenSocket {
           robot_state: stateRobot,
           sensor_data: sensorData,
         } = RuntimeData.decode(msg);
-        this.logger.log('Dawn received UDP');
+        this.logger.log(`Dawn received UDP with state ${stateRobot}`);
         RendererBridge.reduxDispatch(infoPerMessage(stateRobot));
         if (stateRobot === RuntimeData.State.STUDENT_STOPPED) {
           if (this.statusUpdateTimeout > 0) {
@@ -87,6 +87,7 @@ class ListenSocket {
             RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
           }
         }
+        this.logger.log(sensorData);
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
         this.logger.log('Error decoding UDP');
@@ -156,7 +157,7 @@ class SendSocket {
    */
   sendGamepadMessages(event, data) {
     const message = buildProto(data).encode().toBuffer();
-    this.logger.log(`Dawn sent UDP to ${this.runtimeIP}`);
+    // this.logger.log(`Dawn sent UDP to ${this.runtimeIP}`);
     this.socket.send(message, SEND_PORT, this.runtimeIP);
   }
 

@@ -8,25 +8,20 @@ import { updateTimer,
         from '../../renderer/actions/FieldActions';
 import RendererBridge from '../RendererBridge';
 
-const { app } = require('electron'); // eslint-disable-line global-require
 
 export let stationNumber;
-try {
-  stationNumber = parseInt(fs.readFileSync(`${app.getPath('desktop')}/station_number.txt`), 10);
-  console.log(`1Station: ${stationNumber}`);
-} catch (err) {
-  stationNumber = 2;
-  console.log(`2Station: ${stationNumber}`);
-}
-
 export let bridgeAddress;
+
+let path;
 try {
-  bridgeAddress = fs.readFileSync(`${app.getPath('desktop')}/bridge_address.txt`);
-  console.log(`3Bridge: ${bridgeAddress}`);
+  const { app } = require('electron'); // eslint-disable-line
+  path = app.getPath('desktop');
 } catch (err) {
-  bridgeAddress = 'localhost';
-  console.log(`4Bridge: ${bridgeAddress}`);
+  path = require('electron').remote.app.getPath('desktop'); // eslint-disable-line
 }
+stationNumber = parseInt(fs.readFileSync(`${path}/station_number.txt`), 10); // eslint-disable-line
+bridgeAddress = fs.readFileSync(`${path}/bridge_address.txt`); // eslint-disable-line
+console.log(`Station ${stationNumber}, using ${bridgeAddress}`);
 
 class LCMInternals {
   constructor() {

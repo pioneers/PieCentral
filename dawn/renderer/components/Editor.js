@@ -444,6 +444,7 @@ class Editor extends React.Component {
               text="Download from Robot"
               onClick={this.props.onDownloadCode}
               glyph="download"
+              disabled={!this.props.runtimeStatus || this.props.ipAddress === defaults.IPADDRESS}
             />
           </ButtonGroup>
           <ButtonGroup id="code-execution-buttons">

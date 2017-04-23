@@ -9,8 +9,8 @@ import { updateTimer,
 import RendererBridge from '../RendererBridge';
 
 
-export let stationNumber;
-export let bridgeAddress;
+export let stationNumber; // eslint-disable-line import/no-mutable-exports
+export let bridgeAddress; // eslint-disable-line import/no-mutable-exports
 
 let path;
 try {

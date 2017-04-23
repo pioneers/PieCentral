@@ -88,7 +88,7 @@ export class Logger {
       const { app } = require('electron'); // eslint-disable-line global-require
       path = app.getPath('desktop');
     }
-    this.log_file = fs.createWriteStream(`${path}/${Date.now()}-${processname}.log`, { flags: 'w' });
+    this.log_file = fs.createWriteStream(`${path}/${Date.now()}-${processname}.log`, { flags: 'a' });
     this.log_file.write(firstline);
     this.lastStr = '';
   }
@@ -105,7 +105,7 @@ export class Logger {
   }
 }
 
-export let logging;
+export let logging; // eslint-disable-line import/no-mutable-exports
 
 export const startLog = () => {
   logging = new Logger('dawn', 'Renderer Debug');

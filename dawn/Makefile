@@ -7,7 +7,7 @@ start:
 	yarn start
 
 install:
-	yarn install --frozen-lockfile
+	yarn install
 
 artifacts-install:
 	yarn install electron-packager

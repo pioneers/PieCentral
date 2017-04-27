@@ -96,13 +96,21 @@ export class Logger {
     this.log_file = fs.createWriteStream(`${path}/Dawn/${processname}.log`, { flags: 'a' });
     this.log_file.write(`\n${firstline}`);
     this.lastStr = '';
+    this._write = this._write.bind(this);
   }
 
   log(output) {
     console.log(output);
+    this._write(output, `\n[${(new Date()).toString()}]`);
+  }
+  debug(output) {
+    this._write(output, `\n[${(new Date()).toString()} DEBUG]`);
+  }
+
+  _write(output, prefix) {
     output = String(output);
     if (output !== this.lastStr) {
-      this.log_file.write(`\n[${(new Date()).toString()}] ${output}`);
+      this.log_file.write(`${prefix} ${output}`);
       this.lastStr = output;
     } else {
       this.log_file.write('*');

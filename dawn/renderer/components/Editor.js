@@ -439,6 +439,13 @@ class Editor extends React.Component {
               onClick={this.upload}
               glyph="upload"
             />
+            <TooltipButton
+              id="download"
+              text="Download from Robot"
+              onClick={this.props.onDownloadCode}
+              glyph="download"
+              disabled={!this.props.runtimeStatus || this.props.ipAddress === defaults.IPADDRESS}
+            />
           </ButtonGroup>
           <ButtonGroup id="code-execution-buttons">
             <TooltipButton
@@ -607,6 +614,7 @@ Editor.propTypes = {
   notificationHold: React.PropTypes.number,
   onNotifyChange: React.PropTypes.func,
   fieldControlActivity: React.PropTypes.bool,
+  onDownloadCode: React.PropTypes.func,
 };
 
 export default Editor;

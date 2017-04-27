@@ -93,8 +93,8 @@ export class Logger {
     } catch (err) {
       fs.mkdirSync(`${path}/Dawn`);
     }
-    this.log_file = fs.createWriteStream(`${path}/Dawn/${processname}.log`, { flags: 'w' });
-    this.log_file.write(firstline);
+    this.log_file = fs.createWriteStream(`${path}/Dawn/${processname}.log`, { flags: 'a' });
+    this.log_file.write(`\n${firstline}`);
     this.lastStr = '';
   }
 

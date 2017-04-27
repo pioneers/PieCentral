@@ -329,6 +329,74 @@ function* restartRuntime() {
   }
 }
 
+function* downloadStudentCode() {
+  const conn = new Client();
+  const stateSlice = yield select(state => ({
+    runtimeStatus: state.info.runtimeStatus,
+    ipAddress: state.info.ipAddress,
+  }));
+  const path = `${require('electron').remote.app.getPath('desktop')}/Dawn`; // eslint-disable-line global-require
+  try {
+    fs.statSync(path);
+  } catch (fileErr) {
+    fs.mkdirSync(path);
+  }
+  if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
+    const errors = yield call(() => new Promise((resolve) => {
+      conn.on('ready', () => {
+        conn.sftp((err, sftp) => {
+          if (err) resolve(1);
+          sftp.fastGet('./PieCentral/runtime/testy/studentCode.py', `${path}/robotCode.py`,
+            { step: (totalTransferred, chunk, total) => {
+              if (totalTransferred === total) {
+                resolve(0);
+              }
+            },
+            },
+            (err2) => {
+              logging.log(err2);
+              resolve(2);
+            });
+        });
+      }).connect({
+        debug: (inpt) => {
+          logging.log(inpt);
+        },
+        host: stateSlice.ipAddress,
+        port: defaults.PORT,
+        username: defaults.USERNAME,
+        password: defaults.PASSWORD,
+      });
+    }));
+    switch (errors) {
+      case 0: {
+        const data = yield cps(fs.readFile, `${path}/robotCode.py`, 'utf8');
+        yield put(openFileSucceeded(data, `${path}/robotCode.py`));
+        logging.log('Succeeded in Download');
+        break;
+      }
+      case 1: {
+        yield addAsyncAlert('Robot File Download Error',
+          'Dawn was unable to connect to the robot for file download.',
+        );
+        break;
+      }
+      case 2: {
+        yield addAsyncAlert('Robot File Download Error',
+          'Dawn was unable to download student code fully.',
+        );
+        break;
+      }
+      default: {
+        yield addAsyncAlert('Robot File Download Error',
+          'Dawn was unable to download student code due to some unknown error.',
+        );
+        break;
+      }
+    }
+  }
+}
+
 /**
  * The root saga combines all the other sagas together into one.
  */
@@ -339,6 +407,7 @@ export default function* rootSaga() {
     takeEvery('CREATE_NEW_FILE', openFile),
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     takeEvery('RESTART_RUNTIME', restartRuntime),
+    takeEvery('DOWNLOAD_CODE', downloadStudentCode),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),
     fork(ansibleSaga),

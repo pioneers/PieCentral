@@ -5,6 +5,7 @@ import {
   saveFile,
   openFile,
   createNewFile,
+  downloadCode,
 } from '../actions/EditorActions';
 import {
   changeTheme,
@@ -66,6 +67,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onNotifyChange: (hold) => {
     dispatch(notifyChange(hold));
+  },
+  onDownloadCode: () => {
+    dispatch(downloadCode());
   },
 });
 

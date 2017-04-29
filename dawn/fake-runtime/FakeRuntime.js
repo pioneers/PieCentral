@@ -20,7 +20,7 @@ const listenPort = 1236;
 const sendSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 const listenSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 const tcpSocket = new net.Socket();
-tcpSocket.connect({host: '127.0.0.1', port: 1234}, () => {
+tcpSocket.connect({ host: '127.0.0.1', port: 1234 }, () => {
   console.log('Fake Runtime TCP Up');
 });
 tcpSocket.on('close', () => {

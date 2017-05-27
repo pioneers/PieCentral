@@ -3,8 +3,7 @@
 uint8_t pins[NUM_SWITCHES] = {IN_0, IN_1, IN_2};
 
 void setup() {
-  hibike_setup(500, 100); //500 ms without heartbeat to disable, ask for heartbeats at 100 ms.
-  // Setup sensor input
+  hibike_setup(); //use default heartbeat rates. look at /lib/hibike/hibike_device.cpp for exact values
   for (int i = 0; i < NUM_SWITCHES; i++) {
     pinMode(pins[i], INPUT);
   }

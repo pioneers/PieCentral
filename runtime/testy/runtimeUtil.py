@@ -13,8 +13,8 @@ class RUNTIME_CONFIG(Enum):
     PIPE_READY                  = ["ready"]
     TEST_OUTPUT_DIR             = "test_outputs/"
     VERSION_MAJOR               = 1
-    VERSION_MINOR               = 0
-    VERSION_PATCH               = 1
+    VERSION_MINOR               = 1
+    VERSION_PATCH               = 0
 
 @unique
 class BAD_EVENTS(Enum):
@@ -99,6 +99,7 @@ class SM_COMMANDS(Enum):
     ENTER_TELEOP        = ()
     ENTER_AUTO          = ()
     END_STUDENT_CODE    = ()
+    SET_TEAM            = ()
 
 class BadThing:
     def __init__(self, exc_info, data, event=BAD_EVENTS.BAD_EVENT, printStackTrace=True):

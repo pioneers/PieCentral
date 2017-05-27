@@ -7,7 +7,7 @@ import runtime_pb2
 from runtimeUtil import *
 
 
-class StateManager(object):
+class StateManager(object): # pylint: disable=too-many-public-methods
 
     """input is a multiprocessing.Queue object to support multiple
     processes requesting state data
@@ -58,6 +58,7 @@ class StateManager(object):
             SM_COMMANDS.ENTER_TELEOP: self.enter_teleop,
             SM_COMMANDS.ENTER_AUTO: self.enter_auto,
             SM_COMMANDS.END_STUDENT_CODE: self.end_student_code,
+            SM_COMMANDS.SET_TEAM: self.set_team,
         }
         return command_mapping
 
@@ -99,6 +100,7 @@ class StateManager(object):
             "dawn_addr": [None, t],
             "gamepads": [{0: {"axes": {0: 0.5, 1: -0.5, 2: 1, 3: -1},
                               "buttons": {0: True, 1: False, 2: True, 3: False, 4: True}}}, t],
+            "team_flag_uid": [None, t],
         }
 
     def add_pipe(self, process_name, pipe):
@@ -166,6 +168,12 @@ class StateManager(object):
 
     def recv_ansible(self, new_data):
         self.state.update(new_data)
+
+    def set_team(self, team):
+        if self.state["team_flag_uid"][0] is not None:
+            self.hibike_write_params(self.process_mapping[PROCESS_NAMES.HIBIKE],
+                                     self.state["team_flag_uid"][0], [(team, True)])
+            self.state["team_flag_uid"] = [None, 0]
 
     def set_addr(self, new_addr):
         self.state["dawn_addr"] = [new_addr, time.time()]
@@ -246,6 +254,8 @@ class StateManager(object):
     def hibike_response_device_subbed(self, uid, delay, params):
         if delay == 0:
             device_name = SENSOR_TYPE[uid >> 72]
+            if device_name == "TeamFlag":
+                self.set_value(uid, ["team_flag_uid"], send=False)
             if device_name in self.device_name_to_subscribe_params:
                 self.hibike_subscribe_device(
                     self.process_mapping[PROCESS_NAMES.HIBIKE], uid, 40,
@@ -256,9 +266,10 @@ class StateManager(object):
             self.set_value(None, ["hibike", "devices", uid, param], send=False)
         self.state["hibike"][0]["device_subscribed"][0] += 1
 
-    def hibike_response_device_values(self, uid, params):
-        for key, value in params:
-            self.set_value(value, ["hibike", "devices", uid, key], send=False)
+    def hibike_response_device_values(self, data):
+        for uid, params in data.items():
+            for key, value in params:
+                self.set_value(value, ["hibike", "devices", uid, key], send=False)
 
     def hibike_disable(self, pipe):
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])
@@ -272,7 +283,7 @@ class StateManager(object):
             key_chain += "['" + keys[i] + \
                 "']" if (isinstance(keys[i], str)) else "[" + str(keys[i]) + "]"
             i += 1
-        keys = [None] if len(keys) == 0 else keys
+        keys = [None] if len(keys) == 0 else keys # pylint: disable=bad-option-value, len-as-condition
         errored_key = "'" + keys[errored_index] + "'" if isinstance(
             keys[errored_index], str) else str(keys[errored_index])
         error_message = "KeyError: key " + errored_key + \
@@ -283,7 +294,7 @@ class StateManager(object):
             # spaces at the end of each element
             available_keys = [("'" + el + "', " if isinstance(el, str) else str(el) + ", ")
                               for el in curr_dict.keys()]
-            if len(available_keys) > 0:
+            if len(available_keys) > 0: # pylint: disable=bad-option-value, len-as-condition
                 # Removes comma and space from last item in available_keys
                 available_keys[-1] = available_keys[-1][:-2]
             error_message += "Available keys in state" + \

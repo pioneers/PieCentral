@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='ansible.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\ransible.proto\"\x82\x02\n\x08\x44\x61wnData\x12\x38\n\x13student_code_status\x18\x01 \x01(\x0e\x32\x1b.DawnData.StudentCodeStatus\x12#\n\x08gamepads\x18\x02 \x03(\x0b\x32\x11.DawnData.Gamepad\x12\x18\n\x10peripheral_names\x18\x03 \x03(\t\x1a\x37\n\x07Gamepad\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x0c\n\x04\x61xes\x18\x02 \x03(\x01\x12\x0f\n\x07\x62uttons\x18\x03 \x03(\x08\"D\n\x11StudentCodeStatus\x12\x08\n\x04IDLE\x10\x00\x12\n\n\x06TELEOP\x10\x01\x12\x0e\n\nAUTONOMOUS\x10\x02\x12\t\n\x05\x45STOP\x10\x03\x62\x06proto3')
+  serialized_pb=_b('\n\ransible.proto\"\xd6\x02\n\x08\x44\x61wnData\x12\x38\n\x13student_code_status\x18\x01 \x01(\x0e\x32\x1b.DawnData.StudentCodeStatus\x12#\n\x08gamepads\x18\x02 \x03(\x0b\x32\x11.DawnData.Gamepad\x12\x18\n\x10peripheral_names\x18\x03 \x03(\t\x12\'\n\nteam_color\x18\x04 \x01(\x0e\x32\x13.DawnData.TeamColor\x1a\x37\n\x07Gamepad\x12\r\n\x05index\x18\x01 \x01(\x05\x12\x0c\n\x04\x61xes\x18\x02 \x03(\x01\x12\x0f\n\x07\x62uttons\x18\x03 \x03(\x08\"D\n\x11StudentCodeStatus\x12\x08\n\x04IDLE\x10\x00\x12\n\n\x06TELEOP\x10\x01\x12\x0e\n\nAUTONOMOUS\x10\x02\x12\t\n\x05\x45STOP\x10\x03\")\n\tTeamColor\x12\x08\n\x04NONE\x10\x00\x12\x08\n\x04\x42LUE\x10\x01\x12\x08\n\x04GOLD\x10\x02\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -50,10 +50,36 @@ _DAWNDATA_STUDENTCODESTATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=208,
-  serialized_end=276,
+  serialized_start=249,
+  serialized_end=317,
 )
 _sym_db.RegisterEnumDescriptor(_DAWNDATA_STUDENTCODESTATUS)
+
+_DAWNDATA_TEAMCOLOR = _descriptor.EnumDescriptor(
+  name='TeamColor',
+  full_name='DawnData.TeamColor',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='NONE', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='BLUE', index=1, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='GOLD', index=2, number=2,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=319,
+  serialized_end=360,
+)
+_sym_db.RegisterEnumDescriptor(_DAWNDATA_TEAMCOLOR)
 
 
 _DAWNDATA_GAMEPAD = _descriptor.Descriptor(
@@ -96,8 +122,8 @@ _DAWNDATA_GAMEPAD = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=151,
-  serialized_end=206,
+  serialized_start=192,
+  serialized_end=247,
 )
 
 _DAWNDATA = _descriptor.Descriptor(
@@ -128,12 +154,20 @@ _DAWNDATA = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='team_color', full_name='DawnData.team_color', index=3,
+      number=4, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
   nested_types=[_DAWNDATA_GAMEPAD, ],
   enum_types=[
     _DAWNDATA_STUDENTCODESTATUS,
+    _DAWNDATA_TEAMCOLOR,
   ],
   options=None,
   is_extendable=False,
@@ -142,13 +176,15 @@ _DAWNDATA = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=18,
-  serialized_end=276,
+  serialized_end=360,
 )
 
 _DAWNDATA_GAMEPAD.containing_type = _DAWNDATA
 _DAWNDATA.fields_by_name['student_code_status'].enum_type = _DAWNDATA_STUDENTCODESTATUS
 _DAWNDATA.fields_by_name['gamepads'].message_type = _DAWNDATA_GAMEPAD
+_DAWNDATA.fields_by_name['team_color'].enum_type = _DAWNDATA_TEAMCOLOR
 _DAWNDATA_STUDENTCODESTATUS.containing_type = _DAWNDATA
+_DAWNDATA_TEAMCOLOR.containing_type = _DAWNDATA
 DESCRIPTOR.message_types_by_name['DawnData'] = _DAWNDATA
 
 DawnData = _reflection.GeneratedProtocolMessageType('DawnData', (_message.Message,), dict(

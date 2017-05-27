@@ -9,7 +9,7 @@ import {
 } from 'react-bootstrap';
 import { remote } from 'electron';
 import _ from 'lodash';
-import { getValidationState } from '../utils/utils';
+import { getValidationState, logging } from '../utils/utils';
 
 const storage = remote.require('electron-json-storage');
 
@@ -29,7 +29,7 @@ class IPBox extends React.Component {
   componentDidMount() {
     storage.get('ipAddress', (err, data) => {
       if (err) {
-        console.log(err);
+        logging.log(err);
       } else if (!_.isEmpty(data)) {
         this.props.onIPChange(data);
         this.setState({ ipAddress: data });
@@ -42,7 +42,7 @@ class IPBox extends React.Component {
     this.props.onIPChange(this.state.ipAddress);
     this.setState({ original: this.state.ipAddress });
     storage.set('ipAddress', this.state.ipAddress, (err) => {
-      if (err) console.log(err);
+      if (err) logging.log(err);
     });
     this.props.hide();
   }

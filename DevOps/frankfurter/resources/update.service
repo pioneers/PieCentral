@@ -1,10 +1,11 @@
 [Unit]
 Description=update service
-After=multi-user.target
+After=local-fs.target
 
 [Service]
 Type=simple
 ExecStart=/home/ubuntu/bin/update.sh
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=local-fs.target
+RequiredBy=runtime.service

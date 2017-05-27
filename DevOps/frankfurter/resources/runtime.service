@@ -1,11 +1,11 @@
 [Unit]
 Description=runtime service
-Wants=update.service
-After=multi-user.target update.service
+Requires=update.service
+After=local-fs.target
 
 [Service]
 Type=simple
 ExecStart=/home/ubuntu/bin/runtime.sh
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=local-fs.target

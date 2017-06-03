@@ -72,3 +72,8 @@ Remember you will need to push with the `-f` flag.
 In the `testy` folder:
 * Install dependencies: `pip3 install -r requirements.txt`
 * Run the runtime: `python3 runtime.py`
+* Run the runtime tests: `python3 runtime.py -t`
+
+# Runtime Documentation
+### Runtime Diagram
+![Runtime Diagram](https://raw.github.com/pioneers/PieCentral/runtime/documentation/runtime/testy/Runtime.png)

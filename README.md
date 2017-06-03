@@ -8,7 +8,7 @@
  
      - Hibike, our lightweight communications protocol designed for the passing of sensor data for the PiE Robotics Kit
      - Dawn, our cross-platform frontend for the PiE robotics control system
-     - Runtime, the runtime code in our beaglebones that 
+     - Runtime, the runtime code in our beaglebones which handles the execution of the robot
      - Ansible-Protos, our protocol buffers used by Dawn and runtime for communicating data
      - DevOps, which oversees axiom, frankfurter, networking, and chrommunal
 

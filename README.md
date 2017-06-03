@@ -8,9 +8,9 @@
  
      - Hibike, our lightweight communications protocol designed for the passing of sensor data for the PiE Robotics Kit
      - Dawn, our cross-platform frontend for the PiE robotics control system
-     - Atalanta, the runtime code in our beaglebones
-     - Protos, our protocol buffers used by Dawn and runtime
-     - DevOps, which oversees axiom, frankfurter, and chrommunal
+     - Runtime, the runtime code in our beaglebones that 
+     - Ansible-Protos, our protocol buffers used by Dawn and runtime for communicating data
+     - DevOps, which oversees axiom, frankfurter, networking, and chrommunal
 
 ### If you want to learn more about these repositories, check out their directories!
 
@@ -44,8 +44,7 @@ All code is rebased onto master, meaning new commits are added directly onto mas
 Merge conflicts may arise when rebasing, make sure to fix conflicts before continuing.
 
 ```
-$ git fetch origin master
-$ git rebase origin/master
+$ git pull origin master
 $ git push origin {project_name/feature_name}
 ```
 Open a pull request to master.

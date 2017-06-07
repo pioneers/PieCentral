@@ -584,6 +584,7 @@ class Editor extends React.Component {
           show={this.props.showConsole}
           height={this.state.consoleHeight}
           output={this.props.consoleData}
+          disableScroll={this.props.disableScroll}
         />
       </Panel>
     );
@@ -615,6 +616,7 @@ Editor.propTypes = {
   onNotifyChange: React.PropTypes.func,
   fieldControlActivity: React.PropTypes.bool,
   onDownloadCode: React.PropTypes.func,
+  disableScroll: React.PropTypes.bool,
 };
 
 export default Editor;

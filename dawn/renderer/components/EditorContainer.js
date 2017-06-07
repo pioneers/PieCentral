@@ -30,6 +30,7 @@ const mapStateToProps = state => ({
   connectionStatus: state.info.connectionStatus,
   notificationHold: state.info.notificationHold,
   fieldControlActivity: state.info.fieldControlActivity,
+  disableScroll: state.studentConsole.disableScroll,
 });
 
 const mapDispatchToProps = dispatch => ({

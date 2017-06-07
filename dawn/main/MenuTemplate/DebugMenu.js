@@ -36,6 +36,14 @@ const DebugMenu = {
         LCMObject.setup();
       },
     },
+    {
+      label: 'Toggle Console Autoscroll',
+      click() {
+        RendererBridge.reduxDispatch({
+          type: 'TOGGLE_SCROLL',
+        });
+      },
+    },
   ],
 };
 

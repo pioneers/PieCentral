@@ -5,6 +5,7 @@
 const initialState = {
   showConsole: false,
   consoleData: [],
+  disableScroll: false,
 };
 
 const studentConsole = (state = initialState, action) => {
@@ -26,6 +27,11 @@ const studentConsole = (state = initialState, action) => {
       return {
         ...state,
         showConsole: !state.showConsole,
+      };
+    case 'TOGGLE_SCROLL':
+      return {
+        ...state,
+        disableScroll: !state.disableScroll,
       };
     default:
       return state;

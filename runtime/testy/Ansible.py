@@ -58,7 +58,7 @@ class AnsibleHandler():
     """Parent class for UDP Processes that spawns threads
 
     Initializes generalized instance variables for both UDP sender and receiver, and creates a
-    callable method to initialize the two threads per UDP process and start them.
+    callable method to initialize the two threads for the UDPSend process.
     """
 
     def __init__(self, packagerName, packagerThread, socketName, socketThread, # pylint: disable=too-many-arguments
@@ -93,13 +93,21 @@ class AnsibleHandler():
 
 
 class UDPSendClass(AnsibleHandler):
+    """Class that sends data to Dawn via UDP
+
+    This class extends AnsibleHandler, which handles the constructor and starting threads.
+    UDPSend runs in its own process which is started in runtime.py, and spawns two
+    threads from this process. One thread is for packaging, and one thread is for sending.
+    The packaging thread pulls the current state from SM, and packages the sensor data
+    into a proto. It shares the data to the send thread via a TwoBuffer. The send thread
+    sends the data over a UDP socket to Dawn on the UDP_SEND_PORT
+    """
 
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.send_buffer = TwoBuffer()
         packager_name = THREAD_NAMES.UDP_PACKAGER
         sock_send_name = THREAD_NAMES.UDP_SENDER
-        stateQueue.put(
-            [SM_COMMANDS.SEND_ADDR, [PROCESS_NAMES.UDP_SEND_PROCESS]])
+        stateQueue.put([SM_COMMANDS.SEND_ADDR, [PROCESS_NAMES.UDP_SEND_PROCESS]])
         self.dawn_ip = pipe.recv()[0]
         super().__init__(
             packager_name,
@@ -195,6 +203,15 @@ class UDPSendClass(AnsibleHandler):
 
 
 class UDPRecvClass(AnsibleHandler):
+    """Class that receives data from Dawn via UDP
+
+    This class extends AnsibleHandler, which handles the constructor. This class overrides
+    the start() function from its parent. UDPRecv runs as its own process which is started
+    in runtime.py. No threads are spawned from this process. Receiving from Dawn and unpackaging
+    are run in succession. Unpackaged data, which contains gamepad and control_state data
+    is sent to SM.
+    """
+
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.recv_buffer = TwoBuffer()
         packager_name = THREAD_NAMES.UDP_UNPACKAGER
@@ -251,7 +268,7 @@ class UDPRecvClass(AnsibleHandler):
             a mapping shared by dawn, and stores it in the dictionary with the gamepad index
             as a key.
 
-            student code status is also stored in this dictionary. This dictionary is added to
+            Student code status is also stored in this dictionary. This dictionary is added to
             the overall state through the update method implemented in state manager.
             """
             unpackaged_data = {}
@@ -307,6 +324,15 @@ class UDPRecvClass(AnsibleHandler):
 
 
 class TCPClass(AnsibleHandler):
+    """Class that communicates with Dawn via TCP connection
+
+    This class extends AnsibleHandler, which handles the constructor and start() method
+    This class runs as its own process, started in runtime.py. The process spawns two
+    threads, one for sending and one for receiving. Both TCPSend and TCPRecv communicate with
+    both SM and Dawn. Runtime is the client of the TCP connection, so runtime binds to the
+    server created by Dawn on construction. On first connection, runtime sends all peripheral
+    namings to Dawn.
+    """
 
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.send_buffer = TwoBuffer()
@@ -340,6 +366,12 @@ class TCPClass(AnsibleHandler):
         self.sock.sendall(proto_message.SerializeToString())
 
     def sender(self, bad_things_queue, state_queue, pipe): # pylint: disable=unused-argument
+        """Function run in an individual thread that sends data to Dawn via TCP
+
+        The sender will send either console logging or confirmation that runtime is ready
+        for student code upload.
+        """
+
         def package_message(data):
             try:
                 proto_message = notification_pb2.Notification()
@@ -395,6 +427,15 @@ class TCPClass(AnsibleHandler):
                                               printStackTrace=True))
 
     def receiver(self, bad_things_queue, state_queue, pipe): # pylint: disable=unused-argument
+        """Function run in its own thread which receives data from Dawn
+
+        The receiver can receive a command that Dawn is about to upload student Code.
+        This message is passed along to SM to ensure all appropriate processes are kiled.
+
+        The receiver detects disconnection from Dawn and restarts all Ansible processes
+        by sending a BadThing to runtime.py
+        """
+
         def unpackage(data):
             received_proto = notification_pb2.Notification()
             received_proto.ParseFromString(data)

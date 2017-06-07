@@ -29,6 +29,7 @@ const mapStateToProps = state => ({
   ipAddress: state.info.ipAddress,
   connectionStatus: state.info.connectionStatus,
   notificationHold: state.info.notificationHold,
+  disableScroll: state.studentConsole.disableScroll,
 });
 
 const mapDispatchToProps = dispatch => ({

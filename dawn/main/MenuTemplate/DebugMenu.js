@@ -28,6 +28,14 @@ const DebugMenu = {
         });
       },
     },
+    {
+      label: 'Toggle Console Autoscroll',
+      click() {
+        RendererBridge.reduxDispatch({
+          type: 'TOGGLE_SCROLL',
+        });
+      },
+    },
   ],
 };
 

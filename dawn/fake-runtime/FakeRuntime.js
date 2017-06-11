@@ -5,17 +5,28 @@
  */
 
 const dgram = require('dgram');
+const net = require('net');
 const ProtoBuf = require('protobufjs');
 
 const dawnBuilder = ProtoBuf.loadProtoFile('../ansible-protos/ansible.proto');
 const DawnData = dawnBuilder.build('DawnData');
 const runtimeBuilder = ProtoBuf.loadProtoFile('../ansible-protos/runtime.proto');
 const RuntimeData = runtimeBuilder.build('RuntimeData');
+const notificationBuilder = ProtoBuf.loadProtoFile('../ansible-protos/notification.proto');
+const Notification = notificationBuilder.build('Notification');
 
 const sendPort = 1235;
 const listenPort = 1236;
 const sendSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 const listenSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+const tcpSocket = new net.Socket();
+tcpSocket.connect({ host: '127.0.0.1', port: 1234 }, () => {
+  console.log('Fake Runtime TCP Up');
+});
+tcpSocket.on('close', () => {
+  console.log('Fake Runtime TCP Down');
+});
+
 const interval = 1000; // in ms
 
 let state = RuntimeData.State.STUDENT_STOPPED;
@@ -118,7 +129,17 @@ const generateFakeData = () => (
     }],
   });
 
+const generateRandomConsole = () => ({
+  header: Notification.Type.CONSOLE_LOGGING,
+  console_output: `${randomFloat(-100, 100)}\n`,
+});
+
+
 setInterval(() => {
   const udpData = new RuntimeData(generateFakeData());
   sendSocket.send(Buffer.from(udpData.toArrayBuffer()), sendPort, 'localhost');
+  if (state !== RuntimeData.State.ESTOP && state !== RuntimeData.State.STUDENT_STOPPED) {
+    const tcpData = new Notification(generateRandomConsole());
+    tcpSocket.write(Buffer.from(tcpData.toArrayBuffer()));
+  }
 }, interval);

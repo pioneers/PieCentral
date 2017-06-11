@@ -88,16 +88,29 @@ export class Logger {
       const { app } = require('electron'); // eslint-disable-line global-require
       path = app.getPath('desktop');
     }
-    this.log_file = fs.createWriteStream(`${path}/${Date.now()}-${processname}.log`, { flags: 'a' });
-    this.log_file.write(firstline);
+    try {
+      fs.statSync(`${path}/Dawn`);
+    } catch (err) {
+      fs.mkdirSync(`${path}/Dawn`);
+    }
+    this.log_file = fs.createWriteStream(`${path}/Dawn/${processname}.log`, { flags: 'a' });
+    this.log_file.write(`\n${firstline}`);
     this.lastStr = '';
+    this._write = this._write.bind(this);
   }
 
   log(output) {
     console.log(output);
+    this._write(output, `\n[${(new Date()).toString()}]`);
+  }
+  debug(output) {
+    this._write(output, `\n[${(new Date()).toString()} DEBUG]`);
+  }
+
+  _write(output, prefix) {
     output = String(output);
     if (output !== this.lastStr) {
-      this.log_file.write(`\n[${(new Date()).toString()}] ${output}`);
+      this.log_file.write(`${prefix} ${output}`);
       this.lastStr = output;
     } else {
       this.log_file.write('*');

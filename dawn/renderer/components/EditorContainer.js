@@ -5,6 +5,7 @@ import {
   saveFile,
   openFile,
   createNewFile,
+  downloadCode,
 } from '../actions/EditorActions';
 import {
   changeTheme,
@@ -28,6 +29,7 @@ const mapStateToProps = state => ({
   ipAddress: state.info.ipAddress,
   connectionStatus: state.info.connectionStatus,
   notificationHold: state.info.notificationHold,
+  disableScroll: state.studentConsole.disableScroll,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -66,6 +68,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onNotifyChange: (hold) => {
     dispatch(notifyChange(hold));
+  },
+  onDownloadCode: () => {
+    dispatch(downloadCode());
   },
 });
 

@@ -22,7 +22,9 @@ class ConsoleOutput extends React.Component {
   }
 
   scrollToBottom() {
-    this.messagesEnd.scrollIntoView({ behavior: 'smooth' });
+    if (!this.props.disableScroll) {
+      this.outerDiv.scrollTop = this.outerDiv.scrollHeight;
+    }
   }
 
 
@@ -53,14 +55,11 @@ class ConsoleOutput extends React.Component {
                 padding: '20px',
                 width: '99%',
               }}
+              ref={(el) => { this.outerDiv = el; }}
             >
               {this.props.output.map(line => (
                 <code key={`${line}-Code-${Math.random()}`}>{line}</code>
               ))}
-              <div
-                style={{ float: 'left', clear: 'both' }}
-                ref={(el) => { this.messagesEnd = el; }}
-              />
             </div>
           </pre>
         </Panel>
@@ -74,6 +73,7 @@ ConsoleOutput.propTypes = {
   output: React.PropTypes.array,
   toggleConsole: React.PropTypes.func,
   show: React.PropTypes.bool,
+  disableScroll: React.PropTypes.bool,
 };
 
 export default ConsoleOutput;

@@ -23,7 +23,7 @@ export default [
     type: 'hover',
   }, {
     title: 'File operations',
-    text: 'Use these buttons to create, open, save, and upload code files.',
+    text: 'Use these buttons to create, open, save, and upload code files. You can additionally download the robot\'s version of your code.',
     selector: '#file-operations-buttons',
     position: 'bottom',
     type: 'hover',

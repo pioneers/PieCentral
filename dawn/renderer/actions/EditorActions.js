@@ -35,3 +35,7 @@ export const deleteFile = () => ({
 export const createNewFile = () => ({
   type: 'CREATE_NEW_FILE',
 });
+
+export const downloadCode = () => ({
+  type: 'DOWNLOAD_CODE',
+});

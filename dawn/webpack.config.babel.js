@@ -4,22 +4,17 @@ import { version } from './package.json';
 
 const target = 'electron';
 const modules = {
-  preLoaders: [
+  rules: [
     {
       test: /\.js$/,
       exclude: /node_modules/,
+      enforce: 'pre',
       loader: 'eslint-loader',
     },
-  ],
-  loaders: [
     {
       test: /\.js$/,
       exclude: /node_modules/,
       loader: 'babel-loader',
-    },
-    {
-      test: /\.json$/,
-      loader: 'json-loader',
     },
   ],
 };
@@ -27,9 +22,6 @@ const modules = {
 const plugins = [
   new webpack.DefinePlugin({
     VERSION: JSON.stringify(version),
-  }),
-  new webpack.DefinePlugin({
-    'global.GENTLY': false,
   }),
 ];
 

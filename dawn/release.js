@@ -5,7 +5,7 @@ var path = require('path');
 
 function build() {
   console.log('Packaging with webpack, using the production config');
-  var child = execSync('npm run-script build', function(err, stdout, stderr) {
+  var child = execSync('yarn run build', function(err, stdout, stderr) {
     console.log('stderr: ', stderr);
     if (err !== null) {
       console.log('error: ', err);

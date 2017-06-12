@@ -173,7 +173,7 @@ function* runtimeHeartbeat() {
     // runtime. Only the winner will have a value.
     const result = yield race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, TIMEOUT), // The delay is 5000 ms, or 5 second.
+      timeout: call(delay, TIMEOUT),
     });
 
     // If update wins, we assume we are connected, otherwise disconnected.

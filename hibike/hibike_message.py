@@ -334,7 +334,7 @@ def parse_bytes(bytes):
   return HibikeMessage(messageID, payload)
 
 
-def nonblocking_read_one_packet(serial_conn, packet_len):
+def nonblocking_read_one_packet(serial_conn, packet_len, timeout=0):
   """
   Attempt to read exactly one packet from the serial connection,
   but don't block.
@@ -344,7 +344,7 @@ def nonblocking_read_one_packet(serial_conn, packet_len):
   """
   # Stash and retrieve serial port parameters
   old_timeout = serial_conn.timeout
-  serial_conn.timeout = 0
+  serial_conn.timeout = timeout
   packet_contents = serial_conn.read(packet_len + 1)
   serial_conn.timeout = old_timeout
   print(packet_contents)

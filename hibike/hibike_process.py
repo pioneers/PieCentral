@@ -46,6 +46,22 @@ def get_working_serial_ports():
             print("Cannot Open Serial Port: " + str(port))
     return serials, working_ports
 
+def identify_smart_sensors(serial_conns):
+    """
+    Given a list of serial port connections, figure out which
+    contain smart sensors.
+
+    Returns:
+        A map of serial port names to UIDs.
+    """
+    device_map = {}
+    for conn in serial_conns:
+        hm.send(conn, hm.make_ping())
+        time.sleep(1)
+        maybe_packet = hm.nonblocking_read_one_packet(conn, hm.make_subscription_response(0x0)._length)
+        if maybe_packet:
+            packet = hm.cobs_decode(maybe_packet)
+            device_map[conn.name] = hm.getDeviceType(packet[32:])
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     serials, working_ports = get_working_serial_ports()

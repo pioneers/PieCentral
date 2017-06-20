@@ -345,10 +345,12 @@ def nonblocking_read_one_packet(serial_conn, packet_len):
   # Stash and retrieve serial port parameters
   old_timeout = serial_conn.timeout
   serial_conn.timeout = 0
-  packet_contents = serial_conn.read(packet_len)
+  packet_contents = serial_conn.read(packet_len + 1)
   serial_conn.timeout = old_timeout
 
-  if len(packet_contents) < packet_len:
+  if len(packet_contents) < packet_len + 1:
+    return None
+  elif packet_contents.find(bytes([0])) == -1:
     return None
   
   return packet_contents

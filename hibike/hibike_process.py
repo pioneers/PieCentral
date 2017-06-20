@@ -15,13 +15,18 @@ uid_to_index = {}
 # .04 milliseconds sleep is the same frequency we subscribe to devices at
 BATCH_SLEEP_TIME = .04
 
-def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
-    
+def get_working_serial_ports():
+    """
+    Scan for open COM ports.
+
+    Returns:
+        A list of working port serial communicators, and just the names
+        of the ports.
+    """
     # Last command is included so that it's compatible with OS X Sierra
     # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
     # Instead access it through Volumes/vagrant/PieCentral
-    ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("/dev/tty.usbmodem*")
-
+    ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("/dev/ttyusbmodem*")
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
         ports.extend(open(virtual_device_config_file, "r").read().split())
@@ -29,20 +34,21 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
         pass
 
     serials = []
-
     working_ports = []
-
     for port in ports:
         try:
             serials.append(serial.Serial(port, 115200))
             working_ports.append(port)
-
-            #this implimentation ensures that as long as the cannot open serial port error occurs while opening the serial port, a print will appear, but the rest of the ports will go on.
-
-        except serial.serialutil.SerialException as e:
+        # this implementation ensures that as long as the cannot open serial port error occurs
+        # while opening the serial port, a print will appear, but
+        # the rest of the ports will go on.
+        except serial.serialutil.SerialException:
             print("Cannot Open Serial Port: " + str(port))
+    return serials, working_ports
 
 
+def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
+    serials, working_ports = get_working_serial_ports()
     # each device has it's own write thread, with it's own instruction queue
     instruction_queues = [queue.Queue() for _ in ports]
 

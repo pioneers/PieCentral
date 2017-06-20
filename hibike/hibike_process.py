@@ -61,7 +61,8 @@ def identify_smart_sensors(serial_conns):
     for conn in serial_conns:
         hm.send(conn, hm.make_ping())
         time.sleep(IDENTIFY_TIMEOUT)
-        maybe_packet = hm.nonblocking_read_one_packet(conn, hm.make_subscription_response(0x0)._length)
+        # FIXME: This is a hardcoded packet length.
+        maybe_packet = hm.nonblocking_read_one_packet(conn, 88 + 16 + 16)
         if maybe_packet:
             packet = hm.cobs_decode(maybe_packet)
             device_map[conn.name] = hm.getDeviceType(packet[32:])

@@ -30,9 +30,7 @@ import 'brace/theme/terminal';
 
 import ConsoleOutput from './ConsoleOutput';
 import TooltipButton from './TooltipButton';
-import { pathToName, uploadStatus, robotState, defaults, timings, logging, windowInfo } from '../utils/utils';
-
-const Client = require('ssh2').Client;
+import { pathToName, robotState, defaults, timings, logging, windowInfo } from '../utils/utils';
 
 const dialog = remote.dialog;
 const currentWindow = remote.getCurrentWindow();
@@ -198,76 +196,8 @@ class Editor extends React.Component {
       logging.log('Upload: Non-ASCII Issue');
       return;
     }
-    const conn = new Client();
-    conn.on('error', (err) => {
-      this.props.onAlertAdd(
-        'Upload Issue',
-        'Robot could not be connected',
-      );
-      return logging.log(err);
-    });
+
     ipcRenderer.send('NOTIFY_UPLOAD');
-    const waiting = () => {
-      let count = 0;
-      const waitPromise = (resolve, reject) => {
-        if (this.props.notificationHold === uploadStatus.RECEIVED) {
-          resolve();
-        } else if (this.props.notificationHold === uploadStatus.ERROR || count === 3) {
-          reject();
-        } else {
-          count += 1;
-          setTimeout(waitPromise.bind(this, resolve, reject), 2000);
-        }
-      };
-      return new Promise(waitPromise);
-    };
-    const waitForRuntime = waiting();
-    waitForRuntime.then(() => {
-      conn.on('ready', () => {
-        conn.sftp((err, sftp) => {
-          if (err) {
-            this.props.onAlertAdd(
-              'Upload Issue',
-              'SFTP session could not be initiated',
-            );
-            logging.log(err);
-            return;
-          }
-          sftp.fastPut(filepath, './PieCentral/runtime/testy/studentCode.py',
-            { step: (totalTransferred, chunk, total) => {
-              if (totalTransferred === total) {
-                this.props.onAlertAdd(
-                  'Upload Success',
-                  'File Uploaded Successfully',
-                );
-              }
-            } },
-            (err2) => {
-              setTimeout(() => { conn.end(); }, 50);
-              if (err2) {
-                this.props.onAlertAdd(
-                  'Upload Issue',
-                  'File failed to be transmitted',
-                );
-                logging.log(err2);
-              }
-            });
-        });
-      }).connect({
-        debug: (input) => { logging.log(input); },
-        host: this.props.ipAddress,
-        port: defaults.PORT,
-        username: defaults.USERNAME,
-        password: defaults.PASSWORD,
-      });
-    }, () => {
-      conn.end();
-      this.props.onNotifyChange(0);
-      this.props.onAlertAdd(
-        'Upload Issue',
-        'Runtime unresponsive',
-      );
-    });
   }
 
   startRobot() {
@@ -608,8 +538,6 @@ Editor.propTypes = {
   isRunningCode: React.PropTypes.bool,
   runtimeStatus: React.PropTypes.bool,
   ipAddress: React.PropTypes.string,
-  notificationHold: React.PropTypes.number,
-  onNotifyChange: React.PropTypes.func,
   onDownloadCode: React.PropTypes.func,
   disableScroll: React.PropTypes.bool,
 };

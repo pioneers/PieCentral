@@ -173,7 +173,7 @@ function* runtimeHeartbeat() {
     // runtime. Only the winner will have a value.
     const result = yield race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, TIMEOUT), // The delay is 5000 ms, or 5 second.
+      timeout: call(delay, TIMEOUT),
     });
 
     // If update wins, we assume we are connected, otherwise disconnected.
@@ -397,6 +397,100 @@ function* downloadStudentCode() {
   }
 }
 
+function* tcpConfirmation() {
+  const result = yield race({
+    update: take('NOTIFICATION_RECEIVED'),
+    timeout: call(delay, TIMEOUT), // The delay is 5000 ms, or 5 second.
+  });
+
+  if (!result.update) {
+    this.logger.log('Runtime failed to confirm');
+    yield addAsyncAlert('Upload Issue',
+      'Runtime Unresponsive',
+    );
+  } else {
+    const stateSlice = yield select(state => ({
+      ipAddress: state.info.ipAddress,
+      filepath: state.editor.filepath,
+    }));
+    const conn = new Client();
+    const errors = yield call(() => new Promise((resolve) => {
+      conn.on('error', (err) => {
+        logging.log(err);
+        resolve(3);
+      });
+
+      conn.on('ready', () => {
+        conn.sftp((err, sftp) => {
+          if (err) {
+            logging.log(err);
+            resolve(1);
+          }
+          sftp.fastPut(stateSlice.filepath, './PieCentral/runtime/testy/studentCode.py',
+            {
+              step: (totalTransferred, chunk, total) => {
+                if (totalTransferred === total) {
+                  resolve(0);
+                }
+              },
+            },
+            (err2) => {
+              if (err2) {
+                logging.log(err2);
+                resolve(2);
+              }
+            });
+        });
+      }).connect({
+        debug: (input) => {
+          logging.log(input);
+        },
+        host: stateSlice.ipAddress,
+        port: defaults.PORT,
+        username: defaults.USERNAME,
+        password: defaults.PASSWORD,
+      });
+    }));
+
+    switch (errors) {
+      case 0: {
+        yield addAsyncAlert('Upload Success',
+          'File Uploaded Successfully',
+        );
+        break;
+      }
+      case 1: {
+        yield addAsyncAlert('Upload Issue',
+          'SFTP session could not be initiated',
+        );
+        break;
+      }
+      case 2: {
+        yield addAsyncAlert('Upload Issue',
+          'File failed to be transmitted',
+        );
+        break;
+      }
+      case 3: {
+        yield addAsyncAlert('Upload Issue',
+          'Robot could not be connected.',
+        );
+        break;
+      }
+      default: {
+        yield addAsyncAlert('Upload Issue',
+          'Unknown Error',
+        );
+        break;
+      }
+    }
+    setTimeout(() => {
+      conn.end();
+    }, 50);
+  }
+}
+
+
 /**
  * The root saga combines all the other sagas together into one.
  */
@@ -408,6 +502,7 @@ export default function* rootSaga() {
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     takeEvery('RESTART_RUNTIME', restartRuntime),
     takeEvery('DOWNLOAD_CODE', downloadStudentCode),
+    takeEvery('NOTIFICATION_SENT', tcpConfirmation),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),
     fork(ansibleSaga),

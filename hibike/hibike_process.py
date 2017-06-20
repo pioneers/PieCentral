@@ -46,6 +46,9 @@ def get_working_serial_ports():
             print("Cannot Open Serial Port: " + str(port))
     return serials, working_ports
 
+
+# Time in seconds to wait until reading from a potential sensor
+IDENTIFY_TIMEOUT = 1
 def identify_smart_sensors(serial_conns):
     """
     Given a list of serial port connections, figure out which
@@ -57,7 +60,7 @@ def identify_smart_sensors(serial_conns):
     device_map = {}
     for conn in serial_conns:
         hm.send(conn, hm.make_ping())
-        time.sleep(1)
+        time.sleep(IDENTIFY_TIMEOUT)
         maybe_packet = hm.nonblocking_read_one_packet(conn, hm.make_subscription_response(0x0)._length)
         if maybe_packet:
             packet = hm.cobs_decode(maybe_packet)

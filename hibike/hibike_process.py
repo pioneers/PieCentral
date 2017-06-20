@@ -66,6 +66,8 @@ def identify_smart_sensors(serial_conns):
         if maybe_packet:
             packet = hm.cobs_decode(maybe_packet)
             device_map[conn.name] = hm.getDeviceType(packet[32:])
+    
+    return device_map
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     serials, working_ports = get_working_serial_ports()

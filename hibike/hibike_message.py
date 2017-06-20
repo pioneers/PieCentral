@@ -347,6 +347,7 @@ def nonblocking_read_one_packet(serial_conn, packet_len):
   serial_conn.timeout = 0
   packet_contents = serial_conn.read(packet_len + 1)
   serial_conn.timeout = old_timeout
+  print(packet_contents)
 
   if len(packet_contents) < packet_len + 1:
     return None

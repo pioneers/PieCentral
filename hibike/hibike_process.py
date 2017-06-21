@@ -76,13 +76,15 @@ def identify_smart_sensors(serial_conns):
                                             args=(conn, curr_queue)))
         read_queues.append(curr_queue)
     for thread in thread_list:
-        thread.run()
+        thread.start()
     for (index, reader) in enumerate(read_queues):
         try:
             uid = reader.get(block=False, timeout=IDENTIFY_TIMEOUT)
             device_map[serial_conns[index].name] = uid
         except queue.Empty:
             pass
+    for thread in thread_list:
+        thread.join()
     return device_map
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):

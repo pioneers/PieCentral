@@ -20,8 +20,7 @@ def get_working_serial_ports():
     Scan for open COM ports.
 
     Returns:
-        A list of working port serial communicators, and just the names
-        of the ports.
+        A list of serial port objects (`serial.Serial`).
     """
     # Last command is included so that it's compatible with OS X Sierra
     # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh

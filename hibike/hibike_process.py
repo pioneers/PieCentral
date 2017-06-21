@@ -73,8 +73,8 @@ def identify_smart_sensors(serial_conns):
         hm.send(conn, hm.make_ping())
         curr_queue = queue.Queue()
         thread_list.append(threading.Thread(target=recv_subscription_requests,
-                                            args=(conn, curr_queue)),
-                                            daemon=True)
+                                            args=(conn, curr_queue),
+                                            daemon=True))
         read_queues.append(curr_queue)
     for thread in thread_list:
         thread.start()

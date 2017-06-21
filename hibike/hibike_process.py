@@ -57,7 +57,7 @@ def identify_smart_sensors(serial_conns):
     """
     def recv_subscription_requests(conn, queue):
         """
-        Place received subscription requests from CONN into QUEUE.
+        Place received subscription request UIDs from CONN into QUEUE.
         """
         for packet in hm.blocking_read_generator(conn):
             msg_type = packet.getmessageID()

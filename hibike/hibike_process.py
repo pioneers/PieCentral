@@ -73,7 +73,8 @@ def identify_smart_sensors(serial_conns):
         hm.send(conn, hm.make_ping())
         curr_queue = queue.Queue()
         thread_list.append(threading.Thread(target=recv_subscription_requests,
-                                            args=(conn, curr_queue)))
+                                            args=(conn, curr_queue)),
+                                            daemon=True)
         read_queues.append(curr_queue)
     for thread in thread_list:
         thread.start()
@@ -83,8 +84,6 @@ def identify_smart_sensors(serial_conns):
             device_map[serial_conns[index].name] = uid
         except queue.Empty:
             pass
-    for thread in thread_list:
-        thread.join()
     return device_map
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):

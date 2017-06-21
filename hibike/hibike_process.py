@@ -34,17 +34,15 @@ def get_working_serial_ports():
         pass
 
     serials = []
-    working_ports = []
     for port in ports:
         try:
             serials.append(serial.Serial(port, 115200))
-            working_ports.append(port)
         # this implementation ensures that as long as the cannot open serial port error occurs
         # while opening the serial port, a print will appear, but
         # the rest of the ports will go on.
         except serial.serialutil.SerialException:
             print("Cannot Open Serial Port: " + str(port))
-    return serials, working_ports
+    return serials
 
 
 # Time in seconds to wait until reading from a potential sensor
@@ -87,7 +85,7 @@ def identify_smart_sensors(serial_conns):
     return device_map
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
-    serials, working_ports = get_working_serial_ports()
+    serials = get_working_serial_ports()
     # each device has it's own write thread, with it's own instruction queue
     instruction_queues = [queue.Queue() for _ in ports]
 

@@ -57,16 +57,32 @@ def identify_smart_sensors(serial_conns):
     Returns:
         A map of serial port names to UIDs.
     """
+    def recv_subscription_requests(conn, queue):
+        """
+        Place received subscription requests from CONN into QUEUE.
+        """
+        for packet in hm.blocking_read_generator(conn):
+            msg_type = packet.getmessageID()
+            if msg_type == hm.messageTypes["SubscriptionResponse"]:
+                _, _, uid = hm.parse_subscription_response(packet)
+                queue.put(uid)
     device_map = {}
+    thread_list = []
+    read_queues = []
     for conn in serial_conns:
         hm.send(conn, hm.make_ping())
-        time.sleep(IDENTIFY_TIMEOUT)
-        # FIXME: This is a hardcoded packet length.
-        maybe_packet = hm.nonblocking_read_one_packet(conn, 88 + 16 + 16)
-        if maybe_packet:
-            packet = hm.cobs_decode(maybe_packet)
-            device_map[conn.name] = hm.getDeviceType(packet[32:])
-    
+        curr_queue = queue.Queue()
+        thread_list.append(threading.Thread(target=recv_subscription_requests,
+                                            args=(conn, curr_queue)))
+        read_queues.append(curr_queue)
+    for thread in thread_list:
+        thread.run()
+    for (index, reader) in enumerate(read_queues):
+        try:
+            uid = reader.get(block=False, timeout=IDENTIFY_TIMEOUT)
+            device_map[serial_conns[index].name] = uid
+        except queue.Empty:
+            pass
     return device_map
 
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):

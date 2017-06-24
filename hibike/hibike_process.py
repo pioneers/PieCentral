@@ -15,13 +15,17 @@ uid_to_index = {}
 # .04 milliseconds sleep is the same frequency we subscribe to devices at
 BATCH_SLEEP_TIME = .04
 
-def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
-    
+def get_working_serial_ports():
+    """
+    Scan for open COM ports.
+
+    Returns:
+        A list of serial port objects (`serial.Serial`) and port names.
+    """
     # Last command is included so that it's compatible with OS X Sierra
     # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
     # Instead access it through Volumes/vagrant/PieCentral
     ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("/dev/tty.usbmodem*")
-
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
         ports.extend(open(virtual_device_config_file, "r").read().split())
@@ -29,22 +33,62 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
         pass
 
     serials = []
-
-    working_ports = []
-
+    port_names = []
     for port in ports:
         try:
             serials.append(serial.Serial(port, 115200))
-            working_ports.append(port)
-
-            #this implimentation ensures that as long as the cannot open serial port error occurs while opening the serial port, a print will appear, but the rest of the ports will go on.
-
-        except serial.serialutil.SerialException as e:
+            port_names.append(port)
+        # this implementation ensures that as long as the cannot open serial port error occurs
+        # while opening the serial port, a print will appear, but
+        # the rest of the ports will go on.
+        except serial.serialutil.SerialException:
             print("Cannot Open Serial Port: " + str(port))
+    return serials, port_names
 
 
+# Time in seconds to wait until reading from a potential sensor
+IDENTIFY_TIMEOUT = 1
+def identify_smart_sensors(serial_conns):
+    """
+    Given a list of serial port connections, figure out which
+    contain smart sensors.
+
+    Returns:
+        A map of serial port names to UIDs.
+    """
+    def recv_subscription_requests(conn, queue):
+        """
+        Place received subscription request UIDs from CONN into QUEUE.
+        """
+        for packet in hm.blocking_read_generator(conn):
+            msg_type = packet.getmessageID()
+            if msg_type == hm.messageTypes["SubscriptionResponse"]:
+                _, _, uid = hm.parse_subscription_response(packet)
+                queue.put(uid)
+    device_map = {}
+    thread_list = []
+    read_queues = []
+    for conn in serial_conns:
+        hm.send(conn, hm.make_ping())
+        curr_queue = queue.Queue()
+        thread_list.append(threading.Thread(target=recv_subscription_requests,
+                                            args=(conn, curr_queue),
+                                            daemon=True))
+        read_queues.append(curr_queue)
+    for thread in thread_list:
+        thread.start()
+    for (index, reader) in enumerate(read_queues):
+        try:
+            uid = reader.get(block=True, timeout=IDENTIFY_TIMEOUT)
+            device_map[serial_conns[index].name] = uid
+        except queue.Empty:
+            pass
+    return device_map
+
+def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
+    serials, _ = get_working_serial_ports()
     # each device has it's own write thread, with it's own instruction queue
-    instruction_queues = [queue.Queue() for _ in ports]
+    instruction_queues = [queue.Queue() for _ in serials]
 
     # these threads receive instructions from the main thread and write to devices
     write_threads = [threading.Thread(target=device_write_thread, args=(ser, iq)) for ser, iq in zip(serials, instruction_queues)]

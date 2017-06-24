@@ -333,6 +333,7 @@ def parse_bytes(bytes):
     return None
   return HibikeMessage(messageID, payload)
 
+
 ## runs forever, yielding packets as they're parsed
 def blocking_read_generator(serial_conn):
   zero_byte = bytes([0])

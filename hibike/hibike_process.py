@@ -88,7 +88,7 @@ def identify_smart_sensors(serial_conns):
 def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
     serials, _ = get_working_serial_ports()
     # each device has it's own write thread, with it's own instruction queue
-    instruction_queues = [queue.Queue() for _ in ports]
+    instruction_queues = [queue.Queue() for _ in serials]
 
     # these threads receive instructions from the main thread and write to devices
     write_threads = [threading.Thread(target=device_write_thread, args=(ser, iq)) for ser, iq in zip(serials, instruction_queues)]

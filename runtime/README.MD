@@ -76,4 +76,4 @@ In the `runtime` folder:
 
 # Runtime Documentation
 ### Runtime Diagram
-![Runtime Diagram](https://raw.github.com/pioneers/PieCentral/runtime/documentation/runtime/Runtime.png)
+![Runtime Diagram](Runtime.png)

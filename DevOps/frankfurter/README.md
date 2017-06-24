@@ -98,4 +98,4 @@ See [these instructions](https://dave.cheney.net/2013/09/22/two-point-five-ways-
 ## Some Notes
 1. Beaglebones are set-up using the master branch of PieCentral repository at the time of set-up.
 2. When we issue updates we will package both the runtime and hibike directory in a tarball hosted on GitHub pages which will then be extracted into the correct locations on the Beaglebone.
-3. Student code is stored in `~/PieCentral/runtime/testy/studentCode.py`.
+3. Student code is stored in `~/PieCentral/runtime/studentCode.py`.

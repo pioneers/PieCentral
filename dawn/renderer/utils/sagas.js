@@ -346,7 +346,7 @@ function* downloadStudentCode() {
       conn.on('ready', () => {
         conn.sftp((err, sftp) => {
           if (err) resolve(1);
-          sftp.fastGet('./PieCentral/runtime/testy/studentCode.py', `${path}/robotCode.py`,
+          sftp.fastGet('./PieCentral/runtime/studentCode.py', `${path}/robotCode.py`,
             { step: (totalTransferred, chunk, total) => {
               if (totalTransferred === total) {
                 resolve(0);
@@ -426,7 +426,7 @@ function* tcpConfirmation() {
             logging.log(err);
             resolve(1);
           }
-          sftp.fastPut(stateSlice.filepath, './PieCentral/runtime/testy/studentCode.py',
+          sftp.fastPut(stateSlice.filepath, './PieCentral/runtime/studentCode.py',
             {
               step: (totalTransferred, chunk, total) => {
                 if (totalTransferred === total) {

@@ -24,8 +24,8 @@ sudo rm -rf $HOME/PieCentral/runtime
 sudo rm -rf $HOME/PieCentral/hibike
 mv $TMP_DIR/hibike $HOME/PieCentral
 mv $TMP_DIR/runtime $HOME/PieCentral
-cp $PIECENTRAL_BACKUP_DIR/runtime/testy/studentCode.py $HOME/PieCentral/runtime/testy
-cp $PIECENTRAL_BACKUP_DIR/runtime/testy/namedPeripherals.csv $HOME/PieCentral/runtime/testy
+cp $PIECENTRAL_BACKUP_DIR/runtime/studentCode.py $HOME/PieCentral/runtime
+cp $PIECENTRAL_BACKUP_DIR/runtime/namedPeripherals.csv $HOME/PieCentral/runtime
 
 # Copy executables
 mv $TMP_DIR/resources/update.sh $HOME/bin
@@ -50,7 +50,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable runtime.service
 sudo systemctl enable update.service
 
-ln -s $HOME/PieCentral/hibike/hibikeDevices.csv $HOME/PieCentral/runtime/testy/hibikeDevices.csv
+ln -s $HOME/PieCentral/hibike/hibikeDevices.csv $HOME/PieCentral/runtime/hibikeDevices.csv
 
 # Cleanup temporary directory
 rm -rf $TMP_DIR

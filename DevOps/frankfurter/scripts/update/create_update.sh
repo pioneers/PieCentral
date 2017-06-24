@@ -27,7 +27,7 @@ echo "Done."
 cp -R $PIECENTRAL_DIR/hibike $TMP_DIR
 cp -R $PIECENTRAL_DIR/runtime $TMP_DIR
 cp -R $FRANKFURTER_DIR/resources $TMP_DIR
-protoc -I=$PROTO_DIR --python_out=$TMP_DIR/runtime/testy $PROTO_DIR/*.proto
+protoc -I=$PROTO_DIR --python_out=$TMP_DIR/runtime $PROTO_DIR/*.proto
 cp $FRANKFURTER_DIR/scripts/update/install_update.sh $TMP_DIR
 
 CURRENT_TIME=$(date +%s%N)

@@ -46,7 +46,7 @@
     "eslint-plugin-react": "6.10.3",
     "minimist": "1.2.0",
     "mocha": "3.2.0",
-    "webpack": "2.3.3"
+    "webpack": "3.0.0"
   },
   "dependencies": {
     "brace": "0.10.0",

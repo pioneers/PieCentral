@@ -354,7 +354,7 @@ def start_hibike(bad_things_queue, state_queue, pipe):
         """Modify sys.path so we can find hibike.
         """
         path = os.path.dirname(os.path.abspath(__file__))
-        parent_path = path.rstrip("runtime/testy")
+        parent_path = path.rstrip("runtime")
         hibike = os.path.join(parent_path, "hibike")
         sys.path.insert(1, hibike)
 

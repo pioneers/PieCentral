@@ -140,6 +140,6 @@ class StudentAPITypeError(StudentAPIError):
     pass
 
 # Sensor type names are CamelCase, with the first letter capitalized as well
-CONFIG_FILE = open(os.path.join(os.path.dirname(__file__), '../../hibike/hibikeDevices.json'), 'r')
+CONFIG_FILE = open(os.path.join(os.path.dirname(__file__), '../hibike/hibikeDevices.json'), 'r')
 SENSOR_TYPE = {device_data["id"]: device_data["name"] for device_data in json.load(CONFIG_FILE)}
 SENSOR_TYPE[-1] = "runtime_version"

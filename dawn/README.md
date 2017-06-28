@@ -3,12 +3,12 @@ Dawn is a cross-platform frontend for the [PiE](https://pioneers.berkeley.edu) r
 
 ### Development Quickstart
 1. Install the LTS version of [NodeJS](https://nodejs.org/en/download/). For Linux users, your distribution's package repository may be outdated; if so, please look at [alternative sources](https://nodejs.org/en/download/package-manager/).
-2. Dawn is a part of the [PieCentral](https://github.com/pioneers/PieCentral) repository, which contains the code for
-many of PiE's projects. If you have not already cloned the PieCentral repo, do so now.
-3. From the Dawn folder under PieCentral:
+2. Install [Yarn](https://yarnpkg.com/en/docs/install).
+3. Dawn is a part of the [PieCentral](https://github.com/pioneers/PieCentral) repository, which contains the code for many of PiE's projects. If you have not already cloned the PieCentral repo, do so now.
+4. From the Dawn folder under PieCentral:
     1. Run `make watch`. This will pull all the necessary dawn dependencies and start the webpack bundler. Leave
     this running, it will try to automatically rebundle the app as you make changes. If it doesn't rebuild after fixing your lint errors, you should kill it and restart.
-    2. In a separate terminal tab/window, launch the application itself: `make start`. Leave this terminal window also running. Dawn should open. (Note: For tmux users, do not use tmux for this step due to a [bug](https://github.com/electron/electron/issues/4236) in Electron)
+    2. In a separate terminal tab/window, launch the application itself: `make start`. Leave this terminal window also running. Dawn should open. (Note: For tmux users, do not use tmux for this step due to a [bug in Electron](https://github.com/electron/electron/issues/4236).)
     3. When you make a change, the webpack watcher should automatically re-bundle your code. To see your changes in the app, you can refresh by clicking `Debug > Reload` from the menu bar or enter CMD-R.
 
 ### Packaging Dawn for Distribution
@@ -18,8 +18,8 @@ many of PiE's projects. If you have not already cloned the PieCentral repo, do s
 ### Packaging Dawn Locally
 **This is only relevant if you are testing a non-development version of Dawn just for yourself.**
 
-1. Install electron-packager: `npm install -g electron-packager`
-2. Build for production: `npm run build` (as opposed to `npm run watch` during production).
+1. Install electron-packager: `yarn install electron-packager`
+2. Build for production: `yarn run build` (as opposed to `yarn run watch` during production).
 3. Package app:
     * Packaging Dawn is done via a release script. To build for all platforms, run the following from the `dawn` folder:
 

@@ -1,29 +1,29 @@
 .PHONY: watch start install artifacts-install lint test artifacts
 
-watch:
-	npm install && npm run watch
+watch: install
+	yarn run watch
 
 start:
-	npm start
+	yarn start
 
 install:
-	npm install
+	yarn install
 
 artifacts-install:
-	npm install electron-packager
+	yarn install electron-packager
 	sudo dpkg --add-architecture i386
 	sudo apt-get update
 	sudo apt-get install -y wine
 	sudo apt-get install -y p7zip-full
 
 lint:
-	npm run lint
+	yarn run lint
 
 test:
-	npm test
+	yarn test
 
 artifacts:
-	npm run build
+	yarn run build
 	node release.js --platform=win32 --arch=ia32
 	node release.js --platform=darwin --arch=x64
 	node release.js --platform=linux --arch=x64

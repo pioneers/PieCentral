@@ -1,3 +1,0 @@
-protobuf==3.2.0
-pylint
--r ../../hibike/requirements.txt

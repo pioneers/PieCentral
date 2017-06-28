@@ -23,7 +23,7 @@ In vim command mode:
 2. Execute the magic case-sensitive formatting command `gggqG`
   * `gg` Skip to the first line of the file
   * `gq` Format command. The next character you type tells it how many lines to format
-  * `G` Skip to the last line of the file. Following `gq`, this means format from current cursor to end of file. 
+  * `G` Skip to the last line of the file. Following `gq`, this means format from current cursor to end of file.
 3. Make sure your first line is still only a single line. If formatting has split it up, that means it's too long.
 4. Edit commit message, repeat formatting as necessary.
 
@@ -41,7 +41,7 @@ Suppose we want to combine the last `n` commits into one.
 
 You will be put into a vim session. A file will automatically be open with a list of the commits in this rebase. The oldest commits are at the top of the file; newest commits are at the bottom.
 
-Replace `pick` with `squash` (or `s`) for all commits **EXCEPT THE FIRST ONE**. This will combine all the later commits into that first one. 
+Replace `pick` with `squash` (or `s`) for all commits **EXCEPT THE FIRST ONE**. This will combine all the later commits into that first one.
 
 Write and quit the file (in vim command mode, `:wq`)
 
@@ -50,7 +50,7 @@ Follow the instructions that the command line prints.
 After rebasing, you will need to execute `git push -f`. Note the `-f`. It is necessary because rebasing changes the git history, and so github will not be able to merge.
 
 ### Reordering commits
-If you work with many commits, sometimes when you run the rebase commands in the PieCentral README, your commits may become separated. 
+If you work with many commits, sometimes when you run the rebase commands in the PieCentral README, your commits may become separated.
 
 Suppose the first commit you have is `n` commits ago
 
@@ -69,7 +69,7 @@ Remember you will need to push with the `-f` flag.
 `git remote prune origin`
 
 # Running runtime
-In the `testy` folder:
+In the `runtime` folder:
 * Install dependencies: `pip3 install -r requirements.txt`
 * Run the runtime: `python3 runtime.py`
 * Run the runtime tests: `python3 runtime.py -t`

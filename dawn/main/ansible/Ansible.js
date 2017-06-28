@@ -11,12 +11,13 @@ import {
 } from '../../renderer/actions/ConsoleActions';
 import {
   ansibleDisconnect,
-  notifyChange,
+  notifyReceive,
+  notifySend,
   infoPerMessage,
   updateCodeStatus,
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
-import { uploadStatus, robotState, Logger, defaults } from '../../renderer/utils/utils';
+import { robotState, Logger, defaults } from '../../renderer/utils/utils';
 import { stationNumber } from './LCM';
 
 const dawnBuilder = ProtoBuf.loadProtoFile(`${__dirname}/ansible.proto`);
@@ -178,12 +179,10 @@ class SendSocket {
 
 class TCPSocket {
   constructor(socket, logger) {
-    this.waitRuntimeConfirm = this.waitRuntimeConfirm.bind(this);
     this.tryUpload = this.tryUpload.bind(this);
     this.logger = logger;
 
     this.socket = socket;
-    this.received = false;
 
     this.logger.log('Runtime connected');
     this.socket.on('end', () => {
@@ -191,11 +190,10 @@ class TCPSocket {
     });
 
     this.socket.on('data', (data) => {
-      this.received = true;
       const decoded = Notification.decode(data);
       this.logger.log('Dawn received TCP');
       if (decoded.header === Notification.Type.STUDENT_RECEIVED) {
-        RendererBridge.reduxDispatch(notifyChange(uploadStatus.RECEIVED));
+        RendererBridge.reduxDispatch(notifyReceive());
       } else if (decoded.header === Notification.Type.CONSOLE_LOGGING) {
         RendererBridge.reduxDispatch(updateConsole(decoded.console_output));
       } else {
@@ -211,34 +209,17 @@ class TCPSocket {
     ipcMain.on('NOTIFY_UPLOAD', this.tryUpload);
   }
 
-  waitRuntimeConfirm(message, count) {
-    if (count > 3) {
-      this.logger.log('Runtime failed to confirm');
-      RendererBridge.reduxDispatch(notifyChange(uploadStatus.ERROR));
-    } else if (!this.received) {
-      try {
-        this.socket.write(message, () => {
-          this.logger.log(`Runtime notified: try ${count + 1}`);
-        });
-      } catch (e) {
-        this.logger.log(e);
-      }
-
-      setTimeout(() => {
-        this.waitRuntimeConfirm(message, count + 1);
-      }, 1000);
-    }
-  }
-
   tryUpload() {
     const message = new Notification({
       header: Notification.Type.STUDENT_SENT,
       console_output: '',
     }).encode().toBuffer();
 
-    this.received = false;
-    RendererBridge.reduxDispatch(notifyChange(uploadStatus.SENT));
-    this.waitRuntimeConfirm(message, 0);
+    this.socket.write(message, () => {
+      this.logger.log('Runtime Notified');
+    });
+
+    RendererBridge.reduxDispatch(notifySend());
   }
 
   close() {

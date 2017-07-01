@@ -12,14 +12,20 @@ __all__ = ["hibike_process"]
 
 
 uid_to_index = {}
+# .04 milliseconds sleep is the same frequency we subscribe to devices at
+BATCH_SLEEP_TIME = .04
 
-def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
-    
+def get_working_serial_ports():
+    """
+    Scan for open COM ports.
+
+    Returns:
+        A list of serial port objects (`serial.Serial`) and port names.
+    """
     # Last command is included so that it's compatible with OS X Sierra
     # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
     # Instead access it through Volumes/vagrant/PieCentral
     ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("/dev/tty.usbmodem*")
-
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
         ports.extend(open(virtual_device_config_file, "r").read().split())
@@ -27,33 +33,77 @@ def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
         pass
 
     serials = []
-
-    working_ports = []
-
+    port_names = []
     for port in ports:
         try:
             serials.append(serial.Serial(port, 115200))
-            working_ports.append(port)
-
-            #this implimentation ensures that as long as the cannot open serial port error occurs while opening the serial port, a print will appear, but the rest of the ports will go on.
-
-        except serial.serialutil.SerialException as e:
+            port_names.append(port)
+        # this implementation ensures that as long as the cannot open serial port error occurs
+        # while opening the serial port, a print will appear, but
+        # the rest of the ports will go on.
+        except serial.serialutil.SerialException:
             print("Cannot Open Serial Port: " + str(port))
+    return serials, port_names
 
 
+# Time in seconds to wait until reading from a potential sensor
+IDENTIFY_TIMEOUT = 1
+def identify_smart_sensors(serial_conns):
+    """
+    Given a list of serial port connections, figure out which
+    contain smart sensors.
+
+    Returns:
+        A map of serial port names to UIDs.
+    """
+    def recv_subscription_requests(conn, queue):
+        """
+        Place received subscription request UIDs from CONN into QUEUE.
+        """
+        for packet in hm.blocking_read_generator(conn):
+            msg_type = packet.getmessageID()
+            if msg_type == hm.messageTypes["SubscriptionResponse"]:
+                _, _, uid = hm.parse_subscription_response(packet)
+                queue.put(uid)
+    device_map = {}
+    thread_list = []
+    read_queues = []
+    for conn in serial_conns:
+        hm.send(conn, hm.make_ping())
+        curr_queue = queue.Queue()
+        thread_list.append(threading.Thread(target=recv_subscription_requests,
+                                            args=(conn, curr_queue),
+                                            daemon=True))
+        read_queues.append(curr_queue)
+    for thread in thread_list:
+        thread.start()
+    for (index, reader) in enumerate(read_queues):
+        try:
+            uid = reader.get(block=True, timeout=IDENTIFY_TIMEOUT)
+            device_map[serial_conns[index].name] = uid
+        except queue.Empty:
+            pass
+    return device_map
+
+def hibike_process(badThingsQueue, stateQueue, pipeFromChild):
+    serials, _ = get_working_serial_ports()
     # each device has it's own write thread, with it's own instruction queue
-    instruction_queues = [queue.Queue() for _ in ports]
+    instruction_queues = [queue.Queue() for _ in serials]
 
     # these threads receive instructions from the main thread and write to devices
     write_threads = [threading.Thread(target=device_write_thread, args=(ser, iq)) for ser, iq in zip(serials, instruction_queues)]
 
-    # these threads receive packets from devices and write to statequeue
-    read_threads = [threading.Thread(target=device_read_thread, args=(index, ser, iq, None, stateQueue)) for index, (ser, iq) in enumerate(zip(serials, instruction_queues))]
+    # these threads receive packets from devices and write to stateQueue
+    batched_data = {}
+    read_threads = [threading.Thread(target=device_read_thread, args=(index, ser, iq, None, stateQueue, batched_data)) for index, (ser, iq) in enumerate(zip(serials, instruction_queues))]
+
+    batch_thread = threading.Thread(target=batch_data, args=(batched_data, stateQueue))
 
     for read_thread in read_threads:
         read_thread.start()
     for write_thread in write_threads:
         write_thread.start()
+    batch_thread.start()
 
     # Pings all devices and tells them to stop sending data
     for instruction_queue in instruction_queues:
@@ -102,10 +152,10 @@ def device_write_thread(ser, queue):
             hm.send(ser, hm.make_disable())
         elif instruction == "heartResp":
             uid = args[0]
-            hm.send(ser, hm.make_heartbeat_response(hm.uid_to_device_id(uid)))
+            hm.send(ser, hm.make_heartbeat_response())
 
 
-def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
+def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue, batched_data):
     uid = None
     while True:
         for packet in hm.blocking_read_generator(ser):
@@ -117,7 +167,7 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
             elif message_type == hm.messageTypes["DeviceData"]:
                 if uid is not None:
                     params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-                    stateQueue.put(("device_values", [uid, params_and_values]))
+                    batched_data[uid] = params_and_values
                 else:
                     print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
                     print("Telling it to shut up")
@@ -125,6 +175,11 @@ def device_read_thread(index, ser, instructionQueue, errorQueue, stateQueue):
             elif message_type == hm.messageTypes["HeartBeatRequest"]:
                 if uid is not None:
                     instructionQueue.put(("heartResp", [uid]))
+
+def batch_data(data, stateQueue):
+    while True:
+        time.sleep(BATCH_SLEEP_TIME)
+        stateQueue.put(("device_values", [data]))
 
 
 #############

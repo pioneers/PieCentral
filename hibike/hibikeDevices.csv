@@ -1,9 +1,0 @@
-deviceID,deviceName,dataformat,scalingfactors,machinereadable,humanreadable,param0,param1,param2,param3,...
-0x00,LimitSwitch,"<????","1,1,1,1","value0,value1,value2,value3","Switch 0,Switch 1,Switch 2,Switch 3",dataUpdate,,,,
-0x01,LineFollower,"<????","1,1,1,1","value0,value1,value2,value3","Switch 0,Switch 1,Switch 2,Switch 3",dataUpdate,,,,
-0x02,Potentiometer,"<HHHH","1023,1023,1023,1023","value0,value1,value2,value3","Potentiometer 0,Potentiometer 1,Potentiometer 2,Potentiometer 3",dataUpdate,,,,
-0x03,Encoder,"<H","1","value0","Rotation",dataUpdate,,,,
-0x04,BatteryBuzzer,"<H??","1023,1,1","value0,value1,value2","Voltage, Safe, Connected",dataUpdate,,,,
-0x05,TeamFlag,"","","","",dataUpdate,team,mode,blue,yellow,s1,s2,s3,s4
-0x07,ServoControl,"","","","",dataUpdate,servo0,servo1,servo2,servo3
-0xFFFF,ExampleDevice,"<?BHIQ","1,1,2,3,0.25","value0,value1,value2,value3,value4","Example 0,Example 1,Example 2,Example 3,Example 4",dataUpdate,test0,test1,test2,test3,test4,test5

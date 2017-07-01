@@ -3,11 +3,6 @@ export const updatePeripherals = sensors => ({
   peripherals: sensors,
 });
 
-export const peripheralDisconnect = uid => ({
-  type: 'PERIPHERAL_DISCONNECT',
-  id: uid,
-});
-
 export const peripheralRename = (uid, newname) => ({
   type: 'PERIPHERAL_RENAME',
   id: uid,

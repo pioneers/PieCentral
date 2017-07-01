@@ -100,16 +100,17 @@ void setPosSetpoint(float x) {
 
 void setPosKP(float x) {
   PIDPosKP = x;
-
+  updatePosPID();
 }
 
 void setPosKI(float x) {
   PIDPosKI = x;
-
+  updatePosPID();
 }
 
 void setPosKD(float x) {
   PIDPosKD = x;
+  updatePosPID();
 }
 
 void setVelSetpoint(float x) {
@@ -119,12 +120,15 @@ void setVelSetpoint(float x) {
 
 void setVelKP(float x) {
   PIDVelKP = x;
+  updateVelPID();
 }
 
 void setVelKI(float x) {
   PIDVelKI = x;
+  updateVelPID();
 }
 
 void setVelKD(float x) {
   PIDVelKD = x;
+  updateVelPID();
 }

@@ -20,11 +20,27 @@ const DebugMenu = {
         RendererBridge.registeredWindow.webContents.toggleDevTools();
       },
     },
+    {
+      label: 'Restart Runtime',
+      click() {
+        RendererBridge.reduxDispatch({
+          type: 'RESTART_RUNTIME',
+        });
+      },
+    },
+    {
+      label: 'Toggle Console Autoscroll',
+      click() {
+        RendererBridge.reduxDispatch({
+          type: 'TOGGLE_SCROLL',
+        });
+      },
+    },
   ],
 };
 
 if (process.env.NODE_ENV === 'development') {
-  DebugMenu.submenu.unshift({
+  DebugMenu.submenu.push({
     label: 'Toggle Fake Runtime',
     click() {
       if (fakeRuntime) {
@@ -35,7 +51,7 @@ if (process.env.NODE_ENV === 'development') {
     },
   });
 
-  DebugMenu.submenu.unshift({
+  DebugMenu.submenu.push({
     label: 'Reload',
     accelerator: 'CommandOrControl+R',
     click() {

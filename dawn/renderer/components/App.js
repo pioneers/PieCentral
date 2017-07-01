@@ -8,6 +8,7 @@ import DNav from './DNav';
 import joyrideSteps from './JoyrideSteps';
 import { removeAsyncAlert } from '../actions/AlertActions';
 import { ipChange } from '../actions/InfoActions';
+import { logging, startLog } from '../utils/utils';
 
 const storage = remote.require('electron-json-storage');
 
@@ -23,6 +24,7 @@ class AppComponent extends React.Component {
     this.startTour = this.startTour.bind(this);
     this.joyrideCallback = this.joyrideCallback.bind(this);
     this.updateAlert = this.updateAlert.bind(this);
+    startLog();
   }
 
   componentDidMount() {
@@ -30,11 +32,16 @@ class AppComponent extends React.Component {
     ipcRenderer.on('start-interactive-tour', () => {
       this.startTour();
     });
-    storage.has('firstTime').then((hasKey) => {
+    storage.has('firstTime', (hasErr, hasKey) => {
+      if (hasErr) {
+        logging.log(hasErr);
+        return;
+      }
+
       if (!hasKey) {
         this.startTour();
-        storage.set('firstTime', { first: true }, (err) => {
-          if (err) console.log(err);
+        storage.set('firstTime', { first: true }, (setErr) => {
+          if (setErr) logging.log(setErr);
         });
       }
     });

@@ -5,6 +5,7 @@ import {
   saveFile,
   openFile,
   createNewFile,
+  downloadCode,
 } from '../actions/EditorActions';
 import {
   changeTheme,
@@ -15,7 +16,7 @@ import {
   clearConsole,
 } from '../actions/ConsoleActions';
 import { addAsyncAlert } from '../actions/AlertActions';
-import { updateCodeStatus, ipChange, notifyChange } from '../actions/InfoActions';
+import { updateCodeStatus, ipChange } from '../actions/InfoActions';
 
 const mapStateToProps = state => ({
   editorCode: state.editor.editorCode,
@@ -28,6 +29,7 @@ const mapStateToProps = state => ({
   ipAddress: state.info.ipAddress,
   connectionStatus: state.info.connectionStatus,
   notificationHold: state.info.notificationHold,
+  disableScroll: state.studentConsole.disableScroll,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -64,8 +66,8 @@ const mapDispatchToProps = dispatch => ({
   onIPChange: (ipAddress) => {
     dispatch(ipChange(ipAddress));
   },
-  onNotifyChange: (hold) => {
-    dispatch(notifyChange(hold));
+  onDownloadCode: () => {
+    dispatch(downloadCode());
   },
 });
 

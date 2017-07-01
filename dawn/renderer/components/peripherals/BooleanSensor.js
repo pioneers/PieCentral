@@ -12,7 +12,7 @@ class BooleanSensor extends React.Component {
    */
   static formatBoolean(peripheralType, sensorValue) {
     if (peripheralType === PeripheralTypes.LimitSwitch) {
-      return (sensorValue) ? 'Open' : 'Closed';
+      return (sensorValue) ? 'Closed' : 'Open';
     }
     return sensorValue;
   }

@@ -1,4 +1,4 @@
-for f in **/*.py; do
+for f in $(find . -name "*.cpp"); do
     if (grep License $f);then
         echo "Skipped $f"
     else

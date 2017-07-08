@@ -1,4 +1,6 @@
-import csv
+"""
+Spawn virtual devices.
+"""
 import subprocess
 import shlex
 import re
@@ -6,34 +8,44 @@ import os
 import atexit
 import time
 
-popens = []
-devices_to_spawn = ["LimitSwitch", "LimitSwitch", "ServoControl", "Potentiometer", "YogiBear"]
+POPENS = []
+DEVICES_TO_SPAWN = ["LimitSwitch", "LimitSwitch", "ServoControl", "Potentiometer", "YogiBear"]
 
 def get_virtual_ports():
-    socat = subprocess.Popen(shlex.split("socat -d -d pty,raw,echo=0 pty,raw,echo=0"), stderr=subprocess.PIPE)
-    popens.append(socat)
+    """
+    Spawn two virtual serial ports, returning them.
+    """
+    socat = subprocess.Popen(shlex.split("socat -d -d pty,raw,echo=0 pty,raw,echo=0"),
+                             stderr=subprocess.PIPE)
+    POPENS.append(socat)
     lines = [str(socat.stderr.readline()), str(socat.stderr.readline())]
-    p1 = re.search(r'PTY is (/dev/pts/\d+)', lines[0]).group(1)
-    p2 = re.search(r'PTY is (/dev/pts/\d+)', lines[1]).group(1)
-    return p1, p2
+    port1 = re.search(r'PTY is (/dev/pts/\d+)', lines[0]).group(1)
+    port2 = re.search(r'PTY is (/dev/pts/\d+)', lines[1]).group(1)
+    return port1, port2
 
 def spawn_device(device_type):
-    p1, p2 = get_virtual_ports()
+    """
+    Spawn a virtual device of type DEVICE_TYPE.
+    """
+    port1, port2 = get_virtual_ports()
     fname = os.path.join(os.path.dirname(__file__), "virtual_device.py")
-    device = subprocess.Popen(shlex.split("python3 %s -d %s -p %s" % (fname, device_type, p1)))
-    popens.append(device)
-    return p2
+    device = subprocess.Popen(shlex.split("python3 %s -d %s -p %s" % (fname, device_type, port1)))
+    POPENS.append(device)
+    return port2
 
 @atexit.register
 def cleanup():
-    for process in popens:
+    """
+    Kill all virtual device processes.
+    """
+    for process in POPENS:
         process.kill()
 
 
 if __name__ == "__main__":
-    virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
-    with open(virtual_device_config_file, "w+") as device_file:
-        devices = [spawn_device(device_type) for device_type in devices_to_spawn]
-        device_file.write(" ".join(devices))
+    VIRTUAL_DEVICE_CONFIG_FILE = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
+    with open(VIRTUAL_DEVICE_CONFIG_FILE, "w+") as device_file:
+        DEVICES = [spawn_device(device_type) for device_type in DEVICES_TO_SPAWN]
+        device_file.write(" ".join(DEVICES))
     while True:
         time.sleep(1)

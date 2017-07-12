@@ -405,11 +405,13 @@ def parse_bytes(msg_bytes):
     return HibikeMessage(message_id, payload)
 
 
-def blocking_read_generator(serial_conn, stop_event=None):
+def blocking_read_generator(serial_conn, stop_event=None, read_timeout=None):
     """
     Yield packets from SERIAL_CONN, stopping if STOP_EVENT exists
-    and is set.
+    and is set, or if no bytes are read in READ_TIMEOUT seconds.
     """
+    old_timeout = serial_conn.timeout
+    serial_conn.timeout = read_timeout
     zero_byte = bytes([0])
     packets_buffer = bytearray()
     while stop_event is None or not stop_event.is_set():
@@ -417,6 +419,8 @@ def blocking_read_generator(serial_conn, stop_event=None):
         # Wait for a 0 byte to appear
         while packets_buffer.find(zero_byte) == -1:
             new_bytes = serial_conn.read(max(1, serial_conn.inWaiting()))
+            if len(new_bytes) == 0:
+                stop_event.set()
             packets_buffer.extend(new_bytes)
 
         # Truncate incomplete packets at start of buffer
@@ -440,6 +444,8 @@ def blocking_read_generator(serial_conn, stop_event=None):
             else:
                 new_bytes = serial_conn.read(max(1, serial_conn.inWaiting()))
                 packets_buffer.extend(new_bytes)
+    
+    serial_conn.timeout = old_timeout
 
 
 def blocking_read(serial_conn):

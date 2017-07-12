@@ -16,45 +16,8 @@ import serial
 __all__ = ["hibike_process"]
 
 
-UID_TO_INDEX = {}
 # .04 milliseconds sleep is the same frequency we subscribe to devices at
 BATCH_SLEEP_TIME = .04
-
-# class BiDict(MutableMapping):
-#     """
-#     A dictionary that can look-up keys or values.
-#     """
-#     def __init__(self):
-#         self.key_to_val = {}
-#         self.val_to_key = {}
-
-#     def __len__(self):
-#         return len(self.key_to_val)
-
-#     def __getitem__(self, key):
-#         if key in self.key_to_val:
-#             return self.key_to_val[key]
-#         elif key in self.val_to_key:
-#             return self.val_to_key[key]
-#         else:
-#             raise KeyError()
-
-#     def __setitem__(self, key, val):
-#         self.key_to_val[key] = val
-#         self.val_to_key[val] = key
-
-#     def __delitem__(self, key):
-#         if key in self.key_to_val:
-#             val = self.key_to_val[key]
-#             del self.key_to_val[key]
-#             del self.val_to_key[val]
-#         elif key in self.val_to_key:
-#             newkey = self.val_to_key[key]
-#             del self.val_to_key[key]
-#             del self.key_to_val[newkey]
-
-#     def __iter__(self):
-#         return iter(self.key_to_val)
 
 
 def get_working_serial_ports():
@@ -140,15 +103,6 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     Run the main hibike processs.
     """
     serials, serial_names = get_working_serial_ports()
-    # each device has it's own write thread, with it's own instruction queue
-    #instruction_queues = [queue.Queue() for _ in serials]
-
-    # these threads receive instructions from the main thread and write to devices
-    #write_threads = [threading.Thread(target=device_write_thread,
-    #                                  args=(ser, iq)) for ser, iq in zip(serials,
-    #                                                                     instruction_queues)]
-
-    # these threads receive packets from devices and write to state_queue
     smart_sensors = identify_smart_sensors(serials)
     devices = {}
 
@@ -169,11 +123,6 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
         pack.read_thread.start()
         devices[uid] = pack
         
-    #read_threads = []
-    #for index, (ser, ins_q) in enumerate(zip(serials, instruction_queues)):
-    #    read_threads.append(threading.Thread(target=device_read_thread,
-    #                                         args=(index, ser, ins_q, None,
-    #                                               state_queue, batched_data)))
     batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
     batch_thread.start()
 

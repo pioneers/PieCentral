@@ -139,7 +139,7 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     """
     Run the main hibike processs.
     """
-    serials, _ = get_working_serial_ports()
+    serials, serial_names = get_working_serial_ports()
     # each device has it's own write thread, with it's own instruction queue
     #instruction_queues = [queue.Queue() for _ in serials]
 
@@ -155,7 +155,8 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     batched_data = {}
 
     for (ser, uid) in smart_sensors.items():
-        serial_port = serials[ser]
+        index = serial_names.index(ser)
+        serial_port = serials[index]
         pack = namedtuple('Threadpack', ['read_thread', 'write_thread',
                                          'write_queue'])
         pack.write_queue = queue.Queue()

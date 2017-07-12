@@ -76,6 +76,7 @@ def identify_smart_sensors(serial_conns):
     event_list = []
     read_queues = []
     for conn in serial_conns:
+        conn.write_timeout = IDENTIFY_TIMEOUT
         hm.send(conn, hm.make_ping())
         curr_queue = queue.Queue()
         curr_event = threading.Event()

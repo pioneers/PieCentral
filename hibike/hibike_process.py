@@ -122,7 +122,7 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
         pack.write_thread.start()
         pack.read_thread.start()
         devices[uid] = pack
-        
+
     batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
     batch_thread.start()
 

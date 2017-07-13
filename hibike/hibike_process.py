@@ -57,6 +57,9 @@ def identify_smart_sensors(serial_conns):
     Given a list of serial port connections, figure out which
     contain smart sensors.
 
+    Any serial ports which do not contain smart sensors
+    will be closed.
+
     Returns:
         A map of serial port names to UIDs.
     """
@@ -89,7 +92,7 @@ def identify_smart_sensors(serial_conns):
             uid = reader.get(block=True, timeout=IDENTIFY_TIMEOUT)
             device_map[serial_conns[index].name] = uid
         except queue.Empty:
-            pass
+            serial_conns[index].close()
     for (event, thread) in zip(event_list, thread_list):
         event.set()
         thread.join()

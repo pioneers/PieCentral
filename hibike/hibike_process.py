@@ -78,15 +78,15 @@ def identify_smart_sensors(serial_conns):
     event_list = []
     read_queues = []
     for (index, conn) in enumerate(serial_conns):
-        old_timeout = conn.timeout
-        conn.timeout = IDENTIFY_TIMEOUT
+        old_timeout = conn.write_timeout
+        conn.write_timeout = IDENTIFY_TIMEOUT
         try:
             hm.send(conn, hm.make_ping())
         except serial.SerialTimeoutException:
             conn.close()
             del serial_conns[index]
             continue
-        conn.timeout = old_timeout
+        conn.write_timeout = old_timeout
         curr_queue = queue.Queue()
         curr_event = threading.Event()
         thread_list.append(threading.Thread(target=recv_subscription_requests,

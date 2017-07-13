@@ -57,9 +57,6 @@ def identify_smart_sensors(serial_conns):
     Given a list of serial port connections, figure out which
     contain smart sensors.
 
-    Any serial ports which do not contain smart sensors
-    will be closed and removed from SERIAL_CONNS.
-
     Returns:
         A map of serial port names to UIDs.
     """
@@ -77,16 +74,16 @@ def identify_smart_sensors(serial_conns):
     thread_list = []
     event_list = []
     read_queues = []
-    for (index, conn) in enumerate(serial_conns):
+
+    for conn in serial_conns:
         old_timeout = conn.write_timeout
         conn.write_timeout = IDENTIFY_TIMEOUT
         try:
             hm.send(conn, hm.make_ping())
         except serial.SerialTimeoutException:
-            conn.close()
-            del serial_conns[index]
             continue
-        conn.write_timeout = old_timeout
+        finally:
+            conn.write_timeout = old_timeout
         curr_queue = queue.Queue()
         curr_event = threading.Event()
         thread_list.append(threading.Thread(target=recv_subscription_requests,

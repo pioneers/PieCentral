@@ -75,7 +75,8 @@ class StateManager(object): # pylint: disable=too-many-public-methods
     def make_hibike_response_map(self):
         hibike_response_mapping = {
             HIBIKE_RESPONSE.DEVICE_SUBBED: self.hibike_response_device_subbed,
-            HIBIKE_RESPONSE.DEVICE_VALUES: self.hibike_response_device_values
+            HIBIKE_RESPONSE.DEVICE_VALUES: self.hibike_response_device_values,
+            HIBIKE_RESPONSE.DEVICE_DISCONNECT: self.hibike_response_device_disconnect
         }
         return {k.value: v for k, v in hibike_response_mapping.items()}
 
@@ -270,6 +271,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         for uid, params in data.items():
             for key, value in params:
                 self.set_value(value, ["hibike", "devices", uid, key], send=False)
+    
+    def hibike_response_device_disconnect(self, uid):
+        # TODO: Complete this
 
     def hibike_disable(self, pipe):
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])

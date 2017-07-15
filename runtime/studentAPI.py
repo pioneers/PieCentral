@@ -237,7 +237,7 @@ class Robot(StudentAPI):
             if int(name) in self.peripherals:
                 return int(name)
             else:
-                raise StudentAPIKeyError()
+                raise StudentAPIKeyError("Device not found: " + str(name))
             # return self.sensor_mappings[name]
         except Exception as e:
             raise e # pylint: disable=raising-bad-type

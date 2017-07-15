@@ -97,7 +97,7 @@ def identify_smart_sensors(serial_conns):
             uid = reader.get(block=True, timeout=IDENTIFY_TIMEOUT)
             device_map[serial_conns[index].name] = uid
         except queue.Empty:
-            serial_conns[index].close()
+            pass
     for (event, thread) in zip(event_list, thread_list):
         event.set()
         thread.join()

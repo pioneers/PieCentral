@@ -273,7 +273,11 @@ class StateManager(object): # pylint: disable=too-many-public-methods
                 self.set_value(value, ["hibike", "devices", uid, key], send=False)
     
     def hibike_response_device_disconnect(self, uid):
-        # TODO: Complete this
+        """
+        Delete any history of the device at UID.
+        """
+        devs = self.state["hibike"][1]["devices"]
+        self.state["hibike"][1]["devices"] = [dev for dev in devs if uid not in dev]
 
     def hibike_disable(self, pipe):
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])

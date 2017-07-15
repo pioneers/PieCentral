@@ -1,6 +1,7 @@
 """
 The main Hibike process.
 """
+from collections import namedtuple
 import glob
 import multiprocessing
 import os
@@ -15,9 +16,9 @@ import serial
 __all__ = ["hibike_process"]
 
 
-UID_TO_INDEX = {}
 # .04 milliseconds sleep is the same frequency we subscribe to devices at
 BATCH_SLEEP_TIME = .04
+
 
 def get_working_serial_ports():
     """
@@ -101,57 +102,57 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     """
     Run the main hibike processs.
     """
-    serials, _ = get_working_serial_ports()
-    # each device has it's own write thread, with it's own instruction queue
-    instruction_queues = [queue.Queue() for _ in serials]
+    serials, serial_names = get_working_serial_ports()
+    smart_sensors = identify_smart_sensors(serials)
+    devices = {}
 
-    # these threads receive instructions from the main thread and write to devices
-    write_threads = [threading.Thread(target=device_write_thread,
-                                      args=(ser, iq)) for ser, iq in zip(serials,
-                                                                         instruction_queues)]
-
-    # these threads receive packets from devices and write to state_queue
     batched_data = {}
-    read_threads = []
-    for index, (ser, ins_q) in enumerate(zip(serials, instruction_queues)):
-        read_threads.append(threading.Thread(target=device_read_thread,
-                                             args=(index, ser, ins_q, None,
-                                                   state_queue, batched_data)))
-    batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
 
-    for read_thread in read_threads:
-        read_thread.start()
-    for write_thread in write_threads:
-        write_thread.start()
+    for (ser, uid) in smart_sensors.items():
+        index = serial_names.index(ser)
+        serial_port = serials[index]
+        pack = namedtuple("Threadpack", ["read_thread", "write_thread",
+                                         "write_queue"])
+        pack.write_queue = queue.Queue()
+        pack.write_thread = threading.Thread(target=device_write_thread,
+                                             args=(serial_port, pack.write_queue))
+        pack.read_thread = threading.Thread(target=device_read_thread,
+                                            args=(uid, serial_port, pack.write_queue, None,
+                                                  state_queue, batched_data))
+        pack.write_thread.start()
+        pack.read_thread.start()
+        devices[uid] = pack
+
+    batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
     batch_thread.start()
 
     # Pings all devices and tells them to stop sending data
-    for instruction_queue in instruction_queues:
-        instruction_queue.put(("ping", []))
-        instruction_queue.put(("subscribe", [1, 0, []]))
+    for pack in devices.values():
+        pack.write_queue.put(("ping", []))
+        pack.write_queue.put(("subscribe", [1, 0, []]))
 
     # the main thread reads instructions from statemanager and
     # forwards them to the appropriate device write threads
     while True:
         instruction, args = pipe_from_child.recv()
         if instruction == "enumerate_all":
-            for instruction_queue in instruction_queues:
-                instruction_queue.put(("ping", []))
+            for pack in devices.values():
+                pack.write_queue.put(("ping", []))
         elif instruction == "subscribe_device":
             uid = args[0]
-            if uid in UID_TO_INDEX:
-                instruction_queues[UID_TO_INDEX[uid]].put(("subscribe", args))
+            if uid in devices:
+                devices[uid].write_queue.put(("subscribe", args))
         elif instruction == "write_params":
             uid = args[0]
-            if uid in UID_TO_INDEX:
-                instruction_queues[UID_TO_INDEX[uid]].put(("write", args))
+            if uid in devices:
+                devices[uid].write_queue.put(("write", args))
         elif instruction == "read_params":
             uid = args[0]
-            if uid in UID_TO_INDEX:
-                instruction_queues[UID_TO_INDEX[uid]].put(("read", args))
+            if uid in devices:
+                devices[uid].write_queue.put(("read", args))
         elif instruction == "disable_all":
-            for instruction_queue in instruction_queues:
-                instruction_queue.put(("disable", []))
+            for pack in devices.values():
+                pack.write_queue.put(("disable", []))
 
 
 def device_write_thread(ser, instr_queue):
@@ -179,29 +180,21 @@ def device_write_thread(ser, instr_queue):
             hm.send(ser, hm.make_heartbeat_response())
 
 
-def device_read_thread(index, ser, instruction_queue, error_queue, state_queue, batched_data):
+def device_read_thread(uid, ser, instruction_queue, error_queue, state_queue, batched_data):
     """
     Read packets from SER and update queues and BATCHED_DATA accordingly.
     """
-    uid = None
     while True:
         for packet in hm.blocking_read_generator(ser):
             message_type = packet.get_message_id()
             if message_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
                 params, delay, uid = hm.parse_subscription_response(packet)
-                UID_TO_INDEX[uid] = index
                 state_queue.put(("device_subscribed", [uid, delay, params]))
             elif message_type == hm.MESSAGE_TYPES["DeviceData"]:
-                if uid is not None:
-                    params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-                    batched_data[uid] = params_and_values
-                else:
-                    print("[HIBIKE] Port %s received data before enumerating!!!" % ser.port)
-                    print("Telling it to shut up")
-                    hm.send(ser, hm.make_subscription_request(1, [], 0))
+                params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
+                batched_data[uid] = params_and_values
             elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
-                if uid is not None:
-                    instruction_queue.put(("heartResp", [uid]))
+                instruction_queue.put(("heartResp", [uid]))
 
 def batch_data(data, state_queue):
     """

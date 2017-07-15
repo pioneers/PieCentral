@@ -1,11 +1,11 @@
-var minimist = require('minimist');
-var packager = require('electron-packager');
-var execSync = require('child_process').execSync;
-var path = require('path');
+const minimist = require('minimist');
+const packager = require('electron-packager');
+const path = require('path');
+const { execSync } = require('child_process');
 
 function build() {
   console.log('Packaging with webpack, using the production config');
-  var child = execSync('yarn run build', function(err, stdout, stderr) {
+  execSync('yarn run build', (err, stdout, stderr) => {
     console.log('stderr: ', stderr);
     if (err !== null) {
       console.log('error: ', err);
@@ -14,7 +14,7 @@ function build() {
 }
 
 function pack(platform, arch, noprune) {
-  var opts = {}; //packaging options
+  const opts = {}; // packaging options
 
   if (!platform || !arch) {
     console.log('Packaging for all platforms');
@@ -27,32 +27,32 @@ function pack(platform, arch, noprune) {
 
   opts.dir = __dirname; // source dir
   opts.name = 'dawn';
-  opts.prune = !noprune; //remove dev dependencies unless noprune is set
+  opts.prune = !noprune; // remove dev dependencies unless noprune is set
   opts.icon = './icons/pieicon';
   opts.asar = true;
   opts.out = path.resolve('..'); // build in the parent dir
 
-  packager(opts, function(err, appPath) {
+  packager(opts, (err, appPath) => {
     if (err) {
       console.log('Packaging error: ', err);
+      return;
+    }
+    if (typeof appPath === 'string') {
+      console.log('Zipping: ', appPath);
+      execSync(`7z a -tzip ${appPath}.zip ${appPath}`, (err, stdout, stderr) => {
+        if (err !== null) {
+          console.log('error: ', err);
+        }
+      });
     } else {
-      if (typeof appPath === 'string') {
-	console.log('Zipping: ', appPath);
-	execSync(`7z a -tzip ${appPath}.zip ${appPath}`, function(err, stdout, stderr) {
-	  if (err !== null) {
-	    console.log('error: ', err);
-	  }
-	});
-      } else {
-	appPath.forEach(function(folderPath) {
-	console.log('Zipping: ', folderPath);
-	  execSync(`7z a -tzip ${folderPath}.zip ${folderPath}`, function(err, stdout, stderr) {
-	    if (err !== null) {
-	      console.log('error: ', err);
-	    }
-	  });
-	});
-      }
+      appPath.forEach((folderPath) => {
+        console.log('Zipping: ', folderPath);
+        execSync(`7z a -tzip ${folderPath}.zip ${folderPath}`, (err, stdout, stderr) => {
+          if (err !== null) {
+            console.log('error: ', err);
+          }
+        });
+      });
     }
   });
 }
@@ -61,7 +61,7 @@ function pack(platform, arch, noprune) {
 // If you already ran build: 'node release.js --prod --prebuilt'
 // For a specific target: 'node release.js --platform=... --arch=...'
 function main() {
-  var argv = minimist(process.argv.slice(2));
+  const argv = minimist(process.argv.slice(2));
 
   if (!argv.prebuilt) {
     build();

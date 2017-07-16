@@ -1,5 +1,4 @@
 import { ActionTypes } from '../constants/Constants';
-// import Ansible from '../utils/Ansible';
 
 export const updateTimer = msg => ({
   type: ActionTypes.UPDATE_TIMER,
@@ -20,14 +19,19 @@ export const updateMatch = msg => ({
   teamNumbers: msg.team_numbers,
 });
 
-/* TODO: This logic really shouldn't be here.
-if (msg.running) {
-  Ansible.sendMessage('execute', {});
-} else {
-  Ansible.sendMessage('stop', {});
-}*/
 export const updateRobot = msg => ({
   type: ActionTypes.UPDATE_ROBOT,
   autonomous: msg.autonomous,
   enabled: msg.enabled,
+});
+
+export const toggleFieldControl = msg => ({
+  type: ActionTypes.FIELD_CONTROL,
+  fieldControl: msg,
+});
+
+export const updateFieldControl = msg => ({
+  type: ActionTypes.UPDATE_FC_CONFIG,
+  stationNumber: msg.stationNumber,
+  bridgeAddress: msg.bridgeAddress,
 });

@@ -1,10 +1,11 @@
 import { ActionTypes } from '../constants/Constants';
-import { stationNumber } from '../../main/ansible/LCM';
 
 const initialFieldState = {
+  stationNumber: 4,
+  bridgeAddress: 'localhost',
+  fieldControl: false,
   rTeamNumber: 0,
   rTeamName: 'Unknown',
-  rStationTag: (stationNumber < 2) ? `Blue ${stationNumber + 1} ` : `Gold ${stationNumber - 1} `,
   heart: false,
   mMatchNumber: 0,
   mTeamNumbers: [0, 0, 0, 0],
@@ -13,6 +14,17 @@ const initialFieldState = {
 
 const fieldStore = (state = initialFieldState, action) => {
   switch (action.type) {
+    case ActionTypes.UPDATE_FC_CONFIG:
+      return {
+        ...state,
+        stationNumber: action.stationNumber,
+        bridgeAddress: action.bridgeAddress,
+      };
+    case ActionTypes.FIELD_CONTROL:
+      return {
+        ...state,
+        fieldControl: action.fieldControl,
+      };
     case ActionTypes.UPDATE_HEART:
       return {
         ...state,
@@ -24,8 +36,8 @@ const fieldStore = (state = initialFieldState, action) => {
         mMatchNumber: action.matchNumber,
         mTeamNumbers: action.teamNumbers,
         mTeamNames: action.teamNames,
-        rTeamNumber: action.teamNumbers[stationNumber],
-        rTeamName: action.teamNames[stationNumber],
+        rTeamNumber: action.teamNumbers[state.stationNumber],
+        rTeamName: action.teamNames[state.stationNumber],
       };
     default:
       return state;

@@ -9,7 +9,7 @@ import IPBox from './IPBox';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';
 import TooltipButton from './TooltipButton';
-import { VERSION } from '../constants/Constants';
+import { REG_VERSION, FC_VERSION } from '../constants/Constants';
 import { runtimeState } from '../utils/utils';
 
 class DNavComponent extends React.Component {
@@ -31,6 +31,13 @@ class DNavComponent extends React.Component {
     this.setState({ showConfigModal: !this.state.showConfigModal });
   }
 
+  createHeader() {
+    if (this.props.fieldControlStatus) {
+      return `Dawn v${FC_VERSION} ${(this.props.heart) ? '+' : '-'}`;
+    }
+    return `Dawn v${REG_VERSION}`;
+  }
+
   render() {
     return (
       <Navbar fixedTop fluid>
@@ -50,7 +57,7 @@ class DNavComponent extends React.Component {
         />
         <Navbar.Header>
           <Navbar.Brand id="header-title">
-            {`Dawn v${VERSION} ${(this.props.heart) ? '+' : '-'}`}
+            {this.createHeader()}
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>
@@ -122,11 +129,13 @@ DNavComponent.propTypes = {
   runtimeVersion: React.PropTypes.string,
   robotState: React.PropTypes.number,
   heart: React.PropTypes.bool,
+  fieldControlStatus: React.PropTypes.bool,
 };
 
 const mapStateToProps = state => ({
   robotState: state.info.robotState,
   heart: state.fieldStore.heart,
+  fieldControlStatus: state.fieldStore.fieldControl,
 });
 
 

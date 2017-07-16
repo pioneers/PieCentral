@@ -51,6 +51,7 @@
   "dependencies": {
     "brace": "0.10.0",
     "circular-json": "^0.3.1",
+    "create-react-class": "^15.6.0",
     "electron": "1.6.10",
     "electron-json-storage": "3.0.4",
     "extract-zip": "=1.6.0",

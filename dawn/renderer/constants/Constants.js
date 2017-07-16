@@ -21,6 +21,7 @@ export const PeripheralTypes = keyMirror({
 });
 
 export const ActionTypes = keyMirror({
+  FIELD_CONTROL: null,
   UPDATE_BATTERY: null,
   UPDATE_GAMEPADS: null,
   UPDATE_EDITOR: null,
@@ -29,6 +30,7 @@ export const ActionTypes = keyMirror({
   UPDATE_PERIPHERAL: null,
   UPDATE_STATUS: null,
   UPDATE_CONNECTION: null,
+  UPDATE_FC_CONFIG: null,
   SAVE_FILE: null,
   OPEN_FILE: null,
   CLEAR_EDITOR: null,

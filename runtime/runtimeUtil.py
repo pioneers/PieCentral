@@ -109,6 +109,8 @@ class BadThing:
         self.errorType, self.errorValue, tb = exc_info
         self.stackTrace = self.genStackTrace(tb)
         self.printStackTrace = printStackTrace
+        if event in restartEvents:
+            self.studentError = self.genStudentError(tb)
 
     def genStackTrace(self, tb):
         badThingDump = \
@@ -120,6 +122,22 @@ class BadThing:
             (self.name, self.event, self.errorType,
              self.errorValue, "".join(traceback.format_tb(tb)))
         return badThingDump
+
+    def genStudentError(self, tb):
+        errorList = []
+        for error in traceback.format_tb(tb):
+            if "studentCode.py" in error:
+                index = error.find("line")
+                error = error[index:]
+                errorList.append(error)
+        studentErrorMessage = "Traceback: \n"
+        studentErrorMessage += "".join(errorList)
+        if self.errorType is not None and self.errorValue is not None:
+            studentErrorMessage += str(self.errorType.__name__) + ": " + str(self.errorValue)
+        return studentErrorMessage
+
+    def getStudentError(self):
+        return self.studentError
 
     def __str__(self):
         if self.printStackTrace:

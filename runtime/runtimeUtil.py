@@ -132,7 +132,8 @@ class BadThing:
                 errorList.append(error)
         studentErrorMessage = "Traceback: \n"
         studentErrorMessage += "".join(errorList)
-        studentErrorMessage += str(self.errorType.__name__) + ": " + str(self.errorValue)
+        if self.errorType is not None and self.errorValue is not None:
+            studentErrorMessage += str(self.errorType.__name__) + ": " + str(self.errorValue)
         return studentErrorMessage
 
     def getStudentError(self):

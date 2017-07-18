@@ -90,7 +90,7 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
                 elif new_bad_thing.event == BAD_EVENTS.ENTER_IDLE and control_state != "idle":
                     control_state = "idle"
                     break
-                print(new_bad_thing.event)
+                print(new_bad_thing.event) 
                 non_test_mode_print(new_bad_thing.data)
                 if new_bad_thing.event in restartEvents:
                     state_queue.put([SM_COMMANDS.SEND_CONSOLE, [new_bad_thing.getStudentError()]])

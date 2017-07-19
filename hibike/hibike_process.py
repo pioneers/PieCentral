@@ -167,10 +167,10 @@ def check_disconnected_devices(error_queue, devices):
     while True:
         uid = error_queue.get()
         pack = devices[uid]
+        del devices[uid]
         pack.serial_port.close()
         pack.read_thread.join()
         pack.write_thread.join()
-        del devices[uid]
 
 
 def device_write_thread(ser, instr_queue):

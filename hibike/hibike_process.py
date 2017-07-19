@@ -219,7 +219,6 @@ def device_read_thread(uid, ser, instruction_queue, error_queue, state_queue, ba
                 elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
                     instruction_queue.put(("heartResp", [uid]))
     except serial.SerialException:
-        # The device has shut down
         error_queue.put(uid)
         state_queue.put(("device_disconnected", [uid]))
 

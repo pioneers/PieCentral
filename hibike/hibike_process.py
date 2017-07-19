@@ -127,6 +127,9 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
 
     batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
     batch_thread.start()
+    cleanup_thread = threading.Thread(target=check_disconnected_devices,
+                                      args=(error_queue, devices))
+    cleanup_thread.start()
 
     # Pings all devices and tells them to stop sending data
     for pack in devices.values():
@@ -156,16 +159,18 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
             for pack in devices.values():
                 pack.write_queue.put(("disable", []))
 
-        try:
-            while True:
-                uid = error_queue.get(block=False)
-                pack = devices[uid]
-                pack.serial_port.close()
-                pack.read_thread.join()
-                pack.write_thread.join()
-                del devices[uid]
-        except queue.Empty:
-            pass
+        
+def check_disconnected_devices(error_queue, devices):
+    """
+    Clean up any disconnected devices in ERROR_QUEUE.
+    """
+    while True:
+        uid = error_queue.get()
+        pack = devices[uid]
+        pack.serial_port.close()
+        pack.read_thread.join()
+        pack.write_thread.join()
+        del devices[uid]
 
 
 def device_write_thread(ser, instr_queue):

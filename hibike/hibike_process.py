@@ -18,6 +18,8 @@ __all__ = ["hibike_process"]
 
 # .04 milliseconds sleep is the same frequency we subscribe to devices at
 BATCH_SLEEP_TIME = .04
+# Time in seconds to wait until reading from a potential sensor
+IDENTIFY_TIMEOUT = 1
 
 
 def get_working_serial_ports():
@@ -51,8 +53,6 @@ def get_working_serial_ports():
     return serials, port_names
 
 
-# Time in seconds to wait until reading from a potential sensor
-IDENTIFY_TIMEOUT = 1
 def identify_smart_sensors(serial_conns):
     """
     Given a list of serial port connections, figure out which
@@ -75,8 +75,16 @@ def identify_smart_sensors(serial_conns):
     thread_list = []
     event_list = []
     read_queues = []
+
     for conn in serial_conns:
-        hm.send(conn, hm.make_ping())
+        old_timeout = conn.write_timeout
+        conn.write_timeout = IDENTIFY_TIMEOUT
+        try:
+            hm.send(conn, hm.make_ping())
+        except serial.SerialTimeoutException:
+            continue
+        finally:
+            conn.write_timeout = old_timeout
         curr_queue = queue.Queue()
         curr_event = threading.Event()
         thread_list.append(threading.Thread(target=recv_subscription_requests,

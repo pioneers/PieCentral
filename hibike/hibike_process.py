@@ -127,7 +127,7 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
 
     batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
     batch_thread.start()
-    cleanup_thread = threading.Thread(target=check_disconnected_devices,
+    cleanup_thread = threading.Thread(target=remove_disconnected_devices,
                                       args=(error_queue, devices))
     cleanup_thread.start()
 
@@ -160,7 +160,7 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
                 pack.write_queue.put(("disable", []))
 
         
-def check_disconnected_devices(error_queue, devices):
+def remove_disconnected_devices(error_queue, devices):
     """
     Clean up any disconnected devices in ERROR_QUEUE.
     """

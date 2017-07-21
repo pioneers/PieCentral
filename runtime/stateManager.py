@@ -271,7 +271,8 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         for uid, params in data.items():
             for key, value in params:
                 self.set_value(value, ["hibike", "devices", uid, key], send=False)
-    
+
+    # pylint: disable=invalid-name
     def hibike_response_device_disconnect(self, uid):
         """
         Delete any history of the device at UID.

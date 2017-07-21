@@ -159,7 +159,7 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
             for pack in devices.values():
                 pack.write_queue.put(("disable", []))
 
-        
+
 def remove_disconnected_devices(error_queue, devices):
     """
     Clean up any disconnected devices in ERROR_QUEUE.

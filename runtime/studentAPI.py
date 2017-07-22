@@ -80,7 +80,7 @@ class Gamepad(StudentAPI):
             return gamepad_dict["axes"][self.joysticks[name]]
         elif name in self.buttons:
             return gamepad_dict["buttons"][self.buttons[name]]
-        raise StudentAPIKeyError()
+        raise StudentAPIKeyError(str(name) + " is not a valid gamepad parameter")
 
 
 class Robot(StudentAPI):

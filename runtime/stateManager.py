@@ -277,8 +277,8 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         """
         Delete any history of the device at UID.
         """
-        devs = self.state["hibike"][1]["devices"]
-        self.state["hibike"][1]["devices"] = [dev for dev in devs if uid not in dev]
+        devs = self.state["hibike"][0]["devices"][0]
+        del devs[uid]
 
     def hibike_disable(self, pipe):
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])

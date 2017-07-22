@@ -115,17 +115,19 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     devices = {}
 
     batched_data = {}
+    error_queue = queue.Queue()
 
     for (ser, uid) in smart_sensors.items():
         index = serial_names.index(ser)
         serial_port = serials[index]
         pack = namedtuple("Threadpack", ["read_thread", "write_thread",
-                                         "write_queue"])
+                                         "write_queue", "serial_port"])
         pack.write_queue = queue.Queue()
+        pack.serial_port = serial_port
         pack.write_thread = threading.Thread(target=device_write_thread,
                                              args=(serial_port, pack.write_queue))
         pack.read_thread = threading.Thread(target=device_read_thread,
-                                            args=(uid, serial_port, pack.write_queue, None,
+                                            args=(uid, serial_port, pack.write_queue, error_queue,
                                                   state_queue, batched_data))
         pack.write_thread.start()
         pack.read_thread.start()
@@ -133,6 +135,9 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
 
     batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
     batch_thread.start()
+    cleanup_thread = threading.Thread(target=remove_disconnected_devices,
+                                      args=(error_queue, devices))
+    cleanup_thread.start()
 
     # Pings all devices and tells them to stop sending data
     for pack in devices.values():
@@ -163,46 +168,67 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
                 pack.write_queue.put(("disable", []))
 
 
+def remove_disconnected_devices(error_queue, devices):
+    """
+    Clean up any disconnected devices in ERROR_QUEUE.
+    """
+    while True:
+        uid = error_queue.get()
+        pack = devices[uid]
+        del devices[uid]
+        pack.serial_port.close()
+        pack.read_thread.join()
+        pack.write_thread.join()
+
+
 def device_write_thread(ser, instr_queue):
     """
     Send packets to SER based on instructions from INSTR_QUEUE.
     """
-    while True:
-        instruction, args = instr_queue.get()
+    try:
+        while True:
+            instruction, args = instr_queue.get()
 
-        if instruction == "ping":
-            hm.send(ser, hm.make_ping())
-        elif instruction == "subscribe":
-            uid, delay, params = args
-            hm.send(ser, hm.make_subscription_request(hm.uid_to_device_id(uid), params, delay))
-        elif instruction == "read":
-            uid, params = args
-            hm.send(ser, hm.make_device_read(hm.uid_to_device_id(uid), params))
-        elif instruction == "write":
-            uid, params_and_values = args
-            hm.send(ser, hm.make_device_write(hm.uid_to_device_id(uid), params_and_values))
-        elif instruction == "disable":
-            hm.send(ser, hm.make_disable())
-        elif instruction == "heartResp":
-            uid = args[0]
-            hm.send(ser, hm.make_heartbeat_response())
+            if instruction == "ping":
+                hm.send(ser, hm.make_ping())
+            elif instruction == "subscribe":
+                uid, delay, params = args
+                hm.send(ser, hm.make_subscription_request(hm.uid_to_device_id(uid), params, delay))
+            elif instruction == "read":
+                uid, params = args
+                hm.send(ser, hm.make_device_read(hm.uid_to_device_id(uid), params))
+            elif instruction == "write":
+                uid, params_and_values = args
+                hm.send(ser, hm.make_device_write(hm.uid_to_device_id(uid), params_and_values))
+            elif instruction == "disable":
+                hm.send(ser, hm.make_disable())
+            elif instruction == "heartResp":
+                uid = args[0]
+                hm.send(ser, hm.make_heartbeat_response())
+    except serial.SerialException:
+        # Device has disconnected
+        pass
 
 
 def device_read_thread(uid, ser, instruction_queue, error_queue, state_queue, batched_data):
     """
     Read packets from SER and update queues and BATCHED_DATA accordingly.
     """
-    while True:
-        for packet in hm.blocking_read_generator(ser):
-            message_type = packet.get_message_id()
-            if message_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
-                params, delay, uid = hm.parse_subscription_response(packet)
-                state_queue.put(("device_subscribed", [uid, delay, params]))
-            elif message_type == hm.MESSAGE_TYPES["DeviceData"]:
-                params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-                batched_data[uid] = params_and_values
-            elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
-                instruction_queue.put(("heartResp", [uid]))
+    try:
+        while True:
+            for packet in hm.blocking_read_generator(ser):
+                message_type = packet.get_message_id()
+                if message_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
+                    params, delay, uid = hm.parse_subscription_response(packet)
+                    state_queue.put(("device_subscribed", [uid, delay, params]))
+                elif message_type == hm.MESSAGE_TYPES["DeviceData"]:
+                    params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
+                    batched_data[uid] = params_and_values
+                elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
+                    instruction_queue.put(("heartResp", [uid]))
+    except serial.SerialException:
+        error_queue.put(uid)
+        state_queue.put(("device_disconnected", [uid]))
 
 def batch_data(data, state_queue):
     """

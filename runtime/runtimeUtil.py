@@ -63,6 +63,7 @@ class HIBIKE_COMMANDS(Enum):
 class HIBIKE_RESPONSE(Enum):
     DEVICE_SUBBED = "device_subscribed"
     DEVICE_VALUES = "device_values"
+    DEVICE_DISCONNECT = "device_disconnected"
 
 @unique
 class ANSIBLE_COMMANDS(Enum):

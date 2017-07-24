@@ -80,9 +80,10 @@ def identify_smart_sensors(serial_conns):
     device_map = {}
     thread_list = []
     event_list = []
+    index_list = []
     read_queues = []
 
-    for conn in serial_conns:
+    for (index, conn) in enumerate(serial_conns):
         old_timeout = conn.write_timeout
         conn.write_timeout = IDENTIFY_TIMEOUT
         try:
@@ -93,13 +94,14 @@ def identify_smart_sensors(serial_conns):
             conn.write_timeout = old_timeout
         curr_queue = queue.Queue()
         curr_event = threading.Event()
+        index_list.append(index)
         thread_list.append(threading.Thread(target=recv_subscription_requests,
                                             args=(conn, curr_queue, curr_event)))
         read_queues.append(curr_queue)
         event_list.append(curr_event)
     for thread in thread_list:
         thread.start()
-    for (index, reader) in enumerate(read_queues):
+    for (index, reader) in zip(index_list, read_queues):
         try:
             uid = reader.get(block=True, timeout=IDENTIFY_TIMEOUT)
             device_map[serial_conns[index].name] = uid

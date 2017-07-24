@@ -21,7 +21,8 @@ BATCH_SLEEP_TIME = .04
 # Time in seconds to wait until reading from a potential sensor
 IDENTIFY_TIMEOUT = 1
 # Time in seconds to wait between checking for new devices
-NEW_DEVICE_POLL_DELAY = 0.25
+# and cleaning up old ones.
+HOTPLUG_POLL_INTERVAL = 0.25
 
 
 def get_working_serial_ports(excludes=()):
@@ -131,20 +132,44 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
     return pack
 
 
+def hotplug(devices, state_queue, batched_data, error_queue):
+    """
+    Remove disconnected devices and scan for new ones.
+    """
+    while True:
+        time.sleep(HOTPLUG_POLL_INTERVAL)
+        remove_disconnected_devices(error_queue, devices)
+        scan_for_new_devices(devices, state_queue, batched_data, error_queue)
+
+
 def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue):
     """
     Scan for devices not in EXISTING_DEVICES, and add any if found.
     """
+    ports, names = get_working_serial_ports(map(lambda d: d.serial_port.name,
+                                                existing_devices.values()))
+    sensors = identify_smart_sensors(ports)
+    for (ser, uid) in sensors.items():
+        idx = names.index(ser)
+        port = ports[idx]
+        pack = spin_up_device(port, uid, state_queue, batched_data, error_queue)
+        existing_devices[uid] = pack
+
+
+def remove_disconnected_devices(error_queue, devices):
+    """
+    Clean up any disconnected devices in ERROR_QUEUE.
+    """
     while True:
-        time.sleep(NEW_DEVICE_POLL_DELAY)
-        ports, names = get_working_serial_ports(map(lambda d: d.serial_port.name,
-                                                    existing_devices.values()))
-        sensors = identify_smart_sensors(ports)
-        for (ser, uid) in sensors.items():
-            idx = names.index(ser)
-            port = ports[idx]
-            pack = spin_up_device(port, uid, state_queue, batched_data, error_queue)
-            existing_devices[uid] = pack
+        try:
+            uid = error_queue.get(block=False)
+            pack = devices[uid]
+            del devices[uid]
+            pack.serial_port.close()
+            pack.read_thread.join()
+            pack.write_thread.join()
+        except queue.Empty:
+            return
 
 
 # pylint: disable=too-many-branches, too-many-locals
@@ -168,12 +193,9 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
 
     batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
     batch_thread.start()
-    cleanup_thread = threading.Thread(target=remove_disconnected_devices,
-                                      args=(error_queue, devices))
-    cleanup_thread.start()
-    scan_thread = threading.Thread(target=scan_for_new_devices,
-                                   args=(devices, state_queue, batched_data, error_queue))
-    scan_thread.start()
+    hotplug_thread = threading.Thread(target=hotplug,
+                                      args=(devices, state_queue, batched_data, error_queue))
+    hotplug_thread.start()
 
     # Pings all devices and tells them to stop sending data
     for pack in devices.values():
@@ -202,19 +224,6 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
         elif instruction == "disable_all":
             for pack in devices.values():
                 pack.write_queue.put(("disable", []))
-
-
-def remove_disconnected_devices(error_queue, devices):
-    """
-    Clean up any disconnected devices in ERROR_QUEUE.
-    """
-    while True:
-        uid = error_queue.get()
-        pack = devices[uid]
-        del devices[uid]
-        pack.serial_port.close()
-        pack.read_thread.join()
-        pack.write_thread.join()
 
 
 def device_write_thread(ser, instr_queue):

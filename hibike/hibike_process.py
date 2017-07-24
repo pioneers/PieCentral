@@ -169,6 +169,9 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     cleanup_thread = threading.Thread(target=remove_disconnected_devices,
                                       args=(error_queue, devices))
     cleanup_thread.start()
+    scan_thread = threading.Thread(target=scan_for_new_devices,
+                                   args=(devices, state_queue, batched_data, error_queue))
+    scan_thread.start()
 
     # Pings all devices and tells them to stop sending data
     for pack in devices.values():

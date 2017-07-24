@@ -105,7 +105,27 @@ def identify_smart_sensors(serial_conns):
         thread.join()
     return device_map
 
-def scan_for_new_devices(current_ports, )
+
+def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
+    """
+    Spin up a device with a given UID on SERIAL_PORT.
+
+    Returns:
+        The new device.
+    """
+    pack = namedtuple("Threadpack", ["read_thread", "write_thread",
+                                     "write_queue", "serial_port"])
+    pack.write_queue = queue.Queue()
+    pack.serial_port = serial_port
+    pack.write_thread = threading.Thread(target=device_write_thread,
+                                         args=(serial_port, pack.write_queue))
+    pack.read_thread = threading.Thread(target=device_read_thread,
+                                        args=(uid, serial_port, pack.write_queue, error_queue,
+                                              state_queue, batched_data))
+    pack.write_thread.start()
+    pack.read_thread.start()
+    return pack
+
 
 # pylint: disable=too-many-branches, too-many-locals
 # pylint: disable=too-many-arguments, unused-argument
@@ -123,17 +143,7 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     for (ser, uid) in smart_sensors.items():
         index = serial_names.index(ser)
         serial_port = serials[index]
-        pack = namedtuple("Threadpack", ["read_thread", "write_thread",
-                                         "write_queue", "serial_port"])
-        pack.write_queue = queue.Queue()
-        pack.serial_port = serial_port
-        pack.write_thread = threading.Thread(target=device_write_thread,
-                                             args=(serial_port, pack.write_queue))
-        pack.read_thread = threading.Thread(target=device_read_thread,
-                                            args=(uid, serial_port, pack.write_queue, error_queue,
-                                                  state_queue, batched_data))
-        pack.write_thread.start()
-        pack.read_thread.start()
+        pack = spin_up_device(serial_port, uid, state_queue, batched_data, error_queue)
         devices[uid] = pack
 
     batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))

@@ -146,7 +146,7 @@ def hotplug(devices, state_queue, batched_data, error_queue):
     clean_up_thread.start()
     while True:
         time.sleep(HOTPLUG_POLL_INTERVAL)
-        remove_disconnected_devices(error_queue, devices)
+        remove_disconnected_devices(error_queue, devices, clean_up_queue)
         scan_for_new_devices(devices, state_queue, batched_data, error_queue)
 
 
@@ -179,7 +179,7 @@ def clean_up_devices(device_queue):
         device = device_queue.get()
         device.serial_port.close()
         device.read_thread.join()
-        device.write_thread.join()1
+        device.write_thread.join()
 
 
 def remove_disconnected_devices(error_queue, devices, clean_up_queue):

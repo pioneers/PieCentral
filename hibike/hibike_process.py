@@ -102,11 +102,14 @@ def identify_smart_sensors(serial_conns):
     for thread in thread_list:
         thread.start()
     for (index, reader) in zip(index_list, read_queues):
+        serial_conn = serial_conns[index]
         try:
             uid = reader.get(block=True, timeout=IDENTIFY_TIMEOUT)
-            device_map[serial_conns[index].name] = uid
+            device_map[serial_conn.name] = uid
+            hm.send(serial_conn, hm.make_subscription_request(uid, [], 0))
         except queue.Empty:
             pass
+        # Shut up devices found
     for (event, thread) in zip(event_list, thread_list):
         event.set()
         thread.join()

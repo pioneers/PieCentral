@@ -141,6 +141,9 @@ def hotplug(devices, state_queue, batched_data, error_queue):
     """
     Remove disconnected devices and scan for new ones.
     """
+    clean_up_queue = queue.Queue()
+    clean_up_thread = threading.Thread(target=clean_up_devices, args=(clean_up_queue, ))
+    clean_up_thread.start()
     while True:
         time.sleep(HOTPLUG_POLL_INTERVAL)
         remove_disconnected_devices(error_queue, devices)
@@ -164,8 +167,18 @@ def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queu
         pack.write_queue.put(("subscribe", [1, 0, []]))
 
 
+def clean_up_devices(device_queue):
+    """
+    Clean up associated resources of devices in the queue.
+    """
+    while True:
+        device = device_queue.get()
+        device.serial_port.close()
+        device.read_thread.join()
+        device.write_thread.join()1
 
-def remove_disconnected_devices(error_queue, devices):
+
+def remove_disconnected_devices(error_queue, devices, clean_up_queue):
     """
     Clean up any disconnected devices in ERROR_QUEUE.
     """
@@ -174,9 +187,7 @@ def remove_disconnected_devices(error_queue, devices):
             uid = error_queue.get(block=False)
             pack = devices[uid]
             del devices[uid]
-            pack.serial_port.close()
-            pack.read_thread.join()
-            pack.write_thread.join()
+            clean_up_queue.put(pack)
         except queue.Empty:
             return
 

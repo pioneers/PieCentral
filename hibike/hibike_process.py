@@ -170,6 +170,10 @@ def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queu
 def clean_up_devices(device_queue):
     """
     Clean up associated resources of devices in the queue.
+
+    Closing a serial port can take a very long time (30 seconds or more).
+    It's best to spin this function off into its own thread,
+    so that you're not blocked on that.
     """
     while True:
         device = device_queue.get()

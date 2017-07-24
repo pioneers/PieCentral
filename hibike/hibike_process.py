@@ -135,14 +135,16 @@ def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queu
     """
     Scan for devices not in EXISTING_DEVICES, and add any if found.
     """
-    time.sleep(NEW_DEVICE_POLL_DELAY)
-    ports, names = get_working_serial_ports(map(lambda d: d.serial_port.name, existing_devices))
-    sensors = identify_smart_sensors(ports)
-    for (ser, uid) in sensors.items():
-        idx = names.index(ser)
-        port = ports[idx]
-        pack = spin_up_device(port, uid, state_queue, batched_data, error_queue)
-        existing_devices[uid] = pack
+    while True:
+        time.sleep(NEW_DEVICE_POLL_DELAY)
+        ports, names = get_working_serial_ports(map(lambda d: d.serial_port.name,
+                                                    existing_devices.values()))
+        sensors = identify_smart_sensors(ports)
+        for (ser, uid) in sensors.items():
+            idx = names.index(ser)
+            port = ports[idx]
+            pack = spin_up_device(port, uid, state_queue, batched_data, error_queue)
+            existing_devices[uid] = pack
 
 
 # pylint: disable=too-many-branches, too-many-locals

@@ -173,7 +173,7 @@ def clean_up_devices(device_queue):
 
     Closing a serial port can take a very long time (30 seconds or more).
     It's best to spin this function off into its own thread,
-    so that you're not blocked on that.
+    so that you're not blocked on reclaiming resources.
     """
     while True:
         device = device_queue.get()

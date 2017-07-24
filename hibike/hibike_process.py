@@ -159,6 +159,10 @@ def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queu
         port = ports[idx]
         pack = spin_up_device(port, uid, state_queue, batched_data, error_queue)
         existing_devices[uid] = pack
+        # Tell the device to start sending data
+        pack.write_queue.put(("ping", []))
+        pack.write_queue.put(("subscribe", [1, 0, []]))
+
 
 
 def remove_disconnected_devices(error_queue, devices):

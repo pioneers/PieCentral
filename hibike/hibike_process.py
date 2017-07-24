@@ -22,21 +22,23 @@ BATCH_SLEEP_TIME = .04
 IDENTIFY_TIMEOUT = 1
 
 
-def get_working_serial_ports(excludes=set()):
+def get_working_serial_ports(excludes=()):
     """
     Scan for open COM ports, except those in EXCLUDES.
 
     Returns:
         A list of serial port objects (`serial.Serial`) and port names.
     """
+    excludes = set(excludes)
     # Last command is included so that it's compatible with OS X Sierra
     # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
     # Instead access it through Volumes/vagrant/PieCentral
-    ports = set(glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("/dev/tty.usbmodem*"))
+    ports = set(glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*")
+                + glob.glob("/dev/tty.usbmodem*"))
     ports.difference_update(excludes)
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
-        ports.extend(open(virtual_device_config_file, "r").read().split())
+        ports.update(open(virtual_device_config_file, "r").read().split())
     except IOError:
         pass
 
@@ -125,6 +127,13 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
     pack.write_thread.start()
     pack.read_thread.start()
     return pack
+
+
+def scan_for_new_devices(existing_devices):
+    """
+    Scan for devices not in EXISTING_DEVICES, and add any if found.
+    """
+    
 
 
 # pylint: disable=too-many-branches, too-many-locals

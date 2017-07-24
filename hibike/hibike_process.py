@@ -22,9 +22,9 @@ BATCH_SLEEP_TIME = .04
 IDENTIFY_TIMEOUT = 1
 
 
-def get_working_serial_ports():
+def get_working_serial_ports(excludes=set()):
     """
-    Scan for open COM ports.
+    Scan for open COM ports, except those in EXCLUDES.
 
     Returns:
         A list of serial port objects (`serial.Serial`) and port names.
@@ -32,7 +32,8 @@ def get_working_serial_ports():
     # Last command is included so that it's compatible with OS X Sierra
     # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
     # Instead access it through Volumes/vagrant/PieCentral
-    ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("/dev/tty.usbmodem*")
+    ports = set(glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("/dev/tty.usbmodem*"))
+    ports.difference_update(excludes)
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
         ports.extend(open(virtual_device_config_file, "r").read().split())
@@ -103,6 +104,8 @@ def identify_smart_sensors(serial_conns):
         event.set()
         thread.join()
     return device_map
+
+def scan_for_new_devices(current_ports, )
 
 # pylint: disable=too-many-branches, too-many-locals
 # pylint: disable=too-many-arguments, unused-argument

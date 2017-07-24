@@ -20,6 +20,8 @@ __all__ = ["hibike_process"]
 BATCH_SLEEP_TIME = .04
 # Time in seconds to wait until reading from a potential sensor
 IDENTIFY_TIMEOUT = 1
+# Time in seconds to wait between checking for new devices
+NEW_DEVICE_POLL_DELAY = 0.25
 
 
 def get_working_serial_ports(excludes=()):
@@ -129,11 +131,18 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
     return pack
 
 
-def scan_for_new_devices(existing_devices):
+def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue):
     """
     Scan for devices not in EXISTING_DEVICES, and add any if found.
     """
-    
+    time.sleep(NEW_DEVICE_POLL_DELAY)
+    ports, names = get_working_serial_ports(map(lambda d: d.serial_port.name, existing_devices))
+    sensors = identify_smart_sensors(ports)
+    for (ser, uid) in sensors.items():
+        idx = names.index(ser)
+        port = ports[idx]
+        pack = spin_up_device(port, uid, state_queue, batched_data, error_queue)
+        existing_devices[uid] = pack
 
 
 # pylint: disable=too-many-branches, too-many-locals

@@ -59,6 +59,15 @@ const PeripheralList = (props) => {
     errorMsg = 'There appears to be some sort of Runtime error. ' +
       'No data is being received.';
   }
+
+  let panelBody = null;
+  if (errorMsg) {
+    panelBody = <p className="panelText">{errorMsg}</p>;
+  } else {
+    panelBody = handleAccordion(
+      _.sortBy(_.toArray(props.peripherals.peripheralList), ['device_type', 'device_name']));
+  }
+
   return (
     <Panel
       id="peripherals-panel"
@@ -66,11 +75,7 @@ const PeripheralList = (props) => {
       bsStyle="primary"
     >
       <ListGroup fill style={{ marginBottom: '5px' }}>
-        {
-          !errorMsg ? handleAccordion(
-            _.sortBy(_.toArray(props.peripherals.peripheralList), ['device_type', 'device_name']))
-          : <p className="panelText">{errorMsg}</p>
-        }
+        {panelBody}
       </ListGroup>
     </Panel>
   );

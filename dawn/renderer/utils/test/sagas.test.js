@@ -5,19 +5,21 @@ import { call, take } from 'redux-saga/effects';
 // import { remote } from 'electron';
 import { openFileSucceeded, saveFileSucceeded } from '../../actions/EditorActions';
 import { runtimeConnect, runtimeDisconnect } from '../../actions/InfoActions';
-import { openFileDialog,
-         unsavedDialog,
-         openFile,
-         writeFile,
-         editorState,
-         editorSavedState,
-         saveFileDialog,
-         saveFile,
-         runtimeHeartbeat,
-         gamepadsState,
-         updateMainProcess,
-         ansibleReceiver,
-         ansibleSaga } from '../sagas';
+import {
+  openFileDialog,
+  unsavedDialog,
+  openFile,
+  writeFile,
+  editorState,
+  editorSavedState,
+  saveFileDialog,
+  saveFile,
+  runtimeHeartbeat,
+  gamepadsState,
+  updateMainProcess,
+  ansibleReceiver,
+  ansibleSaga,
+} from '../sagas';
 import fromGenerator from './redux-saga-test';
 import { TIMEOUT } from '../../utils/utils';
 
@@ -146,6 +148,6 @@ describe('runtime sagas', () => {
       type: "SOME_ACTION"
     }).put({
       type: "SOME_ACTION"
-    })*/
+    }) */
   });
 });

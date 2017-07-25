@@ -322,8 +322,8 @@ function* restartRuntime() {
     }));
     if (network === 1) {
       yield addAsyncAlert(
-      'Runtime Restart Error',
-      'Dawn was unable to run restart commands. Please check your robot connectivity.',
+        'Runtime Restart Error',
+        'Dawn was unable to run restart commands. Please check your robot connectivity.',
       );
     }
   }
@@ -509,16 +509,18 @@ export default function* rootSaga() {
   ];
 }
 
-export { openFileDialog,
-         unsavedDialog,
-         openFile,
-         writeFile,
-         editorState,
-         editorSavedState,
-         saveFileDialog,
-         saveFile,
-         runtimeHeartbeat,
-         gamepadsState,
-         updateMainProcess,
-         ansibleReceiver,
-         ansibleSaga }; // for tests
+export {
+  openFileDialog,
+  unsavedDialog,
+  openFile,
+  writeFile,
+  editorState,
+  editorSavedState,
+  saveFileDialog,
+  saveFile,
+  runtimeHeartbeat,
+  gamepadsState,
+  updateMainProcess,
+  ansibleReceiver,
+  ansibleSaga,
+}; // for tests

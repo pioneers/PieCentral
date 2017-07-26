@@ -6,16 +6,17 @@ import { updateTimer,
         updateMatch }
         from '../../renderer/actions/FieldActions';
 import RendererBridge from '../RendererBridge';
-import { logging } from '../../renderer/utils/utils';
+import { Logger } from '../../renderer/utils/utils';
 
 class LCMInternals {
-  constructor(stationNumber, bridgeAddress) {
+  constructor(stationNumber, bridgeAddress, logger) {
     this.lcm = null;
     this.lcmReady = false;
     this.queuedPublish = null;
     this.stationNumber = stationNumber;
     this.bridgeAddress = bridgeAddress;
-    logging.log(`LCM SN:${this.stationNumber} BA:${this.bridgeAddress}`);
+    this.logger = logger;
+    this.logger.log(`LCM SN:${this.stationNumber} BA:${this.bridgeAddress}`);
     this.init = this.init.bind(this);
     this.quit = this.quit.bind(this);
     this.lcmPublish = this.lcmPublish.bind(this);
@@ -39,7 +40,7 @@ class LCMInternals {
         RendererBridge.reduxDispatch(updateHeart(msg));
       });
       this.lcm.subscribe(`Robot${this.stationNumber}/RobotControl`, 'RobotControl', (msg) => {
-        logging.log(msg);
+        this.logger.log(msg);
         RendererBridge.reduxDispatch(updateRobot(msg));
       });
       this.lcm.subscribe('Timer/Match', 'Match', (msg) => {
@@ -76,7 +77,7 @@ class LCMInternals {
     if (this.lcmReady) {
       this.lcm.publish(channel, msg);
     } else {
-      logging.log('lcm publish queued');
+      this.logger.log('lcm publish queued');
       this.queuedPublish = [channel, msg];
     }
   }
@@ -85,7 +86,7 @@ class LCMInternals {
     try {
       this.lcm.ws.close();
     } catch (err) {
-      logging.log(err);
+      this.logger.log(err);
     }
     ipcMain.removeListener('LCM_STATUS_UPDATE', this.updateStatus);
     this.lcm = null;
@@ -96,22 +97,23 @@ const LCMObject = {
   LCMInternal: null,
   stationNumber: 4,
   bridgeAddress: 'localhost',
+  logger: new Logger('lcm', 'LCM-FC Debug'),
   setup() {
     if (this.LCMInternal !== null) {
       this.LCMInternal.quit();
     }
-    this.LCMInternal = new LCMInternals(this.stationNumber, this.bridgeAddress);
+    this.LCMInternal = new LCMInternals(this.stationNumber, this.bridgeAddress, LCMObject.logger);
     this.LCMInternal.init();
   },
   changeLCMInfo(event, arg) {
     if (arg.stationNumber !== null) {
       LCMObject.stationNumber = arg.stationNumber;
-      logging.log(`stationNumber set to ${LCMObject.stationNumber}`);
+      LCMObject.logger.log(`stationNumber set to ${LCMObject.stationNumber}`);
     }
 
     if (arg.bridgeAddress !== null) {
       LCMObject.bridgeAddress = arg.bridgeAddress;
-      logging.log(`bridgeAddress set to ${LCMObject.bridgeAddress}`);
+      LCMObject.logger.log(`bridgeAddress set to ${LCMObject.bridgeAddress}`);
     }
   },
 };

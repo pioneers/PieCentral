@@ -80,3 +80,7 @@ MetalDetector
 `["param_write_only", [uid, param]]`
 
 - sent when stateManager tries to poll or subscribe to a write only param
+
+`["device_disconnect", [uid]]`
+
+- sent when a device disconnects from Hibike

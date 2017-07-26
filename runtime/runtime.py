@@ -93,7 +93,7 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
                 print(new_bad_thing.event)
                 non_test_mode_print(new_bad_thing.data)
                 if new_bad_thing.event in restartEvents:
-                    state_queue.put([SM_COMMANDS.SEND_CONSOLE, [str(new_bad_thing)]])
+                    state_queue.put([SM_COMMANDS.SEND_CONSOLE, [new_bad_thing.getStudentError()]])
                     control_state = "idle"
                     if test_mode:
                         restart_count += 1

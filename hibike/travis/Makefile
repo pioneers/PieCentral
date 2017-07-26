@@ -12,7 +12,7 @@ artifacts-install:
 	$(nop)
 
 lint:
-	$(nop)
+	cd .. && pylint *.py
 
 test: $(DEVICES)
 

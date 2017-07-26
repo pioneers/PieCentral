@@ -18,4 +18,6 @@ wget $BASHRC_URL -O ~/.bashrc
 echo 'crouton setup complete! Now logging you into a linux shell.'
 echo 'Please run the following script within that shell to complete setup:'
 echo 'wget -O - https://raw.githubusercontent.com/pioneers/PieCentral/master/DevOps/chrommunal/setup-ubuntu.sh | bash'
+sudo wget -P /usr/local/bin/ https://raw.githubusercontent.com/KittyKatt/screenFetch/master/screenfetch-dev
+sudo chmod +x /usr/local/bin/screenfetch-dev
 sudo enter-chroot

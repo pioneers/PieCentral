@@ -80,7 +80,7 @@ class Gamepad(StudentAPI):
             return gamepad_dict["axes"][self.joysticks[name]]
         elif name in self.buttons:
             return gamepad_dict["buttons"][self.buttons[name]]
-        raise StudentAPIKeyError()
+        raise StudentAPIKeyError(str(name) + " is not a valid gamepad parameter")
 
 
 class Robot(StudentAPI):
@@ -237,7 +237,7 @@ class Robot(StudentAPI):
             if int(name) in self.peripherals:
                 return int(name)
             else:
-                raise StudentAPIKeyError()
+                raise StudentAPIKeyError("Device not found: " + str(name))
             # return self.sensor_mappings[name]
         except Exception as e:
             raise e # pylint: disable=raising-bad-type

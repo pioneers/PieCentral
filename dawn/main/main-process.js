@@ -6,8 +6,8 @@ import { app, BrowserWindow, Menu, ipcMain } from 'electron';
 import RendererBridge from './RendererBridge';
 import { killFakeRuntime } from './MenuTemplate/DebugMenu';
 import Template from './MenuTemplate/Template';
-import Ansible from './ansible/Ansible';
-import LCMObject from './ansible/FieldControlLCM';
+import Ansible from './networking/Ansible';
+import LCMObject from './networking/FieldControlLCM';
 
 app.on('window-all-closed', () => {
   app.quit();

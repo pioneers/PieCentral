@@ -1,6 +1,6 @@
 import { fork } from 'child_process';
 import RendererBridge from '../RendererBridge';
-import LCMObject from '../ansible/FieldControlLCM';
+import LCMObject from '../networking/FieldControlLCM';
 
 let fakeRuntime = null;
 

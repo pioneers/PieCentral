@@ -288,7 +288,6 @@ const lcmState = state => ({
   runtimeStatus: state.info.runtimeStatus,
 });
 
-
 /**
  * Send the store to the main process whenever it changes.
  */

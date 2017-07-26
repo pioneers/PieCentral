@@ -187,7 +187,6 @@ const mapDispatchToProps = dispatch => ({
   onFCUpdate: (ipAddress) => {
     dispatch(updateFieldControl(ipAddress));
   },
-
 });
 
 const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);

@@ -18,7 +18,7 @@ import {
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { robotState, Logger, defaults } from '../../renderer/utils/utils';
-import { stationNumber } from './LCM';
+import LCMObject from './LCM';
 
 const dawnBuilder = ProtoBuf.loadProtoFile(`${__dirname}/ansible.proto`);
 const DawnData = dawnBuilder.build('DawnData');
@@ -61,7 +61,7 @@ function buildProto(data) {
   return new DawnData({
     student_code_status: status,
     gamepads,
-    team_color: (stationNumber < 2) ? DawnData.TeamColor.BLUE : DawnData.TeamColor.GOLD,
+    team_color: (LCMObject.stationNumber < 2) ? DawnData.TeamColor.BLUE : DawnData.TeamColor.GOLD,
   });
 }
 

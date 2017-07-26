@@ -18,7 +18,7 @@ import {
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { robotState, Logger, defaults } from '../../renderer/utils/utils';
-import LCMObject from './LCM';
+import LCMObject from './FieldControlLCM';
 
 const dawnBuilder = ProtoBuf.loadProtoFile(`${__dirname}/ansible.proto`);
 const DawnData = dawnBuilder.build('DawnData');

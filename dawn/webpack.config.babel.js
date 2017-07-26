@@ -38,7 +38,7 @@ export default [
     plugins,
   },
   {
-    entry: './main/main-develop.js',
+    entry: './main/main-process.js',
     output: {
       path: path.join(__dirname, 'build'),
       filename: 'main.js',

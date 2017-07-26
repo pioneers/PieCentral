@@ -7,7 +7,7 @@ import RendererBridge from './RendererBridge';
 import { killFakeRuntime } from './MenuTemplate/DebugMenu';
 import Template from './MenuTemplate/Template';
 import Ansible from './ansible/Ansible';
-import LCMObject from './ansible/LCM';
+import LCMObject from './ansible/FieldControlLCM';
 
 app.on('window-all-closed', () => {
   app.quit();

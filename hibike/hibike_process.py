@@ -146,8 +146,12 @@ def hotplug(devices, state_queue, batched_data, error_queue):
     clean_up_thread.start()
     while True:
         time.sleep(HOTPLUG_POLL_INTERVAL)
-        remove_disconnected_devices(error_queue, devices, clean_up_queue)
         scan_for_new_devices(devices, state_queue, batched_data, error_queue)
+        remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue)
+        for (uid, pack) in new_devices:
+            pack.write_queue.put(("ping", []))
+            pack.write_queue.put(("subscribe", [1, 0, []]))
+            devices[uid] = pack
 
 
 def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue):
@@ -165,6 +169,7 @@ def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queu
         # Tell the device to start sending data
         pack.write_queue.put(("ping", []))
         pack.write_queue.put(("subscribe", [1, 0, []]))
+    return new_devices
 
 
 def clean_up_devices(device_queue):
@@ -182,16 +187,25 @@ def clean_up_devices(device_queue):
         device.write_thread.join()
 
 
-def remove_disconnected_devices(error_queue, devices, clean_up_queue):
+def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue):
     """
     Clean up any disconnected devices in ERROR_QUEUE.
     """
     while True:
         try:
-            uid = error_queue.get(block=False)
+            error = error_queue.get(block=False)
+            pack = devices[error.uid]
+            if not error.accessed:
+                error.accessed = True
+                error_queue.put(error)
+                continue
+            elif error.serial_port.name != pack.serial_port.name:
+                continue
+            uid = error.uid
             pack = devices[uid]
             del devices[uid]
             clean_up_queue.put(pack)
+            state_queue.put(("device_disconnected", [uid]))
         except queue.Empty:
             return
 
@@ -296,8 +310,11 @@ def device_read_thread(uid, ser, instruction_queue, error_queue, state_queue, ba
                 elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
                     instruction_queue.put(("heartResp", [uid]))
     except serial.SerialException:
-        error_queue.put(uid)
-        state_queue.put(("device_disconnected", [uid]))
+        error = namedtuple("Disconnect", ["uid", "serial", "accessed"])
+        error.uid = uid
+        error.serial_port = ser
+        error.accessed = False
+        error_queue.put(error)
 
 def batch_data(data, state_queue):
     """

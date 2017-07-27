@@ -78,12 +78,8 @@ def identify_smart_sensors(serial_conns):
                 _, _, uid = hm.parse_subscription_response(packet)
                 uid_queue.put(uid)
     device_map = {}
-    thread_list = []
-    event_list = []
-    index_list = []
-    read_queues = []
-
-    for (index, conn) in enumerate(serial_conns):
+    candidates = []
+    for conn in serial_conns:
         old_timeout = conn.write_timeout
         conn.write_timeout = IDENTIFY_TIMEOUT
         try:
@@ -92,27 +88,26 @@ def identify_smart_sensors(serial_conns):
             continue
         finally:
             conn.write_timeout = old_timeout
-        curr_queue = queue.Queue()
-        curr_event = threading.Event()
-        index_list.append(index)
-        thread_list.append(threading.Thread(target=recv_subscription_requests,
-                                            args=(conn, curr_queue, curr_event)))
-        read_queues.append(curr_queue)
-        event_list.append(curr_event)
-    for thread in thread_list:
-        thread.start()
-    for (index, reader) in zip(index_list, read_queues):
-        serial_conn = serial_conns[index]
+        maybe_device = namedtuple("MaybeDevice", ["serial_conn", "queue", "event", "thread"])
+        maybe_device.queue = queue.Queue()
+        maybe_device.event = threading.Event()
+        maybe_device.serial_conn = conn
+        maybe_device.thread = threading.Thread(target=recv_subscription_requests,
+                                               args=(conn, maybe_device.queue, maybe_device.event))
+        candidates.append(maybe_device)
+    for cand in candidates:
+        cand.thread.start()
+    for cand in candidates:
         try:
-            uid = reader.get(block=True, timeout=IDENTIFY_TIMEOUT)
-            device_map[serial_conn.name] = uid
+            uid = cand.queue.get(block=True, timeout=IDENTIFY_TIMEOUT)
+            device_map[cand.serial_conn.name] = uid
             # Shut device up
-            hm.send(serial_conn, hm.make_subscription_request(uid, [], 0))
+            hm.send(cand.serial_conn, hm.make_subscription_request(uid, [], 0))
         except queue.Empty:
             pass
-    for (event, thread) in zip(event_list, thread_list):
-        event.set()
-        thread.join()
+    for cand in candidates:
+        cand.event.set()
+        cand.thread.join()
     return device_map
 
 
@@ -148,10 +143,6 @@ def hotplug(devices, state_queue, batched_data, error_queue):
         time.sleep(HOTPLUG_POLL_INTERVAL)
         scan_for_new_devices(devices, state_queue, batched_data, error_queue)
         remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue)
-        for (uid, pack) in new_devices:
-            pack.write_queue.put(("ping", []))
-            pack.write_queue.put(("subscribe", [1, 0, []]))
-            devices[uid] = pack
 
 
 def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue):
@@ -169,7 +160,6 @@ def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queu
         # Tell the device to start sending data
         pack.write_queue.put(("ping", []))
         pack.write_queue.put(("subscribe", [1, 0, []]))
-    return new_devices
 
 
 def clean_up_devices(device_queue):

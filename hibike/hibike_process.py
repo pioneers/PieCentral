@@ -186,10 +186,12 @@ def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queu
             error = error_queue.get(block=False)
             pack = devices[error.uid]
             if not error.accessed:
+                # Wait until the next cycle to make sure it's disconnected
                 error.accessed = True
                 error_queue.put(error)
                 continue
             elif error.serial_port.name != pack.serial_port.name:
+                # We found it again
                 continue
             uid = error.uid
             pack = devices[uid]

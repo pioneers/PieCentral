@@ -51,9 +51,6 @@ def get_working_serial_ports(excludes=()):
         try:
             serials.append(serial.Serial(port, 115200))
             port_names.append(port)
-        # this implementation ensures that as long as the cannot open serial port error occurs
-        # while opening the serial port, a print will appear, but
-        # the rest of the ports will go on.
         except serial.serialutil.SerialException:
             print("Cannot Open Serial Port: " + str(port))
     return serials, port_names
@@ -67,9 +64,9 @@ def identify_smart_sensors(serial_conns):
     Returns:
         A map of serial port names to UIDs.
     """
-    def recv_subscription_requests(conn, uid_queue, stop_event):
+    def recv_subscription_response(conn, uid_queue, stop_event):
         """
-        Place received subscription request UIDs from CONN into UID_QUEUE,
+        Place received subscription response UIDs from CONN into UID_QUEUE,
         stopping when STOP_EVENT is set.
         """
         for packet in hm.blocking_read_generator(conn, stop_event):
@@ -92,7 +89,7 @@ def identify_smart_sensors(serial_conns):
         maybe_device.queue = queue.Queue()
         maybe_device.event = threading.Event()
         maybe_device.serial_conn = conn
-        maybe_device.thread = threading.Thread(target=recv_subscription_requests,
+        maybe_device.thread = threading.Thread(target=recv_subscription_response,
                                                args=(conn, maybe_device.queue, maybe_device.event))
         candidates.append(maybe_device)
     for cand in candidates:
@@ -239,24 +236,27 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     # forwards them to the appropriate device write threads
     while True:
         instruction, args = pipe_from_child.recv()
-        if instruction == "enumerate_all":
-            for pack in devices.values():
-                pack.write_queue.put(("ping", []))
-        elif instruction == "subscribe_device":
-            uid = args[0]
-            if uid in devices:
-                devices[uid].write_queue.put(("subscribe", args))
-        elif instruction == "write_params":
-            uid = args[0]
-            if uid in devices:
-                devices[uid].write_queue.put(("write", args))
-        elif instruction == "read_params":
-            uid = args[0]
-            if uid in devices:
-                devices[uid].write_queue.put(("read", args))
-        elif instruction == "disable_all":
-            for pack in devices.values():
-                pack.write_queue.put(("disable", []))
+        try:
+            if instruction == "enumerate_all":
+                for pack in devices.values():
+                    pack.write_queue.put(("ping", []))
+            elif instruction == "subscribe_device":
+                uid = args[0]
+                if uid in devices:
+                    devices[uid].write_queue.put(("subscribe", args))
+            elif instruction == "write_params":
+                uid = args[0]
+                if uid in devices:
+                    devices[uid].write_queue.put(("write", args))
+            elif instruction == "read_params":
+                uid = args[0]
+                if uid in devices:
+                    devices[uid].write_queue.put(("read", args))
+            elif instruction == "disable_all":
+                for pack in devices.values():
+                    pack.write_queue.put(("disable", []))
+        except KeyError:
+            pass
 
 
 def device_write_thread(ser, instr_queue):

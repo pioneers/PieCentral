@@ -256,7 +256,7 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
                 for pack in devices.values():
                     pack.write_queue.put(("disable", []))
         except KeyError:
-            pass
+            print("Tried to access a nonexistent device")
 
 
 def device_write_thread(ser, instr_queue):

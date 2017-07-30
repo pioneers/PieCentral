@@ -20,6 +20,7 @@ const modules = {
 };
 
 const plugins = [
+  new webpack.optimize.ModuleConcatenationPlugin(),
   new webpack.DefinePlugin({
     VERSION: JSON.stringify(version),
   }),

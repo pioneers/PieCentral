@@ -123,7 +123,7 @@ class AppComponent extends React.Component {
           runtimeVersion={this.props.runtimeVersion}
         />
         <Joyride
-          ref={c => (this.joyride = c)}
+          ref={(c) => { this.joyride = c; }}
           steps={this.state.steps}
           type="continuous"
           showSkipButton

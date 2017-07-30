@@ -38,7 +38,7 @@ class NameEdit extends React.Component {
     const isValid = re.test(name);
     const allCurrentPeripherals = _.toArray(this.props.peripherals);
     const isDuplicate = _.some(allCurrentPeripherals,
-        peripheral => peripheral.name === name && peripheral.id !== this.props.id);
+      peripheral => peripheral.name === name && peripheral.id !== this.props.id);
     return isValid && !isDuplicate;
   }
 

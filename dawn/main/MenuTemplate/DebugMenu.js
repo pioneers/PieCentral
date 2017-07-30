@@ -1,5 +1,6 @@
 import { fork } from 'child_process';
 import RendererBridge from '../RendererBridge';
+import LCMObject from '../networking/FieldControlLCM';
 
 let fakeRuntime = null;
 
@@ -26,6 +27,13 @@ const DebugMenu = {
         RendererBridge.reduxDispatch({
           type: 'RESTART_RUNTIME',
         });
+      },
+    },
+    {
+      label: 'Restart LCM',
+      click() {
+        LCMObject.LCMInternal.quit();
+        LCMObject.setup();
       },
     },
     {

@@ -3,6 +3,7 @@
  */
 
 import { app } from 'electron';
+import RendererBridge from '../RendererBridge';
 
 const DawnMenu = {
   label: 'Dawn',
@@ -12,6 +13,14 @@ const DawnMenu = {
       accelerator: 'CommandOrControl+Q',
       click() {
         app.quit();
+      },
+    },
+    {
+      label: 'Field Control Mode',
+      click() {
+        RendererBridge.reduxDispatch({
+          type: 'TOGGLE_FIELD_CONTROL',
+        });
       },
     },
   ],

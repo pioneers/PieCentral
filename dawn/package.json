@@ -50,8 +50,11 @@
   },
   "dependencies": {
     "brace": "0.10.0",
+    "circular-json": "^0.3.1",
+    "create-react-class": "^15.6.0",
     "electron": "1.6.10",
     "electron-json-storage": "3.0.4",
+    "extract-zip": "=1.6.0",
     "immutable": "3.8.1",
     "json-loader": "0.5.4",
     "keymirror": "0.1.1",
@@ -73,6 +76,7 @@
     "seedrandom": "2.4.2",
     "smalltalk": "2.2.0",
     "ssh2": "0.5.4",
-    "superagent": "3.4.1"
+    "superagent": "3.4.1",
+    "ws": "3.0.0"
   }
 }

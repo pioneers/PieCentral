@@ -7,6 +7,7 @@ import Dashboard from './Dashboard';
 import DNav from './DNav';
 import joyrideSteps from './JoyrideSteps';
 import { removeAsyncAlert } from '../actions/AlertActions';
+import { updateFieldControl } from '../actions/FieldActions';
 import { ipChange } from '../actions/InfoActions';
 import { logging, startLog } from '../utils/utils';
 
@@ -44,6 +45,15 @@ class AppComponent extends React.Component {
           if (setErr) logging.log(setErr);
         });
       }
+    });
+
+    storage.get('fieldControl', (err, data) => {
+      if (err) {
+        logging.log(err);
+        return;
+      }
+      this.props.onFCUpdate(data);
+      ipcRenderer.send('LCM_CONFIG_CHANGE', data);
     });
   }
 
@@ -153,6 +163,7 @@ AppComponent.propTypes = {
   ipAddress: React.PropTypes.string,
   onIPChange: React.PropTypes.func,
   runtimeVersion: React.PropTypes.string,
+  onFCUpdate: React.PropTypes.func,
 };
 
 const mapStateToProps = state => ({
@@ -172,6 +183,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onIPChange: (ipAddress) => {
     dispatch(ipChange(ipAddress));
+  },
+  onFCUpdate: (ipAddress) => {
+    dispatch(updateFieldControl(ipAddress));
   },
 });
 

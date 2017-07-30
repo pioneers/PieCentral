@@ -11,15 +11,19 @@ import peripherals from './peripherals';
 import info from './info';
 import gamepads from './gamepads';
 import settings from './settings';
+import fieldStore from './FieldStore';
+import TimerStore from './TimerStore';
 
 const dawnApp = combineReducers({
   asyncAlerts,
   editor,
+  fieldStore,
   studentConsole,
   peripherals,
   info,
   gamepads,
   settings,
+  TimerStore,
 });
 
 export default dawnApp;

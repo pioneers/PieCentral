@@ -172,19 +172,6 @@ def infiniteMainLoop_main():
         time.sleep(.1)
 
 
-def emergencyStop_setup():
-    print("E-Stop setup")
-
-
-def emergencyStop_main():
-    response = Robot._get_sm_value("incrementer") - 1
-    if response < 0:
-        Robot.emergency_stop()
-
-    Robot._set_sm_value(response, "incrementer")
-    print("HIBIKE LOOP")
-
-
 def optionalhibikeSensorMappings_setup():
     pass
 

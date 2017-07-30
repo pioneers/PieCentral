@@ -9,6 +9,7 @@ import IPBox from './IPBox';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';
 import TooltipButton from './TooltipButton';
+import { REG_VERSION, FC_VERSION } from '../constants/Constants';
 import { runtimeState } from '../utils/utils';
 
 class DNavComponent extends React.Component {
@@ -30,6 +31,13 @@ class DNavComponent extends React.Component {
     this.setState({ showConfigModal: !this.state.showConfigModal });
   }
 
+  createHeader() {
+    if (this.props.fieldControlStatus) {
+      return `Dawn v${FC_VERSION} ${(this.props.heart) ? '+' : '-'}`;
+    }
+    return `Dawn v${REG_VERSION}`;
+  }
+
   render() {
     return (
       <Navbar fixedTop fluid>
@@ -49,14 +57,17 @@ class DNavComponent extends React.Component {
         />
         <Navbar.Header>
           <Navbar.Brand id="header-title">
-            {`Dawn v${VERSION}`}
+            {this.createHeader()}
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
           {this.props.runtimeStatus ?
             <Navbar.Text id="runtime-version">
-              <Label bsStyle="info">{`Runtime v${this.props.runtimeVersion}: ${runtimeState[this.props.robotState]}`}</Label>
+              <Label bsStyle="info">{
+                `Runtime v${this.props.runtimeVersion}: ${runtimeState[this.props.robotState]}`
+              }
+              </Label>
             </Navbar.Text> : ''
           }
           <Navbar.Text id="battery-indicator">
@@ -117,10 +128,14 @@ DNavComponent.propTypes = {
   onIPChange: React.PropTypes.func,
   runtimeVersion: React.PropTypes.string,
   robotState: React.PropTypes.number,
+  heart: React.PropTypes.bool,
+  fieldControlStatus: React.PropTypes.bool,
 };
 
 const mapStateToProps = state => ({
   robotState: state.info.robotState,
+  heart: state.fieldStore.heart,
+  fieldControlStatus: state.fieldStore.fieldControl,
 });
 
 

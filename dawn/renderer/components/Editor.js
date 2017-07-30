@@ -383,7 +383,9 @@ class Editor extends React.Component {
               text="Run"
               onClick={this.startRobot}
               glyph="play"
-              disabled={this.props.isRunningCode || !this.props.runtimeStatus}
+              disabled={this.props.isRunningCode
+              || !this.props.runtimeStatus
+              || this.props.fieldControlActivity}
             />
             <TooltipButton
               id="stop"
@@ -397,7 +399,9 @@ class Editor extends React.Component {
               bsSize="small"
               key="dropdown"
               id="modeDropdown"
-              disabled={this.state.simulate || !this.props.runtimeStatus}
+              disabled={this.state.simulate
+              || this.props.fieldControlActivity
+              || !this.props.runtimeStatus}
             >
               <MenuItem
                 eventKey="1"
@@ -538,6 +542,7 @@ Editor.propTypes = {
   isRunningCode: React.PropTypes.bool,
   runtimeStatus: React.PropTypes.bool,
   ipAddress: React.PropTypes.string,
+  fieldControlActivity: React.PropTypes.bool,
   onDownloadCode: React.PropTypes.func,
   disableScroll: React.PropTypes.bool,
 };

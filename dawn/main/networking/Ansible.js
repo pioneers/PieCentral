@@ -5,7 +5,10 @@ import ProtoBuf from 'protobufjs';
 import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
-import { updateConsole } from '../../renderer/actions/ConsoleActions';
+import {
+  updateConsole,
+  clearConsole,
+} from '../../renderer/actions/ConsoleActions';
 import {
   ansibleDisconnect,
   notifyReceive,
@@ -15,6 +18,7 @@ import {
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { robotState, Logger, defaults } from '../../renderer/utils/utils';
+import LCMObject from './FieldControlLCM';
 
 const dawnBuilder = ProtoBuf.loadProtoFile(`${__dirname}/ansible.proto`);
 const DawnData = dawnBuilder.build('DawnData');
@@ -57,7 +61,7 @@ function buildProto(data) {
   return new DawnData({
     student_code_status: status,
     gamepads,
-    team_color: 0,
+    team_color: (LCMObject.stationNumber < 2) ? DawnData.TeamColor.BLUE : DawnData.TeamColor.GOLD,
   });
 }
 
@@ -251,6 +255,28 @@ class TCPServer {
     this.tcp.close();
   }
 }
+
+const onUpdateCodeStatus = (status) => {
+  RendererBridge.reduxDispatch(updateCodeStatus(status));
+};
+
+const onClearConsole = () => {
+  RendererBridge.reduxDispatch(clearConsole());
+};
+
+/* Redux short-circuiting for when field control wants to start/stop robot
+ */
+const startRobot = () => { // eslint-disable-line no-unused-vars
+  // TODO: Probably move this to Editor using ipcRenderer/ipcMain.
+  // this.state.mode doesn't exist here.
+  RendererBridge.reduxDispatch(onUpdateCodeStatus(this.state.mode));
+  RendererBridge.reduxDispatch(onClearConsole());
+};
+
+const stopRobot = () => { // eslint-disable-line no-unused-vars
+  // TODO: Probably move this to Editor using ipcRenderer/ipcMain. GUI can't change here.
+  RendererBridge.reduxDispatch(onUpdateCodeStatus(robotState.IDLE));
+};
 
 const Ansible = {
   conns: [],

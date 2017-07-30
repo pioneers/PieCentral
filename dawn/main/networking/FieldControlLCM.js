@@ -1,10 +1,10 @@
 import { ipcMain } from 'electron';
 import LCM from '../../renderer/utils/lcm_ws_bridge';
-import { updateTimer,
-        updateHeart,
-        updateRobot,
-        updateMatch }
-        from '../../renderer/actions/FieldActions';
+import {
+  updateTimer,
+  updateHeart,
+  updateRobot,
+  updateMatch } from '../../renderer/actions/FieldActions';
 import RendererBridge from '../RendererBridge';
 import { Logger } from '../../renderer/utils/utils';
 

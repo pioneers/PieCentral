@@ -13,7 +13,7 @@ const ScalarSensor = props => (
         _.map(props.param, obj => (
           <div key={`${obj.param}-${props.device_name}-Overall`}>
             <h4 style={{ float: 'right', height: '10px' }} key={`${obj.param}-${props.device_name}`}>
-              {`${obj.param}: ${numeral(obj[obj.kind]).format('+0.00')}`}
+              {`${obj.param}: ${numeral(obj.float_value || obj.int_value).format('+0.00')}`}
             </h4>
             <div style={{ clear: 'both', height: '2px' }} key={`${obj.param}-${props.device_name}-Spacing`} />
           </div>

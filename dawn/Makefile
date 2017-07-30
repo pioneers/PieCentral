@@ -7,10 +7,10 @@ start:
 	yarn start
 
 install:
-	yarn install
+	yarn install --frozen-lockfile
 
 artifacts-install:
-	yarn install electron-packager
+	yarn install --no-lockfile electron-packager
 	sudo dpkg --add-architecture i386
 	sudo apt-get update
 	sudo apt-get install -y wine

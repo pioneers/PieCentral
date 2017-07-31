@@ -69,11 +69,16 @@ def identify_smart_sensors(serial_conns):
         Place received subscription response UIDs from CONN into UID_QUEUE,
         stopping when STOP_EVENT is set.
         """
-        for packet in hm.blocking_read_generator(conn, stop_event):
-            msg_type = packet.get_message_id()
-            if msg_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
-                _, _, uid = hm.parse_subscription_response(packet)
-                uid_queue.put(uid)
+        try:
+            for packet in hm.blocking_read_generator(conn, stop_event):
+                msg_type = packet.get_message_id()
+                if msg_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
+                    _, _, uid = hm.parse_subscription_response(packet)
+                    uid_queue.put(uid)
+        except serial.SerialException:
+            pass
+
+
     device_map = {}
     candidates = []
     for conn in serial_conns:

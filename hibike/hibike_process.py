@@ -206,8 +206,6 @@ def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queu
             for err in next_time_errors:
                 error_queue.put(err)
             return
-        except KeyError:
-            continue
 
 
 # pylint: disable=too-many-branches, too-many-locals

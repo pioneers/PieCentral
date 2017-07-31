@@ -3,7 +3,7 @@ import _ from 'lodash';
 import numeral from 'numeral';
 
 /**
- * A generic peripheral, used when the peripheralType is unknown.
+ * Generic Peripheral for General Case
  */
 const GenericPeripheral = props => (
   <div style={{ overflow: 'auto' }}>
@@ -16,7 +16,7 @@ const GenericPeripheral = props => (
         _.map(props.param, obj => (
           <div key={`${obj.param}-${props.device_name}-Overall`}>
             <h4 style={{ float: 'right', height: '10px' }} key={`${obj.param}-${props.device_name}`} >
-              {`${obj.param}: ${numeral(obj[obj.kind]).format('+0.00')}`}
+              {`${obj.param}: ${numeral(obj.int_value || obj.float_value).format('+0.00')}`}
             </h4>
             <div style={{ clear: 'both', height: '2px' }} key={`${obj.param}-${props.device_name}-Spacing`} />
           </div>

@@ -10,24 +10,20 @@ import React from 'react';
 import { ListGroupItem } from 'react-bootstrap';
 import { PeripheralTypes } from '../constants/Constants';
 import GenericPeripheral from './peripherals/GenericPeripheral';
-import ScalarSensor from './peripherals/ScalarSensor';
 import Motor from './peripherals/Motor';
 import BooleanSensor from './peripherals/BooleanSensor';
 
 // Mapping between peripheral types and components
-const typesToComponents = {};
+const defaultPeripheral = {
+  get: (target, name) => (
+    Object.prototype.hasOwnProperty.call(target, name) ? target[name] : GenericPeripheral
+  ),
+};
+
+const typesToComponents = new Proxy({}, defaultPeripheral);
 typesToComponents[PeripheralTypes.MOTOR_SCALAR] = Motor;
 typesToComponents[PeripheralTypes.SENSOR_BOOLEAN] = BooleanSensor;
-typesToComponents[PeripheralTypes.SENSOR_SCALAR] = ScalarSensor;
 typesToComponents[PeripheralTypes.LimitSwitch] = BooleanSensor;
-typesToComponents[PeripheralTypes.LineFollower] = ScalarSensor;
-typesToComponents[PeripheralTypes.Potentiometer] = ScalarSensor;
-typesToComponents[PeripheralTypes.Encoder] = ScalarSensor;
-// typesToComponents[PeripheralTypes.ColorSensor] = ScalarSensor;
-typesToComponents[PeripheralTypes.MetalDetector] = ScalarSensor;
-typesToComponents[PeripheralTypes.ServoControl] = ScalarSensor;
-typesToComponents[PeripheralTypes.YogiBear] = ScalarSensor;
-typesToComponents[PeripheralTypes.RFID] = ScalarSensor;
 
 class Peripheral extends React.Component {
   /**

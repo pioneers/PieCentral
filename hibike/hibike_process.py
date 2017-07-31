@@ -22,7 +22,7 @@ BATCH_SLEEP_TIME = .04
 IDENTIFY_TIMEOUT = 1
 # Time in seconds to wait between checking for new devices
 # and cleaning up old ones.
-HOTPLUG_POLL_INTERVAL = 0.25
+HOTPLUG_POLL_INTERVAL = 1
 
 
 def get_working_serial_ports(excludes=()):
@@ -144,7 +144,8 @@ def hotplug(devices, state_queue, batched_data, error_queue):
 
 def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue):
     """
-    Scan for devices not in EXISTING_DEVICES, and add any if found.
+    Find devices that are on serial ports not in EXISTING_DEVICES, and add
+    any that have been found to it.
     """
     ports, names = get_working_serial_ports(map(lambda d: d.serial_port.name,
                                                 existing_devices.values()))

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { PeripheralTypes } from '../../constants/Constants';
 
@@ -38,10 +39,10 @@ class BooleanSensor extends React.Component {
 }
 
 BooleanSensor.propTypes = {
-  device_name: React.PropTypes.string,
-  device_type: React.PropTypes.string,
-  id: React.PropTypes.string,
-  param: React.PropTypes.array,
+  device_name: PropTypes.string,
+  device_type: PropTypes.string,
+  id: PropTypes.string,
+  param: PropTypes.array,
 };
 
 export default BooleanSensor;

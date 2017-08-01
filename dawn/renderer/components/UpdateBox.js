@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   Modal,
   Button,
@@ -137,13 +138,13 @@ class UpdateBox extends React.Component {
 }
 
 UpdateBox.propTypes = {
-  shouldShow: React.PropTypes.bool.isRequired,
-  hide: React.PropTypes.func.isRequired,
-  connectionStatus: React.PropTypes.bool.isRequired,
-  runtimeStatus: React.PropTypes.bool.isRequired,
-  isRunningCode: React.PropTypes.bool.isRequired,
-  ipAddress: React.PropTypes.string.isRequired,
-  onAlertAdd: React.PropTypes.func.isRequired,
+  shouldShow: PropTypes.bool.isRequired,
+  hide: PropTypes.func.isRequired,
+  connectionStatus: PropTypes.bool.isRequired,
+  runtimeStatus: PropTypes.bool.isRequired,
+  isRunningCode: PropTypes.bool.isRequired,
+  ipAddress: PropTypes.string.isRequired,
+  onAlertAdd: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({

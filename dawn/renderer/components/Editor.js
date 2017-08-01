@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   Panel,
   ButtonGroup,
@@ -522,29 +523,29 @@ class Editor extends React.Component {
 }
 
 Editor.propTypes = {
-  editorCode: React.PropTypes.string,
-  editorTheme: React.PropTypes.string,
-  filepath: React.PropTypes.string,
-  fontSize: React.PropTypes.number,
-  latestSaveCode: React.PropTypes.string,
-  showConsole: React.PropTypes.bool,
-  consoleData: React.PropTypes.array,
-  onAlertAdd: React.PropTypes.func,
-  onEditorUpdate: React.PropTypes.func,
-  onSaveFile: React.PropTypes.func,
-  onOpenFile: React.PropTypes.func,
-  onCreateNewFile: React.PropTypes.func,
-  onChangeTheme: React.PropTypes.func,
-  onChangeFontsize: React.PropTypes.func,
-  toggleConsole: React.PropTypes.func,
-  onClearConsole: React.PropTypes.func,
-  onUpdateCodeStatus: React.PropTypes.func,
-  isRunningCode: React.PropTypes.bool,
-  runtimeStatus: React.PropTypes.bool,
-  ipAddress: React.PropTypes.string,
-  fieldControlActivity: React.PropTypes.bool,
-  onDownloadCode: React.PropTypes.func,
-  disableScroll: React.PropTypes.bool,
+  editorCode: PropTypes.string,
+  editorTheme: PropTypes.string,
+  filepath: PropTypes.string,
+  fontSize: PropTypes.number,
+  latestSaveCode: PropTypes.string,
+  showConsole: PropTypes.bool,
+  consoleData: PropTypes.array,
+  onAlertAdd: PropTypes.func,
+  onEditorUpdate: PropTypes.func,
+  onSaveFile: PropTypes.func,
+  onOpenFile: PropTypes.func,
+  onCreateNewFile: PropTypes.func,
+  onChangeTheme: PropTypes.func,
+  onChangeFontsize: PropTypes.func,
+  toggleConsole: PropTypes.func,
+  onClearConsole: PropTypes.func,
+  onUpdateCodeStatus: PropTypes.func,
+  isRunningCode: PropTypes.bool,
+  runtimeStatus: PropTypes.bool,
+  ipAddress: PropTypes.string,
+  fieldControlActivity: PropTypes.bool,
+  onDownloadCode: PropTypes.func,
+  disableScroll: PropTypes.bool,
 };
 
 export default Editor;

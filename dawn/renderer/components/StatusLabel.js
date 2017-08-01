@@ -1,4 +1,4 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 import { Label } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import numeral from 'numeral';
@@ -24,10 +24,10 @@ const StatusLabelComponent = (props) => {
 };
 
 StatusLabelComponent.propTypes = {
-  connectionStatus: React.PropTypes.bool.isRequired,
-  runtimeStatus: React.PropTypes.bool.isRequired,
-  batteryLevel: React.PropTypes.number.isRequired,
-  batterySafety: React.PropTypes.bool.isRequired,
+  connectionStatus: PropTypes.bool.isRequired,
+  runtimeStatus: PropTypes.bool.isRequired,
+  batteryLevel: PropTypes.number.isRequired,
+  batterySafety: PropTypes.bool.isRequired,
 };
 
 

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { Grid, Row, Col } from 'react-bootstrap';
-import PeripheralListContainer from './PeripheralListContainer';
+import PeripheralList from './PeripheralList';
 import GamepadList from './GamepadList';
 import EditorContainer from './EditorContainer';
 
@@ -8,7 +8,7 @@ const Dashboard = props => (
   <Grid fluid>
     <Row>
       <Col smPush={8} sm={4}>
-        <PeripheralListContainer
+        <PeripheralList
           connectionStatus={props.connectionStatus}
           runtimeStatus={props.runtimeStatus}
         />

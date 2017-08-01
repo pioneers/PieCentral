@@ -46,14 +46,14 @@
     "eslint-plugin-react": "7.1.0",
     "minimist": "1.2.0",
     "mocha": "3.4.2",
-    "webpack": "3.3.0"
+    "webpack": "3.4.1"
   },
   "dependencies": {
     "brace": "0.10.0",
-    "circular-json": "^0.3.1",
-    "create-react-class": "^15.6.0",
+    "circular-json": "0.3.1",
+    "create-react-class": "15.6.0",
     "electron": "1.6.11",
-    "electron-json-storage": "3.0.6",
+    "electron-json-storage": "3.0.7",
     "immutable": "3.8.1",
     "json-loader": "0.5.7",
     "keymirror": "0.1.1",
@@ -76,6 +76,6 @@
     "smalltalk": "2.4.1",
     "ssh2": "0.5.5",
     "superagent": "3.5.2",
-    "ws": "3.0.0"
+    "ws": "3.1.0"
   }
 }

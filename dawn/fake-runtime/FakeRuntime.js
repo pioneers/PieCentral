@@ -6,15 +6,11 @@
 
 const dgram = require('dgram');
 const net = require('net');
-const ProtoBuf = require('protobufjs');
+const protobuf = require('protobufjs');
 
-const dawnBuilder = ProtoBuf.loadProtoFile('../ansible-protos/ansible.proto');
-const DawnData = dawnBuilder.build('DawnData');
-const runtimeBuilder = ProtoBuf.loadProtoFile('../ansible-protos/runtime.proto');
-const RuntimeData = runtimeBuilder.build('RuntimeData');
-const notificationBuilder = ProtoBuf.loadProtoFile('../ansible-protos/notification.proto');
-const Notification = notificationBuilder.build('Notification');
-
+const DawnData = (new protobuf.Root()).loadSync('../ansible-protos/ansible.proto', { keepCase: true }).lookupType('DawnData');
+const RuntimeData = (new protobuf.Root()).loadSync('../ansible-protos/runtime.proto', { keepCase: true }).lookupType('RuntimeData');
+const Notification = (new protobuf.Root()).loadSync('../ansible-protos/notification.proto', { keepCase: true }).lookupType('Notification');
 const sendPort = 1235;
 const listenPort = 1236;
 const sendSocket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
@@ -115,17 +111,6 @@ const generateFakeData = () => (
         int_value: Math.round(randomFloat(0, 180)),
       }],
       uid: '105',
-    }, {
-      device_type: 'ColorSensor',
-      device_name: 'CS1',
-      param_value: [{
-        param: 'Val',
-        float_value: randomFloat(0, 255),
-      }, {
-        param: 'Val2',
-        float_value: randomFloat(0, 255),
-      }],
-      uid: '106',
     }],
   });
 
@@ -136,10 +121,10 @@ const generateRandomConsole = () => ({
 
 
 setInterval(() => {
-  const udpData = new RuntimeData(generateFakeData());
-  sendSocket.send(Buffer.from(udpData.toArrayBuffer()), sendPort, 'localhost');
+  const udpData = RuntimeData.create(generateFakeData());
+  sendSocket.send(RuntimeData.encode(udpData).finish(), sendPort, 'localhost');
   if (state !== RuntimeData.State.ESTOP && state !== RuntimeData.State.STUDENT_STOPPED) {
-    const tcpData = new Notification(generateRandomConsole());
-    tcpSocket.write(Buffer.from(tcpData.toArrayBuffer()));
+    const tcpData = Notification.create(generateRandomConsole());
+    tcpSocket.write(Notification.encode(tcpData).finish());
   }
 }, interval);

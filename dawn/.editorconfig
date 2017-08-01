@@ -1,4 +1,0 @@
-# EditorConfig: http://editorconfig.org/
-[*.{js,html,css}]
-indent_style = space
-indent_size = 2

@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import {
   Navbar,
   ButtonToolbar,
@@ -43,7 +44,7 @@ class DNavComponent extends React.Component {
       <Navbar fixedTop fluid>
         <UpdateBox
           isRunningCode={this.props.isRunningCode}
-          connectionStatus={this.props.connection}
+          connectionStatus={this.props.connectionStatus}
           runtimeStatus={this.props.runtimeStatus}
           shouldShow={this.state.showUpdateModal}
           ipAddress={this.props.ipAddress}
@@ -52,7 +53,6 @@ class DNavComponent extends React.Component {
         <IPBox
           shouldShow={this.state.showConfigModal}
           ipAddress={this.props.ipAddress}
-          onIPChange={this.props.onIPChange}
           hide={this.toggleConfigModal}
         />
         <Navbar.Header>
@@ -72,10 +72,8 @@ class DNavComponent extends React.Component {
           }
           <Navbar.Text id="battery-indicator">
             <StatusLabel
-              connectionStatus={this.props.connection}
+              connectionStatus={this.props.connectionStatus}
               runtimeStatus={this.props.runtimeStatus}
-              battery={this.props.battery}
-              batterySafety={this.props.batterySafety}
             />
           </Navbar.Text>
           <Navbar.Form
@@ -118,24 +116,23 @@ class DNavComponent extends React.Component {
 }
 
 DNavComponent.propTypes = {
-  connection: React.PropTypes.bool,
-  runtimeStatus: React.PropTypes.bool,
-  battery: React.PropTypes.number,
-  batterySafety: React.PropTypes.bool,
-  isRunningCode: React.PropTypes.bool,
-  ipAddress: React.PropTypes.string,
-  startTour: React.PropTypes.func,
-  onIPChange: React.PropTypes.func,
-  runtimeVersion: React.PropTypes.string,
-  robotState: React.PropTypes.number,
-  heart: React.PropTypes.bool,
-  fieldControlStatus: React.PropTypes.bool,
+  connectionStatus: PropTypes.bool,
+  runtimeStatus: PropTypes.bool,
+  isRunningCode: PropTypes.bool,
+  ipAddress: PropTypes.string,
+  startTour: PropTypes.func,
+  runtimeVersion: PropTypes.string,
+  robotState: PropTypes.number,
+  heart: PropTypes.bool,
+  fieldControlStatus: PropTypes.bool,
 };
 
 const mapStateToProps = state => ({
   robotState: state.info.robotState,
   heart: state.fieldStore.heart,
+  ipAddress: state.info.ipAddress,
   fieldControlStatus: state.fieldStore.fieldControl,
+  runtimeVersion: state.peripherals.runtimeVersion,
 });
 
 

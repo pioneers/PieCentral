@@ -3,18 +3,14 @@ import _ from 'lodash';
 import { PeripheralTypes } from '../../constants/Constants';
 
 /**
- * A component representing a boolean sensor,
- * for example a LimitSwitch.
+ * Boolean Sensor Component
  */
 class BooleanSensor extends React.Component {
-  /**
-   * Formats data for display based on peripheralType.
-   */
   static formatBoolean(peripheralType, sensorValue) {
     if (peripheralType === PeripheralTypes.LimitSwitch) {
       return (sensorValue) ? 'Closed' : 'Open';
     }
-    return sensorValue;
+    return sensorValue; // TODO: Verify if int_value or bool_value
   }
 
   render() {

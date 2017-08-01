@@ -1,7 +1,7 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 import { Grid, Row, Col } from 'react-bootstrap';
 import PeripheralListContainer from './PeripheralListContainer';
-import GamepadsContainer from './GamepadsContainer';
+import GamepadList from './Gamepads';
 import EditorContainer from './EditorContainer';
 
 const Dashboard = props => (
@@ -12,11 +12,10 @@ const Dashboard = props => (
           connectionStatus={props.connectionStatus}
           runtimeStatus={props.runtimeStatus}
         />
-        <GamepadsContainer />
+        <GamepadList />
       </Col>
       <Col smPull={4} sm={8}>
         <EditorContainer
-          consoleData={props.consoleData}
           runtimeStatus={props.runtimeStatus}
           isRunningCode={props.isRunningCode}
         />
@@ -26,10 +25,9 @@ const Dashboard = props => (
 );
 
 Dashboard.propTypes = {
-  connectionStatus: React.PropTypes.bool,
-  runtimeStatus: React.PropTypes.bool,
-  isRunningCode: React.PropTypes.bool,
-  consoleData: React.PropTypes.array,
+  connectionStatus: PropTypes.bool,
+  runtimeStatus: PropTypes.bool,
+  isRunningCode: PropTypes.bool,
 };
 
 export default Dashboard;

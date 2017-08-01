@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   Modal,
   Button,
@@ -186,13 +187,13 @@ class IPBoxComponent extends React.Component {
 }
 
 IPBoxComponent.propTypes = {
-  shouldShow: React.PropTypes.bool.isRequired,
-  hide: React.PropTypes.func.isRequired,
-  ipAddress: React.PropTypes.string.isRequired,
-  stationNumber: React.PropTypes.number,
-  onIPChange: React.PropTypes.func,
-  fcAddress: React.PropTypes.string,
-  onFCUpdate: React.PropTypes.func,
+  shouldShow: PropTypes.bool.isRequired,
+  hide: PropTypes.func.isRequired,
+  ipAddress: PropTypes.string.isRequired,
+  stationNumber: PropTypes.number,
+  onIPChange: PropTypes.func,
+  fcAddress: PropTypes.string,
+  onFCUpdate: PropTypes.func,
 };
 
 const mapDispatchToProps = dispatch => ({

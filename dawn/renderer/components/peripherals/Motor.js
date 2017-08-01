@@ -1,10 +1,11 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { ProgressBar } from 'react-bootstrap';
 import numeral from 'numeral';
 
+import { ProgressBar } from 'react-bootstrap';
+
 /**
- * A component representing a motor.
+ *  Motor Component
  */
 const Motor = props => (
   <div style={{ overflow: 'auto' }}>
@@ -14,7 +15,7 @@ const Motor = props => (
         <small>{'Motor'}</small>
       </h4>
       {
-        _.map(props.param, obj => (
+        _.map(props.param, obj => ( // TODO: Figure out if a ProgressBar is useful
           <div key={`${obj.param}-${props.device_name}-Overall`}>
             <h4 style={{ float: 'right', height: '10px' }} key={`${obj.param}-${props.device_name}`}>
               {`${obj.param}: ${numeral(obj.float_value).format('+0.00')}`}
@@ -29,9 +30,9 @@ const Motor = props => (
 );
 
 Motor.propTypes = {
-  device_name: React.PropTypes.string,
-  id: React.PropTypes.string,
-  param: React.PropTypes.array,
+  device_name: PropTypes.string,
+  id: PropTypes.string,
+  param: PropTypes.array,
 };
 
 export default Motor;

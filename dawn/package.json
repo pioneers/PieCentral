@@ -50,8 +50,9 @@
   },
   "dependencies": {
     "brace": "0.10.0",
-    "circular-json": "0.3.1",
-    "create-react-class": "15.6.0",
+    "bufferutil": "3.0.2",
+    "circular-json": "^0.3.1",
+    "create-react-class": "^15.6.0",
     "electron": "1.6.11",
     "electron-json-storage": "3.0.7",
     "immutable": "3.8.1",
@@ -77,6 +78,7 @@
     "smalltalk": "2.4.1",
     "ssh2": "0.5.5",
     "superagent": "3.5.2",
+    "utf-8-validate": "3.0.3",
     "ws": "3.1.0"
   }
 }

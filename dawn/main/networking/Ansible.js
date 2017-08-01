@@ -1,7 +1,7 @@
 import dgram from 'dgram';
 import net from 'net';
 import { ipcMain } from 'electron';
-import ProtoBuf from 'protobufjs';
+import protobuf from 'protobufjs';
 import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
@@ -20,13 +20,11 @@ import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { robotState, Logger, defaults } from '../../renderer/utils/utils';
 import LCMObject from './FieldControlLCM';
 
-const dawnBuilder = ProtoBuf.loadProtoFile(`${__dirname}/ansible.proto`);
-const DawnData = dawnBuilder.build('DawnData');
+const DawnData = (new protobuf.Root()).loadSync(`${__dirname}/ansible.proto`, { keepCase: true }).lookupType('DawnData');
 const StudentCodeStatus = DawnData.StudentCodeStatus;
-const runtimeBuilder = ProtoBuf.loadProtoFile(`${__dirname}/runtime.proto`);
-const RuntimeData = runtimeBuilder.build('RuntimeData');
-const notificationBuilder = ProtoBuf.loadProtoFile(`${__dirname}/notification.proto`);
-const Notification = notificationBuilder.build('Notification');
+
+const RuntimeData = (new protobuf.Root()).loadSync(`${__dirname}/runtime.proto`, { keepCase: true }).lookupType('RuntimeData');
+const Notification = (new protobuf.Root()).loadSync(`${__dirname}/notification.proto`, { keepCase: true }).lookupType('Notification');
 
 const LISTEN_PORT = 1235;
 const SEND_PORT = 1236;
@@ -51,14 +49,14 @@ function buildProto(data) {
   const gamepads = _.map(_.toArray(data.gamepads), (gamepad) => {
     const axes = _.toArray(gamepad.axes);
     const buttons = _.map(_.toArray(gamepad.buttons), Boolean);
-    return new DawnData.Gamepad({
+    return DawnData.Gamepad.create({
       index: gamepad.index,
       axes,
       buttons,
     });
   });
 
-  return new DawnData({
+  return DawnData.create({
     student_code_status: status,
     gamepads,
     team_color: (LCMObject.stationNumber < 2) ? DawnData.TeamColor.BLUE : DawnData.TeamColor.GOLD,
@@ -161,7 +159,7 @@ class SendSocket {
    * or when 100 ms has passed (with 50 ms cooldown)
    */
   sendGamepadMessages(event, data) {
-    const message = buildProto(data).encode().toBuffer();
+    const message = DawnData.encode(buildProto(data)).finish();
     this.logger.debug(`Dawn sent UDP to ${this.runtimeIP}`);
     this.socket.send(message, SEND_PORT, this.runtimeIP);
   }
@@ -210,10 +208,12 @@ class TCPSocket {
   }
 
   tryUpload() {
-    const message = new Notification({
-      header: Notification.Type.STUDENT_SENT,
-      console_output: '',
-    }).encode().toBuffer();
+    const message = Notification.encode(
+      Notification.create({
+        header: Notification.Type.STUDENT_SENT,
+        console_output: '',
+      }),
+    ).finish();
 
     this.socket.write(message, () => {
       this.logger.log('Runtime Notified');

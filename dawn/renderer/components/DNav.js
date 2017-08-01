@@ -6,7 +6,7 @@ import {
   ButtonToolbar,
   ButtonGroup,
   Label } from 'react-bootstrap';
-import IPBox from './IPBox';
+import ConfigBox from './ConfigBox';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';
 import TooltipButton from './TooltipButton';
@@ -50,7 +50,7 @@ class DNavComponent extends React.Component {
           ipAddress={this.props.ipAddress}
           hide={this.toggleUpdateModal}
         />
-        <IPBox
+        <ConfigBox
           shouldShow={this.state.showConfigModal}
           ipAddress={this.props.ipAddress}
           hide={this.toggleConfigModal}

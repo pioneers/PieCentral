@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   Modal,
   Button,
@@ -126,8 +127,8 @@ class Gamepad extends React.Component {
 }
 
 Gamepad.propTypes = {
-  gamepad: React.PropTypes.object,
-  index: React.PropTypes.number,
+  gamepad: PropTypes.object,
+  index: PropTypes.number,
 };
 
 export default Gamepad;

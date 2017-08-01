@@ -3,7 +3,7 @@ import { Panel, ListGroup } from 'react-bootstrap';
 import { connect } from 'react-redux';
 
 import _ from 'lodash';
-import Gamepad from './GamepadItem';
+import Gamepad from './Gamepad';
 
 const GamepadListComponent = (props) => {
   let interior;

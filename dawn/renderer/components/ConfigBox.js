@@ -18,7 +18,7 @@ import { ipChange } from '../actions/InfoActions';
 
 const storage = remote.require('electron-json-storage');
 
-class IPBoxComponent extends React.Component {
+class ConfigBoxComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -119,7 +119,7 @@ class IPBoxComponent extends React.Component {
       <Modal show={this.props.shouldShow} onHide={this.handleClose}>
         <Form action="" onSubmit={this.saveChanges}>
           <Modal.Header closeButton>
-            <Modal.Title>Robot IP Address</Modal.Title>
+            <Modal.Title>Dawn Configuration</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <p>
@@ -186,7 +186,7 @@ class IPBoxComponent extends React.Component {
   }
 }
 
-IPBoxComponent.propTypes = {
+ConfigBoxComponent.propTypes = {
   shouldShow: PropTypes.bool.isRequired,
   hide: PropTypes.func.isRequired,
   ipAddress: PropTypes.string.isRequired,
@@ -210,6 +210,6 @@ const mapStateToProps = state => ({
   fcAddress: state.fieldStore.bridgeAddress,
 });
 
-const IPBox = connect(mapStateToProps, mapDispatchToProps)(IPBoxComponent);
+const ConfigBox = connect(mapStateToProps, mapDispatchToProps)(ConfigBoxComponent);
 
-export default IPBox;
+export default ConfigBox;

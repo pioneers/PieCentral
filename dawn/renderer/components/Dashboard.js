@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { Grid, Row, Col } from 'react-bootstrap';
 import PeripheralListContainer from './PeripheralListContainer';
-import GamepadList from './Gamepads';
+import GamepadList from './GamepadList';
 import EditorContainer from './EditorContainer';
 
 const Dashboard = props => (

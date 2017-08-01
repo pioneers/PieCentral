@@ -1,3 +1,4 @@
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Label } from 'react-bootstrap';
 import { connect } from 'react-redux';

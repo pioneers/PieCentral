@@ -23,7 +23,8 @@ IDENTIFY_TIMEOUT = 1
 # Time in seconds to wait between checking for new devices
 # and cleaning up old ones.
 HOTPLUG_POLL_INTERVAL = 1
-
+# Unique ID that does not persist across device reconnects.
+DEVICE_INSTANCE_ID = 0
 
 def get_working_serial_ports(excludes=()):
     """
@@ -121,14 +122,16 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
         The new device.
     """
     pack = namedtuple("Threadpack", ["read_thread", "write_thread",
-                                     "write_queue", "serial_port"])
+                                     "write_queue", "serial_port", "instance_id"])
     pack.write_queue = queue.Queue()
     pack.serial_port = serial_port
     pack.write_thread = threading.Thread(target=device_write_thread,
                                          args=(serial_port, pack.write_queue))
     pack.read_thread = threading.Thread(target=device_read_thread,
-                                        args=(uid, serial_port, pack.write_queue, error_queue,
+                                        args=(pack, error_queue,
                                               state_queue, batched_data))
+    DEVICE_INSTANCE_ID += 1
+    pack.instance_id = DEVICE_INSTANCE_ID
     pack.write_thread.start()
     pack.read_thread.start()
     return pack
@@ -194,8 +197,8 @@ def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queu
                 error.accessed = True
                 next_time_errors.append(error)
                 continue
-            elif error.serial_port.name != pack.serial_port.name:
-                # We found it again
+            elif error.instance_id != pack.instance_id:
+                # The device has reconnected
                 continue
             uid = error.uid
             pack = devices[uid]
@@ -294,10 +297,12 @@ def device_write_thread(ser, instr_queue):
         pass
 
 
-def device_read_thread(uid, ser, instruction_queue, error_queue, state_queue, batched_data):
+def device_read_thread(pack, error_queue, state_queue, batched_data):
     """
     Read packets from SER and update queues and BATCHED_DATA accordingly.
     """
+    ser = pack.serial_port
+    instruction_queue = pack.write_queue
     try:
         while True:
             for packet in hm.blocking_read_generator(ser):
@@ -311,9 +316,9 @@ def device_read_thread(uid, ser, instruction_queue, error_queue, state_queue, ba
                 elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
                     instruction_queue.put(("heartResp", [uid]))
     except serial.SerialException:
-        error = namedtuple("Disconnect", ["uid", "serial", "accessed"])
-        error.uid = uid
-        error.serial_port = ser
+        error = namedtuple("Disconnect", ["uid", "accessed", "instance_id"])
+        error.uid = pack.uid
+        error.instance_id = pack.instance_id
         error.accessed = False
         error_queue.put(error)
 

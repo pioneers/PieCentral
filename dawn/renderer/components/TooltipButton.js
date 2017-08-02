@@ -19,7 +19,6 @@ const TooltipButton = (props) => {
         bsSize="small"
         onClick={props.onClick}
         disabled={props.disabled}
-        active={props.active}
         id={props.id}
       >
         <Glyphicon glyph={props.glyph} />
@@ -34,9 +33,8 @@ TooltipButton.propTypes = {
   onClick: PropTypes.func.isRequired,
   glyph: PropTypes.string.isRequired,
   disabled: PropTypes.bool.isRequired,
-  bsStyle: PropTypes.string.isRequired,
-  active: PropTypes.bool.isRequired,
-  placement: PropTypes.string.isRequired,
+  bsStyle: PropTypes.string,
+  placement: PropTypes.string,
 };
 
 export default TooltipButton;

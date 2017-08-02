@@ -88,6 +88,7 @@ class DNavComponent extends React.Component {
                   onClick={this.props.startTour}
                   id="tour-button"
                   glyph="info-sign"
+                  disabled={false}
                 />
                 <TooltipButton
                   placement="bottom"
@@ -96,6 +97,7 @@ class DNavComponent extends React.Component {
                   onClick={this.toggleConfigModal}
                   id="update-address-button"
                   glyph="transfer"
+                  disabled={false}
                 />
                 <TooltipButton
                   placement="bottom"

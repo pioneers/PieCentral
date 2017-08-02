@@ -172,7 +172,7 @@ class Editor extends React.Component {
 
   upload() {
     const filepath = this.props.filepath;
-    if (filepath === null) {
+    if (filepath === '') {
       this.props.onAlertAdd(
         'Not Working on a File',
         'Please save first',
@@ -345,30 +345,35 @@ class Editor extends React.Component {
               text="New"
               onClick={this.props.onCreateNewFile}
               glyph="file"
+              disabled={false}
             />
             <TooltipButton
               id="open"
               text="Open"
               onClick={this.props.onOpenFile}
               glyph="folder-open"
+              disabled={false}
             />
             <TooltipButton
               id="save"
               text="Save"
               onClick={this.props.onSaveFile}
               glyph="floppy-disk"
+              disabled={false}
             />
             <TooltipButton
               id="save-as"
               text="Save As"
               onClick={_.partial(this.props.onSaveFile, true)}
               glyph="floppy-save"
+              disabled={false}
             />
             <TooltipButton
               id="upload"
               text="Upload"
               onClick={this.upload}
               glyph="upload"
+              disabled={false}
             />
             <TooltipButton
               id="download"
@@ -429,6 +434,7 @@ class Editor extends React.Component {
               text="E-STOP"
               onClick={this.estop}
               glyph="fire"
+              disabled={false}
             />
           </ButtonGroup>
           <ButtonGroup id="console-buttons">
@@ -437,12 +443,14 @@ class Editor extends React.Component {
               text="Toggle Console"
               onClick={this.toggleConsole}
               glyph="console"
+              disabled={false}
             />
             <TooltipButton
               id="clear-console"
               text="Clear Console"
               onClick={this.props.onClearConsole}
               glyph="remove"
+              disabled={false}
             />
             <TooltipButton
               id="raise-console"
@@ -463,6 +471,7 @@ class Editor extends React.Component {
               text="Copy Console"
               onClick={this.copyConsole}
               glyph="copy"
+              disabled={false}
             />
           </ButtonGroup>
           <ButtonGroup id="editor-settings-buttons">

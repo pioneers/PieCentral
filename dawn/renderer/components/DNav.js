@@ -116,15 +116,15 @@ class DNavComponent extends React.Component {
 }
 
 DNavComponent.propTypes = {
-  connectionStatus: PropTypes.bool,
-  runtimeStatus: PropTypes.bool,
-  isRunningCode: PropTypes.bool,
-  ipAddress: PropTypes.string,
-  startTour: PropTypes.func,
-  runtimeVersion: PropTypes.string,
-  robotState: PropTypes.number,
-  heart: PropTypes.bool,
-  fieldControlStatus: PropTypes.bool,
+  connectionStatus: PropTypes.bool.isRequired,
+  runtimeStatus: PropTypes.bool.isRequired,
+  isRunningCode: PropTypes.bool.isRequired,
+  ipAddress: PropTypes.string.isRequired,
+  startTour: PropTypes.func.isRequired,
+  runtimeVersion: PropTypes.string.isRequired,
+  robotState: PropTypes.number.isRequired,
+  heart: PropTypes.bool.isRequired,
+  fieldControlStatus: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = state => ({

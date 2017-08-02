@@ -36,7 +36,7 @@ const GamepadListComponent = (props) => {
 };
 
 GamepadListComponent.propTypes = {
-  gamepads: PropTypes.object,
+  gamepads: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({

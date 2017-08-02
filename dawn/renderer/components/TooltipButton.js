@@ -33,10 +33,10 @@ TooltipButton.propTypes = {
   text: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
   glyph: PropTypes.string.isRequired,
-  disabled: PropTypes.bool,
-  bsStyle: PropTypes.string,
-  active: PropTypes.bool,
-  placement: PropTypes.string,
+  disabled: PropTypes.bool.isRequired,
+  bsStyle: PropTypes.string.isRequired,
+  active: PropTypes.bool.isRequired,
+  placement: PropTypes.string.isRequired,
 };
 
 export default TooltipButton;

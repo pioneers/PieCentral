@@ -6,8 +6,8 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import { ListGroupItem } from 'react-bootstrap';
-
 import { PeripheralTypes } from '../constants/Constants';
 import BooleanSensor from './peripherals/BooleanSensor';
 import GenericPeripheral from './peripherals/GenericPeripheral';
@@ -30,7 +30,7 @@ const Peripheral = (props) => {
 };
 
 Peripheral.propTypes = {
-  device_type: React.PropTypes.string,
+  device_type: PropTypes.string.isRequired,
 };
 
 export default Peripheral;

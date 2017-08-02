@@ -83,9 +83,9 @@ const PeripheralListComponent = (props) => {
 };
 
 PeripheralListComponent.propTypes = {
-  connectionStatus: PropTypes.bool,
-  runtimeStatus: PropTypes.bool,
-  peripherals: PropTypes.object,
+  connectionStatus: PropTypes.bool.isRequired,
+  runtimeStatus: PropTypes.bool.isRequired,
+  peripherals: PropTypes.object.isRequired,
 };
 
 const mapStateToProps = state => ({

@@ -190,10 +190,10 @@ ConfigBoxComponent.propTypes = {
   shouldShow: PropTypes.bool.isRequired,
   hide: PropTypes.func.isRequired,
   ipAddress: PropTypes.string.isRequired,
-  stationNumber: PropTypes.number,
-  onIPChange: PropTypes.func,
-  fcAddress: PropTypes.string,
-  onFCUpdate: PropTypes.func,
+  stationNumber: PropTypes.number.isRequired,
+  onIPChange: PropTypes.func.isRequired,
+  fcAddress: PropTypes.string.isRequired,
+  onFCUpdate: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({

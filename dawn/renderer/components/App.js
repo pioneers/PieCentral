@@ -148,12 +148,12 @@ class AppComponent extends React.Component {
 }
 
 AppComponent.propTypes = {
-  connectionStatus: PropTypes.bool,
-  runtimeStatus: PropTypes.bool,
-  isRunningCode: PropTypes.bool,
-  asyncAlerts: PropTypes.array,
-  onAlertDone: PropTypes.func,
-  onFCUpdate: PropTypes.func,
+  connectionStatus: PropTypes.bool.isRequired,
+  runtimeStatus: PropTypes.bool.isRequired,
+  isRunningCode: PropTypes.bool.isRequired,
+  asyncAlerts: PropTypes.array.isRequired,
+  onAlertDone: PropTypes.func.isRequired,
+  onFCUpdate: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({

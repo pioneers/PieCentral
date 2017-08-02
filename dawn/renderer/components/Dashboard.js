@@ -26,9 +26,9 @@ const Dashboard = props => (
 );
 
 Dashboard.propTypes = {
-  connectionStatus: PropTypes.bool,
-  runtimeStatus: PropTypes.bool,
-  isRunningCode: PropTypes.bool,
+  connectionStatus: PropTypes.bool.isRequired,
+  runtimeStatus: PropTypes.bool.isRequired,
+  isRunningCode: PropTypes.bool.isRequired,
 };
 
 export default Dashboard;

@@ -70,11 +70,11 @@ class ConsoleOutput extends React.Component {
 }
 
 ConsoleOutput.propTypes = {
-  height: PropTypes.number,
-  output: PropTypes.array,
-  toggleConsole: PropTypes.func,
-  show: PropTypes.bool,
-  disableScroll: PropTypes.bool,
+  height: PropTypes.number.isRequired,
+  output: PropTypes.array.isRequired,
+  toggleConsole: PropTypes.func.isRequired,
+  show: PropTypes.bool.isRequired,
+  disableScroll: PropTypes.bool.isRequired,
 };
 
 export default ConsoleOutput;

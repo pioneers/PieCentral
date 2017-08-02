@@ -51,8 +51,8 @@
   "dependencies": {
     "brace": "0.10.0",
     "bufferutil": "3.0.2",
-    "circular-json": "^0.3.1",
-    "create-react-class": "^15.6.0",
+    "circular-json": "0.3.3",
+    "create-react-class": "15.6.0",
     "electron": "1.6.11",
     "electron-json-storage": "3.0.7",
     "immutable": "3.8.1",

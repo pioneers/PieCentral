@@ -128,7 +128,7 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
     pack.write_thread = threading.Thread(target=device_write_thread,
                                          args=(serial_port, pack.write_queue))
     pack.read_thread = threading.Thread(target=device_read_thread,
-                                        args=(uid, serial_port, pack.write_queue, error_queue,
+                                        args=(uid, pack, error_queue,
                                               state_queue, batched_data))
     pack.instance_id = random.getrandbits(128)
     pack.write_thread.start()

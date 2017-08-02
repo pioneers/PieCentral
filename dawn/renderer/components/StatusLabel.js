@@ -37,8 +37,6 @@ const mapStateToProps = state => ({
   batterySafety: state.peripherals.batterySafety,
 });
 
-
 const StatusLabel = connect(mapStateToProps)(StatusLabelComponent);
 
 export default StatusLabel;
-

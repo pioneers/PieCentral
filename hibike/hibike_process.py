@@ -130,6 +130,8 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
     pack.read_thread = threading.Thread(target=device_read_thread,
                                         args=(uid, pack, error_queue,
                                               state_queue, batched_data))
+    # This is an ID that does not persist across disconnects,
+    # so that we can tell when a device has been reconnected.
     pack.instance_id = random.getrandbits(128)
     pack.write_thread.start()
     pack.read_thread.start()

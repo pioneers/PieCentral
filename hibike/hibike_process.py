@@ -6,6 +6,7 @@ import glob
 import multiprocessing
 import os
 import queue
+import random
 import threading
 import time
 
@@ -20,22 +21,28 @@ __all__ = ["hibike_process"]
 BATCH_SLEEP_TIME = .04
 # Time in seconds to wait until reading from a potential sensor
 IDENTIFY_TIMEOUT = 1
+# Time in seconds to wait between checking for new devices
+# and cleaning up old ones.
+HOTPLUG_POLL_INTERVAL = 1
 
 
-def get_working_serial_ports():
+def get_working_serial_ports(excludes=()):
     """
-    Scan for open COM ports.
+    Scan for open COM ports, except those in EXCLUDES.
 
     Returns:
         A list of serial port objects (`serial.Serial`) and port names.
     """
+    excludes = set(excludes)
     # Last command is included so that it's compatible with OS X Sierra
     # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
     # Instead access it through Volumes/vagrant/PieCentral
-    ports = glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*") + glob.glob("/dev/tty.usbmodem*")
+    ports = set(glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*")
+                + glob.glob("/dev/tty.usbmodem*"))
+    ports.difference_update(excludes)
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
-        ports.extend(open(virtual_device_config_file, "r").read().split())
+        ports.update(open(virtual_device_config_file, "r").read().split())
     except IOError:
         pass
 
@@ -45,9 +52,6 @@ def get_working_serial_ports():
         try:
             serials.append(serial.Serial(port, 115200))
             port_names.append(port)
-        # this implementation ensures that as long as the cannot open serial port error occurs
-        # while opening the serial port, a print will appear, but
-        # the rest of the ports will go on.
         except serial.serialutil.SerialException:
             print("Cannot Open Serial Port: " + str(port))
     return serials, port_names
@@ -61,21 +65,23 @@ def identify_smart_sensors(serial_conns):
     Returns:
         A map of serial port names to UIDs.
     """
-    def recv_subscription_requests(conn, uid_queue, stop_event):
+    def recv_subscription_response(conn, uid_queue, stop_event):
         """
-        Place received subscription request UIDs from CONN into UID_QUEUE,
+        Place received subscription response UIDs from CONN into UID_QUEUE,
         stopping when STOP_EVENT is set.
         """
-        for packet in hm.blocking_read_generator(conn, stop_event):
-            msg_type = packet.get_message_id()
-            if msg_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
-                _, _, uid = hm.parse_subscription_response(packet)
-                uid_queue.put(uid)
-    device_map = {}
-    thread_list = []
-    event_list = []
-    read_queues = []
+        try:
+            for packet in hm.blocking_read_generator(conn, stop_event):
+                msg_type = packet.get_message_id()
+                if msg_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
+                    _, _, uid = hm.parse_subscription_response(packet)
+                    uid_queue.put(uid)
+        except serial.SerialException:
+            pass
 
+
+    device_map = {}
+    candidates = []
     for conn in serial_conns:
         old_timeout = conn.write_timeout
         conn.write_timeout = IDENTIFY_TIMEOUT
@@ -85,24 +91,126 @@ def identify_smart_sensors(serial_conns):
             continue
         finally:
             conn.write_timeout = old_timeout
-        curr_queue = queue.Queue()
-        curr_event = threading.Event()
-        thread_list.append(threading.Thread(target=recv_subscription_requests,
-                                            args=(conn, curr_queue, curr_event)))
-        read_queues.append(curr_queue)
-        event_list.append(curr_event)
-    for thread in thread_list:
-        thread.start()
-    for (index, reader) in enumerate(read_queues):
+        maybe_device = namedtuple("MaybeDevice", ["serial_conn", "queue", "event", "thread"])
+        maybe_device.queue = queue.Queue()
+        maybe_device.event = threading.Event()
+        maybe_device.serial_conn = conn
+        maybe_device.thread = threading.Thread(target=recv_subscription_response,
+                                               args=(conn, maybe_device.queue, maybe_device.event))
+        candidates.append(maybe_device)
+    for cand in candidates:
+        cand.thread.start()
+    for cand in candidates:
         try:
-            uid = reader.get(block=True, timeout=IDENTIFY_TIMEOUT)
-            device_map[serial_conns[index].name] = uid
+            uid = cand.queue.get(block=True, timeout=IDENTIFY_TIMEOUT)
+            device_map[cand.serial_conn.name] = uid
+            # Shut device up
+            hm.send(cand.serial_conn, hm.make_subscription_request(uid, [], 0))
         except queue.Empty:
             pass
-    for (event, thread) in zip(event_list, thread_list):
-        event.set()
-        thread.join()
+    for cand in candidates:
+        cand.event.set()
+        cand.thread.join()
     return device_map
+
+
+def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
+    """
+    Spin up a device with a given UID on SERIAL_PORT.
+
+    Returns:
+        The new device.
+    """
+    pack = namedtuple("Threadpack", ["read_thread", "write_thread",
+                                     "write_queue", "serial_port", "instance_id"])
+    pack.write_queue = queue.Queue()
+    pack.serial_port = serial_port
+    pack.write_thread = threading.Thread(target=device_write_thread,
+                                         args=(serial_port, pack.write_queue))
+    pack.read_thread = threading.Thread(target=device_read_thread,
+                                        args=(uid, pack, error_queue,
+                                              state_queue, batched_data))
+    # This is an ID that does not persist across disconnects,
+    # so that we can tell when a device has been reconnected.
+    pack.instance_id = random.getrandbits(128)
+    pack.write_thread.start()
+    pack.read_thread.start()
+    return pack
+
+
+def hotplug(devices, state_queue, batched_data, error_queue):
+    """
+    Remove disconnected devices and scan for new ones.
+    """
+    clean_up_queue = queue.Queue()
+    clean_up_thread = threading.Thread(target=clean_up_devices, args=(clean_up_queue, ))
+    clean_up_thread.start()
+    while True:
+        time.sleep(HOTPLUG_POLL_INTERVAL)
+        scan_for_new_devices(devices, state_queue, batched_data, error_queue)
+        remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue)
+
+
+def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue):
+    """
+    Find devices that are on serial ports not in EXISTING_DEVICES, and add
+    any that have been found to it.
+    """
+    ports, names = get_working_serial_ports(map(lambda d: d.serial_port.name,
+                                                existing_devices.values()))
+    sensors = identify_smart_sensors(ports)
+    for (ser, uid) in sensors.items():
+        idx = names.index(ser)
+        port = ports[idx]
+        pack = spin_up_device(port, uid, state_queue, batched_data, error_queue)
+        existing_devices[uid] = pack
+        # Tell the device to start sending data
+        pack.write_queue.put(("ping", []))
+        pack.write_queue.put(("subscribe", [1, 0, []]))
+
+
+def clean_up_devices(device_queue):
+    """
+    Clean up associated resources of devices in the queue.
+
+    Closing a serial port can take a very long time (30 seconds or more).
+    It's best to spin this function off into its own thread,
+    so that you're not blocked on reclaiming resources.
+    """
+    while True:
+        device = device_queue.get()
+        device.serial_port.close()
+        device.read_thread.join()
+        device.write_thread.join()
+
+
+def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue):
+    """
+    Clean up any disconnected devices in ERROR_QUEUE.
+    """
+    next_time_errors = []
+    while True:
+        try:
+            error = error_queue.get(block=False)
+            pack = devices[error.uid]
+            if not error.accessed:
+                # Wait until the next cycle to make sure it's disconnected
+                error.accessed = True
+                next_time_errors.append(error)
+                continue
+            elif error.instance_id != pack.instance_id:
+                # The device has reconnected in the meantime
+                continue
+            uid = error.uid
+            pack = devices[uid]
+            del devices[uid]
+            clean_up_queue.put(pack)
+            state_queue.put(("device_disconnected", [uid]))
+        except queue.Empty:
+            for err in next_time_errors:
+                error_queue.put(err)
+            return
+
 
 # pylint: disable=too-many-branches, too-many-locals
 # pylint: disable=too-many-arguments, unused-argument
@@ -120,24 +228,14 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     for (ser, uid) in smart_sensors.items():
         index = serial_names.index(ser)
         serial_port = serials[index]
-        pack = namedtuple("Threadpack", ["read_thread", "write_thread",
-                                         "write_queue", "serial_port"])
-        pack.write_queue = queue.Queue()
-        pack.serial_port = serial_port
-        pack.write_thread = threading.Thread(target=device_write_thread,
-                                             args=(serial_port, pack.write_queue))
-        pack.read_thread = threading.Thread(target=device_read_thread,
-                                            args=(uid, serial_port, pack.write_queue, error_queue,
-                                                  state_queue, batched_data))
-        pack.write_thread.start()
-        pack.read_thread.start()
+        pack = spin_up_device(serial_port, uid, state_queue, batched_data, error_queue)
         devices[uid] = pack
 
     batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
     batch_thread.start()
-    cleanup_thread = threading.Thread(target=remove_disconnected_devices,
-                                      args=(error_queue, devices))
-    cleanup_thread.start()
+    hotplug_thread = threading.Thread(target=hotplug,
+                                      args=(devices, state_queue, batched_data, error_queue))
+    hotplug_thread.start()
 
     # Pings all devices and tells them to stop sending data
     for pack in devices.values():
@@ -148,37 +246,27 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     # forwards them to the appropriate device write threads
     while True:
         instruction, args = pipe_from_child.recv()
-        if instruction == "enumerate_all":
-            for pack in devices.values():
-                pack.write_queue.put(("ping", []))
-        elif instruction == "subscribe_device":
-            uid = args[0]
-            if uid in devices:
-                devices[uid].write_queue.put(("subscribe", args))
-        elif instruction == "write_params":
-            uid = args[0]
-            if uid in devices:
-                devices[uid].write_queue.put(("write", args))
-        elif instruction == "read_params":
-            uid = args[0]
-            if uid in devices:
-                devices[uid].write_queue.put(("read", args))
-        elif instruction == "disable_all":
-            for pack in devices.values():
-                pack.write_queue.put(("disable", []))
-
-
-def remove_disconnected_devices(error_queue, devices):
-    """
-    Clean up any disconnected devices in ERROR_QUEUE.
-    """
-    while True:
-        uid = error_queue.get()
-        pack = devices[uid]
-        del devices[uid]
-        pack.serial_port.close()
-        pack.read_thread.join()
-        pack.write_thread.join()
+        try:
+            if instruction == "enumerate_all":
+                for pack in devices.values():
+                    pack.write_queue.put(("ping", []))
+            elif instruction == "subscribe_device":
+                uid = args[0]
+                if uid in devices:
+                    devices[uid].write_queue.put(("subscribe", args))
+            elif instruction == "write_params":
+                uid = args[0]
+                if uid in devices:
+                    devices[uid].write_queue.put(("write", args))
+            elif instruction == "read_params":
+                uid = args[0]
+                if uid in devices:
+                    devices[uid].write_queue.put(("read", args))
+            elif instruction == "disable_all":
+                for pack in devices.values():
+                    pack.write_queue.put(("disable", []))
+        except KeyError:
+            print("Tried to access a nonexistent device")
 
 
 def device_write_thread(ser, instr_queue):
@@ -210,10 +298,12 @@ def device_write_thread(ser, instr_queue):
         pass
 
 
-def device_read_thread(uid, ser, instruction_queue, error_queue, state_queue, batched_data):
+def device_read_thread(uid, pack, error_queue, state_queue, batched_data):
     """
     Read packets from SER and update queues and BATCHED_DATA accordingly.
     """
+    ser = pack.serial_port
+    instruction_queue = pack.write_queue
     try:
         while True:
             for packet in hm.blocking_read_generator(ser):
@@ -227,8 +317,11 @@ def device_read_thread(uid, ser, instruction_queue, error_queue, state_queue, ba
                 elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
                     instruction_queue.put(("heartResp", [uid]))
     except serial.SerialException:
-        error_queue.put(uid)
-        state_queue.put(("device_disconnected", [uid]))
+        error = namedtuple("Disconnect", ["uid", "instance_id", "accessed"])
+        error.uid = uid
+        error.instance_id = pack.instance_id
+        error.accessed = False
+        error_queue.put(error)
 
 def batch_data(data, state_queue):
     """

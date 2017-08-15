@@ -427,3 +427,15 @@ Error handling
   1. Still kind of up in the air, but in general, only the BBB will
      have error handling behavior
   3. If a SD recieves an invalid packet, it will send an error packet.
+
+### Flashing
+
+Get a copy of arduino 1.8.1. This can be found in `PiE Team Root > Engineering > Hibike > Y10 > arduino-1.8.1-linux64.tar.xz`
+
+Extract this on a GNU/Linux system using `tar -xvf arduino-1.8.1-linux64.tar.xz`. Move the entire folder to `/opt/`. You will probably have to `sudo` this.
+
+Then, run the setup script in hibike. `sudo ./setup.sh` in `piecentral/hibike` should do the trick. It will download a lot of stuff. You have effectively given up all your software freedoms at this point. Go cry a bit. Come back after asking Linus for forgiveness. 
+
+You're almost done, keep it up. Edit `/usr/bin/ard-reset-arduino`. You should sudo this. Don't worry, this is the last time you'll be violating your system. cahinge `ser.setBaudrate(1200)` to `se.baudrate = 1200`. Now your pour machine is ready to flash Arduinos (tm)
+
+Flash by going to `piecentral/hibike`. The command to run is `./flash.sh SENSOR_NAME`. Figure out what the sensor names are I don't freaking know. Good luck.     

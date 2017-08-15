@@ -1,5 +1,5 @@
 # hibike 2.0!
-Hibike is a lightweight communications protocol designed for the passing of sensor data for the 
+Hibike is a lightweight communications protocol designed for the passing of sensor data for the
 PiE Robotics Kit, a.k.a Frank or "Kit Minimum" to some.
 
 #### This branch contains documentation and implementation for the 2016-2017 version of the hibike protocol, which should feature iterative improvements over last year's protocol
@@ -81,19 +81,19 @@ depicted below. A more complete description of each field is given below the dia
     |  (8 bits)  |      (8 bits)    |   (length varies)   |  (8 bits)  |
     +------------+------------------+---------------------+------------+
 
-- Message ID 
-  - an 8-bit ID specifying the type of message being sent or received. 
+- Message ID
+  - an 8-bit ID specifying the type of message being sent or received.
   - More information about each message type is specified in the following sections.
 
-- Payload Length 
+- Payload Length
   - an 8-bit unsigned integer specifying the number of bytes in the payload
 
 - Payload
-  - Varies wildly depending on the type of message being sent. 
+  - Varies wildly depending on the type of message being sent.
   - This will, of course, be described in more detail in Section 4.
 
 - Checksum
-  - An 8-bit checksum placed at the very end of every message. 
+  - An 8-bit checksum placed at the very end of every message.
   - Really, any checksum scheme appending 8-bits to the end of the message will do, but an exceedingly simple one recommended exactly for its simplicity is making the checksum the XOR of every other byte in the message.
 
 ## Section 2: UID Format
@@ -109,7 +109,7 @@ Each Smart Device will be assigned an 88-bit UID with the following data.
     - Device types are enumerated in Section 5
 
 - Year
-  - 8-bit ID corresponding to the competition year that the Smart Device was manufactured for. 
+  - 8-bit ID corresponding to the competition year that the Smart Device was manufactured for.
   - The 2015-2016 season will correspond to 0x00
 
 - ID
@@ -239,11 +239,11 @@ Device Type Enumeration:
 |         |                | 15           | noboru     | float      | yes   | no     |
 
 
-     
+
 Note: These assignments are totally random as of now. We need to figure
       out exactly what devices we are supporting.
-Note: As of now, Grizzlies are not supported by Hibike (pyGrizzly should 
-      be used instead) But they should be in the near future, to preserve 
+Note: As of now, Grizzlies are not supported by Hibike (pyGrizzly should
+      be used instead) But they should be in the near future, to preserve
       the idea of treating every peripheral as a SmartDevice.
 
 Error ID Enumeration:
@@ -263,7 +263,7 @@ Note: These assignments are also fairly random and may not all even be
 
 1. Ping: BBB pings SD for enumeration purposes.
          The SD will respond with a Sub Response packet.
-     
+
     Payload format:
 
         +---------------+
@@ -274,9 +274,9 @@ Note: These assignments are also fairly random and may not all even be
     Direction:
     BBB --> SD
 
-2. Sub Request: BBB requests data to be returned at a given interval. 
-    - Params is a bitmap of paramaters being subscribed to. 
-    - The SD will respond with a Sub Response packet 
+2. Sub Request: BBB requests data to be returned at a given interval.
+    - Params is a bitmap of paramaters being subscribed to.
+    - The SD will respond with a Sub Response packet
       with a delay and bitmap of params it will acutally send values for,
       which may not be what was requested, due to nonexistent and write-only parameters.
     - If too many parameters are subscribed to, the Smart Device may have to send multiple DeviceData packets at each interval.
@@ -294,7 +294,7 @@ Note: These assignments are also fairly random and may not all even be
     BBB --> SD
 
 3. Sub Response: SD sends (essentially) an ACK packet with its UID, Params subscribed to, and delay
-    
+
   Payload format:
 
         +---------------+--------------------+--------------------------+
@@ -305,10 +305,10 @@ Note: These assignments are also fairly random and may not all even be
     Direction:
     BBB <-- SD
 
-4. Device Read: BBB requests some values from the SD. 
-    - The SD should respond with DeviceData packets with values for all the readable params that were requested. 
+4. Device Read: BBB requests some values from the SD.
+    - The SD should respond with DeviceData packets with values for all the readable params that were requested.
     - If all the values cannot fit in one packet, multiple will be sent.
-    
+
   Payload format:
 
         +---------------+
@@ -320,9 +320,9 @@ Note: These assignments are also fairly random and may not all even be
     BBB --> SD
 
 5. Device Write: BBB writes attempts to write values to some parameters.
-    - The SD should respond with a DeviceData packet describing the readable params that were actually written to. 
+    - The SD should respond with a DeviceData packet describing the readable params that were actually written to.
     - The protocol currently does not support any ACK for write only params.
-    
+
   Payload format:
 
         +-------------------+-----------------------------+     +-----------------------------+
@@ -333,9 +333,9 @@ Note: These assignments are also fairly random and may not all even be
     Direction:
     BBB --> SD
 
-6. Device Data: SD sends the values of some of its paramters. 
+6. Device Data: SD sends the values of some of its paramters.
     - This can occur in response to a DeviceWrite/DeviceRead, or when the interval for a SubscriptionResponse occurs.
-    
+
   Payload format:
 
 
@@ -379,7 +379,7 @@ Note: These assignments are also fairly random and may not all even be
 
 9. Error Packet: Sent to indicate an error occured.
     - Currently only used for the BBB to log statistics.
-    
+
   Payload format:
 
         +----------------+
@@ -404,12 +404,12 @@ Setup
 
 Sensor Communication (Reading values)
 
-  1. After setup the BBB sends the approrpiate SubscriptionRequest 
+  1. After setup the BBB sends the approrpiate SubscriptionRequest
      Packet is sent to each device.
   2. The SD will then return values at regular intervals specified by
      the Subscription Request (delay field)
   3. Hibike also allows for the BBB to poll parameters using a DeviceRead Packet.
-  4. The SD will respond by returning a DeviceData Packet with 
+  4. The SD will respond by returning a DeviceData Packet with
      the values of the params specified.
    - Multiple DeviceData Packets may be sent due to packet size
 
@@ -427,3 +427,27 @@ Error handling
   1. Still kind of up in the air, but in general, only the BBB will
      have error handling behavior
   3. If a SD recieves an invalid packet, it will send an error packet.
+
+### Flashing
+
+Get a copy of arduino 1.8.1. This can be found in `PiE Team Root > Engineering > Hibike > Y10 > arduino-1.8.1-linux64.tar.xz`. Alternately, visit the Arduino [webpage](https://www.arduino.cc/en/Main/OldSoftwareReleases) and grab a copy.
+
+Extract this on a GNU/Linux system using `tar -xvf arduino-1.8.1-linux64.tar.xz`. Move the entire folder to `/opt/`. You will probably have to `sudo` this.
+
+Then, run the setup script in hibike. `sudo ./setup.sh` in `piecentral/hibike` should do the trick. It will download a lot of stuff. You have effectively given up all your software freedoms at this point. Go cry a bit. Come back after asking Linus for forgiveness.
+
+You're almost done, keep it up. Edit `/usr/bin/ard-reset-arduino`. You should sudo this. Don't worry, this is the last time you'll be violating your system. Change `ser.setBaudrate(1200)` to `se.baudrate = 1200`. Now your poor machine is ready to flash Arduinos (tm)
+
+Flash by going to `piecentral/hibike`.
+
+The command to run is `./flash.sh SENSOR_NAME`, where `SENSOR_NAME` is one of
+
+- `BatteryBuzzer`
+- `ExampleDevice`
+- `LimitSwitch`
+- `LineFollower`
+- `Potentiometer`
+- `RFID`
+- `ServoControl`
+- `TeamFlag`
+- `YogiBear`

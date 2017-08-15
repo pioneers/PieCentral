@@ -438,4 +438,4 @@ Then, run the setup script in hibike. `sudo ./setup.sh` in `piecentral/hibike` s
 
 You're almost done, keep it up. Edit `/usr/bin/ard-reset-arduino`. You should sudo this. Don't worry, this is the last time you'll be violating your system. cahinge `ser.setBaudrate(1200)` to `se.baudrate = 1200`. Now your pour machine is ready to flash Arduinos (tm)
 
-Flash by going to `piecentral/hibike`. The command to run is `./flash.sh SENSOR_NAME`. Figure out what the sensor names are I don't freaking know. Good luck.     
+Flash by going to `piecentral/hibike`. The command to run is `./flash.sh SENSOR_NAME`. Figure out what the sensor names are I don't freaking know.   

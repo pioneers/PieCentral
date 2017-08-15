@@ -1,5 +1,5 @@
 class Goal:
-
+    
     def __init__(self):
         self.goal_state = 0 #unowned, blueowned, goldowned, bluebid, goldbid
         self.bid_timer = timer thread(sends to shepherd main)
@@ -26,27 +26,7 @@ class Timer:
         at end, sets both sensor multipiers to not used
 
 
-class Shepherd:
-    Things to receive:
-        UI_Commands from field control:
-            Start_Match
-            Start_Auto
-            Start_Telop
-            Reset_Match
-            Reset_Stage
-            reset_lcm (optional)
-        Button_Commands from bidding station:
-            Bid on [Goal X] from [Alliance A]
-        FromSensors:
-            Ball scored in [Goal X] on [Alliance A]
-            Code received from [Goal X] on [Alliance A]
-        FromTimers:
-            WhatTimerItIs, CurrentTimeReamining
-            ChangeMatchState (for MatchTimers)
-            ChangeGoalState (for GoalTimers)
-            ChangeMultiplierState (for GoalMultipliers)
-        FromDriverStation:
-            Robot State (connected, disconnected, teleop, auto)
+
 
 class Utils:
     AutoStateTimePeriod

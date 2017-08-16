@@ -1,16 +1,18 @@
 #!/bin/bash
 
 NAME="$0"
-SENSOR_TYPES=("BatteryBuzzer"  "LimitSwitch"  "LineFollower"  "Potentiometer"  "RFID"  "YogiBear")
+SENSOR_TYPES="$(ls devices/)"
 
 print_usage() {
     echo "usage: $NAME [-h, --help] SENSOR_TYPE"
-    echo "Valid sensors: ${SENSOR_TYPES[@]}"
+    echo "Valid sensors:"
+    echo "--------------"
+    echo "$SENSOR_TYPES"
     exit 1
 }
 
 is_valid_sensor() {
-    for sensor in "${SENSOR_TYPES[@]}"; do
+    for sensor in "$SENSOR_TYPES"; do
         if [[ "$0" == "$sensor" ]]; then
             return 1
         fi

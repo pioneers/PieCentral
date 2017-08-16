@@ -436,7 +436,7 @@ Extract this on a GNU/Linux system using `tar -xvf arduino-1.8.1-linux64.tar.xz`
 
 Then, run the setup script in hibike. `sudo ./setup.sh` in `piecentral/hibike` should do the trick. It will download a lot of stuff. You have effectively given up all your software freedoms at this point. Go cry a bit. Come back after asking Linus for forgiveness.
 
-You're almost done, keep it up. Edit `/usr/bin/ard-reset-arduino`. You should sudo this. Don't worry, this is the last time you'll be violating your system. Change `ser.setBaudrate(1200)` to `se.baudrate = 1200`. Now your poor machine is ready to flash Arduinos (tm)
+You're almost done, keep it up. Edit `/usr/bin/ard-reset-arduino`. You should sudo this. Don't worry, this is the last time you'll be violating your system. *NOTE: This may only be required for specific python versions. Not tested extensively*. Change `ser.setBaudrate(1200)` to `ser.baudrate = 1200`. Now your poor machine is ready to flash Arduinos (tm)
 
 Flash by going to `piecentral/hibike`.
 

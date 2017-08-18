@@ -126,10 +126,10 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
     pack.write_queue = queue.Queue()
     pack.serial_port = serial_port
     pack.write_thread = threading.Thread(target=device_write_thread,
-                                         args=(serial_port, pack.write_queue))
+                                         args=(serial_port, pack.write_queue, stop_event))
     pack.read_thread = threading.Thread(target=device_read_thread,
                                         args=(uid, pack, error_queue,
-                                              state_queue, batched_data))
+                                              state_queue, batched_data, stop_event))
     # This is an ID that does not persist across disconnects,
     # so that we can tell when a device has been reconnected.
     pack.instance_id = random.getrandbits(128)
@@ -228,13 +228,13 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child,
     for (ser, uid) in smart_sensors.items():
         index = serial_names.index(ser)
         serial_port = serials[index]
-        pack = spin_up_device(serial_port, uid, state_queue, batched_data, error_queue)
+        pack = spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, stop_event)
         devices[uid] = pack
 
-    batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
+    batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue, stop_event))
     batch_thread.start()
     hotplug_thread = threading.Thread(target=hotplug,
-                                      args=(devices, state_queue, batched_data, error_queue))
+                                      args=(devices, state_queue, batched_data, error_queue, stop_event))
     hotplug_thread.start()
 
     # Pings all devices and tells them to stop sending data

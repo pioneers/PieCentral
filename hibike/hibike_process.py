@@ -138,17 +138,17 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
     return pack
 
 
-def hotplug(devices, state_queue, batched_data, error_queue):
+def hotplug(devices, state_queue, batched_data, error_queue, stop_event):
     """
     Remove disconnected devices and scan for new ones.
     """
     clean_up_queue = queue.Queue()
-    clean_up_thread = threading.Thread(target=clean_up_devices, args=(clean_up_queue, ))
+    clean_up_thread = threading.Thread(target=clean_up_devices, args=(clean_up_queue, stop_event))
     clean_up_thread.start()
     while True:
         time.sleep(HOTPLUG_POLL_INTERVAL)
         scan_for_new_devices(devices, state_queue, batched_data, error_queue)
-        remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue)
+        remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue, stop_event)
 
 
 def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue):
@@ -169,7 +169,7 @@ def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queu
         pack.write_queue.put(("subscribe", [1, 0, []]))
 
 
-def clean_up_devices(device_queue):
+def clean_up_devices(device_queue, stop_event):
     """
     Clean up associated resources of devices in the queue.
 
@@ -177,19 +177,19 @@ def clean_up_devices(device_queue):
     It's best to spin this function off into its own thread,
     so that you're not blocked on reclaiming resources.
     """
-    while True:
+    while not stop_event.is_set():
         device = device_queue.get()
         device.serial_port.close()
         device.read_thread.join()
         device.write_thread.join()
 
 
-def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue):
+def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue, stop_event):
     """
     Clean up any disconnected devices in ERROR_QUEUE.
     """
     next_time_errors = []
-    while True:
+    while not stop_event.is_set():
         try:
             error = error_queue.get(block=False)
             pack = devices[error.uid]
@@ -212,9 +212,9 @@ def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queu
             return
 
 
-# pylint: disable=too-many-branches, too-many-locals
-# pylint: disable=too-many-arguments, unused-argument
-def hibike_process(bad_things_queue, state_queue, pipe_from_child):
+# pylint: disable=unused-argument
+def hibike_process(bad_things_queue, state_queue, pipe_from_child,
+                   stop_event=multiprocessing.Event()):
     """
     Run the main hibike processs.
     """
@@ -244,7 +244,7 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
 
     # the main thread reads instructions from statemanager and
     # forwards them to the appropriate device write threads
-    while True:
+    while not stop_event.is_set():
         instruction, args = pipe_from_child.recv()
         try:
             if instruction == "enumerate_all":
@@ -269,12 +269,12 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
             print("Tried to access a nonexistent device")
 
 
-def device_write_thread(ser, instr_queue):
+def device_write_thread(ser, instr_queue, stop_event):
     """
     Send packets to SER based on instructions from INSTR_QUEUE.
     """
     try:
-        while True:
+        while not stop_event.is_set():
             instruction, args = instr_queue.get()
 
             if instruction == "ping":
@@ -298,15 +298,15 @@ def device_write_thread(ser, instr_queue):
         pass
 
 
-def device_read_thread(uid, pack, error_queue, state_queue, batched_data):
+def device_read_thread(uid, pack, error_queue, state_queue, batched_data, stop_event):
     """
     Read packets from SER and update queues and BATCHED_DATA accordingly.
     """
     ser = pack.serial_port
     instruction_queue = pack.write_queue
     try:
-        while True:
-            for packet in hm.blocking_read_generator(ser):
+        while not stop_event.is_set():
+            for packet in hm.blocking_read_generator(ser, stop_event):
                 message_type = packet.get_message_id()
                 if message_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
                     params, delay, uid = hm.parse_subscription_response(packet)
@@ -323,11 +323,11 @@ def device_read_thread(uid, pack, error_queue, state_queue, batched_data):
         error.accessed = False
         error_queue.put(error)
 
-def batch_data(data, state_queue):
+def batch_data(data, state_queue, stop_event):
     """
     Write out DATA to STATE_QUEUE periodically.
     """
-    while True:
+    while not stop_event.is_set():
         time.sleep(BATCH_SLEEP_TIME)
         state_queue.put(("device_values", [data]))
 

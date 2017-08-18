@@ -1,13 +1,12 @@
 #!/bin/bash
+set -e
 
 NAME="$0"
-SENSOR_TYPES="$(ls devices/)"
+SENSOR_TYPES="$(source utils/device_names.sh)"
 
 print_usage() {
     echo "usage: $NAME [-h, --help] SENSOR_TYPE"
-    echo "Valid sensors:"
-    echo "--------------"
-    echo "$SENSOR_TYPES"
+    echo "Valid sensors: $SENSOR_TYPES"
     exit 1
 }
 

@@ -5,6 +5,6 @@
 
 #this function is not meant to be called from the "utils" folder.  It will fail because of pathing problems.
 #it is meant to be called from the "hibike" folder, since that is where flash.sh is located.
-
-
-ls devices/
+set -e
+cd devices/
+echo *

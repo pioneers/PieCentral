@@ -114,7 +114,7 @@ def identify_smart_sensors(serial_conns):
     return device_map
 
 
-def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
+def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, stop_event):
     """
     Spin up a device with a given UID on SERIAL_PORT.
 
@@ -122,17 +122,19 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue):
         The new device.
     """
     pack = namedtuple("Threadpack", ["read_thread", "write_thread",
-                                     "write_queue", "serial_port", "instance_id"])
+                                     "write_queue", "serial_port",
+                                     "uid", "instance_id"])
+    # This is an ID that does not persist across disconnects,
+    # so that we can tell when a device has been reconnected.
+    pack.instance_id = random.getrandbits(128)
+    pack.uid = uid
     pack.write_queue = queue.Queue()
     pack.serial_port = serial_port
     pack.write_thread = threading.Thread(target=device_write_thread,
                                          args=(serial_port, pack.write_queue, stop_event))
     pack.read_thread = threading.Thread(target=device_read_thread,
-                                        args=(uid, pack, error_queue,
+                                        args=(pack, error_queue,
                                               state_queue, batched_data, stop_event))
-    # This is an ID that does not persist across disconnects,
-    # so that we can tell when a device has been reconnected.
-    pack.instance_id = random.getrandbits(128)
     pack.write_thread.start()
     pack.read_thread.start()
     return pack
@@ -212,7 +214,7 @@ def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queu
             return
 
 
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument, too-many-locals
 def hibike_process(bad_things_queue, state_queue, pipe_from_child,
                    stop_event=multiprocessing.Event()):
     """
@@ -234,7 +236,8 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child,
     batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue, stop_event))
     batch_thread.start()
     hotplug_thread = threading.Thread(target=hotplug,
-                                      args=(devices, state_queue, batched_data, error_queue, stop_event))
+                                      args=(devices, state_queue, batched_data,
+                                            error_queue, stop_event))
     hotplug_thread.start()
 
     # Pings all devices and tells them to stop sending data
@@ -298,11 +301,12 @@ def device_write_thread(ser, instr_queue, stop_event):
         pass
 
 
-def device_read_thread(uid, pack, error_queue, state_queue, batched_data, stop_event):
+def device_read_thread(pack, error_queue, state_queue, batched_data, stop_event):
     """
     Read packets from SER and update queues and BATCHED_DATA accordingly.
     """
     ser = pack.serial_port
+    uid = pack.uid
     instruction_queue = pack.write_queue
     try:
         while not stop_event.is_set():

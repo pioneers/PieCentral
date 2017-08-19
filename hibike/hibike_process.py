@@ -114,6 +114,7 @@ def identify_smart_sensors(serial_conns):
     return device_map
 
 
+# pylint: disable=too-many-arguments
 def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, stop_event):
     """
     Spin up a device with a given UID on SERIAL_PORT.
@@ -149,11 +150,11 @@ def hotplug(devices, state_queue, batched_data, error_queue, stop_event):
     clean_up_thread.start()
     while True:
         time.sleep(HOTPLUG_POLL_INTERVAL)
-        scan_for_new_devices(devices, state_queue, batched_data, error_queue)
+        scan_for_new_devices(devices, state_queue, batched_data, error_queue, stop_event)
         remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue, stop_event)
 
 
-def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue):
+def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue, stop_event):
     """
     Find devices that are on serial ports not in EXISTING_DEVICES, and add
     any that have been found to it.
@@ -164,7 +165,7 @@ def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queu
     for (ser, uid) in sensors.items():
         idx = names.index(ser)
         port = ports[idx]
-        pack = spin_up_device(port, uid, state_queue, batched_data, error_queue)
+        pack = spin_up_device(port, uid, state_queue, batched_data, error_queue, stop_event)
         existing_devices[uid] = pack
         # Tell the device to start sending data
         pack.write_queue.put(("ping", []))

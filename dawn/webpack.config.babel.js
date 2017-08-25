@@ -24,7 +24,6 @@ const plugins = [
   new webpack.DefinePlugin({
     VERSION: JSON.stringify(version),
   }),
-  new webpack.IgnorePlugin(/vertx/),
 ];
 
 export default [

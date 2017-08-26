@@ -19,7 +19,7 @@ run script with team number
 from argparse import ArgumentParser, ArgumentTypeError
 import logging
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, NoSuchFrameException
 from selenium.webdriver.common.keys import Keys
 import sys
 import time
@@ -50,22 +50,17 @@ def parse_args():
     return parser.parse_args()
 
 
-def login(username: str, password: str, driver):
+def login(username: str, password: str, driver) -> bool:
     driver.get(ROUTER_ADMIN_URL)
-    try:
-        driver.find_element_by_id('userName').send_keys(username)
-        driver.find_element_by_id('pcPassword').send_keys(password)
-        driver.find_element_by_id('loginBtn').click()
-    except NoSuchElementException:
-        logging.error('Not connected to the router')
-        return
+    driver.find_element_by_id('userName').send_keys(username)
+    driver.find_element_by_id('pcPassword').send_keys(password)
+    driver.find_element_by_id('loginBtn').click()
 
     try:
         driver.find_element_by_id('tip')
         logging.error('Failed to log in (invalid credentials)')
-        return
     except NoSuchElementException:
-        pass
+        return True
 
 
 def change_ssid(username: str, password: str, ssid: str):
@@ -74,11 +69,16 @@ def change_ssid(username: str, password: str, ssid: str):
     driver = webdriver.Chrome(desired_capabilities=options.to_capabilities())
     driver.implicitly_wait(10)
 
-    logging.debug('Logging in as user "{username}" ...'.format(username=username))
-    login(username, password, driver)
+    try:
+        logging.debug('Logging in as user "{username}" ...'.format(username=username))
+        if not login(username, password, driver):
+            return
 
-    driver.switch_to_frame('bottomLeftFrame')  # Left panel
-    driver.find_element_by_id('a8').click()
+        driver.switch_to_frame('bottomLeftFrame')  # Left panel
+        driver.find_element_by_id('a8').click()
+    except (NoSuchElementException, NoSuchFrameException):
+        logging.error('Not connected to the router')
+        return
 
     driver.switch_to_default_content()
     driver.switch_to_frame('mainFrame')

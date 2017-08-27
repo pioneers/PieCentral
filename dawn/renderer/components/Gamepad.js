@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   Modal,
   Button,
@@ -8,7 +9,7 @@ import {
 import _ from 'lodash';
 import numeral from 'numeral';
 
-class GamepadItem extends React.Component {
+class Gamepad extends React.Component {
   constructor(props) {
     super(props);
     this.state = { showModal: false };
@@ -125,9 +126,9 @@ class GamepadItem extends React.Component {
   }
 }
 
-GamepadItem.propTypes = {
-  gamepad: React.PropTypes.object,
-  index: React.PropTypes.number,
+Gamepad.propTypes = {
+  gamepad: PropTypes.object.isRequired,
+  index: PropTypes.number.isRequired,
 };
 
-export default GamepadItem;
+export default Gamepad;

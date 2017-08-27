@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { RIEInput } from 'riek';
 import _ from 'lodash';
 
@@ -61,10 +62,10 @@ class NameEdit extends React.Component {
 }
 
 NameEdit.propTypes = {
-  name: React.PropTypes.string.isRequired,
-  id: React.PropTypes.string.isRequired,
-  peripherals: React.PropTypes.object.isRequired,
-  onRename: React.PropTypes.func,
+  name: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
+  peripherals: PropTypes.object.isRequired,
+  onRename: PropTypes.func.isRequired,
 };
 
 export default NameEdit;

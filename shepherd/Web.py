@@ -10,3 +10,9 @@ class Web:
 		which correspond to the blue alliance the the next two elements are
 		Team objects corresponding to the gold alliance
 		'''
+
+	def recordScore(self, matchNumber, blueScore, goldScore):
+		'''
+		Records the spreadsheet to reflect the scores of the blue and gold alliance.
+		Will be called once at the end of a match
+		'''

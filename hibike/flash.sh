@@ -10,13 +10,14 @@ print_usage() {
     exit 1
 }
 
-is_valid_sensor() {
-    for sensor in "$SENSOR_TYPES"; do
-        if [[ "$0" == "$sensor" ]]; then
-            return 1
+check_sensor() {
+    for sensor in ${SENSOR_TYPES}; do
+        if [[ "$1" == "${sensor}" ]]; then
+            return 0
         fi
     done
-    return 0
+    echo "Invalid sensor type: $1"
+    exit 1
 }
 
 if (( $# != 1 )); then
@@ -42,16 +43,12 @@ while getopts ":h" opt; do
     esac
 done
 
-if [ ! "$(is_valid_sensor "$1")" ]; then
-    echo "Invalid sensor type: $1"
-    exit 1
-fi
-#make clean doesn't actually work.  Therefore,
+check_sensor $1
 
+#make clean doesn't actually work.  Therefore,
 #move to wheverever the flash script is run, 
 #and then (as long i've successfuly moved), remove the compiled bin file.
 cd "$(dirname "$0")" && rm -rf ./bin
-
 
 python reset.py /dev/ttyACM*
 sleep 0.5

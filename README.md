@@ -41,8 +41,8 @@ $ git push origin {project_name/feature_name}
 
 ### Adding new code to master
 Make sure your local changes to your code is pushed to your branch.
-```
 
+```
 $ git add {file_name}
 $ git commit -m "[PROJECT_NAME] {Short Description}"
 $ git push origin {project_name/feature_name}

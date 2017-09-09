@@ -76,4 +76,4 @@ In the `runtime` folder:
 
 # Runtime Documentation
 ### Runtime Diagram
-![Runtime Diagram](https://imgur.com/oz4wExt)
+![Runtime Diagram](https://imgur.com/oz4wExt.png)

@@ -3,7 +3,8 @@
 install:
 	cd build-deps && wget https://github.com/google/protobuf/releases/download/v3.2.0/protoc-3.2.0-linux-x86_64.zip
 	cd build-deps && unzip protoc-3.2.0-linux-x86_64.zip
-	pip3 install -r requirements.txt
+	pip3 install pipenv
+	pipenv install --dev
 
 artifacts-install:
 	$(nop)

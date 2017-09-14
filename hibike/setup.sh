@@ -53,6 +53,7 @@ if [ "$(dpkg-query -W -f='${Status}' python3-pip 2>/dev/null | grep -c "ok insta
     apt-get --assume-yes install python3-pip
 fi
 
-pip3 install -r requirements.txt
+pip3 install pipenv
+pipenv install --dev
 
 echo "All dependencies installed."

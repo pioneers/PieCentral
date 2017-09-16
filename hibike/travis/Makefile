@@ -12,7 +12,7 @@ artifacts-install:
 	$(nop)
 
 lint:
-	cd .. && find . -name "*.py" | xargs pylint
+	cd .. && find . -name "*.py" | xargs pipenv run pylint
 
 test: $(DEVICES)
 

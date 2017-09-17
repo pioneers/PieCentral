@@ -1,9 +1,9 @@
-.PHONY install artifacts-install lint test artificats
+.PHONY: install artifacts-install lint test artificats
 
 install:
 	pip3 install -r requirements.txt
 
-artifacts-intsall:
+artifacts-install:
 	$(nop)
 
 lint:

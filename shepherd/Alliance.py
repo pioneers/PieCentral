@@ -1,35 +1,37 @@
 class Alliance:
-	'''
-	This is a wrapper that holds both classes and then holds information relevant to 
-	and it should also contain information relevant to the alliance such as match score
-	'''
+    '''
+    This is a wrapper that holds both classes and then holds information relevant to
+    and it should also contain information relevant to the alliance such as match score
+    '''
 
-	def __init__(self, team1, team2):
-		self.teamOne = team1
-		self.teamTwo = team2
-		self.score = 0
-		self.largePenalties = 0
-		self.smallPenalties = 0
-		self.multiplier = 1
+    def __init__(self, team1, team2):
+        self.team_one = team1
+        self.team_two = team2
+        self.score = 0
+        self.large_penalties = 0
+        self.small_penalties = 0
+        self.multiplier = 1
 
-	def heartbeat(self):
-		'''
-		Checks if both teams have a robot connected
-		'''
-		return self.teamOne.heartbeat() and self.teamTwo.heartbeat()
+    def heartbeat(self):
+        '''
+        Checks if both teams have a robot connected
+        '''
+        return self.team_one.heartbeat() and self.team_two.heartbeat()
 
-	def addLargePenalty(self):
-		'''
-		Adds an additional large penalty to this alliance
-		'''
+    def add_large_penalty(self):
+        '''
+        Adds an additional large penalty to this alliance
+        '''
+        return
 
-	def addSmallPenalty(self):
-		'''
-		Adds an additional small penalty to this alliance
-		'''
+    def add_small_penalty(self):
+        '''
+        Adds an additional small penalty to this alliance
+        '''
+        return
 
-	def increaseScore(self, amount):
-		'''
-		Increases this alliance's score by amount
-		'''
-
+    def increase_score(self, amount): # pylint: disable=unused-argument
+        '''
+        Increases this alliance's score by amount
+        '''
+        return

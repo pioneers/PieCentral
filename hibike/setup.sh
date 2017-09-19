@@ -49,14 +49,4 @@ if [[ "$(dpkg-query -W -f='${Status}' avr-libc 2>/dev/null | grep -c "ok install
     apt-get --assume-yes install avr-libc
 fi
 
-if ! command -v pip &>/dev/null && [[ "$(dpkg-query -W -f='${Status}' python3-pip 2>/dev/null | grep -c "ok installed")" != 1 ]]; then
-    apt-get --assume-yes install python3-pip
-fi
-
-if ! command -v pipenv &>/dev/null; then
-    pip3 install pipenv
-fi
-
-pipenv install --dev
-
 echo "All dependencies installed."

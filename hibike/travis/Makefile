@@ -7,12 +7,13 @@ DEVICES := BatteryBuzzer ExampleDevice LimitSwitch LineFollower Potentiometer \
 install:
 	cd .. && wget https://downloads.arduino.cc/arduino-1.8.1-linux64.tar.xz
 	cd .. && sudo bash setup.sh "arduino-1.8.1-linux64.tar.xz"
+	cd .. && pipenv install --dev
 
 artifacts-install:
 	$(nop)
 
 lint:
-	cd .. && find . -name "*.py" | xargs pipenv run pylint
+	cd .. && find . -name "*.py" | xargs pylint
 
 test: $(DEVICES)
 

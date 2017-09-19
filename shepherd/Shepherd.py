@@ -18,7 +18,7 @@ class Shepherd:
         self.alliances= {'blue': Alliance(teams[0], teams[1]), 'gold': Alliance(teams[2], teams[3])}
         self.currentStage = 0
 
-        #The follwing are elements that are configured 
+        #The follwing are elements that are configured
         specifically for the 2018 year game - Solar Scramble
         self.goals = {'a': Goal(),'b': Goal(),'c': Goal(),'d': Goal(),'e': Goal()}
 

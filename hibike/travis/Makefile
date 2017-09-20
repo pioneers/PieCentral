@@ -16,5 +16,5 @@ lint:
 test: $(DEVICES)
 
 $(DEVICES):
-	cd .. && rm -rf ./bin
-	cd .. && make DEVICE=$@
+	cd .. && $(RM) -r ./bin
+	cd .. && $(MAKE) DEVICE=$@

@@ -1,3 +1,4 @@
+"""
 import sys
 import Goal
 
@@ -17,16 +18,14 @@ class Shepherd:
         self.alliances= {'blue': Alliance(teams[0], teams[1]), 'gold': Alliance(teams[2], teams[3])}
         self.currentStage = 0
 
-        #The follwing are elements that are configured specifically for the 2018 year game - Solar Scramble
+        #The follwing are elements that are configured
+        specifically for the 2018 year game - Solar Scramble
         self.goals = {'a': Goal(),'b': Goal(),'c': Goal(),'d': Goal(),'e': Goal()}
 
         self.goalTimers = {'a': Timer(),'b': Timer(),'c': Timer(),'d': Timer(),'e': Timer()}
         self.decodeTimers = {'steal': Timer(), 'double': Timer(), 'zero': Timer()}
         self.bidTimers = {'a': Timer(),'b': Timer(),'c': Timer(),'d': Timer(),'e': Timer()}
-        
         self.sensors = Sensors()
-        
-        
 
     Things to receive:
         UI_Commands from field control:
@@ -59,3 +58,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+"""

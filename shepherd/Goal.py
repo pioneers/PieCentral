@@ -1,5 +1,6 @@
+"""
 class Goal:
-    
+
     def __init__(self):
         self.goal_state = 0 #unowned, blueowned, goldowned, bluebid, goldbid
         self.bid_timer = timer thread(sends to shepherd main)
@@ -13,7 +14,6 @@ class Alliance:
     self.score
     self.score_multiplier
     self.increase_score()
-    
 
 class Timer:
     gameTime(gameState):
@@ -38,7 +38,4 @@ class Utils:
     GoalMultiplierValues
     GoalMulitpliercooldowns
 
-    
-
-
-
+"""

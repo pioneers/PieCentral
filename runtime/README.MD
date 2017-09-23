@@ -70,7 +70,7 @@ Remember you will need to push with the `-f` flag.
 
 # Running runtime
 In the `runtime` folder:
-* Install dependencies: `pip3 install -r requirements.txt`
+* Install dependencies: `pip3 install pipenv` and `pipenv install --dev`
 * Run the runtime: `python3 runtime.py`
 * Run the runtime tests: `python3 runtime.py -t`
 

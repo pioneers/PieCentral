@@ -35,6 +35,8 @@ class BAD_EVENTS(Enum):
     ENTER_IDLE                = "Dawn says enter Idle"
     NEW_IP                    = "Connected to new instance of Dawn"
     DAWN_DISCONNECTED         = "Disconnected to Dawn"
+    TIMESTAMP_DOWN            = "Latency test down the stack"
+    TIMESTAMP_UP              = "Latency test up the stack"
 
 restartEvents = [BAD_EVENTS.STUDENT_CODE_VALUE_ERROR, BAD_EVENTS.STUDENT_CODE_ERROR,
                  BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT, BAD_EVENTS.EMERGENCY_STOP]

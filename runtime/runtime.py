@@ -20,6 +20,7 @@ from runtimeUtil import *
 ALL_PROCESSES = {}
 
 
+# pylint: disable=too-many-branches
 def runtime(test_name=""): # pylint: disable=too-many-statements
     test_mode = test_name != ""
     max_iter = 3 if test_mode else None

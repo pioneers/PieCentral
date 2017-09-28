@@ -95,7 +95,7 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
                     print(new_bad_thing.data)
                 elif new_bad_thing.event == BAD_EVENTS.TIMESTAMP_DOWN:
                     timestamp = time.time()
-                    state_queue.put([SM_COMMANDS.TIMESTAMP_DOWN, [timestamp]])
+                    state_queue.put([HIBIKE_COMMANDS.TIMESTAMP_DOWN, [timestamp]])
                 print(new_bad_thing.event)
                 non_test_mode_print(new_bad_thing.data)
                 if new_bad_thing.event in restartEvents:

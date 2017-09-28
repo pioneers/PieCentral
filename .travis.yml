@@ -2,7 +2,7 @@ dist: trusty
 sudo: required
 language: python
 python:
-  - '3.5'
+  - '3.6'
 os:
   - linux
 env:
@@ -15,8 +15,7 @@ cache:
     - $HOME/.cache/yarn
 before_install:
   - nvm install --lts
-  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 0.27.5
-  - export PATH=$HOME/.yarn/bin:$PATH
+  - pip3 install pipenv
   - mkdir -p artifacts
   - if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then
     export DEPLOY_ARTIFACTS=1; fi

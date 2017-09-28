@@ -57,6 +57,7 @@ class HIBIKE_COMMANDS(Enum):
     WRITE     = "write_params"
     READ      = "read_params"
     DISABLE   = "disable_all"
+    TIMESTAMP_DOWN = "timestamp_down"
 
 # TODO: Remove when Hibike is finished
 @unique
@@ -64,6 +65,7 @@ class HIBIKE_RESPONSE(Enum):
     DEVICE_SUBBED = "device_subscribed"
     DEVICE_VALUES = "device_values"
     DEVICE_DISCONNECT = "device_disconnected"
+    TIMESTAMP_UP = "timestamp_up"
 
 @unique
 class ANSIBLE_COMMANDS(Enum):
@@ -101,6 +103,7 @@ class SM_COMMANDS(Enum):
     ENTER_AUTO          = ()
     END_STUDENT_CODE    = ()
     SET_TEAM            = ()
+    TIMESTAMP_DOWN      = ()
 
 class BadThing:
     def __init__(self, exc_info, data, event=BAD_EVENTS.BAD_EVENT, printStackTrace=True):

@@ -14,7 +14,8 @@
     "build": "better-npm-run build",
     "lint": "eslint .",
     "watch": "webpack --watch --progress",
-    "test": "mocha --compilers js:babel-core/register --recursive renderer/**/test/*.test.js"
+    "test": "mocha --compilers js:babel-core/register --recursive renderer/**/test/*.test.js",
+    "release": "node release.js --prod"
   },
   "betterScripts": {
     "start": {
@@ -38,15 +39,19 @@
     "babel-preset-stage-3": "6.24.1",
     "better-npm-run": "0.0.15",
     "chai": "4.1.0",
+    "electron-packager": "9.0.0",
     "eslint": "4.3.0",
     "eslint-config-airbnb": "15.1.0",
     "eslint-loader": "1.9.0",
     "eslint-plugin-import": "2.7.0",
     "eslint-plugin-jsx-a11y": "5.1.1",
     "eslint-plugin-react": "7.1.0",
+    "fs-extra": "4.0.1",
+    "jszip": "3.1.4",
     "minimist": "1.2.0",
     "mocha": "3.4.2",
-    "webpack": "3.4.1"
+    "webpack": "3.4.1",
+    "zip-webpack-plugin": "2.0.0"
   },
   "dependencies": {
     "brace": "0.10.0",

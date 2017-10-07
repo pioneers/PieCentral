@@ -606,4 +606,15 @@ Editor.propTypes = {
   disableScroll: PropTypes.bool.isRequired,
 };
 
+document.addEventListener('dragover', (event) => {
+  event.preventDefault();
+  return false;
+});
+
+document.addEventListener('drop', (event) => {
+  event.preventDefault();
+  console.log(event.target.className);
+  return false;
+});
+
 export default Editor;

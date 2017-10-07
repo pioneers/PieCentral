@@ -9,6 +9,8 @@
 
 bool motorEnabled = false;
 float deadBand = 0.05;
+const int analogHIGH = 255;
+const int analogLOW = 0;
 
 void motorSetup() {
   pinMode(current_pin,INPUT);
@@ -22,12 +24,12 @@ void motorSetup() {
 
 void motorEnable() {
   clearFault();
-  digitalWrite(enable_pin, HIGH);
+  analogWrite(enable_pin, analogHIGH); /* digital to analog where HIGH corresponds to 255*/
   motorEnabled = true;
 }
 
 void motorDisable() {
-  digitalWrite(enable_pin, LOW);
+  analogWrite(enable_pin, analogLOW); /* digital to analog where LOW corresponds to 0 */
   disablePID();
   resetPID();
   resetEncoder();
@@ -72,8 +74,8 @@ void clearFault() {
   digitalWrite(INB, !digitalRead(INB));
 
   Timer1.pwm(PWM, 0);
-  digitalWrite(enable_pin, LOW);
-  digitalWrite(enable_pin, HIGH);
+  analogWrite(enable_pin, analogLOW);
+  analogWrite(enable_pin, analogHIGH);
 }
 
 void setDeadBand(float range) {

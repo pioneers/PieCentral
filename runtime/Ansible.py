@@ -469,7 +469,7 @@ class TCPClass(AnsibleHandler):
                             printStackTrace=False))
                     break
                 unpackaged_data = unpackage(recv_data) # pylint: disable=unused-variable
-                if unpackaged_data.header == ansible_pb2.Notification.Type.TIMESTAMP_DOWN:
+                if unpackaged_data.header == notification_pb2.Notification.Type.TIMESTAMP_DOWN:
                     timestamps = list(unpackaged_data.timestamps)
                     timestamps.append(time.time())
                     state_queue.put([HIBIKE_COMMANDS.TIMESTAMP_DOWN, timestamps])

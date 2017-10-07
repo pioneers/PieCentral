@@ -290,7 +290,8 @@ class StateManager(object): # pylint: disable=too-many-public-methods
     def hibike_response_timestamp_up(self, *data):
         data = list(data)
         data.append(time.time())
-        self.bad_things_queue.put(BadThing(sys.exc_info, data, BAD_EVENTS.TIMESTAMP_UP, False))
+        self.process_mapping[PROCESS_NAMES.TCP_PROCESS].send(
+        [ANSIBLE_COMMANDS.TIMESTAMP_UP, data])
 
     def hibike_disable(self, pipe):
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])

@@ -291,7 +291,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         data = list(data)
         data.append(time.time())
         self.process_mapping[PROCESS_NAMES.TCP_PROCESS].send(
-        [ANSIBLE_COMMANDS.TIMESTAMP_UP, data])
+            [ANSIBLE_COMMANDS.TIMESTAMP_UP, data])
 
     def hibike_disable(self, pipe):
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])

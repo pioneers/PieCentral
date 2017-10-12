@@ -340,34 +340,24 @@ class Editor extends React.Component {
       >
         <ButtonToolbar>
           <ButtonGroup id="file-operations-buttons">
-            <TooltipButton
-              id="new"
-              text="New"
-              onClick={this.props.onCreateNewFile}
-              glyph="file"
-              disabled={false}
-            />
-            <TooltipButton
-              id="open"
-              text="Open"
-              onClick={this.props.onOpenFile}
-              glyph="folder-open"
-              disabled={false}
-            />
-            <TooltipButton
-              id="save"
-              text="Save"
-              onClick={this.props.onSaveFile}
-              glyph="floppy-disk"
-              disabled={false}
-            />
-            <TooltipButton
-              id="save-as"
-              text="Save As"
-              onClick={_.partial(this.props.onSaveFile, true)}
-              glyph="floppy-save"
-              disabled={false}
-            />
+            <DropdownButton
+              title="File"
+              bsSize="small"
+              id="choose-theme"
+            >
+              <MenuItem
+                onClick={this.props.onCreateNewFile}
+              >New File</MenuItem>
+              <MenuItem
+                onClick={this.props.onOpenFile}
+              >Open</MenuItem>
+              <MenuItem
+                onClick={this.props.onSaveFile}
+              >Save</MenuItem>
+              <MenuItem
+                onClick={_.partial(this.props.onSaveFile, true)}
+              >Save As</MenuItem>
+            </DropdownButton>
             <TooltipButton
               id="upload"
               text="Upload"

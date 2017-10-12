@@ -29,7 +29,20 @@ class Goal:
 
     def score(alliance):
         """ modifies the owner alliance's score based on the value of the goal, the current multipliers,
-            and the alliances multiplier, if the scorring Alliance is the owning alliance."""
+            and the alliances multiplier, if the scorring Alliance is the owning alliance.
+                alliance - Alliance object representing the scoring team
+                """
 
     def calc_multiplier():
-        """
+        """ returns an integer that represents the overall multiplier for this goal, by checking each timer in the goal"""
+
+    def apply_powerup(effect, alliance):
+        """ applies effect passed in from an alliance, and determines what should happen, based on the allianced passed in, and the alliance of the goal.
+            return and integer signifying what the result of the call was.
+                1 - success
+                0 - incorrect solution
+                -1 - cannot be applied to this goal
+                -2 - cannot steal your own goal
+                -3 - other error
+            effect - enum representing an effect to be applied to the goal
+            alliance - the alliance trying to apply the effect to the goal"""

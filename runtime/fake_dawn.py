@@ -43,14 +43,14 @@ def receiver(port, receive_queue):
         runtime_message = runtime_pb2.RuntimeData()
         runtime_message.ParseFromString(msg)
         receive_queue[0] = msg
-        print(runtime_message)
+        #print(runtime_message)
 
 
 def tcp_relay(port):
     host = '127.0.0.1'
     msg = notification_pb2.Notification()
     msg.header = notification_pb2.Notification.TIMESTAMP_DOWN
-    msg.timestamps = [time.time()]
+    msg.timestamps.append(time.monotonic())
     msg = msg.SerializeToString()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -67,8 +67,8 @@ def tcp_relay(port):
         else:
             parser = notification_pb2.Notification()
             parser.ParseFromString(receive_msg)
-            if parser.sensor_mapping:
-                print(msg)
+            if parser.timestamps:
+                print(parser.timestamps)
         time.sleep(max(next_call - time.time(), 0))
 
 

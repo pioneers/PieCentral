@@ -49,7 +49,7 @@ def tcp_relay(port):
     host = '127.0.0.1'
     msg = notification_pb2.Notification()
     msg.header = notification_pb2.Notification.TIMESTAMP_DOWN
-    msg.timestamps.append(time.monotonic())
+    msg.timestamps.append(time.perf_counter())
     msg = msg.SerializeToString()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

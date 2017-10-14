@@ -407,7 +407,7 @@ class TCPClass(AnsibleHandler):
             try:
                 timestamp_message = notification_pb2.Notification()
                 timestamp_message.header = notification_pb2.Notification.TIMESTAMP_UP
-                timestamp_message.timestamps.extend(timestamps + [time.monotonic()])
+                timestamp_message.timestamps.extend(timestamps + [time.perf_counter()])
                 return timestamp_message.SerializeToString()
             except Exception as e:
                 bad_things_queue.put(
@@ -471,7 +471,7 @@ class TCPClass(AnsibleHandler):
                 unpackaged_data = unpackage(recv_data) # pylint: disable=unused-variable
                 if unpackaged_data.header == notification_pb2.Notification.TIMESTAMP_DOWN:
                     timestamps = list(unpackaged_data.timestamps)
-                    timestamps.append(time.monotonic())
+                    timestamps.append(time.perf_counter())
                     state_queue.put([HIBIKE_COMMANDS.TIMESTAMP_DOWN, timestamps])
                     continue
                 if unpackaged_data.header == notification_pb2.Notification.STUDENT_SENT:

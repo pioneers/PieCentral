@@ -66,7 +66,8 @@ def main():
                              ("pid_pos_setpoint", 2.0), ("pid_pos_kp", 3.0), ("pid_pos_ki", 4.0),
                              ("pid_pos_kd", 5.0), ("pid_vel_setpoint", 6.0), ("pid_vel_kp", 7.0),
                              ("pid_vel_ki", 8.0), ("pid_vel_kd", 9.0), ("current_thresh", 10.0),
-                             ("enc_pos", 11.0), ("enc_vel", 12.0), ("motor_current", 13.0)]
+                             ("enc_pos", 11.0), ("enc_vel", 12.0), ("motor_current", 13.0), 
+                             ("error_state", False)]
 
     while True:
         if update_time != 0 and delay != 0:

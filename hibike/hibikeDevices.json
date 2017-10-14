@@ -69,7 +69,8 @@
                                                           {"number": 10  , "name": "enc_pos"            , "type": "float"    , "read": true , "write": true  },
                                                           {"number": 11  , "name": "enc_vel"            , "type": "float"    , "read": true , "write": false  },
                                                           {"number": 12  , "name": "motor_current"      , "type": "float"    , "read": true , "write": false  },
-                                                          {"number": 13  , "name": "deadband"           , "type": "float"    , "read": true , "write": true  }
+                                                          {"number": 13  , "name": "deadband"           , "type": "float"    , "read": true , "write": true  },
+                                                          {"number": 14 , "name": "error_state"         , "type": "bool"     , "read": true , "write": false}
                                                      ]
     },
 

@@ -222,6 +222,16 @@ uint8_t device_read(uint8_t param, uint8_t* data_update_buf, size_t buf_len) {
       return sizeof(float);
       break;
 
+    case ERROR_STATE:
+      bool errorState = false;
+      int voltageReading = analogRead(current_pin);
+      float voltage = voltageReading * (5.0 / 1023.0);
+      if(voltage < 4.6){
+        errorState = True;
+      }
+      return errorState;
+      break;
+
     default:
       return 0;
       break;

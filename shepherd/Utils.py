@@ -9,3 +9,11 @@ class CONSTANTS(Enum):
     STEAL_COOLDOWN = 1
     CODE_COOLDOWN = 1
     BID_INCREASE_CONSTANT = 1
+
+@unique # pylint: disable=invalid-name
+class TIMER_TYPES(Enum):
+    BID = 'bid'
+    POWERUP = 'powerup'
+    COOLDOWN = 'cooldown'
+    CODE_COOLDOWN = 'code_cooldown'
+    DURATION = 'duration'

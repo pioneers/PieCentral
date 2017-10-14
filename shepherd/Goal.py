@@ -35,11 +35,11 @@ class Goal:
         self.current_bid_team = None
         self.previous_bid = 0
         self.previous_bid_team = None
-        self.bid_timer = Timer('bid', name)
-        self.gold_two_x_timer = Timer('duration', name)
-        self.gold_zero_x_timer = Timer('duration', name)
-        self.blue_two_x_timer = Timer('duration', name)
-        self.blue_zero_x_timer = Timer('duration', name)
+        self.bid_timer = Timer(TIMER_TYPES.BID, name)
+        self.gold_two_x_timer = Timer(TIMER_TYPES.DURATION, name)
+        self.gold_zero_x_timer = Timer(TIMER_TYPES.DURATION, name)
+        self.blue_two_x_timer = Timer(TIMER_TYPES.DURATION, name)
+        self.blue_zero_x_timer = Timer(TIMER_TYPES.DURATION, name)
 
     def score(self, alliance):
         """ modifies the owner alliance's score based on the value of the goal,

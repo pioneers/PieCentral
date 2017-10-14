@@ -5,12 +5,14 @@ class Timer:
     """
     def __init__(self, timer_type, goal_name=None):
         """
-        timer_type - a String representing the type of timer that this is:
-                        'bid' - represents a bid timer
-                        'powerup' - represents a powerup timer
-                        'cooldown' - represents a cooldown timer
-                        'code_cooldown' - represents a cooldown timer for a code
-                        'duration' - represents a duration timer for a powerup
+        timer_type - a Enum representing the type of timer that this is:
+                        TIMER_TYPES.BID - represents a bid timer
+                        TIMER_TYPES.POWERUP - represents a powerup timer
+                        TIMER_TYPES.COOLDOWN - represents a cooldown timer
+                        TIMER_TYPES.CODE_COOLDOWN - represents a cooldown timer
+                                                    for a code
+                        TIMER_TYPES.DURATION - represents a duration timer for
+                                               a powerup
         """
         self.active = False
         self.timer_type = timer_type

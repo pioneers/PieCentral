@@ -1,6 +1,7 @@
 from Utils import *
 from Timer import *
 
+
 class Alliance:
     """This is the Alliance class, which holds the state values used to track
        the scores and states of the alliances
@@ -32,10 +33,10 @@ class Alliance:
         self.team_2_number = team_2_number
         self.score = 0
         self.alliance_multiplier = 1
-        self.two_x_cooldown = Timer('cooldown')
-        self.zero_x_cooldown = Timer('cooldown')
-        self.steal_cooldown = Timer('cooldown')
-        self.code_cooldown = Timer('code_cooldown')
+        self.two_x_cooldown = Timer(TIMER_TYPES.COOLDOWN)
+        self.zero_x_cooldown = Timer(TIMER_TYPES.COOLDOWN)
+        self.steal_cooldown = Timer(TIMER_TYPES.COOLDOWN)
+        self.code_cooldown = Timer(TIMER_TYPES.CODE_COOLDOWN)
 
     def change_score(self, amount):
         """ changes score of this alliance by Amount,
@@ -43,7 +44,3 @@ class Alliance:
             make sure you update the scoreboad too after using this function
         """
         self.score += amount
-
-    def i_hate_pylint(self):
-        """ This method is here to satisfy pylint - don't use it"""
-        print('I hate pylint')

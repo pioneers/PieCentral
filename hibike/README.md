@@ -190,7 +190,6 @@ Device Type Enumeration:
 |         |                | 5            | v_batt     | float      | yes   | no     |
 |         |                | 6            | dv_cell2   | float      | yes   | no     |
 |         |                | 7            | dv_cell3   | float      | yes   | no     |
-|  0x05   | TeamFlag       | 0            | mode       | bool       | yes   | yes    |
 |         |                | 1            | blue       | bool       | yes   | yes    |
 |         |                | 2            | yellow     | bool       | yes   | yes    |
 |         |                | 3            | led1       | bool       | yes   | yes    |
@@ -444,5 +443,4 @@ The command to run is `./flash.sh SENSOR_NAME`, where `SENSOR_NAME` is one of
 - `Potentiometer`
 - `RFID`
 - `ServoControl`
-- `TeamFlag`
 - `YogiBear`

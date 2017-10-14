@@ -28,7 +28,7 @@ Alternatively,
 1. Download a [stock Ubuntu prebuilt image](http://elinux.org/BeagleBoardUbuntu#eMMC:_All_BeagleBone_Varients_with_eMMC) (preferably 16.04).
 2. Follow the instructions given by the link in step 1 to bring up a Beaglebone running stock Ubuntu.
 3. Be sure you can `ssh ubuntu@192.168.7.2`. See the [networking section](#networking) for setup instructions.
-4. Connect the Beaglebone to the internet. You should be able to get a response from `ping 8.8.8.8`, but not necessarily from `ping google.com`. One way to do this is to run  `frankfurter/scripts/toos/usb-fwd.sh`, possibly as `sudo`.
+4. Connect the Beaglebone to the internet. You should be able to get a response from `ping 8.8.8.8`, but not necessarily from `ping google.com`. One way to do this is to run  `frankfurter/scripts/tools/usb-fwd.sh`, possibly as `sudo`.
 5. On your machine, run `frankfurter/scripts/install/start_frank_install.sh`. Type in `ubuntu`'s password as many times as is necessary.
 6. `ssh` in, and run `start_tmux_job.sh`. Again, enter `ubuntu`'s password as necessary.
 7. After the kernel is upgraded (to ensure `linux-headers-$(uname -r)` is available), the Beaglebone will automatically reboot. As instructed, reconnect the Beaglebone to the internet after the reboot, `ssh` in, and run `tmux new-session -d '~/PieCentral/DevOps/frankfurter/scripts/install/master_frank_setup.sh'`.

@@ -4,6 +4,14 @@ class Timer:
     and compare it to the current system time in order to see how much time is left
     """
     def __init__(self, timer_type, goal_name=None):
+        """
+        timer_type - a String representing the type of timer that this is:
+                        'bid' - represents a bid timer
+                        'powerup' - represents a powerup timer
+                        'cooldown' - represents a cooldown timer
+                        'code_cooldown' - represents a cooldown timer for a code
+                        'duration' - represents a duration timer for a powerup
+        """
         self.active = False
         self.timer_type = timer_type
         self.goal_name = goal_name

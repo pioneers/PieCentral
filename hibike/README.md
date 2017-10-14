@@ -190,13 +190,7 @@ Device Type Enumeration:
 |         |                | 5            | v_batt     | float      | yes   | no     |
 |         |                | 6            | dv_cell2   | float      | yes   | no     |
 |         |                | 7            | dv_cell3   | float      | yes   | no     |
-|         |                | 1            | blue       | bool       | yes   | yes    |
-|         |                | 2            | yellow     | bool       | yes   | yes    |
-|         |                | 3            | led1       | bool       | yes   | yes    |
-|         |                | 4            | led2       | bool       | yes   | yes    |
-|         |                | 5            | led3       | bool       | yes   | yes    |
-|         |                | 6            | led4       | bool       | yes   | yes    |
-|  0x06   | Grizzly        |              |            |            |       |        |
+
 |  0x07   | ServoControl   | 0            | servo0     | float      | yes   | yes    |
 |         |                | 1            | servo1     | float      | yes   | yes    |
 |  0x08   | LinearActuator |              |            |            |       |        |

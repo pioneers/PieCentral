@@ -289,7 +289,6 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         del devs[uid]
 
     def hibike_response_timestamp_up(self, *data):
-        print("We have received timestamp_up")
         data = list(data)
         data.append(time.monotonic())
         self.process_mapping[PROCESS_NAMES.TCP_PROCESS].send(

@@ -71,8 +71,8 @@ class HIBIKE_RESPONSE(Enum):
 class ANSIBLE_COMMANDS(Enum):
     STUDENT_UPLOAD = "student_upload"
     CONSOLE        = "console"
-    TIMESTAMP_UP = "timestamp up"
-    TIMESTAMP_DOWN = "timestamp down"
+    TIMESTAMP_UP = "Get timestamps going up the stack" 
+    TIMESTAMP_DOWN = "Get timestamps going down the stack"
 
 @unique
 class SM_COMMANDS(Enum):

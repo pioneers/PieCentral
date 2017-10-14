@@ -403,7 +403,7 @@ class TCPClass(AnsibleHandler):
                         str(e),
                         event=BAD_EVENTS.TCP_ERROR,
                         printStackTrace=True))
-        def package_timestamp(timestamp):
+        def package_timestamps(timestamp):
             try:
                 timestamp_message = notification_pb2.Notification()
                 timestamp_message.header = notification_pb2.Notification.TIMESTAMP_UP
@@ -429,7 +429,7 @@ class TCPClass(AnsibleHandler):
                 elif raw_message[0] == ANSIBLE_COMMANDS.CONSOLE:
                     packed_msg = package_message(data)
                 elif raw_message[0] == ANSIBLE_COMMANDS.TIMESTAMP_UP:
-                    packed_msg = package_timestamp(data)
+                    packed_msg = package_timestamps(data)
                 else:
                     continue
                 if packed_msg is not None:
@@ -474,7 +474,8 @@ class TCPClass(AnsibleHandler):
                     timestamps.append(time.monotonic())
                     state_queue.put([HIBIKE_COMMANDS.TIMESTAMP_DOWN, timestamps])
                     continue
-                state_queue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
+                if unpackaged_data.header == notification_pb2.Notification.STUDENT_SENT:
+                    state_queue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
         except ConnectionResetError:
             bad_things_queue.put(
                 BadThing(

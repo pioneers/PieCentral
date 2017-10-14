@@ -43,7 +43,6 @@ def receiver(port, receive_queue):
         runtime_message = runtime_pb2.RuntimeData()
         runtime_message.ParseFromString(msg)
         receive_queue[0] = msg
-        #print(runtime_message)
 
 
 def tcp_relay(port):

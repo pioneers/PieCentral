@@ -14,7 +14,7 @@ class RUNTIME_CONFIG(Enum):
     TEST_OUTPUT_DIR             = "test_outputs/"
     VERSION_MAJOR               = 1
     VERSION_MINOR               = 1
-    VERSION_PATCH               = 0
+    VERSION_PATCH               = 1
 
 @unique
 class BAD_EVENTS(Enum):

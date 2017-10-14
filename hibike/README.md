@@ -190,7 +190,6 @@ Device Type Enumeration:
 |         |                | 5            | v_batt     | float      | yes   | no     |
 |         |                | 6            | dv_cell2   | float      | yes   | no     |
 |         |                | 7            | dv_cell3   | float      | yes   | no     |
-
 |  0x07   | ServoControl   | 0            | servo0     | float      | yes   | yes    |
 |         |                | 1            | servo1     | float      | yes   | yes    |
 |  0x08   | LinearActuator |              |            |            |       |        |

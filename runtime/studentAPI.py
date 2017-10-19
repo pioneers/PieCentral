@@ -85,7 +85,6 @@ class Gamepad(StudentAPI):
 
 class Robot(StudentAPI):
     deviceName_to_writeParams = {
-        "TeamFlag": ["led1", "led2", "led3", "led4"],
         "ServoControl": ["servo0", "servo1"],
         "YogiBear": ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki",
                      "pid_pos_kd", "current_thresh", "enc_pos"],

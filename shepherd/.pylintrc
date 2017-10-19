@@ -1,2 +1,2 @@
 [MESSAGES CONTROL]
-disable=missing-docstring, no-self-use
+disable=missing-docstring, no-self-use, too-many-instance-attributes, wildcard-import, unused-wildcard-import, too-many-arguments, too-few-public-methods

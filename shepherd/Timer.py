@@ -4,6 +4,19 @@ class Timer:
     and compare it to the current system time in order to see how much time is left
     """
     def __init__(self, timer_type, goal_name=None):
+        """
+        timer_type - a Enum representing the type of timer that this is:
+                        TIMER_TYPES.BID - represents a bid timer
+                        TIMER_TYPES.MATCH - represents the time of the current
+                                            stage in the match
+                        TIMER_TYPES.COOLDOWN - represents a cooldown timer for
+                                               the cooldown when a powerup
+                                               cannot be applied
+                        TIMER_TYPES.CODE_COOLDOWN - represents a cooldown timer
+                                                    for a code
+                        TIMER_TYPES.DURATION - represents a duration timer for
+                                               a powerup
+        """
         self.active = False
         self.timer_type = timer_type
         self.goal_name = goal_name

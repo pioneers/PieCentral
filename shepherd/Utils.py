@@ -13,7 +13,7 @@ class CONSTANTS(Enum):
 @unique # pylint: disable=invalid-name
 class TIMER_TYPES(Enum):
     BID = 'bid'
-    POWERUP = 'powerup'
+    MATCH = 'match'
     COOLDOWN = 'cooldown'
     CODE_COOLDOWN = 'code_cooldown'
     DURATION = 'duration'

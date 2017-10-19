@@ -7,8 +7,11 @@ class Timer:
         """
         timer_type - a Enum representing the type of timer that this is:
                         TIMER_TYPES.BID - represents a bid timer
-                        TIMER_TYPES.POWERUP - represents a powerup timer
-                        TIMER_TYPES.COOLDOWN - represents a cooldown timer
+                        TIMER_TYPES.MATCH - represents the time of the current
+                                            stage in the match
+                        TIMER_TYPES.COOLDOWN - represents a cooldown timer for
+                                               the cooldown when a powerup
+                                               cannot be applied
                         TIMER_TYPES.CODE_COOLDOWN - represents a cooldown timer
                                                     for a code
                         TIMER_TYPES.DURATION - represents a duration timer for

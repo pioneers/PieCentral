@@ -262,8 +262,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
     def hibike_response_device_subbed(self, uid, delay, params):
         if delay == 0:
             device_name = SENSOR_TYPE[uid >> 72]
-            if device_name == "TeamFlag":
-                self.set_value(uid, ["team_flag_uid"], send=False)
+
             if device_name in self.device_name_to_subscribe_params:
                 self.hibike_subscribe_device(
                     self.process_mapping[PROCESS_NAMES.HIBIKE], uid, 40,

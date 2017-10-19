@@ -1,6 +1,6 @@
 # When all devices work, use $(notdir $(wildcard ../devices/*))
 DEVICES := BatteryBuzzer ExampleDevice LimitSwitch LineFollower Potentiometer \
-	RFID ServoControl TeamFlag YogiBear
+	RFID ServoControl YogiBear
 
 .PHONY: install artifacts-install lint test $(DEVICES)
 

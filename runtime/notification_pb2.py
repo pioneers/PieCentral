@@ -19,9 +19,8 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='notification.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x12notification.proto\"\xb4\x02\n\x0cNotification\x12\"\n\x06header\x18\x01 \x01(\x0e\x32\x12.Notification.Type\x12\x16\n\x0e\x63onsole_output\x18\x02 \x01(\t\x12\x33\n\x0esensor_mapping\x18\x03 \x03(\x0b\x32\x1b.Notification.SensorMapping\x1a@\n\rSensorMapping\x12\x12\n\ndevice_uid\x18\x01 \x01(\t\x12\x1b\n\x13\x64\x65vice_student_name\x18\x02 \x01(\t\"q\n\x04Type\x12\x13\n\x0f\x43ONSOLE_LOGGING\x10\x00\x12\x10\n\x0cSTUDENT_SENT\x10\x01\x12\x14\n\x10STUDENT_RECEIVED\x10\x02\x12\x18\n\x14STUDENT_NOT_RECEIVED\x10\x03\x12\x12\n\x0eSENSOR_MAPPING\x10\x04\x62\x06proto3')
+  serialized_pb=_b('\n\x12notification.proto\"\xef\x02\n\x0cNotification\x12\"\n\x06header\x18\x01 \x01(\x0e\x32\x12.Notification.Type\x12\x16\n\x0e\x63onsole_output\x18\x02 \x01(\t\x12\x33\n\x0esensor_mapping\x18\x03 \x03(\x0b\x32\x1b.Notification.SensorMapping\x12\x12\n\ntimestamps\x18\x04 \x03(\x02\x1a@\n\rSensorMapping\x12\x12\n\ndevice_uid\x18\x01 \x01(\t\x12\x1b\n\x13\x64\x65vice_student_name\x18\x02 \x01(\t\"\x97\x01\n\x04Type\x12\x13\n\x0f\x43ONSOLE_LOGGING\x10\x00\x12\x10\n\x0cSTUDENT_SENT\x10\x01\x12\x14\n\x10STUDENT_RECEIVED\x10\x02\x12\x18\n\x14STUDENT_NOT_RECEIVED\x10\x03\x12\x12\n\x0eSENSOR_MAPPING\x10\x04\x12\x10\n\x0cTIMESTAMP_UP\x10\x05\x12\x12\n\x0eTIMESTAMP_DOWN\x10\x06\x62\x06proto3')
 )
-_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
 
@@ -51,11 +50,19 @@ _NOTIFICATION_TYPE = _descriptor.EnumDescriptor(
       name='SENSOR_MAPPING', index=4, number=4,
       options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='TIMESTAMP_UP', index=5, number=5,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='TIMESTAMP_DOWN', index=6, number=6,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=218,
-  serialized_end=331,
+  serialized_start=239,
+  serialized_end=390,
 )
 _sym_db.RegisterEnumDescriptor(_NOTIFICATION_TYPE)
 
@@ -93,8 +100,8 @@ _NOTIFICATION_SENSORMAPPING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=152,
-  serialized_end=216,
+  serialized_start=172,
+  serialized_end=236,
 )
 
 _NOTIFICATION = _descriptor.Descriptor(
@@ -125,6 +132,13 @@ _NOTIFICATION = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='timestamps', full_name='Notification.timestamps', index=3,
+      number=4, type=2, cpp_type=6, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -139,7 +153,7 @@ _NOTIFICATION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=23,
-  serialized_end=331,
+  serialized_end=390,
 )
 
 _NOTIFICATION_SENSORMAPPING.containing_type = _NOTIFICATION
@@ -147,6 +161,7 @@ _NOTIFICATION.fields_by_name['header'].enum_type = _NOTIFICATION_TYPE
 _NOTIFICATION.fields_by_name['sensor_mapping'].message_type = _NOTIFICATION_SENSORMAPPING
 _NOTIFICATION_TYPE.containing_type = _NOTIFICATION
 DESCRIPTOR.message_types_by_name['Notification'] = _NOTIFICATION
+_sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Notification = _reflection.GeneratedProtocolMessageType('Notification', (_message.Message,), dict(
 

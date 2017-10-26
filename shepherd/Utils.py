@@ -33,7 +33,6 @@ class SCOREBOARD_HEADER(Enum):
     POWERUPS = "powerups"
     ALLIANCE_MULTIPLIER = "alliance_multiplier"
 
-@unique # pylint: disable=invalid-name
 class CONSTANTS(Enum):
     # Check with GDC for actual numbers
     TWO_X_COOLDOWN = 5

@@ -255,9 +255,10 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         pipe.send([HIBIKE_COMMANDS.READ.value, [uid, params]])
 
     def hibike_timestamp_down(self, pipe, *data):
+        print("We have received timestamp_down")
         data = list(data)
-        data.append(time.time())
-        pipe.send(HIBIKE_COMMANDS.TIMESTAMP_DOWN.value, data)
+        data.append(time.perf_counter())
+        pipe.send([HIBIKE_COMMANDS.TIMESTAMP_DOWN.value, data])
 
     def hibike_response_device_subbed(self, uid, delay, params):
         if delay == 0:
@@ -288,8 +289,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def hibike_response_timestamp_up(self, *data):
         data = list(data)
-        data.append(time.time())
-        self.bad_things_queue.put(BadThing(sys.exc_info, data, BAD_EVENTS.TIMESTAMP_UP, False))
+        data.append(time.perf_counter())
+        self.process_mapping[PROCESS_NAMES.TCP_PROCESS].send(
+            [ANSIBLE_COMMANDS.TIMESTAMP_UP, data])
 
     def hibike_disable(self, pipe):
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])

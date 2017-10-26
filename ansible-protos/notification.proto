@@ -7,6 +7,8 @@ message Notification {
         STUDENT_RECEIVED = 2;
         STUDENT_NOT_RECEIVED = 3;
         SENSOR_MAPPING = 4;
+        TIMESTAMP_UP = 5;
+        TIMESTAMP_DOWN = 6;
     }
     message SensorMapping {
         string device_uid = 1;
@@ -15,4 +17,5 @@ message Notification {
     Type header = 1;
     string console_output = 2;   // Console Output From Runtime to Dawn
     repeated SensorMapping sensor_mapping = 3;
+    repeated float timestamps = 4;
 }

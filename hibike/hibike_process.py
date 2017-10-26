@@ -266,7 +266,7 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
                 for pack in devices.values():
                     pack.write_queue.put(("disable", []))
             elif instruction == "timestamp_down":
-                timestamp = time.time()
+                timestamp = time.perf_counter()
                 args.append(timestamp)
                 state_queue.put(("timestamp_up", args))
         except KeyError:

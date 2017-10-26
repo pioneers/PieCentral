@@ -35,11 +35,12 @@ class SCOREBOARD_HEADER(Enum):
 
 @unique # pylint: disable=invalid-name
 class CONSTANTS(Enum):
-    TWO_X_COOLDOWN = "two_x_cooldown"
-    ZERO_X_COOLDOWN = "zero_x_cooldown"
-    STEAL_COOLDOWN = "steal_cooldown"
-    CODE_COOLDOWN = "code_cooldown"
-    BID_INCREASE_CONSTANT = "bid_increase_constant"
+    # Check with GDC for actual numbers
+    TWO_X_COOLDOWN = 5
+    ZERO_X_COOLDOWN = 5
+    STEAL_COOLDOWN = 5
+    CODE_COOLDOWN = 5
+    BID_INCREASE_CONSTANT = 5
 
 @unique # pylint: disable=invalid-name
 class TIMER_TYPES(Enum):

@@ -60,7 +60,6 @@ def tcp_relay(port, msgqueue=queue.Queue()):
     s.bind((host, port))
     s.listen(1)
     conn, addr = s.accept()
-    #conn.send(msg)
     while True:
         if not msgqueue.empty():
             conn.send(msgqueue.get())

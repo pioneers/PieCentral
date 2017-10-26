@@ -65,13 +65,13 @@ class HIBIKE_RESPONSE(Enum):
     DEVICE_SUBBED = "device_subscribed"
     DEVICE_VALUES = "device_values"
     DEVICE_DISCONNECT = "device_disconnected"
-    TIMESTAMP_UP = "timestamp_up"
+    TIMESTAMP_UP  = "timestamp_up"
 
 @unique
 class ANSIBLE_COMMANDS(Enum):
     STUDENT_UPLOAD = "student_upload"
     CONSOLE        = "console"
-    TIMESTAMP_UP = "Get timestamps going up the stack" 
+    TIMESTAMP_UP   = "Get timestamps going up the stack"
     TIMESTAMP_DOWN = "Get timestamps going down the stack"
 
 @unique

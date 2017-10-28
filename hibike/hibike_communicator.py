@@ -143,10 +143,10 @@ class HibikeCommunicator:
         """
         self.pipeToChild.send(["subscribe_device", [uid, delay, params]])
 
-    def disable(self):
-        """
-        Disable all attached devices.
-        """
+   def disable(self):
+       """
+       Disable all attached devices.
+       """
         self.pipe_to_child.send(["disable_all", []])
 
 ##############
@@ -274,7 +274,7 @@ if __name__ == "__main__":
             print("Uid: ", uid, "\n", "Last cached, all params: ", comms.get_last_cached(uid, "id"), "\n", comms.get_last_cached(uid, "detect_tag"))
             time.sleep(0.5)
       else:
-         raise TypeError("ERROR: unknown device type detected")
+         raise TypeError("ERROR: unknown device type detected")a set of commands in a cycle
 
       #print(uid_type_tuple)
       #process_thread = threading.Thread(target = device_comms, args = [comms, uid_type_tuple, script, time_delay, repeat_delay])

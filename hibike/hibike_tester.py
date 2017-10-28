@@ -37,30 +37,30 @@ class Hibike:
                uid = output[1][0]
                if uid not in self.uids:
                    self.uids.add(uid)
-          if command == "device_disconnected":
-              uid = output[1]
-              if uid in self.uids:
-                  self.uids.remove(uid)
+           if command == "device_disconnected":
+               uid = output[1]
+               if uid in self.uids:
+                   self.uids.remove(uid)
 
-          if command == "device_values":
-              uid = 0
-              for key in output[1][0].keys():
-                  uid = key
-              try:
-                  params_values = output[1][0][uid]
-              except KeyError:
-                  params_values = [{}]
+           if command == "device_values":
+               uid = 0
+               for key in output[1][0].keys():
+                   uid = key
+               try:
+                   params_values = output[1][0][uid]
+               except KeyError:
+                   params_values = [{}]
 
-              for param_val_tuple in params_values:
-                  try:
-                      parameter = param_val_tuple[0]
-                      value = param_val_tuple[1]
-                  except KeyError:
-                     continue
-                 if uid not in self.device_values_cache:
-                    self.device_values_cache.update({uid: {parameter: (value, time.time())}})
-                 else:
-                    self.device_values_cache[uid].update({parameter: (value, time.time())})
+               for param_val_tuple in params_values:
+                   try:
+                       parameter = param_val_tuple[0]
+                       value = param_val_tuple[1]
+                   except KeyError:
+                      continue
+                   if uid not in self.device_values_cache:
+                       self.device_values_cache.update({uid: {parameter: (value, time.time())}})
+                   else:
+                       self.device_values_cache[uid].update({parameter: (value, time.time())})
 
     def get_last_cached(self, uid, param):
       try:

@@ -2,10 +2,13 @@
 Create a separate Hibike process, for testing.
 """
 from multiprocessing import Process, Pipe, Queue
+# pylint: disable=import-error
 import hibike_process
 
 class Hibike:
-    """ Interface to a separate Hibike process. """
+    """
+    Interface to a separate Hibike process.
+    """
     def __init__(self):
         self.bad_things_queue = Queue()
         self.state_queue = Queue()
@@ -73,18 +76,33 @@ class Hibike:
       return list
 
     def enumerate(self):
+        """
+        Enumerate all devices.
+        """
         self.pipe_to_child.send(["enumerate_all", []])
 
     def subscribe(self, uid, delay, params):
+        """
+        Subscribe to device UID, with DELAY delay, and parameters PARAMS.
+        """
         self.pipe_to_child.send(["subscribe_device", [uid, delay, params]])
 
     def write(self, uid, params_and_values):
+        """
+        Write PARAMS_AND_VALUES to the device at UID.
+        """
         self.pipe_to_child.send(["write_params", [uid, params_and_values]])
 
     def read(self, uid, params):
+        """
+        Read PARAMS from the device at UID.
+        """
         self.pipe_to_child.send(["read_params", [uid, params]])
 
     def disable(self):
+        """
+        Disable all attached devices.
+        """
         self.pipe_to_child.send(["disable_all", []])
 
 def run_test():

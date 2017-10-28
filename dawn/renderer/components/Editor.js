@@ -415,7 +415,8 @@ class Editor extends React.Component {
                 active={this.state.mode === robotState.TELEOP && !this.state.simulate}
                 onClick={() => {
                   this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
-                }}>
+                }}
+              >
                 Tele-Operated
               </MenuItem>
               <MenuItem
@@ -423,13 +424,15 @@ class Editor extends React.Component {
                 active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
                 onClick={() => {
                   this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
-                }}>
+                }}
+              >
                 Autonomous
               </MenuItem>
               <MenuItem
                 eventKey="3"
                 active={this.state.simulate}
-                onClick={this.simulateCompetition}>
+                onClick={this.simulateCompetition}
+              >
                 Simulate Competition
               </MenuItem>
             </DropdownButton>

@@ -60,7 +60,6 @@ class Hibike:
                     self.device_values_cache[uid].update({parameter: (value, time.time())})
 
     def get_last_cached(self, uid, param):
-
       try:
          return self.device_values_cache[uid][param]
       except KeyError:
@@ -88,7 +87,7 @@ class Hibike:
     def disable(self):
         self.pipe_to_child.send(["disable_all", []])
 
-if __name__ == "__main__":
+def run_test():
    comms = HibikeCommunicator()
    time.sleep(3)
    device_info = comms.get_uids_and_types()

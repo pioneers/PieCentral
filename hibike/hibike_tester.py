@@ -109,7 +109,6 @@ def run_test():
    comms = HibikeCommunicator()
    time.sleep(3)
    device_info = comms.get_uids_and_types()
-   a set of commands in a cycle
    for uid_type_tuple in device_info:
       uid = uid_type_tuple[0]
       type = uid_type_tuple[1]

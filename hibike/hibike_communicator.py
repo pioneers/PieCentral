@@ -9,15 +9,15 @@ import threading
 import time
 
 class HibikeCommunicator:
-  
+
    def __init__(self):
       """
           Set up the pipes for communication between the device and the BeagleBone, creates a thread to recieve communications from the device, starts up the process that runs the communication, and sets up a dictionary that caches all device values sent to it.
       """
-      
+
       # This block creates the pipes
       self.pipeToChild, pipeFromChild = multiprocessing.Pipe()
-      
+
       # This block creates the process
       badThingsQueue = multiprocessing.Queue()
       self.stateQueue = multiprocessing.Queue()
@@ -25,14 +25,14 @@ class HibikeCommunicator:
       newProcess.daemon = True
       newProcess.start()
       self.enumerate()
-      
+
       # Creates the list of uids
       self.uids = set()
-      
+
       # This block creates the thread
       outThread =  threading.Thread(target = self.process_output)
       outThread.start()
-   
+
       # Create the device values dictionary cache
       self.device_values_cache = {}
 
@@ -58,7 +58,7 @@ class HibikeCommunicator:
             if uid in self.uids:
                self.uids.remove(uid)
 
-   
+
          #If it is a device value, cache it in the dictionary.
          if command == "device_values":
             uid = 0
@@ -66,14 +66,14 @@ class HibikeCommunicator:
                 uid = key
                 #print ("Key is", uid, "this is key")
                 #break
-                
+
             #print("UID: ", uid, "\n")
             try:
                 params_values = output[1][0][uid]
             except KeyError:
                 #print("No UIDs detected for a device_values request")
                 params_values = [{}]
-             
+
             for param_val_tuple in params_values:
                 try:
                     parameter = param_val_tuple[0]
@@ -85,7 +85,7 @@ class HibikeCommunicator:
                    self.device_values_cache.update({uid: {parameter: (value, time.time())}})
                 else:
                    self.device_values_cache[uid].update({parameter: (value, time.time())})
-   
+
    def get_last_cached(self, uid, param):
       """
          Returns a tuple of the value and the timestamp of the last device_values package recieved from a uid and a parameter
@@ -98,7 +98,7 @@ class HibikeCommunicator:
          print("Keyerror detected, returning zero as last cached")
          return 0
 
-   
+
    def get_uids_and_types(self):
       """
          Returns a list of tuples of all of the uids of all devices that the HibikeCommunicator talks to
@@ -108,7 +108,7 @@ class HibikeCommunicator:
       for uid in self.uids:
          list.append((uid, hm.uid_to_device_name(uid)))
       return list
-   
+
    def enumerate(self):
       """
           Sends an enumeration order to hibike_process to ping all devices
@@ -123,25 +123,31 @@ class HibikeCommunicator:
           params_and_values - an iterable of param (name, value) tuples
        """
        self.pipeToChild.send(["write_params", [uid, params_and_values]])
-   
-   def read(self, uid, params): 
+
+   def read(self, uid, params):
         """
            Sends a Device Read to a device
-        
+
            uid - the device's uid
            params - an iterable of the names of the params to be read
         """
         self.pipeToChild.send(["read_params", [uid, params]])
-        
+
    def subscribe(self, uid, delay, params):
         """
            Subscribes to the device
-           
+
            uid - the device's uid
            delay - the delay between device datas to be sent
            params - an iterable of the names of the params to be subscribed to
         """
         self.pipeToChild.send(["subscribe_device", [uid, delay, params]])
+
+    def disable(self):
+        """
+        Disable all attached devices.
+        """
+        self.pipe_to_child.send(["disable_all", []])
 
 ##############
 #  TESTING   #
@@ -151,7 +157,7 @@ class HibikeCommunicator:
    """
         Given a Hibike_Communicator and a device's UID and type, repeatedly carries out a script given to it by the caller with a user specified delay between each item in the script and each iteration of the script
         Commented out due to an error
-        
+
         comms: the Hibike_Communicator
         uid_type_tuple: a tuple that looks like this: (UID, device type)
         script: a script of commands to send to hibike_communcator
@@ -160,35 +166,14 @@ class HibikeCommunicator:
         Precondition: uid_type_tuple must be an element of comms.get_uids_and_types()
         Precondition: script is a list of function calls, usually HibikeCommunicator functions or print (the latter to print out cached data and other output from the various systems
    """
-   #print("UID type tuple: ", uid_type_tuple)
-   
-   #uid = uid_type_tuple[0]
-   #type = uid_type_tuple[1]
-   
-   # Run every item in the user-given script
-   #while True:
-      #for item in script:
-         #try:
-            #item()
-            #print("Item run")
-         #except KeyError:
-            #print("Error: no entry for UID :", uid)
-         #except TypeError:
-            #print("Object not in callable format")
-         #time.sleep(item_delay)
-      #print("Done with one cycle")
-      #time.sleep(repeat_delay)
 
-
-# What happens when hibike_communicator is called to be tested
-# Also a template for how to run hibike_communicator
 if __name__ == "__main__":
     # Set up the
    comms = HibikeCommunicator()
    time.sleep(3)
-            
+
    device_info = comms.get_uids_and_types()
-        
+
    # For each device, executes a set of commands in a cycle
    # This function has a set of standard scripts and delays for each device, but you can choose whatever scripts you like
    for uid_type_tuple in device_info:
@@ -209,7 +194,7 @@ if __name__ == "__main__":
             time.sleep(0.05)
             print("Uid: ", uid,"\n", "Last cached, all params: ", comms.get_last_cached(uid, "left"), "\n", comms.get_last_cached(uid, "right"), "\n")
             time.sleep(0.5)
-            
+
       elif type == "Potentiometer":
          while True:
             comms.subscribe(uid, 100, ["pot0" , "pot1", "pot2", "pot3"])
@@ -258,7 +243,7 @@ if __name__ == "__main__":
             time.sleep(0.05)
             print("Uid: ", uid,"\n", "Last cached, all params: ", comms.get_last_cached(uid, "duty"), "\n", comms.get_last_cached(uid, "forward"), "\n")
             time.sleep(0.5)
-          
+
       elif type == "ServoControl":
          while True:
             comms.subscribe(uid, 100, ["servo0", "enable0", "servo1", "enable1", "servo2", "enable2", "servo3", "enable3"])
@@ -294,4 +279,3 @@ if __name__ == "__main__":
       #print(uid_type_tuple)
       #process_thread = threading.Thread(target = device_comms, args = [comms, uid_type_tuple, script, time_delay, repeat_delay])
       #process_thread.start()
-

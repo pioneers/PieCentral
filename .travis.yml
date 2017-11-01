@@ -11,8 +11,9 @@ env:
   - TEST_DIR=runtime
 cache:
   pip: true
+  yarn: true
   directories:
-    - $HOME/.cache/yarn
+    - node_modules
 before_install:
   - nvm install --lts
   - pip3 install pipenv

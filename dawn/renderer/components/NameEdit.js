@@ -38,8 +38,10 @@ class NameEdit extends React.Component {
     const re = new RegExp('^[A-Za-z][A-Za-z0-9]+$');
     const isValid = re.test(name);
     const allCurrentPeripherals = _.toArray(this.props.peripherals);
-    const isDuplicate = _.some(allCurrentPeripherals,
-      peripheral => peripheral.name === name && peripheral.id !== this.props.id);
+    const isDuplicate = _.some(
+      allCurrentPeripherals,
+      peripheral => peripheral.name === name && peripheral.id !== this.props.id,
+    );
     return isValid && !isDuplicate;
   }
 

@@ -58,7 +58,7 @@ class AppComponent extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const asyncAlerts = nextProps.asyncAlerts;
+    const { asyncAlerts } = nextProps;
     // If the alerts list has changed, display the latest one.
     if (asyncAlerts !== this.props.asyncAlerts) {
       const latestAlert = asyncAlerts[asyncAlerts.length - 1];

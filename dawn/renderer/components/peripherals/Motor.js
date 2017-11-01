@@ -13,7 +13,7 @@ const Motor = ({ id, device_name, param }) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
       <div>{id}</div>
-      <small>{'Motor'}</small>
+      <small>Motor</small>
     </h4>
     {
       _.map(param, obj => ( // TODO: Figure out if a ProgressBar is useful

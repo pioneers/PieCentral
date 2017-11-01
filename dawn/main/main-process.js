@@ -3,6 +3,9 @@
  */
 
 import { app, BrowserWindow, Menu, ipcMain } from 'electron';
+/* eslint import/no-extraneous-dependencies: ["error", {"peerDependencies": true}] */
+import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+
 import RendererBridge from './RendererBridge';
 import { killFakeRuntime } from './MenuTemplate/DebugMenu';
 import Template from './MenuTemplate/Template';
@@ -51,4 +54,18 @@ app.on('ready', () => {
 
   const menu = Menu.buildFromTemplate(Template);
   Menu.setApplicationMenu(menu);
+
+  if (process.env.NODE_ENV !== 'production') {
+    installExtension(REACT_DEVELOPER_TOOLS).then((name) => {
+      console.log(`Added Extension:  ${name}`);
+    }).catch((err) => {
+      console.log('An error occurred: ', err);
+    });
+
+    installExtension(REDUX_DEVTOOLS).then((name) => {
+      console.log(`Added Extension:  ${name}`);
+    }).catch((err) => {
+      console.log('An error occurred: ', err);
+    });
+  }
 });

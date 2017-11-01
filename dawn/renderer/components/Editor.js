@@ -33,7 +33,7 @@ import ConsoleOutput from './ConsoleOutput';
 import TooltipButton from './TooltipButton';
 import { pathToName, robotState, defaults, timings, logging, windowInfo } from '../utils/utils';
 
-const dialog = remote.dialog;
+const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
 
 class Editor extends React.Component {
@@ -86,7 +86,7 @@ class Editor extends React.Component {
     this.copyConsole = this.copyConsole.bind(this);
     this.state = {
       consoleHeight: windowInfo.CONSOLESTART,
-      editorHeight: 0,
+      editorHeight: 0, // Filled in later during componentDidMount
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
       simulate: false,
@@ -182,10 +182,10 @@ class Editor extends React.Component {
     this.setState({ editorHeight: this.getEditorHeight() });
   }
 
-  getEditorHeight(windowHeight) {
+  getEditorHeight() {
     const windowNonEditorHeight = windowInfo.NONEDITOR +
       (this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
-    return `${String(windowHeight - windowNonEditorHeight)}px`;
+    return `${String(window.innerHeight - windowNonEditorHeight)}px`;
   }
 
   beforeUnload(event) {
@@ -223,7 +223,7 @@ class Editor extends React.Component {
   }
 
   upload() {
-    const filepath = this.props.filepath;
+    const { filepath } = this.props;
     if (filepath === '') {
       this.props.onAlertAdd(
         'Not Working on a File',
@@ -259,9 +259,11 @@ class Editor extends React.Component {
   }
 
   stopRobot() {
-    this.setState({ simulate: false,
+    this.setState({
+      simulate: false,
       modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
-        robotState.AUTOSTR : robotState.TELEOPSTR });
+        robotState.AUTOSTR : robotState.TELEOPSTR,
+    });
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
@@ -309,8 +311,7 @@ class Editor extends React.Component {
             this.setState({ modeDisplay: `Cooldown: ${timings.IDLE - diff}` });
           }
         }, timings.SEC);
-      }),
-    ).then(() => {
+      })).then(() => {
       new Promise((resolve, reject) => {
         logging.log(`Beginning ${timings.TELEOP}s ${robotState.TELEOPSTR}`);
         this.props.onUpdateCodeStatus(robotState.TELEOP);
@@ -457,19 +458,25 @@ class Editor extends React.Component {
                 onClick={() => {
                   this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
                 }}
-              >Tele-Operated</MenuItem>
+              >
+                Tele-Operated
+              </MenuItem>
               <MenuItem
                 eventKey="2"
                 active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
                 onClick={() => {
                   this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
                 }}
-              >Autonomous</MenuItem>
+              >
+                Autonomous
+              </MenuItem>
               <MenuItem
                 eventKey="3"
                 active={this.state.simulate}
                 onClick={this.simulateCompetition}
-              >Simulate Competition</MenuItem>
+              >
+                Simulate Competition
+              </MenuItem>
             </DropdownButton>
             <TooltipButton
               id="e-stop"
@@ -555,7 +562,7 @@ class Editor extends React.Component {
           fontSize={this.props.fontSize}
           ref={(input) => { this.CodeEditor = input; }}
           name="CodeEditor"
-          height={this.getEditorHeight(window.innerHeight)}
+          height={this.state.editorHeight.toString()}
           value={this.props.editorCode}
           onChange={this.props.onEditorUpdate}
           onPaste={Editor.onEditorPaste}

@@ -22,6 +22,7 @@
     "no-constant-condition": ["error", { "checkLoops": false }],
     "no-param-reassign": "off",
     "no-restricted-syntax": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "react/jsx-closing-tag-location": "off"
   }
 }

@@ -7,7 +7,9 @@ import numeral from 'numeral';
 /**
  * Generic Peripheral for General Case
  */
-const GenericPeripheral = ({ id, device_name, device_type, param }) => (
+const GenericPeripheral = ({
+  id, device_name, device_type, param,
+}) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
       <div>{id}</div>
@@ -27,7 +29,7 @@ const GenericPeripheral = ({ id, device_name, device_type, param }) => (
 
 GenericPeripheral.propTypes = {
   device_name: PropTypes.string.isRequired,
-  device_type: PropTypes.string.isRequired,
+  device_type: PropTypes.string,
   id: PropTypes.string.isRequired,
   param: PropTypes.array.isRequired,
 };

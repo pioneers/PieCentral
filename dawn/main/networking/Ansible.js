@@ -21,7 +21,7 @@ import { robotState, Logger, defaults } from '../../renderer/utils/utils';
 import LCMObject from './FieldControlLCM';
 
 const DawnData = (new protobuf.Root()).loadSync(`${__dirname}/ansible.proto`, { keepCase: true }).lookupType('DawnData');
-const StudentCodeStatus = DawnData.StudentCodeStatus;
+const { StudentCodeStatus } = DawnData;
 
 const RuntimeData = (new protobuf.Root()).loadSync(`${__dirname}/runtime.proto`, { keepCase: true }).lookupType('RuntimeData');
 const Notification = (new protobuf.Root()).loadSync(`${__dirname}/notification.proto`, { keepCase: true }).lookupType('Notification');
@@ -208,12 +208,10 @@ class TCPSocket {
   }
 
   tryUpload() {
-    const message = Notification.encode(
-      Notification.create({
-        header: Notification.Type.STUDENT_SENT,
-        console_output: '',
-      }),
-    ).finish();
+    const message = Notification.encode(Notification.create({
+      header: Notification.Type.STUDENT_SENT,
+      console_output: '',
+    })).finish();
 
     this.socket.write(message, () => {
       this.logger.log('Runtime Notified');

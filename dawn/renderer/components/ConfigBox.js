@@ -104,7 +104,11 @@ class ConfigBoxComponent extends React.Component {
   }
 
   handleClose() {
-    this.setState({ ipAddress: this.state.originalIP });
+    this.setState({
+      ipAddress: this.state.originalIP,
+      stationNumber: this.state.originalSN,
+      fcAddress: this.state.originalFC,
+    });
     this.props.hide();
   }
 

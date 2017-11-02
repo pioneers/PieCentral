@@ -72,4 +72,38 @@ class Goal:
             effect - enum representing an effect to be applied to the goal
             alliance - the alliance trying to apply the effect to the goal
         """
-        pass
+        if effect == POWERUP_TYPES.TWO_X:
+            if(alliance.name = CONSTANTS.BLUE):
+                if(self.blue_two_x_timer.active()):
+                    return -1
+                else:
+                    self.blue_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
+                    #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
+                    return 1
+            elif(alliance.name = CONSTANTS.GOLD):
+                if(self.gold_two_x_timer.active()):
+                    return -1
+                else:
+                    self.gold_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
+                    #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
+                    return 1
+            else:
+                return -3
+        if effect == POWERUP_TYPES.ZERO_X:
+            if(alliance.name = CONSTANTS.BLUE):
+                if(self.blue_zero_x_timer.active()):
+                    return -1
+                else:
+                    self.blue_zero_x_timer.start_timer(CONSTANTS.ZERO_X_COOLDOWN)
+                    #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
+                    return 1
+            elif(alliance.name = CONSTANTS.GOLD):
+                if(self.gold_zero_x_timer.active()):
+                    return -1
+                else:
+                    self.gold_zero_x_timer.start_timer(CONSTANTS.ZERO_X_COOLDOWN)
+                    #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
+                    return 1
+            else:
+                return -3
+            #still need to do steal

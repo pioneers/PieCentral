@@ -48,3 +48,9 @@ class TIMER_TYPES(Enum):
     COOLDOWN = "cooldown"
     CODE_COOLDOWN = "code_cooldown"
     DURATION = "duration"
+
+@unique # pylint: disable=invalid-name
+class POWERUP_TYPES(Enum):
+    ZERO_X = "zero_x"
+    TWO_X = "two_x"
+    STEAL = "steal"

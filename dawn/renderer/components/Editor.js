@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   Panel,
   ButtonGroup,
@@ -32,7 +33,7 @@ import ConsoleOutput from './ConsoleOutput';
 import TooltipButton from './TooltipButton';
 import { pathToName, robotState, defaults, timings, logging, windowInfo } from '../utils/utils';
 
-const dialog = remote.dialog;
+const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
 
 class Editor extends React.Component {
@@ -85,7 +86,7 @@ class Editor extends React.Component {
     this.copyConsole = this.copyConsole.bind(this);
     this.state = {
       consoleHeight: windowInfo.CONSOLESTART,
-      editorHeight: 0,
+      editorHeight: 0, // Filled in later during componentDidMount
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
       simulate: false,
@@ -96,7 +97,59 @@ class Editor extends React.Component {
    * Confirmation Dialog on Quit, Stored Editor Settings, Window Size-Editor Re-render
    */
   componentDidMount() {
-    this.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
+    this.CodeEditor.editor.setOptions({
+      enableBasicAutocompletion: true,
+      enableSnippets: true,
+      enableLiveAutocompletion: true,
+    });
+    const autoComplete = {
+      getCompletions(editor, session, pos, prefix, callback) {
+        callback(null, [
+          { value: 'Robot', score: 1000, meta: 'PiE API' },
+          { value: 'get_value', score: 900, meta: 'PiE API' },
+          { value: 'set_value', score: 900, meta: 'PiE API' },
+          { value: 'run', score: 900, meta: 'PiE API' },
+          { value: 'is_running', score: 900, meta: 'PiE API' },
+          { value: 'Gamepad', score: 1000, meta: 'PiE API' },
+          { value: 'Actions', score: 1000, meta: 'PiE API' },
+          { value: 'sleep', score: 900, meta: 'PiE API' },
+          { value: '"button_a"', score: 900, meta: 'PiE API' },
+          { value: '"button_b"', score: 900, meta: 'PiE API' },
+          { value: '"button_x"', score: 900, meta: 'PiE API' },
+          { value: '"button_y"', score: 900, meta: 'PiE API' },
+          { value: '"l_bumper"', score: 900, meta: 'PiE API' },
+          { value: '"r_bumper"', score: 900, meta: 'PiE API' },
+          { value: '"l_trigger"', score: 900, meta: 'PiE API' },
+          { value: '"r_trigger"', score: 900, meta: 'PiE API' },
+          { value: '"button_back"', score: 900, meta: 'PiE API' },
+          { value: '"button_start"', score: 900, meta: 'PiE API' },
+          { value: '"l_stick"', score: 900, meta: 'PiE API' },
+          { value: '"r_stick"', score: 900, meta: 'PiE API' },
+          { value: '"dpad_up"', score: 900, meta: 'PiE API' },
+          { value: '"dpad_down"', score: 900, meta: 'PiE API' },
+          { value: '"dpad_left"', score: 900, meta: 'PiE API' },
+          { value: '"dpad_right"', score: 900, meta: 'PiE API' },
+          { value: '"button_xbox"', score: 900, meta: 'PiE API' },
+          { value: 'def', score: 1000, meta: 'Python3' },
+          { value: 'await', score: 1000, meta: 'Python3' },
+          { value: 'print', score: 1000, meta: 'Python3' },
+          { value: 'max', score: 1000, meta: 'Python3' },
+          { value: 'min', score: 1000, meta: 'Python3' },
+          { value: 'async', score: 1000, meta: 'Python3' },
+          { value: 'lamda', score: 1000, meta: 'Python3' },
+          { value: 'for', score: 1000, meta: 'Python3' },
+          { value: 'while', score: 1000, meta: 'Python3' },
+          { value: 'True', score: 1000, meta: 'Python3' },
+          { value: 'False', score: 1000, meta: 'Python3' },
+          { value: 'abs', score: 1000, meta: 'Python3' },
+          { value: 'len', score: 1000, meta: 'Python3' },
+          { value: 'round', score: 1000, meta: 'Python3' },
+          { value: 'set()', score: 1000, meta: 'Python3' },
+        ]);
+      },
+    };
+    this.CodeEditor.editor.completers = [autoComplete];
+
     this.onWindowResize();
     storage.get('editorTheme', (err, data) => {
       if (err) {
@@ -129,10 +182,10 @@ class Editor extends React.Component {
     this.setState({ editorHeight: this.getEditorHeight() });
   }
 
-  getEditorHeight(windowHeight) {
+  getEditorHeight() {
     const windowNonEditorHeight = windowInfo.NONEDITOR +
       (this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
-    return `${String(windowHeight - windowNonEditorHeight)}px`;
+    return `${String(window.innerHeight - windowNonEditorHeight)}px`;
   }
 
   beforeUnload(event) {
@@ -170,8 +223,8 @@ class Editor extends React.Component {
   }
 
   upload() {
-    const filepath = this.props.filepath;
-    if (filepath === null) {
+    const { filepath } = this.props;
+    if (filepath === '') {
       this.props.onAlertAdd(
         'Not Working on a File',
         'Please save first',
@@ -206,9 +259,11 @@ class Editor extends React.Component {
   }
 
   stopRobot() {
-    this.setState({ simulate: false,
+    this.setState({
+      simulate: false,
       modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
-        robotState.AUTOSTR : robotState.TELEOPSTR });
+        robotState.AUTOSTR : robotState.TELEOPSTR,
+    });
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
@@ -256,8 +311,7 @@ class Editor extends React.Component {
             this.setState({ modeDisplay: `Cooldown: ${timings.IDLE - diff}` });
           }
         }, timings.SEC);
-      }),
-    ).then(() => {
+      })).then(() => {
       new Promise((resolve, reject) => {
         logging.log(`Beginning ${timings.TELEOP}s ${robotState.TELEOPSTR}`);
         this.props.onUpdateCodeStatus(robotState.TELEOP);
@@ -339,35 +393,30 @@ class Editor extends React.Component {
       >
         <ButtonToolbar>
           <ButtonGroup id="file-operations-buttons">
-            <TooltipButton
-              id="new"
-              text="New"
-              onClick={this.props.onCreateNewFile}
-              glyph="file"
-            />
-            <TooltipButton
-              id="open"
-              text="Open"
-              onClick={this.props.onOpenFile}
-              glyph="folder-open"
-            />
-            <TooltipButton
-              id="save"
-              text="Save"
-              onClick={this.props.onSaveFile}
-              glyph="floppy-disk"
-            />
-            <TooltipButton
-              id="save-as"
-              text="Save As"
-              onClick={_.partial(this.props.onSaveFile, true)}
-              glyph="floppy-save"
-            />
+            <DropdownButton
+              title="File"
+              bsSize="small"
+              id="choose-theme"
+            >
+              <MenuItem
+                onClick={this.props.onCreateNewFile}
+              >New File</MenuItem>
+              <MenuItem
+                onClick={this.props.onOpenFile}
+              >Open</MenuItem>
+              <MenuItem
+                onClick={this.props.onSaveFile}
+              >Save</MenuItem>
+              <MenuItem
+                onClick={_.partial(this.props.onSaveFile, true)}
+              >Save As</MenuItem>
+            </DropdownButton>
             <TooltipButton
               id="upload"
               text="Upload"
               onClick={this.upload}
               glyph="upload"
+              disabled={false}
             />
             <TooltipButton
               id="download"
@@ -409,25 +458,32 @@ class Editor extends React.Component {
                 onClick={() => {
                   this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
                 }}
-              >Tele-Operated</MenuItem>
+              >
+                Tele-Operated
+              </MenuItem>
               <MenuItem
                 eventKey="2"
                 active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
                 onClick={() => {
                   this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
                 }}
-              >Autonomous</MenuItem>
+              >
+                Autonomous
+              </MenuItem>
               <MenuItem
                 eventKey="3"
                 active={this.state.simulate}
                 onClick={this.simulateCompetition}
-              >Simulate Competition</MenuItem>
+              >
+                Simulate Competition
+              </MenuItem>
             </DropdownButton>
             <TooltipButton
               id="e-stop"
               text="E-STOP"
               onClick={this.estop}
               glyph="fire"
+              disabled={false}
             />
           </ButtonGroup>
           <ButtonGroup id="console-buttons">
@@ -436,12 +492,14 @@ class Editor extends React.Component {
               text="Toggle Console"
               onClick={this.toggleConsole}
               glyph="console"
+              disabled={false}
             />
             <TooltipButton
               id="clear-console"
               text="Clear Console"
               onClick={this.props.onClearConsole}
               glyph="remove"
+              disabled={false}
             />
             <TooltipButton
               id="raise-console"
@@ -462,6 +520,7 @@ class Editor extends React.Component {
               text="Copy Console"
               onClick={this.copyConsole}
               glyph="copy"
+              disabled={false}
             />
           </ButtonGroup>
           <ButtonGroup id="editor-settings-buttons">
@@ -503,7 +562,7 @@ class Editor extends React.Component {
           fontSize={this.props.fontSize}
           ref={(input) => { this.CodeEditor = input; }}
           name="CodeEditor"
-          height={this.getEditorHeight(window.innerHeight)}
+          height={this.state.editorHeight.toString()}
           value={this.props.editorCode}
           onChange={this.props.onEditorUpdate}
           onPaste={Editor.onEditorPaste}
@@ -522,29 +581,29 @@ class Editor extends React.Component {
 }
 
 Editor.propTypes = {
-  editorCode: React.PropTypes.string,
-  editorTheme: React.PropTypes.string,
-  filepath: React.PropTypes.string,
-  fontSize: React.PropTypes.number,
-  latestSaveCode: React.PropTypes.string,
-  showConsole: React.PropTypes.bool,
-  consoleData: React.PropTypes.array,
-  onAlertAdd: React.PropTypes.func,
-  onEditorUpdate: React.PropTypes.func,
-  onSaveFile: React.PropTypes.func,
-  onOpenFile: React.PropTypes.func,
-  onCreateNewFile: React.PropTypes.func,
-  onChangeTheme: React.PropTypes.func,
-  onChangeFontsize: React.PropTypes.func,
-  toggleConsole: React.PropTypes.func,
-  onClearConsole: React.PropTypes.func,
-  onUpdateCodeStatus: React.PropTypes.func,
-  isRunningCode: React.PropTypes.bool,
-  runtimeStatus: React.PropTypes.bool,
-  ipAddress: React.PropTypes.string,
-  fieldControlActivity: React.PropTypes.bool,
-  onDownloadCode: React.PropTypes.func,
-  disableScroll: React.PropTypes.bool,
+  editorCode: PropTypes.string.isRequired,
+  editorTheme: PropTypes.string.isRequired,
+  filepath: PropTypes.string.isRequired,
+  fontSize: PropTypes.number.isRequired,
+  latestSaveCode: PropTypes.string.isRequired,
+  showConsole: PropTypes.bool.isRequired,
+  consoleData: PropTypes.array.isRequired,
+  onAlertAdd: PropTypes.func.isRequired,
+  onEditorUpdate: PropTypes.func.isRequired,
+  onSaveFile: PropTypes.func.isRequired,
+  onOpenFile: PropTypes.func.isRequired,
+  onCreateNewFile: PropTypes.func.isRequired,
+  onChangeTheme: PropTypes.func.isRequired,
+  onChangeFontsize: PropTypes.func.isRequired,
+  toggleConsole: PropTypes.func.isRequired,
+  onClearConsole: PropTypes.func.isRequired,
+  onUpdateCodeStatus: PropTypes.func.isRequired,
+  isRunningCode: PropTypes.bool.isRequired,
+  runtimeStatus: PropTypes.bool.isRequired,
+  ipAddress: PropTypes.string.isRequired,
+  fieldControlActivity: PropTypes.bool.isRequired,
+  onDownloadCode: PropTypes.func.isRequired,
+  disableScroll: PropTypes.bool.isRequired,
 };
 
 export default Editor;

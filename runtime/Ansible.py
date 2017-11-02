@@ -403,6 +403,21 @@ class TCPClass(AnsibleHandler):
                         str(e),
                         event=BAD_EVENTS.TCP_ERROR,
                         printStackTrace=True))
+        def package_timestamp(timestamps):
+            try:
+                timestamp_message = notification_pb2.Notification()
+                timestamp_message.header = notification_pb2.Notification.TIMESTAMP_UP
+                timestamp_message.timestamps.extend(timestamps + [time.perf_counter()])
+                return timestamp_message.SerializeToString()
+            except Exception as e:
+                bad_things_queue.put(
+                    BadThing(
+                        sys.exc_info(),
+                        "TCP packager crashed with error: " +
+                        str(e),
+                        event=BAD_EVENTS.TCP_ERROR,
+                        printStackTrace=True))
+
         while True:
             try:
                 raw_message = pipe.recv()
@@ -413,6 +428,8 @@ class TCPClass(AnsibleHandler):
                     packed_msg = package_confirm(data)
                 elif raw_message[0] == ANSIBLE_COMMANDS.CONSOLE:
                     packed_msg = package_message(data)
+                elif raw_message[0] == ANSIBLE_COMMANDS.TIMESTAMP_UP:
+                    packed_msg = package_timestamp(data)
                 else:
                     continue
                 if packed_msg is not None:
@@ -452,7 +469,13 @@ class TCPClass(AnsibleHandler):
                             printStackTrace=False))
                     break
                 unpackaged_data = unpackage(recv_data) # pylint: disable=unused-variable
-                state_queue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
+                if unpackaged_data.header == notification_pb2.Notification.TIMESTAMP_DOWN:
+                    timestamps = list(unpackaged_data.timestamps)
+                    timestamps.append(time.perf_counter())
+                    state_queue.put([HIBIKE_COMMANDS.TIMESTAMP_DOWN, timestamps])
+                    continue
+                if unpackaged_data.header == notification_pb2.Notification.STUDENT_SENT:
+                    state_queue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
         except ConnectionResetError:
             bad_things_queue.put(
                 BadThing(

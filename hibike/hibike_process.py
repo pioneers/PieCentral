@@ -265,6 +265,10 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
             elif instruction == "disable_all":
                 for pack in devices.values():
                     pack.write_queue.put(("disable", []))
+            elif instruction == "timestamp_down":
+                timestamp = time.perf_counter()
+                args.append(timestamp)
+                state_queue.put(("timestamp_up", args))
         except KeyError:
             print("Tried to access a nonexistent device")
 
@@ -384,28 +388,7 @@ if __name__ == "__main__":
             dev_uid = main_args[0]
             if dev_uid not in uids:
                 uids.add(dev_uid)
-                if hm.DEVICES[hm.uid_to_device_id(dev_uid)]["name"] == "TeamFlag":
-                    set_interval_sequence([
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 1), ("led2", 0), ("led3", 0),
-                                         ("led4", 0), ("blue", 0), ("yellow", 0)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 0), ("led2", 1), ("led3", 0),
-                                         ("led4", 0), ("blue", 0), ("yellow", 0)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 0), ("led2", 0), ("led3", 1),
-                                         ("led4", 0), ("blue", 0), ("yellow", 0)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 0), ("led2", 0), ("led3", 0),
-                                         ("led4", 1), ("blue", 0), ("yellow", 0)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 0), ("led2", 0), ("led3", 0),
-                                         ("led4", 0), ("blue", 0), ("yellow", 1)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 0), ("led2", 0), ("led3", 0),
-                                         ("led4", 0), ("blue", 1), ("yellow", 0)])
-                        ], 0.1)
-                elif hm.DEVICES[hm.uid_to_device_id(dev_uid)]["name"] == "YogiBear":
+                if hm.DEVICES[hm.uid_to_device_id(dev_uid)]["name"] == "YogiBear":
                     set_interval_sequence([
                         make_send_write(to_child, dev_uid, [("duty_cycle", 0)]),
                         make_send_write(to_child, dev_uid, [("duty_cycle", 0.5)]),

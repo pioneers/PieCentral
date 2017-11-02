@@ -47,7 +47,7 @@ class Goal:
             scorring Alliance is the owning alliance.
                 alliance - Alliance object representing the scoring team
         """
-        if self.alliance is alliance:
+        if self.owner is alliance:
             alliance.change_score(self.value * self.calc_multiplier() * alliance.alliance_multiplier)
             #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
 
@@ -73,15 +73,15 @@ class Goal:
             alliance - the alliance trying to apply the effect to the goal
         """
         if effect == POWERUP_TYPES.TWO_X:
-            if(alliance.name = CONSTANTS.BLUE):
-                if(self.blue_two_x_timer.active()):
+            if alliance.name = CONSTANTS.BLUE:
+                if self.blue_two_x_timer.active():
                     return -1
                 else:
                     self.blue_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
                     #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
                     return 1
-            elif(alliance.name = CONSTANTS.GOLD):
-                if(self.gold_two_x_timer.active()):
+            elif alliance.name = CONSTANTS.GOLD:
+                if self.gold_two_x_timer.active():
                     return -1
                 else:
                     self.gold_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
@@ -89,16 +89,16 @@ class Goal:
                     return 1
             else:
                 return -3
-        if effect == POWERUP_TYPES.ZERO_X:
-            if(alliance.name = CONSTANTS.BLUE):
-                if(self.blue_zero_x_timer.active()):
+        elif effect == POWERUP_TYPES.ZERO_X:
+            if alliance.name = CONSTANTS.BLUE:
+                if self.blue_zero_x_timer.active():
                     return -1
                 else:
                     self.blue_zero_x_timer.start_timer(CONSTANTS.ZERO_X_COOLDOWN)
                     #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
                     return 1
-            elif(alliance.name = CONSTANTS.GOLD):
-                if(self.gold_zero_x_timer.active()):
+            elif alliance.name = CONSTANTS.GOLD:
+                if self.gold_zero_x_timer.active():
                     return -1
                 else:
                     self.gold_zero_x_timer.start_timer(CONSTANTS.ZERO_X_COOLDOWN)
@@ -106,4 +106,12 @@ class Goal:
                     return 1
             else:
                 return -3
-            #still need to do steal
+        elif effect == POWERUP_TYPES.STEAL:
+            if self.owner is alliance:
+                return -2
+            else:
+                self.owner = alliance
+                #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
+                return 1
+        else:
+            return -3

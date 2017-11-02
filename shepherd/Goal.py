@@ -47,13 +47,18 @@ class Goal:
             scorring Alliance is the owning alliance.
                 alliance - Alliance object representing the scoring team
         """
-        pass
+        if self.alliance is alliance:
+            alliance.change_score(self.value * self.calc_multiplier() * alliance.alliance_multiplier)
+            #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
 
     def calc_multiplier(self):
         """ returns an integer that represents the overall multiplier for this
             goal, by checking each timer in the goal
         """
-        pass
+        return (self.gold_two_x_timer.active() and 2 or 1) *
+               (self.blue_two_x_timer.active() and 2 or 1) *
+               (self.gold_zero_x_timer.active() and 0 or 1) *
+               (self.blue_zero_x_timer.active() and 0 or 1))
 
     def apply_powerup(self, effect, alliance):
         """ applies effect passed in from an alliance, and determines what

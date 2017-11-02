@@ -9,6 +9,10 @@ import queue
 import random
 import threading
 import time
+import sys
+
+from ..runtime import runtimeUtil
+from runtimeUtil import *
 
 # pylint: disable=import-error
 import hibike_message as hm
@@ -270,9 +274,11 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
                 args.append(timestamp)
                 state_queue.put(("timestamp_up", args))
         except KeyError as e:
-            bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.HIBIKE_NONEXISTENT_DEVICE))
+            bad_things_queue.put(BadThing(sys.exc_info(), str(e),
+                                 event=BAD_EVENTS.HIBIKE_NONEXISTENT_DEVICE))
         except TypeError as e:
-            bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.HIBIKE_INSTRUCTION_ERROR))
+            bad_things_queue.put(BadThing(sys.exc_info(), str(e),
+                                 event=BAD_EVENTS.HIBIKE_INSTRUCTION_ERROR))
 
 
 def device_write_thread(ser, instr_queue):

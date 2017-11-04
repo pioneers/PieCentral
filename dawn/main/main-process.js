@@ -68,4 +68,10 @@ app.on('ready', () => {
       console.log('An error occurred: ', err);
     });
   }
+  // let win = new BrowserWindow({ width: 1400, height: 900, allowRunningInsecureContent: true });
+  // win.on('closed', () => {
+  //   win = null;
+  // });
+  // win.loadURL(`file://${__dirname}/../static/api_files/api.html`);
+  // win.show();
 });

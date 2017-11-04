@@ -7,13 +7,17 @@ DEVICES := BatteryBuzzer ExampleDevice LimitSwitch LineFollower Potentiometer \
 install:
 	cd .. && ./setup.sh
 
+
 artifacts-install:
 	$(nop)
 
 lint:
 	cd .. && find . -name "*.py" | xargs pylint
 
-test: $(DEVICES)
+unit_tests:
+	cd .. && python3 -m unittest hibike_tests/*.py
+
+test: $(DEVICES) unit_tests
 
 $(DEVICES):
 	cd .. && $(RM) -r ./bin

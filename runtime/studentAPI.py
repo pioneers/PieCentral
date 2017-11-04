@@ -261,3 +261,6 @@ class Robot(StudentAPI):
 
     def hibike_write_value(self, uid, params):
         self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])
+
+    def get_gamecode(self):
+        return self._get_sm_value("gamecode")

@@ -48,17 +48,22 @@ class Goal:
                 alliance - Alliance object representing the scoring team
         """
         if self.owner is alliance:
-            alliance.change_score(self.value * self.calc_multiplier() * alliance.alliance_multiplier)
-            #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
+            alliance.change_score(self.value * self.calc_multiplier() *
+                alliance.alliance_multiplier)
 
     def calc_multiplier(self):
         """ returns an integer that represents the overall multiplier for this
             goal, by checking each timer in the goal
         """
+        if (self == null or self.gold_two_x_timer == null or
+            self.blue_two_x_timer == null or self.gold_zero_x_timer == null or
+            self.blue_zero_x_timer == null):
+            return 1
+
         return (self.gold_two_x_timer.active() and 2 or 1) *
                (self.blue_two_x_timer.active() and 2 or 1) *
-               (self.gold_zero_x_timer.active() and 0 or 1) *
-               (self.blue_zero_x_timer.active() and 0 or 1))
+               ((not self.gold_zero_x_timer.active() or 0) and 1) *
+               ((not self.blue_zero_x_timer.active() or 0) and 1))
 
     def apply_powerup(self, effect, alliance):
         """ applies effect passed in from an alliance, and determines what
@@ -79,6 +84,9 @@ class Goal:
                 else:
                     self.blue_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
                     #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
+                    lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
+                        SCOREBOARD_HEADER.POWERUPS,
+                        [self.name, alliance.name, POWERUP_TYPES.TWO_X])
                     return 1
             elif alliance.name = CONSTANTS.GOLD:
                 if self.gold_two_x_timer.active():
@@ -86,6 +94,9 @@ class Goal:
                 else:
                     self.gold_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
                     #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
+                    lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
+                        SCOREBOARD_HEADER.POWERUPS,
+                        [self.name, alliance.name, POWERUP_TYPES.TWO_X])
                     return 1
             else:
                 return -3
@@ -94,15 +105,23 @@ class Goal:
                 if self.blue_zero_x_timer.active():
                     return -1
                 else:
-                    self.blue_zero_x_timer.start_timer(CONSTANTS.ZERO_X_COOLDOWN)
+                    self.blue_zero_x_timer.start_timer(
+                        CONSTANTS.ZERO_X_COOLDOWN)
                     #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
+                    lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
+                        SCOREBOARD_HEADER.POWERUPS,
+                        [self.name, alliance.name, POWERUP_TYPES.ZERO_X])
                     return 1
             elif alliance.name = CONSTANTS.GOLD:
                 if self.gold_zero_x_timer.active():
                     return -1
                 else:
-                    self.gold_zero_x_timer.start_timer(CONSTANTS.ZERO_X_COOLDOWN)
+                    self.gold_zero_x_timer.start_timer(
+                        CONSTANTS.ZERO_X_COOLDOWN)
                     #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
+                    lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
+                        SCOREBOARD_HEADER.POWERUPS,
+                        [self.name, alliance.name, POWERUP_TYPES.ZERO_X])
                     return 1
             else:
                 return -3
@@ -112,6 +131,9 @@ class Goal:
             else:
                 self.owner = alliance
                 #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
+                lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
+                    SCOREBOARD_HEADER.POWERUPS,
+                    [self.name, alliance.name, POWERUP_TYPES.STEAL])
                 return 1
         else:
             return -3

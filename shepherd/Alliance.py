@@ -41,6 +41,7 @@ class Alliance:
     def change_score(self, amount):
         """ changes score of this alliance by Amount,
             Amount can be negative or positive.
-            make sure you update the scoreboad too after using this function
         """
         self.score += amount
+        lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,SCOREBOARD_HEADER.SCORE,
+            [self.name, self.score])

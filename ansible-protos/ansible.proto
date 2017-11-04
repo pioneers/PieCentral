@@ -20,8 +20,13 @@ message DawnData {
         repeated bool buttons = 3;
     }
 
+    message Gamecode {
+        int32 code = 1;
+    }
+
     StudentCodeStatus student_code_status = 1;
     repeated Gamepad gamepads = 2;
     repeated string peripheral_names = 3;
     TeamColor team_color = 4;
+    Gamecode gamecode = 5;
 }

@@ -9,6 +9,10 @@ import queue
 import random
 import threading
 import time
+import sys
+
+#from PieCentral.runtime.runtimeUtil import *
+# from runtimeUtil import *
 
 # pylint: disable=import-error
 import hibike_message as hm
@@ -211,7 +215,6 @@ def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queu
                 error_queue.put(err)
             return
 
-
 # pylint: disable=too-many-branches, too-many-locals
 # pylint: disable=too-many-arguments, unused-argument
 def hibike_process(bad_things_queue, state_queue, pipe_from_child):
@@ -244,6 +247,13 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
 
     # the main thread reads instructions from statemanager and
     # forwards them to the appropriate device write threads
+
+    path = os.path.dirname(os.path.abspath(__file__))
+    parent_path = path.rstrip("hibike")
+    runtime = os.path.join(parent_path, "runtime")
+    sys.path.insert(1, runtime)
+    import runtimeUtil
+
     while True:
         instruction, args = pipe_from_child.recv()
         try:
@@ -269,8 +279,16 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
                 timestamp = time.perf_counter()
                 args.append(timestamp)
                 state_queue.put(("timestamp_up", args))
-        except KeyError:
-            print("Tried to access a nonexistent device")
+        except KeyError as e:
+            bad_things_queue.put(runtimeUtil.BadThing(
+                sys.exc_info(),
+                str(e),
+                event=runtimeUtil.BAD_EVENTS.HIBIKE_NONEXISTENT_DEVICE))
+        except TypeError as e:
+            bad_things_queue.put(runtimeUtil.BadThing(
+                sys.exc_info(),
+                str(e),
+                event=runtimeUtil.BAD_EVENTS.HIBIKE_INSTRUCTION_ERROR))
 
 
 def device_write_thread(ser, instr_queue):
@@ -334,7 +352,6 @@ def batch_data(data, state_queue):
     while True:
         time.sleep(BATCH_SLEEP_TIME)
         state_queue.put(("device_values", [data]))
-
 
 #############
 ## TESTING ##

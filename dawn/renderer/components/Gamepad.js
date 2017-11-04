@@ -58,7 +58,7 @@ class Gamepad extends React.Component {
             <Modal.Title>{this.renderHeader()}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <img alt="gamepad" src={'graphics/gamepad.png'} style={{ width: '100%' }} />
+            <img alt="gamepad" src="graphics/gamepad.png" style={{ width: '100%' }} />
             <Table bordered>
               <tbody>
                 <tr>

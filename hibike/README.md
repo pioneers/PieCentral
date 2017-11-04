@@ -182,7 +182,6 @@ Device Type Enumeration:
 |  0x02   | Potentiometer  | 0            | pot0       | float      | yes   | no     |
 |         |                | 1            | pot1       | float      | yes   | no     |
 |         |                | 2            | pot2       | float      | yes   | no     |
-|  0x03   | Encoder        | 0            | rotation   | int16_t    | yes   | no     |
 |  0x04   | BatteryBuzzer  | 0            | is_unsafe  | bool       | yes   | no     |
 |         |                | 1            | calibrated | bool       | yes   | no     |
 |         |                | 2            | v_cell1    | float      | yes   | no     |
@@ -191,14 +190,6 @@ Device Type Enumeration:
 |         |                | 5            | v_batt     | float      | yes   | no     |
 |         |                | 6            | dv_cell2   | float      | yes   | no     |
 |         |                | 7            | dv_cell3   | float      | yes   | no     |
-|  0x05   | TeamFlag       | 0            | mode       | bool       | yes   | yes    |
-|         |                | 1            | blue       | bool       | yes   | yes    |
-|         |                | 2            | yellow     | bool       | yes   | yes    |
-|         |                | 3            | led1       | bool       | yes   | yes    |
-|         |                | 4            | led2       | bool       | yes   | yes    |
-|         |                | 5            | led3       | bool       | yes   | yes    |
-|         |                | 6            | led4       | bool       | yes   | yes    |
-|  0x06   | Grizzly        |              |            |            |       |        |
 |  0x07   | ServoControl   | 0            | servo0     | float      | yes   | yes    |
 |         |                | 1            | servo1     | float      | yes   | yes    |
 |  0x08   | LinearActuator |              |            |            |       |        |
@@ -432,7 +423,7 @@ Error handling
 
 Run the setup script in hibike. `./setup.sh` should do the trick. It will download a lot of stuff. You have effectively given up all your software freedoms at this point. Go cry a bit. Come back after asking Linus for forgiveness.
 
-You're almost done, keep it up. Edit `/usr/bin/ard-reset-arduino`. You should sudo this. Don't worry, this is the last time you'll be violating your system. Change `ser.setBaudrate(1200)` to `se.baudrate = 1200`. Now your poor machine is ready to flash Arduinos (tm)
+You're almost done, keep it up. Edit `/usr/bin/ard-reset-arduino`. You should sudo this. Don't worry, this is the last time you'll be violating your system. Change `ser.setBaudrate(1200)` to `ser.baudrate = 1200`. Now your poor machine is ready to flash Arduinos (tm)
 
 Flash by going to `piecentral/hibike`.
 
@@ -445,5 +436,4 @@ The command to run is `./flash.sh SENSOR_NAME`, where `SENSOR_NAME` is one of
 - `Potentiometer`
 - `RFID`
 - `ServoControl`
-- `TeamFlag`
 - `YogiBear`

@@ -14,7 +14,9 @@ const formatBoolean = (peripheralType, sensorValue) => {
   return sensorValue; // TODO: Verify if int_value or bool_value
 };
 
-const BooleanSensor = ({ id, device_name, device_type, param }) => (
+const BooleanSensor = ({
+  id, device_name, device_type, param,
+}) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
       <div>{id}</div>

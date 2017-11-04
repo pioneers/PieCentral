@@ -65,8 +65,7 @@ const PeripheralListComponent = (props) => {
   if (errorMsg) {
     panelBody = <p className="panelText">{errorMsg}</p>;
   } else {
-    panelBody = handleAccordion(
-      _.sortBy(_.toArray(props.peripherals.peripheralList), ['device_type', 'device_name']));
+    panelBody = handleAccordion(_.sortBy(_.toArray(props.peripherals.peripheralList), ['device_type', 'device_name']));
   }
 
   return (

@@ -83,7 +83,6 @@ class Goal:
                     return -1
                 else:
                     self.blue_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
-                    #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
                     lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
                         SCOREBOARD_HEADER.POWERUPS,
                         [self.name, alliance.name, POWERUP_TYPES.TWO_X])
@@ -93,7 +92,6 @@ class Goal:
                     return -1
                 else:
                     self.gold_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
-                    #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
                     lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
                         SCOREBOARD_HEADER.POWERUPS,
                         [self.name, alliance.name, POWERUP_TYPES.TWO_X])
@@ -107,7 +105,6 @@ class Goal:
                 else:
                     self.blue_zero_x_timer.start_timer(
                         CONSTANTS.ZERO_X_COOLDOWN)
-                    #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
                     lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
                         SCOREBOARD_HEADER.POWERUPS,
                         [self.name, alliance.name, POWERUP_TYPES.ZERO_X])
@@ -118,7 +115,6 @@ class Goal:
                 else:
                     self.gold_zero_x_timer.start_timer(
                         CONSTANTS.ZERO_X_COOLDOWN)
-                    #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
                     lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
                         SCOREBOARD_HEADER.POWERUPS,
                         [self.name, alliance.name, POWERUP_TYPES.ZERO_X])
@@ -130,7 +126,6 @@ class Goal:
                 return -2
             else:
                 self.owner = alliance
-                #!!!!!! NEED TO UPDATE SCOREBOARD HERE TOO!!!!!!
                 lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
                     SCOREBOARD_HEADER.POWERUPS,
                     [self.name, alliance.name, POWERUP_TYPES.STEAL])

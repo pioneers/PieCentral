@@ -1,5 +1,6 @@
 from Utils import *
 from Timer import *
+from LCM import *
 
 class Goal:
     """This class holds the state values for the goal, such as its point value,
@@ -47,13 +48,23 @@ class Goal:
             scorring Alliance is the owning alliance.
                 alliance - Alliance object representing the scoring team
         """
-        pass
+        if self.owner is alliance:
+            alliance.change_score(self.value * self.calc_multiplier() *\
+                alliance.alliance_multiplier)
 
     def calc_multiplier(self):
         """ returns an integer that represents the overall multiplier for this
             goal, by checking each timer in the goal
         """
-        pass
+        if (self is None or self.gold_two_x_timer is None or
+                self.blue_two_x_timer is None or self.gold_zero_x_timer is None or
+                self.blue_zero_x_timer is None):
+            return 1
+
+        return (self.gold_two_x_timer.is_running() and 2 or 1) *\
+               (self.blue_two_x_timer.is_running() and 2 or 1) *\
+               ((not self.gold_zero_x_timer.is_running() or 0) and 1) *\
+               ((not self.blue_zero_x_timer.is_running() or 0) and 1)
 
     def apply_powerup(self, effect, alliance):
         """ applies effect passed in from an alliance, and determines what
@@ -67,4 +78,50 @@ class Goal:
             effect - enum representing an effect to be applied to the goal
             alliance - the alliance trying to apply the effect to the goal
         """
-        pass
+        if effect == POWERUP_TYPES.TWO_X:
+            if alliance.name == CONSTANTS.BLUE:
+                if self.blue_two_x_timer.is_running():
+                    return -1
+                self.blue_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
+                lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
+                         SCOREBOARD_HEADER.POWERUPS,
+                         [self.name, alliance.name, POWERUP_TYPES.TWO_X])
+                return 1
+            elif alliance.name == CONSTANTS.GOLD:
+                if self.gold_two_x_timer.is_running():
+                    return -1
+                self.gold_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
+                lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
+                         SCOREBOARD_HEADER.POWERUPS,
+                         [self.name, alliance.name, POWERUP_TYPES.TWO_X])
+                return 1
+            return -3
+        elif effect == POWERUP_TYPES.ZERO_X:
+            if alliance.name == CONSTANTS.BLUE:
+                if self.blue_zero_x_timer.is_running():
+                    return -1
+                self.blue_zero_x_timer.start_timer(
+                    CONSTANTS.ZERO_X_COOLDOWN)
+                lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
+                         SCOREBOARD_HEADER.POWERUPS,
+                         [self.name, alliance.name, POWERUP_TYPES.ZERO_X])
+                return 1
+            elif alliance.name == CONSTANTS.GOLD:
+                if self.gold_zero_x_timer.is_running():
+                    return -1
+                self.gold_zero_x_timer.start_timer(
+                    CONSTANTS.ZERO_X_COOLDOWN)
+                lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
+                         SCOREBOARD_HEADER.POWERUPS,
+                         [self.name, alliance.name, POWERUP_TYPES.ZERO_X])
+                return 1
+            return -3
+        elif effect == POWERUP_TYPES.STEAL:
+            if self.owner is alliance:
+                return -2
+            self.owner = alliance
+            lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
+                     SCOREBOARD_HEADER.POWERUPS,
+                     [self.name, alliance.name, POWERUP_TYPES.STEAL])
+            return 1
+        return -3

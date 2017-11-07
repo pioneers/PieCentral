@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   Modal,
   Button,
@@ -8,8 +9,8 @@ import { connect } from 'react-redux';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { pathToName, defaults, logging } from '../utils/utils';
 
-const dialog = remote.dialog;
-const Client = require('ssh2').Client;
+const { dialog } = remote;
+const { Client } = require('ssh2');
 
 class UpdateBox extends React.Component {
   constructor(props) {
@@ -42,7 +43,8 @@ class UpdateBox extends React.Component {
           logging.log(err);
         } else {
           logging.log('SSH Connection');
-          sftp.fastPut(this.state.updateFilepath,
+          sftp.fastPut(
+            this.state.updateFilepath,
             `./updates/${update}`, (err2) => {
               if (err2) {
                 conn.end();
@@ -55,7 +57,8 @@ class UpdateBox extends React.Component {
                 );
                 logging.log(err2);
               } else {
-                conn.exec('sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service',
+                conn.exec(
+                  'sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service',
                   { pty: true }, (uperr, stream) => {
                     if (uperr) {
                       this.props.onAlertAdd(
@@ -73,9 +76,11 @@ class UpdateBox extends React.Component {
                       }, 10000);
                       conn.end();
                     });
-                  });
+                  },
+                );
               }
-            });
+            },
+          );
         }
       });
     }).connect({
@@ -137,13 +142,13 @@ class UpdateBox extends React.Component {
 }
 
 UpdateBox.propTypes = {
-  shouldShow: React.PropTypes.bool.isRequired,
-  hide: React.PropTypes.func.isRequired,
-  connectionStatus: React.PropTypes.bool.isRequired,
-  runtimeStatus: React.PropTypes.bool.isRequired,
-  isRunningCode: React.PropTypes.bool.isRequired,
-  ipAddress: React.PropTypes.string.isRequired,
-  onAlertAdd: React.PropTypes.func.isRequired,
+  shouldShow: PropTypes.bool.isRequired,
+  hide: PropTypes.func.isRequired,
+  connectionStatus: PropTypes.bool.isRequired,
+  runtimeStatus: PropTypes.bool.isRequired,
+  isRunningCode: PropTypes.bool.isRequired,
+  ipAddress: PropTypes.string.isRequired,
+  onAlertAdd: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({

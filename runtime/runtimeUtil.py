@@ -14,7 +14,7 @@ class RUNTIME_CONFIG(Enum):
     TEST_OUTPUT_DIR             = "test_outputs/"
     VERSION_MAJOR               = 1
     VERSION_MINOR               = 1
-    VERSION_PATCH               = 0
+    VERSION_PATCH               = 1
 
 @unique
 class BAD_EVENTS(Enum):
@@ -57,6 +57,7 @@ class HIBIKE_COMMANDS(Enum):
     WRITE     = "write_params"
     READ      = "read_params"
     DISABLE   = "disable_all"
+    TIMESTAMP_DOWN = "timestamp_down"
 
 # TODO: Remove when Hibike is finished
 @unique
@@ -64,11 +65,14 @@ class HIBIKE_RESPONSE(Enum):
     DEVICE_SUBBED = "device_subscribed"
     DEVICE_VALUES = "device_values"
     DEVICE_DISCONNECT = "device_disconnected"
+    TIMESTAMP_UP  = "timestamp_up"
 
 @unique
 class ANSIBLE_COMMANDS(Enum):
     STUDENT_UPLOAD = "student_upload"
     CONSOLE        = "console"
+    TIMESTAMP_UP   = "Get timestamps going up the stack"
+    TIMESTAMP_DOWN = "Get timestamps going down the stack"
 
 @unique
 class SM_COMMANDS(Enum):

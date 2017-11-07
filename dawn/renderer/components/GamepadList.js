@@ -1,15 +1,17 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Panel, ListGroup } from 'react-bootstrap';
-import _ from 'lodash';
-import GamepadItem from './GamepadItem';
+import { connect } from 'react-redux';
 
-const Gamepads = (props) => {
+import _ from 'lodash';
+import Gamepad from './Gamepad';
+
+const GamepadListComponent = (props) => {
   let interior;
-  // if there are any gamepads
   if (_.some(props.gamepads, gamepad => gamepad !== undefined)) {
     interior = _.map(
       props.gamepads,
-      (gamepad, index) => <GamepadItem key={index} index={parseInt(index, 10)} gamepad={gamepad} />,
+      (gamepad, index) => <Gamepad key={index} index={parseInt(index, 10)} gamepad={gamepad} />,
     );
   } else {
     interior = (
@@ -33,8 +35,14 @@ const Gamepads = (props) => {
   );
 };
 
-Gamepads.propTypes = {
-  gamepads: React.PropTypes.object,
+GamepadListComponent.propTypes = {
+  gamepads: PropTypes.object.isRequired,
 };
 
-export default Gamepads;
+const mapStateToProps = state => ({
+  gamepads: state.gamepads.gamepads,
+});
+
+const GamepadList = connect(mapStateToProps)(GamepadListComponent);
+
+export default GamepadList;

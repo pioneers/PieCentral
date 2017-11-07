@@ -1,6 +1,6 @@
 from Utils import *
 from Timer import *
-
+from LCM import *
 
 class Alliance:
     """This is the Alliance class, which holds the state values used to track
@@ -43,5 +43,5 @@ class Alliance:
             Amount can be negative or positive.
         """
         self.score += amount
-        lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,SCOREBOARD_HEADER.SCORE,
-            [self.name, self.score])
+        lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD, SCOREBOARD_HEADER.SCORE,
+                 [self.name, self.score])

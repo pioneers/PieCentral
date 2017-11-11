@@ -1,11 +1,5 @@
 #!/bin/bash
 
-#make sure to install zip command using sudo apt install.. 
-#added zip pkg to master_frankfurter setup
-
-HOST=hostname
-ID=192.168.7.1
-
 HOME=ubuntu
 USER=192.168.7.2
 
@@ -16,17 +10,16 @@ USER=192.168.7.2
 #exit ssh
 
 ssh $HOME@$USER "
-mkdir temp
-cd temp
+mkdir -p /tmp/log-fetch
+cd /temp/log-fetch
 
 journalctl -e -u update.service > update.log
 journalctl -e -u runtime.service > service.log
-journalctl -e -u networking.service > networking.log
-bzip2 * 
+journalctl -e -u networking.service > networking.log 
 
 cd 
 
-find temp -not -name *bz2 | xargs tar -jcvf archivelogs.tar.bz2 
+tar -cjvf archivelogs.tar.bz2 tmp 
 
 exit "
 
@@ -35,6 +28,5 @@ scp $HOME@$USER:archivelogs.tar.bz2 .
 
 #unzip service-logs.zip -d service-logs 
 bzip2 -d archivelogs.tar.bz2 
-mkdir logs && tar -xf archivelogs.tar -C logs
-cd logs && cd temp && bzip2 -d *
+tar -xf archivelogs.tar 
 

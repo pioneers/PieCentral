@@ -231,9 +231,6 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
         pack = spin_up_device(serial_port, uid, state_queue, batched_data, error_queue)
         devices[uid] = pack
 
-    # Temporary here to report on an error
-    print("Devices: ", devices, "\n")
-
     batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
     batch_thread.start()
     hotplug_thread = threading.Thread(target=hotplug,
@@ -344,10 +341,6 @@ def batch_data(data, state_queue):
 #############
 # pylint: disable=invalid-name
 if __name__ == "__main__":
-<<<<<<< HEAD
-
-=======
->>>>>>> d17681cb54290f264cab782fd4cea688855c787b
     # helper functions so we can spawn threads that try to read/write to hibike_devices periodically
     def set_interval_sequence(functions, sec):
         """

@@ -68,10 +68,14 @@ app.on('ready', () => {
       console.log('An error occurred: ', err);
     });
   }
-  // let win = new BrowserWindow({ width: 1400, height: 900, allowRunningInsecureContent: true });
-  // win.on('closed', () => {
-  //   win = null;
-  // });
-  // win.loadURL(`file://${__dirname}/../static/api_files/api.html`);
-  // win.show();
+
+  let api = new BrowserWindow({ width: 1400, height: 900, show: false });
+  api.on('closed', () => {
+    api = null;
+  });
+
+  api.loadURL(`file://${__dirname}/../static/api_files/api.html`);
+  api.once('ready-to-show', () => {
+    api.show();
+  });
 });

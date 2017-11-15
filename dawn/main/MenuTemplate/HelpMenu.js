@@ -1,8 +1,9 @@
 /**
  * Defines the Help menu
  */
-
 import RendererBridge from '../RendererBridge';
+// import showAPI from '../main-process';
+const api = require('../main-process');
 
 const HelpMenu = {
   label: 'Help',
@@ -11,6 +12,12 @@ const HelpMenu = {
       label: 'Interactive Tutorial',
       click() {
         RendererBridge.registeredWindow.webContents.send('start-interactive-tour');
+      },
+    },
+    {
+      label: 'API',
+      click() {
+        api.showAPI();
       },
     },
   ],

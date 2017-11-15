@@ -12,6 +12,7 @@ import Template from './MenuTemplate/Template';
 import Ansible from './networking/Ansible';
 import LCMObject from './networking/FieldControlLCM';
 
+
 app.on('window-all-closed', () => {
   app.quit();
 });
@@ -37,6 +38,18 @@ function teardownLCM(event) { // eslint-disable-line no-unused-vars
     LCMObject.LCMInternal.quit();
   }
 }
+
+function showAPI() {
+  let api = new BrowserWindow({ width: 1400, height: 900, show: false });
+  api.on('closed', () => {
+    api = null;
+  });
+  api.loadURL(`file://${__dirname}/../static/api_files/api.html`);
+  api.once('ready-to-show', () => {
+    api.show();
+  });
+}
+export { showAPI };
 
 app.on('ready', () => {
   Ansible.setup();
@@ -68,14 +81,4 @@ app.on('ready', () => {
       console.log('An error occurred: ', err);
     });
   }
-
-  let api = new BrowserWindow({ width: 1400, height: 900, show: false });
-  api.on('closed', () => {
-    api = null;
-  });
-
-  api.loadURL(`file://${__dirname}/../static/api_files/api.html`);
-  api.once('ready-to-show', () => {
-    api.show();
-  });
 });

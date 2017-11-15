@@ -104,6 +104,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
             "gamepads": [{0: {"axes": {0: 0.5, 1: -0.5, 2: 1, 3: -1},
                               "buttons": {0: True, 1: False, 2: True, 3: False, 4: True}}}, t],
             "team_flag_uid": [None, t],
+            "gamecode": [None, t],
         }
 
     def add_pipe(self, process_name, pipe):

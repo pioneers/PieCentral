@@ -69,6 +69,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
             HIBIKE_COMMANDS.READ: self.hibike_read_params,
             HIBIKE_COMMANDS.WRITE: self.hibike_write_params,
             HIBIKE_COMMANDS.DISABLE: self.hibike_disable,
+            HIBIKE_COMMANDS.TIMESTAMP_DOWN: self.hibike_timestamp_down
         }
         return hibike_mapping
 
@@ -76,7 +77,8 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         hibike_response_mapping = {
             HIBIKE_RESPONSE.DEVICE_SUBBED: self.hibike_response_device_subbed,
             HIBIKE_RESPONSE.DEVICE_VALUES: self.hibike_response_device_values,
-            HIBIKE_RESPONSE.DEVICE_DISCONNECT: self.hibike_response_device_disconnect
+            HIBIKE_RESPONSE.DEVICE_DISCONNECT: self.hibike_response_device_disconnect,
+            HIBIKE_RESPONSE.TIMESTAMP_UP: self.hibike_response_timestamp_up
         }
         return {k.value: v for k, v in hibike_response_mapping.items()}
 
@@ -102,6 +104,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
             "gamepads": [{0: {"axes": {0: 0.5, 1: -0.5, 2: 1, 3: -1},
                               "buttons": {0: True, 1: False, 2: True, 3: False, 4: True}}}, t],
             "team_flag_uid": [None, t],
+            "gamecode": [None, t],
         }
 
     def add_pipe(self, process_name, pipe):
@@ -252,11 +255,16 @@ class StateManager(object): # pylint: disable=too-many-public-methods
     def hibike_read_params(self, pipe, uid, params):
         pipe.send([HIBIKE_COMMANDS.READ.value, [uid, params]])
 
+    def hibike_timestamp_down(self, pipe, *data):
+        print("We have received timestamp_down")
+        data = list(data)
+        data.append(time.perf_counter())
+        pipe.send([HIBIKE_COMMANDS.TIMESTAMP_DOWN.value, data])
+
     def hibike_response_device_subbed(self, uid, delay, params):
         if delay == 0:
             device_name = SENSOR_TYPE[uid >> 72]
-            if device_name == "TeamFlag":
-                self.set_value(uid, ["team_flag_uid"], send=False)
+
             if device_name in self.device_name_to_subscribe_params:
                 self.hibike_subscribe_device(
                     self.process_mapping[PROCESS_NAMES.HIBIKE], uid, 40,
@@ -279,6 +287,12 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         """
         devs = self.state["hibike"][0]["devices"][0]
         del devs[uid]
+
+    def hibike_response_timestamp_up(self, *data):
+        data = list(data)
+        data.append(time.perf_counter())
+        self.process_mapping[PROCESS_NAMES.TCP_PROCESS].send(
+            [ANSIBLE_COMMANDS.TIMESTAMP_UP, data])
 
     def hibike_disable(self, pipe):
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])

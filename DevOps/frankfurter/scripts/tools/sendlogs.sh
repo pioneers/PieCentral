@@ -11,11 +11,13 @@ USER=192.168.7.2
 
 ssh $HOME@$USER "
 mkdir -p /tmp/log-fetch
-cd /temp/log-fetch
+cd /tmp/log-fetch
 
-journalctl -e -u update.service > update.log
-journalctl -e -u runtime.service > service.log
-journalctl -e -u networking.service > networking.log 
+today=$(date +%Y-%m-%d.%H:%M:%S)
+
+journalctl -e -u update.service > update.log"."$today
+journalctl -e -u runtime.service > service.log"."$today
+journalctl -e -u networking.service > networking.log"."$today
 
 cd 
 
@@ -23,8 +25,11 @@ tar -cjvf archivelogs.tar.bz2 tmp
 
 exit "
 
-#copy and send zip files from remote to local computer
-scp $HOME@$USER:archivelogs.tar.bz2 .
+#copy and send zip files from remote to local computer 
+#if successful, log back into beaglebone and rm file
+scp $HOME@$USER:archivelogs.tar.bz2 . && ssh$HOME@$USER "
+rm archivelogs.tar.bz2 
+exit "
 
 #unzip service-logs.zip -d service-logs 
 bzip2 -d archivelogs.tar.bz2 

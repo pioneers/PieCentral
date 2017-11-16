@@ -13,8 +13,8 @@ class RUNTIME_CONFIG(Enum):
     PIPE_READY                  = ["ready"]
     TEST_OUTPUT_DIR             = "test_outputs/"
     VERSION_MAJOR               = 1
-    VERSION_MINOR               = 1
-    VERSION_PATCH               = 0
+    VERSION_MINOR               = 2
+    VERSION_PATCH               = 1
 
 @unique
 class BAD_EVENTS(Enum):
@@ -35,8 +35,8 @@ class BAD_EVENTS(Enum):
     ENTER_IDLE                = "Dawn says enter Idle"
     NEW_IP                    = "Connected to new instance of Dawn"
     DAWN_DISCONNECTED         = "Disconnected to Dawn"
-    TIMESTAMP_DOWN            = "Latency test down the stack"
-    TIMESTAMP_UP              = "Latency test up the stack"
+    HIBIKE_NONEXISTENT_DEVICE = "Tried to access a nonexistent device"
+    HIBIKE_INSTRUCTION_ERROR  = "Hibike received malformed instruction"
 
 restartEvents = [BAD_EVENTS.STUDENT_CODE_VALUE_ERROR, BAD_EVENTS.STUDENT_CODE_ERROR,
                  BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT, BAD_EVENTS.EMERGENCY_STOP]
@@ -67,12 +67,14 @@ class HIBIKE_RESPONSE(Enum):
     DEVICE_SUBBED = "device_subscribed"
     DEVICE_VALUES = "device_values"
     DEVICE_DISCONNECT = "device_disconnected"
-    TIMESTAMP_UP = "timestamp_up"
+    TIMESTAMP_UP  = "timestamp_up"
 
 @unique
 class ANSIBLE_COMMANDS(Enum):
     STUDENT_UPLOAD = "student_upload"
     CONSOLE        = "console"
+    TIMESTAMP_UP   = "Get timestamps going up the stack"
+    TIMESTAMP_DOWN = "Get timestamps going down the stack"
 
 @unique
 class SM_COMMANDS(Enum):

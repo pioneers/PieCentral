@@ -9,27 +9,25 @@
 
 bool motorEnabled = false;
 float deadBand = 0.05;
-const int analogHIGH = 255;
-const int analogLOW = 0;
 
 void motorSetup() {
   pinMode(current_pin,INPUT);
   pinMode(INA, OUTPUT);
   pinMode(INB, OUTPUT);
-  pinMode(enable_pin, OUTPUT);
 
-  motorEnable();  
+  motorEnable();
   //pinMode(PWM, OUTPUT);
 }
 
 void motorEnable() {
   clearFault();
-  analogWrite(enable_pin, analogHIGH); /* digital to analog where HIGH corresponds to 255*/
+  pinMode(enable_pin, INPUT); //pin is pulled up, so put in high impedance state instead of writing high
   motorEnabled = true;
 }
 
 void motorDisable() {
-  analogWrite(enable_pin, analogLOW); /* digital to analog where LOW corresponds to 0 */
+  pinMode(enable_pin, OUTPUT);
+  digitalWrite(enable_pin, LOW);
   disablePID();
   resetPID();
   resetEncoder();
@@ -49,8 +47,8 @@ float readCurrent() {
 
 //takes a value from -1 to 1 inclusive and writes to the motor and sets the INA and INB pins for direction
 void drive(float target) {
-  
-  if (target < -deadBand) { 
+
+  if (target < -deadBand) {
     digitalWrite(INA, LOW);
     digitalWrite(INB, HIGH);
     target = target * -1;
@@ -69,13 +67,14 @@ void drive(float target) {
 void clearFault() {
   digitalWrite(INA, !digitalRead(INA));
   digitalWrite(INB, !digitalRead(INB));
-  
+
   digitalWrite(INA, !digitalRead(INA));
   digitalWrite(INB, !digitalRead(INB));
 
   Timer1.pwm(PWM, 0);
-  analogWrite(enable_pin, analogLOW);
-  analogWrite(enable_pin, analogHIGH);
+  pinMode(enable_pin, OUTPUT);
+  digitalWrite(enable_pin, LOW);
+  pinMode(enable_pin, INPUT);
 }
 
 void setDeadBand(float range) {

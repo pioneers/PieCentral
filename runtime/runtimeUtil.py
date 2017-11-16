@@ -12,7 +12,7 @@ class RUNTIME_CONFIG(Enum):
     DEBUG_DELIMITER_STRING      = "****************** RUNTIME DEBUG ******************"
     PIPE_READY                  = ["ready"]
     TEST_OUTPUT_DIR             = "test_outputs/"
-    VERSION_MAJOR               = 1
+    VERSION_MAJOR               = 18
     VERSION_MINOR               = 2
     VERSION_PATCH               = 1
 

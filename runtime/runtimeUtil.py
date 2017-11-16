@@ -36,6 +36,7 @@ class BAD_EVENTS(Enum):
     NEW_IP                    = "Connected to new instance of Dawn"
     DAWN_DISCONNECTED         = "Disconnected to Dawn"
     HIBIKE_NONEXISTENT_DEVICE = "Tried to access a nonexistent device"
+    HIBIKE_INSTRUCTION_ERROR  = "Hibike received malformed instruction"
 
 restartEvents = [BAD_EVENTS.STUDENT_CODE_VALUE_ERROR, BAD_EVENTS.STUDENT_CODE_ERROR,
                  BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT, BAD_EVENTS.EMERGENCY_STOP]

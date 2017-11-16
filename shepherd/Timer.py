@@ -1,8 +1,40 @@
+import time
+import threading
+import collections
+import heapq
+
 class Timer:
     """
     This class should spawn another thread that will keep track of a target time
     and compare it to the current system time in order to see how much time is left
     """
+    class busyThread(threading.Thread):
+    '''Subclass that is the actual thread that will be running'''
+	def __init__(self, queue):
+		super(busyThread, self).__init__()
+		self.queue = queue
+		self.stop = threading.Event()
+
+	def run(self):
+		'''When started, thread will run and process Timers in queue until manually stopped
+		TODO: Add how to send message via LCM in the case of match timer'''
+		while not self.stop.isSet():
+			if(len(self.queue) > 0 and self.queue[0].endTime < time.time()):
+				event = heapq.heappop(self.queue)
+				if(event.timer_type == TIMER_TYPES.MATCH):
+					sendMessage() #Placeholder function
+				event.active = False
+
+	'''Stops this thread'''
+	def join(self, timeout=None):
+		super(busyThread, self).join(timeout)
+		self.stop.set()
+		Timer.running = False
+
+	eventQueue = []
+	thread = busyThread(eventQueue)
+	running = False
+
     def __init__(self, timer_type, goal_name=None):
         """
         timer_type - a Enum representing the type of timer that this is:
@@ -22,13 +54,39 @@ class Timer:
         self.goal_name = goal_name
 
     def start_timer(self, duration):
-        """Starts a new timer with the duration (seconds) and sets timer to active"""
-        pass
+        """Starts a new timer with the duration (seconds) and sets timer to active.
+           If Timer is already running, adds duration to Timer"""
+        if(self.active):
+        	self.endTime += time
+			heapq.heapify(Timer.eventQueue)
+    	else:
+    		if(!Timer.running):
+	    		Timer.running = True
+	    		Timer.thread.start()
+	        self.endTime = time.time() + duration
+	        heapq.heappush(Timer.eventQueue, self)
+	        self.active = True
+
 
     def reset(self):
         """Stops the current timer (if any) and sets timer to inactive"""
-        pass
+        if(self.active):
+        	Timer.eventQueue.remove(self)
+        	heapq.heapify(Timer.eventQueue)
+        	self.active = False
 
     def is_running(self):
         """Returns true if the timer is currently running"""
         return self.active
+
+    def __lt__(self, other):
+		return self.endTime < other.endTime
+
+	def __gt__(self, other):
+		return self.endTime > other.endTime
+
+	def __eq__(self, other):
+		return self.endTime == other.endTime
+
+	def __cmp__(self, other):
+		return cmp(self.endTime, other.endTime)

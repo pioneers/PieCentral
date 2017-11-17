@@ -1,4 +1,8 @@
 # Overview
+
+[![dependencies Status](https://david-dm.org/pioneers/PieCentral/status.svg?path=dawn)](https://david-dm.org/pioneers/PieCentral?path=dawn)
+[![devDependencies Status](https://david-dm.org/pioneers/PieCentral/dev-status.svg?path=dawn)](https://david-dm.org/pioneers/PieCentral?path=dawn&type=dev)
+
 Dawn is a cross-platform frontend for the [PiE](https://pioneers.berkeley.edu) robotics control system. It is the application students will see and use when programming and testing their robots. It is written with web technologies and packaged via [Electron](https://electron.atom.io/). More details can be found on the [Github wiki](https://github.com/pioneers/PieCentral/wiki).
 
 ### Development Quickstart

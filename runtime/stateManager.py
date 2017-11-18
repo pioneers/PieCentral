@@ -8,9 +8,10 @@ from runtimeUtil import *
 
 
 class StateManager(object): # pylint: disable=too-many-public-methods
-
-    """input is a multiprocessing.Queue object to support multiple
-    processes requesting state data
+    """
+    Stores, updates, and manage the state of the robots.
+    Receives stateQueue commands from runtime, studentCode, Hibike, and Ansible; 
+    Sends BadThingsQueue, studentCode pipe, Hibike pipe, and Ansible pipe to the above.
     """
 
     def __init__(self, badThingsQueue, inputQueue, runtimePipe):
@@ -38,6 +39,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         return subscription_map
 
     def make_command_map(self):
+        """
+        Provides mapping between command input and the state manager behavior.
+        """
         command_mapping = {
             SM_COMMANDS.RESET: self.init_robot_state,
             SM_COMMANDS.ADD: self.add_pipe,
@@ -63,6 +67,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         return command_mapping
 
     def make_hibike_map(self):
+        """
+        Relaying commands to the device.
+        """
         hibike_mapping = {
             HIBIKE_COMMANDS.ENUMERATE: self.hibike_enumerate_all,
             HIBIKE_COMMANDS.SUBSCRIBE: self.hibike_subscribe_device,
@@ -74,6 +81,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         return hibike_mapping
 
     def make_hibike_response_map(self):
+        """
+        Provides mapping between packets received by State Manager and HIBIKE response.
+        """
         hibike_response_mapping = {
             HIBIKE_RESPONSE.DEVICE_SUBBED: self.hibike_response_device_subbed,
             HIBIKE_RESPONSE.DEVICE_VALUES: self.hibike_response_device_values,
@@ -83,6 +93,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         return {k.value: v for k, v in hibike_response_mapping.items()}
 
     def init_robot_state(self):
+        """
+        Initalizes StateManager in ROBOT state.
+        """
         t = time.time()
         self.state = {
             "studentCodeState": [2, t],
@@ -111,6 +124,10 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         pipe.send(RUNTIME_CONFIG.PIPE_READY.value)
 
     def create_key(self, keys, send=True):
+        """
+        Updates contents in ROBOT: creates an entry from an absolute path
+         and updates time.
+        """
         curr_dict = self.state
         path = []
         for key in keys:
@@ -131,6 +148,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
             self.process_mapping[PROCESS_NAMES.STUDENT_CODE].send(None)
 
     def get_value(self, keys):
+        """
+        Receives the value of an entry in self.state from an absolute path.
+        """
         result = self.state
         try:
             for i, key in enumerate(keys):
@@ -141,6 +161,10 @@ class StateManager(object): # pylint: disable=too-many-public-methods
             self.process_mapping[PROCESS_NAMES.STUDENT_CODE].send(error)
 
     def set_value(self, value, keys, send=True):
+        """
+        Updates an existing entry in self.state with new value and time 
+          from an absolute path.
+        """
         curr_dict = self.state
         try:
             path = []
@@ -186,6 +210,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         self.process_mapping[process_name].send(self.state["dawn_addr"][0])
 
     def student_upload(self):
+        """
+        Notifies Dawn to enter idle; then asks for student code.
+        """
         self.bad_things_queue.put(
             BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))
         self.process_mapping[PROCESS_NAMES.TCP_PROCESS].send(
@@ -197,24 +224,39 @@ class StateManager(object): # pylint: disable=too-many-public-methods
                 [ANSIBLE_COMMANDS.CONSOLE, console_log])
 
     def enter_auto(self):
+        """
+        Notifies Dawn to enter auto; then updates state of robot
+        to Auto.
+        """
         self.bad_things_queue.put(
             BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_AUTO, False))
         self.state["studentCodeState"] = [
             runtime_pb2.RuntimeData.AUTO, time.time()]
 
     def enter_teleop(self):
+        """
+        Notifies Dawn to enter Teleop; then updates state of robot
+        to Teleop, or remote operations.
+        """
         self.bad_things_queue.put(
             BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_TELEOP, False))
         self.state["studentCodeState"] = [
             runtime_pb2.RuntimeData.TELEOP, time.time()]
 
     def enter_idle(self):
+        """
+        Notify Dawn to set to an idle state; then updates state of robot 
+        to STUDENT_STOPPED. 
+        """
         self.bad_things_queue.put(
             BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))
         self.state["studentCodeState"] = [
             runtime_pb2.RuntimeData.STUDENT_STOPPED, time.time()]
 
     def get_timestamp(self, keys):
+        """
+        Sends timestamp to student process; else, send an Student API Key Error.
+        """
         curr_dict = self.state
         timestamp = 0
         try:
@@ -229,6 +271,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         self.state["runtime_meta"][0]["studentCode_main_count"][0] += 1
 
     def emergency_stop(self):
+        """
+        Activate an emergency stop on HBIKE.
+        """
         self.state["runtime_meta"][0]["e_stopped"][0] = True
         self.bad_things_queue.put(BadThing(sys.exc_info(
         ), "Emergency Stop Activated", event=BAD_EVENTS.EMERGENCY_STOP, printStackTrace=False))
@@ -255,11 +300,19 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         pipe.send([HIBIKE_COMMANDS.READ.value, [uid, params]])
 
     def hibike_timestamp_down(self, pipe, *data):
+        """
+        Receives timestamp from HBIKE; sends the data including timestamp
+         down to the queue.
+        """
         data = list(data)
         data.append(time.time())
         pipe.send(HIBIKE_COMMANDS.TIMESTAMP_DOWN.value, data)
 
     def hibike_response_device_subbed(self, uid, delay, params):
+        """
+        Subscribes to recognized devices; creates a entry in STATE 
+         that maps a subscribed devices to its parameter.
+        """
         if delay == 0:
             device_name = SENSOR_TYPE[uid >> 72]
             if device_name == "TeamFlag":
@@ -275,6 +328,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         self.state["hibike"][0]["device_subscribed"][0] += 1
 
     def hibike_response_device_values(self, data):
+        """
+        Updates STATE of devices' values based on DATA.
+        """
         for uid, params in data.items():
             for key, value in params:
                 self.set_value(value, ["hibike", "devices", uid, key], send=False)
@@ -288,14 +344,24 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         del devs[uid]
 
     def hibike_response_timestamp_up(self, *data):
+        """
+        Receives timestamp from HBIKE; sends the data including timestamp
+         up to the queue.
+        """
         data = list(data)
         data.append(time.time())
         self.bad_things_queue.put(BadThing(sys.exc_info, data, BAD_EVENTS.TIMESTAMP_UP, False))
 
     def hibike_disable(self, pipe):
+        """
+        Peforms DISABLE on HIBIKE device at end of PIPE. 
+        """
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])
 
     def dict_error_message(self, errored_index, keys, curr_dict):
+        """
+        Returns a KeyError dictionary error message.
+        """
         key_chain = ""
         i = 0
         while i < errored_index:
@@ -327,6 +393,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         return error_message
 
     def start(self):
+        """
+        Runs a session of State Manager. 
+        """
         while True:
             try:
                 request = self.input_.get(block=True)

@@ -25,10 +25,12 @@ class Timer:
 		'''
 		while not self.stop.isSet():
 			if(len(self.queue) > 0 and self.queue[0].endTime < time.time()):
+				queueLock.acquire()
 				event = heapq.heappop(self.queue)
 				if(event.timer_type == TIMER_TYPES.MATCH):
 					print("Send Message Via LCM to Main process") #Placeholder function
 				event.active = False
+				queueLock.release()
 
 	'''Stops this thread. Must be called from different thread (Main Thread)'''
 	def join(self, timeout=None):
@@ -41,6 +43,7 @@ class Timer:
 	eventQueue = []
 	thread = busyThread(eventQueue)
 	running = False
+	queueLock = threading.Lock()
 
     def __init__(self, timer_type, goal_name=None):
         """
@@ -64,23 +67,29 @@ class Timer:
         """Starts a new timer with the duration (seconds) and sets timer to active.
            If Timer is already running, adds duration to Timer"""
         if(self.active):
+        	queueLock.acquire()
         	self.endTime += time
 			heapq.heapify(Timer.eventQueue)
+			queueLock.release()
     	else:
     		if(!Timer.running):
 	    		Timer.running = True
 	    		Timer.thread.start()
+	    	queueLock.acquire()
 	        self.endTime = time.time() + duration
 	        heapq.heappush(Timer.eventQueue, self) 
 	        self.active = True
+	        queueLock.release()
 
 
     def reset(self):
         """Stops the current timer (if any) and sets timer to inactive"""
         if(self.active):
+        	queueLock.acquire()
         	Timer.eventQueue.remove(self)
         	heapq.heapify(Timer.eventQueue)
         	self.active = False
+        	queueLock.release()
 
     def is_running(self):
         """Returns true if the timer is currently running"""

@@ -528,6 +528,10 @@ function* handleFieldControl() {
   }
 }
 
+function timestampBounceback() {
+  ipcRenderer.send('TIMESTAMP_SEND');
+}
+
 
 /**
  * The root saga combines all the other sagas together into one.
@@ -542,6 +546,7 @@ export default function* rootSaga() {
     takeEvery('DOWNLOAD_CODE', downloadStudentCode),
     takeEvery('NOTIFICATION_SENT', tcpConfirmation),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
+    takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),
     fork(ansibleSaga),

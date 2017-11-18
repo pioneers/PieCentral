@@ -45,8 +45,9 @@ class Goal:
     def score(self, alliance):
         """ modifies the owner alliance's score based on the value of the goal,
             the current multipliers,and the alliances multiplier, if the
-            scorring Alliance is the owning alliance.
-                alliance - Alliance object representing the scoring team
+            scoring Alliance is the owning alliance.
+
+            alliance - Alliance object representing the scoring team
         """
         if self.owner is alliance:
             alliance.change_score(self.value * self.calc_multiplier() *\
@@ -56,72 +57,60 @@ class Goal:
         """ returns an integer that represents the overall multiplier for this
             goal, by checking each timer in the goal
         """
-        if (self is None or self.gold_two_x_timer is None or
-                self.blue_two_x_timer is None or self.gold_zero_x_timer is None or
-                self.blue_zero_x_timer is None):
-            return 1
-
-        return (self.gold_two_x_timer.is_running() and 2 or 1) *\
-               (self.blue_two_x_timer.is_running() and 2 or 1) *\
-               ((not self.gold_zero_x_timer.is_running() or 0) and 1) *\
-               ((not self.blue_zero_x_timer.is_running() or 0) and 1)
+        multiplier = 1
+        if self.gold_two_x_timer.is_running():
+            multiplier *= 2
+        if self.blue_two_x_timer.is_running():
+            multiplier *= 2
+        if self.gold_zero_x_timer.is_running():
+            multiplier *= 0
+        if self.blue_zero_x_timer.is_running():
+            multiplier *= 0
+        return multiplier
 
     def apply_powerup(self, effect, alliance):
         """ applies effect passed in from an alliance, and determines what
             should happen, based on the allianced passed in, and the alliance
             of the goal.
-            return an Integer signifying what the result of the call was.
-                1 - success
-                -1 - cannot be applied to this goal
-                -2 - cannot steal your own goal
-                -3 - other error
             effect - enum representing an effect to be applied to the goal
             alliance - the alliance trying to apply the effect to the goal
         """
+        def process_powerup(blue_timer, gold_timer, constants_cooldown, powerup_type):
+            if alliance.name == AllIANCE_COLOR.BLUE:
+                if blue_timer.is_running():
+                    lcm_send(LCM_TARGETS.LCM_TARGET_SENSORS,
+                             SENSOR_HEADER.FAILED_POWERUP)
+                else:
+                    blue_timer.start_timer(constants_cooldown)
+                    lcm_send(LCM_TARGETS.LCM_TARGET_SCOREBOARD,
+                             SCOREBOARD_HEADER.POWERUPS,
+                             [self.name, alliance.name, powerup_type])
+            elif alliance.name == AllIANCE_COLOR.GOLD:
+                if gold_timer.is_running():
+                    lcm_send(LCM_TARGETS.LCM_TARGET_SENSORS,
+                             SENSOR_HEADER.FAILED_POWERUP)
+                else:
+                    gold_timer.start_timer(constants_cooldown)
+                    lcm_send(LCM_TARGETS.LCM_TARGET_SCOREBOARD,
+                             SCOREBOARD_HEADER.POWERUPS,
+                             [self.name, alliance.name, powerup_type])
+
+
         if effect == POWERUP_TYPES.TWO_X:
-            if alliance.name == CONSTANTS.BLUE:
-                if self.blue_two_x_timer.is_running():
-                    return -1
-                self.blue_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
-                lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
-                         SCOREBOARD_HEADER.POWERUPS,
-                         [self.name, alliance.name, POWERUP_TYPES.TWO_X])
-                return 1
-            elif alliance.name == CONSTANTS.GOLD:
-                if self.gold_two_x_timer.is_running():
-                    return -1
-                self.gold_two_x_timer.start_timer(CONSTANTS.TWO_X_COOLDOWN)
-                lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
-                         SCOREBOARD_HEADER.POWERUPS,
-                         [self.name, alliance.name, POWERUP_TYPES.TWO_X])
-                return 1
-            return -3
+            process_powerup(self.blue_two_x_timer, self.gold_two_x_timer,
+                            CONSTANTS.TWO_X_COOLDOWN, POWERUP_TYPES.TWO_X)
         elif effect == POWERUP_TYPES.ZERO_X:
-            if alliance.name == CONSTANTS.BLUE:
-                if self.blue_zero_x_timer.is_running():
-                    return -1
-                self.blue_zero_x_timer.start_timer(
-                    CONSTANTS.ZERO_X_COOLDOWN)
-                lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
-                         SCOREBOARD_HEADER.POWERUPS,
-                         [self.name, alliance.name, POWERUP_TYPES.ZERO_X])
-                return 1
-            elif alliance.name == CONSTANTS.GOLD:
-                if self.gold_zero_x_timer.is_running():
-                    return -1
-                self.gold_zero_x_timer.start_timer(
-                    CONSTANTS.ZERO_X_COOLDOWN)
-                lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
-                         SCOREBOARD_HEADER.POWERUPS,
-                         [self.name, alliance.name, POWERUP_TYPES.ZERO_X])
-                return 1
-            return -3
+            process_powerup(self.blue_zero_x_timer, self.gold_zero_x_timer,
+                            CONSTANTS.ZERO_X_COOLDOWN, POWERUP_TYPES.ZERO_X)
         elif effect == POWERUP_TYPES.STEAL:
             if self.owner is alliance:
-                return -2
-            self.owner = alliance
-            lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD,
-                     SCOREBOARD_HEADER.POWERUPS,
-                     [self.name, alliance.name, POWERUP_TYPES.STEAL])
-            return 1
-        return -3
+                lcm_send(LCM_TARGETS.LCM_TARGET_SENSORS,
+                         SENSOR_HEADER.FAILED_POWERUP)
+            else:
+                self.owner = alliance
+                lcm_send(LCM_TARGETS.LCM_TARGET_SCOREBOARD,
+                         SCOREBOARD_HEADER.POWERUPS,
+                         [self.name, alliance.name, POWERUP_TYPES.STEAL])
+        else:
+            lcm_send(LCM_TARGETS.LCM_TARGET_SENSORS, SENSOR_HEADER.FAILED_POWERUP)
+        return

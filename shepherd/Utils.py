@@ -40,8 +40,14 @@ class CONSTANTS(Enum):
     STEAL_COOLDOWN = 5
     CODE_COOLDOWN = 5
     BID_INCREASE_CONSTANT = 5
+
+@unique # pylint: disable=invalid-name
+class AllIANCE_COLOR(Enum):
     GOLD = "gold"
     BLUE = "blue"
+
+@unique # pylint: disable=invalid-name
+class LCM_TARGETS(Enum):
     LCM_TARGET_SHEPHERD = "lcm_target_shepherd"
     LCM_TARGET_SCOREBOARD = "lcm_target_scoreboard"
     LCM_TARGET_SENSORS = "lcm_target_sensors"

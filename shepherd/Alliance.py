@@ -13,13 +13,13 @@ class Alliance:
             score - Integer tracking the score of the Alliance
             alliance_multiplier - Float tracking the value of the alliance's
                                   multiplier
-            two_x_cooldown - Timer representing the time untill the alliance
+            two_x_cooldown - Timer representing the time until the alliance
                              can use another 2x powerup
-            zero_x_cooldown - Timer representing the time untill the alliance
+            zero_x_cooldown - Timer representing the time until the alliance
                               can use another 0x powerup
-            steal_cooldown - Timer representing the time untill the alliance
+            steal_cooldown - Timer representing the time until the alliance
                              can use another steal powerup
-            code_cooldown - Timer representing the time untill the alliance can
+            code_cooldown - Timer representing the time until the alliance can
                             submit another code
     """
 

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='notification.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x12notification.proto\"\xef\x02\n\x0cNotification\x12\"\n\x06header\x18\x01 \x01(\x0e\x32\x12.Notification.Type\x12\x16\n\x0e\x63onsole_output\x18\x02 \x01(\t\x12\x33\n\x0esensor_mapping\x18\x03 \x03(\x0b\x32\x1b.Notification.SensorMapping\x12\x12\n\ntimestamps\x18\x04 \x03(\x02\x1a@\n\rSensorMapping\x12\x12\n\ndevice_uid\x18\x01 \x01(\t\x12\x1b\n\x13\x64\x65vice_student_name\x18\x02 \x01(\t\"\x97\x01\n\x04Type\x12\x13\n\x0f\x43ONSOLE_LOGGING\x10\x00\x12\x10\n\x0cSTUDENT_SENT\x10\x01\x12\x14\n\x10STUDENT_RECEIVED\x10\x02\x12\x18\n\x14STUDENT_NOT_RECEIVED\x10\x03\x12\x12\n\x0eSENSOR_MAPPING\x10\x04\x12\x10\n\x0cTIMESTAMP_UP\x10\x05\x12\x12\n\x0eTIMESTAMP_DOWN\x10\x06\x62\x06proto3')
+  serialized_pb=_b('\n\x12notification.proto\"\xef\x02\n\x0cNotification\x12\"\n\x06header\x18\x01 \x01(\x0e\x32\x12.Notification.Type\x12\x16\n\x0e\x63onsole_output\x18\x02 \x01(\t\x12\x33\n\x0esensor_mapping\x18\x03 \x03(\x0b\x32\x1b.Notification.SensorMapping\x12\x12\n\ntimestamps\x18\x04 \x03(\x01\x1a@\n\rSensorMapping\x12\x12\n\ndevice_uid\x18\x01 \x01(\t\x12\x1b\n\x13\x64\x65vice_student_name\x18\x02 \x01(\t\"\x97\x01\n\x04Type\x12\x13\n\x0f\x43ONSOLE_LOGGING\x10\x00\x12\x10\n\x0cSTUDENT_SENT\x10\x01\x12\x14\n\x10STUDENT_RECEIVED\x10\x02\x12\x18\n\x14STUDENT_NOT_RECEIVED\x10\x03\x12\x12\n\x0eSENSOR_MAPPING\x10\x04\x12\x10\n\x0cTIMESTAMP_UP\x10\x05\x12\x12\n\x0eTIMESTAMP_DOWN\x10\x06\x62\x06proto3')
 )
 
 
@@ -134,7 +134,7 @@ _NOTIFICATION = _descriptor.Descriptor(
       options=None),
     _descriptor.FieldDescriptor(
       name='timestamps', full_name='Notification.timestamps', index=3,
-      number=4, type=2, cpp_type=6, label=3,
+      number=4, type=1, cpp_type=5, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,

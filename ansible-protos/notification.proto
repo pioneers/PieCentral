@@ -17,5 +17,5 @@ message Notification {
     Type header = 1;
     string console_output = 2;   // Console Output From Runtime to Dawn
     repeated SensorMapping sensor_mapping = 3;
-    repeated float timestamps = 4;
+    repeated double timestamps = 4;
 }

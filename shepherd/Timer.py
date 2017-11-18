@@ -9,28 +9,35 @@ class Timer:
     and compare it to the current system time in order to see how much time is left
     """
     class busyThread(threading.Thread):
-    '''Subclass that is the actual thread that will be running'''
+    '''
+    Subclass that is the actual thread that will be running.
+    There will only be one for the entire class.
+    '''
 	def __init__(self, queue):
 		super(busyThread, self).__init__()
 		self.queue = queue
 		self.stop = threading.Event()
 
 	def run(self):
-		'''When started, thread will run and process Timers in queue until manually stopped
-		TODO: Add how to send message via LCM in the case of match timer'''
+		'''
+		When started, thread will run and process Timers in queue until manually stopped
+		TODO: Add how to send message via LCM in the case of match timer
+		'''
 		while not self.stop.isSet():
 			if(len(self.queue) > 0 and self.queue[0].endTime < time.time()):
 				event = heapq.heappop(self.queue)
 				if(event.timer_type == TIMER_TYPES.MATCH):
-					sendMessage() #Placeholder function
+					print("Send Message Via LCM to Main process") #Placeholder function
 				event.active = False
 
-	'''Stops this thread'''
+	'''Stops this thread. Must be called from different thread (Main Thread)'''
 	def join(self, timeout=None):
 		super(busyThread, self).join(timeout)
 		self.stop.set()
 		Timer.running = False
 
+
+	'''Initiating the Queue of Timers and Thread'''
 	eventQueue = []
 	thread = busyThread(eventQueue)
 	running = False
@@ -64,7 +71,7 @@ class Timer:
 	    		Timer.running = True
 	    		Timer.thread.start()
 	        self.endTime = time.time() + duration
-	        heapq.heappush(Timer.eventQueue, self)
+	        heapq.heappush(Timer.eventQueue, self) 
 	        self.active = True
 
 
@@ -79,6 +86,8 @@ class Timer:
         """Returns true if the timer is currently running"""
         return self.active
 
+
+    '''Methods just for comparing Timers for the purpose of storing in heap.'''
     def __lt__(self, other):
 		return self.endTime < other.endTime
 

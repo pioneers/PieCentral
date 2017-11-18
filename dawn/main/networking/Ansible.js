@@ -178,6 +178,7 @@ class SendSocket {
 class TCPSocket {
   constructor(socket, logger) {
     this.tryUpload = this.tryUpload.bind(this);
+    this.requestTimestamp = this.requestTimestamp.bind(this);
     this.logger = logger;
 
     this.socket = socket;
@@ -215,12 +216,14 @@ class TCPSocket {
   }
 
   requestTimestamp() {
+    const TIME = Date.now() / 1000.0;
     const message = Notification.encode(Notification.create({
       header: Notification.Type.TIMESTAMP_DOWN,
+      timestamps: [TIME],
     })).finish();
 
     this.socket.write(message, () => {
-      this.logger.log('Timestamp Requested');
+      this.logger.log(`Timestamp Requested: ${TIME}`);
     });
   }
 

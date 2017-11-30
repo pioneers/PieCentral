@@ -33,13 +33,24 @@ class SCOREBOARD_HEADER(Enum):
     POWERUPS = "powerups"
     ALLIANCE_MULTIPLIER = "alliance_multiplier"
 
-@unique # pylint: disable=invalid-name
+# pylint: disable=invalid-name
 class CONSTANTS(Enum):
-    TWO_X_COOLDOWN = "two_x_cooldown"
-    ZERO_X_COOLDOWN = "zero_x_cooldown"
-    STEAL_COOLDOWN = "steal_cooldown"
-    CODE_COOLDOWN = "code_cooldown"
-    BID_INCREASE_CONSTANT = "bid_increase_constant"
+    TWO_X_COOLDOWN = 5
+    ZERO_X_COOLDOWN = 5
+    STEAL_COOLDOWN = 5
+    CODE_COOLDOWN = 5
+    BID_INCREASE_CONSTANT = 5
+
+@unique # pylint: disable=invalid-name
+class AllIANCE_COLOR(Enum):
+    GOLD = "gold"
+    BLUE = "blue"
+
+@unique # pylint: disable=invalid-name
+class LCM_TARGETS(Enum):
+    LCM_TARGET_SHEPHERD = "lcm_target_shepherd"
+    LCM_TARGET_SCOREBOARD = "lcm_target_scoreboard"
+    LCM_TARGET_SENSORS = "lcm_target_sensors"
 
 @unique # pylint: disable=invalid-name
 class TIMER_TYPES(Enum):
@@ -48,3 +59,9 @@ class TIMER_TYPES(Enum):
     COOLDOWN = "cooldown"
     CODE_COOLDOWN = "code_cooldown"
     DURATION = "duration"
+
+@unique # pylint: disable=invalid-name
+class POWERUP_TYPES(Enum):
+    ZERO_X = "zero_x"
+    TWO_X = "two_x"
+    STEAL = "steal"

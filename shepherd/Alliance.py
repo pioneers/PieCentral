@@ -1,6 +1,6 @@
 from Utils import *
 from Timer import *
-
+from LCM import *
 
 class Alliance:
     """This is the Alliance class, which holds the state values used to track
@@ -13,13 +13,13 @@ class Alliance:
             score - Integer tracking the score of the Alliance
             alliance_multiplier - Float tracking the value of the alliance's
                                   multiplier
-            two_x_cooldown - Timer representing the time untill the alliance
+            two_x_cooldown - Timer representing the time until the alliance
                              can use another 2x powerup
-            zero_x_cooldown - Timer representing the time untill the alliance
+            zero_x_cooldown - Timer representing the time until the alliance
                               can use another 0x powerup
-            steal_cooldown - Timer representing the time untill the alliance
+            steal_cooldown - Timer representing the time until the alliance
                              can use another steal powerup
-            code_cooldown - Timer representing the time untill the alliance can
+            code_cooldown - Timer representing the time until the alliance can
                             submit another code
     """
 
@@ -41,6 +41,7 @@ class Alliance:
     def change_score(self, amount):
         """ changes score of this alliance by Amount,
             Amount can be negative or positive.
-            make sure you update the scoreboad too after using this function
         """
         self.score += amount
+        lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD, SCOREBOARD_HEADER.SCORE,
+                 [self.name, self.score])

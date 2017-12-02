@@ -2,8 +2,7 @@
  * Defines the Help menu
  */
 import RendererBridge from '../RendererBridge';
-// import showAPI from '../main-process';
-const api = require('../main-process');
+import showAPI from '../main-process';
 
 const HelpMenu = {
   label: 'Help',
@@ -17,7 +16,7 @@ const HelpMenu = {
     {
       label: 'API',
       click() {
-        api.showAPI();
+        showAPI();
       },
     },
   ],

@@ -39,7 +39,7 @@ function teardownLCM(event) { // eslint-disable-line no-unused-vars
   }
 }
 
-function showAPI() {
+export default function showAPI() {
   let api = new BrowserWindow({ width: 1400, height: 900, show: false });
   api.on('closed', () => {
     api = null;
@@ -49,7 +49,6 @@ function showAPI() {
     api.show();
   });
 }
-export { showAPI };
 
 app.on('ready', () => {
   Ansible.setup();

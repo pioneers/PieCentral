@@ -10,7 +10,6 @@ def autonomous_setup():
 def autonomous_main():
     pass
 
-
 def teleop_setup():
     pass
 
@@ -67,6 +66,26 @@ def mainTest_main():
     print("Saying hello to the other side")
     print("DAT:", 1.0 / response)
 
+
+async def sleepDurationHelper():
+    await sleep_duration(1)
+
+def sleepDuration_setup():
+    print("Doing sleep test")
+    run_async(sleepDurationHelper)
+    print(is_robot_running(sleepDurationHelper))
+
+def sleepDuration_main():
+    pass
+
+
+def newAPI_setup():
+    print("running test")
+    print(get_gamepad_value("button_a"))
+    print(get_gamepad_value("joystick_left_x"))
+
+def newAPI_main():
+    pass
 
 def nestedDict_setup():
     pass

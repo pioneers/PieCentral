@@ -44,7 +44,7 @@ class CONSTANTS(Enum):
     BID_INCREASE_CONSTANT = 5
 
 @unique # pylint: disable=invalid-name
-class AllIANCE_COLOR(Enum):
+class ALLIANCE_COLOR(Enum):
     GOLD = "gold"
     BLUE = "blue"
 
@@ -67,3 +67,13 @@ class POWERUP_TYPES(Enum):
     ZERO_X = "zero_x"
     TWO_X = "two_x"
     STEAL = "steal"
+
+@unique # pylint: disable=invalid-name
+class GOAL(Enum):
+    A = "a"
+    B = "b"
+    C = "c"
+    D = "d"
+    E = "e"
+    BLUE = "blue_goal"
+    GOLD = "gold_goal"

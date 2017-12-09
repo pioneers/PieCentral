@@ -6,7 +6,7 @@ import sys
 
 def sender():
 	while True:
-		command = input("Command: ")
+		command = input("Command (setup, start next, restart stage, restart match, score adjust, rfid): ")
 		if command == None:
 			continue
 

@@ -12,6 +12,8 @@ class SHEPHERD_HEADER(Enum):
     RESET_CURRENT_STAGE = "reset_current_stage"
     RESET_MATCH = "reset_match"
 
+    GENERATE_RFID = "generate_rfid"
+
     BID_TIMER_END = "bid_timer_end"
     STAGE_TIMER_END = "stage_timer_end"
 

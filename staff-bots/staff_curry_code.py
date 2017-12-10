@@ -1,6 +1,6 @@
-left_motor = "47250246222630351826392"
-right_motor = "47242769666972617759775"
-servo_controller = "33090094875193840563108"
+left_motor = "47245441265854464253044"
+right_motor = "47249523884738466958276"
+servo_controller = "33092823689496063720264"
 rfid_sensor = "51977090869270841821982"
 wrist_servo = "servo0"
 elbow_servo = "servo1"
@@ -20,9 +20,13 @@ def teleop_setup():
     print("Tele-operated mode has started!")
 
 def teleop_main():
-
-    set_left_motor(1 * Gamepad.get_value("joystick_right_y"))
-    set_right_motor(1 * Gamepad.get_value("joystick_left_y"))
+    x_dir = Gamepad.get_value("joystick_left_x")
+    y_dir = Gamepad.get_value("joystick_left_y")
+    bound = lambda x : max(-1, min( 1, x))
+    left_motor_power = bound(y_dir - x_dir)
+    right_motor_power = bound(y_dir + x_dir)
+    set_right_motor(right_motor_power)
+    set_left_motor(left_motor_power)
     # set_right_motor(1)
     # Robot.run(jiggle, .2)
     if Gamepad.get_value("l_bumper"):
@@ -64,16 +68,16 @@ async def wave():
     set_wrist_servo(0)
     for _ in range(3):
         set_wrist_servo(-1)
-        await Actions.sleep(1)
+        await Actions.sleep(.5)
         set_wrist_servo(1)
-        await Actions.sleep(1)
+        await Actions.sleep(.5)
     set_wrist_servo(0)
 
 async def high_five():
     set_elbow_servo(0)
-    await Actions.sleep(1)
+    await Actions.sleep(.75)
     set_elbow_servo(-1)
-    await Actions.sleep(1)
+    await Actions.sleep(.75)
     set_elbow_servo(0)
     print("resetting elbow servo")
     await Actions.sleep(1)

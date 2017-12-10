@@ -42,6 +42,10 @@ class Goal:
         self.blue_two_x_timer = Timer(TIMER_TYPES.DURATION)
         self.blue_zero_x_timer = Timer(TIMER_TYPES.DURATION)
 
+    def reset(self):
+        #TODO
+        pass
+
     def set_autonomous(self):
         self.value = 2 * self.value
         self.cost = self.cost / 2

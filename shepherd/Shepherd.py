@@ -50,7 +50,12 @@ def to_end(args):
     pass
 
 def reset(args):
-    pass
+    game_state = STATE.SETUP
+    Timer.reset_all()
+    for alliance in alliances:
+        alliance.reset()
+    for goal in goals:
+        goal.reset()
 
 def score_adjust(args):
     pass
@@ -66,7 +71,10 @@ def generate_rfids(args):
     pass
 
 def goal_score(args):
-    pass
+    goal_name = args[0]
+    alliance = args[1]
+    print(goal_name, alliance)
+    goals.get(goal_name)(alliance) 
 
 def goal_bid(args):
     pass

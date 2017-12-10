@@ -99,6 +99,9 @@ class Timer:
         """Returns true if the timer is currently running"""
         return self.active
 
+    def reset_all():
+        #TODO
+        pass
 
     '''Methods just for comparing Timers for the purpose of storing in heap.'''
     def __lt__(self, other):

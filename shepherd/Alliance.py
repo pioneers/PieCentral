@@ -45,3 +45,7 @@ class Alliance:
         self.score += amount
         lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD, SCOREBOARD_HEADER.SCORE,
                  [self.name, self.score])
+
+    def reset(self):
+        #TODO
+        pass

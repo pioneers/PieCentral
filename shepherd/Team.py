@@ -1,4 +1,5 @@
 class Team:
+    """CURRENT NOT USED"""
     '''
     Establishes connection to the team's driver station, contains information such as their
     team's name and number. This is the bridge between the driver stations and Shepherd

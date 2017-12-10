@@ -3,7 +3,7 @@ import threading
 import collections
 import heapq
 import LCM
-import Utils
+from Utils import *
 
 class Timer:
     """
@@ -16,7 +16,7 @@ class Timer:
         There will only be one for the entire class.
         '''
         def __init__(self, queue):
-            super()
+            super().__init__()
             self.queue = queue
             self.stop = threading.Event()
 
@@ -27,14 +27,14 @@ class Timer:
             '''
             while not self.stop.isSet():
                 if(len(self.queue) > 0 and self.queue[0].endTime < time.time()):
-                    queueLock.acquire()
+                    Timer.queueLock.acquire()
                     event = heapq.heappop(self.queue)
                     if event.timer_type == TIMER_TYPES.MATCH:
-                        LCM.lcm_send(LCM_TARGETS.LCM_TARGET_SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
+                        LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
                     if event.timer_type == TIMER_TYPES.BID:
-                        LCM.lcm_send(LCM_TARGETS.LCM_TARGET_SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END)
+                        LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END)
                     event.active = False
-                    queueLock.release()
+                    Timer.queueLock.release()
 
         def join(self, timeout=None):
             '''Stops this thread. Must be called from different thread (Main Thread)'''
@@ -70,30 +70,30 @@ class Timer:
     def start_timer(self, duration):
         """Starts a new timer with the duration (seconds) and sets timer to active.
            If Timer is already running, adds duration to Timer"""
-        if(self.active):
-            queueLock.acquire()
-            self.endTime += time
+        if self.active:
+            Timer.queueLock.acquire()
+            self.endTime += duration
             heapq.heapify(Timer.eventQueue)
-            queueLock.release()
+            Timer.queueLock.release()
         else:
             if not Timer.running:
                 Timer.running = True
                 Timer.thread.start()
-            queueLock.acquire()
+            Timer.queueLock.acquire()
             self.endTime = time.time() + duration
             heapq.heappush(Timer.eventQueue, self) 
             self.active = True
-            queueLock.release()
+            Timer.queueLock.release()
 
 
     def reset(self):
         """Stops the current timer (if any) and sets timer to inactive"""
-        if(self.active):
-            queueLock.acquire()
+        if self.active:
+            Timer.queueLock.acquire()
             Timer.eventQueue.remove(self)
             heapq.heapify(Timer.eventQueue)
             self.active = False
-            queueLock.release()
+            Timer.queueLock.release()
 
     def is_running(self):
         """Returns true if the timer is currently running"""

@@ -32,35 +32,46 @@ def to_setup(args):
     reset()
     alliances[ALLIANCE_COLOR.BLUE] = Alliance(ALLIANCE_COLOR.BLUE, args[0], args[1], args[2], args[3])
     alliances[ALLIANCE_COLOR.GOLD] = Alliance(ALLIANCE_COLOR.GOLD, args[4], args[5], args[6], args[7])
+    goals[GOAL.BLUE].set_owner(alliances[ALLIANCE_COLOR.BLUE])
+    goals[GOAL.GOLD].set_owner(alliances[ALLIANCE_COLOR.GOLD])
+    print("ENTERING SETUP STATE")
 
 def to_auto(args):
-    for goal in goals:
+    global game_state
+    for goal in goals.values():
         goal.set_autonomous()
 
     game_timer.start_timer(CONSTANTS.AUTO_TIME)
     game_state = STATE.AUTO
+    print("ENTERING AUTO STATE")
 
 def to_wait(args):
+    print("ENTERING WAIT STATE")
     pass
 
 def to_teleop(args):
+    print("ENTERING TELEOP STATE")
     pass
 
 def to_end(args):
+    print("ENTERING END STATE")
     pass
 
-def reset(args):
+def reset(args=None):
+    global game_state
     game_state = STATE.SETUP
     Timer.reset_all()
-    for alliance in alliances:
-        alliance.reset()
-    for goal in goals:
+    for alliance in alliances.values():
+        if alliance is not None:
+            alliance.reset()
+    for goal in goals.values():
         goal.reset()
+    print("RESET MATCH, GOING TO SETUP STATE")
 
 def score_adjust(args):
     pass
 
-def flush_scores(args):
+def flush_scores():
     pass
 
 ###########################################
@@ -73,8 +84,7 @@ def generate_rfids(args):
 def goal_score(args):
     goal_name = args[0]
     alliance = args[1]
-    print(goal_name, alliance)
-    goals.get(goal_name)(alliance) 
+    goals.get(goal_name).score(alliances.get(alliance)) 
 
 def goal_bid(args):
     pass
@@ -134,8 +144,8 @@ goals = {
     GOAL.C : Goal(GOAL.C, CONSTANTS.GOAL_HIGH_VALUE, CONSTANTS.GOAL_HIGH_COST),
     GOAL.D : Goal(GOAL.D, CONSTANTS.GOAL_MED_VALUE, CONSTANTS.GOAL_MED_COST),
     GOAL.E : Goal(GOAL.E, CONSTANTS.GOAL_LOW_VALUE, CONSTANTS.GOAL_LOW_COST),
-    GOAL.BLUE : Goal(GOAL.BLUE, CONSTANTS.GOAL_BASE_VALUE, 0, owner=ALLIANCE_COLOR.BLUE),
-    GOAL.GOLD: Goal(GOAL.GOLD, CONSTANTS.GOAL_BASE_VALUE, 0, owner=ALLIANCE_COLOR.GOLD),
+    GOAL.BLUE : Goal(GOAL.BLUE, CONSTANTS.GOAL_BASE_VALUE, 0),
+    GOAL.GOLD: Goal(GOAL.GOLD, CONSTANTS.GOAL_BASE_VALUE, 0),
 }
 
 

@@ -1,4 +1,4 @@
-#import LCM
+import LCM
 import threading
 import queue
 
@@ -27,13 +27,13 @@ def sender():
     while True:
         new_input = input_to_header.get(input("Command: score bid code "))
         if new_input == SHEPHERD_HEADER.GOAL_SCORE or new_input == SHEPHERD_HEADER.GOAL_BID:
-            goal_letter = input_to_alliance.get(input("Goal Letter: a b c d e blue gold "))
+            goal_letter = input_to_goal.get(input("Goal Letter: a b c d e blue gold "))
             alliance = input_to_alliance.get(input("Alliance: blue gold "))
             if goal_letter is None or alliance is None:
                 print("Invalid input")
                 continue
             print(new_input, goal_letter, alliance)
-            #LCM.send(LCM_TARGETS.SHEPHERD, new_input, goal_letter, alliance)
+            LCM.lcm_send(LCM_TARGETS.SHEPHERD, new_input, goal_letter, alliance)
         else:
             print("Invalid input")
 

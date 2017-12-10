@@ -9,7 +9,6 @@ from Utils import *
 class Shepherd:
     def __init__(self):
         self.queue = Queue()
-        read pool of rfid tags
         lcm = LCMClass(q, LCM_TARGETS.LCM_TARGET_SHEPHERD)
         lcm.lcm_start_read()
         item = self.queue.get()
@@ -23,5 +22,12 @@ class Shepherd:
         lcm_send(LCM_TARGETS.LCM_TARGET_SCOREBOARD,SCOREBOARD_HEADER.TEAMS,*lst)
 
 
-    def loop(self):
-        while true:
+    def start(self):
+        while True:
+            event = self.queue.get()
+            print("RECEIVED:", event)
+
+
+if __name__ == '__main__':
+    shepherd = Shepherd()
+    shepherd.start()

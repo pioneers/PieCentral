@@ -3,7 +3,7 @@ import threading
 import collections
 import heapq
 import LCM
-import utils
+import Utils
 
 class Timer:
     """
@@ -11,36 +11,36 @@ class Timer:
     and compare it to the current system time in order to see how much time is left
     """
     class busyThread(threading.Thread):
-    '''
-    Subclass that is the actual thread that will be running.
-    There will only be one for the entire class.
-    '''
-    def __init__(self, queue):
-        super(busyThread, self).__init__()
-        self.queue = queue
-        self.stop = threading.Event()
-
-    def run(self):
         '''
-        When started, thread will run and process Timers in queue until manually stopped
-        TODO: Add how to send message via LCM in the case of match timer
+        Subclass that is the actual thread that will be running.
+        There will only be one for the entire class.
         '''
-        while not self.stop.isSet():
-            if(len(self.queue) > 0 and self.queue[0].endTime < time.time()):
-                queueLock.acquire()
-                event = heapq.heappop(self.queue)
-                if event.timer_type == TIMER_TYPES.MATCH:
-                    LCM.lcm_send(LCM_TARGETS.LCM_TARGET_SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
-                if event.timer_type == TIMER_TYPES.BID:
-                    LCM.lcm_send(LCM_TARGETS.LCM_TARGET_SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END)
-                event.active = False
-                queueLock.release()
+        def __init__(self, queue):
+            super(busyThread, self).__init__()
+            self.queue = queue
+            self.stop = threading.Event()
 
-    def join(self, timeout=None):
-        '''Stops this thread. Must be called from different thread (Main Thread)'''
-        super(busyThread, self).join(timeout)
-        self.stop.set()
-        Timer.running = False
+        def run(self):
+            '''
+            When started, thread will run and process Timers in queue until manually stopped
+            TODO: Add how to send message via LCM in the case of match timer
+            '''
+            while not self.stop.isSet():
+                if(len(self.queue) > 0 and self.queue[0].endTime < time.time()):
+                    queueLock.acquire()
+                    event = heapq.heappop(self.queue)
+                    if event.timer_type == TIMER_TYPES.MATCH:
+                        LCM.lcm_send(LCM_TARGETS.LCM_TARGET_SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
+                    if event.timer_type == TIMER_TYPES.BID:
+                        LCM.lcm_send(LCM_TARGETS.LCM_TARGET_SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END)
+                    event.active = False
+                    queueLock.release()
+
+        def join(self, timeout=None):
+            '''Stops this thread. Must be called from different thread (Main Thread)'''
+            super(busyThread, self).join(timeout)
+            self.stop.set()
+            Timer.running = False
 
 
     '''Initiates the Queue (heap) of Timers, Thread, and Lock for Queue'''

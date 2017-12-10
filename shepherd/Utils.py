@@ -80,3 +80,11 @@ class GOAL():
     E = "e"
     BLUE = "blue_goal"
     GOLD = "gold_goal"
+
+# pylint: disable=invalid-name
+class STATE():
+    SETUP = "setup"
+    AUTO = "auto"
+    WAIT = "wait"
+    TELE = "tele"
+    END = "end"

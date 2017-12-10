@@ -28,19 +28,27 @@ class Goal:
                                 by the blue team will last
     """
     bid_increase_constant = CONSTANTS.BID_INCREASE_CONSTANT
-    def __init__(self, name, value):
+    def __init__(self, name, value, start_bid, owner=None):
         self.name = name
         self.value = value
-        self.owner = None
-        self.current_bid = 0
+        self.owner = owner
+        self.current_bid = start_bid
         self.current_bid_team = None
-        self.previous_bid = 0
+        self.previous_bid = start_bid
         self.previous_bid_team = None
         self.bid_timer = Timer(TIMER_TYPES.BID, name)
         self.gold_two_x_timer = Timer(TIMER_TYPES.DURATION)
         self.gold_zero_x_timer = Timer(TIMER_TYPES.DURATION)
         self.blue_two_x_timer = Timer(TIMER_TYPES.DURATION)
         self.blue_zero_x_timer = Timer(TIMER_TYPES.DURATION)
+
+    def set_autonomous(self):
+        self.value = 2 * self.value
+        self.cost = self.cost / 2
+
+    def set_teleop(self):
+        self.value = self.value / 2
+        self.cost = self.cost * 2
 
     def score(self, alliance):
         """ modifies the owner alliance's score based on the value of the goal,

@@ -6,6 +6,57 @@ from Utils import *
 import queue
 
 ###########################################
+# Evergreen Methods
+###########################################
+
+def start():
+    events = queue.Queue()
+    lcm_start_read(LCM_TARGETS.SHEPHERD, events)
+    while True:
+        payload = events.get(True)
+        header_to_function.get(payload[0])(payload[1])
+
+def to_setup(args):
+    pass
+
+def to_auto(args):
+    pass
+
+def to_wait(args):
+    pass
+
+def to_teleop(args):
+    pass
+
+def to_end(args):
+    pass
+
+def reset(args):
+    pass
+
+def score_adjust(args):
+    pass
+
+###########################################
+# Game Specific Methods
+###########################################
+
+def generate_rfids(args):
+    pass
+
+def goal_score(args):
+    pass
+
+def goal_bid(args):
+    pass
+
+def code_input(args):
+    pass
+
+def bid_complete(args):
+    pass
+
+###########################################
 # Event to Function Mappings for each Stage
 ###########################################
 
@@ -63,57 +114,6 @@ game_state = STATE.END
 game_timer = Timer(TIMER_TYPES.MATCH)
 rfid_pool = None
 curr_rfids = None
-
-###########################################
-# Evergreen Methods
-###########################################
-
-def start():
-    queue = queue.Queue()
-    lcm_start_read(LCM_TARGETS.SHEPHERD, queue)
-    while True:
-        payload = queue.get(True)
-        header_to_function.get(payload[0])(payload[1])
-
-def to_setup(args):
-    pass
-
-def to_auto(args):
-    pass
-
-def to_wait(args):
-    pass
-
-def to_teleop(args):
-    pass
-
-def to_end(args):
-    pass
-
-def reset(args):
-    pass
-
-def score_adjust(args):
-    pass
-
-###########################################
-# Game Specific Methods
-###########################################
-
-def generate_rfids(args):
-    pass
-
-def goal_score(args):
-    pass
-
-def goal_bid(args):
-    pass
-
-def code_input(args):
-    pass
-
-def bid_complete(args):
-    pass
 
 if __name__ == '__main__':
     start()

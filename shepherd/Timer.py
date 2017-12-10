@@ -16,7 +16,7 @@ class Timer:
         There will only be one for the entire class.
         '''
         def __init__(self, queue):
-            super(busyThread, self).__init__()
+            super()
             self.queue = queue
             self.stop = threading.Event()
 
@@ -38,7 +38,7 @@ class Timer:
 
         def join(self, timeout=None):
             '''Stops this thread. Must be called from different thread (Main Thread)'''
-            super(busyThread, self).join(timeout)
+            super().join(timeout)
             self.stop.set()
             Timer.running = False
 

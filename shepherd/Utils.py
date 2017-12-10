@@ -44,8 +44,9 @@ class CONSTANTS():
     CODE_COOLDOWN = 5
     BID_INCREASE_CONSTANT = 5
 
+
 # pylint: disable=invalid-name
-class AllIANCE_COLOR():
+class ALLIANCE_COLOR():
     GOLD = "gold"
     BLUE = "blue"
 
@@ -69,3 +70,13 @@ class POWERUP_TYPES():
     ZERO_X = "zero_x"
     TWO_X = "two_x"
     STEAL = "steal"
+
+# pylint: disable=invalid-name
+class GOAL():
+    A = "a"
+    B = "b"
+    C = "c"
+    D = "d"
+    E = "e"
+    BLUE = "blue_goal"
+    GOLD = "gold_goal"

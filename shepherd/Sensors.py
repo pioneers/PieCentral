@@ -38,9 +38,15 @@ class Sensors: # pylint: disable=too-few-public-methods
         '''
         This should return a dictionary that maps a sensor name to its current state
         '''
+        pass
 
     def main(self):
-    	while True:
-    		event = self.event_queue.get(True)
-    		header = event[0]
-    		args = 
+        while True:
+            try:
+                event = self.event_queue.get(False)
+                header = event[0]
+                args = event[1:]
+                self.event_map[header](args)
+            except Queue.Empty: 
+                pass
+            #TODO: Implement communicating with PySerial

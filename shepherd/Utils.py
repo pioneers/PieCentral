@@ -43,6 +43,14 @@ class CONSTANTS():
     STEAL_COOLDOWN = 5
     CODE_COOLDOWN = 5
     BID_INCREASE_CONSTANT = 5
+    GOAL_BASE_VALUE = 1
+    GOAL_LOW_VALUE = 5
+    GOAL_MED_VALUE = 10
+    GOAL_HIGH_VALUE = 25
+    GOAL_LOW_COST = 20
+    GOAL_MED_COST = 40
+    GOAL_HIGH_COST = 100
+
 
 
 # pylint: disable=invalid-name

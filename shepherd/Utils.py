@@ -38,6 +38,8 @@ class SCOREBOARD_HEADER():
 
 # pylint: disable=invalid-name
 class CONSTANTS():
+    AUTO_TIME = 30
+    TELEOP_TIME = 180
     TWO_X_COOLDOWN = 5
     ZERO_X_COOLDOWN = 5
     STEAL_COOLDOWN = 5

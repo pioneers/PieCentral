@@ -14,13 +14,31 @@ def start():
     lcm_start_read(LCM_TARGETS.SHEPHERD, events)
     while True:
         payload = events.get(True)
-        header_to_function.get(payload[0])(payload[1])
+        if game_state == STATE.SETUP:
+            setup_functions.get(payload[0])(payload[1])
+        elif game_state == STATE.AUTO:
+            auto_functions.get(payload[0])(payload[1])
+        elif game_state == STATE.WAIT:
+            wait_functions.get(payload[0])(payload[1])
+        elif game_state == STATE.TELE:
+            teleop_functions.get(payload[0])(payload[1])
+        elif game_state == STATE.END:
+            end_functions.get(payload[0])(payload[1])    
 
 def to_setup(args):
-    pass
+    if game_state == STATE.END:
+        flush_scores()
+
+    reset()
+    alliances[ALLIANCE_COLOR.BLUE] = Alliance(ALLIANCE_COLOR.BLUE, args[0], args[1], args[2], args[3])
+    alliances[ALLIANCE_COLOR.GOLD] = Alliance(ALLIANCE_COLOR.GOLD, args[4], args[5], args[6], args[7])
 
 def to_auto(args):
-    pass
+    for goal in goals:
+        goal.set_autonomous()
+
+    game_timer.start_timer(CONSTANTS.AUTO_TIME)
+    game_state = STATE.AUTO
 
 def to_wait(args):
     pass
@@ -35,6 +53,9 @@ def reset(args):
     pass
 
 def score_adjust(args):
+    pass
+
+def flush_scores(args):
     pass
 
 ###########################################

@@ -27,44 +27,29 @@ class Hibike:
         self.device_values_cache = {}
 
     def process_output(self):
-        """ Processes the output uploaded to the state queue by te devices
+        """
+        Processes the output uploaded to the state queue by te devices.
+
         If it's a subscription response from a device whose uid is not in
-        self.uids, the uid will be added to self.uids
+        self.uids, the uid will be added to self.uids.
+
         If it's a device disconnection from a device whose uid in self.uids,
-        the uid will be removed from self.uids
-        If it's a device value, cache it in the dictionary """
+        the uid will be removed from self.uids.
+
+        If it's a device value, cache it in the dictionary.
+        """
         while True:
-            output = self.state_queue.get()
-            command = output[0]
+            command, data = self.state_queue.get()
             if command == "device_subscribed":
-                uid = output[1][0]
-            if uid not in self.uids:
+                uid = data[0]
                 self.uids.add(uid)
-            if command == "device_disconnected":
-                uid = output[1]
-            if uid in self.uids:
-                self.uids.remove(uid)
-
-            if command == "device_values":
-                uid = 0
-                for key in output[1][0].keys():
-                    uid = key
-                    try:
-                        params_values = output[1][0][uid]
-                    except KeyError:
-                        params_values = [{}]
-
-                for param_val_tuple in params_values:
-                    try:
-                        parameter = param_val_tuple[0]
-                        value = param_val_tuple[1]
-                    except KeyError: # Treat a tuple with a missing value as if it didn't exist,
-                                     # except to print an error message
-                        continue
-                    if uid not in self.device_values_cache:
-                        self.device_values_cache.update({uid: {parameter: (value, time.time())}})
-                    else:
-                        self.device_values_cache[uid].update({parameter: (value, time.time())})
+            elif command == "device_disconnected":
+                uid = data
+                self.uids.discard(uid)
+            elif command == "device_values":
+                for uid, params in data[0].items():
+                    for key, value in params:
+                        self.device_values_cache.setdefault(uid, {})[key] = value, time.time()
 
     def get_last_cached(self, uid, param):
         """
@@ -72,8 +57,7 @@ class Hibike:
         package recieved from a uid and a parameter.
 
         Precondition: a device_data with a UID, params, and values must have been
-        recieved from the param before calling this function
-
+        received from the param before calling this function.
         """
         try:
             return self.device_values_cache[uid][param]
@@ -84,12 +68,9 @@ class Hibike:
     def get_uids_and_types(self):
         """
         Returns a list of tuples of all of the uids of all devices that the
-        HibikeCommunicator talks to Tuple structure: (uid, device type name)
+        HibikeCommunicator talks to Tuple structure: (uid, device type name).
         """
-        tuple_list = []
-        for uid in self.uids:
-            tuple_list.append((uid, hibike_message.uid_to_device_name(uid)))
-        return tuple_list
+        return [(uid, hibike_message.uid_to_device_name(uid)) for uid in self.uids]
 
     def enumerate(self):
         """
@@ -120,41 +101,43 @@ class Hibike:
         Disable all attached devices.
         """
         self.pipe_to_child.send(["disable_all", []])
+
 # pylint: disable=too-many-branches, too-many-statements
 def run_test():
     comms = Hibike()
     time.sleep(3)
     device_info = comms.get_uids_and_types()
-    for uid_type_tuple in device_info:
-        uid = uid_type_tuple[0]
-        device_type = uid_type_tuple[1]
-        print("Device info packet: ", uid_type_tuple)
-        print("Type: ", device_type)
+    for uid, device_type in device_info:
+        print("Device info packet:", (uid, device_type))
+        print("Type:", device_type)
         if device_type == "LimitSwitch":
             while True:
                 comms.subscribe(uid, 100, ["switch0", "switch1", "switch2", "switch3"])
                 time.sleep(0.05)
-                print("Uid: ", uid, "\n", "Last cached, swich1 and switch2: ",
-                      comms.get_last_cached(uid, "switch0"), "\n",
-                      comms.get_last_cached(uid, "switch1"), "\n")
+                print("Uid:", uid)
+                print("Last cached, switch0 and switch1:")
+                print(comms.get_last_cached(uid, "switch0"))
+                print(comms.get_last_cached(uid, "switch1"))
                 time.sleep(0.5)
 
         elif device_type == "LineFollower":
             while True:
                 comms.subscribe(uid, 100, ["left", "center", "right"])
                 time.sleep(0.05)
-                print("Uid: ", uid, "\n", "Last cached, all params: ",
-                      comms.get_last_cached(uid, "left"), "\n",
-                      comms.get_last_cached(uid, "right"), "\n")
+                print("Uid:", uid)
+                print("Last cached, all params:")
+                print(comms.get_last_cached(uid, "left"))
+                print(comms.get_last_cached(uid, "right"))
                 time.sleep(0.5)
 
         elif device_type == "Potentiometer":
             while True:
                 comms.subscribe(uid, 100, ["pot0", "pot1", "pot2", "pot3"])
                 time.sleep(0.05)
-                print("Uid: ", uid, "\n", "Last cached, pot0 and pot2: ",
-                      comms.get_last_cached(uid, "pot0"), "\n",
-                      comms.get_last_cached(uid, "pot2"), "\n")
+                print("Uid:", uid)
+                print("Last cached, pot0 and pot2:")
+                print(comms.get_last_cached(uid, "pot0"))
+                print(comms.get_last_cached(uid, "pot1"))
                 time.sleep(0.5)
 
         elif device_type == "Encoder":
@@ -174,9 +157,10 @@ def run_test():
                 time.sleep(0.05)
                 comms.write(uid, ("calibrate", False))
                 time.sleep(0.05)
-                print("Uid: ", uid, "\n", "Last cached, calibrate and cell2: ",
-                      comms.get_last_cached(uid, "calibrate"), "\n",
-                      comms.get_last_cached(uid, "cell2"), "\n")
+                print("Uid:", uid)
+                print("Last cached, calibrate and cell2:")
+                print(comms.get_last_cached(uid, "calibrate"))
+                print(comms.get_last_cached(uid, "cell2"))
                 time.sleep(0.5)
 
         elif device_type == "TeamFlag":
@@ -189,9 +173,10 @@ def run_test():
                 comms.write(uid, [("led1", False), ("led2", False), ("led3", True),
                                   ("led4", True), ("blue", False), ("yellow", True)])
                 time.sleep(0.05)
-                print("Uid: ", uid, "\n", "Last cached, blue and yellow: ",
-                      comms.get_last_cached(uid, "blue"), "\n",
-                      comms.get_last_cached(uid, "yellow"), "\n")
+                print("Uid:", uid)
+                print("Last cached, blue and yellow:")
+                print(comms.get_last_cached(uid, "blue"))
+                print(comms.get_last_cached(uid, "yellow"))
                 time.sleep(0.5)
 
         elif device_type == "YogiBear":
@@ -202,9 +187,10 @@ def run_test():
                 time.sleep(0.05)
                 comms.write(uid, [("duty", 50), ("forward", True)])
                 time.sleep(0.05)
-                print("Uid: ", uid, "\n", "Last cached, all params: ",
-                      comms.get_last_cached(uid, "duty"), "\n",
-                      comms.get_last_cached(uid, "forward"), "\n")
+                print("Uid:", uid)
+                print("Last cached, all params:")
+                print(comms.get_last_cached(uid, "duty"))
+                print(comms.get_last_cached(uid, "forward"))
                 time.sleep(0.5)
 
         elif device_type == "ServoControl":
@@ -220,9 +206,10 @@ def run_test():
                                   ("enable1", True), ("servo2", 30), ("enable2", False),
                                   ("servo3", 17), ("enable3", True)])
                 time.sleep(0.05)
-                print("Uid: ", uid, "\n", "Last cached, servo1 and enable1: ",
-                      comms.get_last_cached(uid, "servo1"), "\n",
-                      comms.get_last_cached(uid, "enable1"), "\n")
+                print("Uid:", uid)
+                print("Last cached, servo1 and enable1:")
+                print(comms.get_last_cached(uid, "servo1"))
+                print(comms.get_last_cached(uid, "enable1"))
                 time.sleep(0.5)
 
         elif device_type == "ExampleDevice":
@@ -243,19 +230,23 @@ def run_test():
                                   ("natsuki", 0), ("yuko", 0), ("mizore", 0.0), ("nozomi", 0.0),
                                   ("takuya", 0), ("aoi", 0)])
                 time.sleep(0.05)
-                print("Uid: ", uid, "\n", "Last cached, kumiko and hazuki: ",
-                      comms.get_last_cached(uid, "kumiko"), "\n",
-                      comms.get_last_cached(uid, "hazuki"), "\n")
+                print("Uid:", uid)
+                print("Last cached, kumiko and hazuki:")
+                print(comms.get_last_cached(uid, "kumiko"))
+                print(comms.get_last_cached(uid, "hazuki"))
                 time.sleep(0.5)
+
         elif device_type == "RFID":
             while True:
                 comms.subscribe(uid, 100, ["id", "detect_tag"])
                 time.sleep(0.05)
                 comms.read(uid, ["id"])
                 time.sleep(0.05)
-                print("Uid: ", uid, "\n", "Last cached, all params: ",
-                      comms.get_last_cached(uid, "id"), "\n",
-                      comms.get_last_cached(uid, "detect_tag"))
+                print("Uid:", uid)
+                print("Last cached, all params:")
+                print(comms.get_last_cached(uid, "id"))
+                print(comms.get_last_cached(uid, "detect_tag"))
                 time.sleep(0.5)
+
         else:
             raise TypeError("ERROR: unknown device type detected")

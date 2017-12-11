@@ -54,7 +54,7 @@ class Hibike:
     def get_last_cached(self, uid, param):
         """
         Returns a tuple of the value and the timestamp of the last device_values
-        package recieved from a uid and a parameter.
+        package received from a uid and a parameter.
 
         Precondition: a device_data with a UID, params, and values must have been
         received from the param before calling this function.
@@ -68,7 +68,7 @@ class Hibike:
     def get_uids_and_types(self):
         """
         Returns a list of tuples of all of the uids of all devices that the
-        HibikeCommunicator talks to Tuple structure: (uid, device type name).
+        HibikeCommunicator talks to. Tuple structure: (uid, device type name).
         """
         return [(uid, hibike_message.uid_to_device_name(uid)) for uid in self.uids]
 

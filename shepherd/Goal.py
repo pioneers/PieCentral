@@ -91,7 +91,7 @@ class Goal:
             alliance - the alliance trying to apply the effect to the goal
         """
         def process_powerup(blue_timer, gold_timer, constants_cooldown, powerup_type):
-            if alliance.name == AllIANCE_COLOR.BLUE:
+            if alliance.name == ALLIANCE_COLOR.BLUE:
                 if blue_timer.is_running():
                     lcm_send(LCM_TARGETS.SENSORS,
                              SENSOR_HEADER.FAILED_POWERUP)
@@ -100,7 +100,7 @@ class Goal:
                     lcm_send(LCM_TARGETS.SCOREBOARD,
                              SCOREBOARD_HEADER.POWERUPS,
                              [self.name, alliance.name, powerup_type])
-            elif alliance.name == AllIANCE_COLOR.GOLD:
+            elif alliance.name == ALLIANCE_COLOR.GOLD:
                 if gold_timer.is_running():
                     lcm_send(LCM_TARGETS.SENSORS,
                              SENSOR_HEADER.FAILED_POWERUP)

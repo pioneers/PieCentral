@@ -26,7 +26,7 @@ class Timer:
             TODO: Add how to send message via LCM in the case of match timer
             '''
             while not self.stop.isSet():
-                if(len(self.queue) > 0 and self.queue[0].endTime < time.time()):
+                if not self.queue.empty() and self.queue[0].endTime < time.time():
                     Timer.queueLock.acquire()
                     event = heapq.heappop(self.queue)
                     if event.timer_type == TIMER_TYPES.MATCH:
@@ -42,8 +42,6 @@ class Timer:
             self.stop.set()
             Timer.running = False
 
-
-    '''Initiates the Queue (heap) of Timers, Thread, and Lock for Queue'''
     eventQueue = []
     thread = busyThread(eventQueue)
     running = False
@@ -81,7 +79,7 @@ class Timer:
                 Timer.thread.start()
             Timer.queueLock.acquire()
             self.endTime = time.time() + duration
-            heapq.heappush(Timer.eventQueue, self) 
+            heapq.heappush(Timer.eventQueue, self)
             self.active = True
             Timer.queueLock.release()
 
@@ -103,7 +101,9 @@ class Timer:
         #TODO
         pass
 
-    '''Methods just for comparing Timers for the purpose of storing in heap.'''
+    ###########################################
+    # Timer Comparison Methods
+    ###########################################
     def __lt__(self, other):
         return self.endTime < other.endTime
 

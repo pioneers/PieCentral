@@ -1,12 +1,13 @@
+import queue
 from Alliance import *
 from Goal import *
 from LCM import *
 from Timer import *
 from Utils import *
-import queue
+
 
 ###########################################
-# Evergreen Methods 
+# Evergreen Methods
 ###########################################
 
 def start():
@@ -47,20 +48,22 @@ def start():
             if func is not None:
                 func(payload[1])
             else:
-                print("Invalid Event in End")    
+                print("Invalid Event in End")
 
 def to_setup(args):
     '''
     Move to the setup stage which is should push scores from previous game to spreadsheet,
-    load the teams for the upcoming match, reset all state, and send information to scoreboard. 
+    load the teams for the upcoming match, reset all state, and send information to scoreboard.
     By the end, should be ready to start match.
     '''
     if game_state == STATE.END:
         flush_scores()
 
     reset()
-    alliances[ALLIANCE_COLOR.BLUE] = Alliance(ALLIANCE_COLOR.BLUE, args[0], args[1], args[2], args[3])
-    alliances[ALLIANCE_COLOR.GOLD] = Alliance(ALLIANCE_COLOR.GOLD, args[4], args[5], args[6], args[7])
+    alliances[ALLIANCE_COLOR.BLUE] = Alliance(ALLIANCE_COLOR.BLUE, args[0],
+                                              args[1], args[2], args[3])
+    alliances[ALLIANCE_COLOR.GOLD] = Alliance(ALLIANCE_COLOR.GOLD, args[4],
+                                              args[5], args[6], args[7])
     goals[GOAL.BLUE].set_owner(alliances[ALLIANCE_COLOR.BLUE])
     goals[GOAL.GOLD].set_owner(alliances[ALLIANCE_COLOR.GOLD])
     #TODO: Send teams to scoreboard
@@ -100,7 +103,7 @@ def to_teleop(args):
 
 def to_end(args):
     '''
-    Move to end stage after the match ends. Robots should be disabled here 
+    Move to end stage after the match ends. Robots should be disabled here
     and final score adjustments can be made.
     '''
     #TODO
@@ -152,7 +155,7 @@ def goal_score(args):
     '''
     goal_name = args[0]
     alliance = args[1]
-    goals.get(goal_name).score(alliances.get(alliance)) 
+    goals.get(goal_name).score(alliances.get(alliance))
 
 def goal_bid(args):
     '''

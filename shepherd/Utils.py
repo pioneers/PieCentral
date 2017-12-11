@@ -1,5 +1,3 @@
-from enum import Enum, unique
-
 # pylint: disable=invalid-name
 class SHEPHERD_HEADER():
     GOAL_SCORE = "goal_score"

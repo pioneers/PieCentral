@@ -631,3 +631,10 @@ def writable(device_id, param):
     Check if the device at DEVICE_ID's parameter PARAM is writeable.
     """
     return PARAM_MAP[device_id][param][3]
+
+
+def param_type(device_id, param):
+    """
+    Return the data type of the requested parameter.
+    """
+    return PARAM_MAP[device_id][param][1]

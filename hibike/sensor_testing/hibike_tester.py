@@ -5,6 +5,18 @@ import threading
 import time
 from multiprocessing import Process, Pipe, Queue
 # pylint: disable=import-error
+
+def add_paths():
+    """
+    Modify sys.path so that we can import modules
+    from our parent.
+    """
+    import os
+    import sys
+    path = os.path.dirname(os.path.abspath(__file__))
+    parent_path = path.rstrip("sensor_testing")
+    sys.path.insert(1, parent_path)
+add_paths()
 import hibike_process
 import hibike_message
 
@@ -44,7 +56,8 @@ class Hibike:
                 uid = data[0]
                 self.uids.add(uid)
             elif command == "device_disconnected":
-                uid = data
+                print(data)
+                uid = data[0]
                 self.uids.discard(uid)
             elif command == "device_values":
                 for uid, params in data[0].items():

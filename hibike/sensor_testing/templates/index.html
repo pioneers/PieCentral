@@ -1,0 +1,161 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="charset=utf-8" />
+        <style>
+            h1 {
+                font-family: "Comic Sans", cursive;
+            }
+
+            table, td {
+                border: 1px solid black;
+            }
+
+            table {
+                border-collapse: collapse;
+                background-color: gold;
+            }
+
+            td {
+                font-family: monospace;
+                padding-left: 5px;
+                margin: 0px;
+                background-color: lightblue;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                text-align: center;
+            }
+
+            td.device-header {
+                padding: 5%;
+                background-color: gold;
+            }
+
+            td.device-param {
+                padding: 10px;
+            }
+
+            input {
+                margin-left: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+        <h1>Hibike Sensor Testing Web Interface</h1>
+        <script>
+            function writeValue(uid, paramName, paramType) {
+                "use strict";
+                var inputElt = document.getElementById("dev-" + uid + "-" + paramName);
+                if (inputElt === null) {
+                    alert("tried to send value to nonexistent device: " + uid);
+                    return;
+                }
+                var realValue;
+                switch (paramType) {
+                case "bool":
+                    realValue = inputElt.checked;
+                    break;
+                case "float":
+                case "double":
+                    realValue = parseFloat(inputElt.value);
+                    if (isNaN(realValue)) {
+                        alert("invalid float: " + inputElt.value);
+                        return;
+                    }
+                    break;
+                default:
+                    realValue = parseInt(inputElt.value);
+                    if (isNaN(realValue)) {
+                        alert("invalid int: " + inputElt.value);
+                        return;
+                    }
+                    break;
+                }
+                var obj = {};
+                obj[paramName] = realValue;
+                //console.log(JSON.stringify(obj));
+                $.ajax({
+                    method: "POST",
+                    url: "/devices/" + uid,
+                    data: JSON.stringify(obj),
+                    contentType: "application/json"
+                });
+            }
+
+            function readValues(uid) {
+                $.getJSON("/devices/" + uid, (data) => {
+                    for (let param in data) {
+                        let elem = document.querySelector("#dev-" + uid + "-" + param + "-readonly");
+                        if (elem === null) {
+                            continue;
+                        }
+                        elem.innerHTML = data[param];
+                    }
+                });
+            }
+
+            function readWriteableParam(uid, paramName, paramType) {
+                $.getJSON("/devices/" + uid + "/" + paramName, (data) => {
+                    var elem = document.querySelector("#dev-" + uid + "-" + paramName);
+                    if (elem === null) {
+                        alert("Tried to read nonexistent parameter: " + paramType);
+                        return;
+                    }
+                    var value = data[paramName];
+                    if (paramType === "bool") {
+                        elem.checked = value;
+                    } else {
+                        elem.value = value;
+                    }
+                });
+            }
+
+            function updateAll() {
+                {% for device in devices %}
+                readValues("{{ device.uid }}");
+                {% endfor %}
+            }
+
+            setInterval(updateAll, 1000);
+        </script>
+        <div id="sensors">
+            <table>
+            {% for device in devices %}
+            <tr>
+                <td class="device-header">{{ device.name }} @ {{ device.uid }}</td>
+            </tr>
+            <tr>
+                {% for param in device.params %}
+                <td class="device-param">
+                    {{ param.name }} (<b>{{ param.type }}</b>)
+                </td>
+                {% endfor %}
+            </tr>
+            <form>
+            <tr>
+                {% for param in device.params %}
+                <td>
+                    {% if param.writeable %}
+                        {% if param.type == "bool" %}
+                        <input type="checkbox" id="dev-{{ device.uid }}-{{ param.name }}" />
+                        {% else %}
+                        <input type="text" size="5" id="dev-{{ device.uid }}-{{ param.name }}" />
+                        {% endif %}
+                    <br />
+                    <input type="button" value="Write" onclick="writeValue('{{ device.uid }}', '{{ param.name }}', '{{ param.type }}')" />
+                    <br />
+                    <input type="button" value="Read" onclick="readWriteableParam('{{ device.uid }}', '{{ param.name }}', '{{ param.type }}')" />
+                    {% else %}
+                    <div id="dev-{{ device.uid }}-{{ param.name }}-readonly"></div>
+                    {% endif %}
+                </td>
+                {% endfor %}
+            </tr>
+            </form>
+            {% endfor %}
+            </table>
+        </div>
+    </body>
+</html>

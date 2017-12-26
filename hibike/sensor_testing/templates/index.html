@@ -121,8 +121,17 @@
                 {% endfor %}
             }
 
+            function disableAll() {
+                "use strict";
+                $.ajax({
+                    url: "/devices",
+                    method: "DELETE"
+                });
+            }
+
             setInterval(updateAll, 1000);
         </script>
+        <button onclick="disableAll()">Disable All Devices</button>
         <div id="sensors">
             {% for device in devices %}
             <h3 class="device-header">{{ device.name }} @ {{ device.uid }}</h3>

@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta http-equiv="charset=utf-8" />
+        <title>Sensor Testing Web Interface</title>
         <style>
             h1 {
                 font-family: "Comic Sans", cursive;
@@ -18,8 +19,7 @@
             }
 
             td {
-                font-family: monospace;
-                padding-left: 5px;
+                font-family: "Anonymous Pro", "Segoe UI", "Consolas";
                 margin: 0px;
                 background-color: lightblue;
                 padding-top: 10px;
@@ -27,13 +27,14 @@
                 text-align: center;
             }
 
-            td.device-header {
-                padding: 5%;
-                background-color: gold;
+            .device-header {
+                font-family: "Anonymous Pro", "Segoe UI", "Consolas", monospace;
+                font-size: 20pt;
             }
 
             td.device-param {
                 padding: 10px;
+                background-color: gold;
             }
 
             input {
@@ -43,7 +44,6 @@
     </head>
     <body>
         <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-        <h1>Hibike Sensor Testing Web Interface</h1>
         <script>
             function writeValue(uid, paramName, paramType) {
                 "use strict";
@@ -85,6 +85,7 @@
             }
 
             function readValues(uid) {
+                "use strict";
                 $.getJSON("/devices/" + uid, (data) => {
                     for (let param in data) {
                         let elem = document.querySelector("#dev-" + uid + "-" + param + "-readonly");
@@ -97,6 +98,7 @@
             }
 
             function readWriteableParam(uid, paramName, paramType) {
+                "use strict";
                 $.getJSON("/devices/" + uid + "/" + paramName, (data) => {
                     var elem = document.querySelector("#dev-" + uid + "-" + paramName);
                     if (elem === null) {
@@ -113,6 +115,7 @@
             }
 
             function updateAll() {
+                "use strict";
                 {% for device in devices %}
                 readValues("{{ device.uid }}");
                 {% endfor %}
@@ -121,11 +124,9 @@
             setInterval(updateAll, 1000);
         </script>
         <div id="sensors">
-            <table>
             {% for device in devices %}
-            <tr>
-                <td class="device-header">{{ device.name }} @ {{ device.uid }}</td>
-            </tr>
+            <h3 class="device-header">{{ device.name }} @ {{ device.uid }}</h3>
+            <table>
             <tr>
                 {% for param in device.params %}
                 <td class="device-param">
@@ -154,8 +155,8 @@
                 {% endfor %}
             </tr>
             </form>
-            {% endfor %}
             </table>
+            {% endfor %}
         </div>
     </body>
 </html>

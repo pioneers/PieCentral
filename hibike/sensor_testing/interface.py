@@ -76,7 +76,7 @@ def main_interface():
     return render_template("index.html", devices=devices)
 
 
-@APP.route("/devices")
+@APP.route("/devices", methods=["GET"])
 def list_devices():
     """
     Get a list of UIDs and their associated device types
@@ -87,6 +87,14 @@ def list_devices():
     for (uid, dev_type) in uids_list:
         uids_and_types[str(uid)] = dev_type
     return json.dumps({"devices": uids_and_types})
+
+
+@APP.route("/devices", methods=["DELETE"])
+def disable_all_devices():
+    """
+    Send a disable all message to Hibike.
+    """
+    HIBIKE_INSTANCE.disable()
 
 
 @APP.route("/devices/info/")

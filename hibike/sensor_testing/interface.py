@@ -95,6 +95,7 @@ def disable_all_devices():
     Send a disable all message to Hibike.
     """
     HIBIKE_INSTANCE.disable()
+    return "devices disabled"
 
 
 @APP.route("/devices/info/")

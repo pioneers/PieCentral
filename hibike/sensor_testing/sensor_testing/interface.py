@@ -2,11 +2,26 @@
 Web interface to Hibike's testing module.
 """
 import json
-from flask import Flask, abort, request, render_template
-from . import hibike_tester
-from .hibike_tester import hibike_message
+from flask import abort, request, render_template
+from sensor_testing import APP
 
-APP = Flask(__name__)
+def add_paths():
+    """
+    Modify sys.path so that we can import modules
+    from our parent.
+    """
+    import os
+    import sys
+    path = os.path.dirname(os.path.abspath(__file__))
+    parent_path = os.path.split(os.path.split(path)[0])[0]
+    print(parent_path)
+    sys.path.insert(1, parent_path)
+add_paths()
+
+import hibike_tester
+import hibike_message
+
+
 HIBIKE_INSTANCE = hibike_tester.Hibike()
 
 # FIXME: verification logic should be implemented elsewhere

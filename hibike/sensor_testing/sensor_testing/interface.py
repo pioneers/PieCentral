@@ -179,13 +179,10 @@ def write_params(uid):
     """
     Write values to a device.
     """
-    print("called")
     if uid not in HIBIKE_INSTANCE.uids:
-        print("no such uid found")
         abort(404)
     all_params = set(hibike_message.all_params_for_device_id(hibike_message.uid_to_device_id(uid)))
     params = request.get_json(force=True, cache=False)
-    print("writing {} to {}".format(params, uid))
     if params is None:
         abort(400)
     params_and_values = []

@@ -113,38 +113,60 @@ def disable_all_devices():
     return "devices disabled"
 
 
-@APP.route("/devices/info/")
-def show_all_devices():
+class DeviceNotFoundError(Exception):
     """
-    Get information about all devices.
+    Exception raised if a device with a given UID is not
+    connected.
     """
-    returned_json = "{"
-    for uid in HIBIKE_INSTANCE.uids:
-        device_info = show_device(uid)
-        returned_json += '"{}":{}'.format(uid, device_info)
-    returned_json += "}"
-    return returned_json
+    pass
 
-@APP.route("/devices/info/<int:uid>")
-def show_device(uid):
+
+def get_device_info(uid):
     """
-    Given a UID, get information about the device.
+    Get a dictionary representing information about a device.
     """
     if uid not in HIBIKE_INSTANCE.uids:
-        abort(404)
+        raise DeviceNotFoundError()
     device_id = hibike_message.uid_to_device_id(uid)
     device_name = hibike_message.device_id_to_name(device_id)
     params = hibike_message.all_params_for_device_id(device_id)
     json_map = {"device_name": device_name, "params": []}
     for param in params:
         readable = hibike_message.readable(device_id, param)
-        writeable = hibike_message.writable(device_id, param)
+        writeable = hibike_message.writeable(device_id, param)
         param_type = hibike_message.param_type(device_id, param)
         json_map["params"].append({"name": param,
                                    "readable": readable,
                                    "writeable": writeable,
                                    "type": param_type})
-    return json.dumps(json_map)
+    return json_map
+
+
+@APP.route("/devices/info/")
+def show_all_devices():
+    """
+    Get information about all devices.
+    """
+    uids = set(HIBIKE_INSTANCE.uids)
+    devices = {}
+    for uid in uids:
+        try:
+            devices[str(uid)] = get_device_info(uid)
+        except DeviceNotFoundError:
+            continue
+
+    return json.dumps(devices)
+
+
+@APP.route("/devices/info/<int:uid>")
+def show_device(uid):
+    """
+    Given a UID, get information about the device.
+    """
+    try:
+        return json.dumps(get_device_info(uid))
+    except DeviceNotFoundError:
+        abort(404)
 
 
 @APP.route("/devices/<int:uid>", methods=["GET"])

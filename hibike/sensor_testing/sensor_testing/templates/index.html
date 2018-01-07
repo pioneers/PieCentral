@@ -19,7 +19,7 @@
             }
 
             td {
-                font-family: "Anonymous Pro", "Segoe UI", "Consolas";
+                font-family: "Anonymous Pro", "Segoe UI", "Consolas", monospace;
                 margin: 0px;
                 background-color: lightblue;
                 padding-top: 10px;
@@ -80,7 +80,10 @@
                     method: "POST",
                     url: "/devices/" + uid,
                     data: JSON.stringify(obj),
-                    contentType: "application/json"
+                    contentType: "application/json",
+                    statusCode: {
+                        404: () => alert("Device or parameter not found: " + uid + " " + paramType)
+                    }
                 });
             }
 
@@ -149,9 +152,9 @@
                 <td>
                     {% if param.writeable %}
                         {% if param.type == "bool" %}
-                        <input type="checkbox" id="dev-{{ device.uid }}-{{ param.name }}" />
+                    <input type="checkbox" id="dev-{{ device.uid }}-{{ param.name }}" />
                         {% else %}
-                        <input type="text" size="5" id="dev-{{ device.uid }}-{{ param.name }}" />
+                    <input type="text" size="5" id="dev-{{ device.uid }}-{{ param.name }}" />
                         {% endif %}
                     <br />
                     <input type="button" value="Write" onclick="writeValue('{{ device.uid }}', '{{ param.name }}', '{{ param.type }}')" />

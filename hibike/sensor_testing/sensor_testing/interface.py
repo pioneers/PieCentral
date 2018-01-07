@@ -70,6 +70,7 @@ def main_interface():
     """
     Render the main interface page.
     """
+    HIBIKE_INSTANCE.subscribe_all()
     from collections import namedtuple
     devices = []
     for u in HIBIKE_INSTANCE.uids:

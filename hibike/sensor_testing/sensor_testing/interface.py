@@ -18,51 +18,12 @@ def add_paths():
     sys.path.insert(1, parent_path)
 add_paths()
 
+# pylint: disable=wrong-import-position
 import hibike_tester
 import hibike_message
 
 
 HIBIKE_INSTANCE = hibike_tester.Hibike()
-
-# FIXME: verification logic should be implemented elsewhere
-def validate_range(param_type, value):
-    """
-    Check that a value is within the allowed range for its type.
-    """
-    try:
-        if param_type == "float":
-            return True
-        elif param_type == "bool":
-            return 0 <= value <= 1
-        elif param_type == "double":
-            return True
-        elif param_type == "uint8_t":
-            return 0 <= value <= 255
-        elif param_type == "int8_t":
-            return -128 <= value <= 127
-        elif param_type == "uint16_t":
-            return 0 <= value <= 6553
-        elif param_type == "int16_t":
-            return -32768 <= value <= 32767
-        elif param_type == "uint32_t":
-            return 0 <= value <= 2 ** 32 - 1
-        elif param_type == "int32_t":
-            return -(2 ** 31) <= value <= 2 ** 31 - 1
-        elif param_type == "uint64_t":
-            return 0 <= value <= 2 ** 64 - 1
-        elif param_type == "int64_t":
-            return -(2 ** 63) <= value <= 2 ** 63 - 1
-    except (TypeError, ValueError):
-        return False
-
-
-def validate_value(uid, param, unvalidated_value):
-    """
-    Check that UNVALIDATED_VALUE is a valid input for PARAM.
-    """
-    dev_id = hibike_message.uid_to_device_id(uid)
-    param_type = hibike_message.param_type(dev_id, param)
-    return validate_range(param_type, unvalidated_value)
 
 
 @APP.route("/")
@@ -73,19 +34,19 @@ def main_interface():
     HIBIKE_INSTANCE.subscribe_all()
     from collections import namedtuple
     devices = []
-    for u in HIBIKE_INSTANCE.uids:
-        dev_id = hibike_message.uid_to_device_id(u)
-        dev_name = hibike_message.uid_to_device_name(u)
+    for uid in HIBIKE_INSTANCE.uids:
+        dev_id = hibike_message.uid_to_device_id(uid)
+        dev_name = hibike_message.uid_to_device_name(uid)
         all_params = hibike_message.all_params_for_device_id(dev_id)
         params_list = []
-        for p in all_params:
+        for param_name in all_params:
             param = namedtuple("Parameter", ("name", "type", "writeable"))
-            param.name = p
-            param.type = hibike_message.param_type(dev_id, p)
-            param.writeable = hibike_message.writable(dev_id, p)
+            param.name = param_name
+            param.type = hibike_message.param_type(dev_id, param_name)
+            param.writeable = hibike_message.writable(dev_id, param_name)
             params_list.append(param)
         device = namedtuple("Device", ("uid", "params", "name"))
-        device.uid = u
+        device.uid = uid
         device.params = params_list
         device.name = dev_name
         devices.append(device)
@@ -134,7 +95,7 @@ def get_device_info(uid):
     json_map = {"device_name": device_name, "params": []}
     for param in params:
         readable = hibike_message.readable(device_id, param)
-        writeable = hibike_message.writeable(device_id, param)
+        writeable = hibike_message.writable(device_id, param)
         param_type = hibike_message.param_type(device_id, param)
         json_map["params"].append({"name": param,
                                    "readable": readable,
@@ -212,9 +173,6 @@ def write_params(uid):
     for (param, value) in params.items():
         if param not in all_params:
             abort(400)
-        if validate_value(uid, param, value):
-            params_and_values.append((param, value))
-        else:
-            abort(400)
+        params_and_values.append((param, value))
     HIBIKE_INSTANCE.write(uid, params_and_values)
     return "wrote value"

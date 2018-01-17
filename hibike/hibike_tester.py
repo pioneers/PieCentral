@@ -4,7 +4,6 @@ Create a separate Hibike process, for testing.
 import threading
 import time
 from multiprocessing import Process, Pipe, Queue
-# pylint: disable=import-error
 
 import hibike_process
 import hibike_message

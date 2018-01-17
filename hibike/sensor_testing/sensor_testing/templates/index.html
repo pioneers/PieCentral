@@ -44,9 +44,9 @@
     </head>
     <body>
         <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-        <script>
+        <script type="text/javascript">
+            "use strict";
             function writeValue(uid, paramName, paramType) {
-                "use strict";
                 var inputElt = document.getElementById("dev-" + uid + "-" + paramName);
                 if (inputElt === null) {
                     alert("tried to send value to nonexistent device: " + uid);
@@ -88,7 +88,6 @@
             }
 
             function readValues(uid) {
-                "use strict";
                 $.getJSON("/devices/" + uid, (data) => {
                     for (let param in data) {
                         let elem = document.querySelector("#dev-" + uid + "-" + param + "-readonly");
@@ -101,7 +100,6 @@
             }
 
             function readWriteableParam(uid, paramName, paramType) {
-                "use strict";
                 $.getJSON("/devices/" + uid + "/" + paramName, (data) => {
                     var elem = document.querySelector("#dev-" + uid + "-" + paramName);
                     if (elem === null) {
@@ -118,14 +116,12 @@
             }
 
             function updateAll() {
-                "use strict";
                 {% for device in devices %}
                 readValues("{{ device.uid }}");
                 {% endfor %}
             }
 
             function disableAll() {
-                "use strict";
                 $.ajax({
                     url: "/devices",
                     method: "DELETE"

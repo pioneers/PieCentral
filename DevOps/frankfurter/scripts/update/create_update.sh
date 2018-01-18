@@ -12,7 +12,7 @@ FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
 PROTO_DIR=$PIECENTRAL_DIR/ansible-protos
 BUILD_DIR=$FRANKFURTER_DIR/build
 TMP_DIR=$BUILD_DIR/tmp
-DOC_DIR=$PIECENTRAL_DIR/DevOps/Documentation
+DOC_DIR=$PIECENTRAL_DIR/DevOps/docs
 HTML_DOC=https://raw.githubusercontent.com/pioneers/website-robot-api/master/robot_api.html
 
 if [ -d "$BUILD_DIR" ]; then

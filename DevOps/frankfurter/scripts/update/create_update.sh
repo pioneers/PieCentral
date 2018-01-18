@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 ##############################################################################################
 # Packages hibike and runtime nicely in a tarball along with the install_update.sh script.   #

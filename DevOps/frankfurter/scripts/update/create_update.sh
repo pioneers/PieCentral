@@ -12,7 +12,8 @@ FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
 PROTO_DIR=$PIECENTRAL_DIR/ansible-protos
 BUILD_DIR=$FRANKFURTER_DIR/build
 TMP_DIR=$BUILD_DIR/tmp
-DOC_DIR=$PIECENTRAL_DIR/Documentation
+DOC_DIR=$PIECENTRAL_DIR/DevOps/Documentation
+HTML_DOC=https://raw.githubusercontent.com/pioneers/website-robot-api/master/robot_api.html
 
 if [ -d "$BUILD_DIR" ]; then
     echo "Cleaning old builds ... "
@@ -24,19 +25,20 @@ fi
 mkdir -p $TMP_DIR
 echo "Done."
 
-if [ ! -f "$DOC_DIR/*.md" ] && [ ! -f "$DOC_DIR/*.html" ]; then
-    echo "No Documentation is in the Documentation Folder. Please add documentation as a html file in the Documentation Folder"
-    quit
-elif [ -a "$DOC_DIR/*.html" ] && [ ! -f "$DOC_DIR/*.md" ]; then
-    echo "converting html documentation to markdown"
-    pandoc $DOC_DIR/*.html -o $DOC_DIR/*.md
-    rm $DOC_DIR/*.html
-elif [ -a "$DOC_DIR/*.md" ] && [ -a "$DOC_DIR/*.html" ]; then
-    echo "deleting existing markdown file and replacing with existing html file"
-    rm $DOC_DIR/*.md
-    pandoc $DOC_DIR/*.html -o $DOC_DIR/*.md
-    rm $DOC_DIR/*.html
+if [ -d "$DOC_DIR" ]; then
+    echo "Cleaning old documentation ... "
+    rm -rf $DOC_DIR/*
+else
+    echo "Making doc directory"
+    mkdir $DOC_DIR
 fi
+
+echo "downloading documentation"
+wget $HTML_DOC -P $DOC_DIR
+echo "converting html to md"
+pandoc $DOC_DIR/*.html -o $DOC_DIR/*.md
+echo "removing html"
+rm $DOC_DIR/*.html
 
 # Copy hibike and runtime
 cp -R $PIECENTRAL_DIR/hibike $TMP_DIR
@@ -58,4 +60,5 @@ printf "\x1b[0m"
 
 cd ..
 rm -rf $TMP_DIR
+rm -rf $DOC_DIR
 echo "Cleaned up."

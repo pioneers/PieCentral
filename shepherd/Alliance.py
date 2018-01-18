@@ -43,5 +43,9 @@ class Alliance:
             Amount can be negative or positive.
         """
         self.score += amount
-        lcm_send(CONSTANTS.LCM_TARGET_SCOREBOARD, SCOREBOARD_HEADER.SCORE,
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
                  [self.name, self.score])
+
+    def reset(self):
+        #TODO
+        pass

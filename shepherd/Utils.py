@@ -1,7 +1,5 @@
-from enum import Enum, unique
-
-@unique # pylint: disable=invalid-name
-class SHEPHERD_HEADER(Enum):
+# pylint: disable=invalid-name
+class SHEPHERD_HEADER():
     GOAL_SCORE = "goal_score"
     GOAL_BID = "goal_bid"
     CODE_INPUT = "code_input"
@@ -11,18 +9,21 @@ class SHEPHERD_HEADER(Enum):
     START_NEXT_STAGE = "start_next_stage"
     RESET_CURRENT_STAGE = "reset_current_stage"
     RESET_MATCH = "reset_match"
+    SCORE_ADJUST = "score_adjust"
+
+    GENERATE_RFID = "generate_rfid"
 
     BID_TIMER_END = "bid_timer_end"
     STAGE_TIMER_END = "stage_timer_end"
 
-@unique # pylint: disable=invalid-name
-class SENSOR_HEADER(Enum):
+# pylint: disable=invalid-name
+class SENSOR_HEADER():
     CODE_RESULT = "code_result"
     FAILED_POWERUP = "failed_powerup"
     CURRENT_BID = "current_bid"
 
-@unique # pylint: disable=invalid-name
-class SCOREBOARD_HEADER(Enum):
+# pylint: disable=invalid-name
+class SCOREBOARD_HEADER():
     SCORE = "score"
     TEAMS = "teams"
     BID_TIMER_START = "bid_timer_start"
@@ -34,34 +35,64 @@ class SCOREBOARD_HEADER(Enum):
     ALLIANCE_MULTIPLIER = "alliance_multiplier"
 
 # pylint: disable=invalid-name
-class CONSTANTS(Enum):
+class CONSTANTS():
+    AUTO_TIME = 30
+    TELEOP_TIME = 180
     TWO_X_COOLDOWN = 5
     ZERO_X_COOLDOWN = 5
     STEAL_COOLDOWN = 5
     CODE_COOLDOWN = 5
     BID_INCREASE_CONSTANT = 5
+    GOAL_BASE_VALUE = 1
+    GOAL_LOW_VALUE = 5
+    GOAL_MED_VALUE = 10
+    GOAL_HIGH_VALUE = 25
+    GOAL_LOW_COST = 20
+    GOAL_MED_COST = 40
+    GOAL_HIGH_COST = 100
 
-@unique # pylint: disable=invalid-name
-class AllIANCE_COLOR(Enum):
+
+
+# pylint: disable=invalid-name
+class ALLIANCE_COLOR():
     GOLD = "gold"
     BLUE = "blue"
 
-@unique # pylint: disable=invalid-name
-class LCM_TARGETS(Enum):
-    LCM_TARGET_SHEPHERD = "lcm_target_shepherd"
-    LCM_TARGET_SCOREBOARD = "lcm_target_scoreboard"
-    LCM_TARGET_SENSORS = "lcm_target_sensors"
+# pylint: disable=invalid-name
+class LCM_TARGETS():
+    SHEPHERD = "lcm_target_shepherd"
+    SCOREBOARD = "lcm_target_scoreboard"
+    SENSORS = "lcm_target_sensors"
+    UI = "lcm_target_ui"
 
-@unique # pylint: disable=invalid-name
-class TIMER_TYPES(Enum):
+# pylint: disable=invalid-name
+class TIMER_TYPES():
     BID = "bid"
     MATCH = "match"
     COOLDOWN = "cooldown"
     CODE_COOLDOWN = "code_cooldown"
     DURATION = "duration"
 
-@unique # pylint: disable=invalid-name
-class POWERUP_TYPES(Enum):
+# pylint: disable=invalid-name
+class POWERUP_TYPES():
     ZERO_X = "zero_x"
     TWO_X = "two_x"
     STEAL = "steal"
+
+# pylint: disable=invalid-name
+class GOAL():
+    A = "a"
+    B = "b"
+    C = "c"
+    D = "d"
+    E = "e"
+    BLUE = "blue_goal"
+    GOLD = "gold_goal"
+
+# pylint: disable=invalid-name
+class STATE():
+    SETUP = "setup"
+    AUTO = "auto"
+    WAIT = "wait"
+    TELE = "tele"
+    END = "end"

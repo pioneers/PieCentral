@@ -1,9 +1,9 @@
 class Team:
     '''
+    CURRENTLY NOT USED MIGHT DELETE
     Establishes connection to the team's driver station, contains information such as their
     team's name and number. This is the bridge between the driver stations and Shepherd
     '''
-
     def __init__(self, teamName, teamNumber):
         self.name = teamName
         self.number = teamNumber

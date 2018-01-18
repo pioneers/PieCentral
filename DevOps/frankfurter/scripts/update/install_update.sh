@@ -19,11 +19,13 @@ if [ ! -d "$TMP_DIR/runtime" ] || [ ! -d "$TMP_DIR/hibike" ]; then
   exit 1
 fi
 
-# Replace `runtime` and `hibike`
+# Replace `runtime` and `hibike` and `documentation`
 sudo rm -rf $HOME/PieCentral/runtime
 sudo rm -rf $HOME/PieCentral/hibike
+sudo rm -rf $HOME/docs
 mv $TMP_DIR/hibike $HOME/PieCentral
 mv $TMP_DIR/runtime $HOME/PieCentral
+mv $TMP_DIR/docs $HOME
 cp $PIECENTRAL_BACKUP_DIR/runtime/studentCode.py $HOME/PieCentral/runtime
 cp $PIECENTRAL_BACKUP_DIR/runtime/namedPeripherals.csv $HOME/PieCentral/runtime
 

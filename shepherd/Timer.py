@@ -98,8 +98,12 @@ class Timer:
         return self.active
 
     def reset_all():
-        #TODO
-        pass
+        """Resets Timer Thread when game changes"""
+        Timer.thread.join()
+        Timer.eventQueue = []
+        Timer.thread = busyThread(Timer.eventQueue)
+        Timer.running = False
+        Timer.queueLock = threading.Lock()
 
     ###########################################
     # Timer Comparison Methods

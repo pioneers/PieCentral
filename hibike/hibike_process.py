@@ -358,7 +358,6 @@ def batch_data(data, state_queue):
 #############
 # pylint: disable=invalid-name
 if __name__ == "__main__":
-
     # helper functions so we can spawn threads that try to read/write to hibike_devices periodically
     def set_interval_sequence(functions, sec):
         """

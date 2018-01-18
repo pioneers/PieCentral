@@ -35,10 +35,6 @@ fi
 
 echo "downloading documentation"
 wget $HTML_DOC -P $DOC_DIR
-echo "converting html to md"
-pandoc $DOC_DIR/*.html -o $DOC_DIR/*.md
-echo "removing html"
-rm $DOC_DIR/*.html
 
 # Copy hibike and runtime
 cp -R $PIECENTRAL_DIR/hibike $TMP_DIR

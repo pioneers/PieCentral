@@ -1,4 +1,4 @@
-#!/bin/bash
+#/bin/bash
 
 ##############################################################################################
 # Packages hibike and runtime nicely in a tarball along with the install_update.sh script.   #
@@ -12,7 +12,7 @@ FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
 PROTO_DIR=$PIECENTRAL_DIR/ansible-protos
 BUILD_DIR=$FRANKFURTER_DIR/build
 TMP_DIR=$BUILD_DIR/tmp
-DOC_DIR=$PIECENTRAL_DIR/DevOps/docs
+DOC_DIR=$TMP_DIR/docs
 HTML_DOC=https://raw.githubusercontent.com/pioneers/website-robot-api/master/robot_api.html
 
 if [ -d "$BUILD_DIR" ]; then
@@ -40,7 +40,6 @@ wget $HTML_DOC -P $DOC_DIR
 cp -R $PIECENTRAL_DIR/hibike $TMP_DIR
 cp -R $PIECENTRAL_DIR/runtime $TMP_DIR
 cp -R $FRANKFURTER_DIR/resources $TMP_DIR
-cp -R $DOC_DIR $TMP_DIR
 protoc -I=$PROTO_DIR --python_out=$TMP_DIR/runtime $PROTO_DIR/*.proto
 cp $FRANKFURTER_DIR/scripts/update/install_update.sh $TMP_DIR
 
@@ -56,5 +55,4 @@ printf "\x1b[0m"
 
 cd ..
 rm -rf $TMP_DIR
-rm -rf $DOC_DIR
 echo "Cleaned up."

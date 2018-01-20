@@ -14,7 +14,7 @@ const HelpMenu = {
       },
     },
     {
-      label: 'API',
+      label: 'PiE API',
       click() {
         showAPI();
       },

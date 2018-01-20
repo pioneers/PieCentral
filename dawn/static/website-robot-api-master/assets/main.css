@@ -7,7 +7,7 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
-@import "https://cdn.rawgit.com/afeld/bootstrap-toc/v0.4.1/dist/bootstrap-toc.min.css";
+@import "css/bootstrap-toc.min.css";
 html {
   font-family: sans-serif;
   -ms-text-size-adjust: 100%;
@@ -6611,7 +6611,7 @@ Does not work on round things. */
   width: 100%;
   display: flex;
   list-style-type: none; }
-  #timeline-arrows .timeline-arrow, #timeline-arrows .twoline-timeline-arrow, #timeline-arrows .inactive-timeline-arrow {
+  #timeline-arrows .timeline-arrow, #timeline-arrows .inactive-timeline-arrow {
     flex: 1 1 auto;
     height: 100px;
     line-height: 33.33333px;
@@ -6624,7 +6624,7 @@ Does not work on round things. */
     text-decoration: none;
     color: white;
     cursor: pointer; }
-    #timeline-arrows .timeline-arrow:after, #timeline-arrows .twoline-timeline-arrow:after, #timeline-arrows .inactive-timeline-arrow:after {
+    #timeline-arrows .timeline-arrow:after, #timeline-arrows .inactive-timeline-arrow:after {
       content: "";
       border-top: 50px solid transparent;
       border-bottom: 50px solid transparent;
@@ -6633,7 +6633,7 @@ Does not work on round things. */
       right: -25px;
       top: 0;
       z-index: 5; }
-    #timeline-arrows .timeline-arrow:before, #timeline-arrows .twoline-timeline-arrow:before, #timeline-arrows .inactive-timeline-arrow:before {
+    #timeline-arrows .timeline-arrow:before, #timeline-arrows .inactive-timeline-arrow:before {
       content: "";
       border-top: 50px solid transparent;
       border-bottom: 50px solid transparent;
@@ -6641,15 +6641,15 @@ Does not work on round things. */
       position: absolute;
       left: 0;
       top: 0; }
-    #timeline-arrows .timeline-arrow:first-child, #timeline-arrows .twoline-timeline-arrow:first-child, #timeline-arrows .inactive-timeline-arrow:first-child {
+    #timeline-arrows .timeline-arrow:first-child, #timeline-arrows .inactive-timeline-arrow:first-child {
       padding-left: 40px; }
-      #timeline-arrows .timeline-arrow:first-child:before, #timeline-arrows .twoline-timeline-arrow:first-child:before, #timeline-arrows .inactive-timeline-arrow:first-child:before {
+      #timeline-arrows .timeline-arrow:first-child:before, #timeline-arrows .inactive-timeline-arrow:first-child:before {
         display: none; }
-    #timeline-arrows .timeline-arrow:last-child, #timeline-arrows .twoline-timeline-arrow:last-child, #timeline-arrows .inactive-timeline-arrow:last-child {
+    #timeline-arrows .timeline-arrow:last-child, #timeline-arrows .inactive-timeline-arrow:last-child {
       margin-right: 0; }
-      #timeline-arrows .timeline-arrow:last-child:after, #timeline-arrows .twoline-timeline-arrow:last-child:after, #timeline-arrows .inactive-timeline-arrow:last-child:after {
+      #timeline-arrows .timeline-arrow:last-child:after, #timeline-arrows .inactive-timeline-arrow:last-child:after {
         display: none; }
-  #timeline-arrows .twoline-timeline-arrow {
+  #timeline-arrows .twoline {
     padding-top: 16.66667px;
     padding-bottom: 16.66667px; }
   #timeline-arrows .inactive-timeline-arrow {
@@ -6859,6 +6859,27 @@ nav[data-toggle='toc'] .nav .nav {
 
 .highlight {
   background: #EEE; }
+
+/* site map */
+.sitemap ul {
+  list-style-type: none; }
+
+.sitemap {
+  background-color: #2b3d62;
+  color: white;
+  text-decoration: none;
+  padding-top: 2.5px;
+  padding-right: 2.5px; }
+
+.sitemap:hover {
+  color: #c7aa36;
+  text-decoration: none; }
+
+.sitemap-header {
+  background-color: #2b3d62;
+  color: white;
+  font-weight: bold;
+  text-decoration: none; }
 
 /* styles for horizontal scrolling */
 .scrolling-wrapper {

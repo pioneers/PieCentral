@@ -44,7 +44,7 @@ export default function showAPI() {
   api.on('closed', () => {
     api = null;
   });
-  api.loadURL(`file://${__dirname}/../static/api_files/api.html`);
+  api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
   api.once('ready-to-show', () => {
     api.show();
   });

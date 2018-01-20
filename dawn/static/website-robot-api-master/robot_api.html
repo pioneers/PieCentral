@@ -1,121 +1,51 @@
 <!DOCTYPE html>
-<!-- saved from url=(0053)https://pioneers.berkeley.edu/software/robot_api.html -->
-<html lang="en" class="gr__pioneers_berkeley_edu"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Pioneers in Engineering</title>
   <meta name="description" content="">
 
-  <link rel="stylesheet" href="./Pioneers in Engineering_files/font-awesome.min.css">
-  <link rel="stylesheet" href="./Pioneers in Engineering_files/main.css">
-  <link rel="stylesheet" href="./Pioneers in Engineering_files/ekko-lightbox.css">
-  <link rel="icon" href="https://pioneers.berkeley.edu/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="assets/fonts/font-awesome-4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="assets/main.css">
+  <link rel="stylesheet" href="assets/css/ekko-lightbox.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
 
-  <link rel="canonical" href="http://pioneers.berkeley.edu/software/robot_api">
-  <link rel="alternate" type="application/rss+xml" title="Pioneers in Engineering" href="http://pioneers.berkeley.edu/feed.xml">
+  <script src="assets/javascripts/jquery.min.js"></script>
+  <script src="assets/javascripts/bootstrap.min.js"></script>
+  <script src="assets/javascripts/ekko-lightbox.min.js"></script>
+</head>
 
-  <script async="" src="./Pioneers in Engineering_files/analytics.js"></script><script src="./Pioneers in Engineering_files/jquery.min.js"></script>
-  <script src="./Pioneers in Engineering_files/bootstrap.min.js"></script>
-  <script src="./Pioneers in Engineering_files/ekko-lightbox.min.js"></script>
-
-  <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-    ga('create', 'UA-35543006-1', 'auto');
-    ga('send', 'pageview');
-
-  </script>
-<style>
+  <!-- add after bootstrap.min.js -->
+  <style>
 h1,h2,h4,h5,h6{
-  padding-top: 50px; 
+  padding-top: 50px;
     margin-top: -50px;
 }
   .site-footer {
     margin-top: 50px;
-  }</style><script src="./Pioneers in Engineering_files/bootstrap-toc.min.js"></script></head>
+  }</style>
+ <script src="assets/javascripts/bootstrap-toc.min.js"></script>
 
-  <!-- add after bootstrap.min.js -->
-  
- 
-
-  <body data-spy="scroll" data-target="#toc" data-gr-c-s-loaded="true">
+  <body data-spy="scroll" data-target="#toc">
 
     <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
       <div style="float:left;"> <!-- Makes sure the title doesn't go all the way right -->
-        <img style="width:50px;" src="./Pioneers in Engineering_files/titleicon.png">
-        <a style="float:right;" class="navbar-brand" href="https://pioneers.berkeley.edu/"> <!-- Makes the title right of the icon, default is otherwise -->
+        <img style="width:50px;" src="titleicon.png">
+        <a style="float:right;" class="navbar-brand"> <!-- Makes the title right of the icon, default is otherwise -->
           <!-- <img alt="Brand" src="http://pioneers.allen.li/graphics/general/logos/Logo_vectorized.svg"> -->
           <div id="title">Pioneers in Engineering</div>
           <div id="small-title">PiE</div>
         </a>
       </div>
     </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-          <a href="https://pioneers.berkeley.edu/about/team.html" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">About <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="https://pioneers.berkeley.edu/about/about-us.html">About Us</a></li>
-            <li><a href="https://pioneers.berkeley.edu/about/team.html">The PiE Team</a></li>
-            <li><a href="https://pioneers.berkeley.edu/about/foundation.html">Foundation</a></li>
-            <li><a href="https://pioneers.berkeley.edu/about/gallery.html">Gallery</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a href="https://pioneers.berkeley.edu/software/robot_api.html#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Compete <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="https://pioneers.berkeley.edu/compete/rc-spring.html">PiE Robotics Competition</a></li>
-	        <li><a href="https://pioneers.berkeley.edu/compete/rc-fall.html">PiE Fall Competition</a></li>
-            <li><a href="https://pioneers.berkeley.edu/compete/start-team.html">Start a Team</a></li>
-            <li><a href="https://pioneers.berkeley.edu/compete/past-participants.html">Past Participants</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a href="https://pioneers.berkeley.edu/software/robot_api.html#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Programs <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="https://pioneers.berkeley.edu/programs/fall-workshops.html">Fall Workshops</a></li>
-            <li><a href="http://pioneers.github.io/opensource/index.html">Open Source <i class="fa fa-external-link"></i></a></li>
-            <li><a href="https://pioneers.berkeley.edu/programs/scholarship.html">Scholarship</a></li>
-            <li><a href="https://pioneers.berkeley.edu/programs/past-programs.html">Past Programs</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a href="https://pioneers.berkeley.edu/software/robot_api.html#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Get Involved <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="https://pioneers.berkeley.edu/get-involved/">Join PiE Staff</a></li>
-            <li><a href="https://pioneers.berkeley.edu/get-involved/projects.html">Projects</a></li>
-            <li><a href="https://pioneers.berkeley.edu/get-involved/become-mentor.html">Mentor (DeCal)</a></li>
-            <li><a href="https://pioneers.berkeley.edu/get-involved/volunteer.html">Volunteer</a></li>
-	          <li><a href="https://pioneers.berkeley.edu/get-involved/faq.html">FAQ</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-          <a href="https://pioneers.berkeley.edu/software/robot_api.html#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Support PiE <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="https://pioneers.berkeley.edu/support-pie/donate.html">How You Can Help</a></li>
-            <li><a href="https://pioneers.berkeley.edu/support-pie/sponsors.html">List of Sponsors</a></li>
-          </ul>
-        </li>
-        <li><a href="https://pioneers.berkeley.edu/blog">Blog</a></li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
 
@@ -126,13 +56,9 @@ h1,h2,h4,h5,h6{
       <!-- <img src="" alt=""> -->
       <div class="fade-overlay"></div>
       <div class="container">
-        <h1 data-toc-skip="">
-          Robot API
+        <h1 data-toc-skip>
+          Robot API v1.1.0
         </h1>
-
-         
-        <center><a href="https://pioneers.berkeley.edu/software" class="btn btn-primary btn-lg">Return to Software Hub</a></center>
-        
       </div>
     </div>
 
@@ -142,20 +68,20 @@ h1,h2,h4,h5,h6{
 <!-- sidebar, which will move to the top on a small screen -->
 <div class="col-sm-3">
 
-<nav id="toc" data-spy="affix" data-toggle="toc" class="affix"><ul class="nav"><li class=""><a href="https://pioneers.berkeley.edu/software/robot_api.html#introduction">Introduction</a></li><li class=""><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-class">Robot Class</a><ul class="nav"><li class=""><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-get-value-device-param-">Robot.get_value</a></li><li class=""><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-get-value-device-name-param-limit-switch">Robot.get_value (limit switch)</a></li><li class=""><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-get-value-device-name-param-line-follower">Robot.get_value (line follower)</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-get-value-device-name-param-potentiometer">Robot.get_value (potentiometer)</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-get-value-device-name-param-servo">Robot.get_value (servo)</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-get-value-device-name-param-yogibear">Robot.get_value (yogibear)</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-get-value-device-name-param-rfid">Robot.get_value (RFID)</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-set-value-device-name-param-value-">Robot.set_value</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-set-value-device-name-param-value-yogibear">Robot.set_value (yogibear)</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-set-value-device-name-param-value-servo">Robot.set_value (servo)</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-set-value-device-name-param-value-team-flag">Robot.set_value (team flag)</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-run-async-function-args-">Robot.run</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#robot-is-running-async-function-">Robotis_running</a></li></ul></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#gamepad-class">Gamepad Class</a><ul class="nav"><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#gamepad-get-value-name-">Gamepad.get_value</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#gamepad-get-value-name-joysticks">Gamepad.get_value</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#gamepad-get-value-name-buttons">Gamepad.get_values (buttons)</a></li></ul></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#actions-class">Actions Class</a><ul class="nav"><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#actions-sleep-seconds-">Actions.sleep</a></li></ul></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#example-code">Example Code</a></li><li><a href="https://pioneers.berkeley.edu/software/robot_api.html#glossary">Glossary</a></li></ul></nav>
+<nav id="toc" data-spy="affix" data-toggle="toc"></nav>
 </div>
 
 <div class="col-sm-9">
 
-      <h1 style="margin-top:0" id="introduction">Introduction</h1>
+      <h1 style="margin-top:0">Introduction</h1>
       <div>
         <p>The Pioneers in Engineering API (Application Program Interface) is a library of functions of that allows users to communicate with the robot. With a rich suite of sensors, your robot can detect and interpret its surroundings for powerful autonomous functionality. Precisely control your robot with new features such as asynchronous Python.</p>
       </div>
 
-      <p><br></p>
-      <h1 id="robot-class">Robot Class</h1>
+      <p><br /></p>
+      <h1>Robot Class</h1>
 
-      <h2 data-toc-text="Robot.get_value" id="robot-get-value-device-param-">Robot.get_value(device, param)</h2>
+      <h2 data-toc-text="Robot.get_value">Robot.get_value(device, param)</h2>
 
       <p>The <code class="highlighter-rouge">get_value</code> function returns a value associated with the <code class="highlighter-rouge">device</code> and <code class="highlighter-rouge">parameter</code> specified.</p>
 
@@ -175,7 +101,7 @@ h1,h2,h4,h5,h6{
         <li><strong>RFID</strong></li>
       </ul>
 
-      <h2 data-toc-text="Robot.get_value (limit switch)" id="robot-get-value-device-name-param-limit-switch">Robot.get_value(device_name, param) <span style="font-variant: small-caps">limit switch</span></h2>
+      <h2 data-toc-text="Robot.get_value (limit switch)">Robot.get_value(device_name, param) <span style="font-variant: small-caps">limit switch</span></h2>
 
       <p>Returns a value associated with the device and <code class="highlighter-rouge">parameter</code> specified.</p>
 
@@ -193,12 +119,12 @@ h1,h2,h4,h5,h6{
 
       <p><strong>Sample Usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#returns whether or not switch0 is pressed on limit switch controller named “limit_switch0”</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#returns whether or not switch0 is pressed on limit switch controller named “limit_switch0”</span>
 <span class="n">Robot</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">"limit_switch0"</span><span class="p">,</span> <span class="s">"switch0"</span><span class="p">)</span> 
 </code></pre>
       </div>
 
-      <h2 data-toc-text="Robot.get_value (line follower)" id="robot-get-value-device-name-param-line-follower">Robot.get_value(device_name, param) <span style="font-variant: small-caps">line follower</span></h2>
+      <h2 data-toc-text="Robot.get_value (line follower)">Robot.get_value(device_name, param) <span style="font-variant: small-caps">line follower</span></h2>
 
       <p>Returns a value associated with the <code class="highlighter-rouge">device</code> and <code class="highlighter-rouge">parameter</code> specified.</p>
 
@@ -216,12 +142,12 @@ h1,h2,h4,h5,h6{
 
       <p><strong>Sample Usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#returns how much light is seen from the center sensor on the line follower named “line_follower0”</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#returns how much light is seen from the center sensor on the line follower named “line_follower0”</span>
 <span class="n">Robot</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">"line_follower0"</span><span class="p">,</span> <span class="s">"center"</span><span class="p">)</span>
 </code></pre>
       </div>
 
-      <h2 data-toc-text="Robot.get_value (potentiometer)" id="robot-get-value-device-name-param-potentiometer">Robot.get_value(device_name, param) <span style="font-variant: small-caps">potentiometer</span></h2>
+      <h2 data-toc-text="Robot.get_value (potentiometer)">Robot.get_value(device_name, param) <span style="font-variant: small-caps">potentiometer</span></h2>
 
       <p>Returns a value associated with the <code class="highlighter-rouge">device</code> and <code class="highlighter-rouge">parameter</code> specified.</p>
 
@@ -239,12 +165,12 @@ h1,h2,h4,h5,h6{
 
       <p><strong>Sample Usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#returns the angle of pot0 on the potentiometer controller named “potentiometer_clock”</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#returns the angle of pot0 on the potentiometer controller named “potentiometer_clock”</span>
 <span class="n">Robot</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">"potentiometer_clock"</span><span class="p">,</span> <span class="s">"pot0"</span><span class="p">)</span> 
 </code></pre>
       </div>
 
-      <h2 data-toc-text="Robot.get_value (servo)" id="robot-get-value-device-name-param-servo">Robot.get_value(device_name, param) <span style="font-variant: small-caps">servo</span></h2>
+      <h2 data-toc-text="Robot.get_value (servo)">Robot.get_value(device_name, param) <span style="font-variant: small-caps">servo</span></h2>
 
       <p>Returns a value associated with the <code class="highlighter-rouge">device</code> and <code class="highlighter-rouge">parameter</code> specified.</p>
 
@@ -261,12 +187,12 @@ h1,h2,h4,h5,h6{
 
       <p><strong>Sample Usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#returns the angle servo0 is set to on the servo controller named “servo_arm”</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#returns the angle servo0 is set to on the servo controller named “servo_arm”</span>
 <span class="n">Robot</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">"servo_arm"</span><span class="p">,</span> <span class="s">"servo0"</span><span class="p">)</span>
 </code></pre>
       </div>
 
-      <h2 data-toc-text="Robot.get_value (yogibear)" id="robot-get-value-device-name-param-yogibear">Robot.get_value(device_name, param) <span style="font-variant: small-caps">yogibear</span></h2>
+      <h2 data-toc-text="Robot.get_value (yogibear)">Robot.get_value(device_name, param) <span style="font-variant: small-caps">yogibear</span></h2>
 
       <p>Returns a value associated with the <code class="highlighter-rouge">device</code> and <code class="highlighter-rouge">parameter</code> specified.</p>
 
@@ -288,12 +214,12 @@ h1,h2,h4,h5,h6{
 
       <p><strong>Sample Usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#returns the number of encoder ticks the yogibear named “yogibear_left” has read</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#returns the number of encoder ticks the yogibear named “yogibear_left” has read</span>
 <span class="n">Robot</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">"yogibear_left"</span><span class="p">,</span> <span class="s">"enc_pos"</span><span class="p">)</span> 
 </code></pre>
       </div>
 
-      <h2 data-toc-text="Robot.get_value (RFID)" id="robot-get-value-device-name-param-rfid">Robot.get_value(device_name, param) <span style="font-variant: small-caps">rfid</span></h2>
+      <h2 data-toc-text="Robot.get_value (RFID)">Robot.get_value(device_name, param) <span style="font-variant: small-caps">rfid</span></h2>
 
       <p>Returns a value associated with the <code class="highlighter-rouge">device</code> and <code class="highlighter-rouge">parameter</code> specified.</p>
 
@@ -310,12 +236,12 @@ h1,h2,h4,h5,h6{
 
       <p><strong>Sample Usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#returns the value of the RFID tag read</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#returns the value of the RFID tag read</span>
 <span class="n">Robot</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">"rfid"</span><span class="p">,</span> <span class="s">"id"</span><span class="p">)</span> 
 </code></pre>
       </div>
 
-      <h2 data-toc-text="Robot.set_value" id="robot-set-value-device-name-param-value-">Robot.set_value(device_name, param, value)</h2>
+      <h2 data-toc-text="Robot.set_value">Robot.set_value(device_name, param, value)</h2>
       <p>Sets a parameter on a device using the specified value</p>
 
       <p><code class="highlighter-rouge">device</code> <span style="font-variant:small-caps">string</span> - identifies which sensor or controller will be set. This string is defined by the user in Dawn</p>
@@ -332,7 +258,7 @@ h1,h2,h4,h5,h6{
         <li><strong>YogiBear</strong></li>
       </ul>
 
-      <h2 data-toc-text="Robot.set_value (yogibear)" id="robot-set-value-device-name-param-value-yogibear">Robot.set_value(device_name, param, value) <span style="font-variant: small-caps">yogibear</span></h2>
+      <h2 data-toc-text="Robot.set_value (yogibear)">Robot.set_value(device_name, param, value) <span style="font-variant: small-caps">yogibear</span></h2>
 
       <p>Sets a <code class="highlighter-rouge">parameter</code> on a <code class="highlighter-rouge">device</code> using the specified <code class="highlighter-rouge">value</code></p>
 
@@ -356,12 +282,12 @@ h1,h2,h4,h5,h6{
 
       <p><strong>Sample Usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#sets the yogibear named “yogibear_left” to drive the motor at maximum power in the clockwise direction</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#sets the yogibear named “yogibear_left” to drive the motor at maximum power in the clockwise direction</span>
 <span class="n">Robot</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s">"yogibear_left"</span><span class="p">,</span> <span class="s">"duty_cycle"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> 
 </code></pre>
       </div>
 
-      <h2 data-toc-text="Robot.set_value (servo)" id="robot-set-value-device-name-param-value-servo">Robot.set_value(device_name, param, value) <span style="font-variant: small-caps">servo</span></h2>
+      <h2 data-toc-text="Robot.set_value (servo)">Robot.set_value(device_name, param, value) <span style="font-variant: small-caps">servo</span></h2>
 
       <p>Sets a <code class="highlighter-rouge">parameter</code> on a <code class="highlighter-rouge">device</code> using the specified <code class="highlighter-rouge">value</code></p>
 
@@ -378,12 +304,12 @@ h1,h2,h4,h5,h6{
 
       <p><strong>Sample Usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#sets servo0 on the servo controller named “servo_arm” to be at its maximum position</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#sets servo0 on the servo controller named “servo_arm” to be at its maximum position</span>
 <span class="n">Robot</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s">"servo_arm"</span><span class="p">,</span> <span class="s">"servo0"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> 
 </code></pre>
       </div>
 
-      <h2 data-toc-text="Robot.set_value (team flag)" id="robot-set-value-device-name-param-value-team-flag">Robot.set_value(device_name, param, value) <span style="font-variant: small-caps">team flag</span></h2>
+      <h2 data-toc-text="Robot.set_value (team flag)">Robot.set_value(device_name, param, value) <span style="font-variant: small-caps">team flag</span></h2>
 
       <p>Sets a <code class="highlighter-rouge">parameter</code> on a <code class="highlighter-rouge">device</code> using the specified <code class="highlighter-rouge">value</code></p>
 
@@ -402,12 +328,12 @@ h1,h2,h4,h5,h6{
 
       <p><strong>Sample Usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#sets the second LED of the team flag to on</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#sets the second LED of the team flag to on</span>
 <span class="n">Robot</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s">"team_flag"</span><span class="p">,</span> <span class="s">"led2"</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span> 
 </code></pre>
       </div>
 
-      <h2 data-toc-text="Robot.run" id="robot-run-async-function-args-">Robot.run(async_function, *args)</h2>
+      <h2 data-toc-text="Robot.run">Robot.run(async_function, *args)</h2>
 
       <p>Executes an async function with <code class="highlighter-rouge">*args</code> passed into the async function as inputs.</p>
 
@@ -415,17 +341,17 @@ h1,h2,h4,h5,h6{
 
       <p><code class="highlighter-rouge">*args</code>: This is a list of a variable number of inputs, depending on how many the <code class="highlighter-rouge">async_function</code> requires.</p>
 
-      <p>Any <code class="highlighter-rouge">async</code> function must be called by running this function. This function is running async, meaning the next line after this will continue running while this async function runs, both running simultaneously. The input <code class="highlighter-rouge">*args</code> indicates that any number of inputs can be entered in, and every input (except the first one, which is the async function) will be passed into the function. See the <a href="https://pioneers.berkeley.edu/software/auto.html">autonomous guide</a> to learn more about async functions.</p>
+      <p>Any <code class="highlighter-rouge">async</code> function must be called by running this function. This function is running async, meaning the next line after this will continue running while this async function runs, both running simultaneously. The input <code class="highlighter-rouge">*args</code> indicates that any number of inputs can be entered in, and every input (except the first one, which is the async function) will be passed into the function. See the <a href="/software/auto.html">autonomous guide</a> to learn more about async functions.</p>
 
       <p><strong>Sample Usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#we define an async function async def hello_world(a, b, c, d)</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#we define an async function async def hello_world(a, b, c, d)</span>
 <span class="c">#Notice we pass in four additional arguments because the function `hello_world` takes in four arguments.</span>
 <span class="n">Robot</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">hello_world</span><span class="p">,</span> <span class="s">"hello"</span><span class="p">,</span> <span class="s">"world"</span><span class="p">,</span> <span class="s">"pie"</span><span class="p">,</span> <span class="s">"robotics"</span><span class="p">)</span>
 </code></pre>
       </div>
 
-      <h2 data-toc-text="Robotis_running" id="robot-is-running-async-function-">Robot.is_running(async_function)</h2>
+      <h2 data-toc-text="Robot.is_running">Robot.is_running(async_function)</h2>
 
       <p>Returns a <span style="font-variant: small-caps">boolean</span> value indicating whether the specified async function is still running.</p>
 
@@ -435,16 +361,16 @@ h1,h2,h4,h5,h6{
 
       <p><strong>Sample Usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="c">#we define an async function `async def hello_world(a, b, c, d):`</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c">#we define an async function `async def hello_world(a, b, c, d):`</span>
 <span class="c">#check if the function is still running</span>
 <span class="n">Robot</span><span class="o">.</span><span class="n">is_running</span><span class="p">(</span><span class="n">hello_world</span><span class="p">)</span>
 </code></pre>
       </div>
 
-      <p><br></p>
-      <h1 id="gamepad-class">Gamepad Class</h1>
+      <p><br /></p>
+      <h1>Gamepad Class</h1>
 
-      <h2 data-toc-text="Gamepad.get_value" id="gamepad-get-value-name-">Gamepad.get_value(name)</h2>
+      <h2 data-toc-text="Gamepad.get_value">Gamepad.get_value(name)</h2>
       <p>Returns the state of the specified part of a specific gamepad.</p>
 
       <p><code class="highlighter-rouge">name</code> <span style="font-variant: small-caps">string</span> - Identifies which sensor or controller will be read. This string is defined by the user in Dawn.</p>
@@ -498,7 +424,7 @@ h1,h2,h4,h5,h6{
 
       <p><strong>Example:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code>    <span class="c"># Read the value of the first gamepad</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code>    <span class="c"># Read the value of the first gamepad</span>
     <span class="n">Gamepad</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s">"button_a"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
     <span class="c"># Read the value of the second gamepad</span>
@@ -506,7 +432,7 @@ h1,h2,h4,h5,h6{
 </code></pre>
       </div>
 
-      <h2 data-toc-text="Gamepad.get_value" id="gamepad-get-value-name-joysticks">Gamepad.get_value(name) - Joysticks</h2>
+      <h2 data-toc-text="Gamepad.get_value">Gamepad.get_value(name) - Joysticks</h2>
       <p>Returns the state of the specified part of a specific gamepad.</p>
 
       <p><code class="highlighter-rouge">name</code> <span style="font-variant: small-caps">string</span> - Identifies the joystick to read</p>
@@ -523,7 +449,7 @@ h1,h2,h4,h5,h6{
       <p>Each joystick has a reading in the x and y axes, essentially an (x, y) coordinate. The joysticks are distinguished as either the right or left. The x-value and y-value must be between -1 and 1 and are bounded by the <a href="https://www.geogebra.org/m/nv9vex3X">unit circle</a>.</p>
       <div class="row">
 <div class="col-sm-4">
-<img src="./Pioneers in Engineering_files/robot_api_1.png" width="300px">
+<img src="assets/student-resources/robot_api_1.png" width="300px" />
 </div>
 <div class="col-sm-6">
 A joystick pointing fully pushed up has a x-value of 0 and a y-value of 1.
@@ -532,7 +458,7 @@ A joystick pointing fully pushed up has a x-value of 0 and a y-value of 1.
 
       <div class="row">
 <div class="col-sm-4">
-<img src="./Pioneers in Engineering_files/robot_api_2.png" width="300px">
+<img src="assets/student-resources/robot_api_2.png" width="300px" />
 </div>
 <div class="col-sm-6">
 A joystick fully pushed left has a x-value of -1 and a y-value of 0.
@@ -541,7 +467,7 @@ A joystick fully pushed left has a x-value of -1 and a y-value of 0.
 
       <div class="row">
 <div class="col-sm-4">
-<img src="./Pioneers in Engineering_files/robot_api_3.png" width="300px">
+<img src="assets/student-resources/robot_api_3.png" width="300px" />
 </div>
 <div class="col-sm-6">
 A joystick fully pushed to the top right has a x-value of roughly .7 and a y-value of roughly .7.
@@ -550,7 +476,7 @@ A joystick fully pushed to the top right has a x-value of roughly .7 and a y-val
 
       <p>Users should note some imprecision in the reading. An untouched joystick will likely have a value that slightly greater or less than 0.</p>
 
-      <h2 data-toc-text="Gamepad.get_values (buttons)" id="gamepad-get-value-name-buttons">Gamepad.get_value(name) - Buttons</h2>
+      <h2 data-toc-text="Gamepad.get_value (buttons)">Gamepad.get_value(name) - Buttons</h2>
 
       <p>Returns the state of the specified part of a specific button.
 <code class="highlighter-rouge">name</code> <span style="font-variant: small-caps">string</span> - Identifies the button to read</p>
@@ -581,10 +507,10 @@ A joystick fully pushed to the top right has a x-value of roughly .7 and a y-val
 
       <p>Joysticks also click when pushed down and thus can also be treated like buttons. While triggers traditionally indicate how far they are pushed down, the reading for triggers remains either <code class="highlighter-rouge">True</code> or <code class="highlighter-rouge">False</code>.</p>
 
-      <p><br></p>
-      <h1 id="actions-class">Actions Class</h1>
+      <p><br /></p>
+      <h1>Actions Class</h1>
 
-      <h2 data-toc-text="Actions.sleep" id="actions-sleep-seconds-">Actions.sleep(seconds)</h2>
+      <h2 data-toc-text="Actions.sleep">Actions.sleep(seconds)</h2>
 
       <p>Suspends execution of the function for the specified number of <code class="highlighter-rouge">seconds</code> when used with the <code class="highlighter-rouge">await</code> keyword</p>
 
@@ -600,14 +526,14 @@ A joystick fully pushed to the top right has a x-value of roughly .7 and a y-val
 
       <p><strong>Sample usage:</strong></p>
 
-      <div class="highlighter-rouge"><pre class="highlight"><code><span class="n">await</span> <span class="n">Actions</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+      <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">await</span> <span class="n">Actions</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
 </code></pre>
       </div>
 
-      <p><br></p>
-      <h1 id="example-code">Example Code</h1>
+      <p><br /></p>
+      <h1>Example Code</h1>
       <div>
-        <div class="highlighter-rouge"><pre class="highlight"><code><span class="n">left_motor</span> <span class="o">=</span> <span class="s">"YOUR MOTOR ID HERE"</span>
+        <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">left_motor</span> <span class="o">=</span> <span class="s">"YOUR MOTOR ID HERE"</span>
 <span class="n">right_motor</span> <span class="o">=</span> <span class="s">"YOUR MOTOR ID HERE"</span>
 
 <span class="k">def</span> <span class="nf">autonomous_setup</span><span class="p">():</span>
@@ -634,11 +560,11 @@ A joystick fully pushed to the top right has a x-value of roughly .7 and a y-val
         <span class="n">Robot</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="n">right_motor</span><span class="p">,</span> <span class="s">"duty_cycle"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 </code></pre>
         </div>
-        <p style="text-align: right"><a href="https://pioneers.berkeley.edu/assets/student-resources/quickstart.py"><i class="fa fa-download" aria-hidden="true"></i> Download sample code</a></p>
+        <p style="text-align: right"><a href="assets/student-resources/sample_template.py"><i class="fa fa-download" aria-hidden="true"></i> Download sample code</a></p>
       </div>
 
-      <p><br></p>
-      <h1 id="glossary">Glossary</h1>
+      <p><br /></p>
+      <h1>Glossary</h1>
       <div>
         <p><strong>amps</strong>  Measure of how quickly electricity is flowing through a wire or device</p>
 
@@ -707,58 +633,14 @@ A joystick fully pushed to the top right has a x-value of roughly .7 and a y-val
   <div class="container-fluid">
 
     <div class="row">
-      <div class="col-md-4">
+      <div class="col-md-6">
         <ul class="contact-list">
           <li>Pioneers in Engineering</li>
-          <li><script type="text/javascript"> document.write('<a style="unicode-bidi: bidi-override; direction: rtl;" href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;leadership&#64;pioneers&#46;berkeley&#46;edu">ude&#46;yelekreb&#46;sreenoip&#64;pihsredael</a>');</script><a style="unicode-bidi: bidi-override; direction: rtl;" href="mailto:leadership@pioneers.berkeley.edu">ude.yelekreb.sreenoip@pihsredael</a></li>
+          <li><script type="text/javascript"> document.write('<a style="unicode-bidi: bidi-override; direction: rtl;" href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;leadership&#64;pioneers&#46;berkeley&#46;edu">ude&#46;yelekreb&#46;sreenoip&#64;pihsredael</a>');</script></li>
         </ul>
       </div>
 
-      <div class="col-md-4">
-        <ul class="social-media-list">
-          
-          <li>
-            <a href="https://github.com/pioneers" target="_blank">
-              <i class="fa fa-github fa-2x"></i>
-            </a>
-          </li>
-          
-
-          
-          <li>
-            <a href="https://twitter.com/PieRobotics" target="_blank">
-              <i class="fa fa-twitter fa-2x"></i>
-            </a>
-          </li>
-          
-
-          
-          <li>
-            <a href="https://facebook.com/pierobotics" target="_blank">
-              <i class="fa fa-facebook fa-2x"></i>
-            </a>
-          </li>
-          
-
-          
-          <li>
-            <a href="https://youtube.com/user/pierobotics" target="_blank">
-              <i class="fa fa-youtube-play fa-2x"></i>
-            </a>
-          </li>
-          
-
-          
-          <li>
-            <a href="https://instagram.com/pierobotics" target="_blank">
-              <i class="fa fa-instagram fa-2x"></i>
-            </a>
-          </li>
-          
-        </ul>
-      </div>
-
-      <div class="col-md-4">
+      <div class="col-md-6">
         <div class="footer-description">
           <div class="description-wrap">
             <p>© Pioneers in Engineering Foundation 2017.
@@ -772,10 +654,7 @@ A joystick fully pushed to the top right has a x-value of roughly .7 and a y-val
 
   </div>
 
-</footer>
 
+  </body>
 
-  
-
-
-</body></html>
+</html>

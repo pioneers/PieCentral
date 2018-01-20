@@ -37,11 +37,11 @@ case $1 in
     ssh $SSH_OPTIONS $USER@$DEV_IP_ADDR "sudo /sbin/route add default gw $HOST_IP_ADDR"
     iptables --table nat --append POSTROUTING --out-interface $2 -j MASQUERADE
     iptables --append FORWARD --in-interface $3 -j ACCEPT
-    echo 1 > $IP_FORWARD_FILE
+    echo 1 > "$IP_FORWARD_FILE"
     ;;
   disable)
     ssh $SSH_OPTIONS $USER@$DEV_IP_ADDR "sudo /sbin/route delete default gw $HOST_IP_ADDR"
-    echo 0 > $IP_FORWARD_FILE
+    echo 0 > "$IP_FORWARD_FILE"
     ;;
   help)
     print-help

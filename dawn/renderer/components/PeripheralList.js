@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import { Panel, Accordion, ListGroup } from 'react-bootstrap';
+import { Panel, PanelGroup, ListGroup } from 'react-bootstrap';
 import { PeripheralTypes } from '../constants/Constants';
 import Peripheral from './Peripheral';
 
@@ -32,21 +32,33 @@ const handleAccordion = (array) => {
   });
   return (
     _.map(Object.keys(peripheralGroups), groups => (
-      <Accordion style={{ marginBottom: '2px' }} key={`${cleanerNames[groups] || 'Default'}-Accordion`}>
-        <Panel header={cleanerNames[groups] || 'Generic'} key={`${cleanerNames[groups] || 'Default'}-Panel`}>
-          {
-            _.map(peripheralGroups[groups], peripheral => (
-              <Peripheral
-                key={String(peripheral.uid)}
-                id={String(peripheral.uid)}
-                device_name={peripheral.device_name}
-                device_type={peripheral.device_type}
-                param={peripheral.param_value}
-              />
-            ))
-          }
+      <PanelGroup
+        accordion
+        style={{ marginBottom: '0px' }}
+        key={`${cleanerNames[groups] || 'Default'}-Accordion`}
+        id={`${cleanerNames[groups] || 'Default'}-Accordion`}
+      >
+        <Panel key={`${cleanerNames[groups] || 'Default'}-Panel`} defaultExpanded>
+          <Panel.Heading>
+            <Panel.Title toggle style={{ fontWeight: 'bold' }}>{cleanerNames[groups] || 'Generic'}</Panel.Title>
+          </Panel.Heading>
+          <Panel.Collapse>
+            <Panel.Body>
+              {
+                _.map(peripheralGroups[groups], peripheral => (
+                  <Peripheral
+                    key={String(peripheral.uid)}
+                    id={String(peripheral.uid)}
+                    device_name={peripheral.device_name}
+                    device_type={peripheral.device_type}
+                    param={peripheral.param_value}
+                  />
+                ))
+              }
+            </Panel.Body>
+          </Panel.Collapse>
         </Panel>
-      </Accordion>
+      </PanelGroup>
     ))
   );
 };
@@ -71,12 +83,14 @@ const PeripheralListComponent = (props) => {
   return (
     <Panel
       id="peripherals-panel"
-      header="Peripherals"
       bsStyle="primary"
     >
-      <ListGroup fill style={{ marginBottom: '5px' }}>
-        {panelBody}
-      </ListGroup>
+      <Panel.Heading>Peripherals</Panel.Heading>
+      <Panel.Body style={{ padding: '0px' }}>
+        <ListGroup>
+          {panelBody}
+        </ListGroup>
+      </Panel.Body>
     </Panel>
   );
 };

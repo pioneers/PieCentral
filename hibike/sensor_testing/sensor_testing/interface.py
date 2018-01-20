@@ -138,9 +138,11 @@ def read_all_params(uid):
     """
     if uid not in HIBIKE_INSTANCE.uids:
         abort(404)
-    params = hibike_message.all_params_for_device_id(hibike_message.uid_to_device_id(uid))
+    dev_id = hibike_message.uid_to_device_id(uid)
+    all_params = hibike_message.all_params_for_device_id(dev_id)
+    readable_params = [p for p in all_params if hibike_message.readable(dev_id, p)]
     param_values = {}
-    for param in params:
+    for param in readable_params:
         param_values[param] = HIBIKE_INSTANCE.get_last_cached(uid, param)
     return json.dumps(param_values)
 

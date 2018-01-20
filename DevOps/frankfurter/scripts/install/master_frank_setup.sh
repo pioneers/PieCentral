@@ -33,10 +33,10 @@ sudo apt clean -y
 sudo apt autoremove -y
 
 # Install Python packages
-sudo pip3 install -r $HOME/PieCentral/runtime/requirements.txt
+sudo pip3 install -r "$HOME/PieCentral/runtime/requirements.txt"
 
 # Install wireless dongle driver
-cd $HOME
+cd "$HOME"
 git clone https://github.com/xtknight/mt7610u-linksys-ae6000-wifi-fixes.git drivers
 cd drivers
 make clean
@@ -44,31 +44,31 @@ make
 sudo make install
 echo 'mt7610u_sta' | sudo tee --append /etc/modules
 
-cd $HOME/PieCentral
+cd "$HOME/PieCentral"
 PIECENTRAL_DIR=$(git rev-parse --show-toplevel)
 FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
 
-if [ ! -f $PIECENTRAL_DIR/runtime/hibikeDevices.csv ]; then
-  ln -s $PIECENTRAL_DIR/hibike/hibikeDevices.csv $PIECENTRAL_DIR/runtime/hibikeDevices.csv
+if [ ! -f "$PIECENTRAL_DIR/runtime/hibikeDevices.csv" ]; then
+  ln -s "$PIECENTRAL_DIR/hibike/hibikeDevices.csv" "$PIECENTRAL_DIR/runtime/hibikeDevices.csv"
 fi
 
 # Set up directories needed by other projects
-mkdir -p $HOME/updates
-mkdir -p $HOME/bin
+mkdir -p "$HOME/updates"
+mkdir -p "$HOME/bin"
 
 # Copy executables
-cp $FRANKFURTER_DIR/resources/update.sh $HOME/bin
-cp $FRANKFURTER_DIR/resources/mac.py $HOME/bin
-cp $FRANKFURTER_DIR/resources/runtime.sh $HOME/bin
+cp "$FRANKFURTER_DIR/resources/update.sh" "$HOME/bin"
+cp "$FRANKFURTER_DIR/resources/mac.py" "$HOME/bin"
+cp "$FRANKFURTER_DIR/resources/runtime.sh" "$HOME/bin"
 
 # Configure executable permissions
-sudo chown ubuntu $HOME/bin/*
-sudo chgrp ubuntu $HOME/bin/*
-sudo chmod 755 $HOME/bin/*
+sudo chown ubuntu "$HOME/bin/*"
+sudo chgrp ubuntu "$HOME/bin/*"
+sudo chmod 755 "$HOME/bin/*"
 
 # Create and enable the `runtime` and `update` systemd services
-sudo cp $FRANKFURTER_DIR/resources/runtime.service /lib/systemd/system
-sudo cp $FRANKFURTER_DIR/resources/update.service /lib/systemd/system
+sudo cp "$FRANKFURTER_DIR/resources/runtime.service" /lib/systemd/system
+sudo cp "$FRANKFURTER_DIR/resources/update.service" /lib/systemd/system
 sudo chmod 644 /lib/systemd/system/runtime.service
 sudo chmod 644 /lib/systemd/system/update.service
 sudo systemctl daemon-reload
@@ -77,10 +77,10 @@ sudo systemctl enable runtime.service
 sudo systemctl start runtime.service
 
 # Copy config files for memcached and network interfaces
-sudo cp $FRANKFURTER_DIR/resources/memcached.conf /etc
-sudo cp $FRANKFURTER_DIR/resources/interfaces /etc/network/interfaces
+sudo cp "$FRANKFURTER_DIR/resources/memcached.conf" /etc
+sudo cp "$FRANKFURTER_DIR/resources/interfaces" /etc/network/interfaces
 
-cp $FRANKFURTER_DIR/resources/bashrc $HOME/.bashrc
+cp "$FRANKFURTER_DIR/resources/bashrc" "$HOME/.bashrc"
 
 sudo /sbin/route delete default gw 192.168.7.1
 sudo systemctl restart networking.service

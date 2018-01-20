@@ -6,9 +6,9 @@
 ####################################################################################
 
 HOME=/home/ubuntu
-UPDATES_DIR=$HOME/updates
-TMP_DIR=$UPDATES_DIR/tmp
-PIECENTRAL_BACKUP_DIR=$HOME/PieCentral.backup
+UPDATES_DIR="$HOME/updates"
+TMP_DIR="$UPDATES_DIR/tmp"
+PIECENTRAL_BACKUP_DIR="$HOME"/PieCentral.backup
 
 # Create new backup
 sudo rm -rf "$PIECENTRAL_BACKUP_DIR"
@@ -35,9 +35,9 @@ mv "$TMP_DIR/resources/mac.py" "$HOME/bin"
 mv "$TMP_DIR/resources/runtime.sh" "$HOME/bin"
 
 # Configure executable permissions
-sudo chown ubuntu "$HOME/bin/*"
-sudo chgrp ubuntu "$HOME/bin/*"
-sudo chmod 755 "$HOME/bin/*"
+sudo chown ubuntu "$HOME"/bin/*
+sudo chgrp ubuntu "$HOME"/bin/*
+sudo chmod 755 "$HOME"/bin/*
 
 # Copy bashrc with aliases
 mv "$TMP_DIR/resources/bashrc" "$HOME/.bashrc"

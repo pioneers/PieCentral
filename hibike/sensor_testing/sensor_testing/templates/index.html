@@ -155,7 +155,9 @@
                     <br />
                     <input type="button" value="Write" onclick="writeValue('{{ device.uid }}', '{{ param.name }}', '{{ param.type }}')" />
                     <br />
+                        {% if param.readable %}
                     <input type="button" value="Read" onclick="readWriteableParam('{{ device.uid }}', '{{ param.name }}', '{{ param.type }}')" />
+                        {% endif %}
                     {% else %}
                     <div id="dev-{{ device.uid }}-{{ param.name }}-readonly"></div>
                     {% endif %}

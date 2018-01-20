@@ -91,7 +91,12 @@ class Hibike:
         for uid in self.uids:
             dev_id = hibike_message.uid_to_device_id(uid)
             all_params = hibike_message.all_params_for_device_id(dev_id)
-            self.pipe_to_child.send(["subscribe_device", [uid, self.DEFAULT_DELAY, all_params]])
+            readable_params = []
+            for param in all_params:
+                if hibike_message.readable(dev_id, param):
+                    readable_params.append(param)
+            self.pipe_to_child.send(["subscribe_device", [uid, self.DEFAULT_DELAY,
+                                                          readable_params]])
 
     def write(self, uid, params_and_values):
         """

@@ -9,7 +9,7 @@ artifacts-install:
 	$(nop)
 
 lint:
-	pylint Ansible.py runtime.py stateManager.py studentAPI.py
+	$(nop)
 
 test:
 	cd ../DevOps/frankfurter/scripts/update && ./create_update.sh

@@ -56,17 +56,21 @@ def to_setup(args):
     load the teams for the upcoming match, reset all state, and send information to scoreboard.
     By the end, should be ready to start match.
     '''
+    b1_name, b1_num, b2_name, b2_num, g1_name, g1_num, g2_name, g2_num =
+        args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]
+
     if game_state == STATE.END:
         flush_scores()
 
     reset()
-    alliances[ALLIANCE_COLOR.BLUE] = Alliance(ALLIANCE_COLOR.BLUE, args[0],
-                                              args[1], args[2], args[3])
-    alliances[ALLIANCE_COLOR.GOLD] = Alliance(ALLIANCE_COLOR.GOLD, args[4],
-                                              args[5], args[6], args[7])
+    alliances[ALLIANCE_COLOR.BLUE] = Alliance(ALLIANCE_COLOR.BLUE, b1_name,
+                                              b1_num, b2_name, b2_num)
+    alliances[ALLIANCE_COLOR.GOLD] = Alliance(ALLIANCE_COLOR.GOLD, g1_name,
+                                              g1_num, g2_name, g2_num)
     goals[GOAL.BLUE].set_owner(alliances[ALLIANCE_COLOR.BLUE])
     goals[GOAL.GOLD].set_owner(alliances[ALLIANCE_COLOR.GOLD])
-    #TODO: Send teams to scoreboard
+    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.TEAMS, b1_name, b1_num,
+             b2_name, b2_num, g1_name, g1_num, g2_name, g2_num)
     print("ENTERING SETUP STATE")
 
 def to_auto(args):
@@ -121,22 +125,34 @@ def reset(args=None):
     for alliance in alliances.values():
         if alliance is not None:
             alliance.reset()
+            lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
+                     [alliance.name, alliance.score])
     for goal in goals.values():
         goal.reset()
     #TODO: Send reset info to scoreboard
+
     print("RESET MATCH, MOVE TO SETUP")
 
 def score_adjust(args):
     '''
     Allow for score to be changed based on referee decisions
     '''
-    #TODO
+    blue_score, gold_score = args[0], args[1]
+    alliances[ALLIANCE_COLOR.BLUE].score = blue_score
+    alliances[ALLIANCE_COLOR.GOLD].score = gold_score
+    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
+             [alliances[ALLIANCE_COLOR.BLUE].name,
+             alliances[ALLIANCE_COLOR.BLUE].score])
+    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
+             [alliances[ALLIANCE_COLOR.GOLD].name,
+             alliances[ALLIANCE_COLOR.GOLD].score])
 
 def flush_scores():
     '''
     Send scores to the spreadsheet for the current match
     '''
     pass
+
 
 ###########################################
 # Game Specific Methods (Solar Scramble)
@@ -169,7 +185,14 @@ def code_input(args):
     Update state for a code being input, return information to sensors
     to display result of code being decoded
     '''
-    pass
+    goal = goals.get(args[0])
+    alliance = alliances.get(args[1])
+    index = CodeGen.check_code(args[2],curr_rfids)
+    if(index == -1):
+        lcm_send(LCM_TARGETS.SENSORS,SENSOR_HEADER.CODE_RESULT,"wrong")
+    else:
+        powerup =
+    #TODO
 
 def bid_complete(args):
     '''

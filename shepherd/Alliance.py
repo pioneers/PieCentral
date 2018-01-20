@@ -23,7 +23,7 @@ class Alliance:
                             submit another code
     """
 
-    def __init__(self, name, team_1_name, team_2_name, team_1_number,
+    def __init__(self, name, team_1_name, team_1_number, team_2_name, 
                  team_2_number):
 
         self.name = name
@@ -47,5 +47,9 @@ class Alliance:
                  [self.name, self.score])
 
     def reset(self):
-        #TODO
-        pass
+        self.score = 0
+        self.alliance_multiplier = 1
+        self.two_x_cooldown.reset()
+        self.zero_x_cooldown.reset()
+        self.steal_cooldown.reset()
+        self.code_cooldown.reset()

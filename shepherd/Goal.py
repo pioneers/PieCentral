@@ -30,9 +30,11 @@ class Goal:
     bid_increase_constant = CONSTANTS.BID_INCREASE_CONSTANT
     def __init__(self, name, value, start_bid):
         self.name = name
+        self.initial_value = value
         self.value = value
         self.owner = None
         self.current_bid = start_bid
+        self.start_bid = start_bid
         self.current_bid_team = None
         self.previous_bid = start_bid
         self.previous_bid_team = None
@@ -43,16 +45,15 @@ class Goal:
         self.blue_zero_x_timer = Timer(TIMER_TYPES.DURATION)
 
     def reset(self):
-        #TODO
-        pass
+        self = Goal(self.name, self.initial_value, self.start_bid)
 
     def set_autonomous(self):
-        self.value = 2 * self.value
-        self.current_bid = self.current_bid / 2
+        self.value = self.initial_value * 2
+        self.current_bid = self.start_bid / 2
 
     def set_teleop(self):
-        self.value = self.value / 2
-        self.current_bid = self.current_bid * 2
+        self.value = self.initial_value
+        self.current_bid = self.start_bid
 
     def set_owner(self, alliance):
         self.owner = alliance

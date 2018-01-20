@@ -28,7 +28,7 @@ class SCOREBOARD_HEADER():
     TEAMS = "teams"
     BID_TIMER_START = "bid_timer_start"
     BID_AMOUNT = "bid_amount"
-    BID_WIN = "bid_win"
+    GOAL_OWNED = "bid_win"
     STAGE = "stage"
     STAGE_TIMER_START = "stage_timer_start"
     POWERUPS = "powerups"

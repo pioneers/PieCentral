@@ -5,6 +5,8 @@ if [[ "$(id -u)" == "0" ]]; then
     exit 1
 fi
 
+#curl "https://downloads.arduino.cc/arduino-1.8.1-linux64.tar.xz" | sudo tar -xJf - -C /opt
+
 deps=("make" "gcc" "gcc-avr" "arduino-mk" "python3-pip")
 
 if ! type make >/dev/null 2>&1 || ! type gcc >/dev/null 2>&1; then 

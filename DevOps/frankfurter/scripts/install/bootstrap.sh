@@ -2,7 +2,7 @@
 
 echo 'Starting frankfurter installation ...'
 source $(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env.sh
-cd $TMP_DIR
+cd "$TMP_DIR"
 git clone https://github.com/xtknight/mt7610u-linksys-ae6000-wifi-fixes.git wifi-driver-src
 scp -r wifi-driver-src $USER@IP:~
 

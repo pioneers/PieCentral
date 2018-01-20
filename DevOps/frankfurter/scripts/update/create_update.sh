@@ -17,42 +17,42 @@ HTML_DOC=https://raw.githubusercontent.com/pioneers/website-robot-api/master/rob
 
 if [ -d "$BUILD_DIR" ]; then
     echo "Cleaning old builds ... "
-    rm -rf $BUILD_DIR/*
+    rm -rf "$BUILD_DIR"/*
 else
     echo "Making build directory ... "
-    mkdir -p $BUILD_DIR
+    mkdir -p "$BUILD_DIR"
 fi
-mkdir -p $TMP_DIR
+mkdir -p "$TMP_DIR"
 echo "Done."
 
 if [ -d "$DOC_DIR" ]; then
     echo "Cleaning old documentation ... "
-    rm -rf $DOC_DIR/*
+    rm -rf "$DOC_DIR"/*
 else
     echo "Making doc directory"
-    mkdir $DOC_DIR
+    mkdir "$DOC_DIR"
 fi
 
 echo "downloading documentation"
-wget $HTML_DOC -P $DOC_DIR
+wget "$HTML_DOC" -P "$DOC_DIR"
 
 # Copy hibike and runtime
-cp -R $PIECENTRAL_DIR/hibike $TMP_DIR
-cp -R $PIECENTRAL_DIR/runtime $TMP_DIR
-cp -R $FRANKFURTER_DIR/resources $TMP_DIR
-protoc -I=$PROTO_DIR --python_out=$TMP_DIR/runtime $PROTO_DIR/*.proto
-cp $FRANKFURTER_DIR/scripts/update/install_update.sh $TMP_DIR
+cp -R "$PIECENTRAL_DIR"/hibike "$TMP_DIR"
+cp -R "$PIECENTRAL_DIR"/runtime "$TMP_DIR"
+cp -R "$FRANKFURTER_DIR"/resources "$TMP_DIR"
+protoc -I="$PROTO_DIR" --python_out="$TMP_DIR"/runtime "$PROTO_DIR"/*.proto
+cp "$FRANKFURTER_DIR"/scripts/update/install_update.sh "$TMP_DIR"
 
 CURRENT_TIME=$(date +%s%N)
 UPDATE_FILENAME=frankfurter-update-"$CURRENT_TIME".tar.gz
 
-cd $TMP_DIR
-tar -zcf $BUILD_DIR/$UPDATE_FILENAME *
+cd "$TMP_DIR"
+tar -zcf "$BUILD_DIR"/"$UPDATE_FILENAME" *
 printf "\x1b[1;32m"
 echo "==> Tarball available at: "
-echo $BUILD_DIR/$UPDATE_FILENAME
+echo "$BUILD_DIR"/"$UPDATE_FILENAME"
 printf "\x1b[0m"
 
 cd ..
-rm -rf $TMP_DIR
+rm -rf "$TMP_DIR"
 echo "Cleaned up."

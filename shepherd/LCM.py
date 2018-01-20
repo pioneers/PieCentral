@@ -1,5 +1,5 @@
 import threading
-import lcm
+import lcm # pylint: disable=import-error
 
 def lcm_start_read(receive_channel, queue):
     '''

@@ -45,7 +45,6 @@ class Hibike:
                 uid = data[0]
                 self.uids.add(uid)
             elif command == "device_disconnected":
-                print(data)
                 uid = data[0]
                 self.uids.discard(uid)
             elif command == "device_values":
@@ -63,8 +62,8 @@ class Hibike:
         try:
             return self.device_values_cache[uid][param]
         except KeyError:
-            print("Keyerror detected, returning zero as last cached")
-            return 0
+            print("Could not get parameter {} from {}".format(param, uid))
+            return None
 
     def get_uids_and_types(self):
         """

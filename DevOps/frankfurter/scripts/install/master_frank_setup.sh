@@ -62,9 +62,9 @@ cp "$FRANKFURTER_DIR/resources/mac.py" "$HOME/bin"
 cp "$FRANKFURTER_DIR/resources/runtime.sh" "$HOME/bin"
 
 # Configure executable permissions
-sudo chown ubuntu "$HOME/bin/*"
-sudo chgrp ubuntu "$HOME/bin/*"
-sudo chmod 755 "$HOME/bin/*"
+sudo chown ubuntu "$HOME"/bin/*
+sudo chgrp ubuntu "$HOME"/bin/*
+sudo chmod 755 "$HOME"/bin/*
 
 # Create and enable the `runtime` and `update` systemd services
 sudo cp "$FRANKFURTER_DIR/resources/runtime.service" /lib/systemd/system

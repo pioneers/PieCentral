@@ -23,6 +23,11 @@ export const openFile = () => ({
   type: 'OPEN_FILE',
 });
 
+export const dragFile = filepath => ({
+  type: 'DRAG_FILE',
+  filepath,
+});
+
 export const saveFile = (saveAs = false) => ({
   type: 'SAVE_FILE',
   saveAs,

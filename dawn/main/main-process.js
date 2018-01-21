@@ -40,7 +40,14 @@ function teardownLCM(event) { // eslint-disable-line no-unused-vars
 }
 
 export default function showAPI() {
-  let api = new BrowserWindow({ width: 1400, height: 900, show: false });
+  let api = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: false,
+    },
+    width: 1400,
+    height: 900,
+    show: false,
+  });
   api.on('closed', () => {
     api = null;
   });

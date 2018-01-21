@@ -14,7 +14,13 @@
   <link rel="stylesheet" href="assets/css/ekko-lightbox.css">
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
 
-
+  <script>
+    // see https://electronjs.org/docs/faq#i-can-not-use-jqueryrequirejsmeteorangularjs-in-electron
+    window.nodeRequire = require;
+    delete window.require;
+    delete window.exports;
+    delete window.module;
+  </script>
   <script src="assets/javascripts/jquery.min.js"></script>
   <script src="assets/javascripts/bootstrap.min.js"></script>
   <script src="assets/javascripts/ekko-lightbox.min.js"></script>

@@ -72,7 +72,7 @@ export const timings = {
 
 export const windowInfo = {
   UNIT: 10,
-  NONEDITOR: 235,
+  NONEDITOR: 180,
   CONSOLEPAD: 40,
   CONSOLESTART: 250,
   CONSOLEMAX: 350,

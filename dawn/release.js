@@ -1,16 +1,18 @@
-const fs = require('fs-extra');
-const JSZip = require('jszip');
 const minimist = require('minimist');
 const packager = require('electron-packager');
 const path = require('path');
 const { execSync } = require('child_process');
 
-async function pack(platform, arch) {
+/* General release command: 'node release.js'
+ * For a specific target: 'node release.js --platform=... --arch=...'
+ */
+function pack(platform, arch) {
   const packageOptions = {
     dir: __dirname, // source dir
     name: 'dawn',
     icon: './icons/pieicon',
     asar: true,
+    packageManager: 'yarn',
     out: path.resolve('..'), // build in the parent dir
   };
 
@@ -23,28 +25,26 @@ async function pack(platform, arch) {
     packageOptions.arch = arch;
   }
 
-  const appPaths = await packager(packageOptions);
-  for (const folderPath of appPaths) {
-    console.log('Zipping: ', folderPath);
-    const zip = new JSZip().folder(folderPath);
-    const zipContents = await zip.generateAsync({
-      type: 'nodebuffer',
-    });
-
-    await fs.writeFile(`${folderPath}.zip`, zipContents);
-  }
+  packager(packageOptions, (err, appPaths) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    for (const folderPath of appPaths) {
+      console.log(`Zipping ${folderPath}`);
+      execSync(`7z a -tzip ${folderPath}.zip ${folderPath}`, (err, stdout, stderr) => {
+        if (err !== null) {
+          console.log('Error: ', err);
+        }
+      });
+    }
+  });
 }
 
-// General release command: 'node release.js --prod'.
-// For a specific target: 'node release.js --platform=... --arch=...'
-async function main() {
+function main() {
   const argv = minimist(process.argv.slice(2));
-  try {
-    await pack(argv.platform, argv.arch);
-    console.log('Packaging successful');
-  } catch (err) {
-    console.log('Packaging error: ', err);
-  }
+  pack(argv.platform, argv.arch);
+  console.log('Packaging Done');
 }
 
 main();

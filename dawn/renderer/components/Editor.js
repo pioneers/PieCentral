@@ -219,7 +219,7 @@ class Editor extends React.Component {
   toggleConsole() {
     this.props.toggleConsole();
     // Resize since the console overlaps with the editor, but enough time for console changes
-    setTimeout(() => this.CodeEditor.editor.resize(), 0.1);
+    setTimeout(() => this.onWindowResize(), 0.01);
   }
 
   upload() {
@@ -359,13 +359,13 @@ class Editor extends React.Component {
 
   raiseConsole() {
     this.setState({ consoleHeight: this.state.consoleHeight + windowInfo.UNIT }, () => {
-      this.CodeEditor.editor.resize();
+      this.onWindowResize();
     });
   }
 
   lowerConsole() {
     this.setState({ consoleHeight: this.state.consoleHeight - windowInfo.UNIT }, () => {
-      this.CodeEditor.editor.resize();
+      this.onWindowResize();
     });
   }
 

@@ -12,6 +12,7 @@ import Template from './MenuTemplate/Template';
 import Ansible from './networking/Ansible';
 import LCMObject from './networking/FieldControlLCM';
 
+
 app.on('window-all-closed', () => {
   app.quit();
 });
@@ -36,6 +37,24 @@ function teardownLCM(event) { // eslint-disable-line no-unused-vars
   if (LCMObject.LCMInternal !== null) {
     LCMObject.LCMInternal.quit();
   }
+}
+
+export default function showAPI() {
+  let api = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: false,
+    },
+    width: 1400,
+    height: 900,
+    show: false,
+  });
+  api.on('closed', () => {
+    api = null;
+  });
+  api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
+  api.once('ready-to-show', () => {
+    api.show();
+  });
 }
 
 app.on('ready', () => {

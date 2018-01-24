@@ -30,6 +30,7 @@ const param = (param, type, value) => ({ // eslint-disable-line no-shadow
   param,
   float_value: type === 'float' ? value : undefined,
   int_value: type === 'int' ? value : undefined,
+  bool_value: type === 'bool' ? value : undefined,
 });
 const print = (output) => {
   console.log(`Fake Runtime: ${output}`);
@@ -85,12 +86,18 @@ class FakeRuntime {
         sensor('LimitSwitch', 'LS1', [param('Val', 'int', Math.round(randomFloat(0, 1)))], '102'),
         sensor('SENSOR_SCALAR', 'SS1', [param('Val', 'float', randomFloat(-100, 100))], '103'),
         sensor('SENSOR_SCALAR', 'SS2', [param('Val', 'float', randomFloat(-100, 100))], '104'),
-        sensor('SENSOR_BOOLEAN', 'SB1', [param('Val', 'int', Math.round(randomFloat(0, 1)))], '105'),
-        // sensor('Version', 'Doesn\'t Matter', [
-        //   param('major', 'int', 1),
-        //   param('minor', 'int', 2),
-        //   param('patch', 'int', 3),
-        // ], '-1'), TODO: Document Runtime Version Information Packet
+        sensor('SENSOR_BOOLEAN', 'SB1', [param('Val', 'bool', Math.random() < 0.5)], '105'),
+
+        // Special Cases handled in dawn/renderer/reducers/peripherals.js
+        sensor('Version', 'Ignored', [
+          param('major', 'int', 1),
+          param('minor', 'int', 2),
+          param('patch', 'int', 3),
+        ], '-1'),
+        sensor('BatteryBuzzer', 'Ignored', [
+          param('is_unsafe', 'bool', Math.random() < 0.5),
+          param('v_batt', 'float', randomFloat(0, 15)),
+        ], '0'),
       ],
     };
   }

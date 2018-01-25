@@ -218,6 +218,7 @@ def bid_complete(args):
     Update state when a bid timer ends and a bid is complete
     Update scoreboard and sensors with this information as well
     '''
+    
     pass
 
 ###########################################

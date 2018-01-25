@@ -6,6 +6,9 @@ python:
 os:
   - linux
 env:
+  - TEST_DIR=dawn
+  - TEST_DIR=hibike/travis
+  - TEST_DIR=runtime
   - TEST_DIR=shepherd
 cache:
   pip: true

@@ -1,3 +1,7 @@
+
+"""Functions and classes for communication with Dawn."""
+
+
 import socket
 import threading
 import time

@@ -5,42 +5,43 @@ import heapq
 import LCM
 from Utils import *
 
+class busyThread(threading.Thread):
+    '''
+    Subclass that is the actual thread that will be running.
+    There will only be one for the entire class.
+    '''
+    def __init__(self, queue):
+        super().__init__()
+        self.queue = queue
+        self.stop = threading.Event()
+
+    def run(self):
+        '''
+        When started, thread will run and process Timers in queue until manually stopped
+        TODO: Add how to send message via LCM in the case of match timer
+        '''
+        while not self.stop.isSet():
+            if not self.queue.empty() and self.queue[0].endTime < time.time():
+                Timer.queueLock.acquire()
+                event = heapq.heappop(self.queue)
+                if event.timer_type == TIMER_TYPES.MATCH:
+                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
+                if event.timer_type == TIMER_TYPES.BID:
+                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END)
+                event.active = False
+                Timer.queueLock.release()
+
+    def join(self, timeout=None):
+        '''Stops this thread. Must be called from different thread (Main Thread)'''
+        super().join(timeout)
+        self.stop.set()
+        Timer.running = False
+
 class Timer:
     """
     This class should spawn another thread that will keep track of a target time
     and compare it to the current system time in order to see how much time is left
     """
-    class busyThread(threading.Thread):
-        '''
-        Subclass that is the actual thread that will be running.
-        There will only be one for the entire class.
-        '''
-        def __init__(self, queue):
-            super().__init__()
-            self.queue = queue
-            self.stop = threading.Event()
-
-        def run(self):
-            '''
-            When started, thread will run and process Timers in queue until manually stopped
-            TODO: Add how to send message via LCM in the case of match timer
-            '''
-            while not self.stop.isSet():
-                if not self.queue.empty() and self.queue[0].endTime < time.time():
-                    Timer.queueLock.acquire()
-                    event = heapq.heappop(self.queue)
-                    if event.timer_type == TIMER_TYPES.MATCH:
-                        LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
-                    if event.timer_type == TIMER_TYPES.BID:
-                        LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END)
-                    event.active = False
-                    Timer.queueLock.release()
-
-        def join(self, timeout=None):
-            '''Stops this thread. Must be called from different thread (Main Thread)'''
-            super().join(timeout)
-            self.stop.set()
-            Timer.running = False
 
     eventQueue = []
     thread = busyThread(eventQueue)
@@ -99,8 +100,12 @@ class Timer:
         return self.active
 
     def reset_all():
-        #TODO
-        pass
+        """Resets Timer Thread when game changes"""
+        Timer.thread.join()
+        Timer.eventQueue = []
+        Timer.thread = busyThread(Timer.eventQueue)
+        Timer.running = False
+        Timer.queueLock = threading.Lock()
 
     ###########################################
     # Timer Comparison Methods

@@ -4,7 +4,7 @@ Create a separate Hibike process, for testing.
 import threading
 import time
 from multiprocessing import Process, Pipe, Queue
-# pylint: disable=import-error
+
 import hibike_process
 import hibike_message
 
@@ -12,6 +12,7 @@ class Hibike:
     """
     Interface to a separate Hibike process.
     """
+    DEFAULT_DELAY = 100
     def __init__(self):
         self.bad_things_queue = Queue()
         self.state_queue = Queue()
@@ -44,17 +45,16 @@ class Hibike:
                 uid = data[0]
                 self.uids.add(uid)
             elif command == "device_disconnected":
-                uid = data
+                uid = data[0]
                 self.uids.discard(uid)
             elif command == "device_values":
                 for uid, params in data[0].items():
                     for key, value in params:
-                        self.device_values_cache.setdefault(uid, {})[key] = value, time.time()
+                        self.device_values_cache.setdefault(uid, {})[key] = value
 
     def get_last_cached(self, uid, param):
         """
-        Returns a tuple of the value and the timestamp of the last device_values
-        package received from a uid and a parameter.
+        Get the last value of PARAM received from the device at UID.
 
         Precondition: a device_data with a UID, params, and values must have been
         received from the param before calling this function.
@@ -62,8 +62,8 @@ class Hibike:
         try:
             return self.device_values_cache[uid][param]
         except KeyError:
-            print("Keyerror detected, returning zero as last cached")
-            return 0
+            print("Could not get parameter {} from {}".format(param, uid))
+            return None
 
     def get_uids_and_types(self):
         """
@@ -83,6 +83,20 @@ class Hibike:
         Subscribe to device UID, with DELAY delay, and parameters PARAMS.
         """
         self.pipe_to_child.send(["subscribe_device", [uid, delay, params]])
+
+    def subscribe_all(self):
+        """
+        Subscribe to all devices with all parameters.
+        """
+        for uid in self.uids:
+            dev_id = hibike_message.uid_to_device_id(uid)
+            all_params = hibike_message.all_params_for_device_id(dev_id)
+            readable_params = []
+            for param in all_params:
+                if hibike_message.readable(dev_id, param):
+                    readable_params.append(param)
+            self.pipe_to_child.send(["subscribe_device", [uid, self.DEFAULT_DELAY,
+                                                          readable_params]])
 
     def write(self, uid, params_and_values):
         """

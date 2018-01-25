@@ -197,10 +197,10 @@ def format_string(device_id, params):
     """
     A string representation of the types of PARAMS.
     """
-    param_type = [PARAM_MAP[device_id][name][1] for name in params]
+    param_types = [PARAM_MAP[device_id][name][1] for name in params]
 
     type_string = ''
-    for ptype_key in param_type:
+    for ptype_key in param_types:
         type_string += PARAM_TYPES[ptype_key]
     return type_string
 
@@ -631,3 +631,10 @@ def writable(device_id, param):
     Check if the device at DEVICE_ID's parameter PARAM is writeable.
     """
     return PARAM_MAP[device_id][param][3]
+
+
+def param_type(device_id, param):
+    """
+    Return the data type of the requested parameter.
+    """
+    return PARAM_MAP[device_id][param][1]

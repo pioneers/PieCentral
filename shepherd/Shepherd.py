@@ -94,7 +94,9 @@ def to_wait(args):
     By the end, should be in wait state and the robots should be disabled.
     Some years, there might be methods that can be called once in the wait stage
     '''
-    #TODO
+    global game_state
+    game_state = STATE.WAIT
+    #TODO: send message to dawn to disable robots
     print("ENTERING WAIT STATE")
 
 def to_teleop(args):
@@ -102,7 +104,14 @@ def to_teleop(args):
     Move to teleoperated stage where robots are enabled and controlled manually.
     By the end, should be in teleop state and the teleop match timer should be started.
     '''
-    #TODO
+    global game_state
+    game_state = STATE.TELE
+
+    for goal in goals.values():
+    	goal.set_teleop()
+
+    game_timer.start_timer(CONSTANTS.TELEOP_TIME)
+    #TODO: send message to enable robots in teleop
     print("ENTERING TELEOP STATE")
 
 def to_end(args):
@@ -110,7 +119,9 @@ def to_end(args):
     Move to end stage after the match ends. Robots should be disabled here
     and final score adjustments can be made.
     '''
-    #TODO
+    global game_state
+    game_state = STATE.END
+    #TODO: send message to disable robots
     print("ENTERING END STATE")
 
 def reset(args=None):
@@ -187,9 +198,9 @@ def code_input(args):
     '''
     goal = goals.get(args[0])
     alliance = alliances.get(args[1])
-    index = CodeGen.check_code(args[2],curr_rfids)
+    index = CodeGen.check_code(args[2], curr_rfids)
     if(index == -1):
-        lcm_send(LCM_TARGETS.SENSORS,SENSOR_HEADER.CODE_RESULT,"wrong")
+        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, "wrong")
     else:
         powerup =
     #TODO

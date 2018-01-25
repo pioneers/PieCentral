@@ -104,7 +104,9 @@ def to_wait(args):
     By the end, should be in wait state and the robots should be disabled.
     Some years, there might be methods that can be called once in the wait stage
     '''
-    #TODO
+    global game_state
+    game_state = STATE.WAIT
+    #TODO: send message to dawn to disable robots
     print("ENTERING WAIT STATE")
 
 def to_teleop(args):
@@ -112,7 +114,14 @@ def to_teleop(args):
     Move to teleoperated stage where robots are enabled and controlled manually.
     By the end, should be in teleop state and the teleop match timer should be started.
     '''
-    #TODO
+    global game_state
+    game_state = STATE.TELE
+
+    for goal in goals.values():
+    	goal.set_teleop()
+
+    game_timer.start_timer(CONSTANTS.TELEOP_TIME)
+    #TODO: send message to enable robots in teleop
     print("ENTERING TELEOP STATE")
 
 def to_end(args):
@@ -120,7 +129,9 @@ def to_end(args):
     Move to end stage after the match ends. Robots should be disabled here
     and final score adjustments can be made.
     '''
-    #TODO
+    global game_state
+    game_state = STATE.END
+    #TODO: send message to disable robots
     print("ENTERING END STATE")
 
 def reset(args=None):
@@ -179,15 +190,23 @@ def goal_score(args):
     '''
     Update state for a goal being scored and push information to scoreboard
     '''
-    goal_name = args[0]
-    alliance = args[1]
+    alliance = args[0]
+    goal_name = args[1]
     goals.get(goal_name).score(alliances.get(alliance))
+
+    #TODO: Push score to scoreboard
+    pass
 
 def goal_bid(args):
     '''
     Update state for a goal being bid on and push information to scoreboard
     and to sensors
     '''
+    alliance = args[0]
+    goal_name = args[1]
+    goals.get(goal_name).bid(alliances.get(alliance))
+
+    #TODO: Push bid timer, bid amount, curr bid owner to scoreboard
     pass
 
 def code_input(args):
@@ -198,10 +217,15 @@ def code_input(args):
     goal = goals.get(args[0])
     alliance = alliances.get(args[1])
     index = CodeGen.check_code(args[2], curr_rfids)
+<<<<<<< HEAD
     if state = 
     if index == -1:
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, alliance,
                  "wrong")
+=======
+    if(index == -1):
+        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, "wrong")
+>>>>>>> dbd869ea125ebb5363740d76bd88d336a698f261
     else:
         powerup = powerup_functions[i]
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, alliance,

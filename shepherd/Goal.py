@@ -27,7 +27,6 @@ class Goal:
             blue_zero_x_timer - A Timer tracking how long the 0x powerup applied
                                 by the blue team will last
     """
-    bid_increase_constant = CONSTANTS.BID_INCREASE_CONSTANT
     def __init__(self, name, value, start_bid):
         self.name = name
         self.initial_value = value
@@ -57,6 +56,19 @@ class Goal:
 
     def set_owner(self, alliance):
         self.owner = alliance
+
+    def bid(self, alliance):
+        self.previous_bid = self.current_bid
+        self.current_bid += CONSTANTS.BID_INCREASE_CONSTANT
+
+        self.previous_bid_team = self.curr
+        self.current_bid_team = alliance
+
+        if self.bid_timer.is_running():
+            self.bid_timer.start_timer(BID_TIME_INCREASE)
+        else:
+            self.bid_timer.start_timer(BID_TIME_INITIAL)
+
 
     def score(self, alliance):
         """ modifies the owner alliance's score based on the value of the goal,

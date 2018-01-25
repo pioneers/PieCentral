@@ -45,6 +45,6 @@ class Sensors: # pylint: disable=too-few-public-methods
         self.bid_stations = {}
         self.main_controls = {}
         self.prev_powerup = None
-        self.event_map = {SENSOR_HEADER.CODE_RESULT: code_result, }
+        self.event_map = {SENSOR_HEADER.CODE_RESULT: self.code_result, }
         self.event_queue = queue.Queue()
         lcm_start_read(LCM_TARGETS.SENSORS, self.event_queue)

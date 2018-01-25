@@ -12,7 +12,7 @@ artifacts-install:
 	$(nop)
 
 lint:
-	cd .. && find . -name "*.py" | xargs pylint
+	$(nop)
 
 unit_tests:
 	cd .. && python3 -m unittest hibike_tests/*.py

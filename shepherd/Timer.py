@@ -64,6 +64,7 @@ class Timer:
         self.active = False
         self.timer_type = timer_type
         self.goal_name = goal_name
+        self.endTime = None
 
     def start_timer(self, duration):
         """Starts a new timer with the duration (seconds) and sets timer to active.
@@ -112,6 +113,3 @@ class Timer:
 
     def __eq__(self, other):
         return self.endTime == other.endTime
-
-    def __cmp__(self, other):
-        return cmp(self.endTime, other.endTime)

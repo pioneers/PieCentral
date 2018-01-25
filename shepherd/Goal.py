@@ -123,8 +123,10 @@ class Goal:
                              SCOREBOARD_HEADER.POWERUPS,
                              [self.name, alliance.name, powerup_type])
 
-
-        if effect == POWERUP_TYPES.TWO_X:
+        if self.owner is None:
+            lcm_send(LCM_TARGETS.SENSORS,
+                     SENSOR_HEADER.FAILED_POWERUP, alliance)
+        elif effect == POWERUP_TYPES.TWO_X:
             process_powerup(self.blue_two_x_timer, self.gold_two_x_timer,
                             CONSTANTS.TWO_X_COOLDOWN, POWERUP_TYPES.TWO_X)
         elif effect == POWERUP_TYPES.ZERO_X:

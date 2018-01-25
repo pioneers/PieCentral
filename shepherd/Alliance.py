@@ -23,7 +23,7 @@ class Alliance:
                             submit another code
     """
 
-    def __init__(self, name, team_1_name, team_1_number, team_2_name, 
+    def __init__(self, name, team_1_name, team_1_number, team_2_name,
                  team_2_number):
 
         self.name = name
@@ -45,6 +45,14 @@ class Alliance:
         self.score += amount
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
                  [self.name, self.score])
+
+    def increment_multiplier(self):
+        if self.alliance_multiplier == 1:
+            self.alliance_multiplier = CONSTANTS.MULTIPLIER_INCREASES[0]
+        elif self.alliance_multiplier == CONSTANTS.MULTIPLIER_INCREASES[0]:
+            self.alliance_multiplier = CONSTANTS.MULTIPLIER_INCREASES[1]
+        elif self.alliance_multiplier == CONSTANTS.MULTIPLIER_INCREASES[1]:
+            self.alliance_multiplier = CONSTANTS.MULTIPLIER_INCREASES[2]
 
     def reset(self):
         self.score = 0

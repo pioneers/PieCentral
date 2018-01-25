@@ -38,7 +38,7 @@ def start():
                 func(payload[1])
             else:
                 print("Invalid Event in Wait")
-        elif game_state == STATE.TELE:
+        elif game_state == STATE.TELEOP:
             func = teleop_functions.get(payload[0])
             if func is not None:
                 func(payload[1])
@@ -115,7 +115,7 @@ def to_teleop(args):
     By the end, should be in teleop state and the teleop match timer should be started.
     '''
     global game_state
-    game_state = STATE.TELE
+    game_state = STATE.TELEOP
 
     for goal in goals.values():
     	goal.set_teleop()
@@ -217,16 +217,13 @@ def code_input(args):
     goal = goals.get(args[0])
     alliance = alliances.get(args[1])
     index = CodeGen.check_code(args[2], curr_rfids)
-<<<<<<< HEAD
-    if state = 
     if index == -1:
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, alliance,
                  "wrong")
-=======
-    if(index == -1):
-        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, "wrong")
->>>>>>> dbd869ea125ebb5363740d76bd88d336a698f261
-    else:
+        return
+    if game_state == STATE.AUTO:
+        alliance.increment_multiplier()
+    elif game_state = STATE.TELEOP:
         powerup = powerup_functions[i]
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, alliance,
                  powerup)

@@ -3,6 +3,7 @@ class SHEPHERD_HEADER():
     GOAL_SCORE = "goal_score"
     GOAL_BID = "goal_bid"
     CODE_INPUT = "code_input"
+    POWERUP_APPLICATION = "powerup_application"
 
     START_MATCH = "start_match"
     SETUP_MATCH = "setup_match"
@@ -50,6 +51,7 @@ class CONSTANTS():
     GOAL_LOW_COST = 20
     GOAL_MED_COST = 40
     GOAL_HIGH_COST = 100
+    MULTIPLIER_INCREASES = [1.1, 1.25, 1.5]
 
 
 

@@ -95,7 +95,7 @@ class Goal:
             if alliance.name == ALLIANCE_COLOR.BLUE:
                 if blue_timer.is_running():
                     lcm_send(LCM_TARGETS.SENSORS,
-                             SENSOR_HEADER.FAILED_POWERUP)
+                             SENSOR_HEADER.FAILED_POWERUP, alliance)
                 else:
                     blue_timer.start_timer(constants_cooldown)
                     lcm_send(LCM_TARGETS.SCOREBOARD,
@@ -104,7 +104,7 @@ class Goal:
             elif alliance.name == ALLIANCE_COLOR.GOLD:
                 if gold_timer.is_running():
                     lcm_send(LCM_TARGETS.SENSORS,
-                             SENSOR_HEADER.FAILED_POWERUP)
+                             SENSOR_HEADER.FAILED_POWERUP, alliance)
                 else:
                     gold_timer.start_timer(constants_cooldown)
                     lcm_send(LCM_TARGETS.SCOREBOARD,
@@ -121,12 +121,12 @@ class Goal:
         elif effect == POWERUP_TYPES.STEAL:
             if self.owner is alliance:
                 lcm_send(LCM_TARGETS.SENSORS,
-                         SENSOR_HEADER.FAILED_POWERUP)
+                         SENSOR_HEADER.FAILED_POWERUP, alliance)
             else:
                 self.owner = alliance
                 lcm_send(LCM_TARGETS.SCOREBOARD,
                          SCOREBOARD_HEADER.POWERUPS,
                          [self.name, alliance.name, POWERUP_TYPES.STEAL])
         else:
-            lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.FAILED_POWERUP)
+            lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.FAILED_POWERUP, alliance)
         return

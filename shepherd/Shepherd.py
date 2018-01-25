@@ -180,15 +180,23 @@ def goal_score(args):
     '''
     Update state for a goal being scored and push information to scoreboard
     '''
-    goal_name = args[0]
-    alliance = args[1]
+    alliance = args[0]
+    goal_name = args[1]
     goals.get(goal_name).score(alliances.get(alliance))
+
+    #TODO: Push score to scoreboard
+    pass
 
 def goal_bid(args):
     '''
     Update state for a goal being bid on and push information to scoreboard
     and to sensors
     '''
+    alliance = args[0]
+    goal_name = args[1]
+    goals.get(goal_name).bid(alliances.get(alliance))
+
+    #TODO: Push bid timer, bid amount, curr bid owner to scoreboard
     pass
 
 def code_input(args):

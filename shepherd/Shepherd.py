@@ -4,6 +4,7 @@ from Goal import *
 from LCM import *
 from Timer import *
 from Utils import *
+import random
 
 
 ###########################################
@@ -69,6 +70,15 @@ def to_setup(args):
                                               g1_num, g2_name, g2_num)
     goals[GOAL.BLUE].set_owner(alliances[ALLIANCE_COLOR.BLUE])
     goals[GOAL.GOLD].set_owner(alliances[ALLIANCE_COLOR.GOLD])
+
+    powerup_functions = [None, None, None, None, None, None]
+    indexies = [0, 1, 2]
+    for powerup in [POWERUP_TYPES.ZERO_X, POWERUP_TYPES.TWO_X,
+                    POWERUP_TYPES.STEAL]:
+        i = indexies.pop(random.randint(0, len(indexies))-1)
+        powerup_functions[i] = powerup
+    powerup_functions[3:6] = powerup_functions[0:3]
+
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.TEAMS, b1_name, b1_num,
              b2_name, b2_num, g1_name, g1_num, g2_name, g2_num)
     print("ENTERING SETUP STATE")
@@ -207,11 +217,27 @@ def code_input(args):
     goal = goals.get(args[0])
     alliance = alliances.get(args[1])
     index = CodeGen.check_code(args[2], curr_rfids)
+<<<<<<< HEAD
+    if state = 
+    if index == -1:
+        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, alliance,
+                 "wrong")
+=======
     if(index == -1):
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, "wrong")
+>>>>>>> dbd869ea125ebb5363740d76bd88d336a698f261
     else:
-        powerup =
+        powerup = powerup_functions[i]
+        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, alliance,
+                 powerup)
+        #TODO check state
     #TODO
+
+def powerup_application(args):
+    '''
+    Apply a powerup to a goal. Does not need to say result.
+    '''
+    pass
 
 def bid_complete(args):
     '''
@@ -255,6 +281,7 @@ teleop_functions = {
     SHEPHERD_HEADER.BID_TIMER_END : bid_complete,
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.STAGE_TIMER_END : to_end,
+    SHEPHERD_HEADER.POWERUP_APPLICATION : powerup_application
 }
 
 end_functions = {
@@ -288,6 +315,7 @@ goals = {
 
 rfid_pool = None
 curr_rfids = None
+powerup_functions = [None,None,None,None,None,None]
 
 if __name__ == '__main__':
     start()

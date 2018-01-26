@@ -4,6 +4,7 @@ import {
   editorUpdate,
   saveFile,
   openFile,
+  dragFile,
   createNewFile,
   downloadCode,
 } from '../actions/EditorActions';
@@ -45,6 +46,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onOpenFile: () => {
     dispatch(openFile());
+  },
+  onDragFile: (filepath) => {
+    dispatch(dragFile(filepath));
   },
   onCreateNewFile: () => {
     dispatch(createNewFile());

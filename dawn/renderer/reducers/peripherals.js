@@ -10,7 +10,8 @@ const initialPeripheralState = {
 function getParams(peripheral) {
   const res = {};
   peripheral.param_value.forEach((obj) => {
-    res[obj.param] = obj[obj.kind];
+    // eslint-disable-next-line prefer-destructuring
+    res[obj.param] = Object.values(obj)[0];
   });
   return res;
 }

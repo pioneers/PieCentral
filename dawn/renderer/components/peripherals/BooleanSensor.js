@@ -7,11 +7,15 @@ import { PeripheralTypes } from '../../constants/Constants';
 /**
  * Boolean Sensor Component
  */
-const formatBoolean = (peripheralType, sensorValue) => {
+const formatBoolean = (peripheralType, peripheral) => {
+  let sensorValue = peripheral.int_value;
+  if (sensorValue === undefined) {
+    sensorValue = peripheral.bool_value;
+  }
   if (peripheralType === PeripheralTypes.LimitSwitch) {
     return (sensorValue) ? 'Closed' : 'Open';
   }
-  return sensorValue; // TODO: Verify if int_value or bool_value
+  return sensorValue;
 };
 
 const BooleanSensor = ({
@@ -26,7 +30,7 @@ const BooleanSensor = ({
       _.map(param, obj => (
         <div key={`${obj.param}-${device_name}-Overall`}>
           <h4 style={{ float: 'right', height: '10px' }} key={`${obj.param}-${device_name}`}>
-            {`${obj.param}: ${formatBoolean(device_type, obj.int_value)}`}
+            {`${obj.param}: ${formatBoolean(device_type, obj)}`}
           </h4>
         </div>
       ))

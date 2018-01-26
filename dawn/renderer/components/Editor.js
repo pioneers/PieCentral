@@ -170,6 +170,15 @@ class Editor extends React.Component {
 
     window.addEventListener('beforeunload', this.beforeUnload);
     window.addEventListener('resize', this.onWindowResize, { passive: true });
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      return false;
+    });
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      this.props.onDragFile(e.dataTransfer.files[0].path);
+      return false;
+    });
   }
 
   componentWillUnmount() {
@@ -591,6 +600,7 @@ Editor.propTypes = {
   onAlertAdd: PropTypes.func.isRequired,
   onEditorUpdate: PropTypes.func.isRequired,
   onSaveFile: PropTypes.func.isRequired,
+  onDragFile: PropTypes.func.isRequired,
   onOpenFile: PropTypes.func.isRequired,
   onCreateNewFile: PropTypes.func.isRequired,
   onChangeTheme: PropTypes.func.isRequired,

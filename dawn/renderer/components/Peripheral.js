@@ -23,7 +23,7 @@ typesToComponents[PeripheralTypes.LimitSwitch] = BooleanSensor;
 const Peripheral = (props) => {
   const ActualPeripheral = typesToComponents[props.device_type] || GenericPeripheral;
   return (
-    <ListGroupItem style={{ padding: '0px' }}>
+    <ListGroupItem style={{ padding: '0px', border: 'none' }}>
       <ActualPeripheral{...props} />
     </ListGroupItem>
   );

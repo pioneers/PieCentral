@@ -55,22 +55,22 @@ class Codegen:
 
         # Generate function-related data
         self._decode_precompute = staff_decode_precompute(self._rfids)
-        # True iff the given function is bijective over the given RFID domain
-        self._is_bijective = {}
+        # True iff the given function is injective over the given RFID domain
+        self._is_injective = {}
 
         # Apply every function to every rfid. This precomputation step
         # allows us to memoize the potentially expensive example solutions for the
         # student functions.
         for i in self._decode_precompute:
             outputs = set()
-            bijective = True
+            injective = True
             for rfid in self._rfids:
                 output = self._decode_precompute[i][rfid]
                 if output in outputs:
-                    bijective = False
+                    injective = False
                 else:
                     outputs.add(output)
-            self._is_bijective[i] = bijective
+            self._is_injective[i] = injective
 
     def generate_challenge(self, digit_len=5, func_distrib=None):
         '''
@@ -103,15 +103,15 @@ class Codegen:
                     func_distrib[i] = 0
                     continue
                 func_distrib[i] = 1
-        bijective_funcs_distr = _helper_filter_map(func_distrib, self._is_bijective)
+        injective_funcs_distr = _helper_filter_map(func_distrib, self._is_injective)
         return Challenge(self._random, self._rfids,
-                         func_distrib, bijective_funcs_distr,
+                         func_distrib, injective_funcs_distr,
                          digit_len, self._decode_precompute)
 
 class Challenge:
 
     def __init__(self, rand_gen, rfids, func_distrib,
-                 bijective_funcs_distr, digit_len, decode_precompute):
+                 injective_funcs_distr, digit_len, decode_precompute):
         '''
         This class should not be instantiated directly! Use the factory Codegen
         above!
@@ -125,7 +125,7 @@ class Challenge:
         while True:
             self._rfid_to_ans = {}
             self._ans_to_rfid = {}
-            self._code = hgouc(rand_gen, func_distrib, bijective_funcs_distr, digit_len)
+            self._code = hgouc(rand_gen, func_distrib, injective_funcs_distr, digit_len)
             # We want there to be a one-to-one mapping between RFIDs and answers
             # Therefore only break the loop if we randomly generate a code
             # that produces unique answers for every RFID in the list
@@ -141,7 +141,7 @@ class Challenge:
                 break
 
         # This is always true since we guaranteed above that
-        # the (rfid --> solution) mapping is bijective
+        # the (rfid --> solution) mapping is injective
         assert len(self._rfid_to_ans) == len(self._ans_to_rfid)
 
     def check_solution(self, solution):
@@ -221,7 +221,7 @@ class Challenge:
         assert staff_decode(self.get_code(), self._rfids[idx]) == student_answer
         return idx
 
-def _helper_generate_potentially_unsafe_code(rand, func_distrib, bijective_funcs_distr, digit_len):
+def _helper_generate_potentially_unsafe_code(rand, func_distrib, injective_funcs_distr, digit_len):
     '''
     Helper function for this module.
 
@@ -236,9 +236,9 @@ def _helper_generate_potentially_unsafe_code(rand, func_distrib, bijective_funcs
     if digit_len < 1:
         return 0
 
-    bijective_digit = 0 # Use the fallback by default
-    if bijective_funcs_distr:
-        bijective_digit = _helper_pick_random(rand.uniform(0, 1), bijective_funcs_distr)
+    injective_digit = 0 # Use the fallback by default
+    if injective_funcs_distr:
+        injective_digit = _helper_pick_random(rand.uniform(0, 1), injective_funcs_distr)
 
     # Randomly generate the remaining digits
     code = 0
@@ -246,7 +246,7 @@ def _helper_generate_potentially_unsafe_code(rand, func_distrib, bijective_funcs
         code *= 10
         code += _helper_pick_random(rand.uniform(0, 1), func_distrib)
     code *= 10
-    code += bijective_digit
+    code += injective_digit
 
     return code
 

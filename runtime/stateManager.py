@@ -40,7 +40,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def make_command_map(self):
         """
-        Provides mapping between command input and the state manager behavior.
+        Create a mapping between command input and the state manager behavior.
         """
         command_mapping = {
             SM_COMMANDS.RESET: self.init_robot_state,
@@ -68,7 +68,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def make_hibike_map(self):
         """
-        Relaying commands to the device.
+        Create a mapping between Hibike commands and Hibike functions.
         """
         hibike_mapping = {
             HIBIKE_COMMANDS.ENUMERATE: self.hibike_enumerate_all,
@@ -82,7 +82,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def make_hibike_response_map(self):
         """
-        Provides mapping between packets received by State Manager and HIBIKE response.
+        Create a mapping between packets received by State Manager and Hibike response.
         """
         hibike_response_mapping = {
             HIBIKE_RESPONSE.DEVICE_SUBBED: self.hibike_response_device_subbed,
@@ -94,7 +94,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def init_robot_state(self):
         """
-        Initalizes StateManager in ROBOT state.
+        Initialize robot state.
         """
         t = time.time()
         self.state = {
@@ -126,8 +126,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def create_key(self, keys, send=True):
         """
-        Updates contents in ROBOT: creates an entry from an absolute path
-         and updates time.
+        Insert keys into state.
         """
         curr_dict = self.state
         path = []
@@ -150,7 +149,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def get_value(self, keys):
         """
-        Receives the value of an entry in self.state from an absolute path.
+        Retrieve values associated with keys.
         """
         result = self.state
         try:
@@ -163,8 +162,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def set_value(self, value, keys, send=True):
         """
-        Updates an existing entry in self.state with new value and time
-          from an absolute path.
+        Updates an existing entry in self.state with new value and time.
         """
         curr_dict = self.state
         try:
@@ -256,7 +254,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def get_timestamp(self, keys):
         """
-        Sends timestamp to student process; else, send an Student API Key Error.
+        Send a timestamp to student code.
         """
         curr_dict = self.state
         timestamp = 0
@@ -273,7 +271,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def emergency_stop(self):
         """
-        Activate an emergency stop on HBIKE.
+        Activate emergency stop.
         """
         self.state["runtime_meta"][0]["e_stopped"][0] = True
         self.bad_things_queue.put(BadThing(sys.exc_info(
@@ -302,8 +300,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def hibike_timestamp_down(self, pipe, *data):
         """
-        Receives timestamp from HBIKE; sends the data including timestamp
-         down to the queue.
+        Pass along timestamp data from Ansible to Hibike.
         """
         data = list(data)
         data.append(time.perf_counter())
@@ -311,8 +308,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def hibike_response_device_subbed(self, uid, delay, params):
         """
-        Subscribes to recognized devices; creates a entry in STATE
-         that maps a subscribed devices to its parameter.
+        Stores information about subscribed device.
         """
         if delay == 0:
             device_name = SENSOR_TYPE[uid >> 72]
@@ -329,7 +325,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def hibike_response_device_values(self, data):
         """
-        Updates STATE of devices' values based on DATA.
+        Updates devices' values based on data.
         """
         for uid, params in data.items():
             for key, value in params:
@@ -345,8 +341,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def hibike_response_timestamp_up(self, *data):
         """
-        Receives timestamp from HBIKE; sends the data including timestamp
-         up to the queue.
+        Relay timestamp data from Hibike to Ansible.
         """
         data = list(data)
         data.append(time.perf_counter())
@@ -355,7 +350,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def hibike_disable(self, pipe):
         """
-        Peforms DISABLE on HIBIKE device at end of PIPE.
+        Disables all Hibike devices.
         """
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])
 
@@ -395,7 +390,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
 
     def start(self):
         """
-        Runs a session of State Manager.
+        Run StateManager.
         """
         while True:
             try:

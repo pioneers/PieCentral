@@ -184,7 +184,18 @@ def generate_rfids(args):
     Select the set of 6 RFIDs to be used until this method is called again
     RFIDs should be sent to the UI to be displayed for field reset
     '''
-    pass
+    rfids = open("rfid.txt")
+    rfid_list = []
+    numbers = rfids.readlines()
+    for i in numbers:
+        i = i.strip()
+        rfid_list.append(i)
+    return_value = []
+    for i in range(6):
+        temp = random.choice(rfid_list)
+        rfid_list.remove(temp)
+        return_value.append(temp)
+    return return_value
 
 def goal_score(args):
     '''

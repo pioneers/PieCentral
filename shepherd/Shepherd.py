@@ -235,7 +235,7 @@ def code_input(args):
     if game_state == STATE.AUTO:
         alliance.increment_multiplier()
     elif game_state = STATE.TELEOP:
-        powerup = powerup_functions[i]
+        powerup = powerup_functions[index]
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, alliance,
                  powerup)
         #TODO check state
@@ -245,7 +245,17 @@ def powerup_application(args):
     '''
     Apply a powerup to a goal. Does not need to say result.
     '''
-    pass
+    alliance = args[0]
+    goal = goals.get(args[1])
+    index = CodeGen.check_code(args[2], curr_rfids)
+    if index == -1:
+        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, alliance,
+                 "wrong")
+        return
+    powerup = powerup_functions[index]
+    goal.apply_powerup(powerup, alliance)
+    #Fully incorporate code_input
+    #Start Timers, change goals
 
 def bid_complete(args):
     '''

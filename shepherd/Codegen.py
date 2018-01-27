@@ -139,6 +139,7 @@ class Challenge:
                 self._rfid_to_ans[rfid] = solution
             if not duplicate_answers:
                 break
+            print('Duplicates!')
 
         # This is always true since we guaranteed above that
         # the (rfid --> solution) mapping is injective
@@ -665,7 +666,7 @@ def staff_decode(challenge_code, rfid_seed, precompute=None):
 
     return int(output)
 
-def _debug_random_sample(sample_size):
+def _debug_random_sample(sample_size, regenerate_rfids=False, seed=0):
     # Random sampling of codes, finds how frequent each digit is
     import time
 
@@ -673,11 +674,14 @@ def _debug_random_sample(sample_size):
     total = 0
     for i in range(0, 9):
         count[i] = 0
-    rng = random.Random(0)
-    rfids = [rng.randint(0, 999999999999999) for _ in range(0, 5)]
-    cg = Codegen(rfids, 0)
+    need_cg = True
+    rng = random.Random(seed)
     timer_begin = time.time()
     for i in range(0, sample_size):
+        if regenerate_rfids or need_cg:
+            rfids = [rng.randint(0, 999999999999999) for _ in range(0, 5)]
+            cg = Codegen(rfids, rng.randint(0, 999999999999999))
+            need_cg = False
         code = cg.generate_challenge().get_code()
         if i % (sample_size // 10) == 0:
             print(code)
@@ -689,8 +693,12 @@ def _debug_random_sample(sample_size):
     timer_end = time.time()
     for i in range(0, 9):
         count[i] /= total
-    print('Took {} seconds total to generate {} code(s)'.format(timer_end - timer_begin, sample_size))
-    print('Took {} seconds avg. (mean) per code'.format((timer_end - timer_begin) / sample_size))
+
+    timer_dur = timer_end - timer_begin
+    print('Took {} seconds total to generate {} code(s)'.format(timer_dur, sample_size))
+    print('Took {} seconds avg. (mean) per code'.format(timer_dur / sample_size))
+    if regenerate_rfids:
+        print('!! Time also includes regenerating a new set of RFIDs for every code.')
     return count
 
 if __name__ == "__main__":

@@ -667,6 +667,8 @@ def staff_decode(challenge_code, rfid_seed, precompute=None):
 
 def _debug_random_sample(sample_size):
     # Random sampling of codes, finds how frequent each digit is
+    import time
+
     count = {}
     total = 0
     for i in range(0, 9):
@@ -674,6 +676,7 @@ def _debug_random_sample(sample_size):
     rng = random.Random(0)
     rfids = [rng.randint(0, 999999999999999) for _ in range(0, 5)]
     cg = Codegen(rfids, 0)
+    timer_begin = time.time()
     for i in range(0, sample_size):
         code = cg.generate_challenge().get_code()
         if i % (sample_size // 10) == 0:
@@ -683,8 +686,11 @@ def _debug_random_sample(sample_size):
             code //= 10
             count[digit] += 1
             total += 1
+    timer_end = time.time()
     for i in range(0, 9):
         count[i] /= total
+    print('Took {} seconds total to generate {} code(s)'.format(timer_end - timer_begin, sample_size))
+    print('Took {} seconds avg. (mean) per code'.format((timer_end - timer_begin) / sample_size))
     return count
 
 if __name__ == "__main__":

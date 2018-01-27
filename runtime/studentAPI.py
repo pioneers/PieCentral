@@ -1,3 +1,5 @@
+"""Software interface for robot actions."""
+
 # pylint: disable=invalid-name
 # pylint: enable=invalid-name
 import csv
@@ -14,6 +16,7 @@ class Actions:
         await asyncio.sleep(seconds)
 
 class StudentAPI:
+    """Hidden interface with State Manager."""
     def __init__(self, toManager, fromManager):
         self.from_manager = fromManager
         self.to_manager = toManager
@@ -40,6 +43,7 @@ class StudentAPI:
 
 
 class Gamepad(StudentAPI):
+    """Software interface for accessing a gamepad."""
     buttons = {
         "button_a": 0,
         "button_b": 1,
@@ -71,9 +75,11 @@ class Gamepad(StudentAPI):
         self._get_gamepad()
 
     def _get_gamepad(self):
+        """Fetch gamepads from StateManager."""
         self.all_gamepads = self._get_sm_value("gamepads")
 
     def get_value(self, name, gamepad_number=0):
+        """Get a value from a gamepad."""
         gamepad_dict = self.all_gamepads[gamepad_number]
         if name in self.joysticks:
             return gamepad_dict["axes"][self.joysticks[name]]
@@ -83,6 +89,7 @@ class Gamepad(StudentAPI):
 
 
 class Robot(StudentAPI):
+    """Main software interface for the robot."""
     deviceName_to_writeParams = {
         "ServoControl": ["servo0", "servo1"],
         "YogiBear": ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki",
@@ -120,14 +127,17 @@ class Robot(StudentAPI):
         self._get_all_sensors()
 
     def _get_all_sensors(self):
+        """Get a list of sensors."""
         self.peripherals = self._get_sm_value('hibike', 'devices')
 
     def get_value(self, device_name, param):
+        """Get a single value from a device."""
         uid = self._hibike_get_uid(device_name)
         self._check_read_params(uid, param)
         return self.peripherals[uid][0][param][0]
 
     def set_value(self, device_name, param, value):
+        """Set a parameter value for device."""
         uid = self._hibike_get_uid(device_name)
         self._check_write_params(uid, param)
         self._check_value(param, value)
@@ -161,6 +171,7 @@ class Robot(StudentAPI):
         asyncio.ensure_future(wrapped_future())
 
     def is_running(self, func):
+        """Check if func is being run by ``Robot.run()``."""
         if not inspect.isfunction(func):
             raise StudentAPIValueError(
                 "First argument to Robot.run must be a function")
@@ -171,6 +182,7 @@ class Robot(StudentAPI):
         return func in self._coroutines_running
 
     def _check_write_params(self, uid, param):
+        """Checks that some parameters are valid for the device."""
         device_type = uid >> 72
         valid_params = self.deviceName_to_writeParams[SENSOR_TYPE[device_type]]
         if param not in valid_params:
@@ -179,6 +191,7 @@ class Robot(StudentAPI):
                 + ", ".join(valid_params))
 
     def _check_read_params(self, uid, param):
+        """Check that ``param`` is supported by ``uid``."""
         device_type = uid >> 72
         valid_params = self.deviceName_to_readParams[SENSOR_TYPE[device_type]]
         if param not in valid_params:
@@ -187,6 +200,7 @@ class Robot(StudentAPI):
                 + ", ".join(valid_params))
 
     def _check_value(self, param, value):
+        """Check that a value is valid for a parameter."""
         valid_values = self.param_to_valid_values[param]
         if not isinstance(value, valid_values[0]):
             raise StudentAPIValueError(
@@ -242,10 +256,12 @@ class Robot(StudentAPI):
             raise e # pylint: disable=raising-bad-type
 
     def emergency_stop(self):
+        """Stop the robot."""
         self.to_manager.put([SM_COMMANDS.EMERGENCY_STOP, []])
 
     def _print(self, *args, sep=' ', end='\n', file=None, flush=False):
-        # Handle advanced usage of "print"
+
+        """Handle advanced usage of ``print``."""
         if file is not None:
             return print(*args, sep=sep, end=end, file=file, flush=flush)
 
@@ -254,13 +270,16 @@ class Robot(StudentAPI):
         return print(*args, sep=sep, end=end, flush=flush)
 
     def _send_prints(self):
+        """Send console messages to dawn."""
         console_string = self._stdout_buffer.getvalue()
         if console_string:
             self._stdout_buffer = io.StringIO()
             self.to_manager.put([SM_COMMANDS.SEND_CONSOLE, [console_string]])
 
     def hibike_write_value(self, uid, params):
+        """Writes parameters to ``uid``."""
         self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])
 
     def get_gamecode(self):
+        """Get a gamecode."""
         return self._get_sm_value("gamecode")

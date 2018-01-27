@@ -1,3 +1,5 @@
+"""Emulate an instance of Dawn."""
+
 import socket
 import threading
 import queue
@@ -14,6 +16,7 @@ dawn_hz = 100
 
 
 def dawn_packager():
+    """Create a sample Dawn message."""
     proto_message = ansible_pb2.DawnData()
     proto_message.student_code_status = ansible_pb2.DawnData.TELEOP
     test_gamepad = proto_message.gamepads.add()
@@ -24,6 +27,7 @@ def dawn_packager():
 
 
 def sender(port, send_queue):
+    """Send a sample dawn message on ``port``."""
     host = '127.0.0.1'
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
         while True:
@@ -35,6 +39,7 @@ def sender(port, send_queue):
 
 
 def receiver(port, receive_queue):
+    """Receive messages on port to receive queue."""
     host = '127.0.0.1'
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.bind((host, recv_port))
@@ -45,6 +50,7 @@ def receiver(port, receive_queue):
         receive_queue[0] = msg
 
 def add_timestamps(msgqueue):
+    """Add timestamp messages to ``msgqueue``."""
     for i in range(10):
         msg = notification_pb2.Notification()
         msg.header = notification_pb2.Notification.TIMESTAMP_DOWN
@@ -54,6 +60,7 @@ def add_timestamps(msgqueue):
     return msgqueue
 
 def tcp_relay(port, msgqueue=queue.Queue()):
+    """Sends and receives messages on ``port``."""
     host = '127.0.0.1'
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

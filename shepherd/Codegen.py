@@ -237,7 +237,7 @@ def _helper_generate_potentially_unsafe_code(rand, func_distrib, bijective_funcs
         return 0
 
     bijective_digit = 0 # Use the fallback by default
-    if not bijective_funcs_distr.empty():
+    if bijective_funcs_distr:
         bijective_digit = _helper_pick_random(rand.uniform(0, 1), bijective_funcs_distr)
 
     # Randomly generate the remaining digits

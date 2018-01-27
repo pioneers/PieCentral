@@ -13,7 +13,6 @@ class Actions:
     async def sleep(seconds):
         await asyncio.sleep(seconds)
 
-
 class StudentAPI:
     def __init__(self, toManager, fromManager):
         self.from_manager = fromManager
@@ -230,6 +229,7 @@ class Robot(StudentAPI):
         """Uses direct uid to access hibike."""
         self.to_manager.put([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])
 
+    # pylint: disable=inconsistent-return-statements
     def _hibike_get_uid(self, name):
         try:
             # TODO: Implement sensor mappings, right now uid is the number (or string of number)

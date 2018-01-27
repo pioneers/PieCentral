@@ -12,6 +12,8 @@ FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
 PROTO_DIR=$PIECENTRAL_DIR/ansible-protos
 BUILD_DIR=$FRANKFURTER_DIR/build
 TMP_DIR=$BUILD_DIR/tmp
+DOC_DIR=$TMP_DIR/docs
+HTML_DOC=https://raw.githubusercontent.com/pioneers/website-robot-api/master/robot_api.html
 
 if [ -d "$BUILD_DIR" ]; then
     echo "Cleaning old builds ... "
@@ -22,6 +24,17 @@ else
 fi
 mkdir -p $TMP_DIR
 echo "Done."
+
+if [ -d "$DOC_DIR" ]; then
+    echo "Cleaning old documentation ... "
+    rm -rf $DOC_DIR/*
+else
+    echo "Making doc directory"
+    mkdir $DOC_DIR
+fi
+
+echo "downloading documentation"
+wget $HTML_DOC -P $DOC_DIR
 
 # Copy hibike and runtime
 cp -R $PIECENTRAL_DIR/hibike $TMP_DIR

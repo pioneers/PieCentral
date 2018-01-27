@@ -162,6 +162,32 @@ function* openFile(action) {
   }
 }
 
+function* dragFile(action) {
+  const result = yield select(editorSavedState);
+  let res = 1; // Refers to unsavedDialog choices
+  if (result.code !== result.savedCode) {
+    res = yield call(unsavedDialog, 'open');
+    if (res === 0) {
+      yield* saveFile({
+        type: 'SAVE_FILE',
+        saveAs: false,
+      });
+    }
+  }
+
+  if (res === 0 || res === 1) {
+    try {
+      const { filepath } = action;
+      const data = yield cps(fs.readFile, filepath, 'utf8');
+      yield put(openFileSucceeded(data, filepath));
+    } catch (e) {
+      logging.log('Failure to Drag File In');
+    }
+  } else {
+    logging.log('Drag File Operation Canceled');
+  }
+}
+
 /**
  * This saga acts as a "heartbeat" to check whether we are still receiving
  * updates from Runtime.
@@ -528,6 +554,10 @@ function* handleFieldControl() {
   }
 }
 
+function timestampBounceback() {
+  ipcRenderer.send('TIMESTAMP_SEND');
+}
+
 
 /**
  * The root saga combines all the other sagas together into one.
@@ -536,12 +566,14 @@ export default function* rootSaga() {
   yield all([
     takeEvery('OPEN_FILE', openFile),
     takeEvery('SAVE_FILE', saveFile),
+    takeEvery('DRAG_FILE', dragFile),
     takeEvery('CREATE_NEW_FILE', openFile),
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     takeEvery('RESTART_RUNTIME', restartRuntime),
     takeEvery('DOWNLOAD_CODE', downloadStudentCode),
     takeEvery('NOTIFICATION_SENT', tcpConfirmation),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
+    takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),
     fork(ansibleSaga),

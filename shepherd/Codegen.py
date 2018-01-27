@@ -674,14 +674,13 @@ def _debug_random_sample(sample_size, regenerate_rfids=False, seed=0):
     total = 0
     for i in range(0, 9):
         count[i] = 0
-    need_cg = True
+    cg = None
     rng = random.Random(seed)
     timer_begin = time.time()
     for i in range(0, sample_size):
-        if regenerate_rfids or need_cg:
+        if regenerate_rfids or cg is None:
             rfids = [rng.randint(0, 999999999999999) for _ in range(0, 5)]
             cg = Codegen(rfids, rng.randint(0, 999999999999999))
-            need_cg = False
         code = cg.generate_challenge().get_code()
         if i % (sample_size // 10) == 0:
             print(code)

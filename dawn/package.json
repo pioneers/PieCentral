@@ -15,7 +15,7 @@
     "lint": "eslint .",
     "watch": "webpack --watch --progress",
     "test": "mocha --compilers js:babel-core/register --recursive renderer/**/test/*.test.js",
-    "release": "node release.js --prod"
+    "release": "node release.js"
   },
   "betterScripts": {
     "start": {
@@ -59,7 +59,7 @@
     "bufferutil": "3.0.3",
     "circular-json": "0.5.1",
     "create-react-class": "15.6.2",
-    "electron": "1.7.10",
+    "electron": "1.7.11",
     "electron-json-storage": "4.0.2",
     "immutable": "3.8.2",
     "json-loader": "0.5.7",

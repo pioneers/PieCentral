@@ -44,12 +44,6 @@ class Codegen:
         `rand_seed` is used to seed the random number generator, to
         allow reproducable tests and bugs. If None, no specific seed
         is used
-
-        `func_distrib` is a map where the keys are digits and the values
-        is the weight for that digit be picked whenever we need
-        to pick a digit to use randomly. There is no need for
-        the total weights to add up to one. If `func_distrib` is None,
-        then a uniform distribution is used by default.
         '''
 
         # Seed our local RNG
@@ -64,7 +58,9 @@ class Codegen:
         # True iff the given function is bijective over the given RFID domain
         self._is_bijective = {}
 
-        # Apply every function to every rfid. This allows us to
+        # Apply every function to every rfid. This precomputation step
+        # allows us to memoize the potentially expensive example solutions for the
+        # student functions.
         for i in self._decode_precompute:
             outputs = set()
             bijective = True
@@ -80,6 +76,13 @@ class Codegen:
         '''
         Generate a Challenge instance to use during the competition for a
         single code.
+
+        `func_distrib` is a map where the keys are digits and the values
+        is the weight for that digit be picked whenever we need
+        to pick a digit to use randomly. There is no need for
+        the total weights to add up to one. If `func_distrib` is None,
+        then a uniform distribution is used by default.
+
         >>> cg = Codegen([1234, 2345, 3456], 0)
         >>> c0 = cg.generate_challenge(20) # 20 digit code
         >>> c0.check_solution(c0.get_solution(1234))
@@ -629,7 +632,9 @@ def staff_decode_precompute(rfids):
     applied_map = {} # Precomputation to use for speeding up staff_decode calls
     func_map = get_function_mapping()
 
-    # Apply every function to every rfid. This allows us to
+    # Apply every function to every rfid. This precomputation step
+    # allows us to memoize the potentially expensive example solutions for the
+    # student functions.
     for i in func_map:
         applied_map[i] = {}
         for rfid in rfids:

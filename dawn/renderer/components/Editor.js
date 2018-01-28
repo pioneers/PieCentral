@@ -136,7 +136,7 @@ class Editor extends React.Component {
           { value: 'max', score: 1000, meta: 'Python3' },
           { value: 'min', score: 1000, meta: 'Python3' },
           { value: 'async', score: 1000, meta: 'Python3' },
-          { value: 'lamda', score: 1000, meta: 'Python3' },
+          { value: 'lambda', score: 1000, meta: 'Python3' },
           { value: 'for', score: 1000, meta: 'Python3' },
           { value: 'while', score: 1000, meta: 'Python3' },
           { value: 'True', score: 1000, meta: 'Python3' },

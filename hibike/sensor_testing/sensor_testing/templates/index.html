@@ -92,6 +92,16 @@
                 });
             }
 
+            function readSliderValue(displayId, sliderId) {
+                var slider = document.getElementById(sliderId);
+                var displayBox = document.getElementById(displayId);
+                if (slider === null || displayBox === null) {
+                    alert("readSliderValue couldn't find slider or div");
+                    return;
+                }
+                displayBox.innerHTML = slider.value;
+            }
+
             setInterval(updateAll, 1000);
         </script>
         <button onclick="disableAll()">Disable All Devices</button>
@@ -113,6 +123,9 @@
                     {% if param.writeable %}
                         {% if param.type == "bool" %}
                     <input type="checkbox" id="dev-{{ device.uid }}-{{ param.name }}" />
+                        {% elif param.type == "float" or param.type == "double" %}
+                    <div id="slider-value-{{ device.uid }}-{{ param.name }}">0</div>
+                    <input type="range" min="-1" max="1" step="0.05" value="0" id="dev-{{ device.uid }}-{{ param.name }}" onchange="readSliderValue('slider-value-{{ device.uid }}-{{ param.name }}', 'dev-{{ device.uid }}-{{ param.name }}')" />
                         {% else %}
                     <input type="text" size="5" id="dev-{{ device.uid }}-{{ param.name }}" />
                         {% endif %}

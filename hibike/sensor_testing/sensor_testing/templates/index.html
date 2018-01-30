@@ -66,6 +66,7 @@
             function readWriteableParam(uid, paramName, paramType) {
                 $.getJSON("/devices/" + uid + "/" + paramName, (data) => {
                     var elem = document.querySelector("#dev-" + uid + "-" + paramName);
+                    var sliderLabel = document.querySelector("#slider-value-" + uid + "-" + paramName);
                     if (elem === null) {
                         alert("Tried to read nonexistent parameter: " + paramType);
                         return;
@@ -75,6 +76,9 @@
                         elem.checked = value;
                     } else {
                         elem.value = value;
+                    }
+                    if (elem.type === "range") {
+                        sliderLabel.innerHTML = value;
                     }
                 });
             }

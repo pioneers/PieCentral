@@ -46,6 +46,7 @@ def main_interface():
             param.writeable = hibike_message.writable(dev_id, param_name)
             param.readable = hibike_message.readable(dev_id, param_name)
             params_list.append(param)
+        params_list.sort(key=lambda p: p.name)
         device = namedtuple("Device", ("uid", "params", "name"))
         device.uid = uid
         device.params = params_list

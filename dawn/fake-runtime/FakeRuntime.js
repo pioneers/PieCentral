@@ -85,7 +85,10 @@ class FakeRuntime {
         sensor('MOTOR_SCALAR', 'MS2', [param('Val', 'float', randomFloat(-100, 100))], '101'),
         sensor('LimitSwitch', 'LS1', [param('Val', 'int', Math.round(randomFloat(0, 1)))], '102'),
         sensor('SENSOR_SCALAR', 'SS1', [param('Val', 'float', randomFloat(-100, 100))], '103'),
-        sensor('SENSOR_SCALAR', 'SS2', [param('Val', 'float', randomFloat(-100, 100))], '104'),
+        sensor('SENSOR_SCALAR', 'SS2', [
+          param('Val 1', 'float', randomFloat(-100, 100)),
+          param('Val 2', 'float', randomFloat(-100, 100)),
+          param('Val 3', 'float', randomFloat(-100, 100))], '104'),
         sensor('SENSOR_BOOLEAN', 'SB1', [param('Val', 'bool', Math.random() < 0.5)], '105'),
 
         // Special Cases handled in dawn/renderer/reducers/peripherals.js

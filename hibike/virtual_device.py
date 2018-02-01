@@ -78,7 +78,7 @@ def main():
                              ("pid_pos_kd", 5.0), ("pid_vel_setpoint", 6.0), ("pid_vel_kp", 7.0),
                              ("pid_vel_ki", 8.0), ("pid_vel_kd", 9.0), ("current_thresh", 10.0),
                              ("enc_pos", 11.0), ("enc_vel", 12.0), ("motor_current", 13.0),
-                             ("deadband", 0.5), ("error_state", False)]
+                             ("deadband", 0.5)]
     if device == "RFID":
         subscribed_params = []
         params_and_values = [("id", 0), ("tag_detect", 0)]

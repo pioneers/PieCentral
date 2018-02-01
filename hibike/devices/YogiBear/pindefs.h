@@ -8,8 +8,8 @@
 #define INA 			16
 #define INB 			10
 #define PWM 			9
-#define enable_pin 		14
-#define enableAnalog 	A0
+#define enable_pin 		21
+#define enableAnalog 	A3
 #define current_pin 	8
 #define LED_RED 		4
 #define LED_YELLOW 		5

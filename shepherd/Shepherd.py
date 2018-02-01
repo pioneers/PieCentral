@@ -228,7 +228,7 @@ def powerup_application(args):
     index = CodeGen.check_code(args[2], curr_rfids)
     if index == -1:
         lcm_send(LCM_TARGETS.SENSORS,
-                         SENSOR_HEADER.FAILED_POWERUP, alliance)
+                 SENSOR_HEADER.FAILED_POWERUP, alliance)
         return
     if game_state == STATE.AUTO:
         alliance.increment_multiplier()

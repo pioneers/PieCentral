@@ -1,11 +1,10 @@
 #!/bin/bash
+# THIS FILE ASSUMES YOU HAVE HOMEBREW AND X-CODE INSTALLED ON YOUR MAC.
 
 if [[ "$(id -u)" == "0" ]]; then
     echo "Please run without sudo permissions."
     exit 1
 fi
-
-#curl "https://downloads.arduino.cc/arduino-1.8.1-linux64.tar.xz" | sudo tar -xJf - -C /opt
 
 deps=("make" "gcc" "gcc-avr" "arduino-mk" "python3-pip")
 

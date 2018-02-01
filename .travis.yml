@@ -12,6 +12,7 @@ env:
 cache:
   pip: true
   directories:
+    - node_modules
     - $HOME/.cache/yarn
 before_install:
   - nvm install --lts

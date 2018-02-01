@@ -33,7 +33,7 @@ import ConsoleOutput from './ConsoleOutput';
 import TooltipButton from './TooltipButton';
 import { pathToName, robotState, defaults, timings, logging, windowInfo } from '../utils/utils';
 
-const dialog = remote.dialog;
+const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
 
 class Editor extends React.Component {
@@ -86,7 +86,7 @@ class Editor extends React.Component {
     this.copyConsole = this.copyConsole.bind(this);
     this.state = {
       consoleHeight: windowInfo.CONSOLESTART,
-      editorHeight: 0,
+      editorHeight: 0, // Filled in later during componentDidMount
       mode: robotState.TELEOP,
       modeDisplay: robotState.TELEOPSTR,
       simulate: false,
@@ -97,7 +97,59 @@ class Editor extends React.Component {
    * Confirmation Dialog on Quit, Stored Editor Settings, Window Size-Editor Re-render
    */
   componentDidMount() {
-    this.CodeEditor.editor.setOption('enableBasicAutocompletion', true);
+    this.CodeEditor.editor.setOptions({
+      enableBasicAutocompletion: true,
+      enableSnippets: true,
+      enableLiveAutocompletion: true,
+    });
+    const autoComplete = {
+      getCompletions(editor, session, pos, prefix, callback) {
+        callback(null, [
+          { value: 'Robot', score: 1000, meta: 'PiE API' },
+          { value: 'get_value', score: 900, meta: 'PiE API' },
+          { value: 'set_value', score: 900, meta: 'PiE API' },
+          { value: 'run', score: 900, meta: 'PiE API' },
+          { value: 'is_running', score: 900, meta: 'PiE API' },
+          { value: 'Gamepad', score: 1000, meta: 'PiE API' },
+          { value: 'Actions', score: 1000, meta: 'PiE API' },
+          { value: 'sleep', score: 900, meta: 'PiE API' },
+          { value: '"button_a"', score: 900, meta: 'PiE API' },
+          { value: '"button_b"', score: 900, meta: 'PiE API' },
+          { value: '"button_x"', score: 900, meta: 'PiE API' },
+          { value: '"button_y"', score: 900, meta: 'PiE API' },
+          { value: '"l_bumper"', score: 900, meta: 'PiE API' },
+          { value: '"r_bumper"', score: 900, meta: 'PiE API' },
+          { value: '"l_trigger"', score: 900, meta: 'PiE API' },
+          { value: '"r_trigger"', score: 900, meta: 'PiE API' },
+          { value: '"button_back"', score: 900, meta: 'PiE API' },
+          { value: '"button_start"', score: 900, meta: 'PiE API' },
+          { value: '"l_stick"', score: 900, meta: 'PiE API' },
+          { value: '"r_stick"', score: 900, meta: 'PiE API' },
+          { value: '"dpad_up"', score: 900, meta: 'PiE API' },
+          { value: '"dpad_down"', score: 900, meta: 'PiE API' },
+          { value: '"dpad_left"', score: 900, meta: 'PiE API' },
+          { value: '"dpad_right"', score: 900, meta: 'PiE API' },
+          { value: '"button_xbox"', score: 900, meta: 'PiE API' },
+          { value: 'def', score: 1000, meta: 'Python3' },
+          { value: 'await', score: 1000, meta: 'Python3' },
+          { value: 'print', score: 1000, meta: 'Python3' },
+          { value: 'max', score: 1000, meta: 'Python3' },
+          { value: 'min', score: 1000, meta: 'Python3' },
+          { value: 'async', score: 1000, meta: 'Python3' },
+          { value: 'lambda', score: 1000, meta: 'Python3' },
+          { value: 'for', score: 1000, meta: 'Python3' },
+          { value: 'while', score: 1000, meta: 'Python3' },
+          { value: 'True', score: 1000, meta: 'Python3' },
+          { value: 'False', score: 1000, meta: 'Python3' },
+          { value: 'abs', score: 1000, meta: 'Python3' },
+          { value: 'len', score: 1000, meta: 'Python3' },
+          { value: 'round', score: 1000, meta: 'Python3' },
+          { value: 'set()', score: 1000, meta: 'Python3' },
+        ]);
+      },
+    };
+    this.CodeEditor.editor.completers = [autoComplete];
+
     this.onWindowResize();
     storage.get('editorTheme', (err, data) => {
       if (err) {
@@ -118,6 +170,15 @@ class Editor extends React.Component {
 
     window.addEventListener('beforeunload', this.beforeUnload);
     window.addEventListener('resize', this.onWindowResize, { passive: true });
+    window.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      return false;
+    });
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      this.props.onDragFile(e.dataTransfer.files[0].path);
+      return false;
+    });
   }
 
   componentWillUnmount() {
@@ -130,10 +191,10 @@ class Editor extends React.Component {
     this.setState({ editorHeight: this.getEditorHeight() });
   }
 
-  getEditorHeight(windowHeight) {
+  getEditorHeight() {
     const windowNonEditorHeight = windowInfo.NONEDITOR +
       (this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
-    return `${String(windowHeight - windowNonEditorHeight)}px`;
+    return `${String(window.innerHeight - windowNonEditorHeight)}px`;
   }
 
   beforeUnload(event) {
@@ -167,11 +228,11 @@ class Editor extends React.Component {
   toggleConsole() {
     this.props.toggleConsole();
     // Resize since the console overlaps with the editor, but enough time for console changes
-    setTimeout(() => this.CodeEditor.editor.resize(), 0.1);
+    setTimeout(() => this.onWindowResize(), 0.01);
   }
 
   upload() {
-    const filepath = this.props.filepath;
+    const { filepath } = this.props;
     if (filepath === '') {
       this.props.onAlertAdd(
         'Not Working on a File',
@@ -207,9 +268,11 @@ class Editor extends React.Component {
   }
 
   stopRobot() {
-    this.setState({ simulate: false,
+    this.setState({
+      simulate: false,
       modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
-        robotState.AUTOSTR : robotState.TELEOPSTR });
+        robotState.AUTOSTR : robotState.TELEOPSTR,
+    });
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
@@ -257,8 +320,7 @@ class Editor extends React.Component {
             this.setState({ modeDisplay: `Cooldown: ${timings.IDLE - diff}` });
           }
         }, timings.SEC);
-      }),
-    ).then(() => {
+      })).then(() => {
       new Promise((resolve, reject) => {
         logging.log(`Beginning ${timings.TELEOP}s ${robotState.TELEOPSTR}`);
         this.props.onUpdateCodeStatus(robotState.TELEOP);
@@ -306,13 +368,13 @@ class Editor extends React.Component {
 
   raiseConsole() {
     this.setState({ consoleHeight: this.state.consoleHeight + windowInfo.UNIT }, () => {
-      this.CodeEditor.editor.resize();
+      this.onWindowResize();
     });
   }
 
   lowerConsole() {
     this.setState({ consoleHeight: this.state.consoleHeight - windowInfo.UNIT }, () => {
-      this.CodeEditor.editor.resize();
+      this.onWindowResize();
     });
   }
 
@@ -330,192 +392,196 @@ class Editor extends React.Component {
   render() {
     const changeMarker = this.hasUnsavedChanges() ? '*' : '';
     return (
-      <Panel
-        bsStyle="primary"
-        header={
-          <span style={{ fontSize: '14px' }}>
-            Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}
-          </span>
-        }
-      >
-        <ButtonToolbar>
-          <ButtonGroup id="file-operations-buttons">
-            <DropdownButton
-              title="File"
-              bsSize="small"
-              id="choose-theme"
-            >
-              <MenuItem
-                onClick={this.props.onCreateNewFile}
-              >New File</MenuItem>
-              <MenuItem
-                onClick={this.props.onOpenFile}
-              >Open</MenuItem>
-              <MenuItem
-                onClick={this.props.onSaveFile}
-              >Save</MenuItem>
-              <MenuItem
-                onClick={_.partial(this.props.onSaveFile, true)}
-              >Save As</MenuItem>
-            </DropdownButton>
-            <TooltipButton
-              id="upload"
-              text="Upload"
-              onClick={this.upload}
-              glyph="upload"
-              disabled={false}
-            />
-            <TooltipButton
-              id="download"
-              text="Download from Robot"
-              onClick={this.props.onDownloadCode}
-              glyph="download"
-              disabled={!this.props.runtimeStatus || this.props.ipAddress === defaults.IPADDRESS}
-            />
-          </ButtonGroup>
-          <ButtonGroup id="code-execution-buttons">
-            <TooltipButton
-              id="run"
-              text="Run"
-              onClick={this.startRobot}
-              glyph="play"
-              disabled={this.props.isRunningCode
-              || !this.props.runtimeStatus
-              || this.props.fieldControlActivity}
-            />
-            <TooltipButton
-              id="stop"
-              text="Stop"
-              onClick={this.stopRobot}
-              glyph="stop"
-              disabled={!(this.props.isRunningCode || this.state.simulate)}
-            />
-            <DropdownButton
-              title={this.state.modeDisplay}
-              bsSize="small"
-              key="dropdown"
-              id="modeDropdown"
-              disabled={this.state.simulate
-              || this.props.fieldControlActivity
-              || !this.props.runtimeStatus}
-            >
-              <MenuItem
-                eventKey="1"
-                active={this.state.mode === robotState.TELEOP && !this.state.simulate}
-                onClick={() => {
-                  this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
-                }}
-              >Tele-Operated</MenuItem>
-              <MenuItem
-                eventKey="2"
-                active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
-                onClick={() => {
-                  this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
-                }}
-              >Autonomous</MenuItem>
-              <MenuItem
-                eventKey="3"
-                active={this.state.simulate}
-                onClick={this.simulateCompetition}
-              >Simulate Competition</MenuItem>
-            </DropdownButton>
-            <TooltipButton
-              id="e-stop"
-              text="E-STOP"
-              onClick={this.estop}
-              glyph="fire"
-              disabled={false}
-            />
-          </ButtonGroup>
-          <ButtonGroup id="console-buttons">
-            <TooltipButton
-              id="toggle-console"
-              text="Toggle Console"
-              onClick={this.toggleConsole}
-              glyph="console"
-              disabled={false}
-            />
-            <TooltipButton
-              id="clear-console"
-              text="Clear Console"
-              onClick={this.props.onClearConsole}
-              glyph="remove"
-              disabled={false}
-            />
-            <TooltipButton
-              id="raise-console"
-              text="Raise Console"
-              onClick={this.raiseConsole}
-              glyph="arrow-up"
-              disabled={this.state.consoleHeight > windowInfo.CONSOLEMAX}
-            />
-            <TooltipButton
-              id="lower-console"
-              text="Lower Console"
-              onClick={this.lowerConsole}
-              glyph="arrow-down"
-              disabled={this.state.consoleHeight < windowInfo.CONSOLEMIN}
-            />
-            <TooltipButton
-              id="copy-console"
-              text="Copy Console"
-              onClick={this.copyConsole}
-              glyph="copy"
-              disabled={false}
-            />
-          </ButtonGroup>
-          <ButtonGroup id="editor-settings-buttons">
-            <TooltipButton
-              id="increase-font-size"
-              text="Increase font size"
-              onClick={this.increaseFontsize}
-              glyph="zoom-in"
-              disabled={this.props.fontSize > 28}
-            />
-            <TooltipButton
-              id="decrease-font-size"
-              text="Decrease font size"
-              onClick={this.decreaseFontsize}
-              glyph="zoom-out"
-              disabled={this.props.fontSize < 7}
-            />
-            <DropdownButton
-              title="Theme"
-              bsSize="small"
-              id="choose-theme"
-            >
-              {this.themes.map(theme => (
+      <Panel bsStyle="primary">
+        <Panel.Heading>
+          <Panel.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Panel.Title>
+        </Panel.Heading>
+        <Panel.Body>
+          <ButtonToolbar>
+            <ButtonGroup id="file-operations-buttons">
+              <DropdownButton
+                title="File"
+                bsSize="small"
+                id="choose-theme"
+              >
                 <MenuItem
-                  active={theme === this.props.editorTheme}
-                  onClick={_.partial(this.changeTheme, theme)}
-                  key={theme}
+                  onClick={this.props.onCreateNewFile}
+                >New File</MenuItem>
+                <MenuItem
+                  onClick={this.props.onOpenFile}
+                >Open</MenuItem>
+                <MenuItem
+                  onClick={this.props.onSaveFile}
+                >Save</MenuItem>
+                <MenuItem
+                  onClick={_.partial(this.props.onSaveFile, true)}
+                >Save As</MenuItem>
+              </DropdownButton>
+              <TooltipButton
+                id="upload"
+                text="Upload"
+                onClick={this.upload}
+                glyph="upload"
+                disabled={false}
+              />
+              <TooltipButton
+                id="download"
+                text="Download from Robot"
+                onClick={this.props.onDownloadCode}
+                glyph="download"
+                disabled={!this.props.runtimeStatus || this.props.ipAddress === defaults.IPADDRESS}
+              />
+            </ButtonGroup>
+            <ButtonGroup id="code-execution-buttons">
+              <TooltipButton
+                id="run"
+                text="Run"
+                onClick={this.startRobot}
+                glyph="play"
+                disabled={this.props.isRunningCode
+                || !this.props.runtimeStatus
+                || this.props.fieldControlActivity}
+              />
+              <TooltipButton
+                id="stop"
+                text="Stop"
+                onClick={this.stopRobot}
+                glyph="stop"
+                disabled={!(this.props.isRunningCode || this.state.simulate)}
+              />
+              <DropdownButton
+                title={this.state.modeDisplay}
+                bsSize="small"
+                key="dropdown"
+                id="modeDropdown"
+                disabled={this.state.simulate
+                || this.props.fieldControlActivity
+                || !this.props.runtimeStatus}
+              >
+                <MenuItem
+                  eventKey="1"
+                  active={this.state.mode === robotState.TELEOP && !this.state.simulate}
+                  onClick={() => {
+                    this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
+                  }}
                 >
-                  {theme}
+                  Tele-Operated
                 </MenuItem>
-              ))}
-            </DropdownButton>
-          </ButtonGroup>
-        </ButtonToolbar>
-        <AceEditor
-          mode="python"
-          theme={this.props.editorTheme}
-          width="100%"
-          fontSize={this.props.fontSize}
-          ref={(input) => { this.CodeEditor = input; }}
-          name="CodeEditor"
-          height={this.getEditorHeight(window.innerHeight)}
-          value={this.props.editorCode}
-          onChange={this.props.onEditorUpdate}
-          onPaste={Editor.onEditorPaste}
-          editorProps={{ $blockScrolling: Infinity }}
-        />
-        <ConsoleOutput
-          toggleConsole={this.toggleConsole}
-          show={this.props.showConsole}
-          height={this.state.consoleHeight}
-          output={this.props.consoleData}
-          disableScroll={this.props.disableScroll}
-        />
+                <MenuItem
+                  eventKey="2"
+                  active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
+                  onClick={() => {
+                    this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
+                  }}
+                >
+                  Autonomous
+                </MenuItem>
+                <MenuItem
+                  eventKey="3"
+                  active={this.state.simulate}
+                  onClick={this.simulateCompetition}
+                >
+                  Simulate Competition
+                </MenuItem>
+              </DropdownButton>
+              <TooltipButton
+                id="e-stop"
+                text="E-STOP"
+                onClick={this.estop}
+                glyph="fire"
+                disabled={false}
+              />
+            </ButtonGroup>
+            <ButtonGroup id="console-buttons">
+              <TooltipButton
+                id="toggle-console"
+                text="Toggle Console"
+                onClick={this.toggleConsole}
+                glyph="console"
+                disabled={false}
+              />
+              <TooltipButton
+                id="clear-console"
+                text="Clear Console"
+                onClick={this.props.onClearConsole}
+                glyph="remove"
+                disabled={false}
+              />
+              <TooltipButton
+                id="raise-console"
+                text="Raise Console"
+                onClick={this.raiseConsole}
+                glyph="arrow-up"
+                disabled={this.state.consoleHeight > windowInfo.CONSOLEMAX}
+              />
+              <TooltipButton
+                id="lower-console"
+                text="Lower Console"
+                onClick={this.lowerConsole}
+                glyph="arrow-down"
+                disabled={this.state.consoleHeight < windowInfo.CONSOLEMIN}
+              />
+              <TooltipButton
+                id="copy-console"
+                text="Copy Console"
+                onClick={this.copyConsole}
+                glyph="copy"
+                disabled={false}
+              />
+            </ButtonGroup>
+            <ButtonGroup id="editor-settings-buttons">
+              <TooltipButton
+                id="increase-font-size"
+                text="Increase font size"
+                onClick={this.increaseFontsize}
+                glyph="zoom-in"
+                disabled={this.props.fontSize > 28}
+              />
+              <TooltipButton
+                id="decrease-font-size"
+                text="Decrease font size"
+                onClick={this.decreaseFontsize}
+                glyph="zoom-out"
+                disabled={this.props.fontSize < 7}
+              />
+              <DropdownButton
+                title="Theme"
+                bsSize="small"
+                id="choose-theme"
+              >
+                {this.themes.map(theme => (
+                  <MenuItem
+                    active={theme === this.props.editorTheme}
+                    onClick={_.partial(this.changeTheme, theme)}
+                    key={theme}
+                  >
+                    {theme}
+                  </MenuItem>
+                ))}
+              </DropdownButton>
+            </ButtonGroup>
+          </ButtonToolbar>
+          <AceEditor
+            mode="python"
+            theme={this.props.editorTheme}
+            width="100%"
+            fontSize={this.props.fontSize}
+            ref={(input) => { this.CodeEditor = input; }}
+            name="CodeEditor"
+            height={this.state.editorHeight.toString()}
+            value={this.props.editorCode}
+            onChange={this.props.onEditorUpdate}
+            onPaste={Editor.onEditorPaste}
+            editorProps={{ $blockScrolling: Infinity }}
+          />
+          <ConsoleOutput
+            toggleConsole={this.toggleConsole}
+            show={this.props.showConsole}
+            height={this.state.consoleHeight}
+            output={this.props.consoleData}
+            disableScroll={this.props.disableScroll}
+          />
+        </Panel.Body>
       </Panel>
     );
   }
@@ -532,6 +598,7 @@ Editor.propTypes = {
   onAlertAdd: PropTypes.func.isRequired,
   onEditorUpdate: PropTypes.func.isRequired,
   onSaveFile: PropTypes.func.isRequired,
+  onDragFile: PropTypes.func.isRequired,
   onOpenFile: PropTypes.func.isRequired,
   onCreateNewFile: PropTypes.func.isRequired,
   onChangeTheme: PropTypes.func.isRequired,

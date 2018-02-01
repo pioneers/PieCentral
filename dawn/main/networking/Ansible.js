@@ -21,7 +21,7 @@ import { robotState, Logger, defaults } from '../../renderer/utils/utils';
 import LCMObject from './FieldControlLCM';
 
 const DawnData = (new protobuf.Root()).loadSync(`${__dirname}/ansible.proto`, { keepCase: true }).lookupType('DawnData');
-const StudentCodeStatus = DawnData.StudentCodeStatus;
+const { StudentCodeStatus } = DawnData;
 
 const RuntimeData = (new protobuf.Root()).loadSync(`${__dirname}/runtime.proto`, { keepCase: true }).lookupType('RuntimeData');
 const Notification = (new protobuf.Root()).loadSync(`${__dirname}/notification.proto`, { keepCase: true }).lookupType('Notification');
@@ -178,6 +178,7 @@ class SendSocket {
 class TCPSocket {
   constructor(socket, logger) {
     this.tryUpload = this.tryUpload.bind(this);
+    this.requestTimestamp = this.requestTimestamp.bind(this);
     this.logger = logger;
 
     this.socket = socket;
@@ -189,13 +190,18 @@ class TCPSocket {
 
     this.socket.on('data', (data) => {
       const decoded = Notification.decode(data);
-      this.logger.log('Dawn received TCP');
-      if (decoded.header === Notification.Type.STUDENT_RECEIVED) {
-        RendererBridge.reduxDispatch(notifyReceive());
-      } else if (decoded.header === Notification.Type.CONSOLE_LOGGING) {
-        RendererBridge.reduxDispatch(updateConsole(decoded.console_output));
-      } else {
-        this.logger.log(`${decoded.header}-**************************`);
+      this.logger.log(`Dawn received TCP Packet ${decoded.header}`);
+
+      switch (decoded.header) {
+        case Notification.Type.STUDENT_RECEIVED:
+          RendererBridge.reduxDispatch(notifyReceive());
+          break;
+        case Notification.Type.CONSOLE_LOGGING:
+          RendererBridge.reduxDispatch(updateConsole(decoded.console_output));
+          break;
+        case Notification.Type.TIMESTAMP_UP:
+          this.logger.log(`TIMESTAMP: ${_.toArray(decoded.timestamps)}`);
+          break;
       }
     });
 
@@ -205,15 +211,27 @@ class TCPSocket {
      * notifyChange sends received signal (see tcp, received variables)
      */
     ipcMain.on('NOTIFY_UPLOAD', this.tryUpload);
+
+    ipcMain.on('TIMESTAMP_SEND', this.requestTimestamp);
+  }
+
+  requestTimestamp() {
+    const TIME = Date.now() / 1000.0;
+    const message = Notification.encode(Notification.create({
+      header: Notification.Type.TIMESTAMP_DOWN,
+      timestamps: [TIME],
+    })).finish();
+
+    this.socket.write(message, () => {
+      this.logger.log(`Timestamp Requested: ${TIME}`);
+    });
   }
 
   tryUpload() {
-    const message = Notification.encode(
-      Notification.create({
-        header: Notification.Type.STUDENT_SENT,
-        console_output: '',
-      }),
-    ).finish();
+    const message = Notification.encode(Notification.create({
+      header: Notification.Type.STUDENT_SENT,
+      console_output: '',
+    })).finish();
 
     this.socket.write(message, () => {
       this.logger.log('Runtime Notified');

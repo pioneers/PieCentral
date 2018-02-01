@@ -26,11 +26,13 @@ const GamepadListComponent = (props) => {
       header="Gamepads"
       bsStyle="primary"
       id="gamepads-panel"
-      defaultExpanded
     >
-      <ListGroup fill style={{ marginBottom: '5px' }}>
-        {interior}
-      </ListGroup>
+      <Panel.Heading>Gamepads</Panel.Heading>
+      <Panel.Body style={{ padding: '0px' }}>
+        <ListGroup style={{ marginBottom: '5px' }}>
+          {interior}
+        </ListGroup>
+      </Panel.Body>
     </Panel>
   );
 };

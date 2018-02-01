@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { RIEInput } from 'riek';
 import _ from 'lodash';
 
+const NAME_REGEX = /^[A-Za-z][A-Za-z0-9]+$/;
 
 // TODO: Check Draft.js or other alternatives
 class NameEdit extends React.Component {
@@ -35,11 +36,12 @@ class NameEdit extends React.Component {
   }
 
   validatePeripheralName(name) {
-    const re = new RegExp('^[A-Za-z][A-Za-z0-9]+$');
-    const isValid = re.test(name);
+    const isValid = NAME_REGEX.test(name);
     const allCurrentPeripherals = _.toArray(this.props.peripherals);
-    const isDuplicate = _.some(allCurrentPeripherals,
-      peripheral => peripheral.name === name && peripheral.id !== this.props.id);
+    const isDuplicate = _.some(
+      allCurrentPeripherals,
+      peripheral => peripheral.name === name && peripheral.id !== this.props.id,
+    );
     return isValid && !isDuplicate;
   }
 

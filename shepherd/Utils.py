@@ -2,7 +2,7 @@
 class SHEPHERD_HEADER():
     GOAL_SCORE = "goal_score"
     GOAL_BID = "goal_bid"
-    CODE_INPUT = "code_input"
+    #CODE_INPUT = "code_input"
     POWERUP_APPLICATION = "powerup_application"
 
     START_MATCH = "start_match"
@@ -19,7 +19,7 @@ class SHEPHERD_HEADER():
 
 # pylint: disable=invalid-name
 class SENSOR_HEADER():
-    CODE_RESULT = "code_result"
+    #CODE_RESULT = "code_result"
     FAILED_POWERUP = "failed_powerup"
     CURRENT_BID = "current_bid"
 
@@ -34,6 +34,7 @@ class SCOREBOARD_HEADER():
     STAGE_TIMER_START = "stage_timer_start"
     POWERUPS = "powerups"
     ALLIANCE_MULTIPLIER = "alliance_multiplier"
+    RESET_TIMERS = "reset_timers"
 
 # pylint: disable=invalid-name
 class CONSTANTS():

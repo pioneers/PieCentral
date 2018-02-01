@@ -143,13 +143,21 @@ def reset(args=None):
     global game_state
     game_state = STATE.SETUP
     Timer.reset_all()
+    events = queue.Queue()
+    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.RESET_TIMERS)
     for alliance in alliances.values():
         if alliance is not None:
             alliance.reset()
             lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
                      [alliance.name, alliance.score])
+                     #alliance mul
     for goal in goals.values():
         goal.reset()
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.GOAL_OWNED,
+                 [goal.name, None])
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
+                 [goal.name,goal.current_bid_team,goal.current_bid])
+
     #TODO: Send reset info to scoreboard
 
     print("RESET MATCH, MOVE TO SETUP")

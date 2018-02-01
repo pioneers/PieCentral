@@ -486,6 +486,8 @@ class TCPClass(AnsibleHandler):
                     continue
                 if unpackaged_data.header == notification_pb2.Notification.STUDENT_SENT:
                     state_queue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
+                if unpackaged_data.header == notification_pb2.Notification.GAMECODE_TRANSMISSION:
+                    pass
         except ConnectionResetError:
             bad_things_queue.put(
                 BadThing(

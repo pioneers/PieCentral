@@ -47,8 +47,12 @@
 #
 # On the Mac you might want to set:
 #
-#   ARDUINO_DIR   = /Applications/Arduino.app/Contents/Resources/Java
-#   ARDMK_DIR     = /usr/local
+  # ARDUINO_DIR   = /Applications/Arduino.app/Contents/Java
+  # AVR_TOOLS_DIR = ${ARDUINO_DIR}/hardware/tools/avr
+  # AVRDUDE_CONF  = $(AVR_TOOLS_DIR)/etc/avrdude.conf
+  # AVRDUDE = ${AVR_TOOLS_DIR}/bin/avrdude
+  # MONITOR_PORT = /dev/tty.usbmodem*
+
 #
 # On Linux, you might prefer:
 #
@@ -397,9 +401,11 @@ ifndef NM_NAME
 NM_NAME      = avr-nm
 endif
 
+
 ifndef AVR_TOOLS_DIR
 
     BUNDLED_AVR_TOOLS_DIR := $(call dir_if_exists,$(ARDUINO_DIR)/hardware/tools/avr)
+
 
     ifdef BUNDLED_AVR_TOOLS_DIR
         AVR_TOOLS_DIR     = $(BUNDLED_AVR_TOOLS_DIR)
@@ -466,6 +472,7 @@ endif
 
 ARDUINO_LIB_PATH  = $(ARDUINO_DIR)/libraries
 $(call show_config_variable,ARDUINO_LIB_PATH,[COMPUTED],(from ARDUINO_DIR))
+
 
 # 1.5.x platform dependent libs path
 ifndef ARDUINO_PLATFORM_LIB_PATH

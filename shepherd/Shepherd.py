@@ -106,7 +106,7 @@ def to_wait(args):
     '''
     global game_state
     game_state = STATE.WAIT
-    #TODO: send message to dawn to disable robots
+    #TODO: send message to Dawn to disable robots
     print("ENTERING WAIT STATE")
 
 def to_teleop(args):
@@ -172,6 +172,7 @@ def flush_scores():
     '''
     Send scores to the spreadsheet for the current match
     '''
+    #TODO all of it
     pass
 
 
@@ -205,9 +206,6 @@ def goal_score(args):
     goal_name = args[1]
     goals.get(goal_name).score(alliances.get(alliance))
 
-    #TODO: Push score to scoreboard
-    pass
-
 def goal_bid(args):
     '''
     Update state for a goal being bid on and push information to scoreboard
@@ -217,8 +215,7 @@ def goal_bid(args):
     goal_name = args[1]
     goals.get(goal_name).bid(alliances.get(alliance))
 
-    #TODO: Push bid timer, bid amount, curr bid owner to scoreboard
-    pass
+    #TODO: Push bid timer, bid amount, curr bid owner to scoreboard (maybe this is done now??)
 
 def powerup_application(args):
     '''
@@ -244,8 +241,8 @@ def bid_complete(args):
     Update state when a bid timer ends and a bid is complete
     Update scoreboard and sensors with this information as well
     '''
-    
-    pass
+    goal_name = args[0]
+    goals.get(goal_name).set_owner(goals.get(goal_name).current_bid_team)
 
 ###########################################
 # Event to Function Mappings for each Stage

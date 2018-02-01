@@ -220,42 +220,24 @@ def goal_bid(args):
     #TODO: Push bid timer, bid amount, curr bid owner to scoreboard
     pass
 
-def code_input(args):
-    '''
-    Update state for a code being input, return information to sensors
-    to display result of code being decoded
-    '''
-    goal = goals.get(args[0])
-    alliance = alliances.get(args[1])
-    index = CodeGen.check_code(args[2], curr_rfids)
-    if index == -1:
-        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, alliance,
-                 "wrong")
-        return
-    if game_state == STATE.AUTO:
-        alliance.increment_multiplier()
-    elif game_state = STATE.TELEOP:
-        powerup = powerup_functions[index]
-        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, alliance,
-                 powerup)
-        #TODO check state
-    #TODO
-
 def powerup_application(args):
     '''
+    Update state for a code being input, return information to sensors
+    to display result of code being decoded.
     Apply a powerup to a goal. Does not need to say result.
     '''
     alliance = args[0]
     goal = goals.get(args[1])
     index = CodeGen.check_code(args[2], curr_rfids)
     if index == -1:
-        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, alliance,
-                 "wrong")
+        lcm_send(LCM_TARGETS.SENSORS,
+                         SENSOR_HEADER.FAILED_POWERUP, alliance)
         return
-    powerup = powerup_functions[index]
-    goal.apply_powerup(powerup, alliance)
-    #Fully incorporate code_input
-    #Start Timers, change goals
+    if game_state == STATE.AUTO:
+        alliance.increment_multiplier()
+    elif game_state = STATE.TELEOP:
+        powerup = powerup_functions[index]
+        goal.apply_powerup(powerup, alliance)
 
 def bid_complete(args):
     '''
@@ -272,16 +254,16 @@ def bid_complete(args):
 setup_functions = {
     SHEPHERD_HEADER.GENERATE_RFID : generate_rfids,
     SHEPHERD_HEADER.SETUP_MATCH: to_setup,
-    SHEPHERD_HEADER.START_NEXT_STAGE: to_auto,
+    SHEPHERD_HEADER.START_NEXT_STAGE: to_auto
 }
 
 auto_functions = {
     SHEPHERD_HEADER.GOAL_SCORE : goal_score,
     SHEPHERD_HEADER.GOAL_BID : goal_bid,
-    SHEPHERD_HEADER.CODE_INPUT : code_input,
     SHEPHERD_HEADER.BID_TIMER_END : bid_complete,
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.STAGE_TIMER_END : to_wait,
+    SHEPHERD_HEADER.POWERUP_APPLICATION : powerup_application
 }
 
 wait_functions = {
@@ -289,13 +271,12 @@ wait_functions = {
     SHEPHERD_HEADER.BID_TIMER_END : bid_complete,
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
-    SHEPHERD_HEADER.START_NEXT_STAGE : to_teleop,
+    SHEPHERD_HEADER.START_NEXT_STAGE : to_teleop
 }
 
 teleop_functions = {
     SHEPHERD_HEADER.GOAL_SCORE : goal_score,
     SHEPHERD_HEADER.GOAL_BID : goal_bid,
-    SHEPHERD_HEADER.CODE_INPUT : code_input,
     SHEPHERD_HEADER.BID_TIMER_END : bid_complete,
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.STAGE_TIMER_END : to_end,
@@ -305,7 +286,7 @@ teleop_functions = {
 end_functions = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
-    SHEPHERD_HEADER.SETUP_MATCH : to_setup,
+    SHEPHERD_HEADER.SETUP_MATCH : to_setup
 }
 
 ###########################################

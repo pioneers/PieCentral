@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -e
+source $(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env.sh
+ip="$usb_ip"
+
+usage="Run an executable on a Beaglebone remotely.\n\n"
+usage=$usage"Usage:\n"
+usage=$usage"$indent$(basename "$0") [-hvs] <executable>\n\n"
+usage=$usage"Options:\n"
+usage=$usage$indent"-h        Show this help message.\n"
+usage=$usage$indent"-v        Run this script in verbose mode.\n"
+usage=$usage$indent"-s        Run the executable on the remote as the superuser.\n"
+usage=$usage$indent"-u <user> Use the given user (default: $user).\n"
+usage=$usage$indent"-r <host> Use the given hostname (default: $ip)."
+
+ssh_flags='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t'
+use_sudo=''
+while getopts ":hvsu:r:" opt; do
+  case $opt in
+    h)
+      echo -e "$usage" >&2
+      exit
+      ;;
+    v) ssh_flags="$ssh_flags -v";;
+    s) use_sudo="sudo";;
+    u) user="$OPTARG";;
+    r) ip="$OPTARG";;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      echo -e "Use -h to see usage." >&2
+      ;;
+  esac
+done
+
+ssh-copy-id "$user@$ip"
+scp "${@: -1}" "$user@$ip:/tmp/exec"
+remote_cmd="chmod +x /tmp/exec && $use_sudo /tmp/exec && rm /tmp/exec"
+ssh $ssh_flags "$user@$ip" "$remote_cmd"

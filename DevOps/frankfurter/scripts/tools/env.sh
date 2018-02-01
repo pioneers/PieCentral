@@ -17,12 +17,10 @@ else
   tmp_dir=$(pwd)
 fi
 
-ifs=%
+ifs=%  # Disable whitespace truncation
 indent='  '
 
 error="\e[1;31m"    # Bold red
 warning="\e[1;33m"  # Bold yellow
 success="\e[1;32m"  # Bold green
 clear="\e[0m"
-
-alias ssh='ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t'

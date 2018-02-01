@@ -9,20 +9,23 @@ usage=$usage"Usage:\n"
 usage=$usage"$indent$(basename "$0") [-hvs] <executable>\n\n"
 usage=$usage"Options:\n"
 usage=$usage$indent"-h        Show this help message.\n"
-usage=$usage$indent"-v        Run this script in verbose mode.\n"
+usage=$usage$indent"-q        Run this script in quiet mode.\n"
 usage=$usage$indent"-s        Run the executable on the remote as the superuser.\n"
 usage=$usage$indent"-u <user> Use the given user (default: $user).\n"
 usage=$usage$indent"-r <host> Use the given hostname (default: $ip)."
 
 ssh_flags='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -t'
+output='/dev/stdout'
 use_sudo=''
-while getopts ":hvsu:r:" opt; do
+while getopts ":hqsu:r:" opt; do
   case $opt in
     h)
       echo -e "$usage" >&2
       exit
       ;;
-    v) ssh_flags="$ssh_flags -v";;
+    q)
+      output=/dev/null
+      ;;
     s) use_sudo="sudo";;
     u) user="$OPTARG";;
     r) ip="$OPTARG";;
@@ -33,7 +36,7 @@ while getopts ":hvsu:r:" opt; do
   esac
 done
 
-ssh-copy-id "$user@$ip"
-scp "${@: -1}" "$user@$ip:/tmp/exec"
+ssh-copy-id "$user@$ip" 2>$output
+scp "${@: -1}" "$user@$ip:/tmp/exec" >$output
 remote_cmd="chmod +x /tmp/exec && $use_sudo /tmp/exec && rm /tmp/exec"
-ssh $ssh_flags "$user@$ip" "$remote_cmd"
+ssh $ssh_flags "$user@$ip" "$remote_cmd" 2>$output

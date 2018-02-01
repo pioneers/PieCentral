@@ -8,6 +8,8 @@ import inspect
 import io
 
 from runtimeUtil import *
+from StudentCode import next_power, reverse_digits, smallest_prime_fact, double_caesar_cipher, \
+						silly_base_two, most_common_digit, valid_isbn_ten, simd_four_squareode
 
 
 class Actions:
@@ -280,6 +282,70 @@ class Robot(StudentAPI):
         """Writes parameters to ``uid``."""
         self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])
 
-    def get_gamecode(self):
+    def _get_gamecode(self):
         """Get a gamecode."""
         return self._get_sm_value("gamecode")
+
+    def decode_message(self, rfid_seed):
+        """Method for 2018 Game: Solar Scramble
+        
+        This method will use the students functions to decode a message,
+        and display the solution to Dawn
+
+        This function takes in a RFID tag and returns 
+        True on success, False on error"""
+	    def identity(x):
+	        '''
+	        Used only in the (hopefully) rare event that none of the other
+	        functions are bijections with a given domain of RFIDs
+	        '''
+	        return x
+	    
+	    def limit_input_to(limit):
+	        '''Generate a function to limit size of inputs'''
+	        def retval(input_val):
+	            while input_val > limit:
+	                input_val = (input_val % limit) + (input_val // limit)
+	            return input_val
+	        return retval
+
+	    def compose_funcs(func_a, func_b):
+	        '''
+	        Composes two single-input functions together, A(B(x))
+	        '''
+	        def composed(input_x):
+	            return func_a(func_b(input_x))
+	        return composed
+	    
+	    challenge_code = _get_gamecode()
+	    check_challenge_code = self._get_sm_value("gamecode_check")
+	    func_map = {}
+	    func_map[0] = identity
+	    func_map[1] = next_power
+	    func_map[2] = reverse_digits
+	    func_map[3] = compose_funcs(smallest_prime_fact, limit_input_to(1000000))
+	    func_map[4] = double_caesar_cipher
+	    func_map[5] = silly_base_two
+	    func_map[6] = most_common_digit
+	    func_map[7] = valid_isbn_ten
+	    func_map[8] = simd_four_square
+
+	    code = challenge_code
+	    output = ''
+	    while code > 0:
+	        digit = code % 10
+	        code //= 10
+	 
+	        result = func_map[digit](rfid_seed)
+
+	        output += '555' + str(result)
+
+	    solution = int(output)
+
+	    try:
+	    	solution_index = check_challenge_code.index(solution)
+	    	self.to_manager.put([SM_COMMANDS.SET_VAL, [solution, ["hibike", "devices", solution_index % 3]]])
+	    	return True
+	    except:
+	    	return False
+

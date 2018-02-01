@@ -198,13 +198,13 @@ def generate_rfids(args):
     numbers = rfids.readlines()
     for i in numbers:
         i = i.strip()
-        rfid_list.append(i)
-    return_value = []
+        rfid_list.append(int(i))
+    rfids = []
     for i in range(6):
         temp = random.choice(rfid_list)
         rfid_list.remove(temp)
-        return_value.append(temp)
-    return return_value
+        rfids.append(temp)
+    curr_rfids = rfids
 
 def goal_score(args):
     '''

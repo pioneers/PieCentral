@@ -346,5 +346,5 @@ class Robot(StudentAPI):
             self.to_manager.put([SM_COMMANDS.SET_VAL,
                                  [solution, ["hibike", "devices", solution_index % 3, "code"]]])
             return True
-        except:
+        except ValueError:
             return False

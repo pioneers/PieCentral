@@ -37,6 +37,10 @@ class SCOREBOARD_HEADER():
     RESET_TIMERS = "reset_timers"
 
 # pylint: disable=invalid-name
+class GUI_HEADER():
+    SEND_RFIDS = "send_rfids"
+
+# pylint: disable=invalid-name
 class CONSTANTS():
     AUTO_TIME = 30
     TELEOP_TIME = 180

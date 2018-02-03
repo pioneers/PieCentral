@@ -44,7 +44,7 @@ class Alliance:
         """
         self.score += amount
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
-                 [self.name, self.score])
+                 {"alliance" : self.name, "score" : self.score})
 
     def increment_multiplier(self):
         if self.alliance_multiplier == 1:

@@ -79,8 +79,12 @@ def to_setup(args):
         powerup_functions[i] = powerup
     powerup_functions[3:6] = powerup_functions[0:3]
 
-    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.TEAMS, b1_name, b1_num,
-             b2_name, b2_num, g1_name, g1_num, g2_name, g2_num)
+    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.TEAMS, {
+             "b1name" : b1_name, "b1#" : b1_num,
+             "b2name" : b2_name, "b2#" : b2_num,
+             "g1name" : g1_name, "g1#" : g1_num,
+             "g2name" : g2_name, "g2#" : g2_num})
+
     print("ENTERING SETUP STATE")
 
 def to_auto(args):
@@ -149,14 +153,15 @@ def reset(args=None):
         if alliance is not None:
             alliance.reset()
             lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
-                     [alliance.name, alliance.score])
+                     {"alliance" : alliance.name, "score" : alliance.score})
                      #alliance mul
     for goal in goals.values():
         goal.reset()
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.GOAL_OWNED,
-                 [goal.name, None])
+                 {"goal" : goal.name, "owner" : None})
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
-                 [goal.name,goal.current_bid_team,goal.current_bid])
+                 {"goal" : goal.name, "team" : goal.current_bid_team.name, "bid"
+                 : goal.current_bid})
 
     #TODO: Send reset info to scoreboard
 
@@ -170,11 +175,11 @@ def score_adjust(args):
     alliances[ALLIANCE_COLOR.BLUE].score = blue_score
     alliances[ALLIANCE_COLOR.GOLD].score = gold_score
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
-             [alliances[ALLIANCE_COLOR.BLUE].name,
-             alliances[ALLIANCE_COLOR.BLUE].score])
+             {"alliance" : alliances[ALLIANCE_COLOR.BLUE].name,
+             "score" : alliances[ALLIANCE_COLOR.BLUE].score})
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
-             [alliances[ALLIANCE_COLOR.GOLD].name,
-             alliances[ALLIANCE_COLOR.GOLD].score])
+             {"alliance" : alliances[ALLIANCE_COLOR.GOLD].name,
+             "score" : alliances[ALLIANCE_COLOR.GOLD].score})
 
 def flush_scores():
     '''
@@ -236,7 +241,7 @@ def powerup_application(args):
     index = CodeGen.check_code(args[2], curr_rfids)
     if index == -1:
         lcm_send(LCM_TARGETS.SENSORS,
-                 SENSOR_HEADER.FAILED_POWERUP, alliance)
+                 SENSOR_HEADER.FAILED_POWERUP {"alliance" : alliance.name})
         return
     if game_state == STATE.AUTO:
         alliance.increment_multiplier()

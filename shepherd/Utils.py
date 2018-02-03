@@ -39,6 +39,7 @@ class SCOREBOARD_HEADER():
 # pylint: disable=invalid-name
 class GUI_HEADER():
     SEND_RFIDS = "send_rfids"
+    SEND_SCORES = "send_scores"
 
 # pylint: disable=invalid-name
 class CONSTANTS():

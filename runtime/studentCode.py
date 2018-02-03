@@ -284,33 +284,39 @@ async def asyncSleepHelper2(sleepTestVal):
     await Actions.sleep(.5)
     sleepTestVal['test'] = False
 
+def decode_setup():
+    print(Robot.decode_message(0))
+
+def decode_main():
+    pass
+
 ###########################
 # Solar Scramble Functions 
 ###########################   
 
 def next_power(num):
-    pass
+    return num
 
 def reverse_digits(num):
-    pass
+    return num
 
 def smallest_prime_fact(num):
-    pass
+    return num
 
 def prime_factor(num):
-    pass
+    return num
 
 def silly_base_two(num):
-    pass
+    return num
 
 def most_common_digit(num):
-    pass
+    return num
 
 def valid_isbn_ten(num):
-    pass
+    return num
 
 def simd_four_square(num):
-    pass
+    return num
 
 def double_caesar_cipher(key):
-    pass
+    return key

@@ -281,9 +281,13 @@ class Robot(StudentAPI):
         """Writes parameters to ``uid``."""
         self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])
 
-    def _get_gamecode(self):
+    def _get_gamecodes(self):
         """Get a gamecode."""
-        return self._get_sm_value("gamecode")
+        return self._get_sm_value("gamecodes")
+
+    def _get_gamecodes_check(self):
+        """Get gamecode answers"""
+        return self._get_sm_value("gamecodes_check")
 
     def decode_message(self, rfid_seed):
         """Method for 2018 Game: Solar Scramble
@@ -315,9 +319,13 @@ class Robot(StudentAPI):
             def composed(input_x):
                 return func_a(func_b(input_x))
             return composed
+        try:
+            index = self._get_sm_value("rfids").index(rfid_seed)
+            challenge_codes = self._get_gamecodes()[index]
+            check_challenge_code = self._get_gamecodes_check()[index]
+        except ValueError:
+            return False
 
-        challenge_code = self._get_gamecode()
-        check_challenge_code = self._get_sm_value("gamecode_check")
         func_map = {}
         func_map[0] = identity
         func_map[1] = next_power
@@ -341,10 +349,9 @@ class Robot(StudentAPI):
 
         solution = int(output)
 
-        try:
-            solution_index = check_challenge_code.index(solution)
+        if check_challenge_code == solution:
             self.to_manager.put([SM_COMMANDS.SET_VAL,
                                  [solution, ["hibike", "devices", solution_index % 3, "code"]]])
             return True
-        except ValueError:
+        else:
             return False

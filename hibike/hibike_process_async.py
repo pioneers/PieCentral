@@ -70,8 +70,6 @@ def get_working_serial_ports(excludes=()):
     except IOError:
         pass
 
-    event_loop = asyncio.get_event_loop()
-
     serials = []
     port_names = []
     for port in ports:
@@ -139,6 +137,32 @@ def identify_smart_sensors(serial_conns):
     return device_map
 
 
+
+class Output(asyncio.Protocol):
+    def connection_made(self, transport):
+        self.transport = transport
+        print('port opened', transport)
+        transport.serial.rts = False  # You can manipulate Serial object via transport
+        transport.write(b'Hello, World!\n')  # Write serial data via transport
+
+    def data_received(self, data):
+        print('data received', repr(data))
+        if b'\n' in data:
+            self.transport.close()
+
+    def connection_lost(self, exc):
+        print('port closed')
+        self.transport.loop.stop()
+
+    def pause_writing(self):
+        print('pause writing')
+        print(self.transport.get_write_buffer_size())
+
+    def resume_writing(self):
+        print(self.transport.get_write_buffer_size())
+        print('resume writing')
+
+
 def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, event_loop):
     """
     Spin up a device with a given UID on SERIAL_PORT.
@@ -159,16 +183,10 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, eve
     coro = serial_asyncio.create_serial_connection(loop, Output, '/dev/ttyUSB0', baudrate=115200)
     transport, protocol = loop.run_until_complete(coro)
 
-    write_coro(transport)
 
-
-
-
-
-
-
+    # hopefully the read_coro is already handled by the transport
+    pack.write_coro = write_coro(transport)
     event_loop.create_task(pack.write_coro)
-    event_loop.create_task(pack.read_coro)
 
     # This is an ID that does not persist across disconnects,
     # so that we can tell when a device has been reconnected.
@@ -176,7 +194,7 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, eve
     return pack
 
 
-def hotplug(devices, state_queue, batched_data, error_queue):
+def hotplug(devices, state_queue, batched_data, error_queue, event_loop):
     """
     Remove disconnected devices and scan for new ones.
     """
@@ -185,14 +203,14 @@ def hotplug(devices, state_queue, batched_data, error_queue):
     clean_up_thread.start()
     while True:
         time.sleep(HOTPLUG_POLL_INTERVAL)
-        scan_for_new_devices(devices, state_queue, batched_data, error_queue)
+        scan_for_new_devices(devices, state_queue, batched_data, error_queue, event_loop)
         remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue)
 
 def put_async_queue(queue, data, event_loop):
     coro = queue.put(data)
     event_loop.create_task(coro)
 
-def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue):
+def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue, event_loop):
     """
     Find devices that are on serial ports not in EXISTING_DEVICES, and add
     any that have been found to it.
@@ -200,8 +218,6 @@ def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queu
     ports, names = get_working_serial_ports(map(lambda d: d.serial_port.name,
                                                 existing_devices.values()))
     sensors = identify_smart_sensors(ports)
-
-    event_loop = asyncio.get_event_loop()
 
     for (ser, uid) in sensors.items():
         idx = names.index(ser)
@@ -211,8 +227,6 @@ def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queu
         # Tell the device to start sending data
         put_async_queue(pack.write_queue, ("ping", []), event_loop)
         put_async_queue(pack.write_queue, ("subscribe", [1, 0, []]), event_loop)
-
-    event_loop.run_forever()
 
 
 def clean_up_devices(device_queue):
@@ -279,16 +293,23 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
         pack = spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, event_loop)
         devices[uid] = pack
 
+
+
     batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
     batch_thread.start()
     hotplug_thread = threading.Thread(target=hotplug,
-                                      args=(devices, state_queue, batched_data, error_queue))
+                                      args=(devices, state_queue, batched_data, error_queue, event_loop))
     hotplug_thread.start()
 
     # Pings all devices and tells them to stop sending data
     for pack in devices.values():
         put_async_queue(pack.write_queue, ("ping", []), event_loop)
         put_async_queue(pack.write_queue, ("subscribe", [1, 0, []]), event_loop)
+
+
+
+    # start event loop
+    event_loop.run_forever()
 
     # the main thread reads instructions from statemanager and
     # forwards them to the appropriate device write threads

@@ -7,12 +7,12 @@ async def read_serial(delay):
 async def device_read2():
     while True:
         val = await read_serial(1)
-        print("DEV 2 " + str(val))
+        print("DEV delay_1 " + str(val))
 
 async def device_read():
     while True:
         val = await read_serial(3)
-        print("DEV 1 " + str(val))
+        print("DEV delay_3 " + str(val))
 
 def foo(future):
     print(future.result())

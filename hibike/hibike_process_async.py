@@ -76,13 +76,10 @@ def get_working_serial_ports(excludes=()):
     port_names = []
     for port in ports:
         try:
-            coro = serial_asyncio.create_serial_connection(event_loop, Factory, '/dev/ttyUSB0', baudrate=115200)
-            serials.append(coro)
+            serials.append(serial.Serial(port, 115200))
             port_names.append(port)
         except serial.serialutil.SerialException:
             print("Cannot Open Serial Port: " + str(port))
-
-
     return serials, port_names
 
 def identify_smart_sensors(serial_conns):
@@ -157,8 +154,22 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, eve
     pack.write_coro = device_write_async(serial_port, pack.write_queue)
     pack.read_coro = device_read_async(uid, pack, error_queue,
                                               state_queue, batched_data, event_loop)
+
+    loop = asyncio.get_event_loop()
+    coro = serial_asyncio.create_serial_connection(loop, Output, '/dev/ttyUSB0', baudrate=115200)
+    transport, protocol = loop.run_until_complete(coro)
+
+    write_coro(transport)
+
+
+
+
+
+
+
     event_loop.create_task(pack.write_coro)
     event_loop.create_task(pack.read_coro)
+
     # This is an ID that does not persist across disconnects,
     # so that we can tell when a device has been reconnected.
     pack.instance_id = random.getrandbits(128)
@@ -200,6 +211,8 @@ def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queu
         # Tell the device to start sending data
         put_async_queue(pack.write_queue, ("ping", []), event_loop)
         put_async_queue(pack.write_queue, ("subscribe", [1, 0, []]), event_loop)
+
+    event_loop.run_forever()
 
 
 def clean_up_devices(device_queue):

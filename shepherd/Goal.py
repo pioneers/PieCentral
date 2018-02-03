@@ -70,12 +70,12 @@ class Goal:
             self.bid_timer.start_timer(BID_TIME_INCREASE)
             lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
                      {"goal" : self.name, "alliance" : self.current_bid_team.name, "bid" : self.current_bid})
-            lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_TIMER_START,
-                     {"goal" : self.name})
+            lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_TIMER,
+                     {"goal" : self.name, "time" : BID_TIME_INCREASE})
         else:
             self.bid_timer.start_timer(BID_TIME_INITIAL)
-            lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_TIMER_START,
-                     {"goal" : self.name})
+            lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_TIMER,
+                     {"goal" : self.name, "time" : BID_TIME_INITIAL})
 
 
 

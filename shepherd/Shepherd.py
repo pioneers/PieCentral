@@ -134,7 +134,7 @@ def to_end(args):
     and final score adjustments can be made.
     '''
     global game_state
-    lcm_send(LCM_TARGETS.UI,GUI_HEADER.SEND_SCORES,{"blue" : alliances[ALLIANCE_COLOR.BLUE].score, "gold" : alliances[ALLIANCE_COLOR.GOLD].score})
+    lcm_send(LCM_TARGETS.UI,GUI_HEADER.SEND_SCORES,{"blue_score" : alliances[ALLIANCE_COLOR.BLUE].score, "gold_score" : alliances[ALLIANCE_COLOR.GOLD].score})
     game_state = STATE.END
     #TODO: send message to disable robots
     print("ENTERING END STATE")
@@ -160,9 +160,9 @@ def reset(args=None):
     for goal in goals.values():
         goal.reset()
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.GOAL_OWNED,
-                 {"goal" : goal.name, "owner" : None})
+                 {"goal" : goal.name, "alliance" : None})
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
-                 {"goal" : goal.name, "team" : goal.current_bid_team.name, "bid"
+                 {"goal" : goal.name, "alliance" : goal.current_bid_team.name, "bid"
                  : goal.current_bid})
 
     #TODO: Send reset info to scoreboard

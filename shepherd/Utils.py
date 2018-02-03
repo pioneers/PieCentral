@@ -27,7 +27,7 @@ class SENSOR_HEADER():
 class SCOREBOARD_HEADER():
     SCORE = "score"
     TEAMS = "teams"
-    BID_TIMER_START = "bid_timer_start"
+    BID_TIMER = "bid_timer"
     BID_AMOUNT = "bid_amount"
     GOAL_OWNED = "bid_win"
     STAGE = "stage"

@@ -58,7 +58,7 @@ def to_setup(args):
     By the end, should be ready to start match.
     '''
     b1_name, b1_num, b2_name, b2_num, g1_name, g1_num, g2_name, g2_num =
-        args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]
+        args["b1name"], args["b1#"], args["b2name"], args["b2#"], args["g1name"], args["g1#"], args["g2name"], args["g2#"]
 
     if game_state == STATE.END:
         flush_scores()
@@ -173,7 +173,7 @@ def score_adjust(args):
     '''
     Allow for score to be changed based on referee decisions
     '''
-    blue_score, gold_score = args[0], args[1]
+    blue_score, gold_score = args["blue_goal"], args["gold_score"]
     alliances[ALLIANCE_COLOR.BLUE].score = blue_score
     alliances[ALLIANCE_COLOR.GOLD].score = gold_score
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
@@ -217,8 +217,8 @@ def goal_score(args):
     '''
     Update state for a goal being scored and push information to scoreboard
     '''
-    alliance = args[0]
-    goal_name = args[1]
+    alliance = args["alliance"]
+    goal_name = args["goal"]
     goals.get(goal_name).score(alliances.get(alliance))
 
 def goal_bid(args):
@@ -226,8 +226,8 @@ def goal_bid(args):
     Update state for a goal being bid on and push information to scoreboard
     and to sensors
     '''
-    alliance = args[0]
-    goal_name = args[1]
+    alliance = args["alliance"]
+    goal_name = args["goal"]
     goals.get(goal_name).bid(alliances.get(alliance))
 
     #TODO: Push bid timer, bid amount, curr bid owner to scoreboard (maybe this is done now??)
@@ -238,9 +238,9 @@ def powerup_application(args):
     to display result of code being decoded.
     Apply a powerup to a goal. Does not need to say result.
     '''
-    alliance = args[0]
-    goal = goals.get(args[1])
-    index = CodeGen.check_code(args[2], curr_rfids)
+    alliance = args["alliance"]
+    goal = goals.get(args["goal"])
+    index = CodeGen.check_code(args["code"], curr_rfids)
     if index == -1:
         lcm_send(LCM_TARGETS.SENSORS,
                  SENSOR_HEADER.FAILED_POWERUP {"alliance" : alliance.name})
@@ -256,7 +256,7 @@ def bid_complete(args):
     Update state when a bid timer ends and a bid is complete
     Update scoreboard and sensors with this information as well
     '''
-    goal_name = args[0]
+    goal_name = args["goal"]
     goals.get(goal_name).set_owner(goals.get(goal_name).current_bid_team)
 
 ###########################################

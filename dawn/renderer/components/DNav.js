@@ -10,7 +10,7 @@ import ConfigBox from './ConfigBox';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';
 import TooltipButton from './TooltipButton';
-import { REG_VERSION, FC_VERSION } from '../constants/Constants';
+import { VERSION } from '../constants/Constants';
 import { runtimeState } from '../utils/utils';
 
 class DNavComponent extends React.Component {
@@ -34,9 +34,9 @@ class DNavComponent extends React.Component {
 
   createHeader() {
     if (this.props.fieldControlStatus) {
-      return `Dawn v${FC_VERSION} ${(this.props.heart) ? '+' : '-'}`;
+      return `Dawn v${VERSION} ${(this.props.heart) ? '+' : '-'}`;
     }
-    return `Dawn v${REG_VERSION}`;
+    return `Dawn v${VERSION}`;
   }
 
   render() {

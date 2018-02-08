@@ -16,6 +16,8 @@ if [ -d /tmp ]; then
 else
   tmp_dir=$(pwd)
 fi
+default_ip="$usb_ip"
+ssh_options="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 ifs=%  # Disable whitespace truncation
 indent='  '

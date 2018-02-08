@@ -21,7 +21,7 @@ except ImportError:
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/sheets.googleapis.com-python-quickstart.json
-SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
+SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Sheets API Python Quickstart'
 
@@ -54,24 +54,41 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-    def get_match(match_number):
-        """
-        A lot of this is adapted from google quickstart.
-        Takes the match number and returns a dictionary with the teams names
-        and team numbers for that match.
-        """
-        credentials = get_credentials()
-        http = credentials.authorize(httplib2.Http())
-        discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
-                        'version=v4')
-        service = discovery.build('sheets', 'v4', http=http,
-                                  discoveryServiceUrl=discoveryUrl)
-        spreadsheetId = CONTANTS.SPREADSHEET_ID
-        range_name = "qual_matches!A2:J"
-        game_data = service.spreadsheets().values().get(
-            spreadsheetId=spreadsheetId, range=range_name).execute()
-        match = game_data['values'][match_number-1]
-        return {"b1name" : match[3], "b1#" : match[2],
-                 "b2name" : match[5], "b2#" : match[4],
-                 "g1name" : match[7], "g1#" : match[6],
-                 "g2name" : match[9], "g2#" : match[8]}
+def get_match(match_number):
+    """
+    A lot of this is adapted from google quickstart.
+    Takes the match number and returns a dictionary with the teams names
+    and team numbers for that match.
+    """
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
+                    'version=v4')
+    service = discovery.build('sheets', 'v4', http=http,
+                              discoveryServiceUrl=discoveryUrl)
+    spreadsheetId = CONSTANTS.SPREADSHEET_ID
+    range_name = "qual_matches!A2:J"
+    game_data = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=range_name).execute()
+    match = game_data['values'][match_number-1]
+    return {"b1name" : match[3], "b1#" : match[2],
+             "b2name" : match[5], "b2#" : match[4],
+             "g1name" : match[7], "g1#" : match[6],
+             "g2name" : match[9], "g2#" : match[8]}
+
+def write_scores(match_number,blue_score,gold_score):
+    """
+    A method that writes the scores to the sheet
+    """
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
+                    'version=v4')
+    service = discovery.build('sheets', 'v4', http=http,
+                              discoveryServiceUrl=discoveryUrl)
+    spreadsheetId = CONSTANTS.SPREADSHEET_ID
+    range_name = "qual_matches!K"+str(match_number+1)+":L"+str(match_number+1)
+    game_scores = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=range_name).execute()
+    game_scores['values'] = [[blue_score,gold_score]]
+    service.spreadsheets().values().update(spreadsheetId=spreadsheetId, range=range_name, body=game_scores, valueInputOption="RAW").execute()

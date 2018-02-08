@@ -321,7 +321,7 @@ class Robot(StudentAPI):
             return composed
         try:
             index = self._get_sm_value("rfids").index(rfid_seed)
-            challenge_codes = self._get_gamecodes()[index]
+            challenge_code = self._get_gamecodes()[index]
             check_challenge_code = self._get_gamecodes_check()[index]
         except ValueError:
             return False

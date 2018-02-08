@@ -27,7 +27,7 @@ alias sudo='sudo -H'
 
 # Install apt packages
 sudo apt update -y && sudo apt upgrade -y
-sudo apt install -y man-db make build-essential gcc git vim tmux htop curl memcached libevent-dev unzip systemd systemd-sysv linux-headers-$(uname -r)
+sudo apt install -y man-db make build-essential gcc git vim tmux htop curl memcached libevent-dev zip unzip systemd systemd-sysv linux-headers-$(uname -r)
 sudo apt install -y python3 python3-dev python3-pip  # Python dependencies
 sudo apt clean -y
 sudo apt autoremove -y

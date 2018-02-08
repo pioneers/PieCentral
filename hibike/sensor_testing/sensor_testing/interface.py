@@ -33,6 +33,9 @@ def main_interface():
     """
     HIBIKE_INSTANCE.subscribe_all()
     from collections import namedtuple
+    import time
+    # Wait for Hibike to read from devices
+    time.sleep(0.5)
     devices = []
     for uid in HIBIKE_INSTANCE.uids:
         dev_id = hibike_message.uid_to_device_id(uid)
@@ -40,12 +43,14 @@ def main_interface():
         all_params = hibike_message.all_params_for_device_id(dev_id)
         params_list = []
         for param_name in all_params:
-            param = namedtuple("Parameter", ("name", "type", "readable", "writeable"))
+            param = namedtuple("Parameter", ("name", "type", "readable", "writeable", "init_value"))
             param.name = param_name
             param.type = hibike_message.param_type(dev_id, param_name)
             param.writeable = hibike_message.writable(dev_id, param_name)
             param.readable = hibike_message.readable(dev_id, param_name)
+            param.init_value = HIBIKE_INSTANCE.get_last_cached(uid, param_name)
             params_list.append(param)
+        params_list.sort(key=lambda p: p.name)
         device = namedtuple("Device", ("uid", "params", "name"))
         device.uid = uid
         device.params = params_list

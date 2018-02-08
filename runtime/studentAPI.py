@@ -353,5 +353,4 @@ class Robot(StudentAPI):
             self.to_manager.put([SM_COMMANDS.SET_VAL,
                                  [solution, ["hibike", "devices", index % 3, "code"]]])
             return True
-        else:
-            return False
+        return False

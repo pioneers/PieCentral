@@ -351,7 +351,7 @@ class Robot(StudentAPI):
 
         if check_challenge_code == solution:
             self.to_manager.put([SM_COMMANDS.SET_VAL,
-                                 [solution, ["hibike", "devices", solution_index % 3, "code"]]])
+                                 [solution, ["hibike", "devices", index % 3, "code"]]])
             return True
         else:
             return False

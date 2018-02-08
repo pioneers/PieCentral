@@ -285,7 +285,7 @@ async def asyncSleepHelper2(sleepTestVal):
     sleepTestVal['test'] = False
 
 def decode_setup():
-    print(Robot.decode_message(0))
+    print(Robot.decode_message(1))
 
 def decode_main():
     pass

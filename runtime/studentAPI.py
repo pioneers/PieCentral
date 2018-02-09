@@ -316,9 +316,7 @@ class Robot(StudentAPI):
             '''
             Composes two single-input functions together, A(B(x))
             '''
-            def composed(input_x):
-                return func_a(func_b(input_x))
-            return composed
+            return lambda x: func_a(func_b(x))
         try:
             index = self._get_sm_value("rfids").index(rfid_seed)
             challenge_code = self._get_gamecodes()[index]
@@ -326,16 +324,17 @@ class Robot(StudentAPI):
         except ValueError:
             return False
 
-        func_map = {}
-        func_map[0] = identity
-        func_map[1] = next_power
-        func_map[2] = reverse_digits
-        func_map[3] = compose_funcs(smallest_prime_fact, limit_input_to(1000000))
-        func_map[4] = double_caesar_cipher
-        func_map[5] = silly_base_two
-        func_map[6] = most_common_digit
-        func_map[7] = valid_isbn_ten
-        func_map[8] = simd_four_square
+        func_map = [
+            identity,
+            next_power,
+            reverse_digits,
+            compose_funcs(smallest_prime_fact, limit_input_to(1000000)),
+            double_caesar_cipher,
+            silly_base_two,
+            most_common_digit,
+            valid_isbn_ten,
+            simd_four_square
+        ]
 
         code = challenge_code
         output = ''

@@ -15,28 +15,28 @@ def teleop_main():
 ###########################   
 
 def next_power(num):
-	pass
+    pass
 
 def reverse_digits(num):
-	pass
+    pass
 
 def smallest_prime_fact(num):
-	pass
+    pass
 
 def prime_factor(num):
-	pass
+    pass
 
 def silly_base_two(num):
-	pass
+    pass
 
 def most_common_digit(num):
-	pass
+    pass
 
 def valid_isbn_ten(num):
-	pass
+    pass
 
 def simd_four_square(num):
-	pass
+    pass
 
 def double_caesar_cipher(key):
-	pass
+    pass

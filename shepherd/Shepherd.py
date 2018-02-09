@@ -19,7 +19,6 @@ def start():
     lcm_start_read(LCM_TARGETS.SHEPHERD, events)
     while True:
         payload = events.get(True)
-        print(payload)
         if game_state == STATE.SETUP:
             func = setup_functions.get(payload[0])
             if func is not None:

@@ -1,4 +1,3 @@
-import queue
 from LCM import *
 from Utils import *
 import serial
@@ -6,8 +5,8 @@ import threading
 import time
 import sys
 
-port_one = "/dev/ttyACM0" #change for correct port
-port_two = "/dev/ttyACM1" #change for correct port
+port_one = "/dev/ttyACM0" # change to correct port
+port_two = "/dev/ttyACM1" # change to correct port
 
 alliance_mapping = {
     "gold": ALLIANCE_COLOR.GOLD,
@@ -25,11 +24,12 @@ goal_mapping = {
 }
 
 def transfer_linebreak_data(ser):
-    print("starting sensor transfer", flush=True)
+    print("<1> Starting Linebreak Process", flush=True)
     while True:
         sensor_msg = ser.readline().decode("utf-8")
         if len(sensor_msg) != 7: #For Heartbeat
             continue
+        print("<2> Message Received: ", sensor_msg)
         alliance = sensor_msg[0:4].lower()
         alliance_enum = alliance_mapping[alliance]
         goal_letter = sensor_msg[4].lower()
@@ -42,7 +42,6 @@ def transfer_linebreak_data(ser):
         time.sleep(0.01)
 
 def main():
-
     goal_serial_one = serial.Serial(port_one)
     goal_serial_two = serial.Serial(port_two)
 

@@ -62,6 +62,12 @@ def get_match(match_number):
     except httplib2.ServerNotFoundError:
         return get_offline_match(match_number)
 
+def write_scores(match_number,blue_score,gold_score):
+    try:
+        write_online_scores(match_number,blue_score,gold_score)
+    except httplib2.ServerNotFoundError:
+        print("unable to write to spreadsheet")
+
 def get_online_match(match_number):
     """
     A lot of this is adapted from google quickstart.
@@ -100,7 +106,7 @@ def get_offline_match(match_number):
              "g1name" : match[7], "g1#" : match[6],
              "g2name" : match[9], "g2#" : match[8]}
 
-def write_scores(match_number,blue_score,gold_score):
+def write_online_scores(match_number,blue_score,gold_score):
     """
     A method that writes the scores to the sheet
     """

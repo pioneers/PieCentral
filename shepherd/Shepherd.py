@@ -4,6 +4,7 @@ from Goal import *
 from LCM import *
 from Timer import *
 from Utils import *
+from Sheet import *
 import random
 
 
@@ -62,6 +63,8 @@ def to_setup(args):
 
     if game_state == STATE.END:
         flush_scores()
+
+    match_number = args["match#"]
 
     reset()
     alliances[ALLIANCE_COLOR.BLUE] = Alliance(ALLIANCE_COLOR.BLUE, b1_name,
@@ -184,11 +187,7 @@ def score_adjust(args):
              "score" : alliances[ALLIANCE_COLOR.GOLD].score})
 
 def flush_scores():
-    '''
-    Send scores to the spreadsheet for the current match
-    '''
-    #TODO all of it
-    pass
+    Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score, alliances[ALLIANCE_COLOR.GOLD].score)
 
 
 ###########################################
@@ -327,6 +326,7 @@ goals = {
 rfid_pool = None
 curr_rfids = None
 powerup_functions = [None,None,None,None,None,None]
+match_number = -1
 
 if __name__ == '__main__':
     start()

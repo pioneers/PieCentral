@@ -61,6 +61,7 @@ class CONSTANTS():
     GOAL_HIGH_COST = 100
     MULTIPLIER_INCREASES = [1.1, 1.25, 1.5]
     SPREADSHEET_ID = "1ikEY2pnESr_e7okP9H5KZiJYK29RI5ISPSaCgQU41RU"
+    CSV_FILE_NAME = "PIE test sheet - qual_matches.csv"
 
 
 

@@ -6,6 +6,8 @@ from __future__ import print_function
 import httplib2
 import os
 
+import csv
+
 from Utils import *
 
 from apiclient import discovery
@@ -55,6 +57,12 @@ def get_credentials():
     return credentials
 
 def get_match(match_number):
+    try:
+        return get_online_match(match_number)
+    except httplib2.ServerNotFoundError:
+        return get_offline_match(match_number)
+
+def get_online_match(match_number):
     """
     A lot of this is adapted from google quickstart.
     Takes the match number and returns a dictionary with the teams names
@@ -71,6 +79,22 @@ def get_match(match_number):
     game_data = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=range_name).execute()
     match = game_data['values'][match_number-1]
+    return {"b1name" : match[3], "b1#" : match[2],
+             "b2name" : match[5], "b2#" : match[4],
+             "g1name" : match[7], "g1#" : match[6],
+             "g2name" : match[9], "g2#" : match[8]}
+
+def get_offline_match(match_number):
+    """
+    reads from the downloaded csv file in the event that the online file cannot
+    be read from.
+    """
+    csv_file = open(CONSTANTS.CSV_FILE_NAME, newline = '')
+    match_reader = csv.reader(csv_file, delimiter=' ', quotechar='|')
+    matches = list(match_reader)
+    match = matches[match_number]
+    match = " ".join(match)
+    match = match.split(',')
     return {"b1name" : match[3], "b1#" : match[2],
              "b2name" : match[5], "b2#" : match[4],
              "g1name" : match[7], "g1#" : match[6],

@@ -152,6 +152,17 @@ def send(serial_conn, message):
     out_buf = bytearray([0x00, len(encoded)]) + encoded
     serial_conn.write(out_buf)
 
+def send_transport(transport, message):
+    """
+    Send MESSAGE over SERIAL_CONN.
+    """
+    m_buff = message.to_bytes()
+    chk = checksum(m_buff)
+    m_buff.append(chk)
+    encoded = cobs_encode(m_buff)
+    out_buf = bytearray([0x00, len(encoded)]) + encoded
+    transport.write(out_buf)
+
 
 def encode_params(device_id, params):
     """

@@ -25,30 +25,6 @@ IDENTIFY_TIMEOUT = 1
 # and cleaning up old ones.
 HOTPLUG_POLL_INTERVAL = 1
 
-class Factory(asyncio.Protocol):
-    def connection_made(self, transport):
-        self.transport = transport
-        print('port opened', transport)
-        transport.serial.rts = False  # You can manipulate Serial object via transport
-        transport.write(b'Hello, World!\n')  # Write serial data via transport
-
-    def data_received(self, data):
-        print('data received', repr(data))
-        if b'\n' in data:
-            self.transport.close()
-
-    def connection_lost(self, exc):
-        print('port closed')
-        self.transport.loop.stop()
-
-    def pause_writing(self):
-        print('pause writing')
-        print(self.transport.get_write_buffer_size())
-
-    def resume_writing(self):
-        print(self.transport.get_write_buffer_size())
-        print('resume writing')
-
 
 def get_working_serial_ports(excludes=()):
     """
@@ -138,29 +114,28 @@ def identify_smart_sensors(serial_conns):
 
 
 
-class Output(asyncio.Protocol):
+class AsyncProtocol(asyncio.Protocol):
     def connection_made(self, transport):
         self.transport = transport
         print('port opened', transport)
         transport.serial.rts = False  # You can manipulate Serial object via transport
-        transport.write(b'Hello, World!\n')  # Write serial data via transport
+        self.curr_message = ""
 
     def data_received(self, data):
-        print('data received', repr(data))
-        if b'\n' in data:
-            self.transport.close()
+        message_type = packet.get_message_id()
+        if message_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
+            params, delay, uid = hm.parse_subscription_response(packet)
+            state_queue.put(("device_subscribed", [uid, delay, params]))
+        elif message_type == hm.MESSAGE_TYPES["DeviceData"]:
+            params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
+            batched_data[uid] = params_and_values
+        elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
+            instruction_queue.put(("heartResp", [uid]))
 
     def connection_lost(self, exc):
         print('port closed')
-        self.transport.loop.stop()
-
-    def pause_writing(self):
-        print('pause writing')
-        print(self.transport.get_write_buffer_size())
-
-    def resume_writing(self):
-        print(self.transport.get_write_buffer_size())
-        print('resume writing')
+        # self.transport.loop.stop()
+        self.transport.close()
 
 
 def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, event_loop):
@@ -175,17 +150,12 @@ def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, eve
     pack.write_queue = asyncio.Queue()
     pack.serial_port = serial_port
 
-    pack.write_coro = device_write_async(serial_port, pack.write_queue)
-    pack.read_coro = device_read_async(uid, pack, error_queue,
-                                              state_queue, batched_data, event_loop)
-
-    loop = asyncio.get_event_loop()
-    coro = serial_asyncio.create_serial_connection(loop, Output, '/dev/ttyUSB0', baudrate=115200)
-    transport, protocol = loop.run_until_complete(coro)
+    coro = serial_asyncio.create_serial_connection(event_loop, AsyncProtocol, serial_port, baudrate=115200)
+    transport, protocol = event_loop.run_until_complete(coro)
 
 
     # hopefully the read_coro is already handled by the transport
-    pack.write_coro = write_coro(transport)
+    pack.write_coro = device_write_coro(transport, pack.write_queue)
     event_loop.create_task(pack.write_coro)
 
     # This is an ID that does not persist across disconnects,
@@ -342,33 +312,29 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
             print("Tried to access a nonexistent device")
 
 
-async def device_write_async(ser, instr_queue):
+async def device_write_coro(transport, instr_queue):
     """
     Send packets to SER based on instructions from INSTR_QUEUE.
     """
-    try:
-        while True:
-            instruction, args = await instr_queue.get()
+    while not transport.is_closing():
+        instruction, args = await instr_queue.get()
 
-            if instruction == "ping":
-                hm.send(ser, hm.make_ping())
-            elif instruction == "subscribe":
-                uid, delay, params = args
-                hm.send(ser, hm.make_subscription_request(hm.uid_to_device_id(uid), params, delay))
-            elif instruction == "read":
-                uid, params = args
-                hm.send(ser, hm.make_device_read(hm.uid_to_device_id(uid), params))
-            elif instruction == "write":
-                uid, params_and_values = args
-                hm.send(ser, hm.make_device_write(hm.uid_to_device_id(uid), params_and_values))
-            elif instruction == "disable":
-                hm.send(ser, hm.make_disable())
-            elif instruction == "heartResp":
-                uid = args[0]
-                hm.send(ser, hm.make_heartbeat_response())
-    except serial.SerialException:
-        # Device has disconnected
-        pass
+        if instruction == "ping":
+            hm.send_transport(transport, hm.make_ping())
+        elif instruction == "subscribe":
+            uid, delay, params = args
+            hm.send_transport(transport, hm.make_subscription_request(hm.uid_to_device_id(uid), params, delay))
+        elif instruction == "read":
+            uid, params = args
+            hm.send_transport(transport, hm.make_device_read(hm.uid_to_device_id(uid), params))
+        elif instruction == "write":
+            uid, params_and_values = args
+            hm.send_transport(transport, hm.make_device_write(hm.uid_to_device_id(uid), params_and_values))
+        elif instruction == "disable":
+            hm.send_transport(transport, hm.make_disable())
+        elif instruction == "heartResp":
+            uid = args[0]
+            hm.send_transport(transport, hm.make_heartbeat_response())
 
 async def device_read_async(uid, pack, error_queue, state_queue, batched_data, event_loop):
     """

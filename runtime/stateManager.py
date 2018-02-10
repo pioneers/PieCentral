@@ -8,9 +8,10 @@ from runtimeUtil import *
 
 
 class StateManager(object): # pylint: disable=too-many-public-methods
-
-    """input is a multiprocessing.Queue object to support multiple
-    processes requesting state data
+    """
+    Stores, updates, and manage the state of the robots.
+    Receives stateQueue commands from runtime, studentCode, Hibike, and Ansible;
+    Sends BadThingsQueue, studentCode pipe, Hibike pipe, and Ansible pipe to the above.
     """
 
     def __init__(self, badThingsQueue, inputQueue, runtimePipe):
@@ -38,6 +39,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         return subscription_map
 
     def make_command_map(self):
+        """
+        Create a mapping between command input and the state manager behavior.
+        """
         command_mapping = {
             SM_COMMANDS.RESET: self.init_robot_state,
             SM_COMMANDS.ADD: self.add_pipe,
@@ -63,6 +67,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         return command_mapping
 
     def make_hibike_map(self):
+        """
+        Create a mapping between Hibike commands and Hibike functions.
+        """
         hibike_mapping = {
             HIBIKE_COMMANDS.ENUMERATE: self.hibike_enumerate_all,
             HIBIKE_COMMANDS.SUBSCRIBE: self.hibike_subscribe_device,
@@ -74,6 +81,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         return hibike_mapping
 
     def make_hibike_response_map(self):
+        """
+        Create a mapping between packets received by State Manager and Hibike response.
+        """
         hibike_response_mapping = {
             HIBIKE_RESPONSE.DEVICE_SUBBED: self.hibike_response_device_subbed,
             HIBIKE_RESPONSE.DEVICE_VALUES: self.hibike_response_device_values,
@@ -83,6 +93,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         return {k.value: v for k, v in hibike_response_mapping.items()}
 
     def init_robot_state(self):
+        """
+        Initialize robot state.
+        """
         t = time.time()
         self.state = {
             "studentCodeState": [2, t],
@@ -99,12 +112,18 @@ class StateManager(object): # pylint: disable=too-many-public-methods
                         "devices": [{-1: [{"major": [RUNTIME_CONFIG.VERSION_MAJOR.value, t],
                                            "minor": [RUNTIME_CONFIG.VERSION_MINOR.value, t],
                                            "patch": [RUNTIME_CONFIG.VERSION_PATCH.value, t]},
-                                          t]}, t]}, t],
+                                          t],
+                                     0: [{"code": [0, t]}, t],
+                                     1: [{"code": [0, t]}, t],
+                                     2: [{"code": [0, t]}, t]}, t]}, t],
             "dawn_addr": [None, t],
             "gamepads": [{0: {"axes": {0: 0.5, 1: -0.5, 2: 1, 3: -1},
                               "buttons": {0: True, 1: False, 2: True, 3: False, 4: True}}}, t],
             "team_flag_uid": [None, t],
-            "gamecode": [None, t],
+            # Solar Scramble Keys
+            "gamecodes": [[1, 0, 0, 0, 0, 0], t],
+            "gamecodes_check": [[5551, 0, 0, 0, 0, 0], t],
+            "rfids": [[1, 0, 0, 0, 0, 0], t],
         }
 
     def add_pipe(self, process_name, pipe):
@@ -112,6 +131,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         pipe.send(RUNTIME_CONFIG.PIPE_READY.value)
 
     def create_key(self, keys, send=True):
+        """
+        Insert keys into state.
+        """
         curr_dict = self.state
         path = []
         for key in keys:
@@ -132,6 +154,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
             self.process_mapping[PROCESS_NAMES.STUDENT_CODE].send(None)
 
     def get_value(self, keys):
+        """
+        Retrieve values associated with keys.
+        """
         result = self.state
         try:
             for i, key in enumerate(keys):
@@ -142,6 +167,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
             self.process_mapping[PROCESS_NAMES.STUDENT_CODE].send(error)
 
     def set_value(self, value, keys, send=True):
+        """
+        Updates an existing entry in self.state with new value and time.
+        """
         curr_dict = self.state
         try:
             path = []
@@ -187,6 +215,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         self.process_mapping[process_name].send(self.state["dawn_addr"][0])
 
     def student_upload(self):
+        """
+        Notifies Dawn to enter idle; then asks for student code.
+        """
         self.bad_things_queue.put(
             BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))
         self.process_mapping[PROCESS_NAMES.TCP_PROCESS].send(
@@ -198,24 +229,39 @@ class StateManager(object): # pylint: disable=too-many-public-methods
                 [ANSIBLE_COMMANDS.CONSOLE, console_log])
 
     def enter_auto(self):
+        """
+        Notifies Dawn to enter auto; then updates state of robot
+        to Auto.
+        """
         self.bad_things_queue.put(
             BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_AUTO, False))
         self.state["studentCodeState"] = [
             runtime_pb2.RuntimeData.AUTO, time.time()]
 
     def enter_teleop(self):
+        """
+        Notifies Dawn to enter Teleop; then updates state of robot
+        to Teleop, or remote operations.
+        """
         self.bad_things_queue.put(
             BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_TELEOP, False))
         self.state["studentCodeState"] = [
             runtime_pb2.RuntimeData.TELEOP, time.time()]
 
     def enter_idle(self):
+        """
+        Notify Dawn to set to an idle state; then updates state of robot
+        to STUDENT_STOPPED.
+        """
         self.bad_things_queue.put(
             BadThing(sys.exc_info(), None, BAD_EVENTS.ENTER_IDLE, False))
         self.state["studentCodeState"] = [
             runtime_pb2.RuntimeData.STUDENT_STOPPED, time.time()]
 
     def get_timestamp(self, keys):
+        """
+        Send a timestamp to student code.
+        """
         curr_dict = self.state
         timestamp = 0
         try:
@@ -230,6 +276,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         self.state["runtime_meta"][0]["studentCode_main_count"][0] += 1
 
     def emergency_stop(self):
+        """
+        Activate emergency stop.
+        """
         self.state["runtime_meta"][0]["e_stopped"][0] = True
         self.bad_things_queue.put(BadThing(sys.exc_info(
         ), "Emergency Stop Activated", event=BAD_EVENTS.EMERGENCY_STOP, printStackTrace=False))
@@ -256,12 +305,17 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         pipe.send([HIBIKE_COMMANDS.READ.value, [uid, params]])
 
     def hibike_timestamp_down(self, pipe, *data):
-        print("We have received timestamp_down")
+        """
+        Pass along timestamp data from Ansible to Hibike.
+        """
         data = list(data)
         data.append(time.perf_counter())
         pipe.send([HIBIKE_COMMANDS.TIMESTAMP_DOWN.value, data])
 
     def hibike_response_device_subbed(self, uid, delay, params):
+        """
+        Stores information about subscribed device.
+        """
         if delay == 0:
             device_name = SENSOR_TYPE[uid >> 72]
 
@@ -276,6 +330,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         self.state["hibike"][0]["device_subscribed"][0] += 1
 
     def hibike_response_device_values(self, data):
+        """
+        Updates devices' values based on data.
+        """
         for uid, params in data.items():
             for key, value in params:
                 self.set_value(value, ["hibike", "devices", uid, key], send=False)
@@ -289,15 +346,24 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         del devs[uid]
 
     def hibike_response_timestamp_up(self, *data):
+        """
+        Relay timestamp data from Hibike to Ansible.
+        """
         data = list(data)
         data.append(time.perf_counter())
         self.process_mapping[PROCESS_NAMES.TCP_PROCESS].send(
             [ANSIBLE_COMMANDS.TIMESTAMP_UP, data])
 
     def hibike_disable(self, pipe):
+        """
+        Disables all Hibike devices.
+        """
         pipe.send([HIBIKE_COMMANDS.DISABLE.value, []])
 
     def dict_error_message(self, errored_index, keys, curr_dict):
+        """
+        Returns a KeyError dictionary error message.
+        """
         key_chain = ""
         i = 0
         while i < errored_index:
@@ -329,6 +395,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         return error_message
 
     def start(self):
+        """
+        Run StateManager.
+        """
         while True:
             try:
                 request = self.input_.get(block=True)

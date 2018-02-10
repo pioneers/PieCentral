@@ -1,31 +1,31 @@
 [
-    {"id": 0,     "name": "LimitSwitch",   "params": [    
+    {"id": 0,     "name": "LimitSwitch",   "params": [
                                                           {"number": 0  , "name": "switch0"    , "type": "bool"    , "read": true , "write": false },
                                                           {"number": 1  , "name": "switch1"    , "type": "bool"    , "read": true , "write": false },
                                                           {"number": 2  , "name": "switch2"    , "type": "bool"    , "read": true , "write": false }
                                                      ]
     },
 
-    {"id": 1,     "name": "LineFollower",  "params": [    
+    {"id": 1,     "name": "LineFollower",  "params": [
                                                           {"number": 0  , "name": "left"       , "type": "float"   , "read": true , "write": false },
                                                           {"number": 1  , "name": "center"     , "type": "float"   , "read": true , "write": false },
                                                           {"number": 2  , "name": "right"      , "type": "float"   , "read": true , "write": false }
                                                      ]
     },
 
-    {"id": 2,     "name": "Potentiometer", "params": [    
+    {"id": 2,     "name": "Potentiometer", "params": [
                                                           {"number": 0  , "name": "pot0"       , "type": "float"   , "read": true , "write": false },
                                                           {"number": 1  , "name": "pot1"       , "type": "float"   , "read": true , "write": false },
                                                           {"number": 2  , "name": "pot2"       , "type": "float"   , "read": true , "write": false }
                                                      ]
     },
 
-    {"id": 3,     "name": "Encoder",       "params": [    
+    {"id": 3,     "name": "Encoder",       "params": [
                                                           {"number": 0  , "name": "rotation"   , "type": "int16_t" , "read": true , "write": false }
                                                      ]
     },
 
-    {"id": 4,     "name": "BatteryBuzzer", "params": [    
+    {"id": 4,     "name": "BatteryBuzzer", "params": [
                                                           {"number": 0  , "name": "is_unsafe"  , "type": "bool"    , "read": true , "write": false },
                                                           {"number": 1  , "name": "calibrated" , "type": "bool"    , "read": true, "write": false  },
                                                           {"number": 2  , "name": "v_cell1"      , "type": "float"   , "read": true , "write": false },
@@ -37,7 +37,7 @@
                                                      ]
     },
 
-    {"id": 5,     "name": "TeamFlag",      "params": [    
+    {"id": 5,     "name": "TeamFlag",      "params": [
                                                           {"number": 0  , "name": "mode"       , "type": "bool"    , "read": true , "write": true  },
                                                           {"number": 1  , "name": "blue"       , "type": "bool"    , "read": true , "write": true  },
                                                           {"number": 2  , "name": "yellow"     , "type": "bool"    , "read": true , "write": true  },
@@ -48,14 +48,14 @@
                                                      ]
     },
 
-    {"id": 7,     "name": "ServoControl",  "params": [    
+    {"id": 7,     "name": "ServoControl",  "params": [
                                                           {"number": 0  , "name": "servo0"     , "type": "float" , "read": true , "write": true  },
                                                           {"number": 1  , "name": "servo1"     , "type": "float" , "read": true , "write": true  }
                                                      ]
     },
 
 
-    {"id": 10,     "name": "YogiBear",      "params": [   
+    {"id": 10,     "name": "YogiBear",      "params": [
                                                           {"number": 0  , "name": "duty_cycle"          , "type": "float"    , "read": true , "write": true  },
                                                           {"number": 1  , "name": "pid_pos_setpoint"    , "type": "float"    , "read": false , "write": true  },
                                                           {"number": 2  , "name": "pid_pos_kp"          , "type": "float"    , "read": false , "write": true  },
@@ -73,13 +73,13 @@
                                                      ]
     },
 
-    {"id": 11, "name": "RFID", "params": [    
+    {"id": 11, "name": "RFID", "params": [
                                                           {"number": 0  , "name": "id"     , "type": "uint8_t"    , "read": true , "write": false  },
                                                           {"number": 1  , "name": "tag_detect"     , "type": "uint8_t"    , "read": true , "write": false  }
                                                      ]
     },
 
-    {"id": 65535, "name": "ExampleDevice", "params": [    
+    {"id": 65535, "name": "ExampleDevice", "params": [
                                                           {"number": 0  , "name": "kumiko"     , "type": "bool"    , "read": true , "write": true  },
                                                           {"number": 1  , "name": "hazuki"     , "type": "uint8_t" , "read": true , "write": true  },
                                                           {"number": 2  , "name": "sapphire"   , "type": "int8_t"  , "read": true , "write": true  },

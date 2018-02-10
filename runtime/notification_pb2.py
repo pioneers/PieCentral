@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='notification.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x12notification.proto\"\xef\x02\n\x0cNotification\x12\"\n\x06header\x18\x01 \x01(\x0e\x32\x12.Notification.Type\x12\x16\n\x0e\x63onsole_output\x18\x02 \x01(\t\x12\x33\n\x0esensor_mapping\x18\x03 \x03(\x0b\x32\x1b.Notification.SensorMapping\x12\x12\n\ntimestamps\x18\x04 \x03(\x01\x1a@\n\rSensorMapping\x12\x12\n\ndevice_uid\x18\x01 \x01(\t\x12\x1b\n\x13\x64\x65vice_student_name\x18\x02 \x01(\t\"\x97\x01\n\x04Type\x12\x13\n\x0f\x43ONSOLE_LOGGING\x10\x00\x12\x10\n\x0cSTUDENT_SENT\x10\x01\x12\x14\n\x10STUDENT_RECEIVED\x10\x02\x12\x18\n\x14STUDENT_NOT_RECEIVED\x10\x03\x12\x12\n\x0eSENSOR_MAPPING\x10\x04\x12\x10\n\x0cTIMESTAMP_UP\x10\x05\x12\x12\n\x0eTIMESTAMP_DOWN\x10\x06\x62\x06proto3')
+  serialized_pb=_b('\n\x12notification.proto\"\xc8\x03\n\x0cNotification\x12\"\n\x06header\x18\x01 \x01(\x0e\x32\x12.Notification.Type\x12\x16\n\x0e\x63onsole_output\x18\x02 \x01(\t\x12\x33\n\x0esensor_mapping\x18\x03 \x03(\x0b\x32\x1b.Notification.SensorMapping\x12\x12\n\ntimestamps\x18\x04 \x03(\x01\x12\x1a\n\x12gamecode_solutions\x18\x05 \x03(\x05\x12\x11\n\tgamecodes\x18\x06 \x03(\x05\x12\r\n\x05rfids\x18\x07 \x03(\x05\x1a@\n\rSensorMapping\x12\x12\n\ndevice_uid\x18\x01 \x01(\t\x12\x1b\n\x13\x64\x65vice_student_name\x18\x02 \x01(\t\"\xb2\x01\n\x04Type\x12\x13\n\x0f\x43ONSOLE_LOGGING\x10\x00\x12\x10\n\x0cSTUDENT_SENT\x10\x01\x12\x14\n\x10STUDENT_RECEIVED\x10\x02\x12\x18\n\x14STUDENT_NOT_RECEIVED\x10\x03\x12\x12\n\x0eSENSOR_MAPPING\x10\x04\x12\x10\n\x0cTIMESTAMP_UP\x10\x05\x12\x12\n\x0eTIMESTAMP_DOWN\x10\x06\x12\x19\n\x15GAMECODE_TRANSMISSION\x10\x07\x62\x06proto3')
 )
 
 
@@ -58,11 +58,15 @@ _NOTIFICATION_TYPE = _descriptor.EnumDescriptor(
       name='TIMESTAMP_DOWN', index=6, number=6,
       options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='GAMECODE_TRANSMISSION', index=7, number=7,
+      options=None,
+      type=None),
   ],
   containing_type=None,
   options=None,
-  serialized_start=239,
-  serialized_end=390,
+  serialized_start=301,
+  serialized_end=479,
 )
 _sym_db.RegisterEnumDescriptor(_NOTIFICATION_TYPE)
 
@@ -100,8 +104,8 @@ _NOTIFICATION_SENSORMAPPING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=172,
-  serialized_end=236,
+  serialized_start=234,
+  serialized_end=298,
 )
 
 _NOTIFICATION = _descriptor.Descriptor(
@@ -139,6 +143,27 @@ _NOTIFICATION = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='gamecode_solutions', full_name='Notification.gamecode_solutions', index=4,
+      number=5, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='gamecodes', full_name='Notification.gamecodes', index=5,
+      number=6, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='rfids', full_name='Notification.rfids', index=6,
+      number=7, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -153,7 +178,7 @@ _NOTIFICATION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=23,
-  serialized_end=390,
+  serialized_end=479,
 )
 
 _NOTIFICATION_SENSORMAPPING.containing_type = _NOTIFICATION

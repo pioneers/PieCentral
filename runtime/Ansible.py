@@ -1,3 +1,7 @@
+
+"""Functions and classes for communication with Dawn."""
+
+
 import socket
 import threading
 import time
@@ -72,6 +76,7 @@ class AnsibleHandler():
         self.socket_name = socketName
 
     def thread_maker(self, thread_target, thread_name):
+        """Creates a thread connected to this handler."""
         thread = threading.Thread(
             target=thread_target,
             name=thread_name,
@@ -84,6 +89,7 @@ class AnsibleHandler():
         return thread
 
     def start(self):
+        """Start the packaging and socket threads."""
         packager_thread = self.thread_maker(self.packager_fn, self.packager_name)
         socket_thread = self.thread_maker(self.socket_fn, self.socket_name)
         packager_thread.start()
@@ -373,6 +379,7 @@ class TCPClass(AnsibleHandler):
         """
 
         def package_message(data):
+            """Creates a console log notification."""
             try:
                 proto_message = notification_pb2.Notification()
                 proto_message.header = notification_pb2.Notification.CONSOLE_LOGGING
@@ -388,6 +395,7 @@ class TCPClass(AnsibleHandler):
                         printStackTrace=True))
 
         def package_confirm(confirm):
+            """Creates a student code notification."""
             try:
                 proto_message = notification_pb2.Notification()
                 if confirm:
@@ -404,6 +412,7 @@ class TCPClass(AnsibleHandler):
                         event=BAD_EVENTS.TCP_ERROR,
                         printStackTrace=True))
         def package_timestamp(timestamps):
+            """Creates a timestamp notification."""
             try:
                 timestamp_message = notification_pb2.Notification()
                 timestamp_message.header = notification_pb2.Notification.TIMESTAMP_UP
@@ -454,6 +463,7 @@ class TCPClass(AnsibleHandler):
         """
 
         def unpackage(data):
+            """Parse received data into a notification."""
             received_proto = notification_pb2.Notification()
             received_proto.ParseFromString(data)
             return received_proto
@@ -476,6 +486,14 @@ class TCPClass(AnsibleHandler):
                     continue
                 if unpackaged_data.header == notification_pb2.Notification.STUDENT_SENT:
                     state_queue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
+                if unpackaged_data.header == notification_pb2.Notification.GAMECODE_TRANSMISSION:
+                    state_queue.put([SM_COMMANDS.SET_VAL,
+                                     ["gamecodes_check", unpackaged_data.gamecode_solutions]])
+                    state_queue.put([SM_COMMANDS.SET_VAL,
+                                     ["gamecodes", unpackaged_data.gamecodes]])
+                    state_queue.put([SM_COMMANDS.SET_VAL,
+                                     ["rfids", unpackaged_data.rfids]])
+
         except ConnectionResetError:
             bad_things_queue.put(
                 BadThing(

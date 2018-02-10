@@ -18,10 +18,11 @@ const Motor = ({ id, device_name, param }) => (
     {
       _.map(param, obj => ( // TODO: Figure out if a ProgressBar is useful
         <div key={`${obj.param}-${device_name}-Overall`}>
-          <h4 style={{ float: 'right', height: '10px' }} key={`${obj.param}-${device_name}`}>
+          <h4 style={{ clear: 'right', float: 'right', height: '50px' }} key={`${obj.param}-${device_name}`}>
             {`${obj.param}: ${numeral(obj.float_value).format('+0.00')}`}
-            <ProgressBar now={obj.float_value} min={-100} />
+
           </h4>
+          <ProgressBar style={{ clear: 'right', height: '20px' }} now={obj.float_value} min={-100} />
         </div>
       ))
     }

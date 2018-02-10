@@ -65,7 +65,7 @@ confidence=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-disable=dict-iter-method,unichr-builtin,delslice-method,unicode-builtin,zip-builtin-not-iterating,filter-builtin-not-iterating,file-builtin,unpacking-in-except,old-ne-operator,coerce-builtin,backtick,coerce-method,setslice-method,old-octal-literal,old-division,raising-string,round-builtin,map-builtin-not-iterating,intern-builtin,import-star-module-level,oct-method,apply-builtin,no-absolute-import,old-raise-syntax,basestring-builtin,cmp-builtin,useless-suppression,hex-method,raw_input-builtin,indexing-exception,buffer-builtin,long-suffix,print-statement,suppressed-message,standarderror-builtin,reload-builtin,next-method-called,metaclass-assignment,using-cmp-argument,getslice-method,long-builtin,reduce-builtin,dict-view-method,nonzero-method,input-builtin,xrange-builtin,parameter-unpacking,cmp-method,execfile-builtin,range-builtin-not-iterating,missing-docstring,wildcard-import,broad-except,unused-wildcard-import,too-few-public-methods,too-many-instance-attributes,bare-except,no-self-use
+disable=dict-iter-method,unichr-builtin,delslice-method,unicode-builtin,zip-builtin-not-iterating,filter-builtin-not-iterating,file-builtin,unpacking-in-except,old-ne-operator,coerce-builtin,backtick,coerce-method,setslice-method,old-octal-literal,old-division,raising-string,round-builtin,map-builtin-not-iterating,intern-builtin,import-star-module-level,oct-method,apply-builtin,no-absolute-import,old-raise-syntax,basestring-builtin,cmp-builtin,useless-suppression,hex-method,raw_input-builtin,indexing-exception,buffer-builtin,long-suffix,print-statement,suppressed-message,standarderror-builtin,reload-builtin,next-method-called,metaclass-assignment,using-cmp-argument,getslice-method,long-builtin,reduce-builtin,dict-view-method,nonzero-method,input-builtin,xrange-builtin,parameter-unpacking,cmp-method,execfile-builtin,range-builtin-not-iterating,missing-docstring,wildcard-import,broad-except,unused-wildcard-import,too-few-public-methods,too-many-instance-attributes,bare-except,no-self-use,cyclic-import
 
 
 [REPORTS]
@@ -296,7 +296,7 @@ init-import=no
 
 # A regular expression matching the name of dummy variables (i.e. expectedly
 # not used).
-dummy-variables-rgx=(_+[a-zA-Z0-9]*?$)|dummy
+dummy-variables-rgx=(_+[a-zA-Z0-9]*?$)|dummy|__class__
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid to define new builtins when possible.

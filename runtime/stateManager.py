@@ -112,12 +112,18 @@ class StateManager(object): # pylint: disable=too-many-public-methods
                         "devices": [{-1: [{"major": [RUNTIME_CONFIG.VERSION_MAJOR.value, t],
                                            "minor": [RUNTIME_CONFIG.VERSION_MINOR.value, t],
                                            "patch": [RUNTIME_CONFIG.VERSION_PATCH.value, t]},
-                                          t]}, t]}, t],
+                                          t],
+                                     0: [{"code": [0, t]}, t],
+                                     1: [{"code": [0, t]}, t],
+                                     2: [{"code": [0, t]}, t]}, t]}, t],
             "dawn_addr": [None, t],
             "gamepads": [{0: {"axes": {0: 0.5, 1: -0.5, 2: 1, 3: -1},
                               "buttons": {0: True, 1: False, 2: True, 3: False, 4: True}}}, t],
             "team_flag_uid": [None, t],
-            "gamecode": [None, t],
+            # Solar Scramble Keys
+            "gamecodes": [[1, 0, 0, 0, 0, 0], t],
+            "gamecodes_check": [[5551, 0, 0, 0, 0, 0], t],
+            "rfids": [[1, 0, 0, 0, 0, 0], t],
         }
 
     def add_pipe(self, process_name, pipe):

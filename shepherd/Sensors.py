@@ -1,9 +1,9 @@
+import sys
+import time
+import threading
+import serial
 from LCM import *
 from Utils import *
-import serial
-import threading
-import time
-import sys
 
 port_one = "/dev/ttyACM0" # change to correct port
 port_two = "/dev/ttyACM1" # change to correct port
@@ -46,9 +46,9 @@ def main():
     goal_serial_two = serial.Serial(port_two)
 
     goal_thread_one = threading.Thread(
-            target=transfer_linebreak_data, name="transfer thread one", args=([goal_serial_one]))
+        target=transfer_linebreak_data, name="transfer thread one", args=([goal_serial_one]))
     goal_thread_two = threading.Thread(
-            target=transfer_linebreak_data, name="transfer thread two", args=([goal_serial_two]))
+        target=transfer_linebreak_data, name="transfer thread two", args=([goal_serial_two]))
     goal_thread_one.daemon = True
     goal_thread_two.daemon = True
 

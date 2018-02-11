@@ -114,7 +114,17 @@ def identify_smart_sensors(serial_conns):
 
 
 
-class AsyncProtocol(asyncio.Protocol):
+class Sensor(asyncio.Protocol):
+    """
+    Handle communication over serial with a smart sensor.
+    """
+    def __init__(self, uid, write_queue, error_queue, state_queue):
+        self.uid = uid
+        self.write_queue = write_queue
+        self.error_queue = error_queue
+        self.state_queue = state_queue
+        self.instance_id = random.getrandbits(128)
+
     def connection_made(self, transport):
         self.transport = transport
         print('port opened', transport)

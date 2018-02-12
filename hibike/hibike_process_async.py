@@ -118,6 +118,7 @@ class SerialProtocol(asyncio.Protocol):
     """
     Handle communication over serial with a smart sensor.
     """
+    PACKET_BOUNDARY = bytes([0])
     def __init__(self, uid, batched_data, write_queue, error_queue, state_queue, event_loop):
         self.uid = uid
         self.batched_data = batched_data
@@ -125,14 +126,15 @@ class SerialProtocol(asyncio.Protocol):
         self.read_queue = asyncio.Queue(loop=event_loop)
         self.error_queue = error_queue
         self.state_queue = state_queue
-        self._ready = asyncio.Event()
+        self.transport = None
+        self.serial_buf = bytearray()
         asyncio.ensure_future(self.send_messages, loop=event_loop)
+        asyncio.ensure_future(self.recv_messages, loop=event_loop)
 
     async def send_messages(self):
         """
         Send messages in the queue to the sensor.
         """
-        await self._ready.wait()
         while True:
             await self.write_queue.get()
             # TODO: use device_write_coro/transport_write
@@ -153,22 +155,23 @@ class SerialProtocol(asyncio.Protocol):
             self.write_queue.put_nowait(("heartResp", [uid]))
 
     def connection_made(self, transport):
-        self._ready.set()
         self.transport = transport
-        print('port opened', transport)
-        transport.serial.rts = False  # You can manipulate Serial object via transport
-        self.curr_message = ""
 
     def data_received(self, data):
-        message_type = packet.get_message_id()
-        if message_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
-            params, delay, uid = hm.parse_subscription_response(packet)
-            state_queue.put(("device_subscribed", [uid, delay, params]))
-        elif message_type == hm.MESSAGE_TYPES["DeviceData"]:
-            params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-            batched_data[uid] = params_and_values
-        elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
-            instruction_queue.put(("heartResp", [uid]))
+        self.serial_buf.extend(data)
+        zero_loc = self.serial_buf.find(self.PACKET_BOUNDARY)
+        if zero_loc != -1:
+            self.serial_buf = self.serial_buf[zero_loc:]
+            packet = hm.parse_bytes(self.serial_buf)
+            if packet != None:
+                # Chop off a byte so we don't output this packet again
+                self.serial_buf = self.serial_buf[1:]
+                self.read_queue.put_nowait(packet)
+            elif self.serial_buf.count(self.PACKET_BOUNDARY) > 1:
+                # If there's another packet in the buffer
+                # we can safely jump to it for the next iteration
+                new_packet = self.serial_buf[1:].find(self.PACKET_BOUNDARY) + 1
+                self.serial_buf = self.serial_buf[new_packet:]
 
     def connection_lost(self, exc):
         print('port closed')

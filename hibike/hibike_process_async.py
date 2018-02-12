@@ -185,6 +185,7 @@ class SerialProtocol(asyncio.Protocol):
 
     def connection_made(self, transport):
         self.transport = transport
+        self._ready.set()
 
     def data_received(self, data):
         self.serial_buf.extend(data)

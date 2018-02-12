@@ -187,6 +187,12 @@ class SerialProtocol(asyncio.Protocol):
         self.transport = transport
         self._ready.set()
 
+    def quit(self):
+        """
+        Stop processing packets and close the serial connection.
+        """
+        self.transport.abort()
+
     def data_received(self, data):
         self.serial_buf.extend(data)
         zero_loc = self.serial_buf.find(self.PACKET_BOUNDARY)
@@ -210,8 +216,6 @@ class SerialProtocol(asyncio.Protocol):
         error.instance_id = self.instance_id
         error.accessed = False
         self.error_queue.put_nowait(error)
-        # self.transport.loop.stop()
-        self.transport.close()
 
 
 def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, event_loop):

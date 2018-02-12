@@ -128,7 +128,6 @@ class SerialProtocol(asyncio.Protocol):
         self.state_queue = state_queue
         self.transport = None
         self.serial_buf = bytearray()
-        self._ready = asyncio.Event()
         asyncio.ensure_future(self.send_messages, loop=event_loop)
         asyncio.ensure_future(self.recv_messages, loop=event_loop)
 
@@ -136,7 +135,6 @@ class SerialProtocol(asyncio.Protocol):
         """
         Send messages in the queue to the sensor.
         """
-        await self._ready.wait()
         while True:
             await self.write_queue.get()
             # TODO: use device_write_coro/transport_write

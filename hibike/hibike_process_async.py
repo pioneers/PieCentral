@@ -114,18 +114,46 @@ def identify_smart_sensors(serial_conns):
 
 
 
-class Sensor(asyncio.Protocol):
+class SerialProtocol(asyncio.Protocol):
     """
     Handle communication over serial with a smart sensor.
     """
-    def __init__(self, uid, write_queue, error_queue, state_queue):
+    def __init__(self, uid, batched_data, write_queue, error_queue, state_queue, event_loop):
         self.uid = uid
+        self.batched_data = batched_data
         self.write_queue = write_queue
+        self.read_queue = asyncio.Queue(loop=event_loop)
         self.error_queue = error_queue
         self.state_queue = state_queue
-        self.instance_id = random.getrandbits(128)
+        self._ready = asyncio.Event()
+        asyncio.ensure_future(self.send_messages, loop=event_loop)
+
+    async def send_messages(self):
+        """
+        Send messages in the queue to the sensor.
+        """
+        await self._ready.wait()
+        while True:
+            await self.write_queue.get()
+            # TODO: use device_write_coro/transport_write
+
+    async def recv_messages(self):
+        """
+        Process received messages.
+        """
+        packet = await self.read_queue.get()
+        message_type = packet.get_message_id()
+        if message_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
+            params, delay, uid = hm.parse_subscription_response(packet)
+            self.state_queue.put_nowait(("device_subscribed", [uid, delay, params]))
+        elif message_type == hm.MESSAGE_TYPES["DeviceData"]:
+            params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
+            self.batched_data[uid] = params_and_values
+        elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
+            self.write_queue.put_nowait(("heartResp", [uid]))
 
     def connection_made(self, transport):
+        self._ready.set()
         self.transport = transport
         print('port opened', transport)
         transport.serial.rts = False  # You can manipulate Serial object via transport

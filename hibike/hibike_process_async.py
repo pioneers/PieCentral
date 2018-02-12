@@ -208,7 +208,7 @@ class SerialProtocol(asyncio.Protocol):
         error.uid = self.uid
         error.instance_id = self.instance_id
         error.accessed = False
-        self.error_queue.put(error)
+        self.error_queue.put_nowait(error)
         # self.transport.loop.stop()
         self.transport.close()
 

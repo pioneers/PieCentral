@@ -121,14 +121,19 @@ class SerialProtocol(asyncio.Protocol):
     PACKET_BOUNDARY = bytes([0])
     def __init__(self, uid, batched_data, write_queue, error_queue, state_queue, event_loop):
         self.uid = uid
-        self.batched_data = batched_data
+
         self.write_queue = write_queue
+
+        self.batched_data = batched_data
         self.read_queue = asyncio.Queue(loop=event_loop)
         self.error_queue = error_queue
         self.state_queue = state_queue
+        self.instance_id = random.getrandbits(128)
+
         self.transport = None
         self._ready = asyncio.Event(loop=event_loop)
         self.serial_buf = bytearray()
+
         asyncio.ensure_future(self.send_messages, loop=event_loop)
         asyncio.ensure_future(self.recv_messages, loop=event_loop)
 
@@ -138,8 +143,28 @@ class SerialProtocol(asyncio.Protocol):
         """
         await self._ready.wait()
         while not self.transport.is_closing():
-            await self.write_queue.get()
-            # TODO: use device_write_coro/transport_write
+            instruction, args = await self.write_queue.get()
+
+            if instruction == "ping":
+                hm.send_transport(self.transport, hm.make_ping())
+            elif instruction == "subscribe":
+                uid, delay, params = args
+                hm.send_transport(self.transport,
+                                  hm.make_subscription_request(hm.uid_to_device_id(uid),
+                                                               params, delay))
+            elif instruction == "read":
+                uid, params = args
+                hm.send_transport(self.transport, hm.make_device_read(hm.uid_to_device_id(uid),
+                                                                      params))
+            elif instruction == "write":
+                uid, params_and_values = args
+                hm.send_transport(self.transport, hm.make_device_write(hm.uid_to_device_id(uid),
+                                                                       params_and_values))
+            elif instruction == "disable":
+                hm.send_transport(self.transport, hm.make_disable())
+            elif instruction == "heartResp":
+                uid = args[0]
+                hm.send_transport(self.transport, hm.make_heartbeat_response())
 
     async def recv_messages(self):
         """
@@ -179,6 +204,11 @@ class SerialProtocol(asyncio.Protocol):
 
     def connection_lost(self, exc):
         print('port closed')
+        error = namedtuple("Disconnect", ["uid", "instance_id", "accessed"])
+        error.uid = self.uid
+        error.instance_id = self.instance_id
+        error.accessed = False
+        self.error_queue.put(error)
         # self.transport.loop.stop()
         self.transport.close()
 

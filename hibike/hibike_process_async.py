@@ -114,13 +114,14 @@ def identify_smart_sensors(serial_conns):
 
 
 
-class SerialProtocol(asyncio.Protocol):
+class SmartSensorProtocol(asyncio.Protocol):
     """
     Handle communication over serial with a smart sensor.
     """
     PACKET_BOUNDARY = bytes([0])
-    def __init__(self, uid, batched_data, write_queue, error_queue, state_queue, event_loop):
-        self.uid = uid
+    def __init__(self, devices, batched_data, write_queue, error_queue, state_queue, event_loop):
+        # We haven't found out what our UID is yet
+        self.uid = None
 
         self.write_queue = write_queue
 
@@ -134,8 +135,21 @@ class SerialProtocol(asyncio.Protocol):
         self._ready = asyncio.Event(loop=event_loop)
         self.serial_buf = bytearray()
 
+        async def register_sensor():
+            """
+            Register this sensor with `hibike_process`, if possible.
+            """
+            await self._ready.wait()
+            hm.send_transport(self.transport, hm.make_ping())
+            await asyncio.sleep(IDENTIFY_TIMEOUT, loop=event_loop)
+            if self.uid is None:
+                self.quit()
+            else:
+                devices[self.uid] = self
+
         asyncio.ensure_future(self.send_messages, loop=event_loop)
         asyncio.ensure_future(self.recv_messages, loop=event_loop)
+        asyncio.ensure_future(register_sensor, loop=event_loop)
 
     async def send_messages(self):
         """
@@ -176,6 +190,7 @@ class SerialProtocol(asyncio.Protocol):
             message_type = packet.get_message_id()
             if message_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
                 params, delay, uid = hm.parse_subscription_response(packet)
+                self.uid = uid
                 self.state_queue.put_nowait(("device_subscribed", [uid, delay, params]))
             elif message_type == hm.MESSAGE_TYPES["DeviceData"]:
                 params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))

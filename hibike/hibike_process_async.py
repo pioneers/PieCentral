@@ -188,15 +188,7 @@ class SmartSensorProtocol(asyncio.Protocol):
                                                                params, delay))
             elif instruction == "read":
                 uid, params = args
-
-
-class asyncio.PriorityQueue
-
-    A subclass of Queue; retrieves entries in priority order (lowest first).
-
-    Entries are typically tuples of the form: (priority number, data).
-
-18.5.8.3. LifoQueue¶                hm.send_transport(self.transport, hm.make_device_read(hm.uid_to_device_id(uid),
+                hm.send_transport(self.transport, hm.make_device_read(hm.uid_to_device_id(uid),
                                                                       params))
             elif instruction == "write":
                 uid, params_and_values = args

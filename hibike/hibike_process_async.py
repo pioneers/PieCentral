@@ -1,6 +1,7 @@
 """
 The main Hibike process.
 """
+import asyncio
 from collections import namedtuple
 import glob
 import multiprocessing
@@ -12,8 +13,7 @@ import time
 
 # pylint: disable=import-error
 import hibike_message as hm
-import serial
-import asyncio
+import serial_asyncio
 __all__ = ["hibike_process"]
 
 
@@ -113,17 +113,37 @@ def identify_smart_sensors(serial_conns):
     return device_map
 
 
+async def hotplug_async(devices, batched_data, error_queue, state_queue, event_loop):
+    """
+    Scan for new devices on serial ports and automatically spin them up.
+    """
+    def protocol_factory():
+        """
+        Create a `SmartSensorProtocol` with necessary parameters filled in.
+        """
+        return SmartSensorProtocol(devices, batched_data, error_queue, state_queue, event_loop)
+
+    while True:
+        await asyncio.sleep(HOTPLUG_POLL_INTERVAL, loop=event_loop)
+        # TODO: adapt get_working_serial_ports
+        new_serials = ...
+        for port in new_serials:
+            try:
+                serial_asyncio.create_serial_connection(event_loop, protocol_factory, port, baudrate=115200)
+            except serial_asyncio.serial.SerialException:
+                pass 
+
 
 class SmartSensorProtocol(asyncio.Protocol):
     """
     Handle communication over serial with a smart sensor.
     """
     PACKET_BOUNDARY = bytes([0])
-    def __init__(self, devices, batched_data, write_queue, error_queue, state_queue, event_loop):
+    def __init__(self, devices, batched_data, error_queue, state_queue, event_loop):
         # We haven't found out what our UID is yet
         self.uid = None
 
-        self.write_queue = write_queue
+        self.write_queue = asyncio.Queue(loop=event_loop)
 
         self.batched_data = batched_data
         self.read_queue = asyncio.Queue(loop=event_loop)
@@ -168,7 +188,15 @@ class SmartSensorProtocol(asyncio.Protocol):
                                                                params, delay))
             elif instruction == "read":
                 uid, params = args
-                hm.send_transport(self.transport, hm.make_device_read(hm.uid_to_device_id(uid),
+
+
+class asyncio.PriorityQueue
+
+    A subclass of Queue; retrieves entries in priority order (lowest first).
+
+    Entries are typically tuples of the form: (priority number, data).
+
+18.5.8.3. LifoQueue¶                hm.send_transport(self.transport, hm.make_device_read(hm.uid_to_device_id(uid),
                                                                       params))
             elif instruction == "write":
                 uid, params_and_values = args
@@ -209,6 +237,10 @@ class SmartSensorProtocol(asyncio.Protocol):
         self.transport.abort()
 
     def data_received(self, data):
+        """
+        Attempt to parse data from the serial port into
+        a Hibike packet.
+        """
         self.serial_buf.extend(data)
         zero_loc = self.serial_buf.find(self.PACKET_BOUNDARY)
         if zero_loc != -1:

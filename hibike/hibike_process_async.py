@@ -147,9 +147,9 @@ class SmartSensorProtocol(asyncio.Protocol):
             else:
                 devices[self.uid] = self
 
-        asyncio.ensure_future(self.send_messages, loop=event_loop)
-        asyncio.ensure_future(self.recv_messages, loop=event_loop)
-        asyncio.ensure_future(register_sensor, loop=event_loop)
+        asyncio.ensure_future(self.send_messages(), loop=event_loop)
+        asyncio.ensure_future(self.recv_messages(), loop=event_loop)
+        asyncio.ensure_future(register_sensor(), loop=event_loop)
 
     async def send_messages(self):
         """

@@ -213,10 +213,14 @@ class SmartSensorProtocol(asyncio.Protocol):
                 self.uid = uid
                 self.state_queue.put_nowait(("device_subscribed", [uid, delay, params]))
             elif message_type == hm.MESSAGE_TYPES["DeviceData"]:
-                params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-                self.batched_data[uid] = params_and_values
+                # This is kind of a hack, but it allows us to use `recv_messages` for
+                # detecting new smart sensors as well as reading from known ones.
+                if self.uid is not None:
+                    params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(self.uid))
+                    self.batched_data[uid] = params_and_values
             elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
-                self.write_queue.put_nowait(("heartResp", [uid]))
+                if self.uid is not None:
+                    self.write_queue.put_nowait(("heartResp", [self.uid]))
 
     def connection_made(self, transport):
         self.transport = transport

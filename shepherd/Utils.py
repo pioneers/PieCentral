@@ -23,6 +23,10 @@ class SENSOR_HEADER():
     FAILED_POWERUP = "failed_powerup"
     CURRENT_BID = "current_bid"
 
+class DAWN_HEADER():
+    ROBOT_STATE = "robot_state"
+    CODES = "codes"
+
 # pylint: disable=invalid-name
 class SCOREBOARD_HEADER():
     SCORE = "score"
@@ -76,6 +80,7 @@ class LCM_TARGETS():
     SCOREBOARD = "lcm_target_scoreboard"
     SENSORS = "lcm_target_sensors"
     UI = "lcm_target_ui"
+    DAWN = "lcm_target_dawn"
 
 # pylint: disable=invalid-name
 class TIMER_TYPES():

@@ -59,12 +59,12 @@ def to_setup(args):
     By the end, should be ready to start match.
     '''
     b1_name, b1_num, b2_name, b2_num, g1_name, g1_num, g2_name, g2_num =
-        args["b1name"], args["b1#"], args["b2name"], args["b2#"], args["g1name"], args["g1#"], args["g2name"], args["g2#"]
+        args["b1name"], args["b1num"], args["b2name"], args["b2num"], args["g1name"], args["g1num"], args["g2name"], args["g2num"]
 
     if game_state == STATE.END:
         flush_scores()
 
-    match_number = args["match#"]
+    match_number = args["match_num"]
 
     reset()
     alliances[ALLIANCE_COLOR.BLUE] = Alliance(ALLIANCE_COLOR.BLUE, b1_name,
@@ -83,10 +83,10 @@ def to_setup(args):
     powerup_functions[3:6] = powerup_functions[0:3]
 
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.TEAMS, {
-             "b1name" : b1_name, "b1#" : b1_num,
-             "b2name" : b2_name, "b2#" : b2_num,
-             "g1name" : g1_name, "g1#" : g1_num,
-             "g2name" : g2_name, "g2#" : g2_num})
+             "b1name" : b1_name, "b1num" : b1_num,
+             "b2name" : b2_name, "b2num" : b2_num,
+             "g1name" : g1_name, "g1num" : g1_num,
+             "g2name" : g2_name, "g2num" : g2_num})
 
     print("ENTERING SETUP STATE")
 
@@ -102,7 +102,7 @@ def to_auto(args):
 
     game_timer.start_timer(CONSTANTS.AUTO_TIME)
     game_state = STATE.AUTO
-    #TODO: Send message to Dawn to start autonomous
+    enable_robots(True)
     print("ENTERING AUTO STATE")
 
 def to_wait(args):
@@ -113,7 +113,7 @@ def to_wait(args):
     '''
     global game_state
     game_state = STATE.WAIT
-    #TODO: send message to Dawn to disable robots
+    disable_robots()
     print("ENTERING WAIT STATE")
 
 def to_teleop(args):
@@ -128,7 +128,7 @@ def to_teleop(args):
     	goal.set_teleop()
 
     game_timer.start_timer(CONSTANTS.TELEOP_TIME)
-    #TODO: send message to enable robots in teleop
+    enable_robots(False)
     print("ENTERING TELEOP STATE")
 
 def to_end(args):
@@ -139,7 +139,7 @@ def to_end(args):
     global game_state
     lcm_send(LCM_TARGETS.UI,GUI_HEADER.SEND_SCORES,{"blue_score" : alliances[ALLIANCE_COLOR.BLUE].score, "gold_score" : alliances[ALLIANCE_COLOR.GOLD].score})
     game_state = STATE.END
-    #TODO: send message to disable robots
+    disable_robots()
     print("ENTERING END STATE")
 
 def reset(args=None):
@@ -187,8 +187,27 @@ def score_adjust(args):
              "score" : alliances[ALLIANCE_COLOR.GOLD].score})
 
 def flush_scores():
+    '''
+    Sends the most recent match score to the spreadsheet if connected to the internet
+    '''
     Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score, alliances[ALLIANCE_COLOR.GOLD].score)
+    #TODO: error handling for no internet, should just not crash but not do anything else
 
+def enable_robots(autonomous):
+    '''
+    Sends message to Dawn to enable all robots. The argument should be a boolean
+    which is true if we are entering autonomous mode
+    '''
+    msg = {"autonomous": autonomous, "enabled": True}
+
+    lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.ROBOT_STATE, msg)
+
+def disable_robots():
+    '''
+    Sends message to Dawn to disable all robots
+    '''
+    msg = {"autonomous": False, "enabled": False}
+    lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.ROBOT_STATE, msg)
 
 ###########################################
 # Game Specific Methods (Solar Scramble)
@@ -219,6 +238,7 @@ def goal_score(args):
     alliance = args["alliance"]
     goal_name = args["goal"]
     goals.get(goal_name).score(alliances.get(alliance))
+    #TODO: send score update to scoreboard and sensors
 
 def goal_bid(args):
     '''
@@ -230,6 +250,7 @@ def goal_bid(args):
     goals.get(goal_name).bid(alliances.get(alliance))
 
     #TODO: Push bid timer, bid amount, curr bid owner to scoreboard (maybe this is done now??)
+    #TODO: Send bid amount, and curr bid owner to sensors
 
 def powerup_application(args):
     '''
@@ -250,6 +271,8 @@ def powerup_application(args):
         powerup = powerup_functions[index]
         goal.apply_powerup(powerup, alliance)
 
+    #TODO: if the powerup didnt work we also need to send the info back to sensors
+
 def bid_complete(args):
     '''
     Update state when a bid timer ends and a bid is complete
@@ -257,6 +280,9 @@ def bid_complete(args):
     '''
     goal_name = args["goal"]
     goals.get(goal_name).set_owner(goals.get(goal_name).current_bid_team)
+    #TODO: handle bid disqualification
+    #TODO: send owner info and bid leader info to sensors and scoreboard
+    #TODO: subtract points and send point info back to sensors and scoreboard
 
 ###########################################
 # Event to Function Mappings for each Stage
@@ -307,11 +333,13 @@ end_functions = {
 game_state = STATE.END
 game_timer = Timer(TIMER_TYPES.MATCH)
 
+match_number = -1
+alliances = {ALLIANCE_COLOR.GOLD: None, ALLIANCE_COLOR.BLUE: None}
+
 ###########################################
 # Game Specific Variables
 ###########################################
 
-alliances = {ALLIANCE_COLOR.GOLD: None, ALLIANCE_COLOR.BLUE: None}
 
 goals = {
     GOAL.A : Goal(GOAL.A, CONSTANTS.GOAL_LOW_VALUE, CONSTANTS.GOAL_LOW_COST),
@@ -326,7 +354,6 @@ goals = {
 rfid_pool = None
 curr_rfids = None
 powerup_functions = [None,None,None,None,None,None]
-match_number = -1
 
 if __name__ == '__main__':
     start()

@@ -167,7 +167,7 @@ class SmartSensorProtocol(asyncio.Protocol):
             else:
                 devices[self.uid] = self
 
-        event_loop.create_task(self.recv_messages())
+        event_loop.create_task(self.send_messages())
         event_loop.create_task(self.recv_messages())
         event_loop.create_task(register_sensor())
 

@@ -7,7 +7,7 @@ source $(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env.sh
 
 usage="Run an executable on a Beaglebone remotely.\n\n"
 usage=$usage"Usage:\n"
-usage=$usage"$indent$(basename "$0") [-hvs] <executable>\n\n"
+usage=$usage"$indent$(basename "$0") [-hqs] [-u <user>] [-r <host>] <executable>\n\n"
 usage=$usage"Options:\n"
 usage=$usage$indent"-h        Show this help message.\n"
 usage=$usage$indent"-q        Run this script in quiet mode.\n"

@@ -26,3 +26,5 @@ error="\e[1;31m"    # Bold red
 warning="\e[1;33m"  # Bold yellow
 success="\e[1;32m"  # Bold green
 clear="\e[0m"
+
+export PATH="$PATH:$frankfurter/scripts/tools"

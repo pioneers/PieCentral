@@ -64,8 +64,8 @@ async def hotplug_async(devices, batched_data, error_queue, state_queue, event_l
         new_serials = get_working_serial_ports(set(port_names))
         for port in new_serials:
             try:
-                serial_asyncio.create_serial_connection(event_loop, protocol_factory, port,
-                                                        baudrate=115200)
+                await serial_asyncio.create_serial_connection(event_loop, protocol_factory, port,
+                                                              baudrate=115200)
             except serial_asyncio.serial.SerialException:
                 pass
         await remove_disconnected_devices(error_queue, devices, state_queue, event_loop)
@@ -213,7 +213,7 @@ async def remove_disconnected_devices(error_queue, devices, state_queue, event_l
     next_time_errors = []
     while True:
         try:
-            error = error_queue.get(block=False)
+            error = error_queue.get_nowait()
             pack = devices[error.uid]
             if not error.accessed:
                 # Wait until the next cycle to make sure it's disconnected
@@ -227,7 +227,7 @@ async def remove_disconnected_devices(error_queue, devices, state_queue, event_l
             pack = devices[uid]
             del devices[uid]
             await state_queue.coro_put(("device_disconnected", [uid]), loop=event_loop)
-        except queue.Empty:
+        except asyncio.QueueEmpty:
             for err in next_time_errors:
                 error_queue.put_nowait(err)
             return
@@ -250,7 +250,7 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     # By default, AioQueue instantiates a new Queue object, but we
     # don't want that.
     old_queue_context = namedtuple("StateManagerQueue", ["Queue"])
-    old_queue_context.Queue = lambda: state_queue
+    old_queue_context.Queue = lambda size: state_queue
     pipe_from_child = aioprocessing.AioConnection(pipe_from_child)
     state_queue = aioprocessing.AioQueue(context=old_queue_context)
 

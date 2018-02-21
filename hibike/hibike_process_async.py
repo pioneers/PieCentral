@@ -165,6 +165,10 @@ class SmartSensorProtocol(asyncio.Protocol):
             if self.uid is None:
                 self.quit()
             else:
+                hm.send_transport(self.transport, hm.make_ping())
+                hm.send_transport(self.transport,
+                                  hm.make_subscription_request(hm.uid_to_device_id(self.uid),
+                                                               [], 0))
                 devices[self.uid] = self
 
         event_loop.create_task(self.send_messages())

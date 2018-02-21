@@ -29,10 +29,10 @@ HOTPLUG_POLL_INTERVAL = 1
 
 def get_working_serial_ports(excludes=()):
     """
-    Scan for open COM ports, except those in EXCLUDES.
+    Scan for open COM ports, except those in `excludes`.
 
     Returns:
-        A list of serial port objects (`serial.Serial`) and port names.
+        A list of port names.
     """
     excludes = set(excludes)
     # Last command is included so that it's compatible with OS X Sierra
@@ -47,15 +47,7 @@ def get_working_serial_ports(excludes=()):
     except IOError:
         pass
 
-    serials = []
-    port_names = []
-    for port in ports:
-        try:
-            serials.append(serial.Serial(port, 115200))
-            port_names.append(port)
-        except serial.serialutil.SerialException:
-            print("Cannot Open Serial Port: " + str(port))
-    return serials, port_names
+    return list(ports)
 
 
 async def hotplug_async(devices, batched_data, error_queue, state_queue, event_loop):
@@ -70,13 +62,15 @@ async def hotplug_async(devices, batched_data, error_queue, state_queue, event_l
 
     while True:
         await asyncio.sleep(HOTPLUG_POLL_INTERVAL, loop=event_loop)
-        # TODO: adapt get_working_serial_ports
-        new_serials = ...
+        port_names = map(lambda dev: dev.transport.serial.name, devices.values())
+        new_serials = get_working_serial_ports(set(port_names))
         for port in new_serials:
             try:
-                serial_asyncio.create_serial_connection(event_loop, protocol_factory, port, baudrate=115200)
+                serial_asyncio.create_serial_connection(event_loop, protocol_factory, port,
+                                                        baudrate=115200)
             except serial_asyncio.serial.SerialException:
-                pass 
+                pass
+        await remove_disconnected_devices(error_queue, devices, state_queue, event_loop)
 
 
 class SmartSensorProtocol(asyncio.Protocol):
@@ -260,8 +254,16 @@ async def remove_disconnected_devices(error_queue, devices, state_queue, event_l
             return
 
 
-# pylint: disable=too-many-branches, too-many-locals
-# pylint: disable=too-many-arguments, unused-argument
+async def batch_data(sensor_values, state_queue, event_loop):
+    """
+    Periodically send sensor values to `StateManager`.
+    """
+    while True:
+        await asyncio.sleep(BATCH_SLEEP_TIME, loop=event_loop)
+        await state_queue.coro_put(("device_values", [sensor_values]), loop=event_loop)
+
+
+# pylint: disable=unused-argument
 def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     """
     Run the main hibike processs.
@@ -272,28 +274,18 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     old_queue_context.Queue = lambda: state_queue
     pipe_from_child = aioprocessing.AioConnection(pipe_from_child)
     state_queue = aioprocessing.AioQueue(context=old_queue_context)
-    serials, serial_names = get_working_serial_ports()
-    smart_sensors = identify_smart_sensors(serials)
+
     devices = {}
-
     batched_data = {}
-    error_queue = queue.Queue()
-
     event_loop = asyncio.get_event_loop()
+    error_queue = asyncio.Queue(loop=event_loop)
 
-    # Pings all devices and tells them to stop sending data
-    for pack in devices.values():
-        put_async_queue(pack.write_queue, ("ping", []), event_loop)
-        put_async_queue(pack.write_queue, ("subscribe", [1, 0, []]), event_loop)
-
-
-
+    event_loop.create_task(batch_data(batched_data, state_queue, event_loop))
+    event_loop.create_task(hotplug_async(devices, batched_data, error_queue,
+                                         state_queue, event_loop))
     event_loop.create_task(dispatch_instructions(devices, state_queue, pipe_from_child, event_loop))
     # start event loop
     event_loop.run_forever()
-
-    # the main thread reads instructions from statemanager and
-    # forwards them to the appropriate device write threads
 
 
 async def dispatch_instructions(devices, state_queue, pipe_from_child, event_loop):
@@ -327,12 +319,3 @@ async def dispatch_instructions(devices, state_queue, pipe_from_child, event_loo
                 await state_queue.coro_put(("timestamp_up", args), loop=event_loop)
         except KeyError:
             print("Tried to access a nonexistent device")
-
-
-def batch_data(data, state_queue):
-    """
-    Write out DATA to STATE_QUEUE periodically.
-    """
-    while True:
-        time.sleep(BATCH_SLEEP_TIME)
-        state_queue.put(("device_values", [data]))

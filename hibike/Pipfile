@@ -13,6 +13,7 @@ python_version = "3.6"
 
 pyserial = "==3.2.1"
 flask = "*"
+aioprocessing = "*"
 
 
 [dev-packages]

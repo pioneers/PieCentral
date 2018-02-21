@@ -4,11 +4,9 @@ The main Hibike process.
 import asyncio
 from collections import namedtuple
 import glob
-import multiprocessing
 import os
 import queue
 import random
-import threading
 import time
 
 # pylint: disable=import-error

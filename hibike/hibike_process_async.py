@@ -14,6 +14,7 @@ import time
 # pylint: disable=import-error
 import hibike_message as hm
 import serial_asyncio
+import aioprocessing
 __all__ = ["hibike_process"]
 
 
@@ -375,6 +376,12 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     """
     Run the main hibike processs.
     """
+    # By default, AioQueue instantiates a new Queue object, but we
+    # don't want that.
+    old_queue_context = namedtuple("StateManagerQueue", ["Queue"])
+    old_queue_context.Queue = lambda: state_queue
+    pipe_from_child = aioprocessing.AioConnection(pipe_from_child)
+    state_queue = aioprocessing.AioQueue(context=old_queue_context)
     serials, serial_names = get_working_serial_ports()
     smart_sensors = identify_smart_sensors(serials)
     devices = {}
@@ -405,13 +412,20 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
 
 
 
+    event_loop.create_task(dispatch_instructions(devices, pipe_from_child, event_loop))
     # start event loop
     event_loop.run_forever()
 
     # the main thread reads instructions from statemanager and
     # forwards them to the appropriate device write threads
+
+
+async def dispatch_instructions(devices, state_queue, pipe_from_child, event_loop):
+    """
+    Respond to instructions from `StateManager`.
+    """
     while True:
-        instruction, args = pipe_from_child.recv()
+        instruction, args = await pipe_from_child.coro_recv(loop=event_loop)
         try:
             if instruction == "enumerate_all":
                 for pack in devices.values():
@@ -434,7 +448,7 @@ def hibike_process(bad_things_queue, state_queue, pipe_from_child):
             elif instruction == "timestamp_down":
                 timestamp = time.time()
                 args.append(timestamp)
-                state_queue.put(("timestamp_up", args))
+                await state_queue.coro_put(("timestamp_up", args), loop=event_loop)
         except KeyError:
             print("Tried to access a nonexistent device")
 

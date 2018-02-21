@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "adea5b8e150cea323eb500f39501d4116d84468434a2a8bee6145ef902fcf8df"
+            "sha256": "368818475f1591d77d690b11581762aae9c726f6bcea8cc86aba7929150c67af"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -73,6 +73,13 @@
                 "sha256:1eecfe4022240f2eab5af8d414f0504e072ee68377ba63d3b6fe6e66c26f66d1"
             ],
             "version": "==3.2.1"
+        },
+        "pyserial-asyncio": {
+            "hashes": [
+                "sha256:861d975029498e777a67c6d6d392e20b84a79c01608f3778c978d0106467c8f8",
+                "sha256:c40677a8874d8c24d4423a97498746de776f6dbcd0efbb8fa43dcf011a589aee"
+            ],
+            "version": "==0.4"
         },
         "werkzeug": {
             "hashes": [

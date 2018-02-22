@@ -1,9 +1,12 @@
 """Basic robot control to test motors and drive"""
+
+# Choose whether to test the bot with a controller
 IGNORE_CONTROLLER = False
 
 # Update motor values below
 left_motor = ""
 right_motor = ""
+assert left_motor and right_motor, "Insert the motor IDs from Dawn"
 
 def autonomous_setup():
     print("Autonomous mode has started!")

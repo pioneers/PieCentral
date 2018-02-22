@@ -4,7 +4,29 @@ import random
 #
 # See example:
 #
-# def example_usage():
+# def example_usage2():
+#     # Example: we have 4 rfids and 4 codes, one for each RFID.
+#
+#     codes = [1, 1, 1, 1] # Must be initialized with non-zero values
+#     rfids = [123, 234, 345, 456] # The RFIDs. These shouldn't change.
+#
+#     # Generate the intial set of codes
+#     get_new_code(rfids, codes, 0)
+#     get_new_code(rfids, codes, 1)
+#     get_new_code(rfids, codes, 2)
+#     get_new_code(rfids, codes, 3)
+#
+#     # If we need to make a new code for a given RFID, we can just run this to update it:
+#     get_new_code(rfids, codes, 2) # Make a new code for RFID #2
+#
+#     # All the answers for each (rfid, code) pair are unique.
+#     assert(len(set(staff_decode(codes[i], rfids[i]) for i in range(len(codes)))) == len(codes))
+#
+# def alternate_usage():
+#   # This was the original way to use the API. In this case, we want there to
+#   # be just a single code for all the RFIDs, for which there can be any amount
+#   # of challenge codes generated for all the RFIDs.
+#
 #   # RIFD, list and numbers can be any non-negative size
 #   rfids = [1234, 2345, 3456, 4567, 5678, 6789]
 #   codegen = Codegen(rfids)

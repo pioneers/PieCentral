@@ -190,8 +190,10 @@ def flush_scores():
     '''
     Sends the most recent match score to the spreadsheet if connected to the internet
     '''
-    Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score, alliances[ALLIANCE_COLOR.GOLD].score)
-    #TODO: error handling for no internet, should just not crash but not do anything else
+    try:
+        Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score, alliances[ALLIANCE_COLOR.GOLD].score)
+    except:
+        print("<1> Writing to Sheet Failed")
 
 def enable_robots(autonomous):
     '''
@@ -249,8 +251,6 @@ def goal_bid(args):
     goal_name = args["goal"]
     goals.get(goal_name).bid(alliances.get(alliance))
 
-    #TODO: Push bid timer, bid amount, curr bid owner to scoreboard (maybe this is done now??)
-    #TODO: Send bid amount, and curr bid owner to sensors
 
 def powerup_application(args):
     '''
@@ -279,10 +279,23 @@ def bid_complete(args):
     Update scoreboard and sensors with this information as well
     '''
     goal_name = args["goal"]
-    goals.get(goal_name).set_owner(goals.get(goal_name).current_bid_team)
-    #TODO: handle bid disqualification
+    alliance = goals.get(goal_name).current_bid_team
+    goals.get(goal_name).set_owner(alliance)
+
+    for goal in goals.values():
+        if goal.owner is not None:
+            continue
+        if goal.current_bid_team == alliance and alliance.score < goal.current_bid:
+            goal.current_bid = goal.previous_bid
+            goal.current_bid_team = goal.previous_bid_team
+            goal.previous_bid = self.start_bid
+            goal.previous_bid_team = None
+            #TODO: send current bid team to scoreboard
+        if goal.current_bid_team is None:
+            goal.bid_timer.reset()
+            #TODO: send reset timer message to scoreboard
+
     #TODO: send owner info and bid leader info to sensors and scoreboard
-    #TODO: subtract points and send point info back to sensors and scoreboard
 
 ###########################################
 # Event to Function Mappings for each Stage

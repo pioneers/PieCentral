@@ -728,7 +728,7 @@ def _debug_random_sample(sample_size, regenerate_rfids=False, seed=0):
         print('!! Time also includes regenerating a new set of RFIDs for every code.')
     return count
 
-def generate_six_codes(rfids):
+def get_original_codes(rfids):
     '''
     Generates six identical codes that have no collisions in the solutions.
     '''

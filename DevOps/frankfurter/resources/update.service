@@ -1,9 +1,9 @@
 [Unit]
-Description=update service
+Description=Robot software updater
 After=local-fs.target
 
 [Service]
-Type=simple
+Type=oneshot
 ExecStart=/home/ubuntu/bin/update.sh
 
 [Install]

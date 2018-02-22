@@ -418,31 +418,32 @@ def silly_base_two(num):
         output += bit * (10 ** place)
         place += 1
     return output
+
 def most_common_digit(num):
     '''
     Every digit in the input occurs N times. (exclude zero)
     Output the digit with the greatest N.
     (If there is a tie, use the largest digit)
-    Return that (digit + 10) raised to the power of (N x 2)
-
-    Special case: zero should just output 100.
+    Return that digit
+    
+    Special case: 0 outputs 0
 
     >>> most_common_digit(2)
-    144
+    2
     >>> most_common_digit(3)
-    169
+    3
     >>> most_common_digit(3127)
-    289
+    7
     >>> most_common_digit(2557)
-    50625
+    5
     >>> most_common_digit(1251)
-    14641
+    1
     >>> most_common_digit(111222333444)
-    7529536
+    4
     >>> most_common_digit(314159265358979324)
-    47045881
+    9
     >>> most_common_digit(0)
-    100
+    0
     '''
     counts = {}
     for digit in range(0, 10):
@@ -457,7 +458,7 @@ def most_common_digit(num):
         if counts[digit] >= biggest_count:
             biggest_count = counts[digit]
             output = digit
-    return (output + 10) ** (biggest_count * 2)
+    return output
 def valid_isbn_ten(num):
     '''
     ISBN-10 validation: Check that the given ISBN-10 number is valid.
@@ -662,9 +663,14 @@ def staff_decode(challenge_code, rfid_seed, precompute=None):
         else:
             result = precompute[digit][rfid_seed]
 
-        output += '555' + str(result)
-
-    return int(output)
+        output += str(result)
+    output = int(output) % 10000
+    random.seed(output)
+    output = str(random.randint(1000, 9999))
+    final_output = 0
+    for i in output:
+        final_output = final_output * 10 + (int(i) % 5) + 1
+    return final_output
 
 def _debug_random_sample(sample_size, regenerate_rfids=False, seed=0):
     # Random sampling of codes, finds how frequent each digit is
@@ -700,6 +706,32 @@ def _debug_random_sample(sample_size, regenerate_rfids=False, seed=0):
         print('!! Time also includes regenerating a new set of RFIDs for every code.')
     return count
 
+def get_new_code(rfids, codes, index):
+    '''
+    Generates a new code for that index such that there are no collisions in the codes or solutions.
+    
+    >>> codes = [1, 1, 1, 1]
+    >>> rfids = [123, 234, 345, 456]
+    >>> _, _, _ = get_new_code(rfids, codes, 0)
+    >>> _, _, _ = get_new_code(rfids, codes, 1)
+    >>> _, _, _ = get_new_code(rfids, codes, 2)
+    >>> _, _, _ = get_new_code(rfids, codes, 3)
+    >>> len(set(staff_decode(codes[i], rfids[i]) for i in range(len(codes)))) == len(codes)
+    True
+    '''
+    solutions = []
+    for i in range(len(codes)):
+        solutions += [staff_decode(codes[i], rfids[i])]
+    while True:
+        gen = Codegen([rfids[index]])
+        challenge = gen.generate_challenge()
+        new_code = challenge.get_code()
+        new_solution = challenge.get_solution(rfids[index])
+        if (not new_solution in solutions) and (not new_code in codes):
+            codes[index], solutions[index] = new_code, new_solution
+            break
+    return rfids, codes, solutions
+    
 if __name__ == "__main__":
     import doctest
     print("Performing doctests...")

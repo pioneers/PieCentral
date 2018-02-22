@@ -1,50 +1,62 @@
-import queue
+import sys
+import time
+import threading
+import serial
 from LCM import *
 from Utils import *
 
-class Sensors: # pylint: disable=too-few-public-methods
-    '''
-    This class will handle receiving information from sensors using pySerial
-    The most important method will be updateSensors() which will return a dictionary
-    of each sensor's current state
+port_one = "/dev/ttyACM0" # change to correct port
+port_two = "/dev/ttyACM1" # change to correct port
 
-    This version of Sensors.py is configured for the 2018 game - Solar Scramble
-    '''
+alliance_mapping = {
+    "gold": ALLIANCE_COLOR.GOLD,
+    "blue": ALLIANCE_COLOR.BLUE
+}
 
-    def code_result(self, result, team):
-        self.bid_stations[team].write(result)
-        self.prev_powerup = result
+goal_mapping = {
+    "a": GOAL.A,
+    "b": GOAL.B,
+    "c": GOAL.C,
+    "d": GOAL.D,
+    "e": GOAL.E,
+    "bg": GOAL.BLUE,
+    "gg": GOAL.GOLD
+}
 
-    def failed_powerup(self, team):
-        self.bid_stations[team].write(self.prev_powerup)
+def transfer_linebreak_data(ser):
+    print("<1> Starting Linebreak Process", flush=True)
+    while True:
+        sensor_msg = ser.readline().decode("utf-8")
+        if len(sensor_msg) != 7: #For Heartbeat
+            continue
+        print("<2> Message Received: ", sensor_msg)
+        alliance = sensor_msg[0:4].lower()
+        alliance_enum = alliance_mapping[alliance]
+        goal_letter = sensor_msg[4].lower()
+        if goal_letter == "g":
+            alliance_letter = alliance[0] # 'b' or 'g'
+            goal_enum = goal_mapping[alliance_letter + "g"]
+        else:
+            goal_enum = goal_mapping[goal_letter]
+        lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.GOAL_SCORE, goal_enum, alliance_enum)
+        time.sleep(0.01)
 
-    def bid_update(self, bids):
-        gold = self.bid_stations[ALLIANCE_COLOR.GOLD]
-        blue = self.bid_stations[ALLIANCE_COLOR.BLUE]
+def main():
+    goal_serial_one = serial.Serial(port_one)
+    goal_serial_two = serial.Serial(port_two)
 
-        for i in range(len(bids)):
-            gold.write(bids[i])
-            blue.write(bids[i])
+    goal_thread_one = threading.Thread(
+        target=transfer_linebreak_data, name="transfer thread one", args=([goal_serial_one]))
+    goal_thread_two = threading.Thread(
+        target=transfer_linebreak_data, name="transfer thread two", args=([goal_serial_two]))
+    goal_thread_one.daemon = True
+    goal_thread_two.daemon = True
 
-    def update_sensors(self):
-        '''
-        This should return a dictionary that maps a sensor name to its current state
-        '''
-        pass
+    goal_thread_one.start()
+    goal_thread_two.start()
 
-    def main(self):
-        while True:
-            event = self.event_queue.get(True)
-            header = event[0]
-            args = event[1:]
-            self.event_map[header](args)
-            #TODO: Implement communicating with PySerial
+    while True:
+        time.sleep(100)
 
-    def __init__(self):
-        self.goal_sensors = {}
-        self.bid_stations = {}
-        self.main_controls = {}
-        self.prev_powerup = None
-        self.event_map = {SENSOR_HEADER.CODE_RESULT: self.code_result, }
-        self.event_queue = queue.Queue()
-        lcm_start_read(LCM_TARGETS.SENSORS, self.event_queue)
+if __name__ == "__main__":
+    main()

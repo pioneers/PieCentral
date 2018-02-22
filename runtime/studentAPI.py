@@ -6,6 +6,7 @@ import csv
 import asyncio
 import inspect
 import io
+import random
 
 from runtimeUtil import *
 from studentCode import next_power, reverse_digits, smallest_prime_fact, double_caesar_cipher # pylint: disable=no-name-in-module
@@ -344,9 +345,15 @@ class Robot(StudentAPI):
 
             result = func_map[digit](rfid_seed)
 
-            output += '555' + str(result)
+            output += str(result)
+        output = int(output) % 10000
+        random.seed(output)
+        output = str(random.randint(1000, 9999))
+        final_output = 0
+        for i in output:
+            final_output = final_output * 10 + (int(i) % 5) + 1
 
-        solution = int(output)
+        solution = int(final_output)
 
         if check_challenge_code == solution:
             self.to_manager.put([SM_COMMANDS.SET_VAL,

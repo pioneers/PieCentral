@@ -425,7 +425,7 @@ def most_common_digit(num):
     Output the digit with the greatest N.
     (If there is a tie, use the largest digit)
     Return that digit
-    
+
     Special case: 0 outputs 0
 
     >>> most_common_digit(2)
@@ -709,7 +709,7 @@ def _debug_random_sample(sample_size, regenerate_rfids=False, seed=0):
 def get_new_code(rfids, codes, index):
     '''
     Generates a new code for that index such that there are no collisions in the codes or solutions.
-    
+
     >>> codes = [1, 1, 1, 1]
     >>> rfids = [123, 234, 345, 456]
     >>> _, _, _ = get_new_code(rfids, codes, 0)
@@ -731,7 +731,7 @@ def get_new_code(rfids, codes, index):
             codes[index], solutions[index] = new_code, new_solution
             break
     return rfids, codes, solutions
-    
+
 if __name__ == "__main__":
     import doctest
     print("Performing doctests...")

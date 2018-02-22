@@ -706,6 +706,17 @@ def _debug_random_sample(sample_size, regenerate_rfids=False, seed=0):
         print('!! Time also includes regenerating a new set of RFIDs for every code.')
     return count
 
+def generate_six_codes(rfids):
+    '''
+    Generates six identical codes that have no collisions in the solutions.
+    '''
+    gen = Codegen(rfids)
+    challenge = gen.generate_challenge()
+    code = challenge.get_code()
+    solutions = [challenge.get_solution(rfid) for rfid in rfids]
+    codes = [code for i in range(len(rfids))]
+    return rfids, codes, solutions
+
 def get_new_code(rfids, codes, index):
     '''
     Generates a new code for that index such that there are no collisions in the codes or solutions.

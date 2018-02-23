@@ -38,13 +38,13 @@ def get_working_serial_ports(excludes=()):
     # Instead access it through Volumes/vagrant/PieCentral
     ports = set(glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*")
                 + glob.glob("/dev/tty.usbmodem*"))
-    ports.difference_update(excludes)
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
         ports.update(open(virtual_device_config_file, "r").read().split())
     except IOError:
         pass
 
+    ports.difference_update(excludes)
     return list(ports)
 
 
@@ -199,12 +199,12 @@ class SmartSensorProtocol(asyncio.Protocol):
                 self.serial_buf = self.serial_buf[new_packet:]
 
     def connection_lost(self, exc):
-        print('port closed')
-        error = namedtuple("Disconnect", ["uid", "instance_id", "accessed"])
-        error.uid = self.uid
-        error.instance_id = self.instance_id
-        error.accessed = False
-        self.error_queue.put_nowait(error)
+        if self.uid is not None:
+            error = namedtuple("Disconnect", ["uid", "instance_id", "accessed"])
+            error.uid = self.uid
+            error.instance_id = self.instance_id
+            error.accessed = False
+            self.error_queue.put_nowait(error)
 
 
 async def remove_disconnected_devices(error_queue, devices, state_queue, event_loop):
@@ -225,7 +225,6 @@ async def remove_disconnected_devices(error_queue, devices, state_queue, event_l
                 # The device has reconnected in the meantime
                 continue
             uid = error.uid
-            pack = devices[uid]
             del devices[uid]
             await state_queue.coro_put(("device_disconnected", [uid]), loop=event_loop)
         except asyncio.QueueEmpty:

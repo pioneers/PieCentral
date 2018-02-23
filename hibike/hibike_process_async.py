@@ -52,18 +52,22 @@ async def hotplug_async(devices, batched_data, error_queue, state_queue, event_l
     """
     Scan for new devices on serial ports and automatically spin them up.
     """
+    pending = set()
     def protocol_factory():
         """
         Create a `SmartSensorProtocol` with necessary parameters filled in.
         """
-        return SmartSensorProtocol(devices, batched_data, error_queue, state_queue, event_loop)
+        return SmartSensorProtocol(devices, batched_data, error_queue,
+                                   state_queue, event_loop, pending)
 
     while True:
         await asyncio.sleep(HOTPLUG_POLL_INTERVAL, loop=event_loop)
-        port_names = map(lambda dev: dev.transport.serial.name, devices.values())
-        new_serials = get_working_serial_ports(set(port_names))
+        port_names = set(map(lambda dev: dev.transport.serial.name, devices.values()))
+        port_names.update(pending)
+        new_serials = get_working_serial_ports(port_names)
         for port in new_serials:
             try:
+                pending.add(port)
                 await serial_asyncio.create_serial_connection(event_loop, protocol_factory, port,
                                                               baudrate=115200)
             except serial_asyncio.serial.SerialException:
@@ -76,7 +80,7 @@ class SmartSensorProtocol(asyncio.Protocol):
     Handle communication over serial with a smart sensor.
     """
     PACKET_BOUNDARY = bytes([0])
-    def __init__(self, devices, batched_data, error_queue, state_queue, event_loop):
+    def __init__(self, devices, batched_data, error_queue, state_queue, event_loop, pending: set):
         # We haven't found out what our UID is yet
         self.uid = None
 
@@ -107,6 +111,7 @@ class SmartSensorProtocol(asyncio.Protocol):
                                   hm.make_subscription_request(hm.uid_to_device_id(self.uid),
                                                                [], 0))
                 devices[self.uid] = self
+            pending.remove(self.transport.serial.name)
 
         event_loop.create_task(self.send_messages())
         event_loop.create_task(self.recv_messages())
@@ -202,10 +207,6 @@ class SmartSensorProtocol(asyncio.Protocol):
         self.error_queue.put_nowait(error)
 
 
-def put_async_queue(queue, data, event_loop):
-    coro = queue.put(data)
-    event_loop.create_task(coro)
-
 async def remove_disconnected_devices(error_queue, devices, state_queue, event_loop):
     """
     Clean up any disconnected devices in `error_queue`.
@@ -276,22 +277,22 @@ async def dispatch_instructions(devices, state_queue, pipe_from_child, event_loo
         try:
             if instruction == "enumerate_all":
                 for pack in devices.values():
-                    put_async_queue(pack.write_queue, ("ping", []), event_loop)
+                    pack.write_queue.put_nowait(("ping", []))
             elif instruction == "subscribe_device":
                 uid = args[0]
                 if uid in devices:
-                    devices[uid].write_queue.put(("subscribe", args))
+                    devices[uid].write_queue.put_nowait(("subscribe", args))
             elif instruction == "write_params":
                 uid = args[0]
                 if uid in devices:
-                    devices[uid].write_queue.put(("write", args))
+                    devices[uid].write_queue.put_nowait(("write", args))
             elif instruction == "read_params":
                 uid = args[0]
                 if uid in devices:
-                    devices[uid].write_queue.put(("read", args))
+                    devices[uid].write_queue.put_nowait(("read", args))
             elif instruction == "disable_all":
                 for pack in devices.values():
-                    put_async_queue(pack.write_queue, ("disable", []), event_loop)
+                    pack.write_queue.put_nowait(("disable", []))
             elif instruction == "timestamp_down":
                 timestamp = time.time()
                 args.append(timestamp)

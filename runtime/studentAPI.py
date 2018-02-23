@@ -290,7 +290,7 @@ class Robot(StudentAPI):
         """Get gamecode answers"""
         return self._get_sm_value("gamecodes_check")
 
-    def decode_message(self, rfid_seed):
+    def decode_message(self, rfid_seed): # pylint: disable=too-many-locals
         """Method for 2018 Game: Solar Scramble
 
         This method will use the students functions to decode a message,
@@ -320,7 +320,7 @@ class Robot(StudentAPI):
             return lambda x: func_a(func_b(x))
         try:
             index = self._get_sm_value("rfids").index(rfid_seed)
-            challenge_code = self._get_gamecodes()[index]
+            code = self._get_gamecodes()[index]
             check_challenge_code = self._get_gamecodes_check()[index]
         except ValueError:
             return False
@@ -337,7 +337,6 @@ class Robot(StudentAPI):
             simd_four_square
         ]
 
-        code = challenge_code
         output = ''
         while code > 0:
             digit = code % 10

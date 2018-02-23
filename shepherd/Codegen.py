@@ -280,14 +280,8 @@ def _helper_filter_map(data_map, filter_map):
     Makes a copy of data_map that only includes keys contained in
     filter_map and only if filter_map[key] evaluates to True
     '''
+    return {key : data_map[key] for key, to_keep in filter_map.items() if to_keep}
 
-    retval = {}
-
-    for key in filter_map:
-        if filter_map[key]:
-            retval[key] = data_map[key]
-
-    return retval
 
 def _helper_pick_random(rand_normalized, weighted_choice_dict):
     '''

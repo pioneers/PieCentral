@@ -43,11 +43,10 @@ def get_working_serial_ports(excludes=()):
         ports.update(open(virtual_device_config_file, "r").read().split())
     except IOError:
         pass
-
     ports.difference_update(excludes)
     return list(ports)
 
-
+  
 async def hotplug_async(devices, batched_data, error_queue, state_queue, event_loop):
     """
     Scan for new devices on serial ports and automatically spin them up.
@@ -85,7 +84,6 @@ class SmartSensorProtocol(asyncio.Protocol):
         self.uid = None
 
         self.write_queue = asyncio.Queue(loop=event_loop)
-
         self.batched_data = batched_data
         self.read_queue = asyncio.Queue(loop=event_loop)
         self.error_queue = error_queue
@@ -124,7 +122,6 @@ class SmartSensorProtocol(asyncio.Protocol):
         await self._ready.wait()
         while not self.transport.is_closing():
             instruction, args = await self.write_queue.get()
-
             if instruction == "ping":
                 hm.send_transport(self.transport, hm.make_ping())
             elif instruction == "subscribe":

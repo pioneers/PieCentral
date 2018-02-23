@@ -1,7 +1,9 @@
 {
     "_meta": {
         "hash": {
+
             "sha256": "368818475f1591d77d690b11581762aae9c726f6bcea8cc86aba7929150c67af"
+
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -12,6 +14,7 @@
             "platform_release": "4.13.0-32-generic",
             "platform_system": "Linux",
             "platform_version": "#35~16.04.1-Ubuntu SMP Thu Jan 25 10:13:43 UTC 2018",
+
             "python_full_version": "3.5.2",
             "python_version": "3.5",
             "sys_platform": "linux"
@@ -34,6 +37,7 @@
             ],
             "version": "==1.0.0"
         },
+
         "click": {
             "hashes": [
                 "sha256:29f99fc6125fbc931b758dc053b3114e55c77a6e4c6c3a2674a2dc986016381d",

@@ -1,19 +1,18 @@
 """
 The main Hibike process.
 """
+import asyncio
 from collections import namedtuple
 import glob
-import multiprocessing
 import os
 import queue
 import random
-import threading
 import time
 
 # pylint: disable=import-error
 import hibike_message as hm
-import serial
-import asyncio
+import serial_asyncio
+import aioprocessing
 __all__ = ["hibike_process"]
 
 
@@ -28,10 +27,10 @@ HOTPLUG_POLL_INTERVAL = 1
 
 def get_working_serial_ports(excludes=()):
     """
-    Scan for open COM ports, except those in EXCLUDES.
+    Scan for open COM ports, except those in `excludes`.
 
     Returns:
-        A list of serial port objects (`serial.Serial`) and port names.
+        A list of port names.
     """
     excludes = set(excludes)
     # Last command is included so that it's compatible with OS X Sierra
@@ -39,210 +38,183 @@ def get_working_serial_ports(excludes=()):
     # Instead access it through Volumes/vagrant/PieCentral
     ports = set(glob.glob("/dev/ttyACM*") + glob.glob("/dev/ttyUSB*")
                 + glob.glob("/dev/tty.usbmodem*"))
-    ports.difference_update(excludes)
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
         ports.update(open(virtual_device_config_file, "r").read().split())
     except IOError:
         pass
 
-    serials = []
-    port_names = []
-    for port in ports:
-        try:
-            serials.append(serial.Serial(port, 115200))
-            port_names.append(port)
-        except serial.serialutil.SerialException:
-            print("Cannot Open Serial Port: " + str(port))
-    return serials, port_names
+    ports.difference_update(excludes)
+    return list(ports)
 
-def identify_smart_sensors(serial_conns):
+
+async def hotplug_async(devices, batched_data, error_queue, state_queue, event_loop):
     """
-    Given a list of serial port connections, figure out which
-    contain smart sensors.
-
-    Returns:
-        A map of serial port names to UIDs.
+    Scan for new devices on serial ports and automatically spin them up.
     """
-    def recv_subscription_response(conn, uid_queue, stop_event):
+    pending = set()
+    def protocol_factory():
         """
-        Place received subscription response UIDs from CONN into UID_QUEUE,
-        stopping when STOP_EVENT is set.
+        Create a `SmartSensorProtocol` with necessary parameters filled in.
         """
-        try:
-            for packet in hm.blocking_read_generator(conn, stop_event):
-                msg_type = packet.get_message_id()
-                if msg_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
-                    _, _, uid = hm.parse_subscription_response(packet)
-                    uid_queue.put(uid)
-        except serial.SerialException:
-            pass
+        return SmartSensorProtocol(devices, batched_data, error_queue,
+                                   state_queue, event_loop, pending)
+
+    while True:
+        await asyncio.sleep(HOTPLUG_POLL_INTERVAL, loop=event_loop)
+        port_names = set(map(lambda dev: dev.transport.serial.name, devices.values()))
+        port_names.update(pending)
+        new_serials = get_working_serial_ports(port_names)
+        for port in new_serials:
+            try:
+                pending.add(port)
+                await serial_asyncio.create_serial_connection(event_loop, protocol_factory, port,
+                                                              baudrate=115200)
+            except serial_asyncio.serial.SerialException:
+                pass
+        await remove_disconnected_devices(error_queue, devices, state_queue, event_loop)
 
 
-    device_map = {}
-    candidates = []
-    for conn in serial_conns:
-        old_timeout = conn.write_timeout
-        conn.write_timeout = IDENTIFY_TIMEOUT
-        try:
-            hm.send(conn, hm.make_ping())
-        except serial.SerialTimeoutException:
-            continue
-        finally:
-            conn.write_timeout = old_timeout
-        maybe_device = namedtuple("MaybeDevice", ["serial_conn", "queue", "event", "thread"])
-        maybe_device.queue = queue.Queue()
-        maybe_device.event = threading.Event()
-        maybe_device.serial_conn = conn
-        maybe_device.thread = threading.Thread(target=recv_subscription_response,
-                                               args=(conn, maybe_device.queue, maybe_device.event))
-        candidates.append(maybe_device)
-    for cand in candidates:
-        cand.thread.start()
-    for cand in candidates:
-        try:
-            uid = cand.queue.get(block=True, timeout=IDENTIFY_TIMEOUT)
-            device_map[cand.serial_conn.name] = uid
-            # Shut device up
-            hm.send(cand.serial_conn, hm.make_subscription_request(uid, [], 0))
-        except queue.Empty:
-            pass
-    for cand in candidates:
-        cand.event.set()
-        cand.thread.join()
-    return device_map
-
-
-
-class SerialProtocol(asyncio.Protocol):
+class SmartSensorProtocol(asyncio.Protocol):
     """
     Handle communication over serial with a smart sensor.
     """
-    def __init__(self, uid, write_queue, error_queue, state_queue, event_loop):
-        self.uid = uid
-        self.write_queue = write_queue
+    PACKET_BOUNDARY = bytes([0])
+    def __init__(self, devices, batched_data, error_queue, state_queue, event_loop, pending: set):
+        # We haven't found out what our UID is yet
+        self.uid = None
+
+        self.write_queue = asyncio.Queue(loop=event_loop)
+
+        self.batched_data = batched_data
+        self.read_queue = asyncio.Queue(loop=event_loop)
         self.error_queue = error_queue
         self.state_queue = state_queue
-        self._ready = asyncio.Event()
-        asyncio.ensure_future(self.send_messages, loop=event_loop)
+        self.instance_id = random.getrandbits(128)
+
+        self.transport = None
+        self._ready = asyncio.Event(loop=event_loop)
+        self.serial_buf = bytearray()
+
+        async def register_sensor():
+            """
+            Register this sensor with `hibike_process`, if possible.
+            """
+            await self._ready.wait()
+            hm.send_transport(self.transport, hm.make_ping())
+            await asyncio.sleep(IDENTIFY_TIMEOUT, loop=event_loop)
+            if self.uid is None:
+                self.quit()
+            else:
+                hm.send_transport(self.transport, hm.make_ping())
+                hm.send_transport(self.transport,
+                                  hm.make_subscription_request(hm.uid_to_device_id(self.uid),
+                                                               [], 0))
+                devices[self.uid] = self
+            pending.remove(self.transport.serial.name)
+
+        event_loop.create_task(self.send_messages())
+        event_loop.create_task(self.recv_messages())
+        event_loop.create_task(register_sensor())
 
     async def send_messages(self):
         """
         Send messages in the queue to the sensor.
         """
         await self._ready.wait()
-        while True:
-            await self.write_queue.get()
-            # TODO: use device_write_coro/transport_write
+        while not self.transport.is_closing():
+            instruction, args = await self.write_queue.get()
+
+            if instruction == "ping":
+                hm.send_transport(self.transport, hm.make_ping())
+            elif instruction == "subscribe":
+                uid, delay, params = args
+                hm.send_transport(self.transport,
+                                  hm.make_subscription_request(hm.uid_to_device_id(uid),
+                                                               params, delay))
+            elif instruction == "read":
+                uid, params = args
+                hm.send_transport(self.transport, hm.make_device_read(hm.uid_to_device_id(uid),
+                                                                      params))
+            elif instruction == "write":
+                uid, params_and_values = args
+                hm.send_transport(self.transport, hm.make_device_write(hm.uid_to_device_id(uid),
+                                                                       params_and_values))
+            elif instruction == "disable":
+                hm.send_transport(self.transport, hm.make_disable())
+            elif instruction == "heartResp":
+                uid = args[0]
+                hm.send_transport(self.transport, hm.make_heartbeat_response())
+
+    async def recv_messages(self):
+        """
+        Process received messages.
+        """
+        await self._ready.wait()
+        while not self.transport.is_closing():
+            packet = await self.read_queue.get()
+            message_type = packet.get_message_id()
+            if message_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
+                params, delay, uid = hm.parse_subscription_response(packet)
+                self.uid = uid
+                self.state_queue.put_nowait(("device_subscribed", [uid, delay, params]))
+            elif message_type == hm.MESSAGE_TYPES["DeviceData"]:
+                # This is kind of a hack, but it allows us to use `recv_messages` for
+                # detecting new smart sensors as well as reading from known ones.
+                if self.uid is not None:
+                    params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(self.uid))
+                    self.batched_data[uid] = params_and_values
+            elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
+                if self.uid is not None:
+                    self.write_queue.put_nowait(("heartResp", [self.uid]))
 
     def connection_made(self, transport):
-        self._ready.set()
         self.transport = transport
-        print('port opened', transport)
-        transport.serial.rts = False  # You can manipulate Serial object via transport
-        self.curr_message = ""
+        self._ready.set()
+
+    def quit(self):
+        """
+        Stop processing packets and close the serial connection.
+        """
+        self.transport.abort()
 
     def data_received(self, data):
-        message_type = packet.get_message_id()
-        if message_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
-            params, delay, uid = hm.parse_subscription_response(packet)
-            state_queue.put(("device_subscribed", [uid, delay, params]))
-        elif message_type == hm.MESSAGE_TYPES["DeviceData"]:
-            params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-            batched_data[uid] = params_and_values
-        elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
-            instruction_queue.put(("heartResp", [uid]))
+        """
+        Attempt to parse data from the serial port into
+        a Hibike packet.
+        """
+        self.serial_buf.extend(data)
+        zero_loc = self.serial_buf.find(self.PACKET_BOUNDARY)
+        if zero_loc != -1:
+            self.serial_buf = self.serial_buf[zero_loc:]
+            packet = hm.parse_bytes(self.serial_buf)
+            if packet != None:
+                # Chop off a byte so we don't output this packet again
+                self.serial_buf = self.serial_buf[1:]
+                self.read_queue.put_nowait(packet)
+            elif self.serial_buf.count(self.PACKET_BOUNDARY) > 1:
+                # If there's another packet in the buffer
+                # we can safely jump to it for the next iteration
+                new_packet = self.serial_buf[1:].find(self.PACKET_BOUNDARY) + 1
+                self.serial_buf = self.serial_buf[new_packet:]
 
     def connection_lost(self, exc):
-        print('port closed')
-        # self.transport.loop.stop()
-        self.transport.close()
+        if self.uid is not None:
+            error = namedtuple("Disconnect", ["uid", "instance_id", "accessed"])
+            error.uid = self.uid
+            error.instance_id = self.instance_id
+            error.accessed = False
+            self.error_queue.put_nowait(error)
 
 
-def spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, event_loop):
+async def remove_disconnected_devices(error_queue, devices, state_queue, event_loop):
     """
-    Spin up a device with a given UID on SERIAL_PORT.
-
-    Returns:
-        The new device.
-    """
-    pack = namedtuple("Threadpack", ["read_thread", "write_thread",
-                                     "write_queue", "serial_port", "instance_id"])
-    pack.write_queue = asyncio.Queue()
-    pack.serial_port = serial_port
-
-    coro = serial_asyncio.create_serial_connection(event_loop, AsyncProtocol, serial_port, baudrate=115200)
-    transport, protocol = event_loop.run_until_complete(coro)
-
-
-    # hopefully the read_coro is already handled by the transport
-    pack.write_coro = device_write_coro(transport, pack.write_queue)
-    event_loop.create_task(pack.write_coro)
-
-    # This is an ID that does not persist across disconnects,
-    # so that we can tell when a device has been reconnected.
-    pack.instance_id = random.getrandbits(128)
-    return pack
-
-
-def hotplug(devices, state_queue, batched_data, error_queue, event_loop):
-    """
-    Remove disconnected devices and scan for new ones.
-    """
-    clean_up_queue = queue.Queue()
-    clean_up_thread = threading.Thread(target=clean_up_devices, args=(clean_up_queue, ))
-    clean_up_thread.start()
-    while True:
-        time.sleep(HOTPLUG_POLL_INTERVAL)
-        scan_for_new_devices(devices, state_queue, batched_data, error_queue, event_loop)
-        remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue)
-
-def put_async_queue(queue, data, event_loop):
-    coro = queue.put(data)
-    event_loop.create_task(coro)
-
-def scan_for_new_devices(existing_devices, state_queue, batched_data, error_queue, event_loop):
-    """
-    Find devices that are on serial ports not in EXISTING_DEVICES, and add
-    any that have been found to it.
-    """
-    ports, names = get_working_serial_ports(map(lambda d: d.serial_port.name,
-                                                existing_devices.values()))
-    sensors = identify_smart_sensors(ports)
-
-    for (ser, uid) in sensors.items():
-        idx = names.index(ser)
-        port = ports[idx]
-        pack = spin_up_device(port, uid, state_queue, batched_data, error_queue, event_loop)
-        existing_devices[uid] = pack
-        # Tell the device to start sending data
-        put_async_queue(pack.write_queue, ("ping", []), event_loop)
-        put_async_queue(pack.write_queue, ("subscribe", [1, 0, []]), event_loop)
-
-
-def clean_up_devices(device_queue):
-    """
-    Clean up associated resources of devices in the queue.
-
-    Closing a serial port can take a very long time (30 seconds or more).
-    It's best to spin this function off into its own thread,
-    so that you're not blocked on reclaiming resources.
-    """
-    while True:
-        device = device_queue.get()
-        device.serial_port.close()
-        device.read_thread.join()
-        device.write_thread.join()
-
-
-def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queue):
-    """
-    Clean up any disconnected devices in ERROR_QUEUE.
+    Clean up any disconnected devices in `error_queue`.
     """
     next_time_errors = []
     while True:
         try:
-            error = error_queue.get(block=False)
+            error = error_queue.get_nowait()
             pack = devices[error.uid]
             if not error.accessed:
                 # Wait until the next cycle to make sure it's disconnected
@@ -253,265 +225,76 @@ def remove_disconnected_devices(error_queue, devices, clean_up_queue, state_queu
                 # The device has reconnected in the meantime
                 continue
             uid = error.uid
-            pack = devices[uid]
             del devices[uid]
-            clean_up_queue.put(pack)
-            state_queue.put(("device_disconnected", [uid]))
-        except queue.Empty:
+            await state_queue.coro_put(("device_disconnected", [uid]), loop=event_loop)
+        except asyncio.QueueEmpty:
             for err in next_time_errors:
-                error_queue.put(err)
+                error_queue.put_nowait(err)
             return
 
 
-# pylint: disable=too-many-branches, too-many-locals
-# pylint: disable=too-many-arguments, unused-argument
+async def batch_data(sensor_values, state_queue, event_loop):
+    """
+    Periodically send sensor values to `StateManager`.
+    """
+    while True:
+        await asyncio.sleep(BATCH_SLEEP_TIME, loop=event_loop)
+        await state_queue.coro_put(("device_values", [sensor_values]), loop=event_loop)
+
+
+# pylint: disable=unused-argument
 def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     """
     Run the main hibike processs.
     """
-    serials, serial_names = get_working_serial_ports()
-    smart_sensors = identify_smart_sensors(serials)
+    # By default, AioQueue instantiates a new Queue object, but we
+    # don't want that.
+    old_queue_context = namedtuple("StateManagerQueue", ["Queue"])
+    old_queue_context.Queue = lambda size: state_queue
+    pipe_from_child = aioprocessing.AioConnection(pipe_from_child)
+    state_queue = aioprocessing.AioQueue(context=old_queue_context)
+
     devices = {}
-
     batched_data = {}
-    error_queue = queue.Queue()
-
     event_loop = asyncio.get_event_loop()
+    error_queue = asyncio.Queue(loop=event_loop)
 
-    for (ser, uid) in smart_sensors.items():
-        index = serial_names.index(ser)
-        serial_port = serials[index]
-        pack = spin_up_device(serial_port, uid, state_queue, batched_data, error_queue, event_loop)
-        devices[uid] = pack
-
-
-
-    batch_thread = threading.Thread(target=batch_data, args=(batched_data, state_queue))
-    batch_thread.start()
-    hotplug_thread = threading.Thread(target=hotplug,
-                                      args=(devices, state_queue, batched_data, error_queue, event_loop))
-    hotplug_thread.start()
-
-    # Pings all devices and tells them to stop sending data
-    for pack in devices.values():
-        put_async_queue(pack.write_queue, ("ping", []), event_loop)
-        put_async_queue(pack.write_queue, ("subscribe", [1, 0, []]), event_loop)
-
-
-
+    event_loop.create_task(batch_data(batched_data, state_queue, event_loop))
+    event_loop.create_task(hotplug_async(devices, batched_data, error_queue,
+                                         state_queue, event_loop))
+    event_loop.create_task(dispatch_instructions(devices, state_queue, pipe_from_child, event_loop))
     # start event loop
     event_loop.run_forever()
 
-    # the main thread reads instructions from statemanager and
-    # forwards them to the appropriate device write threads
+
+async def dispatch_instructions(devices, state_queue, pipe_from_child, event_loop):
+    """
+    Respond to instructions from `StateManager`.
+    """
     while True:
-        instruction, args = pipe_from_child.recv()
+        instruction, args = await pipe_from_child.coro_recv(loop=event_loop)
         try:
             if instruction == "enumerate_all":
                 for pack in devices.values():
-                    put_async_queue(pack.write_queue, ("ping", []), event_loop)
+                    pack.write_queue.put_nowait(("ping", []))
             elif instruction == "subscribe_device":
                 uid = args[0]
                 if uid in devices:
-                    devices[uid].write_queue.put(("subscribe", args))
+                    devices[uid].write_queue.put_nowait(("subscribe", args))
             elif instruction == "write_params":
                 uid = args[0]
                 if uid in devices:
-                    devices[uid].write_queue.put(("write", args))
+                    devices[uid].write_queue.put_nowait(("write", args))
             elif instruction == "read_params":
                 uid = args[0]
                 if uid in devices:
-                    devices[uid].write_queue.put(("read", args))
+                    devices[uid].write_queue.put_nowait(("read", args))
             elif instruction == "disable_all":
                 for pack in devices.values():
-                    put_async_queue(pack.write_queue, ("disable", []), event_loop)
+                    pack.write_queue.put_nowait(("disable", []))
             elif instruction == "timestamp_down":
                 timestamp = time.time()
                 args.append(timestamp)
-                state_queue.put(("timestamp_up", args))
+                await state_queue.coro_put(("timestamp_up", args), loop=event_loop)
         except KeyError:
             print("Tried to access a nonexistent device")
-
-
-async def device_write_coro(transport, instr_queue):
-    """
-    Send packets to SER based on instructions from INSTR_QUEUE.
-    """
-    while not transport.is_closing():
-        instruction, args = await instr_queue.get()
-
-        if instruction == "ping":
-            hm.send_transport(transport, hm.make_ping())
-        elif instruction == "subscribe":
-            uid, delay, params = args
-            hm.send_transport(transport, hm.make_subscription_request(hm.uid_to_device_id(uid), params, delay))
-        elif instruction == "read":
-            uid, params = args
-            hm.send_transport(transport, hm.make_device_read(hm.uid_to_device_id(uid), params))
-        elif instruction == "write":
-            uid, params_and_values = args
-            hm.send_transport(transport, hm.make_device_write(hm.uid_to_device_id(uid), params_and_values))
-        elif instruction == "disable":
-            hm.send_transport(transport, hm.make_disable())
-        elif instruction == "heartResp":
-            uid = args[0]
-            hm.send_transport(transport, hm.make_heartbeat_response())
-
-async def device_read_async(uid, pack, error_queue, state_queue, batched_data, event_loop):
-    """
-    Read packets from SER and update queues and BATCHED_DATA accordingly.
-    """
-    ser = pack.serial_port
-    instruction_queue = pack.write_queue
-    try:
-        while True:
-            packets = await hm.blocking_read_generator_async(ser)
-            for packet in packets:
-                message_type = packet.get_message_id()
-                if message_type == hm.MESSAGE_TYPES["SubscriptionResponse"]:
-                    params, delay, uid = hm.parse_subscription_response(packet)
-                    state_queue.put(("device_subscribed", [uid, delay, params]))
-                elif message_type == hm.MESSAGE_TYPES["DeviceData"]:
-                    params_and_values = hm.parse_device_data(packet, hm.uid_to_device_id(uid))
-                    batched_data[uid] = params_and_values
-                elif message_type == hm.MESSAGE_TYPES["HeartBeatRequest"]:
-                    put_async_queue(instruction_queue, ("heartResp", [uid]), event_loop)
-    except serial.SerialException:
-        error = namedtuple("Disconnect", ["uid", "instance_id", "accessed"])
-        error.uid = uid
-        error.instance_id = pack.instance_id
-        error.accessed = False
-        error_queue.put(error)
-
-
-def batch_data(data, state_queue):
-    """
-    Write out DATA to STATE_QUEUE periodically.
-    """
-    while True:
-        time.sleep(BATCH_SLEEP_TIME)
-        state_queue.put(("device_values", [data]))
-
-
-#############
-## TESTING ##
-#############
-# pylint: disable=invalid-name
-if __name__ == "__main__":
-
-    # helper functions so we can spawn threads that try to read/write to hibike_devices periodically
-    def set_interval_sequence(functions, sec):
-        """
-        Create a thread that executes FUNCTIONS after SEC seconds.
-        """
-        def func_wrapper():
-            """
-            Execute the next function in FUNCTIONS after SEC seconds.
-
-            Cycles through all functions.
-            """
-            set_interval_sequence(functions[1:] + functions[:1], sec)
-            functions[0]()
-        t = threading.Timer(sec, func_wrapper)
-        t.start()
-        return t
-
-    def make_send_write(pipe_to_child, uid, params_and_values):
-        """
-        Create a function that sends UID and PARAMS_AND_VALUES
-        to PIPE_TO_CHILD.
-        """
-        def helper():
-            """
-            Helper function.
-            """
-            pipe_to_child.send(["write_params", [uid, params_and_values]])
-        return helper
-
-    to_child, from_child = multiprocessing.Pipe()
-    main_error_queue = multiprocessing.Queue()
-    main_state_queue = multiprocessing.Queue()
-    newProcess = multiprocessing.Process(target=hibike_process,
-                                         name="hibike_sim",
-                                         args=[main_error_queue, main_state_queue, from_child])
-    newProcess.daemon = True
-    newProcess.start()
-    to_child.send(["enumerate_all", []])
-    uids = set()
-    while True:
-        print("waiting for command")
-        command, main_args = main_state_queue.get()
-        if command == "device_subscribed":
-            dev_uid = main_args[0]
-            if dev_uid not in uids:
-                uids.add(dev_uid)
-                if hm.DEVICES[hm.uid_to_device_id(dev_uid)]["name"] == "TeamFlag":
-                    set_interval_sequence([
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 1), ("led2", 0), ("led3", 0),
-                                         ("led4", 0), ("blue", 0), ("yellow", 0)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 0), ("led2", 1), ("led3", 0),
-                                         ("led4", 0), ("blue", 0), ("yellow", 0)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 0), ("led2", 0), ("led3", 1),
-                                         ("led4", 0), ("blue", 0), ("yellow", 0)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 0), ("led2", 0), ("led3", 0),
-                                         ("led4", 1), ("blue", 0), ("yellow", 0)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 0), ("led2", 0), ("led3", 0),
-                                         ("led4", 0), ("blue", 0), ("yellow", 1)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("led1", 0), ("led2", 0), ("led3", 0),
-                                         ("led4", 0), ("blue", 1), ("yellow", 0)])
-                        ], 0.1)
-                elif hm.DEVICES[hm.uid_to_device_id(dev_uid)]["name"] == "YogiBear":
-                    set_interval_sequence([
-                        make_send_write(to_child, dev_uid, [("duty_cycle", 0)]),
-                        make_send_write(to_child, dev_uid, [("duty_cycle", 0.5)]),
-                        make_send_write(to_child, dev_uid, [("duty_cycle", 1.0)]),
-                        make_send_write(to_child, dev_uid, [("duty_cycle", 0)]),
-                        make_send_write(to_child, dev_uid, [("duty_cycle", -0.5)]),
-                        make_send_write(to_child, dev_uid, [("duty_cycle", -1.0)]),
-                        make_send_write(to_child, dev_uid, [("duty_cycle", 0)])
-                        ], 0.75)
-                elif hm.DEVICES[hm.uid_to_device_id(dev_uid)]["name"] == "ServoControl":
-                    set_interval_sequence([
-                        make_send_write(to_child, dev_uid,
-                                        [("servo0", 1), ("enable0", False),
-                                         ("servo1", 21), ("enable1", True),
-                                         ("servo2", 30), ("enable2", True),
-                                         ("servo3", 8), ("enable3", True)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("servo0", 5), ("enable0", False),
-                                         ("servo1", 5), ("enable1", True),
-                                         ("servo2", 5), ("enable2", True),
-                                         ("servo3", 5), ("enable3", False)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("servo0", 1), ("enable0", True),
-                                         ("servo1", 26), ("enable1", True),
-                                         ("servo2", 30), ("enable2", False),
-                                         ("servo3", 17), ("enable3", True)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("servo0", 13), ("enable0", False),
-                                         ("servo1", 7), ("enable1", False),
-                                         ("servo2", 24), ("enable2", True),
-                                         ("servo3", 10), ("enable3", True)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("servo0", 27), ("enable0", True),
-                                         ("servo1", 2), ("enable1", False),
-                                         ("servo2", 3), ("enable2", False),
-                                         ("servo3", 14), ("enable3", False)]),
-                        make_send_write(to_child, dev_uid,
-                                        [("servo0", 20), ("enable0", True),
-                                         ("servo1", 12), ("enable1", False),
-                                         ("servo2", 20), ("enable2", False),
-                                         ("servo3", 29), ("enable3", True)]),
-                        ], 1)
-                parameters = []
-                for param in hm.DEVICES[hm.uid_to_device_id(dev_uid)]["params"]:
-                    parameters.append(param["name"])
-                to_child.send(["subscribe_device", [dev_uid, 10, parameters]])
-        elif command == "device_values":
-            print("%10.2f, %s" % (time.time(), str(main_args)))

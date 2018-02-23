@@ -346,7 +346,7 @@ class Robot(StudentAPI):
             result = func_map[digit](rfid_seed)
 
             output += str(result)
-        output = int(output) % 10000
+        output = int(output)
         random.seed(output)
         output = str(random.randint(1000, 9999))
         final_output = 0

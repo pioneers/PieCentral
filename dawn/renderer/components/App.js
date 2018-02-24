@@ -53,7 +53,7 @@ class AppComponent extends React.Component {
         return;
       }
       this.props.onFCUpdate(data);
-      ipcRenderer.send('LCM_CONFIG_CHANGE', data);
+      ipcRenderer.send('FC_CONFIG_CHANGE', data);
     });
   }
 

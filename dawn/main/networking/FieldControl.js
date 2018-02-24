@@ -4,14 +4,14 @@ import RendererBridge from '../RendererBridge';
 import { Logger } from '../../renderer/utils/utils';
 import { Ansible } from './Ansible';
 
-class LCMInternals {
+class FCInternals {
   constructor(stationNumber, bridgeAddress, logger) {
     this.socket = null;
     this.queuedPublish = null;
     this.stationNumber = stationNumber;
     this.bridgeAddress = bridgeAddress;
     this.logger = logger;
-    this.logger.log(`SIO SN:${this.stationNumber} BA:${this.bridgeAddress}`);
+    this.logger.log(`Field Control: SN-${this.stationNumber} BA-${this.bridgeAddress}`);
     this.init = this.init.bind(this);
     this.quit = this.quit.bind(this);
   }
@@ -39,30 +39,30 @@ class LCMInternals {
   }
 }
 
-const LCMObject = {
-  LCMInternal: null,
+const FCObject = {
+  FCInternal: null,
   stationNumber: 4,
   bridgeAddress: 'localhost',
-  logger: new Logger('sio', 'SIO-FC Debug'),
+  logger: new Logger('fieldControl', 'Field Control Debug'),
   setup() {
-    if (this.LCMInternal !== null) {
-      this.LCMInternal.quit();
+    if (this.FCInternal !== null) {
+      this.FCInternal.quit();
     }
-    this.LCMInternal = new LCMInternals(this.stationNumber, this.bridgeAddress, LCMObject.logger);
-    this.LCMInternal.init();
+    this.FCInternal = new FCInternals(this.stationNumber, this.bridgeAddress, FCObject.logger);
+    this.FCInternal.init();
   },
-  changeLCMInfo(event, arg) {
+  changeFCInfo(event, arg) {
     if (arg.stationNumber !== null) {
-      LCMObject.stationNumber = arg.stationNumber;
-      LCMObject.logger.log(`stationNumber set to ${LCMObject.stationNumber}`);
+      FCObject.stationNumber = arg.stationNumber;
+      FCObject.logger.log(`stationNumber set to ${FCObject.stationNumber}`);
     }
 
     if (arg.bridgeAddress !== null) {
-      LCMObject.bridgeAddress = arg.bridgeAddress;
-      LCMObject.logger.log(`bridgeAddress set to ${LCMObject.bridgeAddress}`);
+      FCObject.bridgeAddress = arg.bridgeAddress;
+      FCObject.logger.log(`bridgeAddress set to ${FCObject.bridgeAddress}`);
     }
   },
 };
 
 
-export default LCMObject;
+export default FCObject;

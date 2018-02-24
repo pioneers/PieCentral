@@ -240,7 +240,8 @@ def send_goal_owners_sensors():
                    goals.get(GOAL.D).owner,
                    goals.get(GOAL.E).owner]
 
-    lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.GOAL_OWNERS, {"owners" : goal_owners, "bidders" : goal_bidders})
+    lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.GOAL_OWNERS,
+             {"owners" : goal_owners, "bidders" : goal_bidders})
 
 def send_team_scores_sensors():
     team_scores = {ALLIANCE_COLOR.BLUE: alliances.get(ALLIANCE_COLOR.BLUE).score,
@@ -277,7 +278,7 @@ def goal_bid(args):
     goals.get(goal_name).bid(alliances.get(alliance))
     send_goal_owners_sensors()
     send_goal_costs_sensors()
-    
+
 def powerup_application(args):
     '''
     Update state for a code being input, return information to sensors
@@ -290,7 +291,7 @@ def powerup_application(args):
     index = -1
     if index == -1:
         lcm_send(LCM_TARGETS.SENSORS,
-                 SENSOR_HEADER.FAILED_POWERUP, {"alliance" : alliance.name})
+                 SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name})
         return
     if game_state == STATE.AUTO:
         alliance.increment_multiplier()

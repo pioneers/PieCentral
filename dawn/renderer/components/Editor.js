@@ -76,6 +76,13 @@ class Editor extends React.Component {
     this.changeTheme = this.changeTheme.bind(this);
     this.increaseFontsize = this.increaseFontsize.bind(this);
     this.decreaseFontsize = this.decreaseFontsize.bind(this);
+    this.changeFontsizeToEight = this.changeFontsizeToEight.bind(this);
+    this.changeFontsizeToTwelve = this.changeFontsizeToTwelve.bind(this);
+    this.changeFontsizeToFourteen = this.changeFontsizeToFourteen.bind(this);
+    this.changeFontsizeToSixteen = this.changeFontsizeToSixteen.bind(this);
+    this.changeFontsizeToTwenty = this.changeFontsizeToTwenty.bind(this);
+    this.changeFontsizeToTwentyFour = this.changeFontsizeToTwentyFour.bind(this);
+    this.changeFontsizeToTwentyEight = this.changeFontsizeToTwentyEight.bind(this);
     this.startRobot = this.startRobot.bind(this);
     this.stopRobot = this.stopRobot.bind(this);
     this.upload = this.upload.bind(this);
@@ -366,6 +373,55 @@ class Editor extends React.Component {
     });
   }
 
+  changeFontsizeToEight() {
+    this.props.onChangeFontsize(8);
+    storage.set('editorFontSize', { editorFontSize: 8 }, (err) => {
+      if (err) logging.log(err);
+    });
+  }
+
+  changeFontsizeToTwelve() {
+    this.props.onChangeFontsize(12);
+    storage.set('editorFontSize', { editorFontSize: 12 }, (err) => {
+      if (err) logging.log(err);
+    });
+  }
+
+  changeFontsizeToFourteen() {
+    this.props.onChangeFontsize(14);
+    storage.set('editorFontSize', { editorFontSize: 14 }, (err) => {
+      if (err) logging.log(err);
+    });
+  }
+
+  changeFontsizeToSixteen() {
+    this.props.onChangeFontsize(16);
+    storage.set('editorFontSize', { editorFontSize: 16 }, (err) => {
+      if (err) logging.log(err);
+    });
+  }
+
+  changeFontsizeToTwenty() {
+    this.props.onChangeFontsize(20);
+    storage.set('editorFontSize', { editorFontSize: 20 }, (err) => {
+      if (err) logging.log(err);
+    });
+  }
+
+  changeFontsizeToTwentyFour() {
+    this.props.onChangeFontsize(24);
+    storage.set('editorFontSize', { editorFontSize: 24 }, (err) => {
+      if (err) logging.log(err);
+    });
+  }
+
+  changeFontsizeToTwentyEight() {
+    this.props.onChangeFontsize(28);
+    storage.set('editorFontSize', { editorFontSize: 28 }, (err) => {
+      if (err) logging.log(err);
+    });
+  }
+
   raiseConsole() {
     this.setState({ consoleHeight: this.state.consoleHeight + windowInfo.UNIT }, () => {
       this.onWindowResize();
@@ -530,6 +586,33 @@ class Editor extends React.Component {
               />
             </ButtonGroup>
             <ButtonGroup id="editor-settings-buttons">
+              <DropdownButton
+                title="Text Size"
+                bsSize="small"
+                id="choose-theme"
+              >
+                <MenuItem
+                  onClick={this.changeFontsizeToEight}
+                >8</MenuItem>
+                <MenuItem
+                  onClick={this.changeFontsizeToTwelve}
+                >12</MenuItem>
+                <MenuItem
+                  onClick={this.changeFontsizeToFourteen}
+                >14</MenuItem>
+                <MenuItem
+                  onClick={this.changeFontsizeToSixteen}
+                >16</MenuItem>
+                <MenuItem
+                  onClick={this.changeFontsizeToTwenty}
+                >20</MenuItem>
+                <MenuItem
+                  onClick={this.changeFontsizeToTwentyFour}
+                >24</MenuItem>
+                <MenuItem
+                  onClick={this.changeFontsizeToTwentyEight}
+                >28</MenuItem>
+              </DropdownButton>
               <TooltipButton
                 id="increase-font-size"
                 text="Increase font size"

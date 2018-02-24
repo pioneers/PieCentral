@@ -24,7 +24,6 @@ class SENSOR_HEADER():
     TEAM_SCORE = "team_score"
     BID_PRICE = "bid_price"
 
-
 class DAWN_HEADER():
     ROBOT_STATE = "robot_state"
     CODES = "codes"

@@ -324,7 +324,7 @@ def bid_complete(args):
 
     send_team_scores_sensors()
     send_goal_owners_sensors()
-    #TODO: send owner info and bid leader info to sensors and scoreboard
+    #TODO: send owner info and bid leader info to scoreboard
 
 ###########################################
 # Event to Function Mappings for each Stage

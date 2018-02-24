@@ -22,7 +22,7 @@ def sender():
             gNum2 = input("Gold 2 Num: ")
 
             #lcm_send(#lcm_TARGETS.SHEPHERD, SHEPHERD_HEADER.SETUP_MATCH,
-                     bName1, bNum1, bName2, bNum2, gName1, gNum1, gName2, gNum2)
+                     #bName1, bNum1, bName2, bNum2, gName1, gNum1, gName2, gNum2)
 
         elif command == "start next":
             #lcm_send(#lcm_TARGETS.SHEPHERD, SHEPHERD_HEADER.START_NEXT_STAGE)

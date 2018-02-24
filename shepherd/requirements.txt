@@ -1,3 +1,2 @@
 pylint
 pyserial
-google-api-python-client

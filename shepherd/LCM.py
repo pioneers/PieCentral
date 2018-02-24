@@ -40,4 +40,3 @@ def lcm_send(target_channel, header, dic={}): # pylint: disable=dangerous-defaul
     dic['header'] = header
     json_str = json.dumps(dic)
     lcm.LCM(LCM_address).publish(target_channel, json_str.encode())
-

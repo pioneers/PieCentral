@@ -61,3 +61,9 @@ class Alliance:
         self.zero_x_cooldown.reset()
         self.steal_cooldown.reset()
         self.code_cooldown.reset()
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
+                 {"alliance" : self.name, "score" : self.score})
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER,
+                 {"alliance" : self.name, "multiplier" : self.alliance_multiplier})
+        #TODO: Send info to sensors about reset
+        #TODO: Send info to UI about reset

@@ -122,7 +122,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
             "team_flag_uid": [None, t],
             # Solar Scramble Keys
             "gamecodes": [[1, 0, 0, 0, 0, 0], t],
-            "gamecodes_check": [[5551, 0, 0, 0, 0, 0], t],
+            "gamecodes_check": [[4312, 0, 0, 0, 0, 0], t],
             "rfids": [[1, 0, 0, 0, 0, 0], t],
         }
 

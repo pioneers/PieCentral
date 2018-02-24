@@ -33,13 +33,13 @@ def sender():
             if goal_letter is None or alliance is None:
                 print("Invalid input")
                 continue
-            lcm_send(LCM_TARGETS.SHEPHERD, new_input, goal_letter, alliance)
+            #lcm_send(LCM_TARGETS.SHEPHERD, new_input, goal_letter, alliance)
         else:
             print("Invalid input")
 
 def receiver():
     events = queue.Queue()
-    lcm_start_read(LCM_TARGETS.SENSORS, events)
+    #lcm_start_read(LCM_TARGETS.SENSORS, events)
     while True:
         event = events.get(True)
         print(event)

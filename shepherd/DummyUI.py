@@ -1,7 +1,9 @@
+'''
 import queue
 import time
 from LCM import *
 from Utils import *
+
 
 
 def sender():
@@ -21,27 +23,28 @@ def sender():
             gName2 = input("Gold 2 Name: ")
             gNum2 = input("Gold 2 Num: ")
 
-            lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.SETUP_MATCH,
-                     bName1, bNum1, bName2, bNum2, gName1, gNum1, gName2, gNum2)
+            #lcm_send(#lcm_TARGETS.SHEPHERD, SHEPHERD_HEADER.SETUP_MATCH,
+                     #bName1, bNum1, bName2, bNum2, gName1, gNum1, gName2, gNum2)
 
         elif command == "start next":
-            lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.START_NEXT_STAGE)
-
+            #lcm_send(#lcm_TARGETS.SHEPHERD, SHEPHERD_HEADER.START_NEXT_STAGE)
+            pass
         elif command == "restart match":
-            lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.RESET_MATCH)
-
+            #lcm_send(#lcm_TARGETS.SHEPHERD, SHEPHERD_HEADER.RESET_MATCH)
+            pass
         elif command == "score adjust":
             blueAdjust = input("Blue Score Adjust: ")
             goldAdjust = input("Gold Score Adjust: ")
-            lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.SCORE_ADJUST, blueAdjust, goldAdjust)
+            #lcm_send(#lcm_TARGETS.SHEPHERD, SHEPHERD_HEADER.SCORE_ADJUST, blueAdjust, goldAdjust)
 
         elif command == "rfid":
-            lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.GENERATE_RFID)
+            #lcm_send(#lcm_TARGETS.SHEPHERD, SHEPHERD_HEADER.GENERATE_RFID)
+
 
 
 def receiver():
     events = queue.Queue()
-    lcm_start_read(str.encode(LCM_TARGETS.UI), events)
+    #lcm_start_read(str.encode(#lcm_TARGETS.UI), events)
     while True:
         event = events.get()
         print("RECEIVED:", event)
@@ -53,3 +56,4 @@ if __name__ == '__main__':
     receiver_thread.start()
     while True:
         time.sleep(10)
+'''

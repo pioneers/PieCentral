@@ -76,6 +76,7 @@ class Editor extends React.Component {
     this.changeTheme = this.changeTheme.bind(this);
     this.increaseFontsize = this.increaseFontsize.bind(this);
     this.decreaseFontsize = this.decreaseFontsize.bind(this);
+    this.changeFontsizeToFont = this.changeFontsizeToFont.bind(this);
     this.startRobot = this.startRobot.bind(this);
     this.stopRobot = this.stopRobot.bind(this);
     this.upload = this.upload.bind(this);
@@ -366,6 +367,13 @@ class Editor extends React.Component {
     });
   }
 
+  changeFontsizeToFont(fontSize) {
+    this.props.onChangeFontsize(fontSize);
+    storage.set('editorFontSize', { editorFontSize: fontSize }, (err) => {
+      if (err) logging.log(err);
+    });
+  }
+
   raiseConsole() {
     this.setState({ consoleHeight: this.state.consoleHeight + windowInfo.UNIT }, () => {
       this.onWindowResize();
@@ -530,6 +538,33 @@ class Editor extends React.Component {
               />
             </ButtonGroup>
             <ButtonGroup id="editor-settings-buttons">
+              <DropdownButton
+                title="Text Size"
+                bsSize="small"
+                id="choose-theme"
+              >
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(8)}
+                >8</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(12)}
+                >12</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(14)}
+                >14</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(16)}
+                >16</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(20)}
+                >20</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(24)}
+                >24</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(28)}
+                >28</MenuItem>
+              </DropdownButton>
               <TooltipButton
                 id="increase-font-size"
                 text="Increase font size"

@@ -20,6 +20,7 @@ const DebugMenu = {
       click() {
         RendererBridge.registeredWindow.webContents.toggleDevTools();
       },
+      accelerator: 'CommandOrControl+alt+I',
     },
     {
       label: 'Restart Runtime',

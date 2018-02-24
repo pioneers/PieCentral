@@ -7,7 +7,6 @@ def sender():
     input_to_header = {
         "score" : SHEPHERD_HEADER.GOAL_SCORE,
         "bid"   : SHEPHERD_HEADER.GOAL_BID,
-        "code"  : SHEPHERD_HEADER.CODE_INPUT,
     }
 
     input_to_alliance = {

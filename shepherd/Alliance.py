@@ -23,7 +23,7 @@ class Alliance:
                             submit another code
     """
 
-    def __init__(self, name, team_1_name, team_2_name, team_1_number,
+    def __init__(self, name, team_1_name, team_1_number, team_2_name,
                  team_2_number):
 
         self.name = name
@@ -44,8 +44,26 @@ class Alliance:
         """
         self.score += amount
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
-                 [self.name, self.score])
+                 {"alliance" : self.name, "score" : self.score})
+
+    def increment_multiplier(self):
+        if self.alliance_multiplier == 1:
+            self.alliance_multiplier = CONSTANTS.MULTIPLIER_INCREASES[0]
+        elif self.alliance_multiplier == CONSTANTS.MULTIPLIER_INCREASES[0]:
+            self.alliance_multiplier = CONSTANTS.MULTIPLIER_INCREASES[1]
+        elif self.alliance_multiplier == CONSTANTS.MULTIPLIER_INCREASES[1]:
+            self.alliance_multiplier = CONSTANTS.MULTIPLIER_INCREASES[2]
 
     def reset(self):
-        #TODO
-        pass
+        self.score = 0
+        self.alliance_multiplier = 1
+        self.two_x_cooldown.reset()
+        self.zero_x_cooldown.reset()
+        self.steal_cooldown.reset()
+        self.code_cooldown.reset()
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
+                 {"alliance" : self.name, "score" : self.score})
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER,
+                 {"alliance" : self.name, "multiplier" : self.alliance_multiplier})
+        #TODO: Send info to sensors about reset
+        #TODO: Send info to UI about reset

@@ -50,7 +50,6 @@ class Goal:
         self.current_bid_team = None
         self.previous_bid = self.start_bid
         self.previous_bid_team = None
-        
         self.bid_timer.reset()
         self.gold_zero_x_timer.reset()
         self.gold_two_x_timer.reset()

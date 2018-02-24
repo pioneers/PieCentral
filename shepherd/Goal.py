@@ -74,18 +74,20 @@ class Goal:
         self.current_bid += CONSTANTS.BID_INCREASE_CONSTANT
 
         self.previous_bid_team = self.current_bid_team
-        self.current_bid_team  = alliance
+        self.current_bid_team = alliance
 
         if self.bid_timer.is_running():
-            time = CONSTANTS.BID_TIME_INCREASE
+            time_increase = CONSTANTS.BID_TIME_INCREASE
         else:
-            time = CONSTANTS.BID_TIME_INITIAL
+            time_increase = CONSTANTS.BID_TIME_INITIAL
 
-        self.bid_timer.start_timer(time)
+        self.bid_timer.start_timer(time_increase)
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
-                 {"goal" : self.name, "alliance" : self.current_bid_team.name, "bid" : self.current_bid})
+                 {"goal" : self.name,
+                  "alliance" : self.current_bid_team.name,
+                  "bid" : self.current_bid})
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_TIMER,
-                 {"goal" : self.name, "time" : time})
+                 {"goal" : self.name, "time" : time_increase})
         #TODO: Send bid amount, and curr bid owner to sensors
 
 
@@ -131,7 +133,9 @@ class Goal:
                     blue_timer.start_timer(constants_cooldown)
                     lcm_send(LCM_TARGETS.SCOREBOARD,
                              SCOREBOARD_HEADER.POWERUPS,
-                             {"goal" : self.name, "alliance" : alliance.name, "powerup" : powerup_type})
+                             {"goal" : self.name,
+                              "alliance" : alliance.name,
+                              "powerup" : powerup_type})
             elif alliance.name == ALLIANCE_COLOR.GOLD:
                 if gold_timer.is_running():
                     lcm_send(LCM_TARGETS.SENSORS,
@@ -140,7 +144,9 @@ class Goal:
                     gold_timer.start_timer(constants_cooldown)
                     lcm_send(LCM_TARGETS.SCOREBOARD,
                              SCOREBOARD_HEADER.POWERUPS,
-                             {"goal" : self.name, "alliance" : alliance.name, "powerup" : powerup_type})
+                             {"goal" : self.name,
+                              "alliance" : alliance.name,
+                              "powerup" : powerup_type})
 
         if self.owner is None:
             lcm_send(LCM_TARGETS.SENSORS,
@@ -159,7 +165,9 @@ class Goal:
                 self.owner = alliance
                 lcm_send(LCM_TARGETS.SCOREBOARD,
                          SCOREBOARD_HEADER.POWERUPS,
-                         {"goal" : self.name, "alliance" : alliance.name, "powerup" : POWERUP_TYPES.STEAL})
+                         {"goal" : self.name,
+                          "alliance" : alliance.name,
+                          "powerup" : POWERUP_TYPES.STEAL})
         else:
             lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.FAILED_POWERUP, {"alliance" : alliance})
         return

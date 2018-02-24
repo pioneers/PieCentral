@@ -1,6 +1,6 @@
 const initialState = {
   fontSize: 14,
-  editorTheme: 'github',
+  editorTheme: 'tomorrow',
 };
 
 const settings = (state = initialState, action) => {

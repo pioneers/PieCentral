@@ -1,3 +1,4 @@
+# pylint: skip-file
 """To Install: Run `pip install --upgrade google-api-python-client`"""
 
 from __future__ import print_function

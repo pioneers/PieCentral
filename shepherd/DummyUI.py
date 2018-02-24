@@ -21,8 +21,8 @@ def sender():
             gName2 = input("Gold 2 Name: ")
             gNum2 = input("Gold 2 Num: ")
 
-            lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.SETUP_MATCH,
-                     bName1, bNum1, bName2, bNum2, gName1, gNum1, gName2, gNum2)
+            # lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.SETUP_MATCH,
+                     # bName1, bNum1, bName2, bNum2, gName1, gNum1, gName2, gNum2)
 
         elif command == "start next":
             lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.START_NEXT_STAGE)
@@ -33,7 +33,7 @@ def sender():
         elif command == "score adjust":
             blueAdjust = input("Blue Score Adjust: ")
             goldAdjust = input("Gold Score Adjust: ")
-            lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.SCORE_ADJUST, blueAdjust, goldAdjust)
+            # lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.SCORE_ADJUST, blueAdjust, goldAdjust)
 
         elif command == "rfid":
             lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.GENERATE_RFID)

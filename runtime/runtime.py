@@ -20,6 +20,7 @@ from runtimeUtil import *
 ALL_PROCESSES = {}
 
 
+# pylint: disable=too-many-branches
 def runtime(test_name=""): # pylint: disable=too-many-statements
     test_mode = test_name != ""
     max_iter = 3 if test_mode else None
@@ -162,6 +163,15 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
         studentCode.Gamepad = studentAPI.Gamepad(state_queue, pipe)
         studentCode.Actions = studentAPI.Actions
         studentCode.print = studentCode.Robot._print # pylint: disable=protected-access
+
+        # remapping for non-class studentAPI commands
+        studentCode.get_gamepad_value = studentCode.Gamepad.get_value
+        studentCode.get_robot_value = studentCode.Robot.get_value
+        studentCode.set_robot_value = studentCode.Robot.set_value
+        studentCode.is_robot_running = studentCode.Robot.is_running
+        studentCode.run_async = studentCode.Robot.run
+        studentCode.sleep_duration = studentCode.Actions.sleep
+
 
         check_timed_out(setup_fn)
 

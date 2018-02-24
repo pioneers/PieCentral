@@ -38,7 +38,7 @@ def transfer_linebreak_data(ser):
             goal_enum = goal_mapping[alliance_letter + "g"]
         else:
             goal_enum = goal_mapping[goal_letter]
-        lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.GOAL_SCORE, goal_enum, alliance_enum)
+        # lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.GOAL_SCORE, goal_enum, alliance_enum)
         time.sleep(0.01)
 
 def main():

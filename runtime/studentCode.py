@@ -10,7 +10,6 @@ def autonomous_setup():
 def autonomous_main():
     pass
 
-
 def teleop_setup():
     pass
 
@@ -67,6 +66,26 @@ def mainTest_main():
     print("Saying hello to the other side")
     print("DAT:", 1.0 / response)
 
+
+async def sleepDurationHelper():
+    await sleep_duration(1)
+
+def sleepDuration_setup():
+    print("Doing sleep test")
+    run_async(sleepDurationHelper)
+    print(is_robot_running(sleepDurationHelper))
+
+def sleepDuration_main():
+    pass
+
+
+def newAPI_setup():
+    print("running test")
+    print(get_gamepad_value("button_a"))
+    print(get_gamepad_value("joystick_left_x"))
+
+def newAPI_main():
+    pass
 
 def nestedDict_setup():
     pass
@@ -264,3 +283,40 @@ async def asyncSleepHelper2(sleepTestVal):
     sleepTestVal['test'] = True
     await Actions.sleep(.5)
     sleepTestVal['test'] = False
+
+def decode_setup():
+    print(Robot.decode_message(1))
+
+def decode_main():
+    pass
+
+###########################
+# Solar Scramble Functions 
+###########################   
+
+def next_power(num):
+    return num
+
+def reverse_digits(num):
+    return num
+
+def smallest_prime_fact(num):
+    return num
+
+def prime_factor(num):
+    return num
+
+def silly_base_two(num):
+    return num
+
+def most_common_digit(num):
+    return num
+
+def valid_isbn_ten(num):
+    return num
+
+def simd_four_square(num):
+    return num
+
+def double_caesar_cipher(key):
+    return key

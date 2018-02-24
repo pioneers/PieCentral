@@ -44,6 +44,14 @@ const DebugMenu = {
         });
       },
     },
+
+    {
+      label: 'Reload',
+      accelerator: 'CommandOrControl+R',
+      click() {
+        RendererBridge.registeredWindow.reload();
+      },
+    },
   ],
 };
 
@@ -58,12 +66,12 @@ if (process.env.NODE_ENV === 'development') {
       }
     },
   });
-
   DebugMenu.submenu.push({
-    label: 'Reload',
-    accelerator: 'CommandOrControl+R',
+    label: 'Full Stack Timestamp',
     click() {
-      RendererBridge.registeredWindow.reload();
+      RendererBridge.reduxDispatch({
+        type: 'TIMESTAMP_CHECK',
+      });
     },
   });
 }

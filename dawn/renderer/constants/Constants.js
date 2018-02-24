@@ -1,7 +1,6 @@
 import keyMirror from 'keymirror';
 
-export const REG_VERSION = '0.6.0';
-export const FC_VERSION = 'FC-0.2.0';
+export const VERSION = '2018.0.0';
 export const PeripheralTypes = keyMirror({
   MOTOR_SCALAR: null,
   SENSOR_BOOLEAN: null,

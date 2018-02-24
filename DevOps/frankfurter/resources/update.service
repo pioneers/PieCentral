@@ -1,10 +1,11 @@
 [Unit]
 Description=Robot software updater
 After=local-fs.target
+AssertPathExists=/home/ubuntu/bin
 
 [Service]
 Type=oneshot
-ExecStart=/home/ubuntu/bin/update.sh
+ExecStart=bash /home/ubuntu/bin/update.sh
 
 [Install]
 WantedBy=local-fs.target

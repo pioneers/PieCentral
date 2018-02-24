@@ -1,11 +1,11 @@
 import queue
+import random
 from Alliance import *
 from Goal import *
 from LCM import *
 from Timer import *
 from Utils import *
-from Sheet import *
-import random
+import Sheet
 
 
 ###########################################
@@ -17,6 +17,7 @@ def start():
     Main loop which processes the event queue and calls the appropriate function
     based on game state and the dictionary of available functions
     '''
+    global events
     events = queue.Queue()
     lcm_start_read(LCM_TARGETS.SHEPHERD, events)
     while True:
@@ -58,8 +59,11 @@ def to_setup(args):
     load the teams for the upcoming match, reset all state, and send information to scoreboard.
     By the end, should be ready to start match.
     '''
-    b1_name, b1_num, b2_name, b2_num, g1_name, g1_num, g2_name, g2_num =
-        args["b1name"], args["b1num"], args["b2name"], args["b2num"], args["g1name"], args["g1num"], args["g2name"], args["g2num"]
+    global match_number, powerup_functions
+    b1_name, b1_num = args["b1name"], args["b1num"]
+    b2_name, b2_num = args["b2name"], args["b2num"]
+    g1_name, g1_num = args["g1name"], args["g2num"]
+    g2_name, g2_num = args["g2name"], args["g2num"]
 
     if game_state == STATE.END:
         flush_scores()
@@ -83,10 +87,10 @@ def to_setup(args):
     powerup_functions[3:6] = powerup_functions[0:3]
 
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.TEAMS, {
-             "b1name" : b1_name, "b1num" : b1_num,
-             "b2name" : b2_name, "b2num" : b2_num,
-             "g1name" : g1_name, "g1num" : g1_num,
-             "g2name" : g2_name, "g2num" : g2_num})
+        "b1name" : b1_name, "b1num" : b1_num,
+        "b2name" : b2_name, "b2num" : b2_num,
+        "g1name" : g1_name, "g1num" : g1_num,
+        "g2name" : g2_name, "g2num" : g2_num})
 
     print("ENTERING SETUP STATE")
 
@@ -125,7 +129,7 @@ def to_teleop(args):
     game_state = STATE.TELEOP
 
     for goal in goals.values():
-    	goal.set_teleop()
+        goal.set_teleop()
 
     game_timer.start_timer(CONSTANTS.TELEOP_TIME)
     enable_robots(False)
@@ -137,7 +141,9 @@ def to_end(args):
     and final score adjustments can be made.
     '''
     global game_state
-    lcm_send(LCM_TARGETS.UI,GUI_HEADER.SEND_SCORES,{"blue_score" : alliances[ALLIANCE_COLOR.BLUE].score, "gold_score" : alliances[ALLIANCE_COLOR.GOLD].score})
+    lcm_send(LCM_TARGETS.UI, GUI_HEADER.SEND_SCORES,
+             {"blue_score" : alliances[ALLIANCE_COLOR.BLUE].score,
+              "gold_score" : alliances[ALLIANCE_COLOR.GOLD].score})
     game_state = STATE.END
     disable_robots()
     print("ENTERING END STATE")
@@ -148,7 +154,7 @@ def reset(args=None):
     Should reset all state being tracked by Shepherd.
     ****THIS METHOD MIGHT NEED UPDATING EVERY YEAR BUT SHOULD ALWAYS EXIST****
     '''
-    global game_state
+    global game_state, events
     game_state = STATE.SETUP
     Timer.reset_all()
     events = queue.Queue()
@@ -166,7 +172,7 @@ def reset(args=None):
                  {"goal" : goal.name, "alliance" : None})
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
                  {"goal" : goal.name, "alliance" : goal.current_bid_team.name, "bid"
-                 : goal.current_bid})
+                  : goal.current_bid})
 
     #TODO: Send reset info to scoreboard
 
@@ -181,19 +187,17 @@ def score_adjust(args):
     alliances[ALLIANCE_COLOR.GOLD].score = gold_score
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
              {"alliance" : alliances[ALLIANCE_COLOR.BLUE].name,
-             "score" : alliances[ALLIANCE_COLOR.BLUE].score})
+              "score" : alliances[ALLIANCE_COLOR.BLUE].score})
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
              {"alliance" : alliances[ALLIANCE_COLOR.GOLD].name,
-             "score" : alliances[ALLIANCE_COLOR.GOLD].score})
+              "score" : alliances[ALLIANCE_COLOR.GOLD].score})
 
 def flush_scores():
     '''
     Sends the most recent match score to the spreadsheet if connected to the internet
     '''
-    try:
-        Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score, alliances[ALLIANCE_COLOR.GOLD].score)
-    except:
-        print("<1> Writing to Sheet Failed")
+    Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score,
+                       alliances[ALLIANCE_COLOR.GOLD].score)
 
 def enable_robots(autonomous):
     '''
@@ -220,6 +224,7 @@ def generate_rfids(args):
     Select the set of 6 RFIDs to be used until this method is called again
     RFIDs should be sent to the UI to be displayed for field reset
     '''
+    global curr_rfids
     rfids = open("rfid.txt")
     rfid_list = []
     numbers = rfids.readlines()
@@ -260,14 +265,15 @@ def powerup_application(args):
     '''
     alliance = args["alliance"]
     goal = goals.get(args["goal"])
-    index = CodeGen.check_code(args["code"], curr_rfids)
+    #TODO index = CodeGen.check_code(args["code"], curr_rfids)
+    index = -1
     if index == -1:
         lcm_send(LCM_TARGETS.SENSORS,
-                 SENSOR_HEADER.FAILED_POWERUP {"alliance" : alliance.name})
+                 SENSOR_HEADER.FAILED_POWERUP, {"alliance" : alliance.name})
         return
     if game_state == STATE.AUTO:
         alliance.increment_multiplier()
-    elif game_state = STATE.TELEOP:
+    elif game_state == STATE.TELEOP:
         powerup = powerup_functions[index]
         goal.apply_powerup(powerup, alliance)
 
@@ -288,7 +294,7 @@ def bid_complete(args):
         if goal.current_bid_team == alliance and alliance.score < goal.current_bid:
             goal.current_bid = goal.previous_bid
             goal.current_bid_team = goal.previous_bid_team
-            goal.previous_bid = self.start_bid
+            goal.previous_bid = goal.start_bid
             goal.previous_bid_team = None
             #TODO: send current bid team to scoreboard
         if goal.current_bid_team is None:
@@ -366,7 +372,8 @@ goals = {
 
 rfid_pool = None
 curr_rfids = None
-powerup_functions = [None,None,None,None,None,None]
+powerup_functions = [None, None, None, None, None, None]
+events = None
 
 if __name__ == '__main__':
     start()

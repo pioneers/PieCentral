@@ -61,7 +61,7 @@ def write_scores(match_number, blue_score, gold_score):
     try:
         write_online_scores(match_number, blue_score, gold_score)
     except httplib2.ServerNotFoundError:
-        print("unable to write to spreadsheet")
+        print("Unable to write to spreadsheet")
 
 def get_online_match(match_number):
     """

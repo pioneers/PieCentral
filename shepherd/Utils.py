@@ -111,5 +111,5 @@ class STATE():
     SETUP = "setup"
     AUTO = "auto"
     WAIT = "wait"
-    TELE = "tele"
+    TELEOP = "teleop"
     END = "end"

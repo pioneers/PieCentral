@@ -162,19 +162,8 @@ def reset(args=None):
     for alliance in alliances.values():
         if alliance is not None:
             alliance.reset()
-            lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
-                     {"alliance" : alliance.name, "score" : alliance.score})
-            lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER,
-                     {"alliance" : alliance.name, "multiplier" : alliance.alliance_multiplier})
     for goal in goals.values():
         goal.reset()
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.GOAL_OWNED,
-                 {"goal" : goal.name, "alliance" : None})
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
-                 {"goal" : goal.name, "alliance" : goal.current_bid_team.name, "bid"
-                  : goal.current_bid})
-
-    #TODO: Send reset info to scoreboard
 
     print("RESET MATCH, MOVE TO SETUP")
 

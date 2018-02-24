@@ -3,7 +3,7 @@ import fs from 'fs';
 export const TIMEOUT = 5000;
 
 export const pathToName = (filepath) => {
-  if (filepath !== null) {
+  if (filepath !== null && filepath !== '') {
     if (process.platform === 'win32') {
       return filepath.split('\\').pop();
     }
@@ -72,7 +72,7 @@ export const timings = {
 
 export const windowInfo = {
   UNIT: 10,
-  NONEDITOR: 235,
+  NONEDITOR: 180,
   CONSOLEPAD: 40,
   CONSOLESTART: 250,
   CONSOLEMAX: 350,

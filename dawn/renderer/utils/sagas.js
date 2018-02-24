@@ -7,7 +7,7 @@
 import fs from 'fs';
 import _ from 'lodash';
 import { delay, eventChannel } from 'redux-saga';
-import { call, cps, fork, put, race, select, take, takeEvery } from 'redux-saga/effects';
+import { all, call, cps, fork, put, race, select, take, takeEvery } from 'redux-saga/effects';
 import { ipcRenderer, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
@@ -17,7 +17,7 @@ import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
 
 
-const Client = require('ssh2').Client;
+const { Client } = require('ssh2');
 
 let timestamp = Date.now();
 
@@ -111,8 +111,8 @@ const editorState = state => ({
 
 function* saveFile(action) {
   const result = yield select(editorState);
-  let filepath = result.filepath;
-  const code = result.code;
+  let { filepath } = result;
+  const { code } = result;
   // If the action is a "save as" OR there is no filepath (ie, a new file)
   // then we open the save file dialog so the user can specify a filename before saving.
   if (action.saveAs === true || !filepath) {
@@ -159,6 +159,32 @@ function* openFile(action) {
     }
   } else {
     logging.log(`File ${type} canceled.`);
+  }
+}
+
+function* dragFile(action) {
+  const result = yield select(editorSavedState);
+  let res = 1; // Refers to unsavedDialog choices
+  if (result.code !== result.savedCode) {
+    res = yield call(unsavedDialog, 'open');
+    if (res === 0) {
+      yield* saveFile({
+        type: 'SAVE_FILE',
+        saveAs: false,
+      });
+    }
+  }
+
+  if (res === 0 || res === 1) {
+    try {
+      const { filepath } = action;
+      const data = yield cps(fs.readFile, filepath, 'utf8');
+      yield put(openFileSucceeded(data, filepath));
+    } catch (e) {
+      logging.log('Failure to Drag File In');
+    }
+  } else {
+    logging.log('Drag File Operation Canceled');
   }
 }
 
@@ -307,7 +333,8 @@ function* restartRuntime() {
   if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
     const network = yield call(() => new Promise((resolve) => {
       conn.on('ready', () => {
-        conn.exec('sudo systemctl restart runtime.service',
+        conn.exec(
+          'sudo systemctl restart runtime.service',
           { pty: true }, (uperr, stream) => {
             if (uperr) {
               resolve(1);
@@ -318,7 +345,8 @@ function* restartRuntime() {
               conn.end();
               resolve(0);
             });
-          });
+          },
+        );
       }).connect({
         debug: (inpt) => {
           logging.log(inpt);
@@ -355,17 +383,20 @@ function* downloadStudentCode() {
       conn.on('ready', () => {
         conn.sftp((err, sftp) => {
           if (err) resolve(1);
-          sftp.fastGet('./PieCentral/runtime/studentCode.py', `${path}/robotCode.py`,
-            { step: (totalTransferred, chunk, total) => {
-              if (totalTransferred === total) {
-                resolve(0);
-              }
-            },
+          sftp.fastGet(
+            './PieCentral/runtime/studentCode.py', `${path}/robotCode.py`,
+            {
+              step: (totalTransferred, chunk, total) => {
+                if (totalTransferred === total) {
+                  resolve(0);
+                }
+              },
             },
             (err2) => {
               logging.log(err2);
               resolve(2);
-            });
+            },
+          );
         });
       }).connect({
         debug: (inpt) => {
@@ -385,19 +416,22 @@ function* downloadStudentCode() {
         break;
       }
       case 1: {
-        yield addAsyncAlert('Robot File Download Error',
+        yield addAsyncAlert(
+          'Robot File Download Error',
           'Dawn was unable to connect to the robot for file download.',
         );
         break;
       }
       case 2: {
-        yield addAsyncAlert('Robot File Download Error',
+        yield addAsyncAlert(
+          'Robot File Download Error',
           'Dawn was unable to download student code fully.',
         );
         break;
       }
       default: {
-        yield addAsyncAlert('Robot File Download Error',
+        yield addAsyncAlert(
+          'Robot File Download Error',
           'Dawn was unable to download student code due to some unknown error.',
         );
         break;
@@ -414,7 +448,8 @@ function* tcpConfirmation() {
 
   if (!result.update) {
     this.logger.log('Runtime failed to confirm');
-    yield addAsyncAlert('Upload Issue',
+    yield addAsyncAlert(
+      'Upload Issue',
       'Runtime Unresponsive',
     );
   } else {
@@ -435,7 +470,8 @@ function* tcpConfirmation() {
             logging.log(err);
             resolve(1);
           }
-          sftp.fastPut(stateSlice.filepath, './PieCentral/runtime/studentCode.py',
+          sftp.fastPut(
+            stateSlice.filepath, './PieCentral/runtime/studentCode.py',
             {
               step: (totalTransferred, chunk, total) => {
                 if (totalTransferred === total) {
@@ -448,7 +484,8 @@ function* tcpConfirmation() {
                 logging.log(err2);
                 resolve(2);
               }
-            });
+            },
+          );
         });
       }).connect({
         debug: (input) => {
@@ -463,31 +500,36 @@ function* tcpConfirmation() {
 
     switch (errors) {
       case 0: {
-        yield addAsyncAlert('Upload Success',
+        yield addAsyncAlert(
+          'Upload Success',
           'File Uploaded Successfully',
         );
         break;
       }
       case 1: {
-        yield addAsyncAlert('Upload Issue',
+        yield addAsyncAlert(
+          'Upload Issue',
           'SFTP session could not be initiated',
         );
         break;
       }
       case 2: {
-        yield addAsyncAlert('Upload Issue',
+        yield addAsyncAlert(
+          'Upload Issue',
           'File failed to be transmitted',
         );
         break;
       }
       case 3: {
-        yield addAsyncAlert('Upload Issue',
+        yield addAsyncAlert(
+          'Upload Issue',
           'Robot could not be connected.',
         );
         break;
       }
       default: {
-        yield addAsyncAlert('Upload Issue',
+        yield addAsyncAlert(
+          'Upload Issue',
           'Unknown Error',
         );
         break;
@@ -512,24 +554,30 @@ function* handleFieldControl() {
   }
 }
 
+function timestampBounceback() {
+  ipcRenderer.send('TIMESTAMP_SEND');
+}
+
 
 /**
  * The root saga combines all the other sagas together into one.
  */
 export default function* rootSaga() {
-  yield [
+  yield all([
     takeEvery('OPEN_FILE', openFile),
     takeEvery('SAVE_FILE', saveFile),
+    takeEvery('DRAG_FILE', dragFile),
     takeEvery('CREATE_NEW_FILE', openFile),
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     takeEvery('RESTART_RUNTIME', restartRuntime),
     takeEvery('DOWNLOAD_CODE', downloadStudentCode),
     takeEvery('NOTIFICATION_SENT', tcpConfirmation),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
+    takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),
     fork(ansibleSaga),
-  ];
+  ]);
 }
 
 export {

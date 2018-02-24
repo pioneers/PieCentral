@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Panel } from 'react-bootstrap';
 
 class ConsoleOutput extends React.Component {
@@ -29,7 +30,7 @@ class ConsoleOutput extends React.Component {
 
 
   render() {
-    const height = `${String(this.props.height)}px`;
+    const height = `${String(this.props.height)}px`; // TODO: Use Panel.Collapse
     return (
       <div>
         <Panel
@@ -39,29 +40,31 @@ class ConsoleOutput extends React.Component {
             borderRadius: '0',
           }}
         >
-          <pre
-            style={{
-              position: 'relative',
-              margin: '0',
-              height,
-            }}
-          >
-            <div
+          <Panel.Body>
+            <pre
               style={{
-                position: 'absolute',
-                bottom: '0',
-                maxHeight: height,
-                overflowY: 'auto',
-                padding: '20px',
-                width: '99%',
+                position: 'relative',
+                margin: '0',
+                height,
               }}
-              ref={(el) => { this.outerDiv = el; }}
             >
-              {this.props.output.map(line => (
-                <code key={`${line}-Code-${Math.random()}`}>{line}</code>
-              ))}
-            </div>
-          </pre>
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  maxHeight: height,
+                  overflowY: 'auto',
+                  padding: '20px',
+                  width: '99%',
+                }}
+                ref={(el) => { this.outerDiv = el; }}
+              >
+                {this.props.output.map(line => (
+                  <code key={`${line}-Code-${Math.random()}`}>{line}</code>
+                ))}
+              </div>
+            </pre>
+          </Panel.Body>
         </Panel>
       </div>
     );
@@ -69,11 +72,11 @@ class ConsoleOutput extends React.Component {
 }
 
 ConsoleOutput.propTypes = {
-  height: React.PropTypes.number,
-  output: React.PropTypes.array,
-  toggleConsole: React.PropTypes.func,
-  show: React.PropTypes.bool,
-  disableScroll: React.PropTypes.bool,
+  height: PropTypes.number.isRequired,
+  output: PropTypes.array.isRequired,
+  toggleConsole: PropTypes.func.isRequired,
+  show: PropTypes.bool.isRequired,
+  disableScroll: PropTypes.bool.isRequired,
 };
 
 export default ConsoleOutput;

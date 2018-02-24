@@ -6,6 +6,7 @@ from __future__ import print_function
 import struct
 import os
 import json
+import threading
 
 CONFIG_FILE = open(os.path.join(
     os.path.dirname(__file__), 'hibikeDevices.json'), 'r')
@@ -196,10 +197,10 @@ def format_string(device_id, params):
     """
     A string representation of the types of PARAMS.
     """
-    param_type = [PARAM_MAP[device_id][name][1] for name in params]
+    param_types = [PARAM_MAP[device_id][name][1] for name in params]
 
     type_string = ''
-    for ptype_key in param_type:
+    for ptype_key in param_types:
         type_string += PARAM_TYPES[ptype_key]
     return type_string
 
@@ -405,19 +406,21 @@ def parse_bytes(msg_bytes):
     return HibikeMessage(message_id, payload)
 
 
-def blocking_read_generator(serial_conn, stop_event=None):
+def blocking_read_generator(serial_conn, stop_event=threading.Event()):
     """
-    Yield packets from SERIAL_CONN, stopping if STOP_EVENT exists
-    and is set.
+    Yield packets from SERIAL_CONN, stopping if STOP_EVENT is set.
     """
     zero_byte = bytes([0])
     packets_buffer = bytearray()
-    while stop_event is None or not stop_event.is_set():
-
+    # Switch to nonblocking mode so that we don't get stuck reading
+    old_timeout = serial_conn.timeout
+    serial_conn.timeout = 0
+    while not stop_event.is_set():
         # Wait for a 0 byte to appear
-        while packets_buffer.find(zero_byte) == -1:
+        if packets_buffer.find(zero_byte) == -1:
             new_bytes = serial_conn.read(max(1, serial_conn.inWaiting()))
             packets_buffer.extend(new_bytes)
+            continue
 
         # Truncate incomplete packets at start of buffer
         packets_buffer = packets_buffer[packets_buffer.find(zero_byte):]
@@ -436,10 +439,13 @@ def blocking_read_generator(serial_conn, stop_event=None):
                 new_packet = packets_buffer[1:].find(zero_byte) + 1
                 packets_buffer = packets_buffer[new_packet:]
             # Otherwise, there might be more incoming bytes for the current packet,
-            # so we do a blocking read and try again
+            # so we do a read and try again
             else:
                 new_bytes = serial_conn.read(max(1, serial_conn.inWaiting()))
                 packets_buffer.extend(new_bytes)
+
+    serial_conn.timeout = old_timeout
+
 
 
 def blocking_read(serial_conn):
@@ -625,3 +631,10 @@ def writable(device_id, param):
     Check if the device at DEVICE_ID's parameter PARAM is writeable.
     """
     return PARAM_MAP[device_id][param][3]
+
+
+def param_type(device_id, param):
+    """
+    Return the data type of the requested parameter.
+    """
+    return PARAM_MAP[device_id][param][1]

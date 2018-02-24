@@ -6,6 +6,7 @@ import csv
 import asyncio
 import inspect
 import io
+import random
 
 from runtimeUtil import *
 from studentCode import next_power, reverse_digits, smallest_prime_fact, double_caesar_cipher # pylint: disable=no-name-in-module
@@ -289,7 +290,7 @@ class Robot(StudentAPI):
         """Get gamecode answers"""
         return self._get_sm_value("gamecodes_check")
 
-    def decode_message(self, rfid_seed):
+    def decode_message(self, rfid_seed): # pylint: disable=too-many-locals
         """Method for 2018 Game: Solar Scramble
 
         This method will use the students functions to decode a message,
@@ -319,7 +320,7 @@ class Robot(StudentAPI):
             return lambda x: func_a(func_b(x))
         try:
             index = self._get_sm_value("rfids").index(rfid_seed)
-            challenge_code = self._get_gamecodes()[index]
+            code = self._get_gamecodes()[index]
             check_challenge_code = self._get_gamecodes_check()[index]
         except ValueError:
             return False
@@ -336,7 +337,6 @@ class Robot(StudentAPI):
             simd_four_square
         ]
 
-        code = challenge_code
         output = ''
         while code > 0:
             digit = code % 10
@@ -344,9 +344,15 @@ class Robot(StudentAPI):
 
             result = func_map[digit](rfid_seed)
 
-            output += '555' + str(result)
+            output += str(result)
+        output = int(output)
+        random.seed(output)
+        output = str(random.randint(1000, 9999))
+        final_output = 0
+        for i in output:
+            final_output = final_output * 10 + (int(i) % 5) + 1
 
-        solution = int(output)
+        solution = int(final_output)
 
         if check_challenge_code == solution:
             self.to_manager.put([SM_COMMANDS.SET_VAL,

@@ -1,15 +1,10 @@
-'''if this isn't working, run "pip install --upgrade google-api-python-client"
-   on the computer.'''
-
+"""To Install: Run `pip install --upgrade google-api-python-client`"""
 
 from __future__ import print_function
-import httplib2
 import os
-
 import csv
-
 from Utils import *
-
+import httplib2
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
@@ -62,9 +57,9 @@ def get_match(match_number):
     except httplib2.ServerNotFoundError:
         return get_offline_match(match_number)
 
-def write_scores(match_number,blue_score,gold_score):
+def write_scores(match_number, blue_score, gold_score):
     try:
-        write_online_scores(match_number,blue_score,gold_score)
+        write_online_scores(match_number, blue_score, gold_score)
     except httplib2.ServerNotFoundError:
         print("unable to write to spreadsheet")
 
@@ -86,27 +81,27 @@ def get_online_match(match_number):
         spreadsheetId=spreadsheetId, range=range_name).execute()
     match = game_data['values'][match_number-1]
     return {"b1name" : match[3], "b1#" : match[2],
-             "b2name" : match[5], "b2#" : match[4],
-             "g1name" : match[7], "g1#" : match[6],
-             "g2name" : match[9], "g2#" : match[8]}
+            "b2name" : match[5], "b2#" : match[4],
+            "g1name" : match[7], "g1#" : match[6],
+            "g2name" : match[9], "g2#" : match[8]}
 
 def get_offline_match(match_number):
     """
     reads from the downloaded csv file in the event that the online file cannot
     be read from.
     """
-    csv_file = open(CONSTANTS.CSV_FILE_NAME, newline = '')
+    csv_file = open(CONSTANTS.CSV_FILE_NAME, newline='')
     match_reader = csv.reader(csv_file, delimiter=' ', quotechar='|')
     matches = list(match_reader)
     match = matches[match_number]
     match = " ".join(match)
     match = match.split(',')
     return {"b1name" : match[3], "b1#" : match[2],
-             "b2name" : match[5], "b2#" : match[4],
-             "g1name" : match[7], "g1#" : match[6],
-             "g2name" : match[9], "g2#" : match[8]}
+            "b2name" : match[5], "b2#" : match[4],
+            "g1name" : match[7], "g1#" : match[6],
+            "g2name" : match[9], "g2#" : match[8]}
 
-def write_online_scores(match_number,blue_score,gold_score):
+def write_online_scores(match_number, blue_score, gold_score):
     """
     A method that writes the scores to the sheet
     """
@@ -120,5 +115,5 @@ def write_online_scores(match_number,blue_score,gold_score):
     range_name = "qual_matches!K"+str(match_number+1)+":L"+str(match_number+1)
     game_scores = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=range_name).execute()
-    game_scores['values'] = [[blue_score,gold_score]]
+    game_scores['values'] = [[blue_score, gold_score]]
     service.spreadsheets().values().update(spreadsheetId=spreadsheetId, range=range_name, body=game_scores, valueInputOption="RAW").execute()

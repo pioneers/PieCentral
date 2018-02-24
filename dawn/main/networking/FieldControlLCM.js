@@ -26,11 +26,13 @@ class LCMInternals {
   }
 
   init() {
-    this.lcm = new LCM(`ws://${this.bridgeAddress}:8000`);
+    this.socket = io('http://127.0.0.1:5000');
+
     this.lcm.on_ready(() => {
       this.lcmReady = true;
       if (this.queuedPublish !== null) {
-        this.lcm.publish(this.queuedPublish[0], this.queuedPublish[1]);
+        this.socket.emit(this.queuedPublish[0], this.queuedPublish[1]);
+        // this.lcm.publish(this.queuedPublish[0], this.queuedPublish[1]);
         this.queuedPublish = null;
       }
       this.lcm.subscribe('Timer/Time', 'Time', (msg) => {

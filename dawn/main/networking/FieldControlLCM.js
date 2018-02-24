@@ -1,97 +1,41 @@
-import { ipcMain } from 'electron';
-import LCM from '../../renderer/utils/lcm_ws_bridge';
-import {
-  updateTimer,
-  updateHeart,
-  updateRobot,
-  updateMatch } from '../../renderer/actions/FieldActions';
+import io from 'socket.io-client';
+import { updateRobot } from '../../renderer/actions/FieldActions';
 import RendererBridge from '../RendererBridge';
 import { Logger } from '../../renderer/utils/utils';
+import { Ansible } from './Ansible';
 
 class LCMInternals {
   constructor(stationNumber, bridgeAddress, logger) {
-    this.lcm = null;
-    this.lcmReady = false;
+    this.socket = null;
     this.queuedPublish = null;
     this.stationNumber = stationNumber;
     this.bridgeAddress = bridgeAddress;
     this.logger = logger;
-    this.logger.log(`LCM SN:${this.stationNumber} BA:${this.bridgeAddress}`);
+    this.logger.log(`SIO SN:${this.stationNumber} BA:${this.bridgeAddress}`);
     this.init = this.init.bind(this);
     this.quit = this.quit.bind(this);
-    this.lcmPublish = this.lcmPublish.bind(this);
-    this.updateStatus = this.updateStatus.bind(this);
-
-    ipcMain.on('LCM_STATUS_UPDATE', this.updateStatus);
   }
 
   init() {
-    this.socket = io('http://127.0.0.1:5000');
+    this.socket = io(`http://${this.bridgeAddress}:7000`);
 
-    this.lcm.on_ready(() => {
-      this.lcmReady = true;
-      if (this.queuedPublish !== null) {
-        this.socket.emit(this.queuedPublish[0], this.queuedPublish[1]);
-        // this.lcm.publish(this.queuedPublish[0], this.queuedPublish[1]);
-        this.queuedPublish = null;
-      }
-      this.lcm.subscribe('Timer/Time', 'Time', (msg) => {
-        RendererBridge.reduxDispatch(updateTimer(msg));
+    this.socket.on('connect', () => {
+      this.socket.on('robot_state', (data) => {
+        RendererBridge.reduxDispatch(updateRobot(JSON.parse(data)));
       });
-      this.lcm.subscribe('Heartbeat/Beat', 'Heartbeat', (msg) => {
-        RendererBridge.reduxDispatch(updateHeart(msg));
-      });
-      this.lcm.subscribe(`Robot${this.stationNumber}/RobotControl`, 'RobotControl', (msg) => {
-        this.logger.log(msg);
-        RendererBridge.reduxDispatch(updateRobot(msg));
-      });
-      this.lcm.subscribe('Timer/Match', 'Match', (msg) => {
-        RendererBridge.reduxDispatch(updateMatch(msg));
+      this.socket.on('codes', (data) => {
+        Ansible.conns[2].sendFieldControl(JSON.parse(data));
       });
     });
-    this.lcm.on_close(this.init);
-  }
-
-  // TODO: Make clearer protocol on how lights should change
-  updateStatus(event, data) {
-    const connected = data.connectionStatus;
-    const ok = data.runtimeStatus;
-    const msg = {
-      __type__: 'StatusLight',
-      red: false,
-      yellow: false,
-      green: false,
-      buzzer: false,
-    };
-    if (connected && ok) {
-      if (ok) {
-        msg.green = true;
-      } else {
-        msg.yellow = true;
-      }
-    } else {
-      msg.red = true;
-    }
-    this.lcmPublish(`StatusLight${this.stationNumber}/StatusLight`, msg);
-  }
-
-  lcmPublish(channel, msg) {
-    if (this.lcmReady) {
-      this.lcm.publish(channel, msg);
-    } else {
-      this.logger.log('lcm publish queued');
-      this.queuedPublish = [channel, msg];
-    }
   }
 
   quit() {
     try {
-      this.lcm.ws.close();
+      this.socket.close();
     } catch (err) {
       this.logger.log(err);
     }
-    ipcMain.removeListener('LCM_STATUS_UPDATE', this.updateStatus);
-    this.lcm = null;
+    this.socket = null;
   }
 }
 
@@ -99,7 +43,7 @@ const LCMObject = {
   LCMInternal: null,
   stationNumber: 4,
   bridgeAddress: 'localhost',
-  logger: new Logger('lcm', 'LCM-FC Debug'),
+  logger: new Logger('sio', 'SIO-FC Debug'),
   setup() {
     if (this.LCMInternal !== null) {
       this.LCMInternal.quit();

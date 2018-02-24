@@ -59,7 +59,7 @@ class Goal:
                  {"goal" : self.name, "alliance" : None})
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
                  {"goal" : self.name, "alliance" : self.current_bid_team.name, "bid"
-                  : self.current_bid})
+                  : self.current_bid + CONSTANTS.BID_INCREASE_CONSTANT})
         #TODO: Send info to sensors about reset
         #TODO: Send info to UI about reset
 
@@ -102,7 +102,7 @@ class Goal:
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
                  {"goal" : self.name,
                   "alliance" : self.current_bid_team.name,
-                  "bid" : self.current_bid})
+                  "bid" : self.current_bid + CONSTANTS.BID_INCREASE_CONSTANT})
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_TIMER,
                  {"goal" : self.name, "time" : time_increase})
         #TODO: Send bid amount, and curr bid owner to sensors

@@ -5,6 +5,7 @@ from Goal import *
 from LCM import *
 from Timer import *
 from Utils import *
+import Codegen
 import Sheet
 
 
@@ -60,6 +61,8 @@ def to_setup(args):
     By the end, should be ready to start match.
     '''
     global match_number, powerup_functions
+    global curr_challenge_codes, curr_codegen_solutions
+
     b1_name, b1_num = args["b1name"], args["b1num"]
     b2_name, b2_num = args["b2name"], args["b2num"]
     g1_name, g1_num = args["g1name"], args["g2num"]
@@ -85,6 +88,11 @@ def to_setup(args):
         i = indexies.pop(random.randint(0, len(indexies))-1)
         powerup_functions[i] = powerup
     powerup_functions[3:6] = powerup_functions[0:3]
+
+    _, curr_challenge_codes, curr_codegen_solutions = Codegen.get_original_codes(curr_rfids)
+    lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.CODES, {"rfids" : curr_rfids,
+                                                   "codes" : curr_challenge_codes,
+                                                   "solutions" : curr_codegen_solutions})
 
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.TEAMS, {
         "b1name" : b1_name, "b1num" : b1_num,
@@ -252,21 +260,30 @@ def powerup_application(args):
     to display result of code being decoded.
     Apply a powerup to a goal. Does not need to say result.
     '''
+    global curr_challenge_codes, curr_codegen_solutions
     alliance = args["alliance"]
     goal = goals.get(args["goal"])
-    #TODO index = CodeGen.check_code(args["code"], curr_rfids)
-    index = -1
-    if index == -1:
-        lcm_send(LCM_TARGETS.SENSORS,
-                 SENSOR_HEADER.FAILED_POWERUP, {"alliance" : alliance.name})
+    code = args["code"]
+
+    try:
+        index = curr_codegen_solutions.index(code)
+    except ValueError:
+        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
+                                                                  "result" : 0})
         return
+    _, curr_challenge_codes, curr_codegen_solutions = \
+            Codegen.get_new_code(curr_rfids, curr_challenge_codes, index)
     if game_state == STATE.AUTO:
         alliance.increment_multiplier()
     elif game_state == STATE.TELEOP:
         powerup = powerup_functions[index]
         goal.apply_powerup(powerup, alliance)
 
-    #TODO: if the powerup didnt work we also need to send the info back to sensors
+    lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.CODES, {"rfids" : curr_rfids,
+                                                   "codes" : curr_challenge_codes,
+                                                   "solutions" : curr_codegen_solutions})
+    lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
+                                                              "result" : 1})
 
 def bid_complete(args):
     '''
@@ -356,13 +373,15 @@ goals = {
     GOAL.D : Goal(GOAL.D, CONSTANTS.GOAL_MED_VALUE, CONSTANTS.GOAL_MED_COST),
     GOAL.E : Goal(GOAL.E, CONSTANTS.GOAL_LOW_VALUE, CONSTANTS.GOAL_LOW_COST),
     GOAL.BLUE : Goal(GOAL.BLUE, CONSTANTS.GOAL_BASE_VALUE, 0),
-    GOAL.GOLD: Goal(GOAL.GOLD, CONSTANTS.GOAL_BASE_VALUE, 0),
+    GOAL.GOLD : Goal(GOAL.GOLD, CONSTANTS.GOAL_BASE_VALUE, 0),
 }
 
 rfid_pool = None
 curr_rfids = None
 powerup_functions = [None, None, None, None, None, None]
 events = None
+curr_challenge_codes = None
+curr_codegen_solutions = None
 
 if __name__ == '__main__':
     start()

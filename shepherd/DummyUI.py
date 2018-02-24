@@ -1,7 +1,9 @@
+'''
 import queue
 import time
 from LCM import *
 from Utils import *
+
 
 
 def sender():
@@ -26,10 +28,10 @@ def sender():
 
         elif command == "start next":
             #lcm_send(#lcm_TARGETS.SHEPHERD, SHEPHERD_HEADER.START_NEXT_STAGE)
-
+            pass
         elif command == "restart match":
             #lcm_send(#lcm_TARGETS.SHEPHERD, SHEPHERD_HEADER.RESET_MATCH)
-
+            pass
         elif command == "score adjust":
             blueAdjust = input("Blue Score Adjust: ")
             goldAdjust = input("Gold Score Adjust: ")
@@ -37,6 +39,7 @@ def sender():
 
         elif command == "rfid":
             #lcm_send(#lcm_TARGETS.SHEPHERD, SHEPHERD_HEADER.GENERATE_RFID)
+
 
 
 def receiver():
@@ -53,3 +56,4 @@ if __name__ == '__main__':
     receiver_thread.start()
     while True:
         time.sleep(10)
+'''

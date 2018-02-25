@@ -253,6 +253,16 @@ def goal_bid(args):
     goal_name = args["goal"]
     goals.get(goal_name).bid(alliances.get(alliance))
 
+def regenerate_codes(args):
+    for state, index in enumerate(dirty_codes):
+        if state:
+            _, curr_challenge_codes, curr_codegen_solutions = \
+                    Codegen.get_new_code(curr_rfids, curr_challenge_codes, index)
+            dirty_codes[index] = False
+
+    lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.CODES, {"rfids" : curr_rfids,
+                                                   "codes" : curr_challenge_codes,
+                                                   "solutions" : curr_codegen_solutions})
 
 def powerup_application(args):
     '''
@@ -260,8 +270,8 @@ def powerup_application(args):
     to display result of code being decoded.
     Apply a powerup to a goal. Does not need to say result.
     '''
-    global curr_challenge_codes, curr_codegen_solutions
-    alliance = args["alliance"]
+    global curr_challenge_codes, curr_codegen_solutions, dirty_codes
+    alliance = alliances.get(args["alliance"])
     goal = goals.get(args["goal"])
     code = args["code"]
 
@@ -271,8 +281,33 @@ def powerup_application(args):
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                   "result" : 0})
         return
-    _, curr_challenge_codes, curr_codegen_solutions = \
-            Codegen.get_new_code(curr_rfids, curr_challenge_codes, index)
+
+    powerup = powerup_functions[index]
+
+    if powerup == POWERUP_TYPES.ZERO_X:
+        if alliance.zero_x_cooldown.is_running():
+            lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
+                                                                      "result" : 0})
+            return
+        else:
+            alliance.zero_x_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
+    elif powerup == POWERUP_TYPES.TWO_X:
+        if alliance.two_x_cooldown.is_running():
+            lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
+                                                                      "result" : 0})
+            return
+        else:
+            alliance.two_x_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
+    elif powerup == POWERUP_TYPES.STEAL:
+        if alliance.steal_cooldown.is_running() or goal.owner is None or goal.owner == alliance:
+            lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
+                                                                      "result" : 0})
+            return
+        else:
+            alliance.steal_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
+
+    dirty_codes[index] = True
+
     if game_state == STATE.AUTO:
         alliance.increment_multiplier()
     elif game_state == STATE.TELEOP:
@@ -342,7 +377,8 @@ teleop_functions = {
     SHEPHERD_HEADER.BID_TIMER_END : bid_complete,
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.STAGE_TIMER_END : to_end,
-    SHEPHERD_HEADER.POWERUP_APPLICATION : powerup_application
+    SHEPHERD_HEADER.POWERUP_APPLICATION : powerup_application,
+    SHEPHERD_HEADER.CODE_COOLDOWN_END : regenerate_codes,
 }
 
 end_functions = {
@@ -382,6 +418,7 @@ powerup_functions = [None, None, None, None, None, None]
 events = None
 curr_challenge_codes = None
 curr_codegen_solutions = None
+dirty_codes = [False, False, False, False, False, False]
 
 if __name__ == '__main__':
     start()

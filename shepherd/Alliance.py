@@ -33,10 +33,9 @@ class Alliance:
         self.team_2_number = team_2_number
         self.score = 0
         self.alliance_multiplier = 1
-        self.two_x_cooldown = Timer(TIMER_TYPES.COOLDOWN)
-        self.zero_x_cooldown = Timer(TIMER_TYPES.COOLDOWN)
-        self.steal_cooldown = Timer(TIMER_TYPES.COOLDOWN)
-        self.code_cooldown = Timer(TIMER_TYPES.CODE_COOLDOWN)
+        self.two_x_cooldown = Timer(TIMER_TYPES.CODE_COOLDOWN)
+        self.zero_x_cooldown = Timer(TIMER_TYPES.CODE_COOLDOWN)
+        self.steal_cooldown = Timer(TIMER_TYPES.CODE_COOLDOWN)
 
     def change_score(self, amount):
         """ changes score of this alliance by Amount,

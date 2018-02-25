@@ -19,8 +19,6 @@ class Alliance:
                               can use another 0x powerup
             steal_cooldown - Timer representing the time until the alliance
                              can use another steal powerup
-            code_cooldown - Timer representing the time until the alliance can
-                            submit another code
     """
 
     def __init__(self, name, team_1_name, team_1_number, team_2_name,
@@ -59,7 +57,6 @@ class Alliance:
         self.two_x_cooldown.reset()
         self.zero_x_cooldown.reset()
         self.steal_cooldown.reset()
-        self.code_cooldown.reset()
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
                  {"alliance" : self.name, "score" : self.score})
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER,

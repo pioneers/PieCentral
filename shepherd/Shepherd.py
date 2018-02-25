@@ -254,6 +254,7 @@ def goal_bid(args):
     goals.get(goal_name).bid(alliances.get(alliance))
 
 def regenerate_codes(args):
+    global curr_challenge_codes, curr_codegen_solutions
     for state, index in enumerate(dirty_codes):
         if state:
             _, curr_challenge_codes, curr_codegen_solutions = \

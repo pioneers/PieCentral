@@ -19,9 +19,10 @@ class SHEPHERD_HEADER():
 
 # pylint: disable=invalid-name
 class SENSOR_HEADER():
-    #CODE_RESULT = "code_result"
-    FAILED_POWERUP = "failed_powerup"
-    CURRENT_BID = "current_bid"
+    CODE_RESULT = "code_result"
+    GOAL_OWNERS = "bid_owners"
+    TEAM_SCORE = "team_score"
+    BID_PRICE = "bid_price"
 
 class DAWN_HEADER():
     ROBOT_STATE = "robot_state"

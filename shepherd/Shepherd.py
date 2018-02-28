@@ -227,6 +227,37 @@ def generate_rfids(args):
         rfids.append(temp)
     curr_rfids = rfids
 
+def send_goal_owners_sensors():
+    goal_bidders = [goals.get(GOAL.A).current_bid_team,
+                    goals.get(GOAL.B).current_bid_team,
+                    goals.get(GOAL.C).current_bid_team,
+                    goals.get(GOAL.D).current_bid_team,
+                    goals.get(GOAL.E).current_bid_team]
+
+    goal_owners = [goals.get(GOAL.A).owner,
+                   goals.get(GOAL.B).owner,
+                   goals.get(GOAL.C).owner,
+                   goals.get(GOAL.D).owner,
+                   goals.get(GOAL.E).owner]
+
+    lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.GOAL_OWNERS,
+             {"owners" : goal_owners, "bidders" : goal_bidders})
+
+def send_team_scores_sensors():
+    team_scores = {ALLIANCE_COLOR.BLUE: alliances.get(ALLIANCE_COLOR.BLUE).score,
+                   ALLIANCE_COLOR.GOLD: alliances.get(ALLIANCE_COLOR.GOLD).score}
+
+    lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.TEAM_SCORE, {"score": team_scores})
+
+def send_goal_costs_sensors():
+    goal_costs = [goals.get(GOAL.A).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
+                  goals.get(GOAL.B).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
+                  goals.get(GOAL.C).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
+                  goals.get(GOAL.D).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
+                  goals.get(GOAL.E).current_bid + CONSTANTS.BID_INCREASE_CONSTANT]
+
+    lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.BID_PRICE, {"price" : goal_costs})
+
 def goal_score(args):
     '''
     Update state for a goal being scored and push information to scoreboard
@@ -234,7 +265,8 @@ def goal_score(args):
     alliance = args["alliance"]
     goal_name = args["goal"]
     goals.get(goal_name).score(alliances.get(alliance))
-    #TODO: send score update to scoreboard and sensors
+    send_team_scores_sensors()
+    #TODO: send score update to scoreboard
 
 def goal_bid(args):
     '''
@@ -244,7 +276,8 @@ def goal_bid(args):
     alliance = args["alliance"]
     goal_name = args["goal"]
     goals.get(goal_name).bid(alliances.get(alliance))
-
+    send_goal_owners_sensors()
+    send_goal_costs_sensors()
 
 def powerup_application(args):
     '''
@@ -258,7 +291,7 @@ def powerup_application(args):
     index = -1
     if index == -1:
         lcm_send(LCM_TARGETS.SENSORS,
-                 SENSOR_HEADER.FAILED_POWERUP, {"alliance" : alliance.name})
+                 SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name})
         return
     if game_state == STATE.AUTO:
         alliance.increment_multiplier()
@@ -276,7 +309,7 @@ def bid_complete(args):
     goal_name = args["goal"]
     alliance = goals.get(goal_name).current_bid_team
     goals.get(goal_name).set_owner(alliance)
-
+    goals.get(goal_name).current_bid_team = None
     for goal in goals.values():
         if goal.owner is not None:
             continue
@@ -290,7 +323,9 @@ def bid_complete(args):
             goal.bid_timer.reset()
             #TODO: send reset timer message to scoreboard
 
-    #TODO: send owner info and bid leader info to sensors and scoreboard
+    send_team_scores_sensors()
+    send_goal_owners_sensors()
+    #TODO: send owner info and bid leader info to scoreboard
 
 ###########################################
 # Event to Function Mappings for each Stage

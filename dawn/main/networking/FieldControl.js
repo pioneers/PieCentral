@@ -25,6 +25,8 @@ class FCInternals {
       this.socket.on('codes', (data) => {
         if (Ansible.conns[2].socket !== null) {
           Ansible.conns[2].socket.sendFieldControl(JSON.parse(data));
+        } else {
+          this.logger.log('Trying to send FC Info to Disconnected Robot');
         }
       });
     });

@@ -21,7 +21,7 @@ class busyThread(threading.Thread):
         TODO: Add how to send message via LCM in the case of match timer
         '''
         while not self.stop.isSet():
-            if not self.queue.empty() and self.queue[0].endTime < time.time():
+            if len(self.queue) != 0 and self.queue[0].endTime < time.time():
                 Timer.queueLock.acquire()
                 event = heapq.heappop(self.queue)
                 if event.timer_type == TIMER_TYPES.MATCH:
@@ -35,8 +35,8 @@ class busyThread(threading.Thread):
 
     def join(self, timeout=None):
         '''Stops this thread. Must be called from different thread (Main Thread)'''
-        super().join(timeout)
         self.stop.set()
+        super().join(timeout)
         Timer.running = False
 
 class Timer:
@@ -103,11 +103,12 @@ class Timer:
 
     def reset_all():
         """Resets Timer Thread when game changes"""
-        Timer.thread.join()
-        Timer.eventQueue = []
-        Timer.thread = busyThread(Timer.eventQueue)
-        Timer.running = False
-        Timer.queueLock = threading.Lock()
+        if Timer.running:
+            Timer.thread.join()
+            Timer.eventQueue = []
+            Timer.thread = busyThread(Timer.eventQueue)
+            Timer.running = False
+            Timer.queueLock = threading.Lock()
 
     ###########################################
     # Timer Comparison Methods

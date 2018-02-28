@@ -10,25 +10,28 @@ def sender():
             continue
         if command == "setup":
             send_dict = {}
-            send_dict["b1name"] = input("Blue 1 Name: ")
-            send_dict["b1num"] = input("Blue 1 Num: ")
-            send_dict["b2name"] = input("Blue 2 Name: ")
-            send_dict["b2num"] = input("Blue 2 Num: ")
+            send_dict["b1name"] = 1 
+            send_dict["b1num"] = 2
+            send_dict["b2name"] = 3
+            send_dict["b2num"] = 4
 
-            send_dict["g1name"] = input("Gold 1 Name: ")
-            send_dict["g1num"] = input("Gold 1 Num: ")
-            send_dict["g2name"] = input("Gold 2 Name: ")
-            send_dict["g2num"] = input("Gold 2 Num: ")
+            send_dict["g1name"] = 5
+            send_dict["g1num"] = 6
+            send_dict["g2name"] = 7
+            send_dict["g2num"] = 8
+
+            send_dict["match_num"] = 9
 
             lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.SETUP_MATCH, send_dict)
         elif command == "start next":
+            print("TESTING")
             lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.START_NEXT_STAGE)
         elif command == "restart":
             lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.RESET_MATCH)
         elif command == "score adjust":
             send_dict = {}
             send_dict["blue_score"] = input("Blue Score Adjust: ")
-            send_dict["gold_score"] = input("Gold jScore Adjust: ")
+            send_dict["gold_score"] = input("Gold Score Adjust: ")
             lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.SCORE_ADJUST, send_dict)
         elif command == "rfid":
             lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.GENERATE_RFID)

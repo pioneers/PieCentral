@@ -22,7 +22,9 @@ def start():
     events = queue.Queue()
     lcm_start_read(LCM_TARGETS.SHEPHERD, events)
     while True:
+        print("GAME STATE OUTSIDE: ", game_state)
         payload = events.get(True)
+        print(payload)
         if game_state == STATE.SETUP:
             func = setup_functions.get(payload[0])
             if func is not None:
@@ -62,6 +64,11 @@ def to_setup(args):
     '''
     global match_number, powerup_functions
     global curr_challenge_codes, curr_codegen_solutions
+    global game_state
+    
+    if curr_rfids is None:
+        print("ERROR: Generate RFIDS before setting up the next match")
+        return
 
     b1_name, b1_num = args["b1name"], args["b1num"]
     b2_name, b2_num = args["b2name"], args["b2num"]
@@ -100,6 +107,7 @@ def to_setup(args):
         "g1name" : g1_name, "g1num" : g1_num,
         "g2name" : g2_name, "g2num" : g2_num})
 
+    game_state = STATE.SETUP
     print("ENTERING SETUP STATE")
 
 def to_auto(args):
@@ -111,7 +119,6 @@ def to_auto(args):
     global game_state
     for goal in goals.values():
         goal.set_autonomous()
-
     game_timer.start_timer(CONSTANTS.AUTO_TIME)
     game_state = STATE.AUTO
     enable_robots(True)
@@ -140,7 +147,7 @@ def to_teleop(args):
         goal.set_teleop()
 
     Timer.reset_all()
-    regenerate_codes(None)
+    regenerate_codes()
     game_timer.start_timer(CONSTANTS.TELEOP_TIME)
     enable_robots(False)
     print("ENTERING TELEOP STATE")
@@ -168,6 +175,7 @@ def reset(args=None):
     game_state = STATE.SETUP
     Timer.reset_all()
     events = queue.Queue()
+    lcm_start_read(LCM_TARGETS.SHEPHERD, events)
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.RESET_TIMERS)
     for alliance in alliances.values():
         if alliance is not None:
@@ -195,8 +203,9 @@ def flush_scores():
     '''
     Sends the most recent match score to the spreadsheet if connected to the internet
     '''
-    Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score,
-                       alliances[ALLIANCE_COLOR.GOLD].score)
+    if alliances[ALLIANCE_COLOR.BLUE] is not None:
+        Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score,
+                           alliances[ALLIANCE_COLOR.GOLD].score)
 
 def enable_robots(autonomous):
     '''
@@ -236,6 +245,7 @@ def generate_rfids(args):
         rfid_list.remove(temp)
         rfids.append(temp)
     curr_rfids = rfids
+    lcm_send(LCM_TARGETS.UI, GUI_HEADER.SEND_RFIDS, {"RFID_list" : rfids})
 
 def send_goal_owners_sensors():
     goal_bidders = [goals.get(GOAL.A).current_bid_team,
@@ -289,7 +299,7 @@ def goal_bid(args):
     send_goal_owners_sensors()
     send_goal_costs_sensors()
 
-def regenerate_codes(args):
+def regenerate_codes(args=None):
     global curr_challenge_codes, curr_codegen_solutions
     for state, index in enumerate(dirty_codes):
         if state:
@@ -422,7 +432,8 @@ teleop_functions = {
 end_functions = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
-    SHEPHERD_HEADER.SETUP_MATCH : to_setup
+    SHEPHERD_HEADER.SETUP_MATCH : to_setup,
+    SHEPHERD_HEADER.GENERATE_RFID : generate_rfids,
 }
 
 ###########################################

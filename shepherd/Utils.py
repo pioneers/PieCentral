@@ -2,7 +2,6 @@
 class SHEPHERD_HEADER():
     GOAL_SCORE = "goal_score"
     GOAL_BID = "goal_bid"
-    #CODE_INPUT = "code_input"
     POWERUP_APPLICATION = "powerup_application"
 
     START_MATCH = "start_match"

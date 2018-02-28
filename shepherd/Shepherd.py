@@ -348,7 +348,6 @@ def powerup_application(args):
     if game_state == STATE.AUTO:
         alliance.increment_multiplier()
     elif game_state == STATE.TELEOP:
-        powerup = powerup_functions[index]
         goal.apply_powerup(powerup, alliance)
 
     lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.CODES, {"rfids" : curr_rfids,

@@ -144,49 +144,34 @@ class Goal:
 
         def process_powerup(blue_timer, gold_timer, constants_cooldown, powerup_type):
             if alliance.name == ALLIANCE_COLOR.BLUE:
-                if blue_timer.is_running():
-                    lcm_send(LCM_TARGETS.SENSORS,
-                             SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name})
-                else:
-                    blue_timer.start_timer(constants_cooldown)
-                    lcm_send(LCM_TARGETS.SCOREBOARD,
-                             SCOREBOARD_HEADER.POWERUPS,
-                             {"goal" : self.name,
-                              "alliance" : alliance.name,
-                              "powerup" : powerup_type})
-            elif alliance.name == ALLIANCE_COLOR.GOLD:
-                if gold_timer.is_running():
-                    lcm_send(LCM_TARGETS.SENSORS,
-                             SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name})
-                else:
-                    gold_timer.start_timer(constants_cooldown)
-                    lcm_send(LCM_TARGETS.SCOREBOARD,
-                             SCOREBOARD_HEADER.POWERUPS,
-                             {"goal" : self.name,
-                              "alliance" : alliance.name,
-                              "powerup" : powerup_type})
-
-        if self.owner is None:
-            lcm_send(LCM_TARGETS.SENSORS,
-                     SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name})
-        elif effect == POWERUP_TYPES.TWO_X:
-            process_powerup(self.blue_two_x_timer, self.gold_two_x_timer,
-                            CONSTANTS.TWO_X_COOLDOWN, POWERUP_TYPES.TWO_X)
-        elif effect == POWERUP_TYPES.ZERO_X:
-            process_powerup(self.blue_zero_x_timer, self.gold_zero_x_timer,
-                            CONSTANTS.ZERO_X_COOLDOWN, POWERUP_TYPES.ZERO_X)
-        elif effect == POWERUP_TYPES.STEAL:
-            if self.owner is alliance:
-                lcm_send(LCM_TARGETS.SENSORS,
-                         SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name})
-            else:
-                self.owner = alliance
+                blue_timer.start_timer(constants_cooldown)
                 lcm_send(LCM_TARGETS.SCOREBOARD,
                          SCOREBOARD_HEADER.POWERUPS,
                          {"goal" : self.name,
                           "alliance" : alliance.name,
-                          "powerup" : POWERUP_TYPES.STEAL})
-        else:
-            lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance})
+                          "powerup" : powerup_type})
+            elif alliance.name == ALLIANCE_COLOR.GOLD:
+                gold_timer.start_timer(constants_cooldown)
 
-        return
+                lcm_send(LCM_TARGETS.SCOREBOARD,
+                         SCOREBOARD_HEADER.POWERUPS,
+                         {"goal" : self.name,
+                          "alliance" : alliance.name,
+                          "powerup" : powerup_type})
+
+        if effect == POWERUP_TYPES.TWO_X:
+            process_powerup(self.blue_two_x_timer, self.gold_two_x_timer,
+                            CONSTANTS.TWO_X_DURATION, POWERUP_TYPES.TWO_X)
+        elif effect == POWERUP_TYPES.ZERO_X:
+            process_powerup(self.blue_zero_x_timer, self.gold_zero_x_timer,
+                            CONSTANTS.ZERO_X_DURATION, POWERUP_TYPES.ZERO_X)
+        elif effect == POWERUP_TYPES.STEAL:
+            self.owner = alliance
+            lcm_send(LCM_TARGETS.SCOREBOARD,
+                     SCOREBOARD_HEADER.POWERUPS,
+                     {"goal" : self.name,
+                      "alliance" : alliance.name,
+                      "powerup" : POWERUP_TYPES.STEAL})
+        else:
+            lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
+                                                                      "result" : 0})

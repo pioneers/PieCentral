@@ -181,7 +181,7 @@ def score_adjust(args):
     '''
     Allow for score to be changed based on referee decisions
     '''
-    blue_score, gold_score = args["blue_goal"], args["gold_score"]
+    blue_score, gold_score = args["blue_score"], args["gold_score"]
     alliances[ALLIANCE_COLOR.BLUE].score = blue_score
     alliances[ALLIANCE_COLOR.GOLD].score = gold_score
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,

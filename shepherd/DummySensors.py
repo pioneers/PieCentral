@@ -41,8 +41,8 @@ def sender():
             if goal_letter is None or alliance is None or code is None:
                 print("Invalid input")
                 continue
-            lcm_send(LCM_TARGETS.SHEPHERD, new_input, {"alliance" : alliance, 
-                                                       "goal" : goal_letter, 
+            lcm_send(LCM_TARGETS.SHEPHERD, new_input, {"alliance" : alliance,
+                                                       "goal" : goal_letter,
                                                        "code" : code})
         else:
             print("Invalid input")

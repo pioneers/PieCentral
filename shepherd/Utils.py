@@ -16,6 +16,7 @@ class SHEPHERD_HEADER():
 
     BID_TIMER_END = "bid_timer_end"
     STAGE_TIMER_END = "stage_timer_end"
+    CODE_COOLDOWN_END = "code_cooldown_end"
 
 # pylint: disable=invalid-name
 class SENSOR_HEADER():
@@ -52,10 +53,9 @@ class CONSTANTS():
     TELEOP_TIME = 180
     BID_TIME_INCREASE = 2
     BID_TIME_INITIAL = 5
-    TWO_X_COOLDOWN = 5
-    ZERO_X_COOLDOWN = 5
-    STEAL_COOLDOWN = 5
-    CODE_COOLDOWN = 5
+    TWO_X_DURATION = 30
+    ZERO_X_DURATION = 30
+    CODE_COOLDOWN = 60
     BID_INCREASE_CONSTANT = 5
     GOAL_BASE_VALUE = 1
     GOAL_LOW_VALUE = 5
@@ -67,8 +67,6 @@ class CONSTANTS():
     MULTIPLIER_INCREASES = [1.1, 1.25, 1.5]
     SPREADSHEET_ID = "1ikEY2pnESr_e7okP9H5KZiJYK29RI5ISPSaCgQU41RU"
     CSV_FILE_NAME = "PIE test sheet - qual_matches.csv"
-
-
 
 # pylint: disable=invalid-name
 class ALLIANCE_COLOR():
@@ -87,7 +85,6 @@ class LCM_TARGETS():
 class TIMER_TYPES():
     BID = "bid"
     MATCH = "match"
-    COOLDOWN = "cooldown"
     CODE_COOLDOWN = "code_cooldown"
     DURATION = "duration"
 

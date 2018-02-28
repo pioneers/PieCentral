@@ -28,6 +28,8 @@ class busyThread(threading.Thread):
                     LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
                 if event.timer_type == TIMER_TYPES.BID:
                     LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END)
+                if event.timer_type == TIMER_TYPES.CODE_COOLDOWN:
+                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.CODE_COOLDOWN_END)
                 event.active = False
                 Timer.queueLock.release()
 

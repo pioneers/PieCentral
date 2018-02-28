@@ -139,6 +139,8 @@ def to_teleop(args):
     for goal in goals.values():
         goal.set_teleop()
 
+    Timer.reset_all()
+    regenerate_codes(None)
     game_timer.start_timer(CONSTANTS.TELEOP_TIME)
     enable_robots(False)
     print("ENTERING TELEOP STATE")

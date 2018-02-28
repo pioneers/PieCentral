@@ -540,10 +540,10 @@ function* handleFieldControl() {
   }));
   if (stateSlice.fieldControlStatus) {
     yield put(toggleFieldControl(false));
-    ipcRenderer.send('LCM_TEARDOWN');
+    ipcRenderer.send('FC_TEARDOWN');
   } else {
     yield put(toggleFieldControl(true));
-    ipcRenderer.send('LCM_INITIALIZE');
+    ipcRenderer.send('FC_INITIALIZE');
   }
 }
 

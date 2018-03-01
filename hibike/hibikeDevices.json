@@ -74,7 +74,7 @@
     },
 
     {"id": 11, "name": "RFID", "params": [
-                                                          {"number": 0  , "name": "id"     , "type": "uint8_t"    , "read": true , "write": false  },
+                                                          {"number": 0  , "name": "id"     , "type": "uint32_t"    , "read": true , "write": false  },
                                                           {"number": 1  , "name": "tag_detect"     , "type": "uint8_t"    , "read": true , "write": false  }
                                                      ]
     },

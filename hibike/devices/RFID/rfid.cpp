@@ -1,6 +1,6 @@
 #include "rfid.h"
 #include <SPI.h>
-#include <MFRC522.h> 
+#include <MFRC522.h>
 
 #define RST_PIN 9
 #define SS_PIN 10
@@ -8,7 +8,7 @@
 // Instantiate RFID Object
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 // each device is responsible for keeping track of it's own params
-uint8_t id;
+uint32_t id;
 uint8_t tag_detect;
 bool del = false;
 
@@ -49,7 +49,9 @@ void loop() {
     return;
   }
   // Grab first byte of ID
-  id = mfrc522.uid.uidByte[0];
+  id =  (uint32_t)(mfrc522.uid.uidByte[2]) << 16 |
+        (uint32_t)(mfrc522.uid.uidByte[1]) << 8  |
+        (uint32_t)(mfrc522.uid.uidByte[0]);
   tag_detect = 1;
   del = false;
 }
@@ -84,7 +86,7 @@ uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
       if (len < sizeof(id)) {
         return 0;
       }
-      ((uint8_t*)data)[0] = id;
+      ((uint32_t*)data)[0] = id;
       return sizeof(id);
       break;
     case TAG_DETECT:

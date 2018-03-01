@@ -4,8 +4,11 @@
 #   $ source $(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env.sh
 
 piecentral=$(git rev-parse --show-toplevel)
+protos="$piecentral/ansible-protos"
 runtime="$piecentral/runtime"
 hibike="$piecentral/hibike"
+dawn="$piecentral/dawn"
+api_docs="$dawn/static/website-robot-api-master"
 frankfurter="$piecentral/DevOps/frankfurter"
 
 user=ubuntu
@@ -27,4 +30,6 @@ warning="\e[1;33m"  # Bold yellow
 success="\e[1;32m"  # Bold green
 clear="\e[0m"
 
+export PATH="$PATH:$frankfurter/scripts/install"
 export PATH="$PATH:$frankfurter/scripts/tools"
+export PATH="$PATH:$frankfurter/scripts/update"

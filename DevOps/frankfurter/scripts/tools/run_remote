@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# run-remote -- Run any executable on a remote machine.
+# run_remote -- Run any executable on a remote machine.
 
 set -e
-source $(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env.sh
+source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env.sh"
 
 usage="Run an executable on a Beaglebone remotely.\n\n"
 usage=$usage"Usage:\n"

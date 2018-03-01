@@ -342,7 +342,11 @@ class Robot(StudentAPI):
             digit = code % 10
             code //= 10
 
-            result = func_map[digit](rfid_seed)
+            try:
+                result = func_map[digit](rfid_seed)
+            except Exception as e:
+                self._print(e)
+                return False
 
             output += str(result)
         output = int(output)

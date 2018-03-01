@@ -49,7 +49,10 @@ void loop() {
     return;
   }
   // Grab first byte of ID
-  id =  mfrc522.uid.uidByte[3] << 12 | mfrc522.uid.uidByte[2] << 8 | mfrc522.uid.uidByte[1] << 4 | mfrc522.uid.uidByte[0];
+  id =  (uint32_t)(mfrc522.uid.uidByte[3]) << 24 |
+        (uint32_t)(mfrc522.uid.uidByte[2]) << 16 |
+        (uint32_t)(mfrc522.uid.uidByte[1]) << 8  |
+        (uint32_t)(mfrc522.uid.uidByte[0]);
   tag_detect = 1;
   del = false;
 }

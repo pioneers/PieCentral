@@ -48,8 +48,8 @@ class GUI_HEADER():
 
 # pylint: disable=invalid-name
 class CONSTANTS():
-    AUTO_TIME = 10
-    TELEOP_TIME = 10
+    AUTO_TIME = 30
+    TELEOP_TIME = 180
     BID_TIME_INCREASE = 2
     BID_TIME_INITIAL = 5
     TWO_X_DURATION = 30

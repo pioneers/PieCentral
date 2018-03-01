@@ -73,7 +73,8 @@ class Goal:
 
     def set_owner(self, alliance):
         self.owner = alliance
-        alliance.score -= self.current_bid
+        if self.name != GOAL.BLUE and self.name != GOAL.GOLD:
+            alliance.score -= self.current_bid
 
         #TODO: send updated score to scoreboard and sensors
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.GOAL_OWNED,

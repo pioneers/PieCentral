@@ -109,6 +109,8 @@ def to_setup(args):
 
     game_state = STATE.SETUP
     print("ENTERING SETUP STATE")
+    print({"blue_score" : alliances[ALLIANCE_COLOR.BLUE].score,
+           "gold_score" : alliances[ALLIANCE_COLOR.GOLD].score})
 
 def to_auto(args):
     '''
@@ -203,6 +205,7 @@ def flush_scores():
     '''
     Sends the most recent match score to the spreadsheet if connected to the internet
     '''
+    return #TODO: REMOVE THIS LINE, THIS IS TEMPORARY TO NOT RUN THIS DURING TESTING
     if alliances[ALLIANCE_COLOR.BLUE] is not None:
         Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score,
                            alliances[ALLIANCE_COLOR.GOLD].score)
@@ -248,17 +251,17 @@ def generate_rfids(args):
     lcm_send(LCM_TARGETS.UI, GUI_HEADER.SEND_RFIDS, {"RFID_list" : rfids})
 
 def send_goal_owners_sensors():
-    goal_bidders = [goals.get(GOAL.A).current_bid_team,
-                    goals.get(GOAL.B).current_bid_team,
-                    goals.get(GOAL.C).current_bid_team,
-                    goals.get(GOAL.D).current_bid_team,
-                    goals.get(GOAL.E).current_bid_team]
+    goal_bidders = [goals.get(GOAL.A).current_bid_team.name, #TODO The current_bid_team field is sometimes null, but we need the name not just the object
+                    goals.get(GOAL.B).current_bid_team.name, #TODO Make it so that it returns None if object is None, object.name if not None
+                    goals.get(GOAL.C).current_bid_team.name,
+                    goals.get(GOAL.D).current_bid_team.name,
+                    goals.get(GOAL.E).current_bid_team.name]
 
-    goal_owners = [goals.get(GOAL.A).owner,
-                   goals.get(GOAL.B).owner,
-                   goals.get(GOAL.C).owner,
-                   goals.get(GOAL.D).owner,
-                   goals.get(GOAL.E).owner]
+    goal_owners = [goals.get(GOAL.A).owner.name,
+                   goals.get(GOAL.B).owner.name,
+                   goals.get(GOAL.C).owner.name,
+                   goals.get(GOAL.D).owner.name,
+                   goals.get(GOAL.E).owner.name]
 
     lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.GOAL_OWNERS,
              {"owners" : goal_owners, "bidders" : goal_bidders})
@@ -295,6 +298,8 @@ def goal_bid(args):
     '''
     alliance = args["alliance"]
     goal_name = args["goal"]
+    if game_state == STATE.WAIT and not goals.get(goal_name).bid_timer.is_running():
+        return
     goals.get(goal_name).bid(alliances.get(alliance))
     send_goal_owners_sensors()
     send_goal_costs_sensors()

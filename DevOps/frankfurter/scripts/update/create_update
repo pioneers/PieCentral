@@ -1,58 +1,55 @@
 #!/bin/bash
 
-##############################################################################################
-# Packages hibike and runtime nicely in a tarball along with the install_update.sh script.   #
-##############################################################################################
+# create_update -- Package a software update as a gzipped tarball.
+#
+# Includes `hibike`, `runtime`, compiled protobufs, offline runtime
+# documentation Dawn displays to students, and system resources (e.g.
+# configuration files). An `install_update` script included in the tarball
+# knows how to install these files.
+
+source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
+current_time="$(date +%s%N)"
+update_basename="frankfurter-update-$current_time"
+build_dir="$tmp_dir/$update_basename"
+
 echo "Don't forget to pull the latest code before running this script!"
-echo "Current commit is: $(git rev-parse HEAD)"
+echo "Current commit is: $(git rev-parse --short HEAD)"
 echo
 
-PIECENTRAL_DIR=$(git rev-parse --show-toplevel)
-FRANKFURTER_DIR=$PIECENTRAL_DIR/DevOps/frankfurter
-PROTO_DIR=$PIECENTRAL_DIR/ansible-protos
-BUILD_DIR=$FRANKFURTER_DIR/build
-TMP_DIR=$BUILD_DIR/tmp
-DOC_DIR=$TMP_DIR/docs
-HTML_DOC=https://raw.githubusercontent.com/pioneers/website-robot-api/master/robot_api.html
+mkdir -p "$build_dir"
+echo "Build directory: $build_dir"
 
-if [ -d "$BUILD_DIR" ]; then
-    echo "Cleaning old builds ... "
-    rm -rf "$BUILD_DIR/*"
-else
-    echo "Making build directory ... "
-    mkdir -p "$BUILD_DIR"
-fi
-mkdir -p "$TMP_DIR"
-echo "Done."
+# Copy packages that do not require modifications
+packages=("$hibike" "$runtime" "$frank_resources" "$frankfurter/scripts/update/install_update")
+for package in ${packages[@]}; do
+    echo -e "$indent""Copied $package"
+    cp -R "$package" "$build_dir"
+done
 
-if [ -d "$DOC_DIR" ]; then
-    echo "Cleaning old documentation ... "
-    rm -rf "$DOC_DIR/*"
+# Verify the protobuf compiler is available, and compile protobufs
+if ! type "protoc" > /dev/null; then
+  echo -e $error"Protobuf compiler is not available."$clear
+  echo "See 'https://github.com/google/protobuf/#protocol-compiler-installation' for installation instructions."
+  exit 1
 else
-    echo "Making doc directory"
-    mkdir "$DOC_DIR"
+  echo -e "$indent""Compiled and copied protobufs in $protos"
+  protoc -I="$protos" --python_out="$build_dir/$(basename $runtime)" "$protos/"*".proto"
 fi
 
-echo "downloading documentation"
-wget "$HTML_DOC" -P "$DOC_DIR"
+# Copy and rename offline API documentation
+cp -R "$api_docs" "$build_dir/docs"
+echo -e "$indent""Copied $api_docs"
 
-# Copy hibike and runtime
-cp -R "$PIECENTRAL_DIR/hibike" "$TMP_DIR"
-cp -R "$PIECENTRAL_DIR/runtime" "$TMP_DIR"
-cp -R "$FRANKFURTER_DIR/resources" "$TMP_DIR"
-protoc -I="$PROTO_DIR" --python_out="$TMP_DIR/runtime" $PROTO_DIR/*.proto
-cp "$FRANKFURTER_DIR/scripts/update/install_update.sh" "$TMP_DIR"
+# GZIP tarball
+echo
+echo "Removed old tarballs."
+rm "$frankfurter/build/"*
+mkdir -p "$frankfurter/build"
+tarball="$frankfurter/build/$update_basename.tar.gz"
+cd "$tmp_dir"
+tar -zcf "$tarball" "$update_basename"
+echo "Tarball available at: "
+echo -e "$indent$tarball"
 
-CURRENT_TIME=$(date +%s%N)
-UPDATE_FILENAME=frankfurter-update-"$CURRENT_TIME".tar.gz
-
-cd "$TMP_DIR"
-tar -zcf "$BUILD_DIR"/"$UPDATE_FILENAME" *
-printf "\x1b[1;32m"
-echo "==> Tarball available at: "
-echo "$BUILD_DIR"/"$UPDATE_FILENAME"
-printf "\x1b[0m"
-
-cd ..
-rm -rf "$TMP_DIR"
-echo "Cleaned up."
+rm -rf "$tmp_dir/frankfurter-update-"*
+echo "Cleaned builds."

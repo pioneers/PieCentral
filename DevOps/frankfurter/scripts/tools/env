@@ -1,7 +1,9 @@
-# env.sh -- A collection of useful variables
+#!/bin/bash
+
+# env -- A collection of useful variables
 #
 # To use (from PieCentral):
-#   $ source $(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env.sh
+#   $ source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 
 piecentral=$(git rev-parse --show-toplevel)
 protos="$piecentral/ansible-protos"
@@ -10,6 +12,7 @@ hibike="$piecentral/hibike"
 dawn="$piecentral/dawn"
 api_docs="$dawn/static/website-robot-api-master"
 frankfurter="$piecentral/DevOps/frankfurter"
+frank_resources="$frankfurter/resources"
 
 user=ubuntu
 eth_ip=192.168.6.2

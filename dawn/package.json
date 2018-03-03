@@ -57,7 +57,6 @@
   "dependencies": {
     "brace": "0.11.0",
     "bufferutil": "3.0.3",
-    "circular-json": "0.5.1",
     "create-react-class": "15.6.2",
     "electron": "1.7.11",
     "electron-json-storage": "4.0.2",
@@ -81,6 +80,7 @@
     "redux-saga": "0.16.0",
     "seedrandom": "2.4.3",
     "smalltalk": "2.5.1",
+    "socket.io-client": "^2.0.4",
     "ssh2": "0.5.5",
     "superagent": "3.8.2",
     "utf-8-validate": "4.0.0",

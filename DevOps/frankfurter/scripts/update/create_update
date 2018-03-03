@@ -41,9 +41,9 @@ cp -R "$api_docs" "$build_dir/docs"
 echo -e "$indent""Copied $api_docs"
 
 # GZIP tarball
+rm -f "$frankfurter/build/"*
 echo
 echo "Removed old tarballs."
-rm -f "$frankfurter/build/"*
 mkdir -p "$frankfurter/build"
 tarball="$frankfurter/build/$update_basename.tar.gz"
 cd "$tmp_dir"

@@ -1,0 +1,182 @@
+<html>
+
+<head>
+  <title>Scoreboard</title>
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <script type="text/javascript" src="jquery-1.12.3.min.js"></script>
+  <script type="text/javascript" src="tabletop.js"></script>
+  <script type="text/javascript" src="lcm_ws_bridge.js"></script>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
+
+  <!-- Styles -->
+  <style>
+    /*Disables spinning on number forms*/
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .blue-score {
+      border-radius: 15px;
+      border: 8px solid blue;
+    }
+
+    .gold-score {
+      border-radius: 15px;
+      border: 8px solid gold;
+    }
+
+    .bottom-padding {
+      margin-bottom: 15px;
+    }
+  </style>
+
+  <!-- Javascript -->
+  <script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+      //need to pull scores automatically
+      var blueScore = 0;
+      var goldScore = 0;
+      var lcm = null;
+
+      function updateScores() {
+        $("#blue-score").html(blueScore);
+        $("#gold-score").html(goldScore);
+      }
+
+      $("#blue-add").click(
+        function() {
+          blueScore += parseInt($("#blue-adjustment").val());
+          updateScores();
+        });
+
+      $("#blue-sub").click(
+        function() {
+          blueScore -= parseInt($("#blue-adjustment").val());
+          updateScores();
+        });
+
+      $("#gold-add").click(
+        function() {
+          goldScore += parseInt($("#gold-adjustment").val());
+          updateScores();
+        });
+
+      $("#gold-sub").click(
+        function() {
+          goldScore -= parseInt($("#gold-adjustment").val());
+          updateScores();
+        });
+
+      $("#reset-scores").click(
+      function() {
+        blueScore = 0
+        goldScore = 0
+        updateScores();
+      });
+
+      $("#send-scores").click(
+      function() {
+        msg = {__type__: "SCORE_ADJUSTMENT_SEND", blueScore: blueScore, goldScore: goldScore}
+        lcm.publish("LCM_TARGET_SHEPHERD", msg)
+        window.location.href = '/match_control.html'
+        return false
+      });
+
+      function makeLCM(url) {
+          console.log('attempting to connect to ' + url)
+          if (url == undefined) {
+              url = '127.0.0.1'
+          }
+          lcm = new LCM('ws://' + url + ':8000/');
+          function subscribeAll() {
+              console.log('Connected to LCM Bridge')
+              //lcm.subscribe("LCM_TARGET_GUI", "RFID_RECEIVE", handleGenerator)
+          }
+          function reconnect() {
+              return;
+              makeLCM(url)
+          }
+          lcm.on_ready(subscribeAll)
+          lcm.on_close(reconnect)
+      }
+      makeLCM()
+
+    });
+  </script>
+</head>
+
+<body>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <img alt="Brand" src="favicon.ico" width="40" height="40" class="d-inline-block align-bottom" alt="">
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="activex"><a href="staff_gui.html">Staff Gui</a></li>
+          <li class="active"><a href="score_adjustment.html">Score Adjustment</a></li>
+          <li class="activex"><a href="RFID_control.html">RFID Control</a></li>
+        </ul>
+      </div>
+      <!-- /.navbar-collapse -->
+
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+
+  <div class="container">
+    <div class="row container">
+      <h1>Score Adjustment</h1>
+    </div>
+
+    <div class="col-xs-6 blue-score text-center bottom-padding">
+      <h1>Blue Score</h1>
+      <h1 id="blue-score">0</h1>
+    </div>
+    <div class="col-xs-6 gold-score text-center bottom-padding">
+      <h1>Gold Score</h1>
+      <h1 id="gold-score">0</h1>
+    </div>
+
+    <div class="row bottom-padding">
+      <div class="col-lg-6">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-success" type="button" id="blue-add">+</button>
+            <button class="btn btn-danger" type="button" id="blue-sub">-</button>
+          </span>
+          <input type="number" class="form-control" value="0" id="blue-adjustment">
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-success" type="button" id="gold-add">+</button>
+            <button class="btn btn-danger" type="button" id="gold-sub">-</button>
+          </span>
+          <input type="number" class="form-control" value="0" id="gold-adjustment">
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button class="btn btn-secondary btn-lg" type="button" id="reset-scores">Reset</button>
+      <button class="btn btn-info btn-lg" type="button" id="send-scores">Confirm</button>
+    </div>
+
+  </div>
+
+</body>
+
+</html>

@@ -6,10 +6,16 @@ class SHEPHERD_HEADER():
     POWERUP_APPLICATION = "powerup_application"
 
     START_MATCH = "start_match"
-    SETUP_MATCH = "setup_match"
     START_NEXT_STAGE = "start_next_stage"
     RESET_CURRENT_STAGE = "reset_current_stage"
     RESET_MATCH = "reset_match"
+
+    GET_MATCH_INFO = "get_match_info"
+    SETUP_MATCH = "setup_match"
+
+    STOP_ROBOT = "stop_robot"
+
+    GET_SCORES = "get_scores"
     SCORE_ADJUST = "score_adjust"
 
     GENERATE_RFID = "generate_rfid"
@@ -25,9 +31,17 @@ class SENSOR_HEADER():
     TEAM_SCORE = "team_score"
     BID_PRICE = "bid_price"
 
+# pylint: disable=invalid-name
 class DAWN_HEADER():
     ROBOT_STATE = "robot_state"
     CODES = "codes"
+    HEARTBEAT = "heartbeat"
+
+# pylint: disable=invalid-name
+class UI_HEADER():
+    RFID_LIST = "rfid_list"
+    TEAMS_INFO = "teams_info"
+    SCORES = "scores"
 
 # pylint: disable=invalid-name
 class SCOREBOARD_HEADER():
@@ -41,6 +55,8 @@ class SCOREBOARD_HEADER():
     POWERUPS = "powerups"
     ALLIANCE_MULTIPLIER = "alliance_multiplier"
     RESET_TIMERS = "reset_timers"
+    BID_TIMER_START = "bid_timer_start"
+    ALL_INFO = "all_info"
 
 # pylint: disable=invalid-name
 class GUI_HEADER():

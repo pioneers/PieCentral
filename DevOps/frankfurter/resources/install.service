@@ -6,7 +6,7 @@ ConditionFirstBoot=true
 
 [Service]
 Type=oneshot
-ExecStart=touch /home/ubuntu/ok.txt
+ExecStart=bash /home/debian/master_install
 
 [Install]
 WantedBy=default.target

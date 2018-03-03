@@ -2,10 +2,31 @@
 
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 echo "Starting frankfurter installation ..."
-scp "$frankfurter/resources/interfaces" "$user@$default_ip:~"
-scp "$frankfurter/resources/install.service" "$user@$default_ip:~/.config/systemd/user"
-scp "$frankfurter/scripts/install/master_setup" "$user@$default_ip:~"
-run_remote -q "$frankfurter/scripts/install/bootstrap"
+
+ssh-copy-id $ssh_options "$user@$default_ip" 2>/dev/null
+
+resources=(
+    "$frankfurter/resources/interfaces",
+    "$frankfurter/resources/install.service",
+    "$frankfurter/scripts/install/master_setup",
+    "$frankfurter/scripts/install/bootstrap"
+)
+for resource in ${resources[@]}; do
+    scp "$resource" "$user@$default_ip:~"
+done
+
+# Export Pipfiles into merged requirements.txt
+requirements="$tmp_dir/requirements.txt"
+cd "$runtime" && pipenv lock --python 3.6 --requirements > "$tmp_dir/runtime-requirements.txt"
+cd "$hibike" && pipenv lock --python 3.6 --requirements > "$tmp_dir/hibike-requirements.txt"
+cat "$tmp_dir/"*"-requirements.txt" | sort -u > "$requirements"
+scp "$requirements" "$user@$default_ip:~"
+rm "$requirements" "$tmp_dir/"*"-requirements.txt"
+
+scp "$runtime/Pipfile" "$user@$default_ip:~/runtime-pipfile"
+scp "$hibike/Pipfile" "$user@$default_ip:~/hibike-pipfile"
+
+ssh -f -t $ssh_options"$user@$default_ip" "nohup /home/ubuntu/bootstrap & > bootstrap.out 2> bootstrap.err < /dev/null &"
 echo -e $success"Installation process now entering autonomous mode."$clear
 echo "Your Beaglebone should be ready in about 15 minutes."
 echo

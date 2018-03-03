@@ -17,7 +17,7 @@ function download_wifi_driver {
 }
 
 function upgrade_kernel {
-  sudo /opt/scripts/tools/upgrade_kernel.sh
+  sudo /opt/scripts/tools/update_kernel.sh
 }
 
 function install_wifi_driver {
@@ -25,27 +25,27 @@ function install_wifi_driver {
   make clean
   make
   sudo make install
-  sudo echo 'mt7610u_sta' >> /etc/modules
+  echo 'mt7610u_sta' | sudo tee --append /etc/modules
 }
 
 function install_apt_packages {
   sudo apt update -y
   sudo apt upgrade -y
-  sudo apt install -y man-db make build-essential gcc git vim tmux htop curl unzip systemd systemd-sysv linux-headers-$(uname -r)
+  sudo apt install -y man-db make build-essential gcc git vim tmux htop curl unzip linux-headers-$(uname -r)
   sudo apt install -y python3 python3-dev python3-pip  # Python dependencies
   sudo apt clean -y
   sudo apt autoremove -y
 }
 
 stage_flags="$HOME/install_flags"
-mkdir -p "$install_flags"
+mkdir -p "$stage_flags"
 
 kernel_upgraded_flag="$stage_flags/kernel_upgraded"
 wifi_driver_flag="$stage_flags/wifi_driver"
 completed_flag="$stage_flags/completed"
+
 machine_id="/etc/machine-id"  # If it exists, systemd thinks this is the "first boot".
 tmp_machine_id="$HOME/machine-id"
-
 if [ -f "$machine_id" ]; then
   sudo mv "$machine_id" "$tmp_machine_id"
 fi
@@ -57,10 +57,14 @@ if [ ! -f "$kernel_upgraded_flag" ]; then
   upgrade_kernel
   touch "$kernel_upgraded_flag"
 else if [ ! -f "$wifi_driver_flag" ]; then
+  sudo /sbin/route add default gw "192.168.7.1"
+  install_apt_packages
   install_wifi_driver
   sudo mv "$HOME/interfaces" /etc/network/interfaces  # Should be given by 'bootstrap'
   touch "$wifi_driver_flag"
 else
+  sudo /sbin/route add default gw "192.168.7.1"
+
   # Set date and time to PST
   sudo timedatectl set-timezone America/Los_Angeles
 
@@ -69,13 +73,16 @@ else
   sudo systemctl disable apache2
   sudo systemctl daemon-reload
 
-  # Install packages
-  install_apt_packages
+  # Install Python packages
   sudo pip3 install pipenv
-  # FIXME
-  # sudo pip3 install -r "$HOME/PieCentral/runtime/requirements.txt"
+  # FIXME: can fail sometimes with duplicate dependencies that conflict
+  sudo pip3 install -r "$HOME/requirements.txt"
+
+  sudo usermod -a -G dialout debian
 
   mkdir -p "$HOME/bin" "$HOME/updates" "$HOME/student-code"
+  cd "$HOME/student-code" && git init
+
   sudo mv "$tmp_machine_id" "$machine_id"
   touch "$completed_flag"
 fi

@@ -38,11 +38,11 @@ ln -s "$piecentral/hibike/hibikeDevices.csv" "$piecentral/runtime/hibikeDevices.
 replace_package "$1/resources/update.sh" "$HOME/bin"
 sudo chown ubuntu "$HOME/bin/"*
 sudo chgrp ubuntu "$HOME/bin/"*
-sudo chmod 755 "$HOME/bin/"*
+chmod 755 "$HOME/bin/"*
 
 # Copy `.bashrc` with aliases
 replace_package "$1/resources/bashrc" "$HOME/.bashrc"
-sudo chmod 644 "$HOME/.bashrc"
+chmod 644 "$HOME/.bashrc"
 
 # Update and enable services
 mkdir -p "$user_systemd"
@@ -51,3 +51,5 @@ replace_package "$1/resources/update.service" "$user_systemd/update.service"
 systemctl --user daemon-reload
 systemctl --user enable runtime.service
 systemctl --user enable update.service
+
+sudo mv "$1/resources/blacklist.conf" "/etc/modprobe.d"

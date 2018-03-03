@@ -13,6 +13,7 @@ usage=$usage$indent"-q        Run this script in quiet mode.\n"
 usage=$usage$indent"-s        Run the executable on the remote as the superuser.\n"
 usage=$usage$indent"-u <user> Use the given user (default: $user).\n"
 usage=$usage$indent"-r <host> Use the given hostname (default: $default_ip)."
+# TODO: add no hangup option to run process after exiting SSH session
 
 output='/dev/stdout'
 use_sudo=''

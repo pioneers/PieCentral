@@ -1,0 +1,13 @@
+#!/bin/sh
+
+source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
+echo "Starting frankfurter installation ..."
+scp "$frankfurter/resources/interfaces" "$user@$default_ip:~"
+scp "$frankfurter/resources/install.service" "$user@$default_ip:~/.config/systemd/user"
+scp "$frankfurter/scripts/install/master_setup" "$user@$default_ip:~"
+run_remote -q "$frankfurter/scripts/install/bootstrap"
+echo -e $success"Installation process now entering autonomous mode."$clear
+echo "Your Beaglebone should be ready in about 15 minutes."
+echo
+echo -e "You can verify your Beaglebone is ready by checking whether the file '~/install_flags/completed' exists."
+echo $warning"The Beaglebone may periodically reboot during installation."$clear

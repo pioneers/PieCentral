@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# bootstrap -- Beaglebone-side script that bootstraps the installation process.
+#
+# Runs interactively within an SSH client.
+# Designed to exit quickly so that setup is largely autonomous.
+
+sudo echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+systemctl --user daemon-reload
+systemctl --user enable install.service
+nohup "$HOME/master_setup" &

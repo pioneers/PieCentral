@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# usb_fwd -- Enable internet on a Beaglebone over USB with request forwarding
+# usb_fwd -- Enable internet on a Beaglebone over USB with request forwarding.
 
 set -e
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"

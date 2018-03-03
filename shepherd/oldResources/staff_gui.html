@@ -1,0 +1,172 @@
+<html>
+
+<head>
+  <title>Scoreboard</title>
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <script type="text/javascript" src="jquery-1.12.3.min.js"></script>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="bootstrap-3.3.6-dist/css/bootstrap.min.css">
+
+  <!-- Styles -->
+  <style>
+    /*Disables spinning on number forms*/
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .bottom-padding {
+      margin-bottom: 15px;
+    }
+
+    .led-green,
+    .heartbeat-light {
+      width: 24px;
+      height: 24px;
+      background-color: #ABFF00;
+      border-radius: 50%;
+      box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px;
+    }
+
+    .led-red {
+      width: 24px;
+      height: 24px;
+      background-color: #F00;
+      border-radius: 50%;
+      box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
+    }
+  </style>
+  <script>
+    $(document).ready(function() {
+      $("#toggle-all").click(
+      function() {
+        toggleLed($(".heartbeat-light"));
+      });
+
+      function toggleBlue0() {
+        toggleLed($(".blue-0-hb"));
+      }
+
+      function toggleBlue1() {
+        toggleLed($(".blue-1-hb"));
+      }
+
+      function toggleGold0() {
+        toggleLed($(".gold-0-hb"));
+      }
+
+      function toggleGold1() {
+        toggleLed($(".gold-1-hb"));
+      }
+
+      function toggleLed(lightName) {
+        lightName.toggleClass("led-red");
+      }
+
+      function stopBlue0() {
+      }
+
+      function stopBlue1() {
+      }
+
+      function stopGold0() {
+      }
+
+      function stopGold1() {
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <img alt="Brand" src="favicon.ico" width="40" height="40" class="d-inline-block align-bottom" alt="">
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="staff_gui.html">Staff Gui</a></li>
+          <li class="activex"><a href="score_adjustment.html">Score Adjustment</a></li>
+          <li class="activex"><a href="RFID_control.html">RFID Control</a></li>
+
+        </ul>
+      </div>
+      <!-- /.navbar-collapse -->
+
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+
+  <div class="container">
+    <h1>Match Creator</h1>
+    <div class="btn-group bottom-padding" role="group" aria-label="...">
+      <button type="button" class="btn btn-success" id="match-start"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> Start</button>
+      <button type="button" class="btn btn-default" id="match-pause"><span class="glyphicon glyphicon-pause" aria-hidden="true"></span> Pause</button>
+      <button type="button" class="btn btn-warning" id="match-reset-stage"><span class="glyphicon glyphicon-step-backward" aria-hidden="true"></span> Reset Stage</button>
+      <button type="button" class="btn btn-danger" id="match-reset"><span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span> Reset Match</button>
+
+      <button type="button" class="btn" id="toggle-all"> Toggle All</button>
+
+
+    </div>
+
+    <div class="input-group col-xs-4 bottom-padding">
+      <input type="number" class="form-control" id="new-match-num" placeholder="Match number" aria-describedby="basicaddon1">
+      <span class="input-group-btn">
+        <button class="btn btn-default" id="populate-match" type="button">Populate</button>
+        <button class="btn btn-info" id="create-match" type="button">Create Match</button>
+      </span>
+    </div>
+
+    <form class="form-inline bottom-padding">
+      <div class="form-group heartbeat-light blue-0-hb"></div>
+      <button class="btn btn-danger" type="button" id="stop-blue-0">Stop Blue 0</button>
+      <div class="form-group">
+        <input type="number" class="form-control" id="blue-0-number" style="width: 80px;" placeholder="Blue 0 #">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="blue-0-name" placeholder="Blue 0 Team Name">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="gold-0-name" placeholder="Gold 0 Team Name">
+      </div>
+      <div class="form-group">
+        <input type="number" class="form-control" id="gold-0-number" style="width: 80px;" placeholder="Gold 0 #">
+      </div>
+      <button class="btn btn-danger" type="button" id="stop-gold-0">Stop Gold 0</button>
+      <div class="form-group heartbeat-light gold-0-hb"></div>
+    </form>
+
+    <form class="form-inline bottom-padding">
+      <div class="form-group heartbeat-light blue-1-hb"></div>
+      <button class="btn btn-danger" type="button" id="stop-blue-1">Stop Blue 1</button>
+      <div class="form-group">
+        <input type="number" class="form-control" id="blue-1-number" style="width: 80px;" placeholder="Blue 1 #">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="blue-1-name" placeholder="Blue 1 Team Name">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="gold-1-name" placeholder="Gold 1 Team Name">
+      </div>
+      <div class="form-group">
+        <input type="number" class="form-control" id="gold-1-number" style="width: 80px;" placeholder="Gold 1 #">
+      </div>
+      <button class="btn btn-danger" type="button" id="stop-gold-1">Stop Gold 1</button>
+      <div class="form-group heartbeat-light gold-1-hb"></div>
+    </form>
+
+  </div>
+</body>
+
+</html>

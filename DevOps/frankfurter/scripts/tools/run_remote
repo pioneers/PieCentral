@@ -5,9 +5,8 @@
 set -e
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 
-usage="Run an executable on a remote machine.\n\n"
-usage=$usage"Usage:\n"
-usage=$usage"$indent$(basename "$0") [-hqs] [-u <user>] [-r <host>] <executable>\n\n"
+usage="Run an executable on a remote machine.\n"
+usage=$usage"Usage: $(basename "$0") [-hqs] [-u <user>] [-r <host>] <executable>\n\n"
 usage=$usage"Options:\n"
 usage=$usage$indent"-h        Show this help message.\n"
 usage=$usage$indent"-q        Run this script in quiet mode.\n"
@@ -28,9 +27,9 @@ while getopts ":hqsu:r:" opt; do
     u) user="$OPTARG";;
     r) ip="$OPTARG";;
     \?)
-      echo "Invalid option: '-$OPTARG'" >&2
+      echo -e $error"Invalid option: '-$OPTARG'"$clear >&2
       echo -e "Use '-h' to see usage." >&2
-      exit
+      exit 1
       ;;
   esac
 done

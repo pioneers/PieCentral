@@ -6,14 +6,14 @@
 
 piecentral="$HOME/PieCentral"
 piecentral_backup="$HOME/PieCentral-backup"
-systemd_user="$HOME/.config/systemd/user"
+user_systemd="$HOME/.config/systemd/user"
 
 # Replace a backup of PieCentral
 rm -rf "$piecentral_backup"
 mkdir -p "$piecentral"
 cp -R "$piecentral" "$piecentral_backup"
 
-# Replaces a file or package (destructive for source)
+# Replaces a file or package (destroys the source)
 function replace_package {
   if [ ! -e "$1" ]; then
     echo "Warning: package source '$1' does not exist." >&2
@@ -24,7 +24,7 @@ function replace_package {
   fi
 }
 
-# Replace `runtime`, `hibike`, and `docs` (offline API documentation), and other files
+# Replace `runtime`, `hibike`, and `docs`
 replace_package "$1/runtime" "$piecentral/runtime"
 replace_package "$1/hibike" "$piecentral/hibike"
 replace_package "$1/docs" "$HOME/docs"
@@ -45,9 +45,9 @@ replace_package "$1/resources/bashrc" "$HOME/.bashrc"
 sudo chmod 644 "$HOME/.bashrc"
 
 # Update and enable services
-mkdir -p "$systemd_user"
-mv "$1/resources/runtime.service" "$systemd_user/runtime.service"
-mv "$1/resources/update.service" "$systemd_user/update.service"
-sudo systemctl daemon-reload
-sudo systemctl enable runtime.service
-sudo systemctl enable update.service
+mkdir -p "$user_systemd"
+replace_package "$1/resources/runtime.service" "$user_systemd/runtime.service"
+replace_package "$1/resources/update.service" "$user_systemd/update.service"
+systemctl --user daemon-reload
+systemctl --user enable runtime.service
+systemctl --user enable update.service

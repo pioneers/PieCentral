@@ -1,0 +1,12 @@
+[Unit]
+Description=Robot software installer
+After=default.target
+AssertPathExists=/home/ubuntu
+ConditionFirstBoot=true
+
+[Service]
+Type=oneshot
+ExecStart=touch /home/ubuntu/ok.txt
+
+[Install]
+WantedBy=default.target

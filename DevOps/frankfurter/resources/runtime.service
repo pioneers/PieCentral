@@ -1,9 +1,10 @@
 [Unit]
 Description=Robot runtime daemon
 Requires=update.service
-After=local-fs.target
+After=sysinit.target
 AssertPathExists=/home/ubuntu/PieCentral/runtime
 AssertPathExists=/home/ubuntu/PieCentral/hibike
+PartOf=update.service
 
 [Service]
 Type=simple
@@ -12,4 +13,4 @@ Environment="PYTHONPATH=/home/ubuntu/PieCentral/hibike:/home/ubuntu/PieCentral/r
 ExecStart=python3 runtime.py
 
 [Install]
-WantedBy=local-fs.target
+WantedBy=sysinit.target

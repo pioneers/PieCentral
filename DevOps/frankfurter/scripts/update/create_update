@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# create_update -- Package a software update as a gzipped tarball.
+# create_update -- Package a software update as a GZIPed tarball.
 #
 # Includes `hibike`, `runtime`, compiled protobufs, offline runtime
 # documentation Dawn displays to students, and system resources (e.g.
@@ -43,13 +43,13 @@ echo -e "$indent""Copied $api_docs"
 # GZIP tarball
 echo
 echo "Removed old tarballs."
-rm "$frankfurter/build/"*
+rm -f "$frankfurter/build/"*
 mkdir -p "$frankfurter/build"
 tarball="$frankfurter/build/$update_basename.tar.gz"
 cd "$tmp_dir"
-tar -zcf "$tarball" "$update_basename"
+tar -pzcf "$tarball" "$update_basename"
 echo "Tarball available at: "
-echo -e "$indent$tarball"
+echo -e "$success$indent$tarball$clear"
 
 rm -rf "$tmp_dir/frankfurter-update-"*
 echo "Cleaned builds."

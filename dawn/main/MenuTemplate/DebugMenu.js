@@ -1,6 +1,6 @@
 import { fork } from 'child_process';
 import RendererBridge from '../RendererBridge';
-import LCMObject from '../networking/FieldControlLCM';
+import FCObject from '../networking/FieldControl';
 
 let fakeRuntime = null;
 
@@ -20,6 +20,7 @@ const DebugMenu = {
       click() {
         RendererBridge.registeredWindow.webContents.toggleDevTools();
       },
+      accelerator: 'CommandOrControl+alt+I',
     },
     {
       label: 'Restart Runtime',
@@ -30,10 +31,10 @@ const DebugMenu = {
       },
     },
     {
-      label: 'Restart LCM',
+      label: 'Restart FC',
       click() {
-        LCMObject.LCMInternal.quit();
-        LCMObject.setup();
+        FCObject.FCInternal.quit();
+        FCObject.setup();
       },
     },
     {

@@ -35,7 +35,7 @@ while getopts ":hqsu:r:" opt; do
   esac
 done
 
-ssh-copy-id $ssh_flags "$user@$default_ip" 2>$output
-scp $ssh_flags "${@: -1}" "$user@$default_ip:/tmp/exec" >$output
+ssh-copy-id $ssh_options "$user@$default_ip" 2>$output
+scp $ssh_options "${@: -1}" "$user@$default_ip:/tmp/exec" >$output
 remote_cmd="chmod +x /tmp/exec && $use_sudo /tmp/exec && rm /tmp/exec"
-ssh $ssh_flags -t "$user@$default_ip" "$remote_cmd" 2>$output
+ssh $ssh_options -t "$user@$default_ip" "$remote_cmd" 2>$output

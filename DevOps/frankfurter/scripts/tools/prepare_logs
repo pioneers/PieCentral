@@ -1,6 +1,6 @@
 #!/bin/bash
 
-today=$(date +%Y-%m-%d)
+today="$(date +%Y-%m-%d)"
 build_dir="/tmp/$today-logs"
 mkdir "$build_dir"
 

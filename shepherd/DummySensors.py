@@ -33,11 +33,15 @@ def sender():
             if goal_letter is None or alliance is None:
                 print("Invalid input")
                 continue
+            if new_input == SHEPHERD_HEADER.GOAL_SCORE:
+                for i in range(9):
+                    lcm_send(LCM_TARGETS.SHEPHERD, new_input, {"alliance" : alliance, "goal" : goal_letter})
             lcm_send(LCM_TARGETS.SHEPHERD, new_input, {"alliance" : alliance, "goal" : goal_letter})
+
         elif new_input == SHEPHERD_HEADER.POWERUP_APPLICATION:
             goal_letter = input_to_goal.get(input("Goal Letter: a b c d e blue gold "))
             alliance = input_to_alliance.get(input("Alliance: blue gold "))
-            code = input_to_alliance.get(input("Code: "))
+            code = input("Code: ")
             if goal_letter is None or alliance is None or code is None:
                 print("Invalid input")
                 continue

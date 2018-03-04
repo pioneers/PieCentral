@@ -62,7 +62,7 @@ def to_setup(args):
     load the teams for the upcoming match, reset all state, and send information to scoreboard.
     By the end, should be ready to start match.
     '''
-    global match_number, powerup_functions
+    global match_number 
     global curr_challenge_codes, curr_codegen_solutions
     global game_state
     
@@ -88,15 +88,8 @@ def to_setup(args):
     goals[GOAL.BLUE].set_owner(alliances[ALLIANCE_COLOR.BLUE])
     goals[GOAL.GOLD].set_owner(alliances[ALLIANCE_COLOR.GOLD])
 
-    powerup_functions = [None, None, None, None, None, None]
-    indexies = [0, 1, 2]
-    for powerup in [POWERUP_TYPES.ZERO_X, POWERUP_TYPES.TWO_X,
-                    POWERUP_TYPES.STEAL]:
-        i = indexies.pop(random.randint(0, len(indexies))-1)
-        powerup_functions[i] = powerup
-    powerup_functions[3:6] = powerup_functions[0:3]
-
     _, curr_challenge_codes, curr_codegen_solutions = Codegen.get_original_codes(curr_rfids)
+    print("SOLUTIONS: " + str(curr_codegen_solutions))
     lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.CODES, {"rfids" : curr_rfids,
                                                    "codes" : curr_challenge_codes,
                                                    "solutions" : curr_codegen_solutions})
@@ -161,8 +154,8 @@ def to_end(args):
     '''
     global game_state
     lcm_send(LCM_TARGETS.UI, GUI_HEADER.SEND_SCORES,
-             {"blue_score" : alliances[ALLIANCE_COLOR.BLUE].score,
-              "gold_score" : alliances[ALLIANCE_COLOR.GOLD].score})
+             {"blue_score" : math.floor(alliances[ALLIANCE_COLOR.BLUE].score),
+              "gold_score" : math.floor(alliances[ALLIANCE_COLOR.GOLD].score)})
     game_state = STATE.END
     disable_robots()
     print("ENTERING END STATE")
@@ -196,10 +189,10 @@ def score_adjust(args):
     alliances[ALLIANCE_COLOR.GOLD].score = gold_score
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
              {"alliance" : alliances[ALLIANCE_COLOR.BLUE].name,
-              "score" : alliances[ALLIANCE_COLOR.BLUE].score})
+              "score" : math.floor(alliances[ALLIANCE_COLOR.BLUE].score)})
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
              {"alliance" : alliances[ALLIANCE_COLOR.GOLD].name,
-              "score" : alliances[ALLIANCE_COLOR.GOLD].score})
+              "score" : math.floor(alliances[ALLIANCE_COLOR.GOLD].score)})
 
 def flush_scores():
     '''
@@ -251,33 +244,41 @@ def generate_rfids(args):
     lcm_send(LCM_TARGETS.UI, GUI_HEADER.SEND_RFIDS, {"RFID_list" : rfids})
 
 def send_goal_owners_sensors():
-    goal_bidders = [goals.get(GOAL.A).current_bid_team.name, #TODO The current_bid_team field is sometimes null, but we need the name not just the object
-                    goals.get(GOAL.B).current_bid_team.name, #TODO Make it so that it returns None if object is None, object.name if not None
-                    goals.get(GOAL.C).current_bid_team.name,
-                    goals.get(GOAL.D).current_bid_team.name,
-                    goals.get(GOAL.E).current_bid_team.name]
 
-    goal_owners = [goals.get(GOAL.A).owner.name,
-                   goals.get(GOAL.B).owner.name,
-                   goals.get(GOAL.C).owner.name,
-                   goals.get(GOAL.D).owner.name,
-                   goals.get(GOAL.E).owner.name]
+    goal_a = goals.get(GOAL.A)
+    goal_b = goals.get(GOAL.B)
+    goal_c = goals.get(GOAL.C)
+    goal_d = goals.get(GOAL.D)
+    goal_e = goals.get(GOAL.E)
+
+    
+    goal_bidders = [None if goal_a.current_bid_team is None else goal_a.current_bid_team.name,
+                    None if goal_b.current_bid_team is None else goal_b.current_bid_team.name,
+                    None if goal_c.current_bid_team is None else goal_c.current_bid_team.name,
+                    None if goal_d.current_bid_team is None else goal_d.current_bid_team.name,
+                    None if goal_e.current_bid_team is None else goal_e.current_bid_team.name]
+
+    goal_owners = [None if goal_a.owner is None else goal_a.owner.name,
+                   None if goal_b.owner is None else goal_b.owner.name,
+                   None if goal_c.owner is None else goal_c.owner.name,
+                   None if goal_d.owner is None else goal_d.owner.name,
+                   None if goal_e.owner is None else goal_e.owner.name]
 
     lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.GOAL_OWNERS,
              {"owners" : goal_owners, "bidders" : goal_bidders})
 
 def send_team_scores_sensors():
-    team_scores = {ALLIANCE_COLOR.BLUE: alliances.get(ALLIANCE_COLOR.BLUE).score,
-                   ALLIANCE_COLOR.GOLD: alliances.get(ALLIANCE_COLOR.GOLD).score}
+    team_scores = {ALLIANCE_COLOR.BLUE: math.floor(alliances.get(ALLIANCE_COLOR.BLUE).score),
+                   ALLIANCE_COLOR.GOLD: math.floor(alliances.get(ALLIANCE_COLOR.GOLD).score)}
 
     lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.TEAM_SCORE, {"score": team_scores})
 
 def send_goal_costs_sensors():
-    goal_costs = [goals.get(GOAL.A).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
-                  goals.get(GOAL.B).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
-                  goals.get(GOAL.C).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
-                  goals.get(GOAL.D).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
-                  goals.get(GOAL.E).current_bid + CONSTANTS.BID_INCREASE_CONSTANT]
+    goal_costs = [goals.get(GOAL.A).next_bid,
+                  goals.get(GOAL.B).next_bid,
+                  goals.get(GOAL.C).next_bid,
+                  goals.get(GOAL.D).next_bid,
+                  goals.get(GOAL.E).next_bid]
 
     lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.BID_PRICE, {"price" : goal_costs})
 
@@ -328,8 +329,13 @@ def powerup_application(args):
     code = args["code"]
 
     try:
-        index = curr_codegen_solutions.index(code)
+        index = curr_codegen_solutions.index(int(code))
     except ValueError:
+        print("1")
+        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
+                                                                  "result" : 0})
+        return
+    if alliance.name == ALLIANCE_COLOR.BLUE and index > 2 or alliance.name == ALLIANCE_COLOR.GOLD and index < 3:
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                   "result" : 0})
         return
@@ -338,6 +344,7 @@ def powerup_application(args):
 
     if powerup == POWERUP_TYPES.ZERO_X:
         if alliance.zero_x_cooldown.is_running():
+            print("2")
             lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                       "result" : 0})
             return
@@ -345,13 +352,15 @@ def powerup_application(args):
             alliance.zero_x_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
     elif powerup == POWERUP_TYPES.TWO_X:
         if alliance.two_x_cooldown.is_running():
+            print("3")
             lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                       "result" : 0})
             return
         else:
             alliance.two_x_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
     elif powerup == POWERUP_TYPES.STEAL:
-        if alliance.steal_cooldown.is_running() or goal.owner is None or goal.owner == alliance:
+        if alliance.steal_cooldown.is_running() or ((goal.owner is None or goal.owner == alliance) and game_state != STATE.AUTO):
+            print("4")
             lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                       "result" : 0})
             return
@@ -388,6 +397,7 @@ def bid_complete(args):
             goal.current_bid_team = goal.previous_bid_team
             goal.previous_bid = goal.start_bid
             goal.previous_bid_team = None
+            goal.next_bid = goal.calc_next_bid()
             #TODO: send current bid team to scoreboard
         if goal.current_bid_team is None:
             goal.bid_timer.reset()
@@ -468,7 +478,12 @@ goals = {
 
 rfid_pool = None
 curr_rfids = None
-powerup_functions = [None, None, None, None, None, None]
+powerup_functions = [POWERUP_TYPES.ZERO_X,
+                     POWERUP_TYPES.TWO_X,
+                     POWERUP_TYPES.STEAL,
+                     POWERUP_TYPES.ZERO_X,
+                     POWERUP_TYPES.TWO_X,
+                     POWERUP_TYPES.STEAL]
 events = None
 curr_challenge_codes = None
 curr_codegen_solutions = None

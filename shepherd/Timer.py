@@ -27,7 +27,7 @@ class busyThread(threading.Thread):
                 if event.timer_type == TIMER_TYPES.MATCH:
                     LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
                 if event.timer_type == TIMER_TYPES.BID:
-                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END)
+                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END, {"goal": event.goal_name})
                 if event.timer_type == TIMER_TYPES.CODE_COOLDOWN:
                     LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.CODE_COOLDOWN_END)
                 event.active = False
@@ -49,6 +49,8 @@ class Timer:
     thread = busyThread(eventQueue)
     running = False
     queueLock = threading.Lock()
+    globalResetCount = 0
+    resetAllCount = 0
 
     def __init__(self, timer_type, goal_name=None):
         """
@@ -68,10 +70,12 @@ class Timer:
         self.timer_type = timer_type
         self.goal_name = goal_name
         self.endTime = None
+        self.resetAllCount = Timer.globalResetCount
 
     def start_timer(self, duration):
         """Starts a new timer with the duration (seconds) and sets timer to active.
            If Timer is already running, adds duration to Timer"""
+        self.resetAllCount = Timer.globalResetCount
         if self.active:
             Timer.queueLock.acquire()
             self.endTime += duration
@@ -90,7 +94,7 @@ class Timer:
 
     def reset(self):
         """Stops the current timer (if any) and sets timer to inactive"""
-        if self.active:
+        if self.active and self.resetAllCount == Timer.globalResetCount:
             Timer.queueLock.acquire()
             Timer.eventQueue.remove(self)
             heapq.heapify(Timer.eventQueue)
@@ -109,6 +113,7 @@ class Timer:
             Timer.thread = busyThread(Timer.eventQueue)
             Timer.running = False
             Timer.queueLock = threading.Lock()
+            Timer.globalResetCount = Timer.globalResetCount + 1
 
     ###########################################
     # Timer Comparison Methods

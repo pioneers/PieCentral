@@ -5,7 +5,7 @@ AssertPathExists=/home/debian
 ConditionFirstBoot=true
 
 [Service]
-Type=oneshot
+Type=simple
 ExecStart=/home/debian/master_setup
 
 [Install]

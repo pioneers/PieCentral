@@ -44,6 +44,7 @@ kernel_upgraded_flag="$stage_flags/kernel_upgraded"
 wifi_driver_flag="$stage_flags/wifi_driver"
 completed_flag="$stage_flags/completed"
 
+sudo /sbin/route add default gw "192.168.7.1"
 if [ ! -f "$kernel_upgraded_flag" ]; then
   # NOTE: this may be the only time we have an internet connection via tethering,
   #       so we should download the driver at this stage.
@@ -51,14 +52,11 @@ if [ ! -f "$kernel_upgraded_flag" ]; then
   upgrade_kernel
   touch "$kernel_upgraded_flag"
 elif [ ! -f "$wifi_driver_flag" ]; then
-  sudo /sbin/route add default gw "192.168.7.1"
   install_apt_packages
   install_wifi_driver
   sudo mv "$HOME/interfaces" /etc/network/interfaces  # Should be given by 'bootstrap'
   touch "$wifi_driver_flag"
 else
-  sudo /sbin/route add default gw "192.168.7.1"
-
   # Set date and time to PST
   sudo timedatectl set-timezone America/Los_Angeles
 

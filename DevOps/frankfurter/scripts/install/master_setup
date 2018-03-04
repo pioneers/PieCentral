@@ -44,19 +44,13 @@ kernel_upgraded_flag="$stage_flags/kernel_upgraded"
 wifi_driver_flag="$stage_flags/wifi_driver"
 completed_flag="$stage_flags/completed"
 
-machine_id="/etc/machine-id"  # If it exists, systemd thinks this is the "first boot".
-tmp_machine_id="$HOME/machine-id"
-if [ -f "$machine_id" ]; then
-  sudo mv "$machine_id" "$tmp_machine_id"
-fi
-
 if [ ! -f "$kernel_upgraded_flag" ]; then
   # NOTE: this may be the only time we have an internet connection via tethering,
   #       so we should download the driver at this stage.
   download_wifi_driver
   upgrade_kernel
   touch "$kernel_upgraded_flag"
-else if [ ! -f "$wifi_driver_flag" ]; then
+elif [ ! -f "$wifi_driver_flag" ]; then
   sudo /sbin/route add default gw "192.168.7.1"
   install_apt_packages
   install_wifi_driver
@@ -78,12 +72,12 @@ else
   # FIXME: can fail sometimes with duplicate dependencies that conflict
   sudo pip3 install -r "$HOME/requirements.txt"
 
-  sudo usermod -a -G dialout debian
+  sudo usermod -a -G dialout "$(whoami)"
 
   mkdir -p "$HOME/bin" "$HOME/updates" "$HOME/student-code"
   cd "$HOME/student-code" && git init
 
-  sudo mv "$tmp_machine_id" "$machine_id"
+  sudo mv "$HOME/machine-id" "/etc/machine-id"
   touch "$completed_flag"
 fi
 

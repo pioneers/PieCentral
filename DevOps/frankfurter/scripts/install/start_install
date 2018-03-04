@@ -6,9 +6,9 @@ echo "Starting frankfurter installation ..."
 ssh-copy-id $ssh_options "$user@$default_ip" 2>/dev/null
 
 resources=(
-    "$frankfurter/resources/interfaces",
-    "$frankfurter/resources/install.service",
-    "$frankfurter/scripts/install/master_setup",
+    "$frankfurter/resources/interfaces"
+    "$frankfurter/resources/install.service"
+    "$frankfurter/scripts/install/master_setup"
     "$frankfurter/scripts/install/bootstrap"
 )
 for resource in ${resources[@]}; do
@@ -17,18 +17,15 @@ done
 
 # Export Pipfiles into merged requirements.txt
 requirements="$tmp_dir/requirements.txt"
-cd "$runtime" && pipenv lock --python 3.6 --requirements > "$tmp_dir/runtime-requirements.txt"
-cd "$hibike" && pipenv lock --python 3.6 --requirements > "$tmp_dir/hibike-requirements.txt"
+cd "$runtime" && pipenv lock --python 3.6 --requirements > "$tmp_dir/runtime-requirements.txt" 2>/dev/null
+cd "$hibike" && pipenv lock --python 3.6 --requirements > "$tmp_dir/hibike-requirements.txt" 2>/dev/null
 cat "$tmp_dir/"*"-requirements.txt" | sort -u > "$requirements"
 scp "$requirements" "$user@$default_ip:~"
 rm "$requirements" "$tmp_dir/"*"-requirements.txt"
 
-scp "$runtime/Pipfile" "$user@$default_ip:~/runtime-pipfile"
-scp "$hibike/Pipfile" "$user@$default_ip:~/hibike-pipfile"
-
-ssh -f -t $ssh_options"$user@$default_ip" "nohup /home/ubuntu/bootstrap & > bootstrap.out 2> bootstrap.err < /dev/null &"
+ssh -t $ssh_options "$user@$default_ip" "/home/debian/bootstrap"
 echo -e $success"Installation process now entering autonomous mode."$clear
 echo "Your Beaglebone should be ready in about 15 minutes."
 echo
 echo -e "You can verify your Beaglebone is ready by checking whether the file '~/install_flags/completed' exists."
-echo $warning"The Beaglebone may periodically reboot during installation."$clear
+echo -e $warning"The Beaglebone may periodically reboot during installation."$clear

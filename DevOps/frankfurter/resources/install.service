@@ -1,12 +1,12 @@
 [Unit]
 Description=Robot software installer
 After=default.target
-AssertPathExists=/home/ubuntu
+AssertPathExists=/home/debian
 ConditionFirstBoot=true
 
 [Service]
 Type=oneshot
-ExecStart=bash /home/debian/master_install
+ExecStart=/home/debian/master_setup
 
 [Install]
 WantedBy=default.target

@@ -19,4 +19,6 @@ systemctl --user enable install.service
 echo "server=8.8.8.8" | sudo tee --append /etc/dnsmasq.conf
 sudo systemctl restart dnsmasq.service
 
-nohup "$HOME/master_setup" &
+sudo mv -f "/etc/machine-id" "$HOME/machine-id"
+
+sudo reboot

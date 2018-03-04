@@ -75,7 +75,6 @@ else
   mkdir -p "$HOME/bin" "$HOME/updates" "$HOME/student-code"
   cd "$HOME/student-code" && git init
 
-  sudo mv "$HOME/machine-id" "/etc/machine-id"
   touch "$completed_flag"
 fi
 

@@ -22,7 +22,9 @@ def start():
     events = queue.Queue()
     lcm_start_read(LCM_TARGETS.SHEPHERD, events)
     while True:
+        print("GAME STATE OUTSIDE: ", game_state)
         payload = events.get(True)
+        print(payload)
         if game_state == STATE.SETUP:
             func = setup_functions.get(payload[0])
             if func is not None:
@@ -60,8 +62,13 @@ def to_setup(args):
     load the teams for the upcoming match, reset all state, and send information to scoreboard.
     By the end, should be ready to start match.
     '''
-    global match_number, powerup_functions
+    global match_number
     global curr_challenge_codes, curr_codegen_solutions
+    global game_state
+
+    if curr_rfids is None:
+        print("ERROR: Generate RFIDS before setting up the next match")
+        return
 
     b1_name, b1_num = args["b1name"], args["b1num"]
     b2_name, b2_num = args["b2name"], args["b2num"]
@@ -81,15 +88,8 @@ def to_setup(args):
     goals[GOAL.BLUE].set_owner(alliances[ALLIANCE_COLOR.BLUE])
     goals[GOAL.GOLD].set_owner(alliances[ALLIANCE_COLOR.GOLD])
 
-    powerup_functions = [None, None, None, None, None, None]
-    indexies = [0, 1, 2]
-    for powerup in [POWERUP_TYPES.ZERO_X, POWERUP_TYPES.TWO_X,
-                    POWERUP_TYPES.STEAL]:
-        i = indexies.pop(random.randint(0, len(indexies))-1)
-        powerup_functions[i] = powerup
-    powerup_functions[3:6] = powerup_functions[0:3]
-
     _, curr_challenge_codes, curr_codegen_solutions = Codegen.get_original_codes(curr_rfids)
+    print("SOLUTIONS: " + str(curr_codegen_solutions))
     lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.CODES, {"rfids" : curr_rfids,
                                                    "codes" : curr_challenge_codes,
                                                    "solutions" : curr_codegen_solutions})
@@ -100,7 +100,10 @@ def to_setup(args):
         "g1name" : g1_name, "g1num" : g1_num,
         "g2name" : g2_name, "g2num" : g2_num})
 
+    game_state = STATE.SETUP
     print("ENTERING SETUP STATE")
+    print({"blue_score" : alliances[ALLIANCE_COLOR.BLUE].score,
+           "gold_score" : alliances[ALLIANCE_COLOR.GOLD].score})
 
 def to_auto(args):
     '''
@@ -111,7 +114,6 @@ def to_auto(args):
     global game_state
     for goal in goals.values():
         goal.set_autonomous()
-
     game_timer.start_timer(CONSTANTS.AUTO_TIME)
     game_state = STATE.AUTO
     enable_robots(True)
@@ -140,7 +142,7 @@ def to_teleop(args):
         goal.set_teleop()
 
     Timer.reset_all()
-    regenerate_codes(None)
+    regenerate_codes()
     game_timer.start_timer(CONSTANTS.TELEOP_TIME)
     enable_robots(False)
     print("ENTERING TELEOP STATE")
@@ -152,8 +154,8 @@ def to_end(args):
     '''
     global game_state
     lcm_send(LCM_TARGETS.UI, GUI_HEADER.SEND_SCORES,
-             {"blue_score" : alliances[ALLIANCE_COLOR.BLUE].score,
-              "gold_score" : alliances[ALLIANCE_COLOR.GOLD].score})
+             {"blue_score" : math.floor(alliances[ALLIANCE_COLOR.BLUE].score),
+              "gold_score" : math.floor(alliances[ALLIANCE_COLOR.GOLD].score)})
     game_state = STATE.END
     disable_robots()
     print("ENTERING END STATE")
@@ -168,6 +170,7 @@ def reset(args=None):
     game_state = STATE.SETUP
     Timer.reset_all()
     events = queue.Queue()
+    lcm_start_read(LCM_TARGETS.SHEPHERD, events)
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.RESET_TIMERS)
     for alliance in alliances.values():
         if alliance is not None:
@@ -181,22 +184,23 @@ def score_adjust(args):
     '''
     Allow for score to be changed based on referee decisions
     '''
-    blue_score, gold_score = args["blue_goal"], args["gold_score"]
+    blue_score, gold_score = args["blue_score"], args["gold_score"]
     alliances[ALLIANCE_COLOR.BLUE].score = blue_score
     alliances[ALLIANCE_COLOR.GOLD].score = gold_score
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
              {"alliance" : alliances[ALLIANCE_COLOR.BLUE].name,
-              "score" : alliances[ALLIANCE_COLOR.BLUE].score})
+              "score" : math.floor(alliances[ALLIANCE_COLOR.BLUE].score)})
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
              {"alliance" : alliances[ALLIANCE_COLOR.GOLD].name,
-              "score" : alliances[ALLIANCE_COLOR.GOLD].score})
+              "score" : math.floor(alliances[ALLIANCE_COLOR.GOLD].score)})
 
 def flush_scores():
     '''
     Sends the most recent match score to the spreadsheet if connected to the internet
     '''
-    Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score,
-                       alliances[ALLIANCE_COLOR.GOLD].score)
+    if alliances[ALLIANCE_COLOR.BLUE] is not None:
+        Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score,
+                           alliances[ALLIANCE_COLOR.GOLD].score)
 
 def enable_robots(autonomous):
     '''
@@ -236,35 +240,44 @@ def generate_rfids(args):
         rfid_list.remove(temp)
         rfids.append(temp)
     curr_rfids = rfids
+    lcm_send(LCM_TARGETS.UI, GUI_HEADER.SEND_RFIDS, {"RFID_list" : rfids})
 
 def send_goal_owners_sensors():
-    goal_bidders = [goals.get(GOAL.A).current_bid_team,
-                    goals.get(GOAL.B).current_bid_team,
-                    goals.get(GOAL.C).current_bid_team,
-                    goals.get(GOAL.D).current_bid_team,
-                    goals.get(GOAL.E).current_bid_team]
 
-    goal_owners = [goals.get(GOAL.A).owner,
-                   goals.get(GOAL.B).owner,
-                   goals.get(GOAL.C).owner,
-                   goals.get(GOAL.D).owner,
-                   goals.get(GOAL.E).owner]
+    goal_a = goals.get(GOAL.A)
+    goal_b = goals.get(GOAL.B)
+    goal_c = goals.get(GOAL.C)
+    goal_d = goals.get(GOAL.D)
+    goal_e = goals.get(GOAL.E)
+
+
+    goal_bidders = [None if goal_a.current_bid_team is None else goal_a.current_bid_team.name,
+                    None if goal_b.current_bid_team is None else goal_b.current_bid_team.name,
+                    None if goal_c.current_bid_team is None else goal_c.current_bid_team.name,
+                    None if goal_d.current_bid_team is None else goal_d.current_bid_team.name,
+                    None if goal_e.current_bid_team is None else goal_e.current_bid_team.name]
+
+    goal_owners = [None if goal_a.owner is None else goal_a.owner.name,
+                   None if goal_b.owner is None else goal_b.owner.name,
+                   None if goal_c.owner is None else goal_c.owner.name,
+                   None if goal_d.owner is None else goal_d.owner.name,
+                   None if goal_e.owner is None else goal_e.owner.name]
 
     lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.GOAL_OWNERS,
              {"owners" : goal_owners, "bidders" : goal_bidders})
 
 def send_team_scores_sensors():
-    team_scores = {ALLIANCE_COLOR.BLUE: alliances.get(ALLIANCE_COLOR.BLUE).score,
-                   ALLIANCE_COLOR.GOLD: alliances.get(ALLIANCE_COLOR.GOLD).score}
+    team_scores = {ALLIANCE_COLOR.BLUE: math.floor(alliances.get(ALLIANCE_COLOR.BLUE).score),
+                   ALLIANCE_COLOR.GOLD: math.floor(alliances.get(ALLIANCE_COLOR.GOLD).score)}
 
     lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.TEAM_SCORE, {"score": team_scores})
 
 def send_goal_costs_sensors():
-    goal_costs = [goals.get(GOAL.A).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
-                  goals.get(GOAL.B).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
-                  goals.get(GOAL.C).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
-                  goals.get(GOAL.D).current_bid + CONSTANTS.BID_INCREASE_CONSTANT,
-                  goals.get(GOAL.E).current_bid + CONSTANTS.BID_INCREASE_CONSTANT]
+    goal_costs = [goals.get(GOAL.A).next_bid,
+                  goals.get(GOAL.B).next_bid,
+                  goals.get(GOAL.C).next_bid,
+                  goals.get(GOAL.D).next_bid,
+                  goals.get(GOAL.E).next_bid]
 
     lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.BID_PRICE, {"price" : goal_costs})
 
@@ -285,11 +298,13 @@ def goal_bid(args):
     '''
     alliance = args["alliance"]
     goal_name = args["goal"]
+    if game_state == STATE.WAIT and not goals.get(goal_name).bid_timer.is_running():
+        return
     goals.get(goal_name).bid(alliances.get(alliance))
     send_goal_owners_sensors()
     send_goal_costs_sensors()
 
-def regenerate_codes(args):
+def regenerate_codes(args=None):
     global curr_challenge_codes, curr_codegen_solutions
     for state, index in enumerate(dirty_codes):
         if state:
@@ -313,8 +328,13 @@ def powerup_application(args):
     code = args["code"]
 
     try:
-        index = curr_codegen_solutions.index(code)
+        index = curr_codegen_solutions.index(int(code))
     except ValueError:
+        lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
+                                                                  "result" : 0})
+        return
+    if alliance.name == ALLIANCE_COLOR.BLUE and index > 2 or \
+       alliance.name == ALLIANCE_COLOR.GOLD and index < 3:
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                   "result" : 0})
         return
@@ -336,7 +356,8 @@ def powerup_application(args):
         else:
             alliance.two_x_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
     elif powerup == POWERUP_TYPES.STEAL:
-        if alliance.steal_cooldown.is_running() or goal.owner is None or goal.owner == alliance:
+        if alliance.steal_cooldown.is_running() or \
+           ((goal.owner is None or goal.owner == alliance) and game_state != STATE.AUTO):
             lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                       "result" : 0})
             return
@@ -348,7 +369,6 @@ def powerup_application(args):
     if game_state == STATE.AUTO:
         alliance.increment_multiplier()
     elif game_state == STATE.TELEOP:
-        powerup = powerup_functions[index]
         goal.apply_powerup(powerup, alliance)
 
     lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.CODES, {"rfids" : curr_rfids,
@@ -374,6 +394,7 @@ def bid_complete(args):
             goal.current_bid_team = goal.previous_bid_team
             goal.previous_bid = goal.start_bid
             goal.previous_bid_team = None
+            goal.next_bid = goal.calc_next_bid()
             #TODO: send current bid team to scoreboard
         if goal.current_bid_team is None:
             goal.bid_timer.reset()
@@ -423,7 +444,8 @@ teleop_functions = {
 end_functions = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
-    SHEPHERD_HEADER.SETUP_MATCH : to_setup
+    SHEPHERD_HEADER.SETUP_MATCH : to_setup,
+    SHEPHERD_HEADER.GENERATE_RFID : generate_rfids,
 }
 
 ###########################################
@@ -453,7 +475,12 @@ goals = {
 
 rfid_pool = None
 curr_rfids = None
-powerup_functions = [None, None, None, None, None, None]
+powerup_functions = [POWERUP_TYPES.ZERO_X,
+                     POWERUP_TYPES.TWO_X,
+                     POWERUP_TYPES.STEAL,
+                     POWERUP_TYPES.ZERO_X,
+                     POWERUP_TYPES.TWO_X,
+                     POWERUP_TYPES.STEAL]
 events = None
 curr_challenge_codes = None
 curr_codegen_solutions = None

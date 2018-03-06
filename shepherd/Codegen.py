@@ -726,12 +726,14 @@ def get_original_codes(rfids):
     '''
     Generates six identical codes that have no collisions in the solutions.
     '''
-    gen = Codegen(rfids)
-    challenge = gen.generate_challenge()
-    code = challenge.get_code()
-    solutions = [challenge.get_solution(rfid) for rfid in rfids]
-    codes = [code for i in range(len(rfids))]
-    return rfids, codes, solutions
+    if rfids is not None:
+        gen = Codegen(rfids)
+        challenge = gen.generate_challenge()
+        code = challenge.get_code()
+        solutions = [challenge.get_solution(rfid) for rfid in rfids]
+        codes = [code for i in range(len(rfids))]
+        return rfids, codes, solutions
+    return None, None, None
 
 def get_new_code(rfids, codes, index):
     '''

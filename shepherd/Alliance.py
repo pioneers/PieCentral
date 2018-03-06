@@ -1,3 +1,4 @@
+import math
 from Utils import *
 from Timer import *
 from LCM import *
@@ -41,7 +42,7 @@ class Alliance:
         """
         self.score += amount
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
-                 {"alliance" : self.name, "score" : self.score})
+                 {"alliance" : self.name, "score" : math.floor(self.score)})
 
     def increment_multiplier(self):
         if self.alliance_multiplier == 1:
@@ -58,7 +59,7 @@ class Alliance:
         self.zero_x_cooldown.reset()
         self.steal_cooldown.reset()
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
-                 {"alliance" : self.name, "score" : self.score})
+                 {"alliance" : self.name, "score" : math.floor(self.score)})
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER,
                  {"alliance" : self.name, "multiplier" : self.alliance_multiplier})
         #TODO: Send info to sensors about reset

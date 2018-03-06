@@ -2,7 +2,6 @@
 class SHEPHERD_HEADER():
     GOAL_SCORE = "goal_score"
     GOAL_BID = "goal_bid"
-    #CODE_INPUT = "code_input"
     POWERUP_APPLICATION = "powerup_application"
 
     START_MATCH = "start_match"
@@ -56,7 +55,7 @@ class CONSTANTS():
     TWO_X_DURATION = 30
     ZERO_X_DURATION = 30
     CODE_COOLDOWN = 60
-    BID_INCREASE_CONSTANT = 5
+    BID_INCREASE_CONSTANT = 1.1
     GOAL_BASE_VALUE = 1
     GOAL_LOW_VALUE = 5
     GOAL_MED_VALUE = 10
@@ -66,7 +65,7 @@ class CONSTANTS():
     GOAL_HIGH_COST = 100
     MULTIPLIER_INCREASES = [1.1, 1.25, 1.5]
     SPREADSHEET_ID = "1ikEY2pnESr_e7okP9H5KZiJYK29RI5ISPSaCgQU41RU"
-    CSV_FILE_NAME = "PIE test sheet - qual_matches.csv"
+    CSV_FILE_NAME = "Sheets/PIE test sheet - qual_matches.csv"
 
 # pylint: disable=invalid-name
 class ALLIANCE_COLOR():

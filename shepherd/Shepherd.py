@@ -62,10 +62,10 @@ def to_setup(args):
     load the teams for the upcoming match, reset all state, and send information to scoreboard.
     By the end, should be ready to start match.
     '''
-    global match_number 
+    global match_number
     global curr_challenge_codes, curr_codegen_solutions
     global game_state
-    
+
     if curr_rfids is None:
         print("ERROR: Generate RFIDS before setting up the next match")
         return
@@ -198,7 +198,6 @@ def flush_scores():
     '''
     Sends the most recent match score to the spreadsheet if connected to the internet
     '''
-    return #TODO: REMOVE THIS LINE, THIS IS TEMPORARY TO NOT RUN THIS DURING TESTING
     if alliances[ALLIANCE_COLOR.BLUE] is not None:
         Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score,
                            alliances[ALLIANCE_COLOR.GOLD].score)
@@ -251,7 +250,7 @@ def send_goal_owners_sensors():
     goal_d = goals.get(GOAL.D)
     goal_e = goals.get(GOAL.E)
 
-    
+
     goal_bidders = [None if goal_a.current_bid_team is None else goal_a.current_bid_team.name,
                     None if goal_b.current_bid_team is None else goal_b.current_bid_team.name,
                     None if goal_c.current_bid_team is None else goal_c.current_bid_team.name,
@@ -331,11 +330,11 @@ def powerup_application(args):
     try:
         index = curr_codegen_solutions.index(int(code))
     except ValueError:
-        print("1")
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                   "result" : 0})
         return
-    if alliance.name == ALLIANCE_COLOR.BLUE and index > 2 or alliance.name == ALLIANCE_COLOR.GOLD and index < 3:
+    if alliance.name == ALLIANCE_COLOR.BLUE and index > 2 or \
+       alliance.name == ALLIANCE_COLOR.GOLD and index < 3:
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                   "result" : 0})
         return
@@ -344,7 +343,6 @@ def powerup_application(args):
 
     if powerup == POWERUP_TYPES.ZERO_X:
         if alliance.zero_x_cooldown.is_running():
-            print("2")
             lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                       "result" : 0})
             return
@@ -352,15 +350,14 @@ def powerup_application(args):
             alliance.zero_x_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
     elif powerup == POWERUP_TYPES.TWO_X:
         if alliance.two_x_cooldown.is_running():
-            print("3")
             lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                       "result" : 0})
             return
         else:
             alliance.two_x_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
     elif powerup == POWERUP_TYPES.STEAL:
-        if alliance.steal_cooldown.is_running() or ((goal.owner is None or goal.owner == alliance) and game_state != STATE.AUTO):
-            print("4")
+        if alliance.steal_cooldown.is_running() or \
+           ((goal.owner is None or goal.owner == alliance) and game_state != STATE.AUTO):
             lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                       "result" : 0})
             return

@@ -21,13 +21,14 @@ class busyThread(threading.Thread):
         TODO: Add how to send message via LCM in the case of match timer
         '''
         while not self.stop.isSet():
-            if len(self.queue) != 0 and self.queue[0].endTime < time.time():
+            if self.queue and self.queue[0].endTime < time.time():
                 Timer.queueLock.acquire()
                 event = heapq.heappop(self.queue)
                 if event.timer_type == TIMER_TYPES.MATCH:
                     LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
                 if event.timer_type == TIMER_TYPES.BID:
-                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END, {"goal": event.goal_name})
+                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END,
+                                 {"goal": event.goal_name})
                 if event.timer_type == TIMER_TYPES.CODE_COOLDOWN:
                     LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.CODE_COOLDOWN_END)
                 event.active = False

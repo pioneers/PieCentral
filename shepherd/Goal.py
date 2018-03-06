@@ -46,7 +46,7 @@ class Goal:
         self.blue_zero_x_timer = Timer(TIMER_TYPES.DURATION)
 
     def calc_next_bid(self):
-        return math.floor((self.current_bid * CONSTANTS.BID_INCREASE_CONSTANT) + 0.5) 
+        return math.floor((self.current_bid * CONSTANTS.BID_INCREASE_CONSTANT) + 0.5)
 
     def reset(self):
         self.value = self.initial_value

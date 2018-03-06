@@ -733,6 +733,7 @@ def get_original_codes(rfids):
         solutions = [challenge.get_solution(rfid) for rfid in rfids]
         codes = [code for i in range(len(rfids))]
         return rfids, codes, solutions
+    return None, None, None
 
 def get_new_code(rfids, codes, index):
     '''

@@ -10,7 +10,7 @@ def sender():
             continue
         if command == "setup":
             send_dict = {}
-            send_dict["b1name"] = 1 
+            send_dict["b1name"] = 1
             send_dict["b1num"] = 2
             send_dict["b2name"] = 3
             send_dict["b2num"] = 4

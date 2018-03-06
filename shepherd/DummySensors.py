@@ -34,8 +34,9 @@ def sender():
                 print("Invalid input")
                 continue
             if new_input == SHEPHERD_HEADER.GOAL_SCORE:
-                for i in range(9):
-                    lcm_send(LCM_TARGETS.SHEPHERD, new_input, {"alliance" : alliance, "goal" : goal_letter})
+                for _ in range(9):
+                    lcm_send(LCM_TARGETS.SHEPHERD, new_input, {"alliance" : alliance,
+                                                               "goal" : goal_letter})
             lcm_send(LCM_TARGETS.SHEPHERD, new_input, {"alliance" : alliance, "goal" : goal_letter})
 
         elif new_input == SHEPHERD_HEADER.POWERUP_APPLICATION:

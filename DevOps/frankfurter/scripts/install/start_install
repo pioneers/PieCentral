@@ -28,7 +28,7 @@ cat "$tmp_dir/"*"-requirements.txt" | sort -u > "$requirements"
 scp "$requirements" "$user@$default_ip:~" > /dev/null
 rm "$requirements" "$tmp_dir/"*"-requirements.txt"
 
-ssh -t $ssh_options "$user@$default_ip" "/home/debian/bootstrap" >/dev/null
+ssh -t $ssh_options "$user@$default_ip" "/home/debian/bootstrap" 2>/dev/null
 echo -e $success"Installation process now entering autonomous mode."$clear
 echo "Your Beaglebone should be ready in about 15 minutes."
 echo

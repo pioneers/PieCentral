@@ -13,14 +13,17 @@ rm -rf "$piecentral_backup"
 mkdir -p "$piecentral"
 cp -R "$piecentral" "$piecentral_backup"
 
+IFS=%
+indent='  '
+
 # Replaces a file or package (destroys the source)
 function replace_package {
   if [ ! -e "$1" ]; then
-    echo "Warning: package source '$1' does not exist." >&2
+    echo -e $indent"Warning: package source '$1' does not exist." >&2
   else
     sudo rm -rf "$2"
     mv "$1" "$2"
-    echo "Replaced '$2'"
+    echo -e $indent"Replaced '$2'"
   fi
 }
 
@@ -32,12 +35,11 @@ replace_package "$1/docs" "$HOME/docs"
 # Restore files that should persist
 cp "$piecentral_backup/runtime/studentCode.py" "$piecentral/runtime"
 cp "$piecentral_backup/runtime/namedPeripherals.csv" "$piecentral/runtime"
-ln -s "$piecentral/hibike/hibikeDevices.csv" "$piecentral/runtime/hibikeDevices.csv"
+ln -s "$piecentral/hibike/hibikeDevices.json" "$piecentral/runtime/hibikeDevices.json"
 
 # Configure executable permissions
-replace_package "$1/resources/update.sh" "$HOME/bin"
-sudo chown ubuntu "$HOME/bin/"*
-sudo chgrp ubuntu "$HOME/bin/"*
+replace_package "$1/resources/update.sh" "$HOME/bin/update.sh"
+sudo chown "$USER:$USER" "$HOME/bin/"*
 chmod 755 "$HOME/bin/"*
 
 # Copy `.bashrc` with aliases

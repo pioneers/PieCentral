@@ -12,8 +12,7 @@ sudo chmod 0440 /etc/sudoers.d/debian
 # Install installation service
 mkdir -p "$HOME/.config/systemd/user"
 mv "$HOME/install.service" "$HOME/.config/systemd/user"
-systemctl --user daemon-reload
-systemctl --user enable install.service
+systemctl --user daemon-reload && systemctl --user enable install.service
 
 # Add Google's DNS server
 echo "server=8.8.8.8" | sudo tee --append /etc/dnsmasq.conf

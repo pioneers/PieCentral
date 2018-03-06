@@ -54,7 +54,6 @@ if [ ! -f "$kernel_upgraded_flag" ]; then
 elif [ ! -f "$wifi_driver_flag" ]; then
   install_apt_packages
   install_wifi_driver
-  sudo mv "$HOME/interfaces" /etc/network/interfaces  # Should be given by 'bootstrap'
   touch "$wifi_driver_flag"
 else
   # Set date and time to PST
@@ -74,6 +73,11 @@ else
 
   mkdir -p "$HOME/bin" "$HOME/updates" "$HOME/student-code"
   cd "$HOME/student-code" && git init
+  mv "$HOME/update.sh" "$HOME/bin" && chmod +x "$HOME/bin/update.sh"
+
+  sudo mv "$HOME/interfaces" /etc/network/interfaces  # Should be given by 'bootstrap'
+  mv "$HOME/update.service" "$HOME/.config/systemd/user"
+  systemctl --user daemon-reload && systemctl --user enable update.service
 
   touch "$completed_flag"
 fi

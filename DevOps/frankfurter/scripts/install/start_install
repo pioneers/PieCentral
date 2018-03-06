@@ -2,28 +2,33 @@
 
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 echo "Starting frankfurter installation ..."
+echo -e $warning"Remember to enable wifi on the Beaglebone with 'usb_net_fwd'."$clear
 
 ssh-copy-id $ssh_options "$user@$default_ip" 2>/dev/null
 
+echo "Copying scripts ..."
 resources=(
     "$frankfurter/resources/interfaces"
+    "$frankfurter/resources/update.sh"
     "$frankfurter/resources/install.service"
+    "$frankfurter/resources/update.service"
     "$frankfurter/scripts/install/master_setup"
     "$frankfurter/scripts/install/bootstrap"
 )
 for resource in ${resources[@]}; do
-    scp "$resource" "$user@$default_ip:~"
+    scp "$resource" "$user@$default_ip:~" > /dev/null
 done
 
 # Export Pipfiles into merged requirements.txt
+echo "Building consolidated 'requirements.txt' ..."
 requirements="$tmp_dir/requirements.txt"
 cd "$runtime" && pipenv lock --python 3.6 --requirements > "$tmp_dir/runtime-requirements.txt" 2>/dev/null
 cd "$hibike" && pipenv lock --python 3.6 --requirements > "$tmp_dir/hibike-requirements.txt" 2>/dev/null
 cat "$tmp_dir/"*"-requirements.txt" | sort -u > "$requirements"
-scp "$requirements" "$user@$default_ip:~"
+scp "$requirements" "$user@$default_ip:~" > /dev/null
 rm "$requirements" "$tmp_dir/"*"-requirements.txt"
 
-ssh -t $ssh_options "$user@$default_ip" "/home/debian/bootstrap"
+ssh -t $ssh_options "$user@$default_ip" "/home/debian/bootstrap" >/dev/null
 echo -e $success"Installation process now entering autonomous mode."$clear
 echo "Your Beaglebone should be ready in about 15 minutes."
 echo

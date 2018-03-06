@@ -10,25 +10,46 @@
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 
 usage="Package a PiE robot software update as a GZIPped tarball.\n"
-usage=$usage"Usage: $(basename $0) [-hp] <>\n\n"
+usage=$usage"Usage: $(basename $0) [-hp]\n\n"
 usage=$usage"Options:\n"
 usage=$usage$indent"-h  Show this help message.\n"
-usage=$usage$indent"-p  Compile protobufs.\n"
+usage=$usage$indent"-p  Compile protobufs (default: not compiled)."
 
-current_time="$(date +%s%N)"
-update_basename="frankfurter-update-$current_time"
-build_dir="$tmp_dir/$update_basename"
+compile_protos=''
+while getopts ":hp" opt; do
+  case $opt in
+    h)
+      echo -e "$usage" >&2
+      exit
+      ;;
+    p) compile_protos=true;;
+    \?)
+      echo -e $error"Invalid option: '-$OPTARG'"$clear >&2
+      echo -e "Use '-h' to see usage." >&2
+      exit 1
+      ;;
+  esac
+done
 
-# Verify the protobuf compiler is available
-if ! type "protoc" > /dev/null 2> /dev/null; then
-  echo -e $error"Protobuf compiler is not available."$clear
-  echo "See 'https://github.com/google/protobuf/#protocol-compiler-installation' for installation instructions."
-  exit 1
+function verify_protoc {
+  if ! type "protoc" > /dev/null 2> /dev/null; then
+    echo -e $error"Protobuf compiler is not available."$clear
+    echo "See 'https://github.com/google/protobuf/#protocol-compiler-installation' for installation instructions."
+    exit 1
+  fi
+}
+
+if [ $compile_protos ]; then
+  verify_protoc
 fi
 
 echo "Don't forget to pull the latest code before running this script!"
 echo "Current commit is: $(git rev-parse --short HEAD)"
 echo
+
+current_time="$(date +%s%N)"
+update_basename="frankfurter-update-$current_time"
+build_dir="$tmp_dir/$update_basename"
 
 mkdir -p "$build_dir"
 echo "Build directory: $build_dir"
@@ -40,8 +61,10 @@ for package in ${packages[@]}; do
   cp -R "$package" "$build_dir"
 done
 
-# protoc -I="$protos" --python_out="$build_dir/$(basename $runtime)" "$protos/"*".proto"
-# echo -e "$indent""Compiled and copied protobufs in $protos"
+if [ $compile_protos ]; then
+  protoc -I="$protos" --python_out="$build_dir/$(basename $runtime)" "$protos/"*".proto"
+  echo -e "$indent""Compiled and copied protobufs in $protos"
+fi
 
 # Copy and rename offline API documentation
 cp -R "$api_docs" "$build_dir/docs"

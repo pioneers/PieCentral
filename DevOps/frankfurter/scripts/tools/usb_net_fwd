@@ -8,7 +8,7 @@ host_ip=192.168.7.1
 ip_fwd=/proc/sys/net/ipv4/ip_forward
 
 usage="Enable internet on a Beaglebone with request forwarding.\n"
-usage=$usage"Usage: $(basename "$0") [-hHc] [command]\n\n"
+usage=$usage"Usage: $(basename $0) [-hHc] [command]\n\n"
 usage=$usage"Options:\n"
 usage=$usage$indent"-h    Show this help message.\n"
 usage=$usage$indent"-i    Accept requests from this network interface "

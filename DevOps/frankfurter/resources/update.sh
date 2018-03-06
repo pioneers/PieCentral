@@ -14,7 +14,7 @@ for filename in $(find "$updates_dir" -name "*.tar.gz" | sort); do
   tar -xf "$filename" -C "$tmp_dir" --warning=no-timestamp --strip-components=1
 
   if [ -e "$tmp_dir/install_update" ]; then
-    output=$(cd "$HOME" && "$tmp_dir/install_update" "$tmp_dir")
+    output=$(cd "$HOME" && sudo -u ubuntu "$tmp_dir/install_update" "$tmp_dir")
     echo "$output"
   else
     echo "Could not find 'install_update' in $filename." >&2

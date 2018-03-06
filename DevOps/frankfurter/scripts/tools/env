@@ -14,7 +14,7 @@ api_docs="$dawn/static/website-robot-api-master"
 frankfurter="$piecentral/DevOps/frankfurter"
 frank_resources="$frankfurter/resources"
 
-user=debian
+user=ubuntu
 eth_ip=192.168.6.2
 usb_ip=192.168.7.2
 if [ -d /tmp ]; then

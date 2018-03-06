@@ -1,7 +1,7 @@
 [Unit]
 Description=Robot software updater
 After=sysinit.target
-AssertPathExists=/home/debian/bin
+AssertPathExists=/home/debian/bin/update.sh
 
 [Service]
 Type=oneshot
@@ -9,4 +9,4 @@ ExecStart=/home/debian/bin/update.sh
 
 [Install]
 WantedBy=sysinit.target
-RequiredBy=runtime.service
+WantedBy=runtime.service

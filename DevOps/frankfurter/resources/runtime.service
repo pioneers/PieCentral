@@ -1,10 +1,9 @@
 [Unit]
 Description=Robot runtime daemon
-Requires=update.service
 After=sysinit.target
+Wants=update.service
 AssertPathExists=/home/debian/PieCentral/runtime
 AssertPathExists=/home/debian/PieCentral/hibike
-PartOf=update.service
 
 [Service]
 Type=simple

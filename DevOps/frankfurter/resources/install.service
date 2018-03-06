@@ -2,7 +2,7 @@
 Description=Robot software installer
 After=default.target
 AssertPathExists=/home/debian
-ConditionPathExists=!/home/debian/install_flags/completed
+ConditionPathExists=!/home/debian/install-flags/completed
 
 [Service]
 Type=simple

@@ -52,11 +52,11 @@ function init_homedir {
   systemctl --user daemon-reload && systemctl --user enable update.service
 }
 
-stage_flags="$HOME/install_flags"
+stage_flags="$HOME/install-flags"
 mkdir -p "$stage_flags"
 
-kernel_upgraded_flag="$stage_flags/kernel_upgraded"
-wifi_driver_flag="$stage_flags/wifi_driver"
+kernel_upgraded_flag="$stage_flags/kernel-upgraded"
+wifi_driver_flag="$stage_flags/wifi-driver"
 completed_flag="$stage_flags/completed"
 
 sudo /sbin/route add default gw "192.168.7.1"

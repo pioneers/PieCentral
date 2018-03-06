@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# create_update -- Package a software update as a GZIPed tarball.
+# create_update -- Package a PiE robot software update as a GZIPed tarball.
 #
 # Includes `hibike`, `runtime`, compiled protobufs, offline runtime
 # documentation Dawn displays to students, and system resources (e.g.
@@ -8,9 +8,23 @@
 # knows how to install these files.
 
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
+
+usage="Package a PiE robot software update as a GZIPped tarball.\n"
+usage=$usage"Usage: $(basename $0) [-hp] <>\n\n"
+usage=$usage"Options:\n"
+usage=$usage$indent"-h  Show this help message.\n"
+usage=$usage$indent"-p  Compile protobufs.\n"
+
 current_time="$(date +%s%N)"
 update_basename="frankfurter-update-$current_time"
 build_dir="$tmp_dir/$update_basename"
+
+# Verify the protobuf compiler is available
+if ! type "protoc" > /dev/null 2> /dev/null; then
+  echo -e $error"Protobuf compiler is not available."$clear
+  echo "See 'https://github.com/google/protobuf/#protocol-compiler-installation' for installation instructions."
+  exit 1
+fi
 
 echo "Don't forget to pull the latest code before running this script!"
 echo "Current commit is: $(git rev-parse --short HEAD)"
@@ -22,19 +36,12 @@ echo "Build directory: $build_dir"
 # Copy packages that do not require modifications
 packages=("$hibike" "$runtime" "$frank_resources" "$frankfurter/scripts/update/install_update")
 for package in ${packages[@]}; do
-    echo -e "$indent""Copied $package"
-    cp -R "$package" "$build_dir"
+  echo -e "$indent""Copied $package"
+  cp -R "$package" "$build_dir"
 done
 
-# Verify the protobuf compiler is available, and compile protobufs
-if ! type "protoc" > /dev/null; then
-  echo -e $error"Protobuf compiler is not available."$clear
-  echo "See 'https://github.com/google/protobuf/#protocol-compiler-installation' for installation instructions."
-  exit 1
-else
-  echo -e "$indent""Compiled and copied protobufs in $protos"
-  protoc -I="$protos" --python_out="$build_dir/$(basename $runtime)" "$protos/"*".proto"
-fi
+# protoc -I="$protos" --python_out="$build_dir/$(basename $runtime)" "$protos/"*".proto"
+# echo -e "$indent""Compiled and copied protobufs in $protos"
 
 # Copy and rename offline API documentation
 cp -R "$api_docs" "$build_dir/docs"

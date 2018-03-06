@@ -4,7 +4,6 @@
 #
 # Unpacks a zipped tarball and calls an included script to perform the update.
 
-set -e
 updates_dir="$HOME/updates"
 mkdir -p "$updates_dir"
 
@@ -15,7 +14,7 @@ for filename in $(find "$updates_dir" -name "*.tar.gz" | sort); do
   tar -xf "$filename" -C "$tmp_dir" --warning=no-timestamp --strip-components=1
 
   if [ -e "$tmp_dir/install_update" ]; then
-    output=$(cd "$HOME" && "$tmp_dir/install_update" "$tmp_dir" && sync)
+    output=$(cd "$HOME" && "$tmp_dir/install_update" "$tmp_dir")
     echo "$output"
   else
     echo "Could not find 'install_update' in $filename." >&2
@@ -24,3 +23,5 @@ for filename in $(find "$updates_dir" -name "*.tar.gz" | sort); do
   rm -rf "$tmp_dir"
   echo "Cleaned up '$tmp_dir'."
 done
+
+sync

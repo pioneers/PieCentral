@@ -6,7 +6,7 @@
 
 piecentral="$HOME/PieCentral"
 piecentral_backup="$HOME/PieCentral-backup"
-user_systemd="$HOME/.config/systemd/user"
+systemd_units="/etc/systemd/system"
 
 # Replace a backup of PieCentral
 rm -rf "$piecentral_backup"
@@ -47,11 +47,10 @@ replace_package "$1/resources/bashrc" "$HOME/.bashrc"
 chmod 644 "$HOME/.bashrc"
 
 # Update and enable services
-mkdir -p "$user_systemd"
-replace_package "$1/resources/runtime.service" "$user_systemd/runtime.service"
-replace_package "$1/resources/update.service" "$user_systemd/update.service"
-systemctl --user daemon-reload
-systemctl --user enable runtime.service
-systemctl --user enable update.service
+sudo mv "$1/resources/runtime.service" "$systemd_units/runtime.service"
+sudo mv "$1/resources/update.service" "$systemd_units/update.service"
+sudo systemctl daemon-reload
+sudo systemctl reenable update.service
+sudo systemctl reenable runtime.service
 
 sudo mv "$1/resources/blacklist.conf" "/etc/modprobe.d"

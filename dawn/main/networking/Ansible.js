@@ -5,9 +5,7 @@ import protobuf from 'protobufjs';
 import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
-import {
-  updateConsole,
-} from '../../renderer/actions/ConsoleActions';
+import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import {
   ansibleDisconnect,
   notifyReceive,

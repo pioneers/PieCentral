@@ -5,7 +5,8 @@ import {
   Navbar,
   ButtonToolbar,
   ButtonGroup,
-  Label } from 'react-bootstrap';
+  Label,
+} from 'react-bootstrap';
 import ConfigBox from './ConfigBox';
 import UpdateBox from './UpdateBox';
 import StatusLabel from './StatusLabel';

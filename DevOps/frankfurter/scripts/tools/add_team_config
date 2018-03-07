@@ -1,12 +1,9 @@
 #!/bin/bash
 
-# configure.sh -- Team-specific configuration
+# add_team_config -- Team-specific configuration
 
-SCRIPTS_DIR=$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts
+source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 
-cd "$SCRIPTS_DIR/tools"
-./interfaces.sh
-cd "$SCRIPTS_DIR/update"
-./deploy_update.sh
-cd "$SCRIPTS_DIR/tools"
-./usb-fix.sh
+deploy_update
+make_team_net
+run_remote -q "$frankfurter/scripts/tools/recompile_dtb"

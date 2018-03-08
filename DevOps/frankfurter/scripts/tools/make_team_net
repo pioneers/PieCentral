@@ -27,6 +27,6 @@ sed -i "10s/psk=\"\"/psk=\"$router_psk\"/" "$build_dir/wpa_supplicant.conf"
 
 # Copy and move files
 scp "$build_dir/interfaces" "$build_dir/wpa_supplicant.conf" "$user@$default_ip:~"
-ssh -t "$user@$ip" "sudo mv ~/interfaces /etc/network && sudo mv ~/wpa_supplicant.conf /etc/wpa_supplicant"
+ssh -t "$user@$default_ip" "sudo mv ~/interfaces /etc/network && sudo mv ~/wpa_supplicant.conf /etc/wpa_supplicant"
 
 rm -rf "$build_dir"

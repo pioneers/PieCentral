@@ -36,6 +36,9 @@ function verify_protoc {
     echo -e $error"Protobuf compiler is not available."$clear
     echo "See 'https://github.com/google/protobuf/#protocol-compiler-installation' for installation instructions."
     exit 1
+  elif [ ! $(protoc --version | grep -E '\s3\.(2|3)\.[0-9]+$') ]; then
+    echo -e $error"You must use protoc with version 3.2.x or 3.3.x!"$clear
+    exit 1
   fi
 }
 

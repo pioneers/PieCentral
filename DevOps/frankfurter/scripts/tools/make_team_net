@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# make_team_net -- Build
+# make_team_net -- Build a network configuration for a particular team.
 
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 

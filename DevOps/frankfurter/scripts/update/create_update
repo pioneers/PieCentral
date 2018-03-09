@@ -13,7 +13,8 @@ usage="Package a PiE robot software update as a GZIPped tarball.\n"
 usage=$usage"Usage: $(basename $0) [-hp]\n\n"
 usage=$usage"Options:\n"
 usage=$usage$indent"-h  Show this help message.\n"
-usage=$usage$indent"-p  Compile protobufs (default: not compiled)."
+usage=$usage$indent"-p  Compile protobufs (default: not compiled).\n"
+usage=$usage$indent"-P  Download and include Python packages."
 
 compile_protos=''
 while getopts ":hp" opt; do
@@ -72,6 +73,13 @@ fi
 # Copy and rename offline API documentation
 cp -R "$api_docs" "$build_dir/docs"
 echo -e "$indent""Copied $api_docs"
+
+requirements="$tmp_dir/requirements.txt"
+make_requirements > "$requirements"
+mkdir "$build_dir/python"
+pip download -r "$requirements" -d "$build_dir/python"
+rm "$requirements"
+echo -e "$indent""Copied $build_dir/python"
 
 # GZIP tarball
 rm -f "$frankfurter/build/"*

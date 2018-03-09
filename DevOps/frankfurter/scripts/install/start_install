@@ -1,4 +1,8 @@
-#!/bin/sh
+#!/bin/bash
+
+# start_install -- Staff-run script to begin customizing an Ubuntu image for PiE.
+#
+# The Beaglebone must have internet access (e.g. through USB using `usb_net_fwd`).
 
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 echo "Starting frankfurter installation ..."
@@ -22,11 +26,9 @@ done
 # Export Pipfiles into merged requirements.txt
 echo "Building consolidated 'requirements.txt' ..."
 requirements="$tmp_dir/requirements.txt"
-cd "$runtime" && pipenv lock --python 3.6 --requirements > "$tmp_dir/runtime-requirements.txt" 2>/dev/null
-cd "$hibike" && pipenv lock --python 3.6 --requirements > "$tmp_dir/hibike-requirements.txt" 2>/dev/null
-cat "$tmp_dir/"*"-requirements.txt" | sort -u > "$requirements"
+make_requirements > "$requirements"
 scp "$requirements" "$user@$default_ip:~" > /dev/null
-rm "$requirements" "$tmp_dir/"*"-requirements.txt"
+rm "$requirements"
 
 ssh -t $ssh_options "$user@$default_ip" "/home/$user/bootstrap" 2>/dev/null
 echo -e $success"Installation process now entering autonomous mode."$clear

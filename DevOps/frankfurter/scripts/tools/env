@@ -36,3 +36,10 @@ clear="\e[0m"
 export PATH="$PATH:$frankfurter/scripts/install"
 export PATH="$PATH:$frankfurter/scripts/tools"
 export PATH="$PATH:$frankfurter/scripts/update"
+
+function make_requirements {
+  cd "$runtime" && pipenv lock --python 3.6 --requirements > "$tmp_dir/runtime-requirements.txt" 2>/dev/null
+  cd "$hibike" && pipenv lock --python 3.6 --requirements > "$tmp_dir/hibike-requirements.txt" 2>/dev/null
+  cat "$tmp_dir/"*"-requirements.txt" | sort -u > "$tmp_dir/requirements.txt"
+  rm "$tmp_dir/"*"-requirements.txt"
+}

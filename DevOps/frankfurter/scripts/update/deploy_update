@@ -4,7 +4,7 @@
 
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 if ! ls "$frankfurter/build/frankfurter-update-"* 1> /dev/null 2>&1; then
-    create_update
+    create_update -p
 fi
 
 scp "$frankfurter/build/"* "$user@$default_ip:~/updates"

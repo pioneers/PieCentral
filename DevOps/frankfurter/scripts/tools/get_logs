@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# get_logs -- Downloads Beaglebone systemd logs and code for debugging.
+
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 ./run_remote -q prepare-logs
 scp $ssh_options "$user@$default_ip:/tmp/*-logs.tar.gz" . 2>/dev/null

@@ -373,11 +373,19 @@ function* downloadStudentCode() {
   }
   if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
     const errors = yield call(() => new Promise((resolve) => {
+      conn.on('error', (err) => {
+        logging.log(err);
+        resolve(3);
+      });
+
       conn.on('ready', () => {
         conn.sftp((err, sftp) => {
-          if (err) resolve(1);
+          if (err) {
+            logging.log(err);
+            resolve(1);
+          }
           sftp.fastGet(
-            './PieCentral/runtime/studentCode.py', `${path}/robotCode.py`,
+            defaults.STUDENTCODELOC, `${path}/robotCode.py`,
             {
               step: (totalTransferred, chunk, total) => {
                 if (totalTransferred === total) {
@@ -405,52 +413,54 @@ function* downloadStudentCode() {
       case 0: {
         const data = yield cps(fs.readFile, `${path}/robotCode.py`, 'utf8');
         yield put(openFileSucceeded(data, `${path}/robotCode.py`));
-        logging.log('Succeeded in Download');
+        yield addAsyncAlert(
+          'Download Success',
+          'File Downloaded Successfully',
+        );
         break;
       }
       case 1: {
         yield addAsyncAlert(
-          'Robot File Download Error',
-          'Dawn was unable to connect to the robot for file download.',
+          'Download Issue',
+          'SFTP session could not be initiated',
         );
         break;
       }
       case 2: {
         yield addAsyncAlert(
-          'Robot File Download Error',
-          'Dawn was unable to download student code fully.',
+          'Download Issue',
+          'File failed to be downloaded',
+        );
+        break;
+      }
+      case 3: {
+        yield addAsyncAlert(
+          'Download Issue',
+          'Robot could not be connected.',
         );
         break;
       }
       default: {
         yield addAsyncAlert(
-          'Robot File Download Error',
-          'Dawn was unable to download student code due to some unknown error.',
+          'Download Issue',
+          'Unknown Error',
         );
         break;
       }
     }
+    setTimeout(() => {
+      conn.end();
+    }, 50);
   }
 }
 
-function* tcpConfirmation() {
-  const result = yield race({
-    update: take('NOTIFICATION_RECEIVED'),
-    timeout: call(delay, TIMEOUT), // The delay is 5000 ms, or 5 second.
-  });
-
-  if (!result.update) {
-    this.logger.log('Runtime failed to confirm');
-    yield addAsyncAlert(
-      'Upload Issue',
-      'Runtime Unresponsive',
-    );
-  } else {
-    const stateSlice = yield select(state => ({
-      ipAddress: state.info.ipAddress,
-      filepath: state.editor.filepath,
-    }));
-    const conn = new Client();
+function* uploadStudentCode() {
+  const conn = new Client();
+  const stateSlice = yield select(state => ({
+    ipAddress: state.info.ipAddress,
+    filepath: state.editor.filepath,
+  }));
+  if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
     const errors = yield call(() => new Promise((resolve) => {
       conn.on('error', (err) => {
         logging.log(err);
@@ -464,7 +474,7 @@ function* tcpConfirmation() {
             resolve(1);
           }
           sftp.fastPut(
-            stateSlice.filepath, './PieCentral/runtime/studentCode.py',
+            stateSlice.filepath, defaults.STUDENTCODELOC,
             {
               step: (totalTransferred, chunk, total) => {
                 if (totalTransferred === total) {
@@ -516,7 +526,7 @@ function* tcpConfirmation() {
       case 3: {
         yield addAsyncAlert(
           'Upload Issue',
-          'Robot could not be connected.',
+          'Robot could not be connected',
         );
         break;
       }
@@ -564,7 +574,7 @@ export default function* rootSaga() {
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     takeEvery('RESTART_RUNTIME', restartRuntime),
     takeEvery('DOWNLOAD_CODE', downloadStudentCode),
-    takeEvery('NOTIFICATION_SENT', tcpConfirmation),
+    takeEvery('UPLOAD_CODE', uploadStudentCode),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     fork(runtimeHeartbeat),

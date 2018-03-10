@@ -19,6 +19,7 @@ app.on('window-all-closed', () => {
 
 app.on('will-quit', () => {
   Ansible.close();
+  FCObject.FCInternal.quit();
 
   if (process.env.NODE_ENV === 'development') {
     killFakeRuntime();

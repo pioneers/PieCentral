@@ -7,6 +7,7 @@ import {
   dragFile,
   createNewFile,
   downloadCode,
+  uploadCode,
 } from '../actions/EditorActions';
 import {
   changeTheme,
@@ -73,6 +74,9 @@ const mapDispatchToProps = dispatch => ({
   },
   onDownloadCode: () => {
     dispatch(downloadCode());
+  },
+  onUploadCode: () => {
+    dispatch(uploadCode());
   },
 });
 

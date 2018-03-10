@@ -1,6 +1,6 @@
 import keyMirror from 'keymirror';
 
-export const VERSION = '2018.0.0';
+export const VERSION = '2018.1.0';
 export const PeripheralTypes = keyMirror({
   MOTOR_SCALAR: null,
   SENSOR_BOOLEAN: null,
@@ -17,6 +17,7 @@ export const PeripheralTypes = keyMirror({
   RFID: null,
   BatteryBuzzer: null,
   TeamFlag: null,
+  GameValues: null,
 });
 
 export const ActionTypes = keyMirror({

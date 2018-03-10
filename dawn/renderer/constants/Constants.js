@@ -17,6 +17,7 @@ export const PeripheralTypes = keyMirror({
   RFID: null,
   BatteryBuzzer: null,
   TeamFlag: null,
+  GameValues: null,
 });
 
 export const ActionTypes = keyMirror({

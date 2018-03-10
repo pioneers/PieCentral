@@ -87,7 +87,7 @@ class ListenSocket {
             RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
           }
         }
-        this.logger.debug(sensorData);
+        this.logger.debug(JSON.stringify(sensorData));
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
         this.logger.log('Error decoding UDP');

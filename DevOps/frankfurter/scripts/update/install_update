@@ -43,7 +43,7 @@ cp "$piecentral_backup/runtime/namedPeripherals.csv" "$piecentral/runtime"
 ln -s "$piecentral/hibike/hibikeDevices.json" "$piecentral/runtime/hibikeDevices.json"
 
 # Configure executable permissions
-replace_package "$1/resources/update.sh" "$HOME/bin/update.sh"
+replace_package "$1/resources/update" "$HOME/bin/update"
 sudo chown "$USER:$USER" "$HOME/bin/"*
 chmod 755 "$HOME/bin/"*
 

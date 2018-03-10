@@ -9,8 +9,12 @@ import io
 import random
 
 from runtimeUtil import *
-from studentCode import next_power, reverse_digits, smallest_prime_fact, double_caesar_cipher # pylint: disable=no-name-in-module
-from studentCode import silly_base_two, most_common_digit, valid_isbn_ten, simd_four_square # pylint: disable=no-name-in-module
+
+try:
+    from studentCode import next_power, reverse_digits, smallest_prime_fact, double_caesar_cipher # pylint: disable=no-name-in-module
+    from studentCode import silly_base_two, most_common_digit, valid_isbn_ten, simd_four_square # pylint: disable=no-name-in-module
+except ImportError:
+    pass
 
 class Actions:
     @staticmethod

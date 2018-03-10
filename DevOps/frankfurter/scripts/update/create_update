@@ -74,12 +74,15 @@ fi
 cp -R "$api_docs" "$build_dir/docs"
 echo -e "$indent""Copied $api_docs"
 
+# Download Python packages from pip
 requirements="$tmp_dir/requirements.txt"
 make_requirements > "$requirements"
 mkdir "$build_dir/python"
-pip download -r "$requirements" -d "$build_dir/python"
+deps_without_hashes=$(cat "$requirements" | xargs -n 1 | grep --invert-match '^\-\-hash')
+# NOTE: will download for 'manylinux' platform, but may fail with some packages.
+echo $deps_without_hashes | xargs -n 1 pip3 download -d "$build_dir/python" > /dev/null
 rm "$requirements"
-echo -e "$indent""Copied $build_dir/python"
+echo -e "$indent""Downloaded Python packages into $build_dir/python"
 
 # GZIP tarball
 rm -f "$frankfurter/build/"*

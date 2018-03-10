@@ -27,6 +27,11 @@ function replace_package {
   fi
 }
 
+# Reinstall Python packages
+# NOTE: Doesn't really work, and takes forever. Commented for now.
+#       Reinstall packages on a per-package basis.
+# ls "$1/python/"* | xargs -n 1 -d '\n' sudo pip3 install --upgrade --no-deps
+
 # Replace `runtime`, `hibike`, and `docs`
 replace_package "$1/runtime" "$piecentral/runtime"
 replace_package "$1/hibike" "$piecentral/hibike"

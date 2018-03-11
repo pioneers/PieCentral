@@ -99,7 +99,7 @@ def main():
                         level=level, stream=sys.stdout)
 
     try:
-        ssid = 'Team{:0>2}'.format(args.team_number)
+        ssid = 'Team{}'.format(args.team_number)
         logging.info('Configuring router ...')
         setup_router(args.username, args.password, ssid)
         logging.info('Done.')

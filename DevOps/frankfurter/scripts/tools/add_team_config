@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# add_team_config -- Team-specific configuration
+
+source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
+
+deploy_update
+make_team_net
+run_remote -q "$frankfurter/scripts/tools/recompile_dtb"

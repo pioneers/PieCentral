@@ -159,7 +159,63 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
         ensure_is_function(test_name + "main", main_fn)
         ensure_not_overridden(studentCode, "Robot")
 
-        studentCode.Robot = studentAPI.Robot(state_queue, pipe)
+        # Solar Scramble specific handling
+        def stub_out(funcname):
+            def stub(_):
+                line1 = "Failed to generate power-up code: "
+                line2 = "you haven't defined {}".format(funcname)
+                raise AttributeError(line1 + line2)
+            return stub
+
+        def get_or_stub_out(funcname):
+            try:
+                return getattr(studentCode, funcname)
+            except AttributeError:
+                return stub_out(funcname)
+
+        def identity(value):
+            '''
+            Used only in the (hopefully) rare event that none of the other
+            functions are bijections with a given domain of RFIDs
+            '''
+            return value
+
+        def limit_input_to(limit):
+            '''Generate a function to limit size of inputs'''
+            def retval(input_val):
+                while input_val > limit:
+                    input_val = (input_val % limit) + (input_val // limit)
+                return input_val
+            return retval
+
+        def compose_funcs(func_a, func_b):
+            '''
+            Composes two single-input functions together, A(B(x))
+            '''
+            return lambda x: func_a(func_b(x))
+
+        next_power = get_or_stub_out("next_power")
+        reverse_digits = get_or_stub_out("reverse_digits")
+        smallest_prime_fact = get_or_stub_out("smallest_prime_fact")
+        double_caesar_cipher = get_or_stub_out("double_caesar_cipher")
+        silly_base_two = get_or_stub_out("silly_base_two")
+        most_common_digit = get_or_stub_out("most_common_digit")
+        valid_isbn_ten = get_or_stub_out("valid_isbn_ten")
+        simd_four_square = get_or_stub_out("simd_four_square")
+
+        func_map = [
+            identity,
+            next_power,
+            reverse_digits,
+            compose_funcs(smallest_prime_fact, limit_input_to(1000000)),
+            double_caesar_cipher,
+            silly_base_two,
+            most_common_digit,
+            valid_isbn_ten,
+            simd_four_square
+        ]
+
+        studentCode.Robot = studentAPI.Robot(state_queue, pipe, func_map)
         studentCode.Gamepad = studentAPI.Gamepad(state_queue, pipe)
         studentCode.Actions = studentAPI.Actions
         studentCode.print = studentCode.Robot._print # pylint: disable=protected-access

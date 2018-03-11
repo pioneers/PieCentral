@@ -10,11 +10,6 @@ import random
 
 from runtimeUtil import *
 
-try:
-    from studentCode import next_power, reverse_digits, smallest_prime_fact, double_caesar_cipher # pylint: disable=no-name-in-module
-    from studentCode import silly_base_two, most_common_digit, valid_isbn_ten, simd_four_square # pylint: disable=no-name-in-module
-except ImportError:
-    pass
 
 class Actions:
     @staticmethod
@@ -125,8 +120,9 @@ class Robot(StudentAPI):
         "led4": [(bool,)],
     }
 
-    def __init__(self, toManager, fromManager):
-        super().__init__(toManager, fromManager)
+    def __init__(self, to_manager, from_manager, func_map):
+        super().__init__(to_manager, from_manager)
+        self.func_map = func_map
         self._create_sensor_mapping()
         self._coroutines_running = set()
         self._stdout_buffer = io.StringIO()
@@ -302,26 +298,6 @@ class Robot(StudentAPI):
 
         This function takes in a RFID tag and returns
         True on success, False on error"""
-        def identity(value):
-            '''
-            Used only in the (hopefully) rare event that none of the other
-            functions are bijections with a given domain of RFIDs
-            '''
-            return value
-
-        def limit_input_to(limit):
-            '''Generate a function to limit size of inputs'''
-            def retval(input_val):
-                while input_val > limit:
-                    input_val = (input_val % limit) + (input_val // limit)
-                return input_val
-            return retval
-
-        def compose_funcs(func_a, func_b):
-            '''
-            Composes two single-input functions together, A(B(x))
-            '''
-            return lambda x: func_a(func_b(x))
         try:
             index = self._get_sm_value("rfids").index(rfid_seed)
             code = self._get_gamecodes()[index]
@@ -329,25 +305,13 @@ class Robot(StudentAPI):
         except ValueError:
             return False
 
-        func_map = [
-            identity,
-            next_power,
-            reverse_digits,
-            compose_funcs(smallest_prime_fact, limit_input_to(1000000)),
-            double_caesar_cipher,
-            silly_base_two,
-            most_common_digit,
-            valid_isbn_ten,
-            simd_four_square
-        ]
-
         output = ''
         while code > 0:
             digit = code % 10
             code //= 10
 
             try:
-                result = func_map[digit](rfid_seed)
+                result = self.func_map[digit](rfid_seed)
             except Exception as e:
                 self._print(e)
                 return False

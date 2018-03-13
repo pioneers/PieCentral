@@ -284,12 +284,6 @@ async def asyncSleepHelper2(sleepTestVal):
     await Actions.sleep(.5)
     sleepTestVal['test'] = False
 
-def decode_setup():
-    print(Robot.decode_message(1))
-
-def decode_main():
-    pass
-
 ###########################
 # Solar Scramble Functions 
 ###########################   

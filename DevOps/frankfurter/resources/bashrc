@@ -47,12 +47,12 @@ esac
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
+        # We have color support; assume it's compliant with Ecma-48
+        # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+        # a case would tend to support setf rather than setaf.)
+        color_prompt=yes
     else
-	color_prompt=
+        color_prompt=
     fi
 fi
 
@@ -116,10 +116,12 @@ if ! shopt -oq posix; then
   fi
 fi
 
-export PYTHONPATH="${PYTHONPATH}:/home/ubuntu/PieCentral/hibike"
+export PYTHONPATH="${PYTHONPATH}:$HOME/PieCentral/hibike"
 
-alias start-runtime='sudo systemctl start runtime.service'
-alias stop-runtime='sudo systemctl stop runtime.service'
-alias restart-runtime='sudo systemctl restart runtime.service'
-alias runtime-status='sudo systemctl status runtime.service'
-alias runtime-logs='sudo journalctl -u runtime.service'
+alias start_runtime='sudo systemctl start runtime.service'
+alias stop_runtime='sudo systemctl stop runtime.service'
+alias restart_runtime='sudo systemctl restart runtime.service'
+alias runtime_status='systemctl status runtime.service'
+alias runtime_logs='sudo journalctl -u runtime.service'
+alias restart_net='sudo systemctl restart networking.service'
+alias net_status='systemctl status networking.service'

@@ -1,0 +1,12 @@
+[Unit]
+Description=Robot software installer
+After=default.target
+AssertPathExists=/home/ubuntu
+ConditionPathExists=!/home/ubuntu/install-flags/completed
+
+[Service]
+Type=simple
+ExecStart=/home/ubuntu/master_setup
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# make_team_net -- Build a network configuration for a particular team.
+
+source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
+
+build_dir="$tmp_dir/net-build"
+mkdir -p "$build_dir"
+
+read -e -p 'Enter the team number: ' team_number
+if [[ -z $(echo "$team_number" | grep -E '^[0-9]+$') || ("$team_number" -gt 50) ]]; then
+  echo -e $error"Invalid team number: '$team_number'"$clear
+  echo "Team number must be integer between 0 and 50, inclusive."
+  exit 1
+fi
+read -e -p 'Enter the team router password: ' router_psk
+
+# Copy config file templates
+cp "$frankfurter/resources/interfaces" "$build_dir"
+cp "$frankfurter/resources/wpa_supplicant.conf" "$build_dir"
+
+# Perform substitutions
+sed -i "s/address 192.168.128.200/address 192.168.128.$(( team_number + 200 ))/" "$build_dir/interfaces"
+sed -i "s/address 192.168.0.200/address 192.168.0.$(( team_number + 200 ))/" "$build_dir/interfaces"
+sed -i "9s/ssid=\"\"/ssid=\"Team$team_number\"/" "$build_dir/wpa_supplicant.conf"
+sed -i "10s/psk=\"\"/psk=\"$router_psk\"/" "$build_dir/wpa_supplicant.conf"
+
+# Copy and move files
+scp "$build_dir/interfaces" "$build_dir/wpa_supplicant.conf" "$user@$default_ip:~"
+ssh -t "$user@$default_ip" "sudo mv ~/interfaces /etc/network && sudo mv ~/wpa_supplicant.conf /etc/wpa_supplicant"
+
+rm -rf "$build_dir"

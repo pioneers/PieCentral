@@ -100,7 +100,6 @@ class Editor extends React.Component {
   componentDidMount() {
     this.CodeEditor.editor.setOptions({
       enableBasicAutocompletion: true,
-      enableSnippets: true,
       enableLiveAutocompletion: true,
     });
     const autoComplete = {

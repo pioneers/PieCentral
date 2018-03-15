@@ -5,10 +5,7 @@ import protobuf from 'protobufjs';
 import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
-import {
-  updateConsole,
-  clearConsole,
-} from '../../renderer/actions/ConsoleActions';
+import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import {
   ansibleDisconnect,
   notifyReceive,
@@ -18,7 +15,7 @@ import {
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { robotState, Logger, defaults } from '../../renderer/utils/utils';
-import LCMObject from './FieldControlLCM';
+import FCObject from './FieldControl';
 
 const DawnData = (new protobuf.Root()).loadSync(`${__dirname}/ansible.proto`, { keepCase: true }).lookupType('DawnData');
 const { StudentCodeStatus } = DawnData;
@@ -59,7 +56,7 @@ function buildProto(data) {
   return DawnData.create({
     student_code_status: status,
     gamepads,
-    team_color: (LCMObject.stationNumber < 2) ? DawnData.TeamColor.BLUE : DawnData.TeamColor.GOLD,
+    team_color: (FCObject.stationNumber < 2) ? DawnData.TeamColor.BLUE : DawnData.TeamColor.GOLD,
   });
 }
 
@@ -90,7 +87,7 @@ class ListenSocket {
             RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
           }
         }
-        this.logger.debug(sensorData);
+        this.logger.debug(JSON.stringify(sensorData));
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
         this.logger.log('Error decoding UDP');
@@ -179,8 +176,9 @@ class TCPSocket {
   constructor(socket, logger) {
     this.tryUpload = this.tryUpload.bind(this);
     this.requestTimestamp = this.requestTimestamp.bind(this);
-    this.logger = logger;
+    this.sendFieldControl = this.sendFieldControl.bind(this);
 
+    this.logger = logger;
     this.socket = socket;
 
     this.logger.log('Runtime connected');
@@ -224,6 +222,20 @@ class TCPSocket {
 
     this.socket.write(message, () => {
       this.logger.log(`Timestamp Requested: ${TIME}`);
+    });
+  }
+
+  sendFieldControl(data) {
+    const rawMsg = {
+      header: Notification.Type.GAMECODE_TRANSMISSION,
+      gamecode_solutions: data.solutions,
+      gamecodes: data.codes,
+      rfids: data.rfids,
+    };
+    const message = Notification.encode(Notification.create(rawMsg)).finish();
+
+    this.socket.write(message, () => {
+      this.logger.log(`FC Message Sent: ${rawMsg}`);
     });
   }
 
@@ -273,28 +285,6 @@ class TCPServer {
     this.tcp.close();
   }
 }
-
-const onUpdateCodeStatus = (status) => {
-  RendererBridge.reduxDispatch(updateCodeStatus(status));
-};
-
-const onClearConsole = () => {
-  RendererBridge.reduxDispatch(clearConsole());
-};
-
-/* Redux short-circuiting for when field control wants to start/stop robot
- */
-const startRobot = () => { // eslint-disable-line no-unused-vars
-  // TODO: Probably move this to Editor using ipcRenderer/ipcMain.
-  // this.state.mode doesn't exist here.
-  RendererBridge.reduxDispatch(onUpdateCodeStatus(this.state.mode));
-  RendererBridge.reduxDispatch(onClearConsole());
-};
-
-const stopRobot = () => { // eslint-disable-line no-unused-vars
-  // TODO: Probably move this to Editor using ipcRenderer/ipcMain. GUI can't change here.
-  RendererBridge.reduxDispatch(onUpdateCodeStatus(robotState.IDLE));
-};
 
 const Ansible = {
   conns: [],

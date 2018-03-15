@@ -153,7 +153,7 @@ def to_end(args):
     and final score adjustments can be made.
     '''
     global game_state
-    lcm_send(LCM_TARGETS.UI, GUI_HEADER.SEND_SCORES,
+    lcm_send(LCM_TARGETS.UI, UI_HEADER.SCORES,
              {"blue_score" : math.floor(alliances[ALLIANCE_COLOR.BLUE].score),
               "gold_score" : math.floor(alliances[ALLIANCE_COLOR.GOLD].score)})
     game_state = STATE.END
@@ -180,6 +180,15 @@ def reset(args=None):
 
     print("RESET MATCH, MOVE TO SETUP")
 
+def get_match(args):
+    '''
+    Retrieves the match based on match number and sends this information to the UI
+    '''
+    match_num = int(args["match_num"])
+    info = Sheet.get_match(match_num)
+    info["match_num"] = match_num
+    lcm_send(LCM_TARGETS.UI, UI_HEADER.TEAMS_INFO, info)
+
 def score_adjust(args):
     '''
     Allow for score to be changed based on referee decisions
@@ -193,6 +202,19 @@ def score_adjust(args):
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
              {"alliance" : alliances[ALLIANCE_COLOR.GOLD].name,
               "score" : math.floor(alliances[ALLIANCE_COLOR.GOLD].score)})
+
+def get_score(args):
+    '''
+    Send the current blue and gold score to the UI
+    '''
+    if alliances[ALLIANCE_COLOR.BLUE] is None:
+        lcm_send(LCM_TARGETS.UI, UI_HEADER.SCORES,
+                 {"blue_score" : None,
+                  "gold_score" : None})
+    else:
+        lcm_send(LCM_TARGETS.UI, UI_HEADER.SCORES,
+                 {"blue_score" : math.floor(alliances[ALLIANCE_COLOR.BLUE].score),
+                  "gold_score" : math.floor(alliances[ALLIANCE_COLOR.GOLD].score)})
 
 def flush_scores():
     '''
@@ -240,7 +262,7 @@ def generate_rfids(args):
         rfid_list.remove(temp)
         rfids.append(temp)
     curr_rfids = rfids
-    lcm_send(LCM_TARGETS.UI, GUI_HEADER.SEND_RFIDS, {"RFID_list" : rfids})
+    lcm_send(LCM_TARGETS.UI, UI_HEADER.RFID_LIST, {"RFID_list" : rfids})
 
 def send_goal_owners_sensors():
 
@@ -411,6 +433,7 @@ def bid_complete(args):
 setup_functions = {
     SHEPHERD_HEADER.GENERATE_RFID : generate_rfids,
     SHEPHERD_HEADER.SETUP_MATCH: to_setup,
+    SHEPHERD_HEADER.GET_MATCH_INFO : get_match,
     SHEPHERD_HEADER.START_NEXT_STAGE: to_auto
 }
 
@@ -428,6 +451,7 @@ wait_functions = {
     SHEPHERD_HEADER.BID_TIMER_END : bid_complete,
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
+    SHEPHERD_HEADER.GET_SCORES : get_score,
     SHEPHERD_HEADER.START_NEXT_STAGE : to_teleop
 }
 
@@ -444,7 +468,9 @@ teleop_functions = {
 end_functions = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
+    SHEPHERD_HEADER.GET_SCORES : get_score,
     SHEPHERD_HEADER.SETUP_MATCH : to_setup,
+    SHEPHERD_HEADER.GET_MATCH_INFO : get_match,
     SHEPHERD_HEADER.GENERATE_RFID : generate_rfids,
 }
 

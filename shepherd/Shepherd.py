@@ -88,6 +88,10 @@ def to_setup(args):
     goals[GOAL.BLUE].set_owner(alliances[ALLIANCE_COLOR.BLUE])
     goals[GOAL.GOLD].set_owner(alliances[ALLIANCE_COLOR.GOLD])
 
+    send_goal_owners_sensors()
+    send_goal_costs_sensors()
+    send_team_scores_sensors()
+
     _, curr_challenge_codes, curr_codegen_solutions = Codegen.get_original_codes(curr_rfids)
     print("SOLUTIONS: " + str(curr_codegen_solutions))
     lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.CODES, {"rfids" : curr_rfids,

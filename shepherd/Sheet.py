@@ -81,10 +81,10 @@ def get_online_match(match_number):
     game_data = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=range_name).execute()
     match = game_data['values'][match_number-1]
-    return {"b1name" : match[3], "b1#" : match[2],
-            "b2name" : match[5], "b2#" : match[4],
-            "g1name" : match[7], "g1#" : match[6],
-            "g2name" : match[9], "g2#" : match[8]}
+    return {"b1name" : match[3], "b1num" : match[2],
+            "b2name" : match[5], "b2num" : match[4],
+            "g1name" : match[7], "g1num" : match[6],
+            "g2name" : match[9], "g2num" : match[8]}
 
 def get_offline_match(match_number):
     """
@@ -97,10 +97,10 @@ def get_offline_match(match_number):
     match = matches[match_number]
     match = " ".join(match)
     match = match.split(',')
-    return {"b1name" : match[3], "b1#" : match[2],
-            "b2name" : match[5], "b2#" : match[4],
-            "g1name" : match[7], "g1#" : match[6],
-            "g2name" : match[9], "g2#" : match[8]}
+    return {"b1name" : match[3], "b1num" : match[2],
+            "b2name" : match[5], "b2num" : match[4],
+            "g1name" : match[7], "g1num" : match[6],
+            "g2name" : match[9], "g2num" : match[8]}
 
 def write_online_scores(match_number, blue_score, gold_score):
     """

@@ -121,9 +121,9 @@ class StateManager(object): # pylint: disable=too-many-public-methods
                               "buttons": {0: True, 1: False, 2: True, 3: False, 4: True}}}, t],
             "team_flag_uid": [None, t],
             # Solar Scramble Keys
-            "gamecodes": [[1, 0, 0, 0, 0, 0], t],
-            "gamecodes_check": [[4312, 0, 0, 0, 0, 0], t],
-            "rfids": [[1, 0, 0, 0, 0, 0], t],
+            "gamecodes": [[64314, 64314, 64314, 64314, 64314, 64314], t],
+            "gamecodes_check": [[1543, 3215, 2551, 5354, 1152, 2222], t],
+            "rfids": [[6, 1, 3, 5, 2, 4], t],
         }
 
     def add_pipe(self, process_name, pipe):

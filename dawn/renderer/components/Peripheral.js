@@ -11,6 +11,7 @@ import { ListGroupItem } from 'react-bootstrap';
 import { PeripheralTypes } from '../constants/Constants';
 import BooleanSensor from './peripherals/BooleanSensor';
 import GenericPeripheral from './peripherals/GenericPeripheral';
+import GameValues from './peripherals/GameValues';
 import Motor from './peripherals/Motor';
 
 // Mapping between peripheral types and components
@@ -18,6 +19,7 @@ const typesToComponents = {};
 typesToComponents[PeripheralTypes.MOTOR_SCALAR] = Motor;
 typesToComponents[PeripheralTypes.SENSOR_BOOLEAN] = BooleanSensor;
 typesToComponents[PeripheralTypes.LimitSwitch] = BooleanSensor;
+typesToComponents[PeripheralTypes.GameValues] = GameValues;
 
 
 const Peripheral = (props) => {

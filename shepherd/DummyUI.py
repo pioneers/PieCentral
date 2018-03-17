@@ -10,14 +10,14 @@ def sender():
             continue
         if command == "setup":
             send_dict = {}
-            send_dict["b1name"] = 1
-            send_dict["b1num"] = 2
-            send_dict["b2name"] = 3
+            send_dict["b1name"] = "Hayward"
+            send_dict["b1num"] = 31
+            send_dict["b2name"] = "El Cerrito"
             send_dict["b2num"] = 4
 
-            send_dict["g1name"] = 5
-            send_dict["g1num"] = 6
-            send_dict["g2name"] = 7
+            send_dict["g1name"] = "Middle College"
+            send_dict["g1num"] = 36
+            send_dict["g2name"] = "Brandon"
             send_dict["g2num"] = 8
 
             send_dict["match_num"] = 9

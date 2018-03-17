@@ -51,6 +51,8 @@ class Alliance:
             self.alliance_multiplier = CONSTANTS.MULTIPLIER_INCREASES[1]
         elif self.alliance_multiplier == CONSTANTS.MULTIPLIER_INCREASES[1]:
             self.alliance_multiplier = CONSTANTS.MULTIPLIER_INCREASES[2]
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER,
+                 {"alliance" : self.name, "multiplier" : self.alliance_multiplier})
 
     def reset(self):
         self.score = 0

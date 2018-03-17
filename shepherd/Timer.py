@@ -33,6 +33,8 @@ class busyThread(threading.Thread):
                     LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.CODE_COOLDOWN_END)
                 event.active = False
                 Timer.queueLock.release()
+        for timer in self.queue:
+            timer.active = False
 
     def join(self, timeout=None):
         '''Stops this thread. Must be called from different thread (Main Thread)'''

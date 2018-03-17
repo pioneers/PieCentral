@@ -8,8 +8,6 @@ import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import {
   ansibleDisconnect,
-  notifyReceive,
-  notifySend,
   infoPerMessage,
   updateCodeStatus,
 } from '../../renderer/actions/InfoActions';
@@ -174,7 +172,6 @@ class SendSocket {
 
 class TCPSocket {
   constructor(socket, logger) {
-    this.tryUpload = this.tryUpload.bind(this);
     this.requestTimestamp = this.requestTimestamp.bind(this);
     this.sendFieldControl = this.sendFieldControl.bind(this);
 
@@ -191,9 +188,6 @@ class TCPSocket {
       this.logger.log(`Dawn received TCP Packet ${decoded.header}`);
 
       switch (decoded.header) {
-        case Notification.Type.STUDENT_RECEIVED:
-          RendererBridge.reduxDispatch(notifyReceive());
-          break;
         case Notification.Type.CONSOLE_LOGGING:
           RendererBridge.reduxDispatch(updateConsole(decoded.console_output));
           break;
@@ -208,8 +202,6 @@ class TCPSocket {
      * When Runtime responds back with confirmation,
      * notifyChange sends received signal (see tcp, received variables)
      */
-    ipcMain.on('NOTIFY_UPLOAD', this.tryUpload);
-
     ipcMain.on('TIMESTAMP_SEND', this.requestTimestamp);
   }
 
@@ -239,22 +231,8 @@ class TCPSocket {
     });
   }
 
-  tryUpload() {
-    const message = Notification.encode(Notification.create({
-      header: Notification.Type.STUDENT_SENT,
-      console_output: '',
-    })).finish();
-
-    this.socket.write(message, () => {
-      this.logger.log('Runtime Notified');
-    });
-
-    RendererBridge.reduxDispatch(notifySend());
-  }
-
   close() {
     this.socket.end();
-    ipcMain.removeListener('NOTIFY_UPLOAD', this.tryUpload);
   }
 }
 

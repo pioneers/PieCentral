@@ -24,11 +24,3 @@ export const ipChange = ipAddress => ({
   type: 'IP_CHANGE',
   ipAddress,
 });
-
-export const notifySend = () => ({
-  type: 'NOTIFICATION_SENT',
-});
-
-export const notifyReceive = () => ({
-  type: 'NOTIFICATION_RECEIVED',
-});

@@ -61,6 +61,7 @@ export const defaults = {
   USERNAME: 'ubuntu',
   PASSWORD: 'temppwd',
   IPADDRESS: '192.168.7.2',
+  STUDENTCODELOC: './PieCentral/runtime/studentCode.py',
 };
 
 export const timings = {

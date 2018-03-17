@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Filling Circle</title>
+        <link rel='stylesheet' type='text/css' href='stylesheet.css'/>
+        <script type="text/javascript" src={{url_for( 'static', filename='socket.io.js' )}}></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+    </head>
+    <div style="margin:auto; position:relative; width:1200px">
+        <div style="position:absolute; top:0px; left:0px">
+            <canvas id="canvas" width=400 height=300></canvas>
+            <script type='text/javascript' src='Scoreboard.js'></script>
+        </div>
+        <div style="position:absolute; top:0px; left:400px">
+            <canvas id="canvas2" width=400 height=300></canvas>
+            <script type='text/javascript' src='Scoreboard.js'></script>
+        </div>
+        <div style="position:absolute; top:0px; left:800px">
+            <canvas id="canvas3" width=400 height=300></canvas>
+            <script type='text/javascript' src='Scoreboard.js'></script>
+        </div>
+        <div style="position:absolute; top:300px; left:200px">
+            <canvas id="canvas4" width=400 height=300></canvas>
+            <script type='text/javascript' src='Scoreboard.js'></script>
+        </div>
+        <div style="position:absolute; top:300px; left:600px">
+            <canvas id="canvas5" width=400 height=300></canvas>
+            <script type='text/javascript' src='Scoreboard.js'></script>
+        </div>
+        <div style="margin:auto; width:1200px; position:relative; top:600px">
+            <canvas id="bottom_bar" width=1200 height=300></canvas>
+            <script type='text/javascript' src='Scoreboard.js'></script>
+        </div>
+    </div>
+    <div style="margin:auto; width:1450px; position:absolute; top:600px; left:0px">
+            <canvas id="multipliers" width=1450 height=300></canvas>
+            <script type='text/javascript' src='Scoreboard.js'></script>
+    </div>
+    <div style="position:absolute; top:800px; left:0px">
+        <br>
+        <form id="seconds">
+    	  Initial Time: <br> Outer Circle:<input type="text" name="powerup1" value="5 8 4 6 10">
+                        <br> Outer Circle 2:<input type="text" name="powerup2" value="6 9 10 4 5">
+                        <br> Inner Circle:<input type="text" name="time" value="7 3 5 8 6">
+                        <br> Owner (n/b/g):<input type="text" name="owner" value="g b g b g">
+                        <br>
+    	    <input type="button" onclick="start()" value="Start">
+    	</form>
+        <form id="addTime">
+        Adding Time:<br>
+          Outer Circle:<input type="text" name="addtime"><br>
+          Outer Circle 2:<input type="text" name="addtime2"><br>
+          Inner Circle:<input type="text" name="addtime3"><br>
+          <input type="button" onclick="addTime()" value="Add Time">
+        </form>
+    </div>
+</html>

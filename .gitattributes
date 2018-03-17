@@ -1,0 +1,7 @@
+ansible-protos/* linguist-detectable=true
+dawn/static/website-robot-api-master/assets/main.css linguist-vendored
+dawn/static/website-robot-api-master/assets/css/* linguist-vendored
+dawn/static/website-robot-api-master/assets/fonts/* linguist-vendored
+hibike/Arduino-Makefile/* linguist-vendored
+hibike/lib/* linguist-vendored
+hibike/lib/hibike/* linguist-vendored=false

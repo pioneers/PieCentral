@@ -139,7 +139,10 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
             signal.alarm(0)
 
         signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMELIMIT.value)
-        import studentCode
+        try:
+            import studentCode
+        except SyntaxError as e:
+            raise RuntimeError("Student code has a syntax error: {}".format(e))
         signal.alarm(0)
 
         if test_name != "":

@@ -53,6 +53,15 @@ const DebugMenu = {
         RendererBridge.registeredWindow.reload();
       },
     },
+
+    {
+      label: 'Full Stack Timestamp',
+      click() {
+        RendererBridge.reduxDispatch({
+          type: 'TIMESTAMP_CHECK',
+        });
+      },
+    },
   ],
 };
 
@@ -65,14 +74,6 @@ if (process.env.NODE_ENV === 'development') {
       } else {
         fakeRuntime = fork('./fake-runtime/FakeRuntime');
       }
-    },
-  });
-  DebugMenu.submenu.push({
-    label: 'Full Stack Timestamp',
-    click() {
-      RendererBridge.reduxDispatch({
-        type: 'TIMESTAMP_CHECK',
-      });
     },
   });
 }

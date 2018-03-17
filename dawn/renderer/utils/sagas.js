@@ -551,6 +551,7 @@ function* handleFieldControl() {
 }
 
 function timestampBounceback() {
+  logging.log('Timestamp Requested in Sagas');
   ipcRenderer.send('TIMESTAMP_SEND');
 }
 

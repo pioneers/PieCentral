@@ -64,7 +64,7 @@ class ListenSocket {
     this.statusUpdateTimeout = 0;
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
     this.studentCodeStatusListener = this.studentCodeStatusListener.bind(this);
-
+    this.close = this.close.bind(this);
     /*
      * Runtime message handler. Sends robot state to store.info
      * and raw sensor array to peripheral reducer
@@ -129,6 +129,7 @@ class SendSocket {
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
     this.sendGamepadMessages = this.sendGamepadMessages.bind(this);
     this.ipAddressListener = this.ipAddressListener.bind(this);
+    this.close = this.close.bind(this);
 
     this.socket.on('error', (err) => {
       this.logger.log('UDP sending error');
@@ -174,6 +175,7 @@ class TCPSocket {
   constructor(socket, logger) {
     this.requestTimestamp = this.requestTimestamp.bind(this);
     this.sendFieldControl = this.sendFieldControl.bind(this);
+    this.close = this.close.bind(this);
 
     this.logger = logger;
     this.socket = socket;
@@ -239,6 +241,7 @@ class TCPSocket {
 class TCPServer {
   constructor(logger) {
     this.socket = null;
+    this.close = this.close.bind(this);
     this.tcp = net.createServer((socket) => {
       this.socket = new TCPSocket(socket, logger);
     });

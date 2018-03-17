@@ -259,7 +259,7 @@ class Editor extends React.Component {
       return;
     }
 
-    this.props.onDownloadCode();
+    this.props.onUploadCode();
   }
 
   startRobot() {
@@ -645,6 +645,7 @@ Editor.propTypes = {
   ipAddress: PropTypes.string.isRequired,
   fieldControlActivity: PropTypes.bool.isRequired,
   onDownloadCode: PropTypes.func.isRequired,
+  onUploadCode: PropTypes.func.isRequired,
   disableScroll: PropTypes.bool.isRequired,
 };
 

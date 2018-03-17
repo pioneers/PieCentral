@@ -386,16 +386,12 @@ function* downloadStudentCode() {
           }
           sftp.fastGet(
             defaults.STUDENTCODELOC, `${path}/robotCode.py`,
-            {
-              step: (totalTransferred, chunk, total) => {
-                if (totalTransferred === total) {
-                  resolve(0);
-                }
-              },
-            },
             (err2) => {
-              logging.log(err2);
-              resolve(2);
+              if (err2) {
+                logging.log(err2);
+                resolve(2);
+              }
+              resolve(0);
             },
           );
         });
@@ -413,38 +409,38 @@ function* downloadStudentCode() {
       case 0: {
         const data = yield cps(fs.readFile, `${path}/robotCode.py`, 'utf8');
         yield put(openFileSucceeded(data, `${path}/robotCode.py`));
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Download Success',
           'File Downloaded Successfully',
-        );
+        ));
         break;
       }
       case 1: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Download Issue',
           'SFTP session could not be initiated',
-        );
+        ));
         break;
       }
       case 2: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Download Issue',
           'File failed to be downloaded',
-        );
+        ));
         break;
       }
       case 3: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Download Issue',
           'Robot could not be connected.',
-        );
+        ));
         break;
       }
       default: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Download Issue',
           'Unknown Error',
-        );
+        ));
         break;
       }
     }
@@ -455,6 +451,7 @@ function* downloadStudentCode() {
 }
 
 function* uploadStudentCode() {
+  console.log('Start Upload');
   const conn = new Client();
   const stateSlice = yield select(state => ({
     ipAddress: state.info.ipAddress,
@@ -475,18 +472,12 @@ function* uploadStudentCode() {
           }
           sftp.fastPut(
             stateSlice.filepath, defaults.STUDENTCODELOC,
-            {
-              step: (totalTransferred, chunk, total) => {
-                if (totalTransferred === total) {
-                  resolve(0);
-                }
-              },
-            },
             (err2) => {
               if (err2) {
                 logging.log(err2);
                 resolve(2);
               }
+              resolve(0);
             },
           );
         });
@@ -503,38 +494,38 @@ function* uploadStudentCode() {
 
     switch (errors) {
       case 0: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Upload Success',
           'File Uploaded Successfully',
-        );
+        ));
         break;
       }
       case 1: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Upload Issue',
           'SFTP session could not be initiated',
-        );
+        ));
         break;
       }
       case 2: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Upload Issue',
           'File failed to be transmitted',
-        );
+        ));
         break;
       }
       case 3: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Upload Issue',
           'Robot could not be connected',
-        );
+        ));
         break;
       }
       default: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Upload Issue',
           'Unknown Error',
-        );
+        ));
         break;
       }
     }

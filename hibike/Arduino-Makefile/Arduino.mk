@@ -1527,6 +1527,7 @@ clean-uid:
 	$(REMOVE) $(OBJDIR)/hibike.elf
 	$(REMOVE) $(OBJDIR)/hibike.hex.sizeok
 	$(REMOVE) $(OBJDIR)/userlibs/hibike
+	$(REMOVE) $(OBJDIR)/$(PROJECT_DIR)
 	@$(ECHO) "Removed Hibike binaries\n"
 
 size:	$(TARGET_HEX)

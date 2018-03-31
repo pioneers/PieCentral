@@ -8,8 +8,6 @@ import RendererBridge from '../RendererBridge';
 import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import {
   ansibleDisconnect,
-  notifyReceive,
-  notifySend,
   infoPerMessage,
   updateCodeStatus,
 } from '../../renderer/actions/InfoActions';
@@ -66,7 +64,7 @@ class ListenSocket {
     this.statusUpdateTimeout = 0;
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
     this.studentCodeStatusListener = this.studentCodeStatusListener.bind(this);
-
+    this.close = this.close.bind(this);
     /*
      * Runtime message handler. Sends robot state to store.info
      * and raw sensor array to peripheral reducer
@@ -131,6 +129,7 @@ class SendSocket {
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
     this.sendGamepadMessages = this.sendGamepadMessages.bind(this);
     this.ipAddressListener = this.ipAddressListener.bind(this);
+    this.close = this.close.bind(this);
 
     this.socket.on('error', (err) => {
       this.logger.log('UDP sending error');
@@ -174,9 +173,9 @@ class SendSocket {
 
 class TCPSocket {
   constructor(socket, logger) {
-    this.tryUpload = this.tryUpload.bind(this);
     this.requestTimestamp = this.requestTimestamp.bind(this);
     this.sendFieldControl = this.sendFieldControl.bind(this);
+    this.close = this.close.bind(this);
 
     this.logger = logger;
     this.socket = socket;
@@ -191,9 +190,6 @@ class TCPSocket {
       this.logger.log(`Dawn received TCP Packet ${decoded.header}`);
 
       switch (decoded.header) {
-        case Notification.Type.STUDENT_RECEIVED:
-          RendererBridge.reduxDispatch(notifyReceive());
-          break;
         case Notification.Type.CONSOLE_LOGGING:
           RendererBridge.reduxDispatch(updateConsole(decoded.console_output));
           break;
@@ -208,8 +204,6 @@ class TCPSocket {
      * When Runtime responds back with confirmation,
      * notifyChange sends received signal (see tcp, received variables)
      */
-    ipcMain.on('NOTIFY_UPLOAD', this.tryUpload);
-
     ipcMain.on('TIMESTAMP_SEND', this.requestTimestamp);
   }
 
@@ -239,28 +233,15 @@ class TCPSocket {
     });
   }
 
-  tryUpload() {
-    const message = Notification.encode(Notification.create({
-      header: Notification.Type.STUDENT_SENT,
-      console_output: '',
-    })).finish();
-
-    this.socket.write(message, () => {
-      this.logger.log('Runtime Notified');
-    });
-
-    RendererBridge.reduxDispatch(notifySend());
-  }
-
   close() {
     this.socket.end();
-    ipcMain.removeListener('NOTIFY_UPLOAD', this.tryUpload);
   }
 }
 
 class TCPServer {
   constructor(logger) {
     this.socket = null;
+    this.close = this.close.bind(this);
     this.tcp = net.createServer((socket) => {
       this.socket = new TCPSocket(socket, logger);
     });

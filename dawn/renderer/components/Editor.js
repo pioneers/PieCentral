@@ -8,7 +8,7 @@ import {
   MenuItem,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
-import { remote, ipcRenderer, clipboard } from 'electron';
+import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 
@@ -259,7 +259,7 @@ class Editor extends React.Component {
       return;
     }
 
-    ipcRenderer.send('NOTIFY_UPLOAD');
+    this.props.onUploadCode();
   }
 
   startRobot() {
@@ -645,6 +645,7 @@ Editor.propTypes = {
   ipAddress: PropTypes.string.isRequired,
   fieldControlActivity: PropTypes.bool.isRequired,
   onDownloadCode: PropTypes.func.isRequired,
+  onUploadCode: PropTypes.func.isRequired,
   disableScroll: PropTypes.bool.isRequired,
 };
 

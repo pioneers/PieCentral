@@ -3,17 +3,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import numeral from 'numeral';
-import { PeripheralTypes } from '../../constants/Constants';
 
 /**
  * Generic Peripheral for General Case
  */
 const GenericPeripheral = ({
-  id, device_name, device_type, param,
+  id, device_name, param,
 }) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
-      <div>{ (device_type === PeripheralTypes.GameValues) ? device_name : id }</div>
+      <div>{id}</div>
     </h4>
     {
       _.map(param, obj => (
@@ -29,14 +28,12 @@ const GenericPeripheral = ({
 
 GenericPeripheral.propTypes = {
   device_name: PropTypes.string,
-  device_type: PropTypes.string,
   id: PropTypes.string.isRequired,
   param: PropTypes.array.isRequired,
 };
 
 GenericPeripheral.defaultProps = {
   device_name: 'Unknown Device',
-  device_type: 'Unknown Type',
 };
 
 export default GenericPeripheral;

@@ -44,7 +44,7 @@ const handleAccordion = (array) => {
             <Panel.Title toggle style={{ fontWeight: 'bold' }}>{cleanerNames[groups] || 'Generic'}</Panel.Title>
           </Panel.Heading>
           <Panel.Collapse>
-            <Panel.Body>
+            <Panel.Body style={{ padding: '10px' }} >
               {
                 _.map(peripheralGroups[groups], peripheral => (
                   <Peripheral

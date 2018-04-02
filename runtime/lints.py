@@ -41,7 +41,7 @@ class ImportStudentCode(BaseChecker):
                 self.add_message('no-import-student-code', node=node)
 
     def visit_import(self, node):
-        mods = list(map(lambda x: x[0], node.names))
+        mods = [name[0] for name in node.names]
         if 'studentCode' in mods:
             if not self._ok_to_import():
                 self.add_message('no-import-student-code', node=node)

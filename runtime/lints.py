@@ -7,6 +7,10 @@ def register(linter):
     linter.register_checker(ImportStudentCode(linter))
 
 class ImportStudentCode(BaseChecker):
+    """
+    An extra lint to ensure that studentCode isn't imported anywhere but
+    the appropriate places.
+    """
     __implements__ = IAstroidChecker
 
 
@@ -27,6 +31,7 @@ class ImportStudentCode(BaseChecker):
         self._stack = []
 
     def _ok_to_import(self):
+        """Are we inside a function where it's ok to import studentCode?"""
         return len(self._stack) > 0 and len(self.OK_TO_IMPORT_FUNCTIONS & set(self._stack)) > 0
 
     def visit_functiondef(self, node):

@@ -13,12 +13,14 @@ PORT = 5000
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'omegalul!'
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 socketio = SocketIO(app)
 
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
 
+#RFID page used for 2018 Season: Solar Scramble
 @app.route('/RFID_control.html/')
 def RFID_control():
     return render_template('RFID_control.html')
@@ -70,20 +72,18 @@ def ui_to_server_reset_match():
 def receiver():
     events = gevent.queue.Queue()
     lcm_start_read(str.encode(LCM_TARGETS.UI), events)
-    counter = 0
 
     while True:
-        counter = (counter + 1) % 10
-
         if not events.empty():
             event = events.get_nowait()
             print("RECEIVED:", event)
-            if event[0] == UI_HEADER.RFID_LIST:
-                socketio.emit('server-to-ui-rfidlist', json.dumps(event[1], ensure_ascii=False))
-            elif event[0] == UI_HEADER.TEAMS_INFO:
+            if event[0] == UI_HEADER.TEAMS_INFO:
                 socketio.emit('server-to-ui-teamsinfo', json.dumps(event[1], ensure_ascii=False))
             elif event[0] == UI_HEADER.SCORES:
                 socketio.emit('server-to-ui-scores', json.dumps(event[1], ensure_ascii=False))
+            #Events used for 2018 Season: Solar Scramble
+            elif event[0] == UI_HEADER.RFID_LIST:
+                socketio.emit('server-to-ui-rfidlist', json.dumps(event[1], ensure_ascii=False))
         socketio.sleep(0)
 
 socketio.start_background_task(receiver)

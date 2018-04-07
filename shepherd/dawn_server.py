@@ -13,6 +13,7 @@ PORT = 7000
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'omegalul!'
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 socketio = SocketIO(app)
 
 def receiver():
@@ -26,6 +27,7 @@ def receiver():
             print("RECEIVED:", event)
             if eventDict["header"] == DAWN_HEADER.ROBOT_STATE:
                 socketio.emit(DAWN_HEADER.ROBOT_STATE, event)
+            #RFID codes were used in the 2018 Season: Solar Scramble
             else:
                 socketio.emit(DAWN_HEADER.CODES, event)
         socketio.emit(DAWN_HEADER.HEARTBEAT, json.dumps({"heartbeat" : 1}))

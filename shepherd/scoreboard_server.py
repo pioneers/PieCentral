@@ -13,6 +13,7 @@ PORT = 5500
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'omegalul!'
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 socketio = SocketIO(app)
 
 @app.route('/')
@@ -32,12 +33,19 @@ def receiver():
         if not events.empty():
             event = events.get_nowait()
             print("RECEIVED:", event)
+
+            #Events that will always be used
             if event[0] == SCOREBOARD_HEADER.SCORE:
                 socketio.emit(SCOREBOARD_HEADER.SCORE, json.dumps(event[1], ensure_ascii=False))
 
             elif event[0] == SCOREBOARD_HEADER.TEAMS:
                 socketio.emit(SCOREBOARD_HEADER.TEAMS, json.dumps(event[1], ensure_ascii=False))
 
+            elif event[0] == SCOREBOARD_HEADER.STAGE_TIMER_START:
+                socketio.emit(SCOREBOARD_HEADER.STAGE_TIMER_START,
+                              json.dumps(event[1], ensure_ascii=False))
+
+            #Events used for 2018 Season: Solar Scramble
             elif event[0] == SCOREBOARD_HEADER.BID_TIMER_START:
                 socketio.emit(SCOREBOARD_HEADER.BID_TIMER_START,
                               json.dumps(event[1], ensure_ascii=False))
@@ -50,18 +58,13 @@ def receiver():
                 socketio.emit(SCOREBOARD_HEADER.BID_AMOUNT,
                               json.dumps(event[1], ensure_ascii=False))
 
-            elif event[0] == SCOREBOARD_HEADER.STAGE_TIMER_START:
-                socketio.emit(SCOREBOARD_HEADER.STAGE_TIMER_START,
-                              json.dumps(event[1], ensure_ascii=False))
-
             elif event[0] == SCOREBOARD_HEADER.POWERUPS:
                 socketio.emit(SCOREBOARD_HEADER.POWERUPS, json.dumps(event[1], ensure_ascii=False))
 
             elif event[0] == SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER:
                 socketio.emit(SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER,
                               json.dumps(event[1], ensure_ascii=False))
-            #if event[0] == SCOREBOARD_HEADER.ALL_INFO):
-            #    socketio.emit('server-to-gui-all-info', json.dumps(event[1], ensure_ascii=False))
+
         socketio.sleep(0)
 
 socketio.start_background_task(receiver)

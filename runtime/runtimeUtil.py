@@ -160,8 +160,7 @@ class BadThing:
     def __str__(self):
         if self.printStackTrace:
             return self.stackTrace
-        else:
-            return str(self.data)
+        return str(self.data)
 
 class StudentAPIError(Exception):
     """Miscellaneous studentAPI error."""

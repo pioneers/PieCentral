@@ -18,6 +18,7 @@ cleanerNames[PeripheralTypes.MetalDetector] = 'Metal Detectors';
 cleanerNames[PeripheralTypes.ServoControl] = 'Servo Controllers';
 cleanerNames[PeripheralTypes.RFID] = 'RFID';
 cleanerNames[PeripheralTypes.YogiBear] = 'Yogi Bear';
+cleanerNames[PeripheralTypes.GameValues] = 'Game Values';
 
 const filter = new Set([PeripheralTypes.TeamFlag]);
 
@@ -43,7 +44,7 @@ const handleAccordion = (array) => {
             <Panel.Title toggle style={{ fontWeight: 'bold' }}>{cleanerNames[groups] || 'Generic'}</Panel.Title>
           </Panel.Heading>
           <Panel.Collapse>
-            <Panel.Body>
+            <Panel.Body style={{ padding: '10px' }} >
               {
                 _.map(peripheralGroups[groups], peripheral => (
                   <Peripheral
@@ -77,7 +78,7 @@ const PeripheralListComponent = (props) => {
   if (errorMsg) {
     panelBody = <p className="panelText">{errorMsg}</p>;
   } else {
-    panelBody = handleAccordion(_.sortBy(_.toArray(props.peripherals.peripheralList), ['device_type', 'device_name']));
+    panelBody = handleAccordion(_.sortBy(_.toArray(props.peripherals.peripheralList), ['device_type']));
   }
 
   return (

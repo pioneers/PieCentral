@@ -8,7 +8,7 @@ import {
   MenuItem,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
-import { remote, ipcRenderer, clipboard } from 'electron';
+import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
 
@@ -76,6 +76,7 @@ class Editor extends React.Component {
     this.changeTheme = this.changeTheme.bind(this);
     this.increaseFontsize = this.increaseFontsize.bind(this);
     this.decreaseFontsize = this.decreaseFontsize.bind(this);
+    this.changeFontsizeToFont = this.changeFontsizeToFont.bind(this);
     this.startRobot = this.startRobot.bind(this);
     this.stopRobot = this.stopRobot.bind(this);
     this.upload = this.upload.bind(this);
@@ -99,7 +100,6 @@ class Editor extends React.Component {
   componentDidMount() {
     this.CodeEditor.editor.setOptions({
       enableBasicAutocompletion: true,
-      enableSnippets: true,
       enableLiveAutocompletion: true,
     });
     const autoComplete = {
@@ -259,7 +259,7 @@ class Editor extends React.Component {
       return;
     }
 
-    ipcRenderer.send('NOTIFY_UPLOAD');
+    this.props.onUploadCode();
   }
 
   startRobot() {
@@ -362,6 +362,13 @@ class Editor extends React.Component {
   increaseFontsize() {
     this.props.onChangeFontsize(this.props.fontSize + 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize + 1 }, (err) => {
+      if (err) logging.log(err);
+    });
+  }
+
+  changeFontsizeToFont(fontSize) {
+    this.props.onChangeFontsize(fontSize);
+    storage.set('editorFontSize', { editorFontSize: fontSize }, (err) => {
       if (err) logging.log(err);
     });
   }
@@ -530,6 +537,33 @@ class Editor extends React.Component {
               />
             </ButtonGroup>
             <ButtonGroup id="editor-settings-buttons">
+              <DropdownButton
+                title="Text Size"
+                bsSize="small"
+                id="choose-theme"
+              >
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(8)}
+                >8</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(12)}
+                >12</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(14)}
+                >14</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(16)}
+                >16</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(20)}
+                >20</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(24)}
+                >24</MenuItem>
+                <MenuItem
+                  onClick={() => this.changeFontsizeToFont(28)}
+                >28</MenuItem>
+              </DropdownButton>
               <TooltipButton
                 id="increase-font-size"
                 text="Increase font size"
@@ -611,6 +645,7 @@ Editor.propTypes = {
   ipAddress: PropTypes.string.isRequired,
   fieldControlActivity: PropTypes.bool.isRequired,
   onDownloadCode: PropTypes.func.isRequired,
+  onUploadCode: PropTypes.func.isRequired,
   disableScroll: PropTypes.bool.isRequired,
 };
 

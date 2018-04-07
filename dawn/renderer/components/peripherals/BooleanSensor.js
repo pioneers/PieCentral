@@ -24,12 +24,11 @@ const BooleanSensor = ({
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>
       <div>{id}</div>
-      <small> {device_type} </small>
     </h4>
     {
       _.map(param, obj => (
         <div key={`${obj.param}-${device_name}-Overall`}>
-          <h4 style={{ float: 'right', height: '10px' }} key={`${obj.param}-${device_name}`}>
+          <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${obj.param}-${device_name}`}>
             {`${obj.param}: ${formatBoolean(device_type, obj)}`}
           </h4>
         </div>

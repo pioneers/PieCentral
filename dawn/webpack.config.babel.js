@@ -1,8 +1,5 @@
 import path from 'path';
-import webpack from 'webpack';
-import { version } from './package.json';
 
-const target = 'electron';
 const modules = {
   rules: [
     {
@@ -19,13 +16,6 @@ const modules = {
   ],
 };
 
-const plugins = [
-  new webpack.optimize.ModuleConcatenationPlugin(),
-  new webpack.DefinePlugin({
-    VERSION: JSON.stringify(version),
-  }),
-];
-
 export default [
   {
     entry: './renderer/index.js',
@@ -34,9 +24,8 @@ export default [
       path: path.join(__dirname, 'build'),
       filename: 'bundle.js',
     },
-    target,
+    target: 'electron-renderer',
     module: modules,
-    plugins,
   },
   {
     entry: './main/main-process.js',
@@ -44,12 +33,11 @@ export default [
       path: path.join(__dirname, 'build'),
       filename: 'main.js',
     },
-    target,
+    target: 'electron-main',
     node: {
       __dirname: false,
       __filename: false,
     },
     module: modules,
-    plugins,
   },
 ];

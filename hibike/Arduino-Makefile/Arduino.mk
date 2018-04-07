@@ -1521,6 +1521,12 @@ endif
 clean::
 		$(REMOVE) $(OBJDIR)
 
+clean-uid:
+	$(REMOVE) $(OBJDIR)/hibike.*
+	$(REMOVE) $(OBJDIR)/userlibs/hibike
+	$(REMOVE) $(OBJDIR)/$(PROJECT_DIR)
+	@$(ECHO) "Removed Hibike binaries\n"
+
 size:	$(TARGET_HEX)
 		$(call avr_size,$(TARGET_ELF),$(TARGET_HEX))
 
@@ -1596,7 +1602,7 @@ help:
 
 .PHONY: all upload raw_upload raw_eeprom error_on_caterina reset reset_stty ispload \
         clean depends size show_boards monitor disasm symbol_sizes generated_assembly \
-        generate_assembly verify_size burn_bootloader help pre-build
+        generate_assembly verify_size burn_bootloader help pre-build clean-uid
 
 # added - in the beginning, so that we don't get an error if the file is not present
 -include $(DEPS)

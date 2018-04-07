@@ -309,19 +309,12 @@ const gamepadsState = state => ({
   gamepads: state.gamepads.gamepads,
 });
 
-const lcmState = state => ({
-  connectionStatus: state.info.connectionStatus,
-  runtimeStatus: state.info.runtimeStatus,
-});
-
 /**
  * Send the store to the main process whenever it changes.
  */
 function* updateMainProcess() {
   const stateSlice = yield select(gamepadsState);
   ipcRenderer.send('stateUpdate', stateSlice);
-  const lcmSlice = yield select(lcmState);
-  ipcRenderer.send('LCM_STATUS_UPDATE', lcmSlice);
 }
 
 function* restartRuntime() {
@@ -379,22 +372,27 @@ function* downloadStudentCode() {
     fs.mkdirSync(path);
   }
   if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
+    logging.log(`Downloading to ${path}`);
     const errors = yield call(() => new Promise((resolve) => {
+      conn.on('error', (err) => {
+        logging.log(err);
+        resolve(3);
+      });
+
       conn.on('ready', () => {
         conn.sftp((err, sftp) => {
-          if (err) resolve(1);
+          if (err) {
+            logging.log(err);
+            resolve(1);
+          }
           sftp.fastGet(
-            './PieCentral/runtime/studentCode.py', `${path}/robotCode.py`,
-            {
-              step: (totalTransferred, chunk, total) => {
-                if (totalTransferred === total) {
-                  resolve(0);
-                }
-              },
-            },
+            defaults.STUDENTCODELOC, `${path}/robotCode.py`,
             (err2) => {
-              logging.log(err2);
-              resolve(2);
+              if (err2) {
+                logging.log(err2);
+                resolve(2);
+              }
+              resolve(0);
             },
           );
         });
@@ -412,52 +410,56 @@ function* downloadStudentCode() {
       case 0: {
         const data = yield cps(fs.readFile, `${path}/robotCode.py`, 'utf8');
         yield put(openFileSucceeded(data, `${path}/robotCode.py`));
-        logging.log('Succeeded in Download');
+        yield put(addAsyncAlert(
+          'Download Success',
+          'File Downloaded Successfully',
+        ));
         break;
       }
       case 1: {
-        yield addAsyncAlert(
-          'Robot File Download Error',
-          'Dawn was unable to connect to the robot for file download.',
-        );
+        yield put(addAsyncAlert(
+          'Download Issue',
+          'SFTP session could not be initiated',
+        ));
         break;
       }
       case 2: {
-        yield addAsyncAlert(
-          'Robot File Download Error',
-          'Dawn was unable to download student code fully.',
-        );
+        yield put(addAsyncAlert(
+          'Download Issue',
+          'File failed to be downloaded',
+        ));
+        break;
+      }
+      case 3: {
+        yield put(addAsyncAlert(
+          'Download Issue',
+          'Robot could not be connected.',
+        ));
         break;
       }
       default: {
-        yield addAsyncAlert(
-          'Robot File Download Error',
-          'Dawn was unable to download student code due to some unknown error.',
-        );
+        yield put(addAsyncAlert(
+          'Download Issue',
+          'Unknown Error',
+        ));
         break;
       }
     }
+    setTimeout(() => {
+      conn.end();
+    }, 50);
   }
 }
 
-function* tcpConfirmation() {
-  const result = yield race({
-    update: take('NOTIFICATION_RECEIVED'),
-    timeout: call(delay, TIMEOUT), // The delay is 5000 ms, or 5 second.
-  });
-
-  if (!result.update) {
-    this.logger.log('Runtime failed to confirm');
-    yield addAsyncAlert(
-      'Upload Issue',
-      'Runtime Unresponsive',
-    );
-  } else {
-    const stateSlice = yield select(state => ({
-      ipAddress: state.info.ipAddress,
-      filepath: state.editor.filepath,
-    }));
-    const conn = new Client();
+function* uploadStudentCode() {
+  const conn = new Client();
+  const stateSlice = yield select(state => ({
+    runtimeStatus: state.info.runtimeStatus,
+    ipAddress: state.info.ipAddress,
+    filepath: state.editor.filepath,
+  }));
+  if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
+    logging.log(`Uploading ${stateSlice.filepath}`);
     const errors = yield call(() => new Promise((resolve) => {
       conn.on('error', (err) => {
         logging.log(err);
@@ -471,19 +473,13 @@ function* tcpConfirmation() {
             resolve(1);
           }
           sftp.fastPut(
-            stateSlice.filepath, './PieCentral/runtime/studentCode.py',
-            {
-              step: (totalTransferred, chunk, total) => {
-                if (totalTransferred === total) {
-                  resolve(0);
-                }
-              },
-            },
+            stateSlice.filepath, defaults.STUDENTCODELOC,
             (err2) => {
               if (err2) {
                 logging.log(err2);
                 resolve(2);
               }
+              resolve(0);
             },
           );
         });
@@ -500,38 +496,38 @@ function* tcpConfirmation() {
 
     switch (errors) {
       case 0: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Upload Success',
           'File Uploaded Successfully',
-        );
+        ));
         break;
       }
       case 1: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Upload Issue',
           'SFTP session could not be initiated',
-        );
+        ));
         break;
       }
       case 2: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Upload Issue',
           'File failed to be transmitted',
-        );
+        ));
         break;
       }
       case 3: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Upload Issue',
-          'Robot could not be connected.',
-        );
+          'Robot could not be connected',
+        ));
         break;
       }
       default: {
-        yield addAsyncAlert(
+        yield put(addAsyncAlert(
           'Upload Issue',
           'Unknown Error',
-        );
+        ));
         break;
       }
     }
@@ -547,14 +543,15 @@ function* handleFieldControl() {
   }));
   if (stateSlice.fieldControlStatus) {
     yield put(toggleFieldControl(false));
-    ipcRenderer.send('LCM_TEARDOWN');
+    ipcRenderer.send('FC_TEARDOWN');
   } else {
     yield put(toggleFieldControl(true));
-    ipcRenderer.send('LCM_INITIALIZE');
+    ipcRenderer.send('FC_INITIALIZE');
   }
 }
 
 function timestampBounceback() {
+  logging.log('Timestamp Requested in Sagas');
   ipcRenderer.send('TIMESTAMP_SEND');
 }
 
@@ -571,7 +568,7 @@ export default function* rootSaga() {
     takeEvery('UPDATE_MAIN_PROCESS', updateMainProcess),
     takeEvery('RESTART_RUNTIME', restartRuntime),
     takeEvery('DOWNLOAD_CODE', downloadStudentCode),
-    takeEvery('NOTIFICATION_SENT', tcpConfirmation),
+    takeEvery('UPLOAD_CODE', uploadStudentCode),
     takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     fork(runtimeHeartbeat),

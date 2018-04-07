@@ -4,6 +4,7 @@
 #include "current_limit.h"
 #include "motor.h"
 #include "LED.h"
+#include <avr/wdt.h>
 
 //////////////// DEVICE UID ///////////////////
 hibike_uid_t UID = {
@@ -27,12 +28,15 @@ void setup() {
   hibike_setup(); //use default heartbeat rates. look at /lib/hibike/hibike_device.cpp for exact values
   motorDisable();
   driveMode = MANUALDRIVE;
+  // Enable the watchdog timer, with a one second period
+  wdt_reset();
+  wdt_enable(WDTO_1S);
 }
 
 void loop() {
   ctrl_LEDs();
   hibike_loop();
-
+  wdt_reset();
 }
 
 

@@ -12,12 +12,14 @@ const HelpMenu = {
       click() {
         RendererBridge.registeredWindow.webContents.send('start-interactive-tour');
       },
+      accelerator: 'CommandOrControl+T',
     },
     {
       label: 'PiE API',
       click() {
         showAPI();
       },
+      accelerator: 'CommandOrControl+P',
     },
   ],
 };

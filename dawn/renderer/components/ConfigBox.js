@@ -86,7 +86,7 @@ class ConfigBoxComponent extends React.Component {
     storage.set('fieldControl', newConfig, (err) => {
       if (err) logging.log(err);
     });
-    ipcRenderer.send('LCM_CONFIG_CHANGE', newConfig);
+    ipcRenderer.send('FC_CONFIG_CHANGE', newConfig);
 
     this.props.hide();
   }

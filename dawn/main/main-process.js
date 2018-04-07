@@ -10,7 +10,7 @@ import RendererBridge from './RendererBridge';
 import { killFakeRuntime } from './MenuTemplate/DebugMenu';
 import Template from './MenuTemplate/Template';
 import Ansible from './networking/Ansible';
-import LCMObject from './networking/FieldControlLCM';
+import FCObject from './networking/FieldControl';
 
 
 app.on('window-all-closed', () => {
@@ -19,23 +19,24 @@ app.on('window-all-closed', () => {
 
 app.on('will-quit', () => {
   Ansible.close();
+  FCObject.FCInternal.quit();
 
   if (process.env.NODE_ENV === 'development') {
     killFakeRuntime();
   }
 });
 
-function initializeLCM(event) { // eslint-disable-line no-unused-vars
+function initializeFC(event) { // eslint-disable-line no-unused-vars
   try {
-    LCMObject.setup();
+    FCObject.setup();
   } catch (err) {
     console.log(err);
   }
 }
 
-function teardownLCM(event) { // eslint-disable-line no-unused-vars
-  if (LCMObject.LCMInternal !== null) {
-    LCMObject.LCMInternal.quit();
+function teardownFC(event) { // eslint-disable-line no-unused-vars
+  if (FCObject.FCInternal !== null) {
+    FCObject.FCInternal.quit();
   }
 }
 
@@ -59,9 +60,9 @@ export default function showAPI() {
 
 app.on('ready', () => {
   Ansible.setup();
-  ipcMain.on('LCM_CONFIG_CHANGE', LCMObject.changeLCMInfo);
-  ipcMain.on('LCM_INITIALIZE', initializeLCM);
-  ipcMain.on('LCM_TEARDOWN', teardownLCM);
+  ipcMain.on('FC_CONFIG_CHANGE', FCObject.changeFCInfo);
+  ipcMain.on('FC_INITIALIZE', initializeFC);
+  ipcMain.on('FC_TEARDOWN', teardownFC);
 
   const mainWindow = new BrowserWindow();
 

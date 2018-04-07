@@ -5,20 +5,15 @@ import protobuf from 'protobufjs';
 import _ from 'lodash';
 
 import RendererBridge from '../RendererBridge';
-import {
-  updateConsole,
-  clearConsole,
-} from '../../renderer/actions/ConsoleActions';
+import { updateConsole } from '../../renderer/actions/ConsoleActions';
 import {
   ansibleDisconnect,
-  notifyReceive,
-  notifySend,
   infoPerMessage,
   updateCodeStatus,
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { robotState, Logger, defaults } from '../../renderer/utils/utils';
-import LCMObject from './FieldControlLCM';
+import FCObject from './FieldControl';
 
 const DawnData = (new protobuf.Root()).loadSync(`${__dirname}/ansible.proto`, { keepCase: true }).lookupType('DawnData');
 const { StudentCodeStatus } = DawnData;
@@ -59,7 +54,7 @@ function buildProto(data) {
   return DawnData.create({
     student_code_status: status,
     gamepads,
-    team_color: (LCMObject.stationNumber < 2) ? DawnData.TeamColor.BLUE : DawnData.TeamColor.GOLD,
+    team_color: (FCObject.stationNumber < 2) ? DawnData.TeamColor.BLUE : DawnData.TeamColor.GOLD,
   });
 }
 
@@ -69,7 +64,7 @@ class ListenSocket {
     this.statusUpdateTimeout = 0;
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
     this.studentCodeStatusListener = this.studentCodeStatusListener.bind(this);
-
+    this.close = this.close.bind(this);
     /*
      * Runtime message handler. Sends robot state to store.info
      * and raw sensor array to peripheral reducer
@@ -90,7 +85,7 @@ class ListenSocket {
             RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
           }
         }
-        this.logger.debug(sensorData);
+        this.logger.debug(JSON.stringify(sensorData));
         RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       } catch (err) {
         this.logger.log('Error decoding UDP');
@@ -134,6 +129,7 @@ class SendSocket {
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
     this.sendGamepadMessages = this.sendGamepadMessages.bind(this);
     this.ipAddressListener = this.ipAddressListener.bind(this);
+    this.close = this.close.bind(this);
 
     this.socket.on('error', (err) => {
       this.logger.log('UDP sending error');
@@ -177,10 +173,11 @@ class SendSocket {
 
 class TCPSocket {
   constructor(socket, logger) {
-    this.tryUpload = this.tryUpload.bind(this);
     this.requestTimestamp = this.requestTimestamp.bind(this);
-    this.logger = logger;
+    this.sendFieldControl = this.sendFieldControl.bind(this);
+    this.close = this.close.bind(this);
 
+    this.logger = logger;
     this.socket = socket;
 
     this.logger.log('Runtime connected');
@@ -193,9 +190,6 @@ class TCPSocket {
       this.logger.log(`Dawn received TCP Packet ${decoded.header}`);
 
       switch (decoded.header) {
-        case Notification.Type.STUDENT_RECEIVED:
-          RendererBridge.reduxDispatch(notifyReceive());
-          break;
         case Notification.Type.CONSOLE_LOGGING:
           RendererBridge.reduxDispatch(updateConsole(decoded.console_output));
           break;
@@ -210,8 +204,6 @@ class TCPSocket {
      * When Runtime responds back with confirmation,
      * notifyChange sends received signal (see tcp, received variables)
      */
-    ipcMain.on('NOTIFY_UPLOAD', this.tryUpload);
-
     ipcMain.on('TIMESTAMP_SEND', this.requestTimestamp);
   }
 
@@ -227,28 +219,29 @@ class TCPSocket {
     });
   }
 
-  tryUpload() {
-    const message = Notification.encode(Notification.create({
-      header: Notification.Type.STUDENT_SENT,
-      console_output: '',
-    })).finish();
+  sendFieldControl(data) {
+    const rawMsg = {
+      header: Notification.Type.GAMECODE_TRANSMISSION,
+      gamecode_solutions: data.solutions,
+      gamecodes: data.codes,
+      rfids: data.rfids,
+    };
+    const message = Notification.encode(Notification.create(rawMsg)).finish();
 
     this.socket.write(message, () => {
-      this.logger.log('Runtime Notified');
+      this.logger.log(`FC Message Sent: ${rawMsg}`);
     });
-
-    RendererBridge.reduxDispatch(notifySend());
   }
 
   close() {
     this.socket.end();
-    ipcMain.removeListener('NOTIFY_UPLOAD', this.tryUpload);
   }
 }
 
 class TCPServer {
   constructor(logger) {
     this.socket = null;
+    this.close = this.close.bind(this);
     this.tcp = net.createServer((socket) => {
       this.socket = new TCPSocket(socket, logger);
     });
@@ -273,28 +266,6 @@ class TCPServer {
     this.tcp.close();
   }
 }
-
-const onUpdateCodeStatus = (status) => {
-  RendererBridge.reduxDispatch(updateCodeStatus(status));
-};
-
-const onClearConsole = () => {
-  RendererBridge.reduxDispatch(clearConsole());
-};
-
-/* Redux short-circuiting for when field control wants to start/stop robot
- */
-const startRobot = () => { // eslint-disable-line no-unused-vars
-  // TODO: Probably move this to Editor using ipcRenderer/ipcMain.
-  // this.state.mode doesn't exist here.
-  RendererBridge.reduxDispatch(onUpdateCodeStatus(this.state.mode));
-  RendererBridge.reduxDispatch(onClearConsole());
-};
-
-const stopRobot = () => { // eslint-disable-line no-unused-vars
-  // TODO: Probably move this to Editor using ipcRenderer/ipcMain. GUI can't change here.
-  RendererBridge.reduxDispatch(onUpdateCodeStatus(robotState.IDLE));
-};
 
 const Ansible = {
   conns: [],

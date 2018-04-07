@@ -44,3 +44,7 @@ export const createNewFile = () => ({
 export const downloadCode = () => ({
   type: 'DOWNLOAD_CODE',
 });
+
+export const uploadCode = () => ({
+  type: 'UPLOAD_CODE',
+});

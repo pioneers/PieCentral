@@ -66,6 +66,7 @@
             function readWriteableParam(uid, paramName, paramType) {
                 $.getJSON("/devices/" + uid + "/" + paramName, (data) => {
                     var elem = document.querySelector("#dev-" + uid + "-" + paramName);
+                    var sliderLabel = document.querySelector("#slider-value-" + uid + "-" + paramName);
                     if (elem === null) {
                         alert("Tried to read nonexistent parameter: " + paramType);
                         return;
@@ -75,6 +76,9 @@
                         elem.checked = value;
                     } else {
                         elem.value = value;
+                    }
+                    if (elem.type === "range") {
+                        sliderLabel.innerHTML = value;
                     }
                 });
             }
@@ -90,6 +94,16 @@
                     url: "/devices",
                     method: "DELETE"
                 });
+            }
+
+            function readSliderValue(displayId, sliderId) {
+                var slider = document.getElementById(sliderId);
+                var displayBox = document.getElementById(displayId);
+                if (slider === null || displayBox === null) {
+                    alert("readSliderValue couldn't find slider or div");
+                    return;
+                }
+                displayBox.innerHTML = slider.value;
             }
 
             setInterval(updateAll, 1000);
@@ -112,9 +126,16 @@
                 <td>
                     {% if param.writeable %}
                         {% if param.type == "bool" %}
+                            {% if param.init_value %}
+                    <input type="checkbox" id="dev-{{ device.uid }}-{{ param.name }}" checked />
+                            {% else %}
                     <input type="checkbox" id="dev-{{ device.uid }}-{{ param.name }}" />
+                            {% endif %}
+                        {% elif param.type == "float" or param.type == "double" %}
+                    <div id="slider-value-{{ device.uid }}-{{ param.name }}">{{ param.init_value }}</div>
+                    <input type="range" min="-1" max="1" step="0.05" id="dev-{{ device.uid }}-{{ param.name }}" onchange="readSliderValue('slider-value-{{ device.uid }}-{{ param.name }}', 'dev-{{ device.uid }}-{{ param.name }}')" value="{{ param.init_value }}" />
                         {% else %}
-                    <input type="text" size="5" id="dev-{{ device.uid }}-{{ param.name }}" />
+                    <input type="text" size="5" id="dev-{{ device.uid }}-{{ param.name }}" value="{{ param.init_value }}"/>
                         {% endif %}
                     <br />
                     <input type="button" value="Write" onclick="writeValue('{{ device.uid }}', '{{ param.name }}', '{{ param.type }}')" />
@@ -123,7 +144,7 @@
                     <input type="button" value="Read" onclick="readWriteableParam('{{ device.uid }}', '{{ param.name }}', '{{ param.type }}')" />
                         {% endif %}
                     {% else %}
-                    <div id="dev-{{ device.uid }}-{{ param.name }}-readonly"></div>
+                    <div id="dev-{{ device.uid }}-{{ param.name }}-readonly">{{ param.init_value }}</div>
                     {% endif %}
                 </td>
                 {% endfor %}

@@ -6,6 +6,7 @@ import csv
 import asyncio
 import inspect
 import io
+import random
 
 from runtimeUtil import *
 
@@ -119,8 +120,9 @@ class Robot(StudentAPI):
         "led4": [(bool,)],
     }
 
-    def __init__(self, toManager, fromManager):
-        super().__init__(toManager, fromManager)
+    def __init__(self, to_manager, from_manager, func_map):
+        super().__init__(to_manager, from_manager)
+        self.func_map = func_map
         self._create_sensor_mapping()
         self._coroutines_running = set()
         self._stdout_buffer = io.StringIO()
@@ -280,6 +282,51 @@ class Robot(StudentAPI):
         """Writes parameters to ``uid``."""
         self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])
 
-    def get_gamecode(self):
+    def _get_gamecodes(self):
         """Get a gamecode."""
-        return self._get_sm_value("gamecode")
+        return self._get_sm_value("gamecodes")
+
+    def _get_gamecodes_check(self):
+        """Get gamecode answers"""
+        return self._get_sm_value("gamecodes_check")
+
+    def decode_message(self, rfid_seed): # pylint: disable=too-many-locals
+        """Method for 2018 Game: Solar Scramble
+
+        This method will use the students functions to decode a message,
+        and display the solution to Dawn
+
+        This function takes in a RFID tag and returns
+        True on success, False on error"""
+        try:
+            index = self._get_sm_value("rfids").index(rfid_seed)
+            code = self._get_gamecodes()[index]
+            check_challenge_code = self._get_gamecodes_check()[index]
+        except ValueError:
+            return False
+
+        output = ''
+        while code > 0:
+            digit = code % 10
+            code //= 10
+
+            try:
+                result = self.func_map[digit](rfid_seed)
+            except Exception as e:
+                self._print(e)
+                return False
+
+            output += str(result)
+        output = int(output)
+        random.seed(output)
+        output = str(random.randint(1000, 9999))
+        final_output = 0
+        for i in output:
+            final_output = final_output * 10 + (int(i) % 5) + 1
+
+        solution = int(final_output)
+
+        if check_challenge_code == solution:
+            self._set_sm_value(solution, "hibike", "devices", index % 3, "code")
+            return True
+        return False

@@ -20,5 +20,5 @@ unit_tests:
 test: $(DEVICES) unit_tests
 
 $(DEVICES):
-	cd .. && $(RM) -r ./bin
+	cd .. && $(MAKE) clean-uid DEVICE=$@
 	cd .. && $(MAKE) DEVICE=$@

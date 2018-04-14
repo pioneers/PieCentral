@@ -44,8 +44,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     var bottom = document.getElementById("bottom_bar");
     var ctx_bottom = bottom.getContext("2d");
-    var multipliercanvas = document.getElementById("multipliers");
-    var ctx_multiplier = multipliercanvas.getContext("2d");
 
     var master_gold_score = 0;
     var master_blue_score = 0;
@@ -89,8 +87,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         bottom = document.getElementById("bottom_bar");
         ctx_bottom = bottom.getContext("2d");
-        multipliercanvas = document.getElementById("multipliers");
-        ctx_multiplier = multipliercanvas.getContext("2d");
 
         master_gold_score = 0;
         master_blue_score = 0;
@@ -272,95 +268,69 @@ document.addEventListener("DOMContentLoaded", function(event) {
         return names.indexOf(goal_name.toLowerCase());
     }
 
-
     function setScores() {
-        width = bottom.width;
+        var mult = 120
+        var width = bottom.width;
+        var height = bottom.height
         setTeamsInfo();
         ctx_bottom.fillStyle = "white";
         ctx_bottom.font = "50px Helvetica";
-        if(master_blue_score < 10){
-            ctx_bottom.fillText(master_blue_score.toString(),415,95);
-        } else if (master_blue_score < 100){
-            ctx_bottom.fillText(master_blue_score.toString(),412,95);
-        } else {
-            ctx_bottom.fillText(master_blue_score.toString(),413,95);
-        }
-        ctx_bottom.textAlign = "left";
+        ctx_bottom.textAlign = "center"
+        ctx_bottom.fillText(master_blue_score.toString(), 535, 95)
+        ctx_bottom.fillText(master_gold_score.toString(), width - 535, 95)
+
+        ctx_bottom.font = "40px Helvetica";
+        ctx_bottom.fillStyle = "navy";
+        ctx_bottom.beginPath();
+        ctx_bottom.fillRect(0, 0, mult, 160);
+        ctx_bottom.fillStyle = "goldenrod";
+        ctx_bottom.beginPath();
+        ctx_bottom.fillRect(width - mult, 0, mult, 160);
         ctx_bottom.fillStyle = "white";
-        if(master_gold_score < 10){
-            ctx_bottom.fillText(master_gold_score.toString(), width - 427, 95);
-        } else if (master_gold_score < 100){
-            ctx_bottom.fillText(master_gold_score.toString(), width - 443, 95);
-        } else {
-            ctx_bottom.fillText(master_gold_score.toString(), width - 458, 95);
-        }
-        ctx_multiplier.font = "40px Helvetica";
-        ctx_multiplier.fillStyle = "navy";
-        ctx_multiplier.beginPath();
-        ctx_multiplier.fillRect(10, 8, 121, 160);
-        ctx_multiplier.fillStyle = "goldenrod";
-        ctx_multiplier.beginPath();
-        ctx_multiplier.fillRect(1309, 8, 121, 160);
-        ctx_multiplier.fillStyle = "white";
 
-        ctx_multiplier.textAlign = "left";
-        ctx_multiplier.fillText(blue_multiplier.toString(), 35,120);
-        ctx_multiplier.font = "20px Helvetica";
-        ctx_multiplier.fillText('Multiplier', 35,60);
+        ctx_bottom.textAlign = "center";
+        ctx_bottom.fillText(blue_multiplier.toString(), mult/2, 120);
+        ctx_bottom.font = "20px Helvetica";
+        ctx_bottom.fillText('Multiplier', mult/2,60);
 
-        ctx_multiplier.textAlign = "right";
-        ctx_multiplier.fillText('Multiplier', 1405,60);
-        ctx_multiplier.font = "40px Helvetica";
-        ctx_multiplier.fillText(gold_multiplier.toString(), 1405, 120);
+        ctx_bottom.fillText('Multiplier', width - mult/2, 60);
+        ctx_bottom.font = "40px Helvetica";
+        ctx_bottom.fillText(gold_multiplier.toString(), width - mult/2, 120);
     }
 
     function setTeamsInfo() {
+        var mult = 120
         width = bottom.width;
         ctx_bottom.clearRect(0, 0, bottom.width, bottom.height);
         ctx_bottom.font = "35px Helvetica";
 
         ctx_bottom.fillStyle = "navy";
         ctx_bottom.beginPath();
-        ctx_bottom.fillRect(10, 0, 320, 160);
-        ctx_bottom.fillRect(350, 0, 130, 160);
+        ctx_bottom.fillRect(mult + 10, 0, 320, 160);
+        ctx_bottom.fillRect(mult + 350, 0, 130, 160);
 
         ctx_bottom.beginPath();
         ctx_bottom.fillStyle = "goldenrod";
-        ctx_bottom.fillRect(width - 310 - 20, 0, 320, 160);
-        ctx_bottom.fillRect(width - 350 - 130, 0, 130, 160);
+        ctx_bottom.fillRect(width - mult - 320 - 10, 0, 320, 160);
+        ctx_bottom.fillRect(width - mult - 130 - 350, 0, 130, 160);
 
         ctx_bottom.fillStyle = "white";
         ctx_bottom.textAlign = "left";
-        // var blue_1_string = blue_1_num.toString() + "   " + blue_1_name;
-        // ctx_bottom.fillText(blue_1_string,30,60);
 
-        ctx_bottom.fillText(blue_1_num.toString(), 30, 60);
-        ctx_bottom.fillText(blue_1_name, 90, 60)
-        // ctx_bottom.fillText(blue_1_name,30,75);
+        ctx_bottom.fillText(blue_1_num.toString(), mult + 30, 60);
+        ctx_bottom.fillText(blue_1_name, mult + 90, 60)
 
-        // var blue_2_string = blue_2_num.toString() + "   " + blue_2_name;
-        // ctx_bottom.fillText(blue_2_string,30, 120);
+        ctx_bottom.fillText(blue_2_num.toString(), mult + 30, 120);
+        ctx_bottom.fillText(blue_2_name, mult + 90, 120)
 
-        ctx_bottom.fillText(blue_2_num.toString(), 30, 120);
-        ctx_bottom.fillText(blue_2_name, 90, 120)
-
-        // ctx_bottom.fillText(blue_2_name,30,175);
         ctx_bottom.textAlign = "right";
-        // var gold_1_string = gold_1_name + "   " + gold_1_num.toString();
-        // ctx_bottom.fillText(gold_1_string, width - 30, 60);
 
-        ctx_bottom.fillText(gold_1_num.toString(), width-30, 60);
-        ctx_bottom.fillText(gold_1_name, width - 90, 60)
+        ctx_bottom.fillText(gold_1_num.toString(), width- mult - 30, 60);
+        ctx_bottom.fillText(gold_1_name, width - mult - 90, 60)
 
-        // ctx_bottom.fillText(gold_1_name,width - 30, 75);
+        ctx_bottom.fillText(gold_2_num.toString(), width- mult - 30, 120);
+        ctx_bottom.fillText(gold_2_name, width - mult - 90, 120)
 
-        // var gold_2_string = gold_2_name + "   " + gold_2_num.toString();
-        // ctx_bottom.fillText(gold_2_string, width - 30, 120);
-
-        ctx_bottom.fillText(gold_2_num.toString(), width-30, 120);
-        ctx_bottom.fillText(gold_2_name, width - 90, 120)
-
-        // ctx_bottom.fillText(gold_2_name, width - 30, 175);
         setMatchTime();
     }
 
@@ -381,7 +351,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             draw(i);
         }
         barPct = (date - date_main)/barGrow;
-        drawBar(ctx_multiplier, barPct)
+        drawBar(ctx_bottom, barPct)
         setMatchTime();
         requestAnimationFrame(animate);
     }
@@ -416,17 +386,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
 
     function start(time){
-      //TODO remove this code when the HTML input stuff gets removed
-      //**********************
-      //form = document.getElementById("seconds");
-      //for (var i = 0; i < 5; i++) {
-      //    grow[i] = parseFloat(form.elements[0].value.split(" ")[i])*10;
-      //    grow2[i] = parseFloat(form.elements[1].value.split(" ")[i])*10;
-      //    grow3[i] = parseFloat(form.elements[2].value.split(" ")[i])*10;
-      //    owner[i] = form.elements[3].value.split(" ")[i];
-      //}
-      //**********************
-
         dates_inner = [new Date(), new Date(), new Date(), new Date(), new Date()];
         dates_middle = [new Date(), new Date(), new Date(), new Date(), new Date()];
         dates_outer = [new Date(), new Date(), new Date(), new Date(), new Date()];
@@ -435,59 +394,24 @@ document.addEventListener("DOMContentLoaded", function(event) {
         requestAnimationFrame(animate);
     };
 
-    /*function start(time){
-        form = document.getElementById("seconds");
-        for (var i = 0; i < 5; i++) {
-            grow[i] = parseFloat(form.elements[0].value.split(" ")[i])*10;
-            grow2[i] = parseFloat(form.elements[1].value.split(" ")[i])*10;
-            grow3[i] = parseFloat(form.elements[2].value.split(" ")[i])*10;
-            owner[i] = form.elements[3].value.split(" ")[i];
-        }
-        beginning = new Date();
-        function animate(){
-            date = new Date();
-            // pct += grow;
-            for(var i = 0; i < 5; i++){
-                if (grow[i] > 0) {
-                    pct[i] = (date - beginning)/grow[i];
-                }
-                if (grow2[i] > 0) {
-                    pct2[i] = (date - beginning)/grow2[i];
-                }
-                if (grow3[i] > 0) {
-                    pct3[i] = (date - beginning)/grow3[i];
-                }
-            }
-            for(var i = 0; i < 5; i++){
-                draw(i);
-            }
-
-            barPct = (date - beginning)/barGrow;
-            drawBar(ctx_bottom, barPct)
-
-            requestAnimationFrame(animate);
-        }
-        requestAnimationFrame(animate);
-    }*/
-
     function drawBar(ctx, pct){
         ctx.beginPath();
         ctx.fillStyle='white';
-        var width = multipliercanvas.width
-        var height = multipliercanvas.height
+        var width = bottom.width
+        var height = bottom.height
 
-        ctx.fillRect(10,height-120,width,20);
+        ctx.fillRect(0,height-120,width,20);
 
         ctx.beginPath();
         ctx.fillStyle='green';
         if(pct>5/6*100){
             ctx.fillStyle='orange';
         }
-        var length = (width-30) - ((width-30)*pct/100);
+        var length = (width) - (width*pct/100);
         if(length<0){
           length = 0;
         }
-        ctx.fillRect(10,height-120,length,20);
+        ctx.fillRect(0,height-120,length,20);
     }
 
     function draw(i) {
@@ -543,28 +467,36 @@ document.addEventListener("DOMContentLoaded", function(event) {
         ctx.fillStyle = color;
         ctx.fill();
         //text
+
+        var offset = 10
+        if (bidValue > 0) {
+            offset = 43/4 - 30
+        }
+
         ctx.beginPath();
         ctx.font = "60px Helvetica";
         ctx.textAlign = "center";
         ctx.strokeStyle="black";
         ctx.lineWidth = 5;
-        ctx.strokeText(name, width/2, height/2 + 43 / 4 - 30);
+        ctx.strokeText(name, width/2, height/2 + offset);
         ctx.beginPath();
 
         ctx.textAlign = "center";
         ctx.fillStyle = "white";
-        ctx.fillText(name, width/2, height/2 + 43 / 4 - 30);
+        ctx.fillText(name, width/2, height/2 + offset);
         //bid values
-        ctx.beginPath();
-        ctx.font = "40px Helvetica";
-        ctx.textAlign = "center";
-        ctx.strokeStyle="black";
-        ctx.lineWidth = 4;
-        ctx.strokeText(Math.round(bidValue,2), width/2, height/2 + 43 / 4 + 20);
-        ctx.beginPath();
-        ctx.textAlign = "center";
-        ctx.fillStyle = "white";
-        ctx.fillText(Math.round(bidValue,2), width/2, height/2 + 43 / 4 + 20);
+        if (bidValue > 0) {
+            ctx.beginPath();
+            ctx.font = "40px Helvetica";
+            ctx.textAlign = "center";
+            ctx.strokeStyle="black";
+            ctx.lineWidth = 4;
+            ctx.strokeText(Math.round(bidValue,2), width/2, height/2 + 43 / 4 + 20);
+            ctx.beginPath();
+            ctx.textAlign = "center";
+            ctx.fillStyle = "white";
+            ctx.fillText(Math.round(bidValue,2), width/2, height/2 + 43 / 4 + 20);
+        }
     }
 
     function addTime() {

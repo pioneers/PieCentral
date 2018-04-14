@@ -1,6 +1,7 @@
 int pins[] = {2, 3, 4, 5, 6, 10};
 char goals[] = {'A', 'B', 'C', 'D', 'E', 'G'};
 int states[] = {LOW, LOW, LOW, LOW, LOW, LOW};
+int count = 0;
 /*
 Pins for setting up the field.
 Pin 2: A
@@ -12,7 +13,7 @@ Pin 10: G
 */
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   for (int pin: pins) {
     pinMode(pin, INPUT);
   }
@@ -22,6 +23,7 @@ void loop() {
   for (int i = 0; i < 6; i++) {
     int pinState = digitalRead(pins[i]);
     if (pinState == LOW && states[i] == HIGH) {
+      Serial.print("lbb;");
       Serial.print("blue");
       Serial.println(goals[i]);
       states[i] = LOW;
@@ -29,5 +31,9 @@ void loop() {
       states[i] = HIGH;
     }
   }
-  delay(200);
+  count = (count + 1) % 20;
+  if (count == 0) {
+    Serial.println("lbb;hb");
+  }
+  delay(50);
 }

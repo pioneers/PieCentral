@@ -8,11 +8,11 @@ import runtime_pb2
 import ansible_pb2
 import notification_pb2
 
-data = [0]
-send_port = 1236
-recv_port = 1235
-tcp_port = 1234
-dawn_hz = 100
+DATA = [0]
+SEND_PORT = 1236
+RECV_PORT = 1235
+TCP_PORT = 1234
+DAWN_HZ = 100
 
 
 def dawn_packager():
@@ -25,33 +25,33 @@ def dawn_packager():
     test_gamepad.buttons.append(True)
     return proto_message.SerializeToString()
 
-
+# pylint: disable=unused-argument
 def sender(port, send_queue):
     """Send a sample dawn message on ``port``."""
     host = '127.0.0.1'
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         while True:
             next_call = time.time()
             msg = dawn_packager()
-            s.sendto(msg, (host, send_port))
-            next_call += 1.0 / dawn_hz
+            sock.sendto(msg, (host, SEND_PORT))
+            next_call += 1.0 / DAWN_HZ
             time.sleep(max(next_call - time.time(), 0))
 
-
+# pylint: disable=unused-argument
 def receiver(port, receive_queue):
     """Receive messages on port to receive queue."""
     host = '127.0.0.1'
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.bind((host, recv_port))
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.bind((host, RECV_PORT))
     while True:
-        msg, addr = s.recvfrom(2048)
+        msg, _ = sock.recvfrom(2048)
         runtime_message = runtime_pb2.RuntimeData()
         runtime_message.ParseFromString(msg)
         receive_queue[0] = msg
 
 def add_timestamps(msgqueue):
     """Add timestamp messages to ``msgqueue``."""
-    for i in range(10):
+    for _ in range(10):
         msg = notification_pb2.Notification()
         msg.header = notification_pb2.Notification.TIMESTAMP_DOWN
         msg.timestamps.append(time.perf_counter())
@@ -62,17 +62,17 @@ def add_timestamps(msgqueue):
 def tcp_relay(port, msgqueue=queue.Queue()):
     """Sends and receives messages on ``port``."""
     host = '127.0.0.1'
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind((host, port))
-    s.listen(1)
-    conn, addr = s.accept()
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind((host, port))
+    sock.listen(1)
+    conn, _ = sock.accept()
     while True:
         if not msgqueue.empty():
             conn.send(msgqueue.get())
         next_call = time.time()
-        next_call += 1.0 / dawn_hz
-        receive_msg, addr = conn.recvfrom(2048)
+        next_call += 1.0 / DAWN_HZ
+        receive_msg, _ = conn.recvfrom(2048)
         if receive_msg is None:
             continue
         else:
@@ -83,21 +83,21 @@ def tcp_relay(port, msgqueue=queue.Queue()):
         time.sleep(max(next_call - time.time(), 0))
 
 
-sender_thread = threading.Thread(
-    target=sender, name="fake dawn sender", args=(send_port, data))
-recv_thread = threading.Thread(
-    target=receiver, name="fake dawn receiver", args=(recv_port, data))
-sender_thread.daemon = True
-recv_thread.daemon = True
-recv_thread.start()
-sender_thread.start()
-msgqueue = queue.Queue()
-tcp_thread = threading.Thread(
-    target=tcp_relay, name="fake dawn tcp", args=([tcp_port, msgqueue]))
-tcp_thread.daemon = True
-tcp_thread.start()
+SENDER_THREAD = threading.Thread(
+    target=sender, name="fake dawn sender", args=(SEND_PORT, DATA))
+RECV_THREAD = threading.Thread(
+    target=receiver, name="fake dawn receiver", args=(RECV_PORT, DATA))
+SENDER_THREAD.daemon = True
+RECV_THREAD.daemon = True
+RECV_THREAD.start()
+SENDER_THREAD.start()
+MSGQUEUE = queue.Queue()
+TCP_THREAD = threading.Thread(
+    target=tcp_relay, name="fake dawn tcp", args=([TCP_PORT, MSGQUEUE]))
+TCP_THREAD.daemon = True
+TCP_THREAD.start()
 print("started threads")
-add_timestamps(msgqueue)
+add_timestamps(MSGQUEUE)
 
 # Just Here for testing, should not be run regularly
 if __name__ == "__main__":

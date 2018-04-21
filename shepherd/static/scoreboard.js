@@ -105,8 +105,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         requestAnimationFrame(animate);
     }
 
-    //var socket = io('http://127.0.0.1:5500');
-    var socket = io('http://192.168.128.135:5500');
+    var socket = io('http://127.0.0.1:5500');
+    //var socket = io('http://192.168.128.135:5500');
     reset();
 
     socket.on('teams', function(data) {

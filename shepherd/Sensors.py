@@ -39,7 +39,7 @@ def get_working_serial_ports(excludes: set):
     working = []
     for p in maybe_ports:
         try:
-            working.append(serial.Serial(p))
+            working.append(serial.Serial(p, baudrate=115200))
         except serial.SerialException:
             pass
 
@@ -201,6 +201,7 @@ def transfer_linebreak_data(ser):
 
 def main():
     working_ports = get_working_serial_ports(set())
+    print("working ports: ", working_ports)
     relevant_ports = identify_relevant_ports(working_ports)
     print("relevant ports: ", relevant_ports)
 

@@ -53,10 +53,13 @@ def get_credentials():
     return credentials
 
 def get_match(match_number):
+    return get_offline_match(match_number)
+    '''
     try:
         return get_online_match(match_number)
     except httplib2.ServerNotFoundError:
         return get_offline_match(match_number)
+    '''
 
 def write_scores(match_number, blue_score, gold_score):
     try:

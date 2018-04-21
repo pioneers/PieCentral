@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         barGrow = 0 * 60 * 10;
         barPct = 0;
 
-
+        resetTimers();
         setTeamsInfo();
         setMatchTime();
         setScores()
@@ -105,11 +105,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
         requestAnimationFrame(animate);
     }
 
-    var socket = io('http://127.0.0.1:5500');
+    //var socket = io('http://127.0.0.1:5500');
+    var socket = io('http://192.168.128.135:5500');
     reset();
 
     socket.on('teams', function(data) {
-        console.log('teams')
+        //console.log('teams')
         reset();
         parsed_data = JSON.parse(data);
         match_num = parsed_data.match_num;
@@ -147,6 +148,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
             grow2[i] = 0;
             grow3[i] = 0;
         }
+        barGrow = 0;
+        barPct = 0;
         dates_inner = [new Date(), new Date(), new Date(), new Date(), new Date()];
         dates_middle = [new Date(), new Date(), new Date(), new Date(), new Date()];
         dates_outer = [new Date(), new Date(), new Date(), new Date(), new Date()];
@@ -154,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
 
     socket.on('score', function(data) {
-        console.log('score')
+        //console.log('score')
         parsed_data = JSON.parse(data);
         var alliance = parsed_data.alliance;
         var score = parsed_data.score;
@@ -168,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     socket.on('alliance_multiplier', function(data) {
-        console.log('multiplier')
+        //console.log('multiplier')
         parsed_data = JSON.parse(data);
         var alliance = parsed_data.alliance;
         var multiplier = parsed_data.multiplier;
@@ -182,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     socket.on('bid_win', function(data) {
-        console.log('bid_win')
+        //console.log('bid_win')
         parsed_data = JSON.parse(data);
         var alliance = parsed_data.alliance;
         var goal = goalNumFromName(parsed_data.goal);
@@ -197,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     socket.on('bid_amount', function(data) {
-        console.log('bid_amount')
+        //console.log('bid_amount')
         parsed_data = JSON.parse(data);
         var alliance = parsed_data.alliance;
         var goal = goalNumFromName(parsed_data.goal);
@@ -214,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     socket.on('bid_timer_start', function(data) {
-        console.log('bid_start')
+        //console.log('bid_start')
         parsed_data = JSON.parse(data);
         var goal_num = goalNumFromName(parsed_data.goal);
         pct3[goal_num] = 0;
@@ -223,20 +226,20 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
     socket.on('bid_timer', function(data) {
-        console.log('bid_time_increase')
+        //console.log('bid_time_increase')
         parsed_data = JSON.parse(data);
         var goal_num = goalNumFromName(parsed_data.goal);
         grow3[goal_num] += parsed_data.time * 10;
-        console.log(parsed_data.time)
+        //console.log(parsed_data.time)
     });
 
     socket.on('stage_timer_start', function(data) {
-        console.log('stage_time')
+        //console.log('stage_time')
         parsed_data = JSON.parse(data);
         barGrow = parsed_data.time * 10;
         barPct = 0;
         date_main = new Date();
-        console.log(parsed_data.time)
+        //console.log(parsed_data.time)
         setMatchTime();
     });
 

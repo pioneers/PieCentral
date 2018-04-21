@@ -1,5 +1,6 @@
 import queue
 import random
+import time
 from Alliance import *
 from Goal import *
 from LCM import *
@@ -23,6 +24,7 @@ def start():
     lcm_start_read(LCM_TARGETS.SHEPHERD, events)
     while True:
         print("GAME STATE OUTSIDE: ", game_state)
+        time.sleep(0.1)
         payload = events.get(True)
         print(payload)
         if game_state == STATE.SETUP:
@@ -80,7 +82,9 @@ def to_setup(args):
 
     match_number = args["match_num"]
 
-    reset()
+    if alliances[ALLIANCE_COLOR.BLUE] is not None:
+        reset()
+
     alliances[ALLIANCE_COLOR.BLUE] = Alliance(ALLIANCE_COLOR.BLUE, b1_name,
                                               b1_num, b2_name, b2_num)
     alliances[ALLIANCE_COLOR.GOLD] = Alliance(ALLIANCE_COLOR.GOLD, g1_name,
@@ -123,6 +127,7 @@ def to_auto(args):
     game_state = STATE.AUTO
     enable_robots(True)
     send_scoreboard_goals()
+    send_goal_costs_sensors()
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
              {"time" : CONSTANTS.AUTO_TIME})
     print("ENTERING AUTO STATE")
@@ -154,6 +159,7 @@ def to_teleop(args):
     game_timer.start_timer(CONSTANTS.TELEOP_TIME)
     enable_robots(False)
     send_scoreboard_goals()
+    send_goal_costs_sensors()
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
              {"time" : CONSTANTS.TELEOP_TIME})
     print("ENTERING TELEOP STATE")
@@ -188,7 +194,11 @@ def reset(args=None):
             alliance.reset()
     for goal in goals.values():
         goal.reset()
-
+    disable_robots()
+    send_scoreboard_goals()
+    send_goal_costs_sensors()
+    send_team_scores_sensors()
+    send_goal_owners_sensors()
     print("RESET MATCH, MOVE TO SETUP")
 
 def get_match(args):
@@ -230,10 +240,11 @@ def get_score(args):
 def flush_scores():
     '''
     Sends the most recent match score to the spreadsheet if connected to the internet
-    '''
     if alliances[ALLIANCE_COLOR.BLUE] is not None:
         Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score,
                            alliances[ALLIANCE_COLOR.GOLD].score)
+    '''
+    return -1
 
 def enable_robots(autonomous):
     '''
@@ -273,6 +284,7 @@ def generate_rfids(args):
         rfid_list.remove(temp)
         rfids.append(temp)
     curr_rfids = rfids
+    print(curr_rfids)
     lcm_send(LCM_TARGETS.UI, UI_HEADER.RFID_LIST, {"RFID_list" : rfids})
 
 def send_scoreboard_goals():

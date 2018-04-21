@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Filling Circle</title>
+        <link rel='stylesheet' type='text/css' href={{url_for( 'static', filename='socket.io.js' )}}/>
+        <script type="text/javascript" src={{url_for( 'static', filename='socket.io.js' )}}></script>
+        <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script> -->
+    </head>
+    <script> 
+        
+        document.addEventListener("DOMContentLoaded", function(event) {
+            var socket = io('http://192.168.128.135:5500')
+            
+                socket.on("reload-page", function(data) {
+                    location.reload()
+                }
+                    
+            
+            )})
+    </script>>
+    <div style="margin:auto; position:relative; width:1500px">
+        <div style="position:absolute; top:0px; left:150px">
+            <canvas id="canvasA" width=400 height=300></canvas>
+            <script type="text/javascript" src={{url_for( 'static', filename='scoreboard.js' )}}></script>
+        </div>
+        <div style="position:absolute; top:0px; left:550px">
+            <canvas id="canvasC" width=400 height=300></canvas>
+            <script type="text/javascript" src={{url_for( 'static', filename='scoreboard.js' )}}></script>
+        </div>
+        <div style="position:absolute; top:0px; left:950px">
+            <canvas id="canvasE" width=400 height=300></canvas>
+            <script type="text/javascript" src={{url_for( 'static', filename='scoreboard.js' )}}></script>
+        </div>
+        <div style="position:absolute; top:300px; left:350px">
+            <canvas id="canvasB" width=400 height=300></canvas>
+            <script type="text/javascript" src={{url_for( 'static', filename='scoreboard.js' )}}></script>
+        </div>
+        <div style="position:absolute; top:300px; left:750px">
+            <canvas id="canvasD" width=400 height=300></canvas>
+            <script type="text/javascript" src={{url_for( 'static', filename='scoreboard.js' )}}></script>
+        </div>
+        <div style="margin:auto; width:1500px; position:relative; top:600px">
+            <canvas id="bottom_bar" width=1500 height=300></canvas>
+            <script type="text/javascript" src={{url_for( 'static', filename='scoreboard.js' )}}></script>
+        </div>
+    </div>
+</html>

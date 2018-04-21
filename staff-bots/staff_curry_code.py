@@ -1,9 +1,15 @@
-left_motor = "47245441265854464253044"
-right_motor = "47249523884738466958276"
-servo_controller = "33092823689496063720264"
-rfid_sensor = "51977090869270841821982"
+right_motor = "47242591070959169711314"
+left_motor = "47253325829118006678227"
+servo_controller = "33086700143774713904074"
+rfid_sensor = "51967350706562744010830"
 wrist_servo = "servo0"
 elbow_servo = "servo1"
+
+HIGH_FIVE_START_ANGLE = .8
+HIGH_FIVE_BACK_ANGLE = -1
+
+# Joystick input values less than this will be rounded to 0
+JOYSTICK_DEAD_ZONE = .15
 
 def autonomous_setup():
     print("Autonomous mode has started!")
@@ -18,31 +24,25 @@ async def autonomous_actions():
 
 def teleop_setup():
     print("Tele-operated mode has started!")
+    set_elbow_servo(HIGH_FIVE_START_ANGLE)
 
 def teleop_main():
-    x_dir = Gamepad.get_value("joystick_left_x")
-    y_dir = Gamepad.get_value("joystick_left_y")
+    deadzone = lambda val : val if abs(val) > JOYSTICK_DEAD_ZONE else 0
+    left_joystick = deadzone(Gamepad.get_value("joystick_left_y"))
+    right_joystick = deadzone(Gamepad.get_value("joystick_right_y"))
     bound = lambda x : max(-1, min( 1, x))
-    left_motor_power = bound(y_dir - x_dir)
-    right_motor_power = bound(y_dir + x_dir)
+    left_motor_power = left_joystick
+    right_motor_power = right_joystick
     set_right_motor(right_motor_power)
     set_left_motor(left_motor_power)
-    # set_right_motor(1)
-    # Robot.run(jiggle, .2)
     if Gamepad.get_value("l_bumper"):
         Robot.run(wave)
     if Gamepad.get_value("r_bumper"):
         Robot.run(high_five)
     if Gamepad.get_value("r_trigger"):
         reset_elbow()
-    # if Gamepad.get_value("joystick_right_y") > 0.5:
-    #     Robot.set_value(left_motor, "duty_cycle", -1.0)
-    #     Robot.set_value(right_motor, "duty_cycle", -1.0)
-    # else:
-    #     Robot.set_value(left_motor, "duty_cycle", 0)
-    #     Robot.set_value(right_motor, "duty_cycle", 0)
     if (Robot.get_value(rfid_sensor, "tag_detect")):
-        if (Robot.get_value(rfid_sensor, "id") > 100):
+        if (Robot.get_value(rfid_sensor, "id") % 100 == 25):
             Robot.run(wave)
         else:
             Robot.run(high_five)
@@ -62,7 +62,7 @@ def set_elbow_servo(angle):
     Robot.set_value(servo_controller, elbow_servo, angle)
 
 def reset_elbow():
-    Robot.set_value(servo_controller, elbow_servo, 0)
+    Robot.set_value(servo_controller, elbow_servo, HIGH_FIVE_START_ANGLE)
 
 async def wave():
     set_wrist_servo(0)
@@ -73,12 +73,13 @@ async def wave():
         await Actions.sleep(.5)
     set_wrist_servo(0)
 
+
 async def high_five():
-    set_elbow_servo(0)
+    set_elbow_servo(HIGH_FIVE_START_ANGLE)
     await Actions.sleep(.75)
-    set_elbow_servo(-1)
+    set_elbow_servo(HIGH_FIVE_BACK_ANGLE)
     await Actions.sleep(.75)
-    set_elbow_servo(0)
+    set_elbow_servo(HIGH_FIVE_START_ANGLE)
     print("resetting elbow servo")
     await Actions.sleep(1)
 

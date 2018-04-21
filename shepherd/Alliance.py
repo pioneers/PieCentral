@@ -1,7 +1,6 @@
 import math
 from Utils import *
 from Timer import *
-from LCM import *
 
 class Alliance:
     """This is the Alliance class, which holds the state values used to track
@@ -41,8 +40,6 @@ class Alliance:
             Amount can be negative or positive.
         """
         self.score += amount
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
-                 {"alliance" : self.name, "score" : math.floor(self.score)})
 
     def increment_multiplier(self):
         if self.alliance_multiplier == 1:
@@ -51,8 +48,6 @@ class Alliance:
             self.alliance_multiplier = CONSTANTS.MULTIPLIER_INCREASES[1]
         elif self.alliance_multiplier == CONSTANTS.MULTIPLIER_INCREASES[1]:
             self.alliance_multiplier = CONSTANTS.MULTIPLIER_INCREASES[2]
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER,
-                 {"alliance" : self.name, "multiplier" : self.alliance_multiplier})
 
     def reset(self):
         self.score = 0
@@ -60,9 +55,4 @@ class Alliance:
         self.two_x_cooldown.reset()
         self.zero_x_cooldown.reset()
         self.steal_cooldown.reset()
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
-                 {"alliance" : self.name, "score" : math.floor(self.score)})
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER,
-                 {"alliance" : self.name, "multiplier" : self.alliance_multiplier})
         #TODO: Send info to sensors about reset
-        #TODO: Send info to UI about reset

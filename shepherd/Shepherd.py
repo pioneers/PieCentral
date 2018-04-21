@@ -1,5 +1,6 @@
 import queue
 import random
+import time
 from Alliance import *
 from Goal import *
 from LCM import *
@@ -22,6 +23,7 @@ def start():
     events = queue.Queue()
     lcm_start_read(LCM_TARGETS.SHEPHERD, events)
     while True:
+        time.sleep(0.05)
         print("GAME STATE OUTSIDE: ", game_state)
         payload = events.get(True)
         print(payload)
@@ -58,7 +60,7 @@ def start():
 
 def to_setup(args):
     '''
-    Move to the setup stage which is should push scores from previous game to spreadsheet,
+    Move to the setup stage which should push scores from previous game to spreadsheet,
     load the teams for the upcoming match, reset all state, and send information to scoreboard.
     By the end, should be ready to start match.
     '''
@@ -182,12 +184,18 @@ def reset(args=None):
     Timer.reset_all()
     events = queue.Queue()
     lcm_start_read(LCM_TARGETS.SHEPHERD, events)
-    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.RESET_TIMERS)
+    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.RESET)
     for alliance in alliances.values():
         if alliance is not None:
             alliance.reset()
     for goal in goals.values():
         goal.reset()
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.GOAL_OWNED,
+                 {"goal" : goal.name, "alliance" : None})
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
+                 {"goal" : goal.name, "alliance" : None, "bid"
+                  : goal.next_bid})
+        #TODO: Send info to sensors about reset
 
     print("RESET MATCH, MOVE TO SETUP")
 
@@ -331,7 +339,6 @@ def goal_score(args):
     send_team_scores_sensors()
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
              {"score" : math.floor(alliances.get(alliance).score), "alliance" : alliance})
-    #TODO: send score update to scoreboard
 
 def goal_bid(args):
     '''
@@ -342,9 +349,14 @@ def goal_bid(args):
     goal_name = args["goal"]
     if game_state == STATE.WAIT and not goals.get(goal_name).bid_timer.is_running():
         return
-    goals.get(goal_name).bid(alliances.get(alliance))
+    goal = goals.get(goal_name)
+    goal.bid(alliances.get(alliance))
     send_goal_owners_sensors()
     send_goal_costs_sensors()
+    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
+             {"goal" : goal.name,
+              "alliance" : alliance,
+              "bid" : goal.next_bid})
 
 def regenerate_codes(args=None):
     global curr_challenge_codes, curr_codegen_solutions
@@ -382,6 +394,7 @@ def powerup_application(args):
                                                                   "result" : 0})
         print("Incorrect code submitted")
         return
+
     if alliance.name == ALLIANCE_COLOR.BLUE and index > 2 or \
        alliance.name == ALLIANCE_COLOR.GOLD and index < 3:
         lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
@@ -421,6 +434,8 @@ def powerup_application(args):
     print(dirty_codes)
     if game_state == STATE.AUTO:
         alliance.increment_multiplier()
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER,
+                 {"alliance" : alliance.name, "multiplier" : alliance.alliance_multiplier})
     elif game_state == STATE.TELEOP:
         goal.apply_powerup(powerup, alliance)
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.POWERUPS, {"alliance" : alliance.name,
@@ -464,6 +479,8 @@ def bid_complete(args):
 
     send_team_scores_sensors()
     send_goal_owners_sensors()
+    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
+             {"alliance" : alliance.name, "score" : math.floor(alliance.score)})
     #TODO: send owner info and bid leader info to scoreboard
 
 ###########################################

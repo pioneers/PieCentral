@@ -84,7 +84,7 @@ def receiver():
                 socketio.emit('server-to-ui-teamsinfo', json.dumps(event[1], ensure_ascii=False))
             elif event[0] == UI_HEADER.SCORES:
                 socketio.emit('server-to-ui-scores', json.dumps(event[1], ensure_ascii=False))
-        socketio.sleep(0)
+        socketio.sleep(0.05)
 
 socketio.start_background_task(receiver)
 socketio.run(app, host=HOST_URL, port=PORT)

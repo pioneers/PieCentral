@@ -62,7 +62,7 @@ def receiver():
                               json.dumps(event[1], ensure_ascii=False))
             #if event[0] == SCOREBOARD_HEADER.ALL_INFO):
             #    socketio.emit('server-to-gui-all-info', json.dumps(event[1], ensure_ascii=False))
-        socketio.sleep(0)
+        socketio.sleep(0.05)
 
 socketio.start_background_task(receiver)
 socketio.run(app, host=HOST_URL, port=PORT)

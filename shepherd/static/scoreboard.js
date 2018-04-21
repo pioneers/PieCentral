@@ -133,25 +133,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
 
-    socket.on('reset_timers', function(data) {
-        //reset ALL the timers;
-        resetTimers()
+    socket.on('reset', function(data) {
+        reset();
     });
-
-    function resetTimers() {
-        for (var i = 0; i < 5; i++) {
-            pct[i] = 0;
-            pct2[i] = 0;
-            pct3[i] = 0;
-            grow[i] = 0;
-            grow2[i] = 0;
-            grow3[i] = 0;
-        }
-        dates_inner = [new Date(), new Date(), new Date(), new Date(), new Date()];
-        dates_middle = [new Date(), new Date(), new Date(), new Date(), new Date()];
-        dates_outer = [new Date(), new Date(), new Date(), new Date(), new Date()];
-        date_main = new Date();
-    }
 
     socket.on('score', function(data) {
         console.log('score')

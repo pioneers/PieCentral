@@ -18,7 +18,6 @@ class busyThread(threading.Thread):
     def run(self):
         '''
         When started, thread will run and process Timers in queue until manually stopped
-        TODO: Add how to send message via LCM in the case of match timer
         '''
         while not self.stop.isSet():
             if self.queue and self.queue[0].endTime < time.time():

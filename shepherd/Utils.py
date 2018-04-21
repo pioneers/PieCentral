@@ -52,7 +52,7 @@ class SCOREBOARD_HEADER():
     STAGE_TIMER_START = "stage_timer_start"
     POWERUPS = "powerups"
     ALLIANCE_MULTIPLIER = "alliance_multiplier"
-    RESET_TIMERS = "reset_timers"
+    RESET = "reset"
     BID_TIMER_START = "bid_timer_start"
     ALL_INFO = "all_info"
 

@@ -61,13 +61,6 @@ class Goal:
         self.gold_two_x_timer.reset()
         self.blue_two_x_timer.reset()
         self.blue_zero_x_timer.reset()
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.GOAL_OWNED,
-                 {"goal" : self.name, "alliance" : None})
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
-                 {"goal" : self.name, "alliance" : None, "bid"
-                  : self.next_bid})
-        #TODO: Send info to sensors about reset
-        #TODO: Send info to UI about reset
 
     def set_autonomous(self):
         self.value = self.initial_value * 2
@@ -83,10 +76,6 @@ class Goal:
         self.owner = alliance
         if self.name != GOAL.BLUE and self.name != GOAL.GOLD:
             alliance.score -= self.current_bid
-
-        #TODO: send updated score to scoreboard and sensors
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
-                 {"alliance" : self.owner.name, "score" : math.floor(self.owner.score)})
 
     def bid(self, alliance):
         if self.owner is not None:
@@ -113,10 +102,6 @@ class Goal:
                      {"goal" : self.name, "time" : time_increase})
 
         self.bid_timer.start_timer(time_increase)
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.BID_AMOUNT,
-                 {"goal" : self.name,
-                  "alliance" : self.current_bid_team.name,
-                  "bid" : self.next_bid})
         #TODO: Send bid amount, and curr bid owner to sensors
 
 

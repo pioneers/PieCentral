@@ -42,14 +42,34 @@
     var socket = io('http://127.0.0.1:5000');
 
     $(document).ready(function() {
+
+    	function getCookie(cname) {
+     var name = cname + "=";
+     var ca = document.cookie.split(';');
+     for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if(c.indexOf(name) == 0)
+           return c.substring(name.length,c.length);
+     }
+     return "";
+}
+
       socket.on('connect', function(data) {
         socket.emit('join', 'RFID_control');
       });
+
+      var RFID_cookie = getCookie("RFID_LIST");
+      if (RFID_cookie != "") {
+        RFID_list = decodeURIComponent(document.cookie).slice(10).split(",")
+        showRFID()
+    }
 
       socket.on('server-to-ui-rfidlist', function(data) {
         console.log(data)
         console.log(JSON.parse(data))
         RFID_list = JSON.parse(data).RFID_list
+        document.cookie = "RFID_LIST=" + RFID_list.toString()
         showRFID();
       });
 

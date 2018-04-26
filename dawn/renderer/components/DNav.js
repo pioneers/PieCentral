@@ -35,7 +35,7 @@ class DNavComponent extends React.Component {
 
   createHeader() {
     if (this.props.fieldControlStatus) {
-      return `Dawn v${VERSION} ${(this.props.heart) ? '+' : '-'}`;
+      return `Dawn FC v${VERSION} ${(this.props.heart) ? '+' : '-'}`;
     }
     return `Dawn v${VERSION}`;
   }

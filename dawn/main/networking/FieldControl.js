@@ -19,12 +19,14 @@ class FCInternals {
   init() {
     this.socket = io(`http://${this.bridgeAddress}:7000`);
     this.socket.on('connect', () => {
+      this.logger.log('Connected to Field Control Socket');
       this.socket.on('robot_state', (data) => {
-        RendererBridge.reduxDispatch(updateHeart());
         RendererBridge.reduxDispatch(updateRobot(JSON.parse(data)));
       });
-      this.socket.on('codes', (data) => {
+      this.socket.on('heartbeat', () => {
         RendererBridge.reduxDispatch(updateHeart());
+      });
+      this.socket.on('codes', (data) => {
         if (Ansible.conns[2].socket !== null) {
           Ansible.conns[2].socket.sendFieldControl(JSON.parse(data));
         } else {

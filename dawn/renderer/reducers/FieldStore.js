@@ -28,7 +28,7 @@ const fieldStore = (state = initialFieldState, action) => {
     case ActionTypes.UPDATE_HEART:
       return {
         ...state,
-        heart: action.state,
+        heart: !state.heart,
       };
     case ActionTypes.UPDATE_MATCH:
       return {

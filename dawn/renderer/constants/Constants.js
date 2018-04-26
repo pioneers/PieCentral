@@ -1,6 +1,7 @@
 import keyMirror from 'keymirror';
 
-export const VERSION = '2018.2.0';
+// Read as YEAR.PUBLIC.INTERNAL
+export const VERSION = '2018.2.1';
 export const PeripheralTypes = keyMirror({
   MOTOR_SCALAR: null,
   SENSOR_BOOLEAN: null,

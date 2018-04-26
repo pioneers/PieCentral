@@ -506,6 +506,7 @@ class Editor extends React.Component {
                 onClick={this.toggleConsole}
                 glyph="console"
                 disabled={false}
+                bsStyle={this.props.consoleUnread ? 'danger' : ''}
               />
               <TooltipButton
                 id="clear-console"
@@ -647,6 +648,7 @@ Editor.propTypes = {
   onDownloadCode: PropTypes.func.isRequired,
   onUploadCode: PropTypes.func.isRequired,
   disableScroll: PropTypes.bool.isRequired,
+  consoleUnread: PropTypes.bool.isRequired,
 };
 
 export default Editor;

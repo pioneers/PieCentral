@@ -33,6 +33,7 @@ const mapStateToProps = state => ({
   notificationHold: state.info.notificationHold,
   fieldControlActivity: state.info.fieldControlActivity,
   disableScroll: state.studentConsole.disableScroll,
+  consoleUnread: state.studentConsole.consoleUnread,
 });
 
 const mapDispatchToProps = dispatch => ({

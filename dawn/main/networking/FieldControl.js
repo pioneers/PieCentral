@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import { updateRobot } from '../../renderer/actions/FieldActions';
+import { updateRobot, updateHeart } from '../../renderer/actions/FieldActions';
 import RendererBridge from '../RendererBridge';
 import { Logger } from '../../renderer/utils/utils';
 import Ansible from './Ansible';
@@ -19,8 +19,12 @@ class FCInternals {
   init() {
     this.socket = io(`http://${this.bridgeAddress}:7000`);
     this.socket.on('connect', () => {
+      this.logger.log('Connected to Field Control Socket');
       this.socket.on('robot_state', (data) => {
         RendererBridge.reduxDispatch(updateRobot(JSON.parse(data)));
+      });
+      this.socket.on('heartbeat', () => {
+        RendererBridge.reduxDispatch(updateHeart());
       });
       this.socket.on('codes', (data) => {
         if (Ansible.conns[2].socket !== null) {

@@ -74,8 +74,8 @@ class CONSTANTS():
     GOAL_MED_COST = 40
     GOAL_HIGH_COST = 100
     MULTIPLIER_INCREASES = [1.1, 1.25, 1.5]
-    SPREADSHEET_ID = "1ikEY2pnESr_e7okP9H5KZiJYK29RI5ISPSaCgQU41RU"
-    CSV_FILE_NAME = "Sheets/PIE test sheet - qual_matches.csv"
+    SPREADSHEET_ID = "1F_fRPZ2Whe3f8ssniqh1uWFfc8dU8LfElY51R4EtJDY"
+    CSV_FILE_NAME = "Sheets/schedule.csv"
 
 # pylint: disable=invalid-name
 class ALLIANCE_COLOR():

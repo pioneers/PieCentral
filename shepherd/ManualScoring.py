@@ -29,6 +29,9 @@ def get_alliance(alliance_input):
 def main():
     while True:
         event = input("Command: [gold|blue][a|b|c|d|e|g]")
+        if len(event) < 5:
+            print("Invalid Input")
+            continue
         alliance = get_alliance(event[0:4])
         goal_name = get_goal(event[4], alliance)
         if alliance is None or goal_name is None:

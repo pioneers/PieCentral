@@ -53,13 +53,11 @@ def get_credentials():
     return credentials
 
 def get_match(match_number):
-    return get_offline_match(match_number)
-    '''
+    #return get_offline_match(match_number)
     try:
         return get_online_match(match_number)
     except httplib2.ServerNotFoundError:
         return get_offline_match(match_number)
-    '''
 
 def write_scores(match_number, blue_score, gold_score):
     try:
@@ -80,10 +78,14 @@ def get_online_match(match_number):
     service = discovery.build('sheets', 'v4', http=http,
                               discoveryServiceUrl=discoveryUrl)
     spreadsheetId = CONSTANTS.SPREADSHEET_ID
-    range_name = "qual_matches!A2:J"
+    range_name = "Match Database!A2:J"
     game_data = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=range_name).execute()
-    match = game_data['values'][match_number-1]
+    row = 48
+    for i,j in enumerate(game_data['values']):
+        if int(j[0]) == match_number:
+            row = i
+    match = game_data['values'][row]
     return {"b1name" : match[3], "b1num" : match[2],
             "b2name" : match[5], "b2num" : match[4],
             "g1name" : match[7], "g1num" : match[6],
@@ -116,7 +118,16 @@ def write_online_scores(match_number, blue_score, gold_score):
     service = discovery.build('sheets', 'v4', http=http,
                               discoveryServiceUrl=discoveryUrl)
     spreadsheetId = CONSTANTS.SPREADSHEET_ID
-    range_name = "qual_matches!K"+str(match_number+1)+":L"+str(match_number+1)
+
+    range_name = "Match Database!A2:J"
+    game_data = service.spreadsheets().values().get(
+        spreadsheetId=spreadsheetId, range=range_name).execute()
+    row = 47
+    for i,j in enumerate(game_data['values']):
+        if int(j[0]) == match_number:
+            row = i
+
+    range_name = "'Match Database'!K" + str(row + 2) + ":L" + str(row + 2)
     game_scores = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=range_name).execute()
     game_scores['values'] = [[blue_score, gold_score]]

@@ -488,7 +488,8 @@ class TCPClass(AnsibleHandler):
                     state_queue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
                 if unpackaged_data.header == notification_pb2.Notification.GAMECODE_TRANSMISSION:
                     state_queue.put([SM_COMMANDS.SET_VAL,
-                                     [list(unpackaged_data.gamecode_solutions), ["gamecodes_check"]]])
+                                     [list(unpackaged_data.gamecode_solutions),
+                                      ["gamecodes_check"]]])
                     state_queue.put([SM_COMMANDS.SET_VAL,
                                      [list(unpackaged_data.gamecodes), ["gamecodes"]]])
                     state_queue.put([SM_COMMANDS.SET_VAL,

@@ -55,6 +55,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
     var barPct = 0;
 
     function reset() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx2.clearRect(0, 0, canvas2.width, canvas2.height);
+        ctx3.clearRect(0, 0, canvas3.width, canvas3.height);
+        ctx4.clearRect(0, 0, canvas4.width, canvas4.height);
+        ctx5.clearRect(0, 0, canvas5.width, canvas5.height);
+        ctx_bottom.clearRect(0, 0, bottom.width, bottom.height);
+
         pct = [0, 0, 0, 0, 0];
         pct2 = [0, 0, 0, 0, 0];
         pct3 = [0, 0, 0, 0, 0];
@@ -105,8 +112,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         requestAnimationFrame(animate);
     }
 
-    var socket = io('http://127.0.0.1:5500');
-    //var socket = io('http://192.168.128.135:5500');
+    //var socket = io('http://127.0.0.1:5500');
+    var socket = io('http://192.168.128.135:5500');
     reset();
 
     socket.on('teams', function(data) {

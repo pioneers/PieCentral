@@ -241,10 +241,10 @@ def get_score(args):
 def flush_scores():
     '''
     Sends the most recent match score to the spreadsheet if connected to the internet
+    '''
     if alliances[ALLIANCE_COLOR.BLUE] is not None:
         Sheet.write_scores(match_number, alliances[ALLIANCE_COLOR.BLUE].score,
                            alliances[ALLIANCE_COLOR.GOLD].score)
-    '''
     return -1
 
 def enable_robots(autonomous):

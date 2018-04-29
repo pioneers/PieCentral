@@ -488,11 +488,12 @@ class TCPClass(AnsibleHandler):
                     state_queue.put([SM_COMMANDS.STUDENT_UPLOAD, []])
                 if unpackaged_data.header == notification_pb2.Notification.GAMECODE_TRANSMISSION:
                     state_queue.put([SM_COMMANDS.SET_VAL,
-                                     ["gamecodes_check", unpackaged_data.gamecode_solutions]])
+                                     [list(unpackaged_data.gamecode_solutions),
+                                      ["gamecodes_check"], False]])
                     state_queue.put([SM_COMMANDS.SET_VAL,
-                                     ["gamecodes", unpackaged_data.gamecodes]])
+                                     [list(unpackaged_data.gamecodes), ["gamecodes"], False]])
                     state_queue.put([SM_COMMANDS.SET_VAL,
-                                     ["rfids", unpackaged_data.rfids]])
+                                     [list(unpackaged_data.rfids), ["rfids"], False]])
 
         except ConnectionResetError:
             bad_things_queue.put(

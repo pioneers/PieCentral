@@ -81,6 +81,7 @@ def get_online_match(match_number):
     range_name = "Match Database!A2:J"
     game_data = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=range_name).execute()
+    
     row = 1
     for i,j in enumerate(game_data['values']):
         if int(j[0]) == match_number:

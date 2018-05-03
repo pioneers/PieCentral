@@ -27,7 +27,7 @@ BATCH_SLEEP_TIME = .04
 IDENTIFY_TIMEOUT = 1
 # Time in seconds to wait between checking for new devices
 # and cleaning up old ones.
-HOTPLUG_POLL_INTERVAL = 1
+HOTPLUG_POLL_INTERVAL = 5
 
 
 def get_working_serial_ports(excludes=()):

@@ -27,7 +27,7 @@ def sender():
 
     while True:
         new_input = input_to_header.get(input("Command: score bid code "))
-        if new_input == SHEPHERD_HEADER.GOAL_SCORE or new_input == SHEPHERD_HEADER.GOAL_BID:
+        if new_input in (SHEPHERD_HEADER.GOAL_SCORE, SHEPHERD_HEADER.GOAL_BID):
             goal_letter = input_to_goal.get(input("Goal Letter: a b c d e blue gold "))
             alliance = input_to_alliance.get(input("Alliance: blue gold "))
             if goal_letter is None or alliance is None:

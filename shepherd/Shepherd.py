@@ -410,16 +410,14 @@ def powerup_application(args):
                                                                       "result" : 0})
             print("zero_x")
             return
-        else:
-            alliance.zero_x_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
+        alliance.zero_x_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
     elif powerup == POWERUP_TYPES.TWO_X:
         if alliance.two_x_cooldown.is_running():
             lcm_send(LCM_TARGETS.SENSORS, SENSOR_HEADER.CODE_RESULT, {"alliance" : alliance.name,
                                                                       "result" : 0})
             print("two_x")
             return
-        else:
-            alliance.two_x_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
+        alliance.two_x_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
     elif powerup == POWERUP_TYPES.STEAL:
         if alliance.steal_cooldown.is_running() or \
            ((goal.owner is None or goal.owner == alliance) and game_state != STATE.AUTO):
@@ -427,8 +425,7 @@ def powerup_application(args):
                                                                       "result" : 0})
             print("steal")
             return
-        else:
-            alliance.steal_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
+        alliance.steal_cooldown.start_timer(CONSTANTS.CODE_COOLDOWN)
 
     dirty_codes[index] = True
     print(dirty_codes)

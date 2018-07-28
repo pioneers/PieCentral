@@ -29,8 +29,7 @@ def lcm_start_read(receive_channel, queue, put_json=False):
         while True:
             comm.handle()
 
-    rec_thread = threading.Thread()
-    rec_thread.run = run
+    rec_thread = threading.Thread(target=run)
     rec_thread.start()
 
 def lcm_send(target_channel, header, dic={}): # pylint: disable=dangerous-default-value

@@ -23,8 +23,8 @@ PACKAGER_HZ = 5.0
 SOCKET_HZ = 5.0
 
 
-@unique # pylint: disable=invalid-name
-class THREAD_NAMES(Enum):
+@unique
+class ThreadNames(Enum):
     UDP_PACKAGER = "udpPackager"
     UDP_SENDER = "udpSender"
     UDP_RECEIVER = "udpReceiver"
@@ -111,8 +111,8 @@ class UDPSendClass(AnsibleHandler):
 
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.send_buffer = TwoBuffer()
-        packager_name = THREAD_NAMES.UDP_PACKAGER
-        sock_send_name = THREAD_NAMES.UDP_SENDER
+        packager_name = ThreadNames.UDP_PACKAGER
+        sock_send_name = ThreadNames.UDP_SENDER
         stateQueue.put([SM_COMMANDS.SEND_ADDR, [PROCESS_NAMES.UDP_SEND_PROCESS]])
         self.dawn_ip = pipe.recv()[0]
         super().__init__(
@@ -220,8 +220,8 @@ class UDPRecvClass(AnsibleHandler):
 
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.recv_buffer = TwoBuffer()
-        packager_name = THREAD_NAMES.UDP_UNPACKAGER
-        sock_recv_name = THREAD_NAMES.UDP_RECEIVER
+        packager_name = ThreadNames.UDP_UNPACKAGER
+        sock_recv_name = ThreadNames.UDP_RECEIVER
         host = ""  # 0.0.0.0
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.bind((host, UDP_RECV_PORT))
@@ -343,8 +343,8 @@ class TCPClass(AnsibleHandler):
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.send_buffer = TwoBuffer()
         self.recv_buffer = TwoBuffer()
-        send_name = THREAD_NAMES.TCP_SENDER
-        recv_name = THREAD_NAMES.TCP_RECEIVER
+        send_name = ThreadNames.TCP_SENDER
+        recv_name = ThreadNames.TCP_RECEIVER
         super().__init__(
             send_name,
             TCPClass.sender,

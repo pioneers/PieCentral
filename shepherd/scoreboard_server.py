@@ -8,7 +8,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room, send # pylint:
 from Utils import *
 from LCM import *
 
-HOST_URL = "127.0.0.1"
+HOST_URL = "0.0.0.0"
 PORT = 5500
 
 app = Flask(__name__)
@@ -50,6 +50,10 @@ def receiver():
                 socketio.emit(SCOREBOARD_HEADER.BID_AMOUNT,
                               json.dumps(event[1], ensure_ascii=False))
 
+            elif event[0] == SCOREBOARD_HEADER.RESET_TIMERS:
+                socketio.emit(SCOREBOARD_HEADER.RESET_TIMERS,
+                              json.dumps(event[1], ensure_ascii=False))
+
             elif event[0] == SCOREBOARD_HEADER.STAGE_TIMER_START:
                 socketio.emit(SCOREBOARD_HEADER.STAGE_TIMER_START,
                               json.dumps(event[1], ensure_ascii=False))
@@ -62,7 +66,7 @@ def receiver():
                               json.dumps(event[1], ensure_ascii=False))
             #if event[0] == SCOREBOARD_HEADER.ALL_INFO):
             #    socketio.emit('server-to-gui-all-info', json.dumps(event[1], ensure_ascii=False))
-        socketio.sleep(0)
+        socketio.sleep(0.1)
 
 socketio.start_background_task(receiver)
 socketio.run(app, host=HOST_URL, port=PORT)

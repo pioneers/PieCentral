@@ -163,7 +163,7 @@ class BadThing:
         return str(self.data)
 
 class StudentAPIError(Exception):
-    """Miscellaneous studentAPI error."""
+    """Miscellaneous student API error."""
     pass
 
 class StudentAPIKeyError(StudentAPIError):

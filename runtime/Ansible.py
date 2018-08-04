@@ -1,6 +1,4 @@
-
 """Functions and classes for communication with Dawn."""
-
 
 import socket
 import threading
@@ -35,7 +33,7 @@ class ThreadNames(Enum):
     TCP_UNPACKAGER = "tcpUnpackager"
 
 
-class TwoBuffer():
+class TwoBuffer:
     """Custom buffer class for handling states.
 
     Holds two states, one which is updated and one that is sent. A list is used because
@@ -58,7 +56,7 @@ class TwoBuffer():
         return self.data[self.get_index]
 
 
-class AnsibleHandler():
+class AnsibleHandler:
     """Parent class for UDP Processes that spawns threads
 
     Initializes generalized instance variables for both UDP sender and receiver, and creates a
@@ -263,7 +261,7 @@ class UDPRecvClass(AnsibleHandler):
                 self.state_queue.put([SM_COMMANDS.SET_ADDR, [addr]])
 
     def unpackage_data(self):
-        """Unpackages data from proto and sends to stateManager on the SM stateQueue
+        """Unpackages data from proto and sends to StateManager on the SM stateQueue
 
         """
         def unpackage(data):

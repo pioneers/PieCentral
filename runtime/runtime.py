@@ -11,8 +11,8 @@ import time
 import traceback
 import warnings
 
-import stateManager
-import studentAPI
+from state_manager import StateManager
+from student_api import Actions, Gamepad, Robot
 import Ansible
 import runtime_pb2
 
@@ -244,19 +244,18 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
             simd_four_square
         ]
 
-        studentCode.Robot = studentAPI.Robot(state_queue, pipe, func_map)
-        studentCode.Gamepad = studentAPI.Gamepad(state_queue, pipe)
-        studentCode.Actions = studentAPI.Actions
+        studentCode.Robot = Robot(state_queue, pipe, func_map)
+        studentCode.Gamepad = Gamepad(state_queue, pipe)
+        studentCode.Actions = Actions
         studentCode.print = studentCode.Robot._print # pylint: disable=protected-access
 
-        # remapping for non-class studentAPI commands
+        # remapping for non-class student_api commands
         studentCode.get_gamepad_value = studentCode.Gamepad.get_value
         studentCode.get_robot_value = studentCode.Robot.get_value
         studentCode.set_robot_value = studentCode.Robot.set_value
         studentCode.is_robot_running = studentCode.Robot.is_running
         studentCode.run_async = studentCode.Robot.run
         studentCode.sleep_duration = studentCode.Actions.sleep
-
 
         check_timed_out(setup_fn)
 
@@ -310,7 +309,7 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
 
 def start_state_manager(bad_things_queue, state_queue, runtime_pipe):
     try:
-        state_manager = stateManager.StateManager(bad_things_queue, state_queue, runtime_pipe)
+        state_manager = StateManager(bad_things_queue, state_queue, runtime_pipe)
         state_manager.start()
     except Exception as e:
         bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.STATE_MANAGER_CRASH))
@@ -443,7 +442,7 @@ def test_success(test_file_name):
 
 def start_hibike(bad_things_queue, state_queue, pipe):
     # bad_things_queue - queue to runtime
-    # state_queue - queue to stateManager
+    # state_queue - queue to StateManager
     # pipe - pipe from statemanager
     def add_paths():
         """Modify sys.path so we can find hibike.

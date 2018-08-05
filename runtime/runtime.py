@@ -11,9 +11,9 @@ import time
 import traceback
 import warnings
 
-from state_manager import StateManager
-from student_api import Actions, Gamepad, Robot
-import Ansible
+from statemanager import StateManager
+from studentapi import Actions, Gamepad, Robot
+from ansible import TCPClass, UDPRecvClass, UDPSendClass
 import runtime_pb2
 
 from runtimeUtil import *
@@ -249,7 +249,7 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
         studentCode.Actions = Actions
         studentCode.print = studentCode.Robot._print # pylint: disable=protected-access
 
-        # remapping for non-class student_api commands
+        # remapping for non-class student API commands
         studentCode.get_gamepad_value = studentCode.Gamepad.get_value
         studentCode.get_robot_value = studentCode.Robot.get_value
         studentCode.set_robot_value = studentCode.Robot.set_value
@@ -317,7 +317,7 @@ def start_state_manager(bad_things_queue, state_queue, runtime_pipe):
 
 def start_udp_sender(bad_things_queue, state_queue, sm_pipe):
     try:
-        send_class = Ansible.UDPSendClass(bad_things_queue, state_queue, sm_pipe)
+        send_class = UDPSendClass(bad_things_queue, state_queue, sm_pipe)
         send_class.start()
     except Exception as e:
         bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.UDP_SEND_ERROR))
@@ -325,7 +325,7 @@ def start_udp_sender(bad_things_queue, state_queue, sm_pipe):
 
 def start_udp_receiver(bad_things_queue, state_queue, sm_pipe):
     try:
-        recv_class = Ansible.UDPRecvClass(bad_things_queue, state_queue, sm_pipe)
+        recv_class = UDPRecvClass(bad_things_queue, state_queue, sm_pipe)
         recv_class.start()
     except Exception as e:
         bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.UDP_RECV_ERROR))
@@ -333,7 +333,7 @@ def start_udp_receiver(bad_things_queue, state_queue, sm_pipe):
 
 def start_tcp(bad_things_queue, state_queue, sm_pipe):
     try:
-        tcp_class = Ansible.TCPClass(bad_things_queue, state_queue, sm_pipe)
+        tcp_class = TCPClass(bad_things_queue, state_queue, sm_pipe)
         tcp_class.start()
     except Exception as e:
         bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.TCP_ERROR))

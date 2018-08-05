@@ -9,7 +9,7 @@ artifacts-install:
 	$(nop)
 
 lint:
-	pylint --load-plugins=$(shell pwd)/lints Ansible.py runtime.py state_manager.py student_api.py runtimeUtil.py fake_dawn.py hibikeSim.py
+	pylint --load-plugins=$(shell pwd)/lints ansible.py runtime.py statemanager.py studentapi.py runtimeUtil.py fakedawn.py hibikesimulator.py
 
 test:
 	cd ../DevOps/frankfurter/scripts/update && ./create_update -p

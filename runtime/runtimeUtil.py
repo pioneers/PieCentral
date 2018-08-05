@@ -1,11 +1,23 @@
 """An intercomponent communication protocol."""
 
 # pylint: disable=invalid-name,bad-whitespace
+from enum import Enum, IntEnum, auto, unique
 import traceback
 import multiprocessing
 import os
 import json
-from enum import Enum, unique
+
+
+class AutoIntEnum(IntEnum):
+    """
+    An enum with automatically incrementing integer values, starting from zero.
+
+    References:
+      * https://docs.python.org/3/library/enum.html#using-automatic-values
+    """
+    # pylint: disable=no-self-argument
+    def _generate_next_value_(name, start, count, last_values):
+        return count
 
 
 class RUNTIME_CONFIG(Enum):
@@ -18,6 +30,7 @@ class RUNTIME_CONFIG(Enum):
     VERSION_MAJOR               = 18
     VERSION_MINOR               = 2
     VERSION_PATCH               = 8
+
 
 @unique
 class BAD_EVENTS(Enum):
@@ -46,6 +59,7 @@ restartEvents = [BAD_EVENTS.STUDENT_CODE_VALUE_ERROR, BAD_EVENTS.STUDENT_CODE_ER
                  BAD_EVENTS.STUDENT_CODE_TIMEOUT, BAD_EVENTS.END_EVENT, BAD_EVENTS.EMERGENCY_STOP]
 studentErrorEvents = [BAD_EVENTS.STUDENT_CODE_ERROR, BAD_EVENTS.STUDENT_CODE_TIMEOUT]
 
+
 @unique
 class PROCESS_NAMES(Enum):
     """Names of processes."""
@@ -57,6 +71,7 @@ class PROCESS_NAMES(Enum):
     HIBIKE              = "hibike"
     TCP_PROCESS         = "tcpProcess"
 
+
 @unique
 class HIBIKE_COMMANDS(Enum):
     """Hibike command types."""
@@ -67,6 +82,7 @@ class HIBIKE_COMMANDS(Enum):
     DISABLE   = "disable_all"
     TIMESTAMP_DOWN = "timestamp_down"
 
+
 @unique
 class HIBIKE_RESPONSE(Enum):
     """Hibike response types."""
@@ -74,6 +90,7 @@ class HIBIKE_RESPONSE(Enum):
     DEVICE_VALUES = "device_values"
     DEVICE_DISCONNECT = "device_disconnected"
     TIMESTAMP_UP  = "timestamp_up"
+
 
 @unique
 class ANSIBLE_COMMANDS(Enum):
@@ -83,38 +100,30 @@ class ANSIBLE_COMMANDS(Enum):
     TIMESTAMP_UP   = "Get timestamps going up the stack"
     TIMESTAMP_DOWN = "Get timestamps going down the stack"
 
-@unique
-class SM_COMMANDS(Enum):
-    """``StateManager`` command types."""
-    # Used to autoenumerate
-    # Don't ask I don't know how
-    # https://docs.python.org/3/library/enum.html#autonumber
-    def __new__(cls):
-        value = len(cls.__members__) + 1 # pylint: disable=no-member
-        obj = object.__new__(cls)
-        obj._value_ = value # pylint: disable=protected-access
-        return obj
 
-    RESET               = ()
-    ADD                 = ()
-    STUDENT_MAIN_OK     = ()
-    GET_VAL             = ()
-    SET_VAL             = ()
-    SEND_ANSIBLE        = ()
-    RECV_ANSIBLE        = ()
-    CREATE_KEY          = ()
-    GET_TIME            = ()
-    EMERGENCY_STOP      = ()
-    EMERGENCY_RESTART   = ()
-    SET_ADDR            = ()
-    SEND_ADDR           = ()
-    STUDENT_UPLOAD      = ()
-    SEND_CONSOLE        = ()
-    ENTER_IDLE          = ()
-    ENTER_TELEOP        = ()
-    ENTER_AUTO          = ()
-    END_STUDENT_CODE    = ()
-    SET_TEAM            = ()
+@unique
+class SM_COMMANDS(AutoIntEnum):
+    RESET               = auto()
+    ADD                 = auto()
+    STUDENT_MAIN_OK     = auto()
+    GET_VAL             = auto()
+    SET_VAL             = auto()
+    SEND_ANSIBLE        = auto()
+    RECV_ANSIBLE        = auto()
+    CREATE_KEY          = auto()
+    GET_TIME            = auto()
+    EMERGENCY_STOP      = auto()
+    EMERGENCY_RESTART   = auto()
+    SET_ADDR            = auto()
+    SEND_ADDR           = auto()
+    STUDENT_UPLOAD      = auto()
+    SEND_CONSOLE        = auto()
+    ENTER_IDLE          = auto()
+    ENTER_TELEOP        = auto()
+    ENTER_AUTO          = auto()
+    END_STUDENT_CODE    = auto()
+    SET_TEAM            = auto()
+
 
 class BadThing:
     """Message to runtime from one of its components."""
@@ -162,21 +171,26 @@ class BadThing:
             return self.stackTrace
         return str(self.data)
 
+
 class StudentAPIError(Exception):
-    """Miscellaneous studentAPI error."""
+    """Miscellaneous student API error."""
     pass
+
 
 class StudentAPIKeyError(StudentAPIError):
     """Student accessed something that doesn't exist."""
     pass
 
+
 class StudentAPIValueError(StudentAPIError):
     """Student stored the wrong value."""
     pass
 
+
 class StudentAPITypeError(StudentAPIError):
     """Student stored the wrong type."""
     pass
+
 
 # Sensor type names are CamelCase, with the first letter capitalized as well
 CONFIG_FILE = open(os.path.join(os.path.dirname(__file__), '../hibike/hibikeDevices.json'), 'r')

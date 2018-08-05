@@ -1,12 +1,9 @@
 """Software interface for robot actions."""
 
-# pylint: disable=invalid-name
-# pylint: enable=invalid-name
-import csv
 import asyncio
+import csv
 import inspect
 import io
-import random
 
 from runtimeUtil import *
 
@@ -240,29 +237,19 @@ class Robot(StudentAPI):
             raise message
         return message
 
-    # TODO: Only for testing. Remove in final version
-    def _hibike_subscribe_device(self, uid, delay, params):
-        """Uses direct uid to access hibike."""
-        self.to_manager.put([HIBIKE_COMMANDS.SUBSCRIBE, [uid, delay, params]])
-
-    # pylint: disable=inconsistent-return-statements
     def _hibike_get_uid(self, name):
         try:
             # TODO: Implement sensor mappings, right now uid is the number (or string of number)
-            if int(name) in self.peripherals:
-                return int(name)
-            else:
-                raise StudentAPIKeyError("Device not found: " + str(name))
-            # return self.sensor_mappings[name]
-        except Exception as e:
-            raise e # pylint: disable=raising-bad-type
+            device = int(name)
+            return self.peripherals[device]
+        except (ValueError, KeyError) as exc:
+            raise StudentAPIKeyError('Device not found: ' + str(name)) from exc
 
     def emergency_stop(self):
         """Stop the robot."""
         self.to_manager.put([SM_COMMANDS.EMERGENCY_STOP, []])
 
     def _print(self, *args, sep=' ', end='\n', file=None, flush=False):
-
         """Handle advanced usage of ``print``."""
         if file is not None:
             return print(*args, sep=sep, end=end, file=file, flush=flush)
@@ -289,44 +276,3 @@ class Robot(StudentAPI):
     def _get_gamecodes_check(self):
         """Get gamecode answers"""
         return self._get_sm_value("gamecodes_check")
-
-    def decode_message(self, rfid_seed): # pylint: disable=too-many-locals
-        """Method for 2018 Game: Solar Scramble
-
-        This method will use the students functions to decode a message,
-        and display the solution to Dawn
-
-        This function takes in a RFID tag and returns
-        True on success, False on error"""
-        try:
-            index = self._get_sm_value("rfids").index(rfid_seed)
-            code = self._get_gamecodes()[index]
-            check_challenge_code = self._get_gamecodes_check()[index]
-        except ValueError:
-            return False
-
-        output = ''
-        while code > 0:
-            digit = code % 10
-            code //= 10
-
-            try:
-                result = self.func_map[digit](rfid_seed)
-            except Exception as e:
-                self._print(e)
-                return False
-
-            output += str(result)
-        output = int(output)
-        random.seed(output)
-        output = str(random.randint(1000, 9999))
-        final_output = 0
-        for i in output:
-            final_output = final_output * 10 + (int(i) % 5) + 1
-
-        solution = int(final_output)
-
-        if check_challenge_code == solution:
-            self._set_sm_value(solution, "hibike", "devices", index % 3, "code")
-            return True
-        return False

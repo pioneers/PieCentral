@@ -1,21 +1,49 @@
+import argparse
+import asyncio
+import filecmp
+import inspect
 import multiprocessing
-import time
 import os
+import re
 import signal
 import sys
+import time
 import traceback
-import re
-import filecmp
-import argparse
-import inspect
-import asyncio
+import warnings
 
-import stateManager
-import studentAPI
-import Ansible
+from statemanager import StateManager
+from studentapi import Actions, Gamepad, Robot
+from ansible import TCPClass, UDPRecvClass, UDPSendClass
 import runtime_pb2
 
 from runtimeUtil import *
+
+COROUTINE_WARNING = """
+The PiE API has upgraded the above RuntimeWarning to a runtime error!
+
+This error typically occurs in one of the following cases:
+
+1. Calling `Actions.sleep` or anything in `Actions` without using `await`.
+
+Incorrect code:
+    async def my_coro():
+        Actions.sleep(1.0)
+
+Consider instead:
+    async def my_coro():
+        await Actions.sleep(1.0)
+
+2. Calling an `async def` function from inside `setup` or `loop` without using
+`Robot.run`.
+
+Incorrect code:
+    def loop():
+        my_coro()
+
+Consider instead:
+    def loop():
+        Robot.run(my_coro)
+""".strip()
 
 ALL_PROCESSES = {}
 
@@ -120,16 +148,14 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
 
 def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter=None): # pylint: disable=too-many-locals
     try:
-        import signal # pylint: disable=redefined-outer-name,reimported
-
         terminated = False
 
-        def sig_term_handler(signum, frame): # pylint: disable=unused-argument
+        def sig_term_handler(*_):
             nonlocal terminated
             terminated = True
         signal.signal(signal.SIGTERM, sig_term_handler)
 
-        def timed_out_handler(signum, frame): # pylint: disable=unused-argument
+        def timed_out_handler(*_):
             raise TimeoutError("studentCode timed out")
         signal.signal(signal.SIGALRM, timed_out_handler)
 
@@ -218,19 +244,18 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
             simd_four_square
         ]
 
-        studentCode.Robot = studentAPI.Robot(state_queue, pipe, func_map)
-        studentCode.Gamepad = studentAPI.Gamepad(state_queue, pipe)
-        studentCode.Actions = studentAPI.Actions
+        studentCode.Robot = Robot(state_queue, pipe, func_map)
+        studentCode.Gamepad = Gamepad(state_queue, pipe)
+        studentCode.Actions = Actions
         studentCode.print = studentCode.Robot._print # pylint: disable=protected-access
 
-        # remapping for non-class studentAPI commands
+        # remapping for non-class student API commands
         studentCode.get_gamepad_value = studentCode.Gamepad.get_value
         studentCode.get_robot_value = studentCode.Robot.get_value
         studentCode.set_robot_value = studentCode.Robot.set_value
         studentCode.is_robot_running = studentCode.Robot.is_running
         studentCode.run_async = studentCode.Robot.run
         studentCode.sleep_duration = studentCode.Actions.sleep
-
 
         check_timed_out(setup_fn)
 
@@ -265,7 +290,7 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
 
         loop = asyncio.get_event_loop()
 
-        def my_exception_handler(loop, context): # pylint: disable=unused-argument
+        def my_exception_handler(_loop, context):
             if exception_cell[0] is None:
                 exception_cell[0] = context["exception"]
 
@@ -284,7 +309,7 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
 
 def start_state_manager(bad_things_queue, state_queue, runtime_pipe):
     try:
-        state_manager = stateManager.StateManager(bad_things_queue, state_queue, runtime_pipe)
+        state_manager = StateManager(bad_things_queue, state_queue, runtime_pipe)
         state_manager.start()
     except Exception as e:
         bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.STATE_MANAGER_CRASH))
@@ -292,7 +317,7 @@ def start_state_manager(bad_things_queue, state_queue, runtime_pipe):
 
 def start_udp_sender(bad_things_queue, state_queue, sm_pipe):
     try:
-        send_class = Ansible.UDPSendClass(bad_things_queue, state_queue, sm_pipe)
+        send_class = UDPSendClass(bad_things_queue, state_queue, sm_pipe)
         send_class.start()
     except Exception as e:
         bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.UDP_SEND_ERROR))
@@ -300,7 +325,7 @@ def start_udp_sender(bad_things_queue, state_queue, sm_pipe):
 
 def start_udp_receiver(bad_things_queue, state_queue, sm_pipe):
     try:
-        recv_class = Ansible.UDPRecvClass(bad_things_queue, state_queue, sm_pipe)
+        recv_class = UDPRecvClass(bad_things_queue, state_queue, sm_pipe)
         recv_class.start()
     except Exception as e:
         bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.UDP_RECV_ERROR))
@@ -308,13 +333,13 @@ def start_udp_receiver(bad_things_queue, state_queue, sm_pipe):
 
 def start_tcp(bad_things_queue, state_queue, sm_pipe):
     try:
-        tcp_class = Ansible.TCPClass(bad_things_queue, state_queue, sm_pipe)
+        tcp_class = TCPClass(bad_things_queue, state_queue, sm_pipe)
         tcp_class.start()
     except Exception as e:
         bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.TCP_ERROR))
 
 
-def process_factory(bad_things_queue, state_queue, stdout_redirect=None): # pylint: disable=unused-argument
+def process_factory(bad_things_queue, state_queue, _stdout_redirect=None):
     def spawn_process_helper(process_name, helper, *args):
         pipe_to_child, pipe_from_child = multiprocessing.Pipe()
         if process_name != PROCESS_NAMES.STATE_MANAGER:
@@ -417,7 +442,7 @@ def test_success(test_file_name):
 
 def start_hibike(bad_things_queue, state_queue, pipe):
     # bad_things_queue - queue to runtime
-    # state_queue - queue to stateManager
+    # state_queue - queue to StateManager
     # pipe - pipe from statemanager
     def add_paths():
         """Modify sys.path so we can find hibike.
@@ -455,8 +480,6 @@ def clarify_coroutine_warnings(exception_cell):
     This function will will upgrade such a warning to a fatal error,
     while also injecting a additional clarification message about possible causes.
     """
-    import warnings
-
     default_showwarning = warnings.showwarning
 
     def custom_showwarning(message, category, filename, lineno, file=None, line=None): # pylint: disable=too-many-arguments
@@ -465,43 +488,22 @@ def clarify_coroutine_warnings(exception_cell):
         if str(message).endswith("was never awaited"):
             coro_name = str(message).split("'")[-2]
 
-            print("""
-The PiE API has upgraded the above RuntimeWarning to a runtime error!
-
-This error typically occurs in one of the following cases:
-
-1. Calling `Actions.sleep` or anything in `Actions` without using `await`.
-
-Incorrect code:
-    async def my_coro():
-        Actions.sleep(1.0)
-
-Consider instead:
-    async def my_coro():
-        await Actions.sleep(1.0)
-
-2. Calling an `async def` function from inside `setup` or `loop` without using
-`Robot.run`.
-
-Incorrect code:
-    def loop():
-        my_coro()
-
-Consider instead:
-    def loop():
-        Robot.run(my_coro)
-""".format(coro_name=coro_name), file=file)
+            print(COROUTINE_WARNING.format(coro_name=coro_name), file=file)
             exception_cell[0] = message
 
     warnings.showwarning = custom_showwarning
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser() # pylint: disable=invalid-name
+def main():
+    parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--test", nargs="*",
                         help="Run specified tests. If no arguments, run all tests.")
-    arguments = parser.parse_args() # pylint: disable=invalid-name
+    arguments = parser.parse_args()
     if arguments.test is None:
         runtime()
     else:
         runtime_test(arguments.test)
+
+
+if __name__ == '__main__':
+    main()

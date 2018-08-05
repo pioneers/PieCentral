@@ -1,6 +1,4 @@
-
 """Functions and classes for communication with Dawn."""
-
 
 import socket
 import threading
@@ -23,8 +21,8 @@ PACKAGER_HZ = 5.0
 SOCKET_HZ = 5.0
 
 
-@unique # pylint: disable=invalid-name
-class THREAD_NAMES(Enum):
+@unique
+class ThreadNames(Enum):
     UDP_PACKAGER = "udpPackager"
     UDP_SENDER = "udpSender"
     UDP_RECEIVER = "udpReceiver"
@@ -35,7 +33,7 @@ class THREAD_NAMES(Enum):
     TCP_UNPACKAGER = "tcpUnpackager"
 
 
-class TwoBuffer():
+class TwoBuffer:
     """Custom buffer class for handling states.
 
     Holds two states, one which is updated and one that is sent. A list is used because
@@ -58,7 +56,7 @@ class TwoBuffer():
         return self.data[self.get_index]
 
 
-class AnsibleHandler():
+class AnsibleHandler:
     """Parent class for UDP Processes that spawns threads
 
     Initializes generalized instance variables for both UDP sender and receiver, and creates a
@@ -111,8 +109,8 @@ class UDPSendClass(AnsibleHandler):
 
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.send_buffer = TwoBuffer()
-        packager_name = THREAD_NAMES.UDP_PACKAGER
-        sock_send_name = THREAD_NAMES.UDP_SENDER
+        packager_name = ThreadNames.UDP_PACKAGER
+        sock_send_name = ThreadNames.UDP_SENDER
         stateQueue.put([SM_COMMANDS.SEND_ADDR, [PROCESS_NAMES.UDP_SEND_PROCESS]])
         self.dawn_ip = pipe.recv()[0]
         super().__init__(
@@ -183,7 +181,7 @@ class UDPSendClass(AnsibleHandler):
                         event=BAD_EVENTS.UDP_SEND_ERROR,
                         printStackTrace=True))
 
-    def udp_sender(self, bad_things_queue, state_queue, pipe): #pylint: disable=unused-argument
+    def udp_sender(self, bad_things_queue, _state_queue, _pipe):
         """Function run as a thread that sends a packaged state from the TwoBuffer
 
         The current state that has already been packaged is gotten from the
@@ -220,8 +218,8 @@ class UDPRecvClass(AnsibleHandler):
 
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.recv_buffer = TwoBuffer()
-        packager_name = THREAD_NAMES.UDP_UNPACKAGER
-        sock_recv_name = THREAD_NAMES.UDP_RECEIVER
+        packager_name = ThreadNames.UDP_UNPACKAGER
+        sock_recv_name = ThreadNames.UDP_RECEIVER
         host = ""  # 0.0.0.0
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.socket.bind((host, UDP_RECV_PORT))
@@ -263,7 +261,7 @@ class UDPRecvClass(AnsibleHandler):
                 self.state_queue.put([SM_COMMANDS.SET_ADDR, [addr]])
 
     def unpackage_data(self):
-        """Unpackages data from proto and sends to stateManager on the SM stateQueue
+        """Unpackages data from proto and sends to StateManager on the SM stateQueue
 
         """
         def unpackage(data):
@@ -343,8 +341,8 @@ class TCPClass(AnsibleHandler):
     def __init__(self, badThingsQueue, stateQueue, pipe):
         self.send_buffer = TwoBuffer()
         self.recv_buffer = TwoBuffer()
-        send_name = THREAD_NAMES.TCP_SENDER
-        recv_name = THREAD_NAMES.TCP_RECEIVER
+        send_name = ThreadNames.TCP_SENDER
+        recv_name = ThreadNames.TCP_RECEIVER
         super().__init__(
             send_name,
             TCPClass.sender,
@@ -371,7 +369,7 @@ class TCPClass(AnsibleHandler):
                 pair.device_uid = row[1]
         self.sock.sendall(proto_message.SerializeToString())
 
-    def sender(self, bad_things_queue, state_queue, pipe): # pylint: disable=unused-argument
+    def sender(self, bad_things_queue, _state_queue, pipe):
         """Function run in an individual thread that sends data to Dawn via TCP
 
         The sender will send either console logging or confirmation that runtime is ready
@@ -452,7 +450,7 @@ class TCPClass(AnsibleHandler):
                                               event=BAD_EVENTS.TCP_ERROR,
                                               printStackTrace=True))
 
-    def receiver(self, bad_things_queue, state_queue, pipe): # pylint: disable=unused-argument
+    def receiver(self, bad_things_queue, state_queue, _pipe):
         """Function run in its own thread which receives data from Dawn
 
         The receiver can receive a command that Dawn is about to upload student Code.
@@ -470,7 +468,7 @@ class TCPClass(AnsibleHandler):
         try:
             while True:
                 recv_data, _ = self.sock.recvfrom(2048)
-                if recv_data == b'':
+                if not recv_data:
                     bad_things_queue.put(
                         BadThing(
                             sys.exc_info(),
@@ -478,7 +476,7 @@ class TCPClass(AnsibleHandler):
                             event=BAD_EVENTS.DAWN_DISCONNECTED,
                             printStackTrace=False))
                     break
-                unpackaged_data = unpackage(recv_data) # pylint: disable=unused-variable
+                unpackaged_data = unpackage(recv_data)
                 if unpackaged_data.header == notification_pb2.Notification.TIMESTAMP_DOWN:
                     timestamps = list(unpackaged_data.timestamps)
                     timestamps.append(time.perf_counter())

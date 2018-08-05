@@ -25,8 +25,8 @@ def dawn_packager():
     test_gamepad.buttons.append(True)
     return proto_message.SerializeToString()
 
-# pylint: disable=unused-argument
-def sender(port, send_queue):
+
+def sender(_port, _send_queue):
     """Send a sample dawn message on ``port``."""
     host = '127.0.0.1'
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
@@ -37,8 +37,8 @@ def sender(port, send_queue):
             next_call += 1.0 / DAWN_HZ
             time.sleep(max(next_call - time.time(), 0))
 
-# pylint: disable=unused-argument
-def receiver(port, receive_queue):
+
+def receiver(_port, receive_queue):
     """Receive messages on port to receive queue."""
     host = '127.0.0.1'
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -49,6 +49,7 @@ def receiver(port, receive_queue):
         runtime_message.ParseFromString(msg)
         receive_queue[0] = msg
 
+
 def add_timestamps(msgqueue):
     """Add timestamp messages to ``msgqueue``."""
     for _ in range(10):
@@ -58,6 +59,7 @@ def add_timestamps(msgqueue):
         msg = msg.SerializeToString()
         msgqueue.put(msg)
     return msgqueue
+
 
 def tcp_relay(port, msgqueue=queue.Queue()):
     """Sends and receives messages on ``port``."""

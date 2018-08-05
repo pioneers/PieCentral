@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 import sys
 
 from runtimeUtil import *
@@ -16,8 +15,8 @@ class HibikeSimulator:
             HIBIKE_COMMANDS.SUBSCRIBE: self.subscribe_device,
         }
         return command_mapping
-    # pylint: disable=unused-argument
-    def subscribe_device(self, uid, delay, params):
+
+    def subscribe_device(self, _uid, _delay, _params):
         self._device_subscribed()
 
     def _device_subscribed(self, uid=123, delay=321, param1="param1", param2="param2"):

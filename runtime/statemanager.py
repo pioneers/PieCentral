@@ -1,13 +1,12 @@
-# pylint: disable=invalid-name
-# pylint: enable=invalid-name
 import sys
 import time
+
 import runtime_pb2
 
 from runtimeUtil import *
 
 
-class StateManager(object): # pylint: disable=too-many-public-methods
+class StateManager: # pylint: disable=too-many-public-methods
     """
     Stores, updates, and manage the state of the robots.
     Receives stateQueue commands from runtime, studentCode, Hibike, and Ansible;
@@ -170,30 +169,25 @@ class StateManager(object): # pylint: disable=too-many-public-methods
         """
         Updates an existing entry in self.state with new value and time.
         """
-        curr_dict = self.state
+        assert len(keys) >= 1
+        process = self.process_mapping[PROCESS_NAMES.STUDENT_CODE]
+        parent, child, path = None, self.state, []
         try:
-            path = []
-            for i, key in enumerate(keys[:-1]):
-                path.append(curr_dict[key])
-                curr_dict = curr_dict[key][0]
-            if len(keys) > 1:
-                i += 1 # pylint: disable=undefined-loop-variable
-            else:
-                i = 0
-            if keys[i] not in curr_dict:
-                raise Exception
-            path.append(curr_dict[keys[i]])
-            curr_dict[keys[i]][0] = value
-            curr_time = time.time()
-            for item in path:
-                item[1] = curr_time
+            for i, key in enumerate(keys):
+                parent, child_and_ts = child, child[key]
+                path.append(child_and_ts)
+                child = child_and_ts[0]
+        except (KeyError, IndexError):
+            error = StudentAPIKeyError(self.dict_error_message(i, keys, child))
             if send:
-                self.process_mapping[PROCESS_NAMES.STUDENT_CODE].send(value)
-        except:
-            error = StudentAPIKeyError(
-                self.dict_error_message(i, keys, curr_dict))
+                process.send(error)
+        else:
+            parent[keys[-1]][0] = value
+            now = time.time()
+            for mapping_and_ts in path:
+                mapping_and_ts[1] = now
             if send:
-                self.process_mapping[PROCESS_NAMES.STUDENT_CODE].send(error)
+                process.send(value)
 
     def send_ansible(self):
         self.process_mapping[PROCESS_NAMES.UDP_SEND_PROCESS].send(self.state)
@@ -372,7 +366,8 @@ class StateManager(object): # pylint: disable=too-many-public-methods
             key_chain += "['" + keys[i] + \
                 "']" if (isinstance(keys[i], str)) else "[" + str(keys[i]) + "]"
             i += 1
-        keys = [None] if len(keys) == 0 else keys # pylint: disable=bad-option-value, len-as-condition
+        if not keys:
+            keys = [None]
         errored_key = "'" + keys[errored_index] + "'" if isinstance(
             keys[errored_index], str) else str(keys[errored_index])
         error_message = "KeyError: key " + errored_key + \
@@ -383,7 +378,7 @@ class StateManager(object): # pylint: disable=too-many-public-methods
             # spaces at the end of each element
             available_keys = [("'" + el + "', " if isinstance(el, str) else str(el) + ", ")
                               for el in curr_dict.keys()]
-            if len(available_keys) > 0: # pylint: disable=bad-option-value, len-as-condition
+            if available_keys:
                 # Removes comma and space from last item in available_keys
                 available_keys[-1] = available_keys[-1][:-2]
             error_message += "Available keys in state" + \

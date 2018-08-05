@@ -290,7 +290,7 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
 
         loop = asyncio.get_event_loop()
 
-        def my_exception_handler(loop, context): # pylint: disable=unused-argument
+        def my_exception_handler(_loop, context):
             if exception_cell[0] is None:
                 exception_cell[0] = context["exception"]
 
@@ -339,7 +339,7 @@ def start_tcp(bad_things_queue, state_queue, sm_pipe):
         bad_things_queue.put(BadThing(sys.exc_info(), str(e), event=BAD_EVENTS.TCP_ERROR))
 
 
-def process_factory(bad_things_queue, state_queue, stdout_redirect=None): # pylint: disable=unused-argument
+def process_factory(bad_things_queue, state_queue, _stdout_redirect=None):
     def spawn_process_helper(process_name, helper, *args):
         pipe_to_child, pipe_from_child = multiprocessing.Pipe()
         if process_name != PROCESS_NAMES.STATE_MANAGER:

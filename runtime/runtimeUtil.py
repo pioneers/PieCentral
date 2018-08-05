@@ -8,14 +8,15 @@ import os
 import json
 
 
-class AutoIntEnum(Enum):
+class AutoIntEnum(IntEnum):
     """
     An enum with automatically incrementing integer values, starting from zero.
 
     References:
       * https://docs.python.org/3/library/enum.html#using-automatic-values
     """
-    def _generate_next_value_(_name, _start, count, _last_values):
+    # pylint: disable=no-self-argument
+    def _generate_next_value_(name, start, count, last_values):
         return count
 
 

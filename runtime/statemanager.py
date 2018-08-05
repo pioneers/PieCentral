@@ -366,7 +366,8 @@ class StateManager: # pylint: disable=too-many-public-methods
             key_chain += "['" + keys[i] + \
                 "']" if (isinstance(keys[i], str)) else "[" + str(keys[i]) + "]"
             i += 1
-        keys = [None] if len(keys) == 0 else keys # pylint: disable=bad-option-value, len-as-condition
+        if not keys:
+            keys = [None]
         errored_key = "'" + keys[errored_index] + "'" if isinstance(
             keys[errored_index], str) else str(keys[errored_index])
         error_message = "KeyError: key " + errored_key + \
@@ -377,7 +378,7 @@ class StateManager: # pylint: disable=too-many-public-methods
             # spaces at the end of each element
             available_keys = [("'" + el + "', " if isinstance(el, str) else str(el) + ", ")
                               for el in curr_dict.keys()]
-            if len(available_keys) > 0: # pylint: disable=bad-option-value, len-as-condition
+            if available_keys:
                 # Removes comma and space from last item in available_keys
                 available_keys[-1] = available_keys[-1][:-2]
             error_message += "Available keys in state" + \

@@ -181,7 +181,7 @@ class UDPSendClass(AnsibleHandler):
                         event=BAD_EVENTS.UDP_SEND_ERROR,
                         printStackTrace=True))
 
-    def udp_sender(self, bad_things_queue, state_queue, pipe): #pylint: disable=unused-argument
+    def udp_sender(self, bad_things_queue, _state_queue, _pipe):
         """Function run as a thread that sends a packaged state from the TwoBuffer
 
         The current state that has already been packaged is gotten from the
@@ -369,7 +369,7 @@ class TCPClass(AnsibleHandler):
                 pair.device_uid = row[1]
         self.sock.sendall(proto_message.SerializeToString())
 
-    def sender(self, bad_things_queue, state_queue, pipe): # pylint: disable=unused-argument
+    def sender(self, bad_things_queue, _state_queue, pipe):
         """Function run in an individual thread that sends data to Dawn via TCP
 
         The sender will send either console logging or confirmation that runtime is ready
@@ -450,7 +450,7 @@ class TCPClass(AnsibleHandler):
                                               event=BAD_EVENTS.TCP_ERROR,
                                               printStackTrace=True))
 
-    def receiver(self, bad_things_queue, state_queue, pipe): # pylint: disable=unused-argument
+    def receiver(self, bad_things_queue, state_queue, _pipe):
         """Function run in its own thread which receives data from Dawn
 
         The receiver can receive a command that Dawn is about to upload student Code.
@@ -468,7 +468,7 @@ class TCPClass(AnsibleHandler):
         try:
             while True:
                 recv_data, _ = self.sock.recvfrom(2048)
-                if recv_data == b'':
+                if not recv_data:
                     bad_things_queue.put(
                         BadThing(
                             sys.exc_info(),
@@ -476,7 +476,7 @@ class TCPClass(AnsibleHandler):
                             event=BAD_EVENTS.DAWN_DISCONNECTED,
                             printStackTrace=False))
                     break
-                unpackaged_data = unpackage(recv_data) # pylint: disable=unused-variable
+                unpackaged_data = unpackage(recv_data)
                 if unpackaged_data.header == notification_pb2.Notification.TIMESTAMP_DOWN:
                     timestamps = list(unpackaged_data.timestamps)
                     timestamps.append(time.perf_counter())

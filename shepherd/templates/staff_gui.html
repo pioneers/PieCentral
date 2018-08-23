@@ -60,6 +60,30 @@
       var gold_1_num = 0
       var gold_1_name = ""
 
+      function getCookie(cname) {
+          var name = cname + "=";
+          var ca = document.cookie.split(';');
+          for (var i = 0; i < ca.length; i++) {
+              var c = ca[i];
+              while (c.charAt(0) == ' ') c = c.substring(1);
+              if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+          }
+          return "";
+      }
+
+      if (getCookie("match_num") != "") {
+        match_num = parseInt(decodeURIComponent(getCookie("match_num")))
+        blue_1_num = parseInt(decodeURIComponent(getCookie("blue_1_num")))
+        blue_1_name = decodeURIComponent(getCookie("blue_1_name"))
+        blue_2_num = parseInt(decodeURIComponent(getCookie("blue_2_num")))
+        blue_2_name = decodeURIComponent(getCookie("blue_2_name"))
+        gold_2_num = parseInt(decodeURIComponent(getCookie("gold_2_num")))
+        gold_2_name = decodeURIComponent(getCookie("gold_2_name"))
+        gold_1_num = parseInt(decodeURIComponent(getCookie("gold_1_num")))
+        gold_1_name = decodeURIComponent(getCookie("gold_1_name"))
+        setDefaultTeamsInfo()
+      }
+
       socket.on('connect', function(data) {
         socket.emit('join', 'staff_gui');
       });
@@ -78,6 +102,15 @@
                 "g1num" : gold_1_num, "g1name" : gold_1_name,
                 "g2num" : gold_2_num, "g2name" : gold_2_name}
         socket.emit('ui-to-server-setup-match', JSON.stringify(data))
+        document.cookie = "match_num=" + match_num
+        document.cookie = "blue_1_num=" + blue_1_num
+        document.cookie = "blue_1_name=" + blue_1_name
+        document.cookie = "blue_2_num=" + blue_2_num
+        document.cookie = "blue_2_name=" + blue_2_name
+        document.cookie = "gold_2_num=" + gold_2_num
+        document.cookie = "gold_2_name=" + gold_2_name
+        document.cookie = "gold_1_num=" + gold_1_num
+        document.cookie = "gold_1_name=" + gold_1_name
       });
 
       socket.on('server-to-ui-teamsinfo', function(data) {

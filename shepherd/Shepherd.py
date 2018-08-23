@@ -189,13 +189,13 @@ def reset(args=None):
     Timer.reset_all()
     events = queue.Queue()
     lcm_start_read(LCM_TARGETS.SHEPHERD, events)
+    disable_robots()
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.RESET_TIMERS)
     for alliance in alliances.values():
         if alliance is not None:
             alliance.reset()
     for goal in goals.values():
         goal.reset()
-    disable_robots()
     send_scoreboard_goals()
     send_goal_costs_sensors()
     send_team_scores_sensors()

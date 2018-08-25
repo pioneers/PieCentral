@@ -1,3 +1,4 @@
+import argparse
 import queue
 import random
 import time
@@ -13,6 +14,17 @@ import Sheet
 ###########################################
 # Evergreen Methods
 ###########################################
+
+version = "1.0.0"
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--version', help='Prints out the Shepherd version number.',
+                    action='store_true')
+flags = parser.parse_args()
+
+if flags.version:
+    print(version)
+    exit()
 
 def start():
     '''

@@ -8,11 +8,22 @@ from Timer import *
 from Utils import *
 import Codegen
 import Sheet
+import argparse
 
 
 ###########################################
 # Evergreen Methods
 ###########################################
+
+version = "1.0.0"
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--version', help='Prints out the Shepherd version number.', action='store_true')
+args = parser.parse_args()
+
+if args.version:
+    print(version)
+    exit()
 
 def start():
     '''

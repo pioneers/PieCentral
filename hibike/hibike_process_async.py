@@ -219,6 +219,7 @@ class SmartSensorProtocol(asyncio.Protocol):
                 self.read_queue.put_nowait(message)
     else:
         def data_received(self, data):
+            self.serial_buf.extend(data)
             zero_loc = self.serial_buf.find(self.PACKET_BOUNDARY)
             if zero_loc != -1:
                 self.serial_buf = self.serial_buf[zero_loc:]
@@ -239,8 +240,14 @@ class SmartSensorProtocol(asyncio.Protocol):
             self.error_queue.put_nowait(error)
 
 
-# Information about a device disconnect
-Disconnect = namedtuple("Disconnect", ["uid", "instance_id", "accessed"])
+class Disconnect:
+    """
+    Information about a device disconnect.
+    """
+    def __init__(self, uid, instance_id, accessed):
+        self.uid = uid
+        self.instance_id = instance_Id
+        self.accessed = accessed
 
 
 async def remove_disconnected_devices(error_queue, devices, state_queue, event_loop):

@@ -53,7 +53,7 @@ deploy:
   provider: script
   script:
     - pushd DevOps/pipeline
-    - python3 pipeline.py -k ~\/pioneers/piecentral-artifacts.pem -a $APP_ID
+    - pipenv run python3 pipeline.py -k ~\/pioneers/piecentral-artifacts.pem -a "$APP_ID" -t "$TRAVIS_TAG" -d artifacts
     - popd
   on:
     tags: true

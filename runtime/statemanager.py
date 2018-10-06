@@ -1,5 +1,6 @@
 import sys
 import time
+import traceback
 
 import runtime_pb2
 
@@ -170,8 +171,8 @@ class StateManager: # pylint: disable=too-many-public-methods
         Updates an existing entry in self.state with new value and time.
         """
         assert len(keys) >= 1
-        process = self.process_mapping[PROCESS_NAMES.STUDENT_CODE]
         parent, child, path = None, self.state, []
+
         try:
             for i, key in enumerate(keys):
                 parent, child_and_ts = child, child[key]
@@ -180,6 +181,7 @@ class StateManager: # pylint: disable=too-many-public-methods
         except (KeyError, IndexError):
             error = StudentAPIKeyError(self.dict_error_message(i, keys, child))
             if send:
+                process = self.process_mapping[PROCESS_NAMES.STUDENT_CODE]
                 process.send(error)
         else:
             parent[keys[-1]][0] = value
@@ -187,6 +189,7 @@ class StateManager: # pylint: disable=too-many-public-methods
             for mapping_and_ts in path:
                 mapping_and_ts[1] = now
             if send:
+                process = self.process_mapping[PROCESS_NAMES.STUDENT_CODE]
                 process.send(value)
 
     def send_ansible(self):
@@ -389,6 +392,17 @@ class StateManager: # pylint: disable=too-many-public-methods
 
         return error_message
 
+    @staticmethod
+    def format_crash_message(request, exception, formatted_traceback):
+        """
+        Format a crash message for readability.
+        """
+        return """StateManager's main loop has crashed!
+        Request: {}
+        Exception data: {}
+        {}
+        """.format(request, exception, formatted_traceback)
+
     def start(self):
         """
         Run StateManager.
@@ -419,7 +433,9 @@ class StateManager: # pylint: disable=too-many-public-methods
                                                        event=BAD_EVENTS.UNKNOWN_PROCESS,
                                                        printStackTrace=False))
             except Exception as e:
+                formatted_tb = traceback.format_exc()
                 self.bad_things_queue.put(BadThing(sys.exc_info(),
-                                                   "State Manager Loop crash with: " + str(e),
+                                                   self.format_crash_message(request, e,
+                                                                             formatted_tb),
                                                    event=BAD_EVENTS.STATE_MANAGER_CRASH,
                                                    printStackTrace=True))

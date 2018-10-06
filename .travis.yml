@@ -17,7 +17,7 @@ cache:
     - node_modules
     - $HOME/.cache/yarn
 before_install:
-  - openssl aes-256-cbc -K $encrypted_516b8f19f8a6_key -iv $encrypted_516b8f19f8a6_iv -in ~\/pioneers/PieCentral/DevOps/pipeline/piecentral-artifacts.pem.encrypted -out ~\/pioneers/piecentral-artifacts.pem -d
+  - openssl aes-256-cbc -K $encrypted_516b8f19f8a6_key -iv $encrypted_516b8f19f8a6_iv -in pioneers/PieCentral/DevOps/pipeline/piecentral-artifacts.pem.encrypted -out pioneers/piecentral-artifacts.pem -d
   - nvm install --lts
   - pip3 install pipenv
   - mkdir -p artifacts

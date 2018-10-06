@@ -11,6 +11,7 @@ References:
 import datetime
 import json
 import logging
+import os
 from urllib.request import Request, urlopen
 from urllib.parse import urljoin
 
@@ -67,14 +68,21 @@ class GitHubApp:
             if tag.name == tag_name:
                 return tag.commit
 
-    def create_release(self, tag_name, draft=False, prerelease=False):
+    def create_release(self, tag_name, artifacts_dir, draft=False, prerelease=False):
         assert hasattr(self, 'client')
         # Assumes tag already exists
         commit = self.get_commit_from_tag(tag_name)
-        help(self.client.create_git_release)
-        return self.client.create_git_release(tag_name, tag_name,
-                                              commit.commit.message,
-                                              draft=draft, prerelease=prerelease)
+        if not commit:
+            raise ValueError(f'No such tag "{tag_name}"')
+        release = self.client.create_git_release(tag_name, tag_name,
+                                                 commit.commit.message,
+                                                 draft=draft,
+                                                 prerelease=prerelease)
+        for filename in os.listdir(artifacts_dir):
+            full_path = os.path.join(artifacts_dir, filename)
+            if os.path.isfile(full_path):
+                release.upload_asset(full_path)
+        return release
 
 
 @click.command()
@@ -84,10 +92,12 @@ class GitHubApp:
 @click.option('-a', '--app-id', help='GitHub App ID', required=True)
 @click.option('-d', '--artifacts-dir', help='Artifacts directory', required=True)
 @click.option('-t', '--tag', help='Tag name', required=True)
-def main(owner, repo, key_file, app_id, artifacts_dir, tag):
+@click.option('-p', '--prerelease', help='Prerelease', is_flag=True)
+@click.option('-x', '--draft', help='Draft release', is_flag=True)
+def main(owner, repo, key_file, app_id, artifacts_dir, tag, prerelease, draft):
     app = GitHubApp(owner, repo, key_file, app_id)
     app.retrieve_access_token()
-    app.create_release(tag)
+    app.create_release(tag, artifacts_dir, prerelease=prerelease, draft=draft)
 
 
 if __name__ == '__main__':

@@ -11,13 +11,20 @@ import time
 import traceback
 import warnings
 
-from statemanager import StateManager
-from studentapi import Actions, Gamepad, Robot
-from runtimeUtil import RUNTIME_CONFIG
 from ansible import TCPClass, UDPRecvClass, UDPSendClass
 import runtime_pb2
-
-from runtimeUtil import *
+from runtimeUtil import (
+    BAD_EVENTS,
+    BadThing,
+    HIBIKE_COMMANDS,
+    PROCESS_NAMES,
+    restartEvents,
+    RUNTIME_CONFIG,
+    SM_COMMANDS,
+    StudentAPIError,
+)
+from statemanager import StateManager
+from studentapi import Actions, Gamepad, Robot
 
 COROUTINE_WARNING = """
 The PiE API has upgraded the above RuntimeWarning to a runtime error!

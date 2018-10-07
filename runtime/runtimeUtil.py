@@ -193,6 +193,7 @@ class StudentAPITypeError(StudentAPIError):
 
 
 # Sensor type names are CamelCase, with the first letter capitalized as well
+# FIXME: could we read this ahead of time and not keep the file open?
 CONFIG_FILE = open(os.path.join(os.path.dirname(__file__), '../hibike/hibikeDevices.json'), 'r')
 SENSOR_TYPE = {device_data["id"]: device_data["name"] for device_data in json.load(CONFIG_FILE)}
 SENSOR_TYPE[-1] = "runtime_version"

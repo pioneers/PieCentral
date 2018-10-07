@@ -201,7 +201,7 @@ class Robot(StudentAPI):
     def _check_value(self, param, value):
         """Check that a value is valid for a parameter."""
         valid_values = self.param_to_valid_values[param]
-        # FIXME: use descriptive names for `valid_values[0]` and `valid_values[0][0]`
+        # TODO: use descriptive names for `valid_values[0]` and `valid_values[0][0]`
         if not isinstance(value, valid_values[0]):
             raise StudentAPIValueError(
                 "Invalid value type passed in, valid types for this param are: "

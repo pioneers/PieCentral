@@ -1,0 +1,3 @@
+#!/bin/sh
+
+wget "https://github.com/pioneers/PieCentral"

@@ -6,11 +6,13 @@ python:
 os:
   - linux
 env:
-  - TEST_DIR=dawn
-  - TEST_DIR=hibike/travis
-  - TEST_DIR=runtime
-  - TEST_DIR=shepherd
-  - APP_ID=15634
+  global:
+    - APP_ID=15634
+  matrix:
+    - TEST_DIR=dawn
+    - TEST_DIR=hibike/travis
+    - TEST_DIR=runtime
+    - TEST_DIR=shepherd
 cache:
   pip: true
   directories:

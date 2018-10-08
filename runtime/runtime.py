@@ -11,12 +11,20 @@ import time
 import traceback
 import warnings
 
-from statemanager import StateManager
-from studentapi import Actions, Gamepad, Robot
 from ansible import TCPClass, UDPRecvClass, UDPSendClass
 import runtime_pb2
-
-from runtimeUtil import *
+from runtimeUtil import (
+    BAD_EVENTS,
+    BadThing,
+    HIBIKE_COMMANDS,
+    PROCESS_NAMES,
+    restartEvents,
+    RUNTIME_CONFIG,
+    SM_COMMANDS,
+    StudentAPIError,
+)
+from statemanager import StateManager
+from studentapi import Actions, Gamepad, Robot
 
 COROUTINE_WARNING = """
 The PiE API has upgraded the above RuntimeWarning to a runtime error!
@@ -46,6 +54,15 @@ Consider instead:
 """.strip()
 
 ALL_PROCESSES = {}
+
+
+def print_version():
+    version_numbers = (
+        RUNTIME_CONFIG.VERSION_MAJOR,
+        RUNTIME_CONFIG.VERSION_MINOR,
+        RUNTIME_CONFIG.VERSION_PATCH
+    )
+    print('.'.join([str(n.value) for n in version_numbers]))
 
 
 # pylint: disable=too-many-branches
@@ -498,8 +515,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--test", nargs="*",
                         help="Run specified tests. If no arguments, run all tests.")
+    parser.add_argument('-v', '--version', action='store_true',
+                        help='Print the version and exit.')
     arguments = parser.parse_args()
-    if arguments.test is None:
+    if arguments.version:
+        print_version()
+    elif arguments.test is None:
         runtime()
     else:
         runtime_test(arguments.test)

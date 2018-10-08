@@ -1,0 +1,75 @@
+#!/bin/sh
+
+source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
+
+function get_shepherd_version {
+  bash -c "cd '$piecentral/shepherd' && pipenv run python3 Shepherd.py --version"
+}
+
+function get_runtime_version {
+  bash -c "cd '$piecentral/runtime' && pipenv run python3 runtime.py --version"
+}
+
+function get_dawn_version {
+  bash -c "cd '$piecentral/dawn' && npm run version --silent"
+}
+
+function set_runtime_version {
+  bash -c "cd '$piecentral/runtime' && sed -i -e 's/^__version__\s*=\s*.*$/__version__ = ($1, $2, $3)/g' runtimeUtil.py"
+}
+
+function set_shepherd_version {
+  bash -c "cd '$piecentral/shepherd' && sed -i -e 's/^__version__\s*=\s*.*$/__version__ = ($1, $2, $3)/g' Shepherd.py"
+}
+
+function set_dawn_version {
+  bash -c "cd '$piecentral/dawn' && sed -i -e 's/\"version\":\s*\".*\",$/\"version\": \"$1.$2.$3\",/g' package.json"
+}
+
+semver_pattern='[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+'
+if [ $(git symbolic-ref --short HEAD) != "master" ]; then
+  echo -e $yellow"Warning: you are not on the 'master' branch."$clear
+fi
+
+project="$1"
+if [ ! "$project" ]; then
+  echo "Usage: $0 [project]"
+  exit 1
+elif [ ! -d "$project" ]; then
+  echo -e $red"Error: '$1' is not a project."$clear
+  exit 2
+fi
+
+last_release=$(get_"$project"_version)
+echo -e $blue"Last release of '$project' was: $last_release"$clear
+
+last_number_pattern='[[:digit:]]+$'
+patch=$(echo "$last_release" | grep -Eo "$last_number_pattern")
+minor=$(echo "$last_release" | grep -Eo "^[[:digit:]]+\.[[:digit:]]+" | grep -Eo "$last_number_pattern")
+major=$(echo "$last_release" | grep -Eo "^[[:digit:]]+")
+
+if [ $(prompt "Increment patch version number?") ]; then
+  patch=$((patch + 1))
+elif [ $(prompt "Increment minor version number?") ]; then
+  minor=$((minor + 1))
+  patch='0'
+elif [ $(prompt "Increment major version number?") ]; then
+  echo -e $yellow"Remember that major version changes are reserved for backwards-incompatible changes."$clear
+  major=$((major + 1))
+  minor='0'
+  patch='0'
+else
+  next_release="$last_release"
+fi
+
+next_release="$major.$minor.$patch"
+echo "Next release: $next_release"
+if [ $(prompt "Confirm release number?") ]; then
+  now=$(date +%Y-%m-%dT%H%M%S)
+  tag="$project/$next_release-$now"
+  set_"$project"_version "$major" "$minor" "$patch"
+  git tag "$tag"
+  echo -e $green"Created tag: $tag"$clear
+else
+  echo -e $red"Next release number rejected. Aborting."$clear
+fi

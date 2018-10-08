@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# installlcm -- Installs LCM on Linux
+
+lcm_version=1.3.1
+lcm_archive_filename="lcm-$lcm_version.zip"
+
+# Download
+wget "https://github.com/lcm-proj/lcm/releases/download/v$lcm_version/$lcm_archive_filename"
+unzip "$lcm_archive_filename"
+cd "lcm-$lcm_version"
+
+# Install
+./configure
+make
+sudo make install
+sudo ldconfig
+
+# Cleanup
+cd ..
+rm -rf "lcm-$lcm_version"
+rm "$lcm_archive_filename"

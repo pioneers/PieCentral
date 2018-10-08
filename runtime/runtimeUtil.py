@@ -7,6 +7,8 @@ import multiprocessing
 import os
 import json
 
+__version__ = (1, 2, 0)
+
 
 class AutoIntEnum(IntEnum):
     """
@@ -27,9 +29,7 @@ class RUNTIME_CONFIG(Enum):
     DEBUG_DELIMITER_STRING      = "****************** RUNTIME DEBUG ******************"
     PIPE_READY                  = ["ready"]
     TEST_OUTPUT_DIR             = "test_outputs/"
-    VERSION_MAJOR               = 18
-    VERSION_MINOR               = 2
-    VERSION_PATCH               = 8
+    VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH = __version__
 
 
 @unique
@@ -193,6 +193,7 @@ class StudentAPITypeError(StudentAPIError):
 
 
 # Sensor type names are CamelCase, with the first letter capitalized as well
+# TODO: could we read this ahead of time and not keep the file open?
 CONFIG_FILE = open(os.path.join(os.path.dirname(__file__), '../hibike/hibikeDevices.json'), 'r')
 SENSOR_TYPE = {device_data["id"]: device_data["name"] for device_data in json.load(CONFIG_FILE)}
 SENSOR_TYPE[-1] = "runtime_version"

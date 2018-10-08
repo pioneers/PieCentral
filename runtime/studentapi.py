@@ -201,17 +201,17 @@ class Robot(StudentAPI):
     def _check_value(self, param, value):
         """Check that a value is valid for a parameter."""
         valid_values = self.param_to_valid_values[param]
+        # TODO: use descriptive names for `valid_values[0]` and `valid_values[0][0]`
         if not isinstance(value, valid_values[0]):
             raise StudentAPIValueError(
                 "Invalid value type passed in, valid types for this param are: "
                 + valid_values[0][0].__name__)
-        if valid_values[0][0] == bool:
-            return
-        elif valid_values[0][0] == float or valid_values[0][0] == int:
+        elif isinstance(valid_values[0][0], (float, int)):
             if not valid_values[1] <= value <= valid_values[2]:
                 raise StudentAPIValueError(
                     "Invalid value passed in, valid values for this param are: "
                     + str(valid_values[1]) + " to " + str(valid_values[2]))
+        # Probably `bool` here
 
     def _create_sensor_mapping(self, filename="namedPeripherals.csv"):
         with open(filename, "r") as f:

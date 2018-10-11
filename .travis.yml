@@ -55,9 +55,9 @@ deploy:
   provider: script
   script: bash DevOps/pipeline/deploy-artifacts.sh "$APP_ID" "$TRAVIS_TAG" "$(pwd)/artifacts"
   on:
-    branch: master
+    branch: devops/pipeline-fixes
     tags: true
-    condition: $DEPLOY_ARTIFACTS = 1
+    # condition: $DEPLOY_ARTIFACTS = 1
 notifications:
   slack:
     rooms:

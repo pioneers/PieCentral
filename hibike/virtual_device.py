@@ -62,17 +62,14 @@ class VirtualDevice(asyncio.Protocol):
 
     def data_received(self, data):
         self.serial_buf.extend(data)
-        zero_loc = self.serial_buf.find(self.PACKET_BOUNDARY)
+        zero_loc = self.serial_buf.find(bytes([0]))
         if zero_loc != -1:
             self.serial_buf = self.serial_buf[zero_loc:]
             packet = hm.parse_bytes(self.serial_buf)
             if packet != None:
-                # Chop off a byte so we don't output this packet again
                 self.serial_buf = self.serial_buf[1:]
                 self.read_queue.put_nowait(packet)
             elif self.serial_buf.count(self.PACKET_BOUNDARY) > 1:
-                # If there's another packet in the buffer
-                # we can safely jump to it for the next iteration
                 new_packet = self.serial_buf[1:].find(self.PACKET_BOUNDARY) + 1
                 self.serial_buf = self.serial_buf[new_packet:]
 

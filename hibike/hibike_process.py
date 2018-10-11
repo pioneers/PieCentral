@@ -8,7 +8,6 @@ import sys
 import random
 import time
 
-# pylint: disable=import-error
 import hibike_message as hm
 try:
     import hibike_packet
@@ -33,6 +32,8 @@ IDENTIFY_TIMEOUT = 1
 HOTPLUG_POLL_INTERVAL = 1
 # Whether to use profiling or not. On the BBB, profiling adds a significant overhead (~30%).
 USE_PROFILING = False
+# Where to output profiling statistics. By default, this is in Callgrind format
+PROFILING_OUTPUT_FILE = "func_stats"
 # The time period to take measurements over, in seconds
 PROFILING_PERIOD = 60
 PAUSE_QUEUE_SIZE = 10
@@ -113,6 +114,7 @@ class SmartSensorProtocol(asyncio.Protocol):
     PACKET_BOUNDARY = bytes([0])
     __slots__ = ("uid", "write_queue", "batched_data", "read_queue", "error_queue",
                  "state_queue", "instance_id", "transport", "_ready", "serial_buf")
+    # pylint: disable=too-many-arguments
     def __init__(self, devices, batched_data, error_queue, state_queue, event_loop, pending: set):
         # We haven't found out what our UID is yet
         self.uid = None
@@ -127,6 +129,7 @@ class SmartSensorProtocol(asyncio.Protocol):
         self.transport = None
         self._ready = asyncio.Event(loop=event_loop)
         if USING_PACKET_EXTENSION:
+            # pylint: disable=no-member
             self.serial_buf = hibike_packet.RingBuffer()
         else:
             self.serial_buf = bytearray()
@@ -217,6 +220,7 @@ class SmartSensorProtocol(asyncio.Protocol):
     if USING_PACKET_EXTENSION:
         def data_received(self, data):
             self.serial_buf.extend(data)
+            # pylint: disable=no-member
             maybe_packet = hibike_packet.process_buffer(self.serial_buf)
             if maybe_packet is not None:
                 message_id, payload = maybe_packet
@@ -303,7 +307,7 @@ async def print_profiler_stats(event_loop, time_delay):
     yappi.get_func_stats().print_all(out=sys.stdout,
                                      columns={0: ("name", 60), 1: ("ncall", 5), 2: ("tsub", 8),
                                               3: ("ttot", 8), 4: ("tavg", 8)})
-    yappi.get_func_stats().save("func_stats", type="callgrind")
+    yappi.get_func_stats().save(PROFILING_OUTPUT_FILE, type="callgrind")
     yappi.get_thread_stats().print_all()
 
 
@@ -319,7 +323,6 @@ class QueueContext:
         return self._queue
 
 
-# pylint: disable=unused-argument
 def hibike_process(bad_things_queue, state_queue, pipe_from_child):
     """
     Run the main hibike processs.
@@ -361,6 +364,8 @@ async def dispatch_instructions(devices, bad_things_queue, state_queue,
     parent_path = path.rstrip("hibike")
     runtime = os.path.join(parent_path, "runtime")
     sys.path.insert(1, runtime)
+    # Pylint doesn't understand our import shenanigans
+    # pylint: disable=import-error
     import runtimeUtil
 
     while True:

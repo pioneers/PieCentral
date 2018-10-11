@@ -3,6 +3,7 @@ Create a separate Hibike process, for testing.
 """
 import threading
 import time
+import queue
 from multiprocessing import Process, Pipe, Queue
 
 import hibike_process
@@ -23,8 +24,9 @@ class Hibike:
         self.hibike_process.daemon = True
         self.hibike_process.start()
         self.uids = set()
-        out_thread = threading.Thread(target=self.process_output)
-        out_thread.start()
+        self.terminating = threading.Event()
+        self.out_thread = threading.Thread(target=self.process_output)
+        self.out_thread.start()
         self.device_values_cache = {}
 
     def process_output(self):
@@ -39,8 +41,11 @@ class Hibike:
 
         If it's a device value, cache it in the dictionary.
         """
-        while True:
-            command, data = self.state_queue.get()
+        while not self.terminating.is_set():
+            try:
+                command, data = self.state_queue.get(timeout=1)
+            except queue.Empty:
+                continue
             if command == "device_subscribed":
                 uid = data[0]
                 self.uids.add(uid)
@@ -115,6 +120,14 @@ class Hibike:
         Disable all attached devices.
         """
         self.pipe_to_child.send(["disable_all", []])
+
+    def terminate(self):
+        """
+        Terminate the hibike process and clean up resources.
+        """
+        self.hibike_process.terminate()
+        self.terminating.set()
+        self.out_thread.join()
 
 # pylint: disable=too-many-branches, too-many-statements
 def run_test():

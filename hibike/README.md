@@ -1,61 +1,6 @@
-# hibike 2.0!
+# Hibike
 Hibike is a lightweight communications protocol designed for the passing of sensor data for the
 PiE Robotics Kit, a.k.a Frank or "Kit Minimum" to some.
-
-#### This branch contains documentation and implementation for the 2016-2017 version of the hibike protocol, which should feature iterative improvements over last year's protocol
-
-#### These suggestions should make their way into protocol documentation first, then implemented in code. The basic read/write functions need to be implemented in Python, and everything needs to be implemented in Arduino, before merging this branch back to develop.
-
-## Suggested Protocol Changes (Please make suggestions)
-
-1. The checksum should be changed to something more robust
-    - Janet suggested using UDP's checksum
-2. COBS encoding should be implemented cleaner
-    - It should be documented and part of the protocol itself, not a wrapper around it
-    - There should not be a redundant length field
-    - Only the first 2 bytes of a packet should not be cobs encoded
-        - 0 byte and packet length
-3. Data Update and Device Update/Status should be unified
-    - Huge advantage: The BBB polling, writing, and subscribing can have identical responses from SD, and runtime can treat them the same
-    - Protocol can abstract a device as only key value pairs
-        - Current implementaion has key value pairs and one custom "data update" struct per device
-        - Custom "data update struct" is nice because it is the exact size we need
-        - Only Key Value pairs means 32 bits per digital IO pin...
-        - Does ease of abstraction and implementaion justify larger packet length?
-        - Is packet length significant anyways?
-            - 32 bits at 115200 baud is .2 milliseconds?
-            - Someone should test actual throughput
-                - Especially how fast BBB can actually receive data
-                - Even when doing blocking reads byte by byte in python?
-                - While runtime and student code are running?
-                - With 20+ devices?
-        - Should the size of values be unique to reduce packet length?
-            - Harder to implement
-            - Both devices need to know the size of each value
-                - But they needed to know the types anyways so maybe this is ok
-    - SubRequest can specify which keys it wants to receive
-        - Each DataUpdate will have to also encode this information to be stateless
-        - What if we subscribe to more than the max payload size?
-            - Just respond with as many as you can fit?
-            - Error Packet?
-        - A uint16_t bitmask could work? 16 keys is plenty for a device
-4. Unused packets should be removed from the protocol
-    - DescriptionRequest and Response are redundant
-        - maintaing one config file is better for production
-    - Do we have a use for the error packet yet?
-        - Maybe when SD receives write requests for a read only key?
-        - Maybe when a checksum fails/unexpected 0 byte is seen?
-            - Can there be infinite loops of back and forth error packets?
-            - Maybe only SD can send errors, and they'll only be used for logging statistics
-5. Hot-Plugging behaviour should be optimized and well-defined
-    - Current status quo (rebooting BBB to add devices) is unacceptable
-    - Reenmerate devices every x seconds and also when runtime requests it
-        - Or runtime can just request it every x seconds
-    - Hibike can notify runtime when a device disconnects/connects
-    - Student code accessing disconnected devices should raise a well-defined exception in *student code*
-    - If a SD disconnects, will BBB find out until it tries reenumerating it?
-        - If so, should BBB even bother reenumerating SDs it hasn't detected as disconnected?
-
 
 
 ## Section 0: A Quick Introduction
@@ -233,9 +178,6 @@ Device Type Enumeration:
 
 Note: These assignments are totally random as of now. We need to figure
       out exactly what devices we are supporting.
-Note: As of now, Grizzlies are not supported by Hibike (pyGrizzly should
-      be used instead) But they should be in the near future, to preserve
-      the idea of treating every peripheral as a SmartDevice.
 
 Error ID Enumeration:
 
@@ -356,7 +298,7 @@ Note: These assignments are also fairly random and may not all even be
 8. Heart Beat Response: Sent in response to a Heart Beat Request
     - This message pathway is a two way street, both BBB and SD can receive requests and send responses to the other
     - Should only be sent upon receiving a Heart Beat Request
-    - Payload is currently unused, but can be used for future functionality in keeping track of individual heartbeat requests and responses (for latency purposes)
+    - The payload is used for flow control; 0 indicates that packets should be sent at full speed, and 100 indicates as slow as possible.
 
     Payload format:
 

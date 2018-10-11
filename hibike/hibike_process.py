@@ -2,7 +2,6 @@
 The main Hibike process.
 """
 import asyncio
-from collections import namedtuple
 import glob
 import os
 import sys
@@ -43,6 +42,9 @@ def scan_for_serial_ports():
     """
     Scan for serial ports that look like an Arduino.
     """
+    # Last command is included so that it's compatible with OS X Sierra
+    # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
+    # Instead access it through Volumes/vagrant/PieCentral
     return set(glob.glob("/dev/ttyACM*") +\
                glob.glob("/dev/ttyUSB*") +\
                glob.glob("/dev/tty.usbmodem*"))
@@ -56,9 +58,6 @@ async def get_working_serial_ports(event_loop, excludes=()):
         A list of port names.
     """
     excludes = set(excludes)
-    # Last command is included so that it's compatible with OS X Sierra
-    # Note: If you are running OS X Sierra, do not access the directory through vagrant ssh
-    # Instead access it through Volumes/vagrant/PieCentral
     ports = await event_loop.run_in_executor(None, scan_for_serial_ports)
     try:
         virtual_device_config_file = os.path.join(os.path.dirname(__file__), "virtual_devices.txt")
@@ -102,10 +101,18 @@ async def hotplug_async(devices, batched_data, error_queue, state_queue, event_l
 class SmartSensorProtocol(asyncio.Protocol):
     """
     Handle communication over serial with a smart sensor.
+
+    :param dict devices: Mapping from UIDs to devices
+    :param dict batched_data: Mapping from UIDs to device state
+    :param asyncio.Queue error_queue: Info about disconnects goes here
+    :param aioprocessing.Queue state_queue: Connection to StateManager
+    :param event_loop: The event loop
+    :param set pending: Set of serial connections that may or may not
+    have devices on them.
     """
     PACKET_BOUNDARY = bytes([0])
-    __slots__ = ["uid", "write_queue", "batched_data", "read_queue", "error_queue", "state_queue",
-                 "instance_id", "transport", "_ready", "serial_buf"]
+    __slots__ = ("uid", "write_queue", "batched_data", "read_queue", "error_queue",
+                 "state_queue", "instance_id", "transport", "_ready", "serial_buf")
     def __init__(self, devices, batched_data, error_queue, state_queue, event_loop, pending: set):
         # We haven't found out what our UID is yet
         self.uid = None
@@ -133,15 +140,14 @@ class SmartSensorProtocol(asyncio.Protocol):
         Try to get our UID from the sensor and register it with `hibike_process`.
         """
         await self._ready.wait()
-        hm.send_transport(self.transport, hm.make_ping())
+        hm.send(self.transport, hm.make_ping())
         await asyncio.sleep(IDENTIFY_TIMEOUT, loop=event_loop)
         if self.uid is None:
             self.quit()
         else:
-            hm.send_transport(self.transport, hm.make_ping())
-            hm.send_transport(self.transport,
-                              hm.make_subscription_request(hm.uid_to_device_id(self.uid),
-                                                           [], 0))
+            hm.send(self.transport, hm.make_ping())
+            hm.send(self.transport,
+                    hm.make_subscription_request(hm.uid_to_device_id(self.uid), [], 0))
             devices[self.uid] = self
         pending.remove(self.transport.serial.name)
 
@@ -153,25 +159,24 @@ class SmartSensorProtocol(asyncio.Protocol):
         while not self.transport.is_closing():
             instruction, args = await self.write_queue.get()
             if instruction == "ping":
-                hm.send_transport(self.transport, hm.make_ping())
+                hm.send(self.transport, hm.make_ping())
             elif instruction == "subscribe":
                 uid, delay, params = args
-                hm.send_transport(self.transport,
-                                  hm.make_subscription_request(hm.uid_to_device_id(uid),
-                                                               params, delay))
+                hm.send(self.transport,
+                        hm.make_subscription_request(hm.uid_to_device_id(uid),
+                                                     params, delay))
             elif instruction == "read":
                 uid, params = args
-                hm.send_transport(self.transport, hm.make_device_read(hm.uid_to_device_id(uid),
-                                                                      params))
+                hm.send(self.transport, hm.make_device_read(hm.uid_to_device_id(uid), params))
             elif instruction == "write":
                 uid, params_and_values = args
-                hm.send_transport(self.transport, hm.make_device_write(hm.uid_to_device_id(uid),
-                                                                       params_and_values))
+                hm.send(self.transport, hm.make_device_write(hm.uid_to_device_id(uid),
+                                                             params_and_values))
             elif instruction == "disable":
-                hm.send_transport(self.transport, hm.make_disable())
+                hm.send(self.transport, hm.make_disable())
             elif instruction == "heartResp":
                 uid = args[0]
-                hm.send_transport(self.transport, hm.make_heartbeat_response(self.read_queue.qsize()))
+                hm.send(self.transport, hm.make_heartbeat_response(self.read_queue.qsize()))
 
     async def recv_messages(self):
         """

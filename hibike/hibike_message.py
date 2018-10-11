@@ -570,7 +570,10 @@ def cobs_decode(data):
     """
     Decode COBS-encoded DATA.
     """
-    return bytearray(cobs.decode(data))
+    try:
+        return bytearray(cobs.decode(data))
+    except cobs.DecodeError:
+        return bytearray()
 
 
 class HibikeMessageException(Exception):

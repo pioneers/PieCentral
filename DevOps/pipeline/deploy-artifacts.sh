@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: bash DevOps/pipeline/artifacts-pipeline.sh "$APP_ID" "$TRAVIS_TAG"
+# Usage: bash DevOps/pipeline/artifacts-pipeline.sh "<app-id>" "<tag>" "<artifacts-dir>"
 
 pushd DevOps
 pipenv install --dev

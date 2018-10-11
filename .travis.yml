@@ -49,15 +49,17 @@ branches:
     - master
     - /^shepherd\/.*$/
     - /^dawn\/.*$/
+    - /^devops\/.*$/
+    - /^hibike\/.*$/
     - /^runtime\/.*$/
     - /^test\/.*$/
 deploy:
   provider: script
   script: bash DevOps/pipeline/deploy-artifacts.sh "$APP_ID" "$TRAVIS_TAG" "$(pwd)/artifacts"
   on:
-    branch: devops/pipeline-fixes
+    branch: master
     tags: true
-    # condition: $DEPLOY_ARTIFACTS = 1
+    condition: $DEPLOY_ARTIFACTS = 1
 notifications:
   slack:
     rooms:

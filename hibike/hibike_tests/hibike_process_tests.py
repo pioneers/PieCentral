@@ -114,7 +114,10 @@ class ReadWriteTests(unittest.TestCase):
     VIRTUAL_DEVICE_TYPES = ["RFID", "LimitSwitch", "BatteryBuzzer",
                             "YogiBear", "YogiBear", "YogiBear"]
     HIBIKE_STARTUP_TIME = 2
+    # Reads and writes take time to take effect
     READ_WRITE_DELAY = 0.25
+    # Reads and writes can ocasionally fail; for reliability,
+    # do them multiple times
     READ_WRITE_ATTEMPTS = 3
 
     def setUp(self):

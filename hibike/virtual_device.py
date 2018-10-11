@@ -8,30 +8,31 @@ $ socat -d -d pty,raw,echo=0 pty,raw,echo=0
 2016/09/20 21:29:03 socat[4165] N starting data transfer loop with FDs [3,3] and [5,5]
 $ python3.5 virtual_device.py -d LimitSwitch -p /dev/pts/26
 """
+import argparse
 import asyncio
 import json
 import random
-import time
-import argparse
 import struct
+import time
 
 # pylint: disable=import-error
 import serial_asyncio
 import hibike_message as hm
-from hibike_process_async import SmartSensorProtocol
 
 
 # Format of default values storage:
 # {"DeviceName": {"param1": value1, "param2": value2}}
 DEFAULT_VALUES_FILE = "virtual_device_defaults.json"
-DEFAULT_VALUES = json.load(open(DEFAULT_VALUES_FILE))
+with open(DEFAULT_VALUES_FILE) as f:
+    DEFAULT_VALUES = json.load(f)
 
 
-class VirtualDevice(SmartSensorProtocol):
+class VirtualDevice(asyncio.Protocol):
     """
     A fake Hibike smart sensor.
     """
-    HEARTBEAT_DELAY_MS = 200
+    HEARTBEAT_DELAY_MS = 100
+    PACKET_BOUNDARY = bytes([0])
     def __init__(self, uid, event_loop, verbose=False):
         self.uid = uid
         self.event_loop = event_loop
@@ -42,6 +43,7 @@ class VirtualDevice(SmartSensorProtocol):
 
         self.update_time = 0
         self.delay = 0
+        self.transport = None
 
         self.response_map = {
             hm.MESSAGE_TYPES["Ping"]: self._process_ping,
@@ -57,6 +59,23 @@ class VirtualDevice(SmartSensorProtocol):
         event_loop.create_task(self.process_messages())
         event_loop.create_task(self.send_subscribed_params())
         event_loop.create_task(self.request_heartbeats())
+
+    def data_received(self, data):
+        self.serial_buf.extend(data)
+        zero_loc = self.serial_buf.find(self.PACKET_BOUNDARY)
+        if zero_loc != -1:
+            self.serial_buf = self.serial_buf[zero_loc:]
+            packet = hm.parse_bytes(self.serial_buf)
+            if packet != None:
+                # Chop off a byte so we don't output this packet again
+                self.serial_buf = self.serial_buf[1:]
+                self.read_queue.put_nowait(packet)
+            elif self.serial_buf.count(self.PACKET_BOUNDARY) > 1:
+                # If there's another packet in the buffer
+                # we can safely jump to it for the next iteration
+                new_packet = self.serial_buf[1:].find(self.PACKET_BOUNDARY) + 1
+                self.serial_buf = self.serial_buf[new_packet:]
+
 
     def verbose_log(self, fmt_string, *fmt_args):
         """Log a message if verbosity is enabled."""
@@ -87,7 +106,7 @@ class VirtualDevice(SmartSensorProtocol):
                     data = []
                     for param in self.subscribed_params:
                         data.append((param, self.param_values[param]))
-                    hm.send_transport(self.transport, hm.make_device_data(device_id, data))
+                    hm.send(self.transport, hm.make_device_data(device_id, data))
                     self.update_time = time.time()
                     self.verbose_log("Regular data update sent from {}",
                                      hm.uid_to_device_name(self.uid))
@@ -97,14 +116,14 @@ class VirtualDevice(SmartSensorProtocol):
         await self._ready.wait()
         while not self.transport.is_closing():
             await asyncio.sleep(self.HEARTBEAT_DELAY_MS/1000, loop=self.event_loop)
-            hm.send_transport(self.transport, hm.make_heartbeat_request())
+            hm.send(self.transport, hm.make_heartbeat_request())
 
     # pylint: disable=unused-argument
     def _process_ping(self, msg):
         """Respond to a ping packet."""
         self.verbose_log("Ping received")
         dev_id = hm.uid_to_device_id(self.uid)
-        hm.send_transport(self.transport, hm.make_subscription_response(dev_id, [], 0, self.uid))
+        hm.send(self.transport, hm.make_subscription_response(dev_id, [], 0, self.uid))
 
     def _process_sub_request(self, msg):
         """Respond to a subscription request with an appropriate response."""
@@ -113,8 +132,8 @@ class VirtualDevice(SmartSensorProtocol):
         self.verbose_log("Subscription request received")
         params, delay = struct.unpack("<HH", msg.get_payload())
         subscribed_params = hm.decode_params(dev_id, params)
-        hm.send_transport(self.transport,
-                          hm.make_subscription_response(dev_id, subscribed_params, delay, self.uid))
+        hm.send(self.transport,
+                hm.make_subscription_response(dev_id, subscribed_params, delay, self.uid))
         self.delay = delay
         self.subscribed_params.update(set(subscribed_params))
 
@@ -122,7 +141,7 @@ class VirtualDevice(SmartSensorProtocol):
         self.verbose_log("Device read received")
         device_id = hm.uid_to_device_id(self.uid)
         # Send a device data with the requested param and value tuples
-        params = struct.unpack("<H", msg.get_payload())
+        params, = struct.unpack("<H", msg.get_payload())
         read_params = hm.decode_params(device_id, params)
         read_data = []
 
@@ -130,7 +149,7 @@ class VirtualDevice(SmartSensorProtocol):
             if not (hm.readable(device_id, param) and param in self.param_values):
                 raise ValueError("Tried to read unreadable parameter {}".format(param))
             read_data.append((param, self.param_values[param]))
-        hm.send_transport(self.transport, hm.make_device_data(device_id, read_data))
+        hm.send(self.transport, hm.make_device_data(device_id, read_data))
 
     def _process_device_write(self, msg):
         # Write to requested parameters
@@ -148,13 +167,17 @@ class VirtualDevice(SmartSensorProtocol):
         for (param, value) in write_params_and_values:
             if hm.readable(device_id, param):
                 updated_params.append((param, value))
-        hm.send_transport(self.transport, hm.make_device_data(device_id, updated_params))
+        hm.send(self.transport, hm.make_device_data(device_id, updated_params))
 
     def _process_disable(self, msg):
         pass
 
     def _process_heartbeat_response(self, msg):
         pass
+
+    def connection_made(self, transport):
+        self.transport = transport
+        self._ready.set()
 
     def connection_lost(self, exc):
         """
@@ -206,7 +229,7 @@ def main():
         return VirtualDevice(uid, event_loop, args.verbose)
 
     event_loop.create_task(serial_asyncio.create_serial_connection(event_loop, protocol_factory,
-                                                                port, baudrate=115200))
+                                                                   port, baudrate=115200))
     event_loop.run_forever()
 
 

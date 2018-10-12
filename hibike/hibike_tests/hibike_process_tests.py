@@ -2,7 +2,9 @@
 Unit tests for functions in hibike_process.
 """
 import asyncio
+import os
 import random
+import sys
 import time
 import unittest
 
@@ -14,6 +16,17 @@ from hibike_process import hotplug_async
 from hibike_tests.utils import AsyncTestCase
 import hibike_message as hm
 from hibike_tester import Hibike
+
+# We must import runtimeUtil to deserialize error messages
+path = os.path.dirname(os.path.abspath(__file__))
+parent_path = path.rstrip("hibike_tests").rstrip("hibike/")
+runtime = os.path.join(parent_path, "runtime")
+sys.path.insert(1, runtime)
+# Pylint doesn't understand our import shenanigans
+# pylint: disable=import-error
+import runtimeUtil
+
+
 
 
 VIRTUAL_DEVICE_STARTUP_TIME = 2
@@ -170,3 +183,12 @@ class ReadWriteTests(unittest.TestCase):
                 self.write(uid, [("duty_cycle", new_val)])
                 new_hibike_val = self.hibike.get_last_cached(uid, "duty_cycle")
                 self.assertAlmostEqual(new_hibike_val, new_val)
+
+    def test_nonexistent_device(self):
+        """
+        Nonexistent device operations should error.
+        """
+        self.read("0x123456789", "duty_cycle")
+        self.hibike.bad_things_queue.get(block=False)
+
+

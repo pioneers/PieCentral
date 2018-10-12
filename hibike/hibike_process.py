@@ -376,16 +376,13 @@ async def dispatch_instructions(devices, bad_things_queue, state_queue,
                     pack.write_queue.put_nowait(("ping", []))
             elif instruction == "subscribe_device":
                 uid = args[0]
-                if uid in devices:
-                    devices[uid].write_queue.put_nowait(("subscribe", args))
+                devices[uid].write_queue.put_nowait(("subscribe", args))
             elif instruction == "write_params":
                 uid = args[0]
-                if uid in devices:
-                    devices[uid].write_queue.put_nowait(("write", args))
+                devices[uid].write_queue.put_nowait(("write", args))
             elif instruction == "read_params":
                 uid = args[0]
-                if uid in devices:
-                    devices[uid].write_queue.put_nowait(("read", args))
+                devices[uid].write_queue.put_nowait(("read", args))
             elif instruction == "disable_all":
                 for pack in devices.values():
                     pack.write_queue.put_nowait(("disable", []))

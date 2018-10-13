@@ -49,15 +49,15 @@ branches:
     - master
     - /^shepherd\/.*$/
     - /^dawn\/.*$/
+    - /^devops\/.*$/
+    - /^hibike\/.*$/
     - /^runtime\/.*$/
     - /^test\/.*$/
 deploy:
   provider: script
-  script:
-    - pushd DevOps/pipeline
-    - pipenv run python3 pipeline.py -k piecentral-artifacts.pem -a "$APP_ID" -t "$TRAVIS_TAG" -d artifacts
-    - popd
+  script: bash DevOps/pipeline/deploy-artifacts.sh "$APP_ID" "$TRAVIS_TAG" "$(pwd)/artifacts"
   on:
+    branch: master
     tags: true
     condition: $DEPLOY_ARTIFACTS = 1
 notifications:

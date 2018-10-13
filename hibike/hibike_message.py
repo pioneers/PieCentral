@@ -7,6 +7,9 @@ import struct
 import os
 import json
 import threading
+from functools import lru_cache
+
+from cobs import cobs
 
 CONFIG_FILE = open(os.path.join(
     os.path.dirname(__file__), 'hibikeDevices.json'), 'r')
@@ -141,16 +144,18 @@ def checksum(data):
     return chk
 
 
-def send(serial_conn, message):
+def send(connection, message):
     """
-    Send MESSAGE over SERIAL_CONN.
+    Send ``message`` over ``connection``.
+
+    This function accepts regular serial ports or asynchronous transports.
     """
     m_buff = message.to_bytes()
     chk = checksum(m_buff)
     m_buff.append(chk)
     encoded = cobs_encode(m_buff)
     out_buf = bytearray([0x00, len(encoded)]) + encoded
-    serial_conn.write(out_buf)
+    connection.write(out_buf)
 
 
 def encode_params(device_id, params):
@@ -171,6 +176,7 @@ def encode_params(device_id, params):
     return mask
 
 
+@lru_cache(maxsize=128)
 def decode_params(device_id, params_bitmask):
     """
     Decode PARAMS_BITMASK.
@@ -193,7 +199,8 @@ def decode_params(device_id, params_bitmask):
     return named_params
 
 
-def format_string(device_id, params):
+@lru_cache(maxsize=128)
+def format_string_cached(device_id, params):
     """
     A string representation of the types of PARAMS.
     """
@@ -203,6 +210,14 @@ def format_string(device_id, params):
     for ptype_key in param_types:
         type_string += PARAM_TYPES[ptype_key]
     return type_string
+
+
+def format_string(device_id, params):
+    """
+    Shim for ``format_string``, to ensure all argumets
+    have hashable types.
+    """
+    return format_string_cached(device_id, tuple(params))
 
 
 def make_ping():
@@ -218,6 +233,12 @@ def make_disable():
     message = HibikeMessage(MESSAGE_TYPES["Disable"], payload)
     return message
 
+
+def make_heartbeat_request(heartbeat_id=0):
+    """Return a heartbeat request."""
+    payload = bytearray(struct.pack("<B", heartbeat_id))
+    message = HibikeMessage(MESSAGE_TYPES["HeartBeatRequest"], payload)
+    return message
 
 def make_heartbeat_response(heartbeat_id=0):
     """ Makes and returns HeartBeat message."""
@@ -388,19 +409,18 @@ def parse_bytes(msg_bytes):
     """
     if len(msg_bytes) < 2:
         return None
-    cobs_frame, message_size = struct.unpack('<BB', msg_bytes[:2])
+    cobs_frame, message_size = msg_bytes[:2]
     if cobs_frame != 0 or len(msg_bytes) < message_size + 2:
         return None
     message = cobs_decode(msg_bytes[2:message_size + 2])
 
     if len(message) < 2:
         return None
-    message_id, payload_length = struct.unpack('<BB', message[:2])
+    message_id, payload_length = message[0], message[1]
     if len(message) < 2 + payload_length + 1:
         return None
     payload = message[2:2 + payload_length]
-    chk = struct.unpack(
-        '<B', message[2 + payload_length:2 + payload_length + 1])[0]
+    chk = message[2 + payload_length]
     if chk != checksum(message[:-1]):
         return None
     return HibikeMessage(message_id, payload)
@@ -534,40 +554,17 @@ def cobs_encode(data):
     """
     COBS-encode DATA.
     """
-    output = bytearray()
-    curr_block = bytearray()
-    for byte in data:
-        if byte:
-            curr_block.append(byte)
-            if len(curr_block) == 254:
-                output.append(1 + len(curr_block))
-                output.extend(curr_block)
-                curr_block = bytearray()
-        else:
-            output.append(1 + len(curr_block))
-            output.extend(curr_block)
-            curr_block = bytearray()
-    output.append(1 + len(curr_block))
-    output.extend(curr_block)
-    return output
+    return bytearray(cobs.encode(data))
 
 
 def cobs_decode(data):
     """
     Decode COBS-encoded DATA.
     """
-    output = bytearray()
-    index = 0
-    while index < len(data):
-        block_size = data[index] - 1
-        index += 1
-        if index + block_size > len(data):
-            return bytearray()
-        output.extend(data[index:index + block_size])
-        index += block_size
-        if block_size + 1 < 255 and index < len(data):
-            output.append(0)
-    return output
+    try:
+        return bytearray(cobs.decode(data))
+    except cobs.DecodeError:
+        return bytearray()
 
 
 class HibikeMessageException(Exception):

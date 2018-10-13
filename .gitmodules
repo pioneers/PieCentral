@@ -1,0 +1,3 @@
+[submodule "hibike/hibike_packet"]
+	path = hibike/hibike_packet
+	url = git@github.com:baby-bell/hibike_packet.git

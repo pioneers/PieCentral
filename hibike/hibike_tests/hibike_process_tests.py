@@ -138,7 +138,7 @@ class ReadWriteTests(unittest.TestCase):
     READ_WRITE_DELAY = 0.25
     # Reads and writes can ocasionally fail; for reliability,
     # do them multiple times
-    READ_WRITE_ATTEMPTS = 5
+    READ_WRITE_ATTEMPTS = 10
 
     def setUp(self):
         spawn_virtual_devices(self.VIRTUAL_DEVICE_TYPES)

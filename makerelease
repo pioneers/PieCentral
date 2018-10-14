@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Usage: makerelease (tag|update) <project>
+#
+# Script for creating tags in a standard format interactively.
+
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 
 function get_shepherd_version {
@@ -26,50 +30,65 @@ function set_dawn_version {
   bash -c "cd '$piecentral/dawn' && sed -i -e 's/\"version\":\s*\".*\",$/\"version\": \"$1.$2.$3\",/g' package.json"
 }
 
-semver_pattern='[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+'
-if [ $(git symbolic-ref --short HEAD) != "master" ]; then
-  echo -e $yellow"Warning: you are not on the 'master' branch."$clear
-fi
+cmd="$1"
+project="$2"
+usage="Usage: $0 (update|tag|help) [options]
 
-project="$1"
-if [ ! "$project" ]; then
-  echo "Usage: $0 [project]"
+Commands:
+  update <project>  Interactively increment a version number according to
+                    semantic versioning. The updated version number is written
+                    back to the file where the version number for a project is
+                    stored. You must add and commit this change before merging
+                    a feature branch.
+  tag <project>     Use the project's version number to tag the current commit
+                    with a standard name. You should use this after a feature
+                    branch has been merged into master to trigger a release
+                    from Travis. You will need to push the newly generated tag
+                    yourself.
+  help              Display this help message."
+if [ "$cmd" != 'tag' ] && [ "$cmd" != 'update' ] || [ ! "$project" ] || [ "$cmd" = 'help' ]; then
+  echo "$usage"
   exit 1
 elif [ ! -d "$project" ]; then
   echo -e $red"Error: '$1' is not a project."$clear
   exit 2
 fi
 
-last_release=$(get_"$project"_version)
-echo -e $blue"Last release of '$project' was: $last_release"$clear
+semver_pattern='[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+'
 
-last_number_pattern='[[:digit:]]+$'
-patch=$(echo "$last_release" | grep -Eo "$last_number_pattern")
-minor=$(echo "$last_release" | grep -Eo "^[[:digit:]]+\.[[:digit:]]+" | grep -Eo "$last_number_pattern")
-major=$(echo "$last_release" | grep -Eo "^[[:digit:]]+")
-
-if [ $(prompt "Increment patch version number?") ]; then
-  patch=$((patch + 1))
-elif [ $(prompt "Increment minor version number?") ]; then
-  minor=$((minor + 1))
-  patch='0'
-elif [ $(prompt "Increment major version number?") ]; then
-  echo -e $yellow"Remember that major version changes are reserved for backwards-incompatible changes."$clear
-  major=$((major + 1))
-  minor='0'
-  patch='0'
-else
-  next_release="$last_release"
-fi
-
-next_release="$major.$minor.$patch"
-echo "Next release: $next_release"
-if [ $(prompt "Confirm release number?") ]; then
+if [ "$cmd" = 'tag' ]; then
+  if [ $(git symbolic-ref --short HEAD) != "master" ]; then
+    echo -e $yellow"Warning: you are not on the 'master' branch."$clear
+  fi
   now=$(date +%Y-%m-%dT%H%M%S)
-  tag="$project/$next_release-$now"
-  set_"$project"_version "$major" "$minor" "$patch"
+  tag="$project/$(get_"$project"_version)-$now"
   git tag "$tag"
   echo -e $green"Created tag: $tag"$clear
 else
-  echo -e $red"Next release number rejected. Aborting."$clear
+  last_release=$(get_"$project"_version)
+  echo -e $blue"Last release of '$project' was: $last_release"$clear
+
+  last_number_pattern='[[:digit:]]+$'
+  patch=$(echo "$last_release" | grep -Eo "$last_number_pattern")
+  minor=$(echo "$last_release" | grep -Eo "^[[:digit:]]+\.[[:digit:]]+" | grep -Eo "$last_number_pattern")
+  major=$(echo "$last_release" | grep -Eo "^[[:digit:]]+")
+
+  if [ $(prompt "Increment patch version number?") ]; then
+    patch=$((patch + 1))
+  elif [ $(prompt "Increment minor version number?") ]; then
+    minor=$((minor + 1))
+    patch='0'
+  elif [ $(prompt "Increment major version number?") ]; then
+    echo -e $yellow"Remember that major version changes are reserved for backwards-incompatible changes."$clear
+    major=$((major + 1))
+    minor='0'
+    patch='0'
+  fi
+
+  echo "Next release: $major.$minor.$patch"
+  if [ $(prompt "Confirm release number?") ]; then
+    set_"$project"_version "$major" "$minor" "$patch"
+  else
+    echo -e $red"Next release number rejected. Aborting."$clear
+  fi
 fi

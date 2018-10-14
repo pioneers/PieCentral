@@ -215,21 +215,21 @@ uint16_t uint16_from_message(message_t* msg, uint8_t* offset) {
 }
 uint32_t uint32_from_message(message_t* msg, uint8_t* offset) {
   uint32_t res = (msg->payload[*offset + 0] & 0xFF) << 0;
-  res |= (msg->payload[*offset + 1] & 0xFF) << 8;
-  res |= (msg->payload[*offset + 2] & 0xFF) << 16;
-  res |= (msg->payload[*offset + 3] & 0xFF) << 24;
+  res |= (uint32_t)(msg->payload[*offset + 1] & 0xFF) << 8;
+  res |= (uint32_t)(msg->payload[*offset + 2] & 0xFF) << 16;
+  res |= (uint32_t)(msg->payload[*offset + 3] & 0xFF) << 24;
   *offset += sizeof(res);
   return res;
 }
 uint64_t uint64_from_message(message_t* msg, uint8_t* offset) {
   uint64_t res = (msg->payload[*offset + 0] & 0xFF) << 0;
-  res |= (msg->payload[*offset + 1] & 0xFF) << 8;
-  res |= (msg->payload[*offset + 2] & 0xFF) << 16;
-  res |= (msg->payload[*offset + 3] & 0xFF) << 24;
-  res |= (msg->payload[*offset + 4] & 0xFF) << 32;
-  res |= (msg->payload[*offset + 5] & 0xFF) << 40;
-  res |= (msg->payload[*offset + 6] & 0xFF) << 48;
-  res |= (msg->payload[*offset + 7] & 0xFF) << 56;
+  res |= (uint64_t)(msg->payload[*offset + 1] & 0xFF) << 8;
+  res |= (uint64_t)(msg->payload[*offset + 2] & 0xFF) << 16;
+  res |= (uint64_t)(msg->payload[*offset + 3] & 0xFF) << 24;
+  res |= (uint64_t)(msg->payload[*offset + 4] & 0xFF) << 32;
+  res |= (uint64_t)(msg->payload[*offset + 5] & 0xFF) << 40;
+  res |= (uint64_t)(msg->payload[*offset + 6] & 0xFF) << 48;
+  res |= (uint64_t)(msg->payload[*offset + 7] & 0xFF) << 56;
   *offset += sizeof(res);
   return res;  
 }

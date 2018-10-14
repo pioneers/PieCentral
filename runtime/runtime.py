@@ -375,7 +375,7 @@ def terminate_process(process_name):
         return
     process = ALL_PROCESSES.pop(process_name)
     process.terminate()
-    for _ in range(100):  # Gives 1 sec for process to terminate
+    for _ in range(300):  # Gives 3 seconds for process to terminate
         time.sleep(.01)  # Give the OS a chance to terminate the other process
         if not process.is_alive():
             break

@@ -15,6 +15,23 @@ uint64_t prev_sub_time, curr_time, sent_heartbeat, resp_heartbeat, prevHeartTime
 led_state heartbeat_state;
 bool led_enabled;
 
+// Set this when a heartbeat response is received.
+static uint8_t queue_fullness;
+// Set this to the maximum tolerable subscription delay.
+const float MAX_SUB_DELAY_MS = 250.0f;
+// Set this to the minimum tolerable subscription delay.
+const float MIN_SUB_DELAY_MS = 40.0f;
+// Tune this.
+const float ALPHA = 0.25f;
+
+void update_sub_delay(void) {
+    // Clamp queue_fullness just in case it's greater than 100
+    queue_fullness = min(queue_fullness, 100);
+    // Interpolate between the maximum and minimum delay
+    float new_delay = max(MAX_SUB_DELAY_MS * queue_fullness / 100, MIN_SUB_DELAY_MS);
+    sub_delay = (uint16_t)(ALPHA * sub_delay + (1 - ALPHA) * new_delay);
+}
+
 void hibike_setup(uint32_t _disable_latency, uint32_t _heartbeat_delay) {
   //heartbeat_delay to 0 to not send heartbeat Requests
   //disable_latency to 0 to not disable on lack of heartbeats.
@@ -100,6 +117,9 @@ void hibike_loop() {
 
         case HEART_BEAT_RESPONSE:
           resp_heartbeat = curr_time;
+          // update sub delay with the queue fullness
+          queue_fullness = *((uint8_t*) &hibike_buff.payload[1]);
+          update_sub_delay();
           break;
 
         case PING:

@@ -29,20 +29,20 @@ Look at hibike/devices/ExampleDevice for an example implementation of a hibike d
 
 Device specific firmware must:
 
- - Implement the arduino setup() and loop() functions, which must call hibike_setup() and hibike_loop() correspondingly
- - Implement device_write() and device_data_update(), which are called when the BBB wants to either write to the device or get a data update from the device. 
+ - Implement the arduino `setup()` and `loop()` functions, which must call `hibike_setup()` and `hibike_loop()` correspondingly
+ - Implement `device_write()` and `device_read()`, which are called when the BBB wants to write to or read from the device, respectively.
    - Both functions are given with a buffer containing data and a param index. Because params can have different data types and therefore values with different sizes, these functions must return the number of bytes they read from/wrote to their buffer.
    - Both functions are given the size of the buffer to avoid overflow. They must return 0 if their normal operation would overflow the buffer.
  - Conform to their device type definition described in hibikeDevices.json
  - Have the uid in their .h file filled out correctly
    - The uid references the device type id, which by convention is defined in an enum in hibike/lib/hibike/devices.h
- - Call hibike_loop() at a higher frequency than both
+ - Call `hibike_loop()` at a higher frequency than both
    - The expected frequency of the BBB sending packets to the device
    - The expected subscription frequency (The BBB will subscribe to device data updates at some frequency)
 
 ### Using libraries in device firmware
 
-For standard arduino libraries like <Servo.h> or <SPI.h>:
+For standard arduino libraries like `<Servo.h>` or `<SPI.h>`:
 
  - go to hibike/Makefile and update the line that looks starts with `ARDUINO_LIBS :=`
 

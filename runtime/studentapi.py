@@ -142,6 +142,19 @@ class Robot(StudentAPI):
         self._check_value(param, value)
         self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [(param, value)]]])
 
+    def set_motor(self, device_name, value):
+        uid = self._hibike_get_uid(device_name)
+        self._check_write_params(uid, "duty_cycle")
+        self._check_value("duty_cycle", value)
+        self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", value)]]])
+
+    def stop_motor(self, device_name):
+        uid = self._hibike_get_uid(device_name)
+        self._check_write_params(uid, "duty_cycle")
+        self._check_value("duty_cycle", 0)
+        self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", 0)]]])
+
+
     def run(self, func, *args, **kwargs):
         """
         Starts a "coroutine", i.e. a series of actions that proceed

@@ -254,7 +254,9 @@ class Robot(StudentAPI):
         try:
             # TODO: Implement sensor mappings, right now uid is the number (or string of number)
             device = int(name)
-            return self.peripherals[device]
+            if device in self.peripherals:
+                return device
+            raise KeyError(str(device))
         except (ValueError, KeyError) as exc:
             raise StudentAPIKeyError('Device not found: ' + str(name)) from exc
 

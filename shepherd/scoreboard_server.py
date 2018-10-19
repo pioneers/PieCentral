@@ -38,31 +38,12 @@ def receiver():
             elif event[0] == SCOREBOARD_HEADER.TEAMS:
                 socketio.emit(SCOREBOARD_HEADER.TEAMS, json.dumps(event[1], ensure_ascii=False))
 
-            elif event[0] == SCOREBOARD_HEADER.BID_TIMER_START:
-                socketio.emit(SCOREBOARD_HEADER.BID_TIMER_START,
-                              json.dumps(event[1], ensure_ascii=False))
-
-            elif event[0] == SCOREBOARD_HEADER.BID_TIMER:
-                socketio.emit(SCOREBOARD_HEADER.BID_TIMER,
-                              json.dumps(event[1], ensure_ascii=False))
-
-            elif event[0] == SCOREBOARD_HEADER.BID_AMOUNT:
-                socketio.emit(SCOREBOARD_HEADER.BID_AMOUNT,
-                              json.dumps(event[1], ensure_ascii=False))
-
             elif event[0] == SCOREBOARD_HEADER.RESET_TIMERS:
                 socketio.emit(SCOREBOARD_HEADER.RESET_TIMERS,
                               json.dumps(event[1], ensure_ascii=False))
 
             elif event[0] == SCOREBOARD_HEADER.STAGE_TIMER_START:
                 socketio.emit(SCOREBOARD_HEADER.STAGE_TIMER_START,
-                              json.dumps(event[1], ensure_ascii=False))
-
-            elif event[0] == SCOREBOARD_HEADER.POWERUPS:
-                socketio.emit(SCOREBOARD_HEADER.POWERUPS, json.dumps(event[1], ensure_ascii=False))
-
-            elif event[0] == SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER:
-                socketio.emit(SCOREBOARD_HEADER.ALLIANCE_MULTIPLIER,
                               json.dumps(event[1], ensure_ascii=False))
             #if event[0] == SCOREBOARD_HEADER.ALL_INFO):
             #    socketio.emit('server-to-gui-all-info', json.dumps(event[1], ensure_ascii=False))

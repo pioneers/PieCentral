@@ -19,10 +19,6 @@ socketio = SocketIO(app)
 def hello_world():
     return 'Hello, World!'
 
-@app.route('/RFID_control.html/')
-def RFID_control():
-    return render_template('RFID_control.html')
-
 @app.route('/score_adjustment.html/')
 def score_adjustment():
     return render_template('score_adjustment.html')
@@ -43,11 +39,6 @@ def ui_to_server_scores(scores):
 @socketio.on('ui-to-server-score-request')
 def ui_to_server_score_request():
     lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.GET_SCORES)
-
-#RFID_control
-@socketio.on('ui-to-server-rfid-request')
-def ui_to_server_rfid_request():
-    lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.GENERATE_RFID)
 
 #Main GUI
 @socketio.on('ui-to-server-teams-info-request')
@@ -70,17 +61,13 @@ def ui_to_server_reset_match():
 def receiver():
     events = gevent.queue.Queue()
     lcm_start_read(str.encode(LCM_TARGETS.UI), events)
-    counter = 0
 
     while True:
-        counter = (counter + 1) % 10
 
         if not events.empty():
             event = events.get_nowait()
             print("RECEIVED:", event)
-            if event[0] == UI_HEADER.RFID_LIST:
-                socketio.emit('server-to-ui-rfidlist', json.dumps(event[1], ensure_ascii=False))
-            elif event[0] == UI_HEADER.TEAMS_INFO:
+            if event[0] == UI_HEADER.TEAMS_INFO:
                 socketio.emit('server-to-ui-teamsinfo', json.dumps(event[1], ensure_ascii=False))
             elif event[0] == UI_HEADER.SCORES:
                 socketio.emit('server-to-ui-scores', json.dumps(event[1], ensure_ascii=False))

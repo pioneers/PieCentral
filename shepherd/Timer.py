@@ -26,11 +26,6 @@ class busyThread(threading.Thread):
                 event = heapq.heappop(self.queue)
                 if event.timer_type == TIMER_TYPES.MATCH:
                     LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
-                if event.timer_type == TIMER_TYPES.BID:
-                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.BID_TIMER_END,
-                                 {"goal": event.goal_name})
-                if event.timer_type == TIMER_TYPES.CODE_COOLDOWN:
-                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.CODE_COOLDOWN_END)
                 event.active = False
                 Timer.queueLock.release()
         for timer in self.queue:
@@ -58,16 +53,7 @@ class Timer:
     def __init__(self, timer_type, goal_name=None):
         """
         timer_type - a Enum representing the type of timer that this is:
-                        TIMER_TYPES.BID - represents a bid timer
                         TIMER_TYPES.MATCH - represents the time of the current
-                                            stage in the match
-                        TIMER_TYPES.COOLDOWN - represents a cooldown timer for
-                                               the cooldown when a powerup
-                                               cannot be applied
-                        TIMER_TYPES.CODE_COOLDOWN - represents a cooldown timer
-                                                    for a code
-                        TIMER_TYPES.DURATION - represents a duration timer for
-                                               a powerup
         """
         self.active = False
         self.timer_type = timer_type

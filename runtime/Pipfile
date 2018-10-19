@@ -2,12 +2,23 @@
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
+
 [requires]
-python_version = "3.5"
+python_version = "3.7"
+
 
 [packages]
+click = "*"
 protobuf = "==3.2.0"
 pyserial = "==3.2.1"
+flask = "*"
+aioprocessing = "*"
+pyserial-asyncio = "*"
+aiofiles = "*"
+uvloop = "*"
+cobs = "*"
+
 
 [dev-packages]
 pylint = "==1.8.1"
+yappi = "*"

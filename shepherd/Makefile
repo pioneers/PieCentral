@@ -1,7 +1,8 @@
 .PHONY: install artifacts-install lint test artificats
 
 install:
-	pip3 install -r requirements.txt
+	pipenv install --dev
+	./installlcm
 
 artifacts-install:
 	$(nop)

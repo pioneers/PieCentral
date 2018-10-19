@@ -15,7 +15,8 @@
     "lint": "eslint .",
     "watch": "webpack --mode development --watch --progress",
     "test": "mocha --require babel-core/register --recursive renderer/**/test/*.test.js",
-    "release": "node release.js"
+    "release": "node release.js",
+    "version": "echo $npm_package_version"
   },
   "betterScripts": {
     "start": {

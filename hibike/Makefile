@@ -55,7 +55,7 @@ AVRDUDE_CONF		 = /opt/arduino-1.8.1/hardware/tools/avr/etc/avrdude.conf
 CFLAGS_STD        = -std=gnu11
 
 ### CXXFLAGS_STD
-CXXFLAGS_STD      = -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -fno-devirtualize -fno-use-cxa-atexit
+CXXFLAGS_STD      = -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -fno-devirtualize -fno-use-cxa-atexit -fno-strict-aliasing
 
 ### CPPFLAGS
 ### Flags you might want to set for debugging purpose. Comment to stop.

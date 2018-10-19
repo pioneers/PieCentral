@@ -6,22 +6,28 @@ python:
 os:
   - linux
 env:
-  - TEST_DIR=dawn
-  - TEST_DIR=hibike/travis
-  - TEST_DIR=runtime
-  - TEST_DIR=shepherd
+  global:
+    - APP_ID=15634
+  matrix:
+    - TEST_DIR=dawn
+    - TEST_DIR=hibike/travis
+    - TEST_DIR=runtime
+    - TEST_DIR=shepherd
 cache:
   pip: true
   directories:
     - node_modules
     - $HOME/.cache/yarn
 before_install:
+  - openssl aes-256-cbc -K $encrypted_516b8f19f8a6_key -iv $encrypted_516b8f19f8a6_iv -in DevOps/pipeline/piecentral-artifacts.pem.encrypted -out DevOps/pipeline/piecentral-artifacts.pem -d
   - nvm install --lts
   - pip3 install pipenv
   - mkdir -p artifacts
   - if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then
     export DEPLOY_ARTIFACTS=1; fi
   - if [[ $TEST_DIR = runtime ]] && git tag -l --points-at HEAD | grep runtime; then
+    export DEPLOY_ARTIFACTS=1; fi
+  - if [[ $TEST_DIR = shepherd ]] && git tag -l --points-at HEAD | grep shepherd; then
     export DEPLOY_ARTIFACTS=1; fi
   - pushd $TEST_DIR
   - mkdir -p build-deps
@@ -43,16 +49,16 @@ branches:
     - master
     - /^shepherd\/.*$/
     - /^dawn\/.*$/
+    - /^devops\/.*$/
+    - /^hibike\/.*$/
     - /^runtime\/.*$/
     - /^test\/.*$/
 deploy:
-  provider: releases
-  api_key:
-    secure: Y9p9wvz8ZLX4tM7lygUG1DaqCVOKC8qtpyNL0Nf6kgE6TLpB1fzCnndTg6sz9C6brw2pBriwXe9aHEG3QdV/u3ku4AdQqwT9PqemWJmxJT9ex+Eyk47Sp8do+tkLF44+8IkIlxSlcKfnD99fpAgrZSh3iAotJspyhckDu5R1+UNi1TBIPfBoUOtdKKFGbWNqX9lYyWompBa0Q08ZbIKW10H7HJCWQ9MhwL1Q2RxFRtLANWXLwOUW59gzfLQq07Z8b+PRmMmUiE1jr30OjnDDn+tiJk9kLG/Y5UcxzIpHaq+Wo7a5ncwHcyGaqXCs8q25wDQEsXdq6z6+kFqsi9tQkmMsrM6W9qGO8AVfxGgII6yExf6pweg02dNHMwDNI5JcpEVonP73YwuB7UH2UwUxbxzwsmnGMFYx41EpM0nYua6xHC3SZEqTurBgQMMnELJPMX2lbmFGdZPOJ5lEjnS5UEYazn1VSY00qUrQlU+nnQgbU9GJfSrHhWSJ5ycONGCBbE+dm2/vs9qnKQGXNmKeKhRSw+duNzarx648nNz6kklA9r2st0kVMfLZTMj6nKhksts88Khy1oWhFtdXOqi3daWwGz7H0jG6cvMvxSPBFA2svYy45etaXrXtJtI3kYQPl3ESdeOEWYhjPlsJXb+MVL3DUtDgMFaLRww4z/s0q/E=
-  file: artifacts/*
-  file_glob: true
+  provider: script
+  script: bash DevOps/pipeline/deploy-artifacts.sh "$APP_ID" "$TRAVIS_TAG" "$(pwd)/artifacts"
   skip_cleanup: true
   on:
+    branch: master
     tags: true
     condition: $DEPLOY_ARTIFACTS = 1
 notifications:

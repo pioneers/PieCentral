@@ -142,6 +142,19 @@ class Robot(StudentAPI):
         self._check_value(param, value)
         self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [(param, value)]]])
 
+    def set_motor(self, device_name, value):
+        uid = self._hibike_get_uid(device_name)
+        self._check_write_params(uid, "duty_cycle")
+        self._check_value("duty_cycle", value)
+        self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", value)]]])
+
+    def stop_motor(self, device_name):
+        uid = self._hibike_get_uid(device_name)
+        self._check_write_params(uid, "duty_cycle")
+        self._check_value("duty_cycle", 0)
+        self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", 0)]]])
+
+
     def run(self, func, *args, **kwargs):
         """
         Starts a "coroutine", i.e. a series of actions that proceed
@@ -201,17 +214,17 @@ class Robot(StudentAPI):
     def _check_value(self, param, value):
         """Check that a value is valid for a parameter."""
         valid_values = self.param_to_valid_values[param]
+        # TODO: use descriptive names for `valid_values[0]` and `valid_values[0][0]`
         if not isinstance(value, valid_values[0]):
             raise StudentAPIValueError(
                 "Invalid value type passed in, valid types for this param are: "
                 + valid_values[0][0].__name__)
-        if valid_values[0][0] == bool:
-            return
-        elif valid_values[0][0] == float or valid_values[0][0] == int:
+        elif isinstance(valid_values[0][0], (float, int)):
             if not valid_values[1] <= value <= valid_values[2]:
                 raise StudentAPIValueError(
                     "Invalid value passed in, valid values for this param are: "
                     + str(valid_values[1]) + " to " + str(valid_values[2]))
+        # Probably `bool` here
 
     def _create_sensor_mapping(self, filename="namedPeripherals.csv"):
         with open(filename, "r") as f:

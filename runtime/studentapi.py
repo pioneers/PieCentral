@@ -280,6 +280,10 @@ class Robot(StudentAPI):
 
     def hibike_write_value(self, uid, params):
         """Writes parameters to ``uid``."""
+        #create global variable dictionary student_code_writes
+        if params not in self.student_code_writes.values():
+            self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])
+            self.student_code_writes[uid] = params
         self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])
 
     def _get_gamecodes(self):

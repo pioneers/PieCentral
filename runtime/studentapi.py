@@ -131,28 +131,40 @@ class Robot(StudentAPI):
 
     def get_value(self, device_name, param):
         """Get a single value from a device."""
-        uid = self._hibike_get_uid(device_name)
-        self._check_read_params(uid, param)
-        return self.peripherals[uid][0][param][0]
+        try:
+            uid = self._hibike_get_uid(device_name)
+            self._check_read_params(uid, param)
+            return self.peripherals[uid][0][param][0]
+        except:
+            return 0
 
     def set_value(self, device_name, param, value):
         """Set a parameter value for device."""
-        uid = self._hibike_get_uid(device_name)
-        self._check_write_params(uid, param)
-        self._check_value(param, value)
-        self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [(param, value)]]])
+        try:
+            uid = self._hibike_get_uid(device_name)
+            self._check_write_params(uid, param)
+            self._check_value(param, value)
+            self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [(param, value)]]])
+        except:
+            pass
 
     def set_motor(self, device_name, value):
-        uid = self._hibike_get_uid(device_name)
-        self._check_write_params(uid, "duty_cycle")
-        self._check_value("duty_cycle", value)
-        self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", value)]]])
+        try:
+            uid = self._hibike_get_uid(device_name)
+            self._check_write_params(uid, "duty_cycle")
+            self._check_value("duty_cycle", value)
+            self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", value)]]])
+        except:
+            pass
 
     def stop_motor(self, device_name):
-        uid = self._hibike_get_uid(device_name)
-        self._check_write_params(uid, "duty_cycle")
-        self._check_value("duty_cycle", 0)
-        self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", 0)]]])
+        try:
+            uid = self._hibike_get_uid(device_name)
+            self._check_write_params(uid, "duty_cycle")
+            self._check_value("duty_cycle", 0)
+            self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", 0)]]])
+        except:
+            pass
 
 
     def run(self, func, *args, **kwargs):

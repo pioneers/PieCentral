@@ -143,21 +143,18 @@ class Robot(StudentAPI):
         uid = self._hibike_get_uid(device_name)
         self._check_write_params(uid, param)
         self._check_value(param, value)
-        #self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [(param, value)]]])
         self.hibike_write_value(uid, [(param, value)])
 
     def set_motor(self, device_name, value):
         uid = self._hibike_get_uid(device_name)
         self._check_write_params(uid, "duty_cycle")
         self._check_value("duty_cycle", value)
-        #self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", value)]]])
         self.hibike_write_value(uid, [("duty_cycle", value)])
 
     def stop_motor(self, device_name):
         uid = self._hibike_get_uid(device_name)
         self._check_write_params(uid, "duty_cycle")
         self._check_value("duty_cycle", 0)
-        #self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", 0)]]])
         self.hibike_write_value(uid, [("duty_cycle", 0)])
 
 
@@ -287,11 +284,7 @@ class Robot(StudentAPI):
     def hibike_write_value(self, uid, params):
         """Writes parameters to ``uid``."""
         #create global variable dictionary student_code_writes
-        if uid in self.student_code_writes:
-            if self.student_code_writes[uid] != params:
-                self.student_code_writes[uid] = params
-                self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])
-        else:
+        if self.student_code_writes.get(uid) != params:
             self.student_code_writes[uid] = params
             self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, params]])
 

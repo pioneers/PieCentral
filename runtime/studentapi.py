@@ -135,7 +135,9 @@ class Robot(StudentAPI):
             uid = self._hibike_get_uid(device_name)
             self._check_read_params(uid, param)
             return self.peripherals[uid][0][param][0]
-        except:
+        except Exception as e:
+            self._print(str(e))
+            self._send_prints()
             return 0
 
     def set_value(self, device_name, param, value):
@@ -145,8 +147,9 @@ class Robot(StudentAPI):
             self._check_write_params(uid, param)
             self._check_value(param, value)
             self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [(param, value)]]])
-        except:
-            pass
+        except Exception as e:
+            self._print(str(e))
+            self._send_prints()
 
     def set_motor(self, device_name, value):
         try:
@@ -154,8 +157,9 @@ class Robot(StudentAPI):
             self._check_write_params(uid, "duty_cycle")
             self._check_value("duty_cycle", value)
             self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", value)]]])
-        except:
-            pass
+        except Exception as e:
+            self._print(str(e))
+            self._send_prints()
 
     def stop_motor(self, device_name):
         try:
@@ -163,8 +167,9 @@ class Robot(StudentAPI):
             self._check_write_params(uid, "duty_cycle")
             self._check_value("duty_cycle", 0)
             self.to_manager.put([HIBIKE_COMMANDS.WRITE, [uid, [("duty_cycle", 0)]]])
-        except:
-            pass
+        except Exception as e:
+            self._print(str(e))
+            self._send_prints()
 
 
     def run(self, func, *args, **kwargs):

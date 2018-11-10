@@ -7,7 +7,6 @@ DEVICES := BatteryBuzzer ExampleDevice LimitSwitch LineFollower Potentiometer \
 install:
 	cd .. && ./setup.sh
 
-
 artifacts-install:
 	$(nop)
 

@@ -4,15 +4,19 @@ os:
   - linux
 matrix:
   include:
-    - language: node_js
+    - name: Dawn
+      language: node_js
       env: TEST_DIR=dawn
-    - language: python
+    - name: Hibike
+      language: python
       python: 3.6
       env: TEST_DIR=hibike/travis
-    - language: python
+    - name: Runtime
+      language: python
       python: 3.6
       env: TEST_DIR=runtime
-    - language: python
+    - name: Shepherd
+      language: python
       python: 3.6
       env: TEST_DIR=shepherd
 env:
@@ -25,7 +29,7 @@ cache:
     - $HOME/.cache/yarn
 before_install:
   - openssl aes-256-cbc -K $encrypted_516b8f19f8a6_key -iv $encrypted_516b8f19f8a6_iv -in DevOps/pipeline/piecentral-artifacts.pem.encrypted -out DevOps/pipeline/piecentral-artifacts.pem -d
-  - if [ $(which pip3 2>/dev/null) ]; then pip3 install pipenv; fi
+  - if [ -x "$(command -v pip3)" ]; then pip3 install pipenv; fi
   - mkdir -p artifacts
   - if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then
     export DEPLOY_ARTIFACTS=1; fi

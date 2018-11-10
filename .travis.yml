@@ -25,7 +25,7 @@ cache:
     - $HOME/.cache/yarn
 before_install:
   - openssl aes-256-cbc -K $encrypted_516b8f19f8a6_key -iv $encrypted_516b8f19f8a6_iv -in DevOps/pipeline/piecentral-artifacts.pem.encrypted -out DevOps/pipeline/piecentral-artifacts.pem -d
-  - pip3 install pipenv
+  - if [ $(which pip3 2>/dev/null) ]; then pip3 install pipenv; fi
   - mkdir -p artifacts
   - if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then
     export DEPLOY_ARTIFACTS=1; fi

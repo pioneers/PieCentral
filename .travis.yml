@@ -1,18 +1,27 @@
 dist: trusty
 sudo: required
-language: python
-python:
-  - '3.6'
 os:
   - linux
+matrix:
+  include:
+    - name: Dawn
+      language: node_js
+      env: TEST_DIR=dawn
+    - name: Hibike
+      language: python
+      python: 3.6
+      env: TEST_DIR=hibike/travis
+    - name: Runtime
+      language: python
+      python: 3.6
+      env: TEST_DIR=runtime
+    - name: Shepherd
+      language: python
+      python: 3.6
+      env: TEST_DIR=shepherd
 env:
   global:
     - APP_ID=15634
-  matrix:
-    - TEST_DIR=dawn
-    - TEST_DIR=hibike/travis
-    - TEST_DIR=runtime
-    - TEST_DIR=shepherd
 cache:
   pip: true
   directories:
@@ -20,8 +29,6 @@ cache:
     - $HOME/.cache/yarn
 before_install:
   - openssl aes-256-cbc -K $encrypted_516b8f19f8a6_key -iv $encrypted_516b8f19f8a6_iv -in DevOps/pipeline/piecentral-artifacts.pem.encrypted -out DevOps/pipeline/piecentral-artifacts.pem -d
-  - nvm install --lts
-  - pip3 install pipenv
   - mkdir -p artifacts
   - if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then
     export DEPLOY_ARTIFACTS=1; fi

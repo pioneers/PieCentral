@@ -10,7 +10,7 @@ const StatusLabelComponent = (props) => {
   if (props.connectionStatus) {
     if (!props.runtimeStatus) {
       labelStyle = 'danger';
-      labelText = 'Runtime Error';
+      labelText = 'General Error';
     } else if (props.batterySafety) {
       labelStyle = 'danger';
       labelText = 'Unsafe Battery';

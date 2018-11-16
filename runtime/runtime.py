@@ -107,6 +107,7 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
                 break
             non_test_mode_print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
             non_test_mode_print("Starting studentCode attempt: %s" % (restart_count,))
+            # set perk timer to None
             while True:
                 new_bad_thing = bad_things_queue.get(block=True)
                 if new_bad_thing.event == BAD_EVENTS.NEW_IP and not dawn_connected:
@@ -133,9 +134,11 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
                     spawn_process(PROCESS_NAMES.STUDENT_CODE, run_student_code, "autonomous")
                     control_state = "auto"
                     continue
-                elif new_bad_thing.event == BAD_EVENTS.ENTER_IDLE and control_state != "idle":
+                elif new_bad_thing.event == BAD_EVENTS.ENTER_IDLE and control_state != "idle": # and perk timer is None
                     control_state = "idle"
+                    # if this team has perk, set perk timer to current time. Otherwise, break
                     break
+                # add another elif that checks if 15 seconds has passed since perk timer was set
                 print(new_bad_thing.event)
                 non_test_mode_print(new_bad_thing.data)
                 if new_bad_thing.event in restartEvents:

@@ -10,6 +10,7 @@ import sys
 import time
 import traceback
 import warnings
+import threading
 
 from ansible import TCPClass, UDPRecvClass, UDPSendClass
 import runtime_pb2
@@ -74,6 +75,10 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
         """Prints only if we are NOT in test_mode"""
         if not test_mode:
             print(args)
+            
+    # function that puts a bad thing on the queue to stop the robot after time extension
+    def perk_trigger(bad_things_queue):
+        bad_things_queue.put(BadThing(sys.exc.info(), "15-second time extension is up!", event=BAD_EVENTS.ENTER_IDLE_PERK, printStackTrace=False))
 
     bad_things_queue = multiprocessing.Queue()
     state_queue = multiprocessing.Queue()
@@ -107,7 +112,8 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
                 break
             non_test_mode_print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
             non_test_mode_print("Starting studentCode attempt: %s" % (restart_count,))
-            # set perk timer to None
+            
+            perk = ##### *********************** get whether this robot has the perk ******************** #########
             while True:
                 new_bad_thing = bad_things_queue.get(block=True)
                 if new_bad_thing.event == BAD_EVENTS.NEW_IP and not dawn_connected:
@@ -134,11 +140,16 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
                     spawn_process(PROCESS_NAMES.STUDENT_CODE, run_student_code, "autonomous")
                     control_state = "auto"
                     continue
-                elif new_bad_thing.event == BAD_EVENTS.ENTER_IDLE and control_state != "idle": # and perk timer is None
-                    control_state = "idle"
-                    # if this team has perk, set perk timer to current time. Otherwise, break
+                elif new_bad_thing.event == BAD_EVENTS.ENTER_IDLE and control_state != "idle":
+                    if perk and control_state == "teleop":
+                        timer = threading.Timer(15.0, perk_trigger, args=bad_things_queue) # delay entering idle for 15 seconds
+                        timer.start()
+                    else: # if no perk or not teleop, then go into idle
+                        control_state = "idle"
+                        break
+                elif new_bad_thing.event == BAD_EVENTS.ENTER_IDLE_PERK and control_state != "idle": # if perk_trigger has put the trigger onto the queue (15 sec passed)
+                    control_state = "idle" 
                     break
-                # add another elif that checks if 15 seconds has passed since perk timer was set
                 print(new_bad_thing.event)
                 non_test_mode_print(new_bad_thing.data)
                 if new_bad_thing.event in restartEvents:
@@ -379,8 +390,10 @@ def terminate_process(process_name):
     process = ALL_PROCESSES.pop(process_name)
     # process.terminate() # ******************************************** MIGHT NEED TO CHANGE: (make sure that processes aren't sharing queues and pipes)
                         # https://docs.python.org/3/library/multiprocessing.html?highlight=multiprocessing#multiprocessing.Process.terminate
+    print("Attempting to terminate process:", process_name)
     process.join(3) # Give process 3 seconds to terminate
     if process.exitcode != None: # process has terminated
+        print("\t", process_name, "successfully terminated.")
         return
     else:
         if process.is_alive():

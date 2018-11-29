@@ -51,6 +51,7 @@ class BAD_EVENTS(Enum):
     ENTER_TELEOP              = "Dawn says enter Teleop"
     ENTER_AUTO                = "Dawn says enter Auto"
     ENTER_IDLE                = "Dawn says enter Idle"
+    ENTER_IDLE_PERK           = "15-second time extension is up!"
     NEW_IP                    = "Connected to new instance of Dawn"
     DAWN_DISCONNECTED         = "Disconnected to Dawn"
     HIBIKE_NONEXISTENT_DEVICE = "Tried to access a nonexistent device"

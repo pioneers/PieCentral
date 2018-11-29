@@ -172,7 +172,7 @@ class Editor extends React.Component {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
         this.props.onChangeFontsize(data.editorFontSize);
-        this.setState({fontsize: this.props.fontSize});
+        this.setState({ fontsize: this.props.fontSize });
       }
     });
 
@@ -369,7 +369,7 @@ class Editor extends React.Component {
   }
 
   increaseFontsize() {
-    this.setState({fontsize: this.props.fontSize + 1});
+    this.setState({ fontsize: this.props.fontSize + 1 });
     this.props.onChangeFontsize(this.props.fontSize + 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize + 1 }, (err) => {
       if (err) logging.log(err);
@@ -377,7 +377,7 @@ class Editor extends React.Component {
   }
 
   handleChangeFontsize(event) {
-    this.setState({fontsize: event.target.value});
+    this.setState({ fontsize: event.target.value });
   }
 
   handleSubmitFontsize(event) {
@@ -386,14 +386,14 @@ class Editor extends React.Component {
   }
 
   changeFontsizeToFont(fontSize) {
-    if (fontSize > 28){
+    if (fontSize > 28) {
       fontSize = 28;
     }
-    if (fontSize < 8){
+    if (fontSize < 8) {
       fontSize = 8;
     }
     this.props.onChangeFontsize(fontSize);
-    this.setState({fontsize: fontSize});
+    this.setState({ fontsize: fontSize });
     storage.set('editorFontSize', { editorFontSize: fontSize }, (err) => {
       if (err) logging.log(err);
     });
@@ -416,7 +416,7 @@ class Editor extends React.Component {
   }
 
   decreaseFontsize() {
-    this.setState({fontsize: this.props.fontSize - 1});
+    this.setState({ fontsize: this.props.fontSize - 1 });
     this.props.onChangeFontsize(this.props.fontSize - 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err) => {
       if (err) logging.log(err);

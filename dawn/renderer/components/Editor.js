@@ -6,6 +6,12 @@ import {
   ButtonToolbar,
   DropdownButton,
   MenuItem,
+  FormGroup,
+  FormControl,
+  Form,
+  InputGroup,
+  Input,
+  Button,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { remote, clipboard } from 'electron';
@@ -77,6 +83,8 @@ class Editor extends React.Component {
     this.increaseFontsize = this.increaseFontsize.bind(this);
     this.decreaseFontsize = this.decreaseFontsize.bind(this);
     this.changeFontsizeToFont = this.changeFontsizeToFont.bind(this);
+    this.handleSubmitFontsize = this.handleSubmitFontsize.bind(this);
+    this.handleChangeFontsize = this.handleChangeFontsize.bind(this);
     this.startRobot = this.startRobot.bind(this);
     this.stopRobot = this.stopRobot.bind(this);
     this.upload = this.upload.bind(this);
@@ -164,6 +172,7 @@ class Editor extends React.Component {
         logging.log(err);
       } else if (!_.isEmpty(data)) {
         this.props.onChangeFontsize(data.editorFontSize);
+        this.setState({fontsize: this.props.fontSize});
       }
     });
 
@@ -360,14 +369,31 @@ class Editor extends React.Component {
   }
 
   increaseFontsize() {
+    this.setState({fontsize: this.props.fontSize + 1});
     this.props.onChangeFontsize(this.props.fontSize + 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize + 1 }, (err) => {
       if (err) logging.log(err);
     });
   }
 
+  handleChangeFontsize(event) {
+    this.setState({fontsize: event.target.value});
+  }
+
+  handleSubmitFontsize(event) {
+    this.changeFontsizeToFont(Number(this.state.fontsize));
+    event.preventDefault();
+  }
+
   changeFontsizeToFont(fontSize) {
+    if (fontSize > 28){
+      fontSize = 28;
+    }
+    if (fontSize < 8){
+      fontSize = 8;
+    }
     this.props.onChangeFontsize(fontSize);
+    this.setState({fontsize: fontSize});
     storage.set('editorFontSize', { editorFontSize: fontSize }, (err) => {
       if (err) logging.log(err);
     });
@@ -390,6 +416,7 @@ class Editor extends React.Component {
   }
 
   decreaseFontsize() {
+    this.setState({fontsize: this.props.fontSize - 1});
     this.props.onChangeFontsize(this.props.fontSize - 1);
     storage.set('editorFontSize', { editorFontSize: this.props.fontSize - 1 }, (err) => {
       if (err) logging.log(err);
@@ -404,7 +431,7 @@ class Editor extends React.Component {
           <Panel.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Panel.Title>
         </Panel.Heading>
         <Panel.Body>
-          <ButtonToolbar>
+          <Form inline onSubmit={this.handleSubmitFontsize}>
             <ButtonGroup id="file-operations-buttons">
               <DropdownButton
                 title="File"
@@ -439,6 +466,7 @@ class Editor extends React.Component {
                 disabled={!this.props.runtimeStatus || this.props.ipAddress === defaults.IPADDRESS}
               />
             </ButtonGroup>
+            {' '}
             <ButtonGroup id="code-execution-buttons">
               <TooltipButton
                 id="run"
@@ -499,6 +527,7 @@ class Editor extends React.Component {
                 disabled={false}
               />
             </ButtonGroup>
+            {' '}
             <ButtonGroup id="console-buttons">
               <TooltipButton
                 id="toggle-console"
@@ -537,47 +566,61 @@ class Editor extends React.Component {
                 disabled={false}
               />
             </ButtonGroup>
-            <ButtonGroup id="editor-settings-buttons">
-              <DropdownButton
-                title="Text Size"
-                bsSize="small"
-                id="choose-theme"
-              >
-                <MenuItem
-                  onClick={() => this.changeFontsizeToFont(8)}
-                >8</MenuItem>
-                <MenuItem
-                  onClick={() => this.changeFontsizeToFont(12)}
-                >12</MenuItem>
-                <MenuItem
-                  onClick={() => this.changeFontsizeToFont(14)}
-                >14</MenuItem>
-                <MenuItem
-                  onClick={() => this.changeFontsizeToFont(16)}
-                >16</MenuItem>
-                <MenuItem
-                  onClick={() => this.changeFontsizeToFont(20)}
-                >20</MenuItem>
-                <MenuItem
-                  onClick={() => this.changeFontsizeToFont(24)}
-                >24</MenuItem>
-                <MenuItem
-                  onClick={() => this.changeFontsizeToFont(28)}
-                >28</MenuItem>
-              </DropdownButton>
+            {' '}
+            <FormGroup>
+              <InputGroup>
+                <FormControl
+                  type="number"
+                  value={this.state.fontsize}
+                  bsSize="small"
+                  onChange={this.handleChangeFontsize}
+                  style={{ width: 32, padding: 6 }}
+                />
+                <DropdownButton
+                  componentClass={InputGroup.Button}
+                  title=""
+                  bsSize="small"
+                  id="choose-theme"
+                >
+                  <MenuItem
+                    onClick={() => this.changeFontsizeToFont(8)}
+                  >8</MenuItem>
+                  <MenuItem
+                    onClick={() => this.changeFontsizeToFont(12)}
+                  >12</MenuItem>
+                  <MenuItem
+                    onClick={() => this.changeFontsizeToFont(14)}
+                  >14</MenuItem>
+                  <MenuItem
+                    onClick={() => this.changeFontsizeToFont(16)}
+                  >16</MenuItem>
+                  <MenuItem
+                    onClick={() => this.changeFontsizeToFont(20)}
+                  >20</MenuItem>
+                  <MenuItem
+                    onClick={() => this.changeFontsizeToFont(24)}
+                  >24</MenuItem>
+                  <MenuItem
+                    onClick={() => this.changeFontsizeToFont(28)}
+                  >28</MenuItem>
+                </DropdownButton>
+              </InputGroup>
+            </FormGroup>
+            {' '}
+            <ButtonGroup id="editor-settings-buttons" class="form-inline">
               <TooltipButton
                 id="increase-font-size"
                 text="Increase font size"
                 onClick={this.increaseFontsize}
                 glyph="zoom-in"
-                disabled={this.props.fontSize > 28}
+                disabled={this.props.fontSize >= 28}
               />
               <TooltipButton
                 id="decrease-font-size"
                 text="Decrease font size"
                 onClick={this.decreaseFontsize}
                 glyph="zoom-out"
-                disabled={this.props.fontSize < 7}
+                disabled={this.props.fontSize <= 8}
               />
               <DropdownButton
                 title="Theme"
@@ -595,7 +638,8 @@ class Editor extends React.Component {
                 ))}
               </DropdownButton>
             </ButtonGroup>
-          </ButtonToolbar>
+          </Form>
+
           <AceEditor
             mode="python"
             theme={this.props.editorTheme}

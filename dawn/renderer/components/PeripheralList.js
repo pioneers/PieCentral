@@ -89,6 +89,7 @@ const PeripheralListComponent = (props) => {
       <Panel.Heading>Peripherals</Panel.Heading>
       <Panel.Body style={{ padding: '0px' }}>
         <ListGroup>
+          herewego
           {panelBody}
         </ListGroup>
       </Panel.Body>

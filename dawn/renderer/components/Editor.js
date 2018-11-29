@@ -3,15 +3,12 @@ import PropTypes from 'prop-types';
 import {
   Panel,
   ButtonGroup,
-  ButtonToolbar,
   DropdownButton,
   MenuItem,
   FormGroup,
   FormControl,
   Form,
   InputGroup,
-  Input,
-  Button,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { remote, clipboard } from 'electron';

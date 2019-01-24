@@ -70,7 +70,7 @@ const PeripheralListComponent = (props) => {
   if (!props.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
   } else if (!props.runtimeStatus) {
-    errorMsg = 'There appears to be some sort of Runtime error. ' +
+    errorMsg = 'There appears to be some sort of General error. ' +
       'No data is being received.';
   }
 

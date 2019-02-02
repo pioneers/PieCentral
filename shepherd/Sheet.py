@@ -75,7 +75,7 @@ def get_online_match(match_number):
     range_name = "Match Database!A2:J"
     spreadsheet = service.spreadsheets() # pylint: disable=no-member
     game_data = spreadsheet.values().get(
-        spreadsheetId=spreadsheetId, range=range_name).execute() 
+        spreadsheetId=spreadsheetId, range=range_name).execute()
     row = 48
     for i, j in enumerate(game_data['values']):
         if int(j[0]) == match_number:
@@ -102,6 +102,7 @@ def get_offline_match(match_number):
             "g1name" : match[7], "g1num" : match[6],
             "g2name" : match[9], "g2num" : match[8]}
 
+# pylint: disable=too-many-locals
 def write_online_scores(match_number, blue_score, gold_score):
     """
     A method that writes the scores to the sheet
@@ -117,7 +118,7 @@ def write_online_scores(match_number, blue_score, gold_score):
     range_name = "Match Database!A2:J"
     spreadsheet = service.spreadsheets() # pylint: disable=no-member
     game_data = spreadsheet.values().get(
-        spreadsheetId=spreadsheetId, range=range_name).execute();
+        spreadsheetId=spreadsheetId, range=range_name).execute()
     row = 47
     for i, j in enumerate(game_data['values']):
         if int(j[0]) == match_number:
@@ -130,5 +131,5 @@ def write_online_scores(match_number, blue_score, gold_score):
     game_scores['values'] = [[blue_score, gold_score]]
     sheets = service.spreadsheets() # pylint: disable=no-member
     sheets.values().update(spreadsheetId=spreadsheetId,
-                                           range=range_name, body=game_scores,
-                                           valueInputOption="RAW").execute()
+                           range=range_name, body=game_scores,
+                           valueInputOption="RAW").execute()

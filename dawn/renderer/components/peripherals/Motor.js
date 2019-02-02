@@ -41,7 +41,6 @@ const Motor = ({ device_name, param }) => (
 
 Motor.propTypes = {
   device_name: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
   param: PropTypes.array.isRequired,
 };
 

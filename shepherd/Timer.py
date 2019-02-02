@@ -21,11 +21,13 @@ class busyThread(threading.Thread):
         TODO: Add how to send message via LCM in the case of match timer
         '''
         while not self.stop.isSet():
-            if self.queue and self.queue[0].endTime < time.time():
+            if self.queue and self.queue[0].end_time < time.time():
                 Timer.queueLock.acquire()
                 event = heapq.heappop(self.queue)
                 if event.timer_type == TIMER_TYPES.MATCH:
                     LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
+                if event.timer_type == TIMER_TYPES.EXTENDED_TELEOP:
+                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.END_EXTENDED_TELEOP)
                 event.active = False
                 Timer.queueLock.release()
         for timer in self.queue:
@@ -48,26 +50,25 @@ class Timer:
     running = False
     queueLock = threading.Lock()
     globalResetCount = 0
-    resetAllCount = 0
+    reset_all_count = 0
 
-    def __init__(self, timer_type, goal_name=None):
+    def __init__(self, timer_type):
         """
         timer_type - a Enum representing the type of timer that this is:
                         TIMER_TYPES.MATCH - represents the time of the current
         """
         self.active = False
         self.timer_type = timer_type
-        self.goal_name = goal_name
-        self.endTime = None
-        self.resetAllCount = Timer.globalResetCount
+        self.end_time = None
+        self.reset_all_count = Timer.globalResetCount
 
     def start_timer(self, duration):
         """Starts a new timer with the duration (seconds) and sets timer to active.
            If Timer is already running, adds duration to Timer"""
-        self.resetAllCount = Timer.globalResetCount
+        self.reset_all_count = Timer.globalResetCount
         if self.active:
             Timer.queueLock.acquire()
-            self.endTime += duration
+            self.end_time += duration
             heapq.heapify(Timer.eventQueue)
             Timer.queueLock.release()
         else:
@@ -75,7 +76,7 @@ class Timer:
                 Timer.running = True
                 Timer.thread.start()
             Timer.queueLock.acquire()
-            self.endTime = time.time() + duration
+            self.end_time = time.time() + duration
             heapq.heappush(Timer.eventQueue, self)
             self.active = True
             Timer.queueLock.release()
@@ -83,7 +84,7 @@ class Timer:
 
     def reset(self):
         """Stops the current timer (if any) and sets timer to inactive"""
-        if self.active and self.resetAllCount == Timer.globalResetCount:
+        if self.active and self.reset_all_count == Timer.globalResetCount:
             Timer.queueLock.acquire()
             Timer.eventQueue.remove(self)
             heapq.heapify(Timer.eventQueue)
@@ -94,24 +95,25 @@ class Timer:
         """Returns true if the timer is currently running"""
         return self.active
 
-    def reset_all():
+    @classmethod
+    def reset_all(cls):
         """Resets Timer Thread when game changes"""
-        if Timer.running:
-            Timer.thread.join()
-            Timer.eventQueue = []
-            Timer.thread = busyThread(Timer.eventQueue)
-            Timer.running = False
-            Timer.queueLock = threading.Lock()
-            Timer.globalResetCount = Timer.globalResetCount + 1
+        if cls.running:
+            cls.thread.join()
+            cls.eventQueue = []
+            cls.thread = busyThread(cls.eventQueue)
+            cls.running = False
+            cls.queueLock = threading.Lock()
+            cls.globalResetCount = cls.globalResetCount + 1
 
     ###########################################
     # Timer Comparison Methods
     ###########################################
     def __lt__(self, other):
-        return self.endTime < other.endTime
+        return self.end_time < other.end_time
 
     def __gt__(self, other):
-        return self.endTime > other.endTime
+        return self.end_time > other.end_time
 
     def __eq__(self, other):
-        return self.endTime == other.endTime
+        return self.end_time == other.end_time

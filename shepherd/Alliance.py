@@ -15,14 +15,17 @@ class Alliance:
     """
 
     def __init__(self, name, team_1_name, team_1_number, team_2_name,
-                 team_2_number):
-
+                 team_2_number, perk_1=PERKS.EMPTY, perk_2=PERKS.EMPTY,
+                 perk_3=PERKS.EMPTY):
         self.name = name
         self.team_1_name = team_1_name
         self.team_2_name = team_2_name
         self.team_1_number = team_1_number
         self.team_2_number = team_2_number
         self.score = 0
+        self.perk_1 = 0
+        self.perk_2 = 0
+        self.perk_3 = 0
 
     def change_score(self, amount):
         """ changes score of this alliance by Amount,
@@ -39,4 +42,3 @@ class Alliance:
         #TODO: Send info to sensors about reset
         #TODO: Send info to UI about reset
         #TODO: Move score sends to shepherd.py
-    

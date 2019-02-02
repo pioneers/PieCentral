@@ -6,6 +6,7 @@ from Alliance import *
 from LCM import *
 from Timer import *
 from Utils import *
+import Code
 import Sheet
 
 __version__ = (1, 0, 0)
@@ -97,6 +98,12 @@ def to_setup(args):
     print("ENTERING SETUP STATE")
     print({"blue_score" : alliances[ALLIANCE_COLOR.BLUE].score,
            "gold_score" : alliances[ALLIANCE_COLOR.GOLD].score})
+
+def to_perk_selection(args):
+    global game_state
+    game_timer.start_timer(CONSTANTS.PERK_SELECTION_TIME)
+    game_state = STATE.PERK_SELCTION
+    print("ENTERING PERK SELECTION STATE")
 
 def to_auto(args):
     '''
@@ -223,6 +230,8 @@ def enable_robots(autonomous):
 
     lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.ROBOT_STATE, msg)
 
+
+
 def disable_robots():
     '''
     Sends message to Dawn to disable all robots
@@ -230,11 +239,100 @@ def disable_robots():
     msg = {"autonomous": False, "enabled": False}
     lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.ROBOT_STATE, msg)
 
+
+
 ###########################################
 # Game Specific Methods
 ###########################################
+code_solution = {}
+code_effect = {}
 
-#nothing
+def disable_robot(args):
+    '''
+    Send message to Dawn to disable the robots of team
+    '''
+    team_number = args["team_number"]
+    msg = {"team_number": team_number, "autonomous": False, "enabled": False}
+    lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.SPECIFIC_ROBOT_STATE, msg)
+
+def set_master_robot(args):
+    '''
+    Set the master robot of the alliance
+    '''
+    alliance = args["alliance"]
+    team_name = args["team_name"]
+    if team_name == alliance.team_1_name:
+        team_number = alliance.team_1_number
+    else:
+        team_number = alliance.team_2_number
+    msg = {"alliance": alliance, "master": team_number}
+    lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.MASTER, msg)
+
+def code_setup():
+    '''
+    Set up code_solution and code_effect dictionaries and send code_solution to Dawn
+    '''
+    global code_solution
+    global code_effect
+
+    code_solution = Code.assign_code_solution()
+    code_effect = Code.assign_code_effect()
+    msg = {"codes_solutions": code_solution}
+    lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.CODES, msg)
+
+def apply_code(args):
+    '''
+    Send Scoreboard the effect if the answer is correct
+    '''
+    alliance = args["alliance"]
+    answer = args["answer"]
+    if (answer is not None and answer in code_solution.values()):
+        code = [k for k, v in code_solution.items() if v == answer][0]
+        msg = {"alliance": alliance, "effect": code_effect[code]}
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.APPLIED_EFFECT, msg)
+    else:
+        msg = {"alliance": alliance}
+        lcm_send(LCM_TARGETS.SENSORS, SENSORS_HEADER.FAILED_POWERUP, msg)
+
+
+def end_teleop(args):
+    blue_robots_disabled = False
+    gold_robots_disabled = False
+    if PERKS.TAFFY in alliance_perks(alliances[ALLIANCE_COLOR.BLUE]):
+        extended_teleop_timer.start_timer(CONSTANTS.TAFFY_TIME)
+        blue_robots_disabled = True
+    elif PERKS.TAFFY in alliance_perks(alliances[ALLIANCE_COLOR.GOLD]):
+        extended_teleop_timer.start_timer(CONSTANTS.TAFFY_TIME)
+        gold_robots_disabled = False
+    else:
+        to_end(args)
+    if gold_robots_disabled:
+        disable_robot({"team_number":alliances[ALLIANCE_COLOR.GOLD].team_1_number})
+        disable_robot({"team_number":alliances[ALLIANCE_COLOR.GOLD].team_2_number})
+    if blue_robots_disabled:
+        disable_robot({"team_number":alliances[ALLIANCE_COLOR.BLUE].team_1_number})
+        disable_robot({"team_number":alliances[ALLIANCE_COLOR.BLUE].team_2_number})
+
+def alliance_perks(alliance):
+    return (alliance.perk_1, alliance.perk_2, alliance.perk_3)
+
+def apply_perks(args):
+    alliance = args['alliance']
+    alliance.perk_1 = args['perk_1']
+    alliance.perk_2 = args['perk_2']
+    alliance.perk_3 = args['perk_3']
+
+def launch_button_triggered(args):
+    ## TODO: This
+    pass
+
+def final_score(args):
+    ## TODO: This
+    pass
+
+def game_perks(args):
+    ## TODO: This
+    pass
 
 ###########################################
 # Event to Function Mappings for each Stage
@@ -243,12 +341,22 @@ def disable_robots():
 setup_functions = {
     SHEPHERD_HEADER.SETUP_MATCH: to_setup,
     SHEPHERD_HEADER.GET_MATCH_INFO : get_match,
+    SHEPHERD_HEADER.START_NEXT_STAGE: to_perk_selection
+}
+
+perk_selection_functions = {
+    SHEPHERD_HEADER.RESET_MATCH : reset,
+    SHEPHERD_HEADER.APPLY_PERKS: apply_perks,
     SHEPHERD_HEADER.START_NEXT_STAGE: to_auto
 }
 
 auto_functions = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.STAGE_TIMER_END : to_wait,
+    SHEPHERD_HEADER.LAUNCH_BUTTON_TRIGGERED : launch_button_triggered,
+    SHEPHERD_HEADER.CODE_APPLICATION : apply_code,
+    SHEPHERD_HEADER.ROBOT_OFF : disable_robot
+
     }
 
 wait_functions = {
@@ -261,6 +369,11 @@ wait_functions = {
 teleop_functions = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.STAGE_TIMER_END : to_end,
+    SHEPHERD_HEADER.LAUNCH_BUTTON_TRIGGERED : launch_button_triggered,
+    SHEPHERD_HEADER.CODE_APPLICATION : apply_code,
+    SHEPHERD_HEADER.ROBOT_OFF : disable_robot,
+    SHEPHERD_HEADER.END_EXTENDED_TELEOP: to_end
+
 }
 
 end_functions = {
@@ -269,6 +382,11 @@ end_functions = {
     SHEPHERD_HEADER.GET_SCORES : get_score,
     SHEPHERD_HEADER.SETUP_MATCH : to_setup,
     SHEPHERD_HEADER.GET_MATCH_INFO : get_match,
+    SHEPHERD_HEADER.FINAL_SCORE : final_score
+}
+
+perk_selection_functions = {
+    SHEPHERD_HEADER.GAME_PERKS : game_perks
 }
 
 ###########################################
@@ -277,6 +395,7 @@ end_functions = {
 
 game_state = STATE.END
 game_timer = Timer(TIMER_TYPES.MATCH)
+extended_teleop_timer = Timer(TIMER_TYPES.EXTENDED_TELEOP)
 
 match_number = -1
 alliances = {ALLIANCE_COLOR.GOLD: None, ALLIANCE_COLOR.BLUE: None}
@@ -285,6 +404,7 @@ events = None
 ###########################################
 # Game Specific Variables
 ###########################################
+
 
 #nothing
 
@@ -299,6 +419,7 @@ def main():
         print('.'.join(map(str, __version__)))
     else:
         start()
+
 
 
 if __name__ == '__main__':

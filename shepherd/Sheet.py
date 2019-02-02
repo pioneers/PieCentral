@@ -73,7 +73,8 @@ def get_online_match(match_number):
                               discoveryServiceUrl=discoveryUrl)
     spreadsheetId = CONSTANTS.SPREADSHEET_ID
     range_name = "Match Database!A2:J"
-    game_data = service.spreadsheets().values().get(
+    spreadsheet = service.spreadsheets()
+    game_data = spreadsheet.values().get(
         spreadsheetId=spreadsheetId, range=range_name).execute() # pylint: disable=no-member
     row = 48
     for i, j in enumerate(game_data['values']):
@@ -114,8 +115,8 @@ def write_online_scores(match_number, blue_score, gold_score):
     spreadsheetId = CONSTANTS.SPREADSHEET_ID
 
     range_name = "Match Database!A2:J"
-    game_data = service.spreadsheets(); # pylint: disable=no-member
-    x = game_data.values().get(
+    spreadsheet = service.spreadsheets(); # pylint: disable=no-member
+    game_data = spreadsheet.values().get(
         spreadsheetId=spreadsheetId, range=range_name).execute();
     row = 47
     for i, j in enumerate(game_data['values']):

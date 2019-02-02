@@ -113,7 +113,7 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
             non_test_mode_print(RUNTIME_CONFIG.DEBUG_DELIMITER_STRING.value)
             non_test_mode_print("Starting studentCode attempt: %s" % (restart_count,))
             
-            perk = ##### *********************** get whether this robot has the perk ******************** #########
+            perk = False ##### *********************** TODO: change this to actually get whether this robot has the perk ******************** #########
             while True:
                 new_bad_thing = bad_things_queue.get(block=True)
                 if new_bad_thing.event == BAD_EVENTS.NEW_IP and not dawn_connected:

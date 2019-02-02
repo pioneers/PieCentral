@@ -398,6 +398,9 @@ class Editor extends React.Component {
 
   render() {
     const changeMarker = this.hasUnsavedChanges() ? '*' : '';
+    if (this.props.consoleUnread) {
+      this.toggleConsole();
+    }
     return (
       <Panel bsStyle="primary">
         <Panel.Heading>

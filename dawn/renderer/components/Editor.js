@@ -7,11 +7,9 @@ import {
   MenuItem,
   FormGroup,
   FormControl,
-  Form,
   InputGroup,
   OverlayTrigger,
   Tooltip,
-  Button,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { remote, clipboard } from 'electron';

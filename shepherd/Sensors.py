@@ -2,7 +2,7 @@ import sys
 import time
 import threading
 from multiprocessing import Queue
-import serial
+import serial # pylint: disable=import-error
 from LCM import *
 from Utils import *
 

@@ -3,12 +3,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import numeral from 'numeral';
-
 import { ProgressBar } from 'react-bootstrap';
 
 /**
  *  Motor Component
  */
+
 const Motor = ({ id, device_name, param }) => (
   <div style={{ overflow: 'auto', width: '100%' }}>
     <h4 style={{ float: 'left' }}>

@@ -3,9 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import numeral from 'numeral';
-import {
-  ProgressBar,
-} from 'react-bootstrap';
+import { ProgressBar } from 'react-bootstrap';
 
 /**
  *  Motor Component

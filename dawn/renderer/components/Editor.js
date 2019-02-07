@@ -9,6 +9,8 @@ import {
   FormControl,
   Form,
   InputGroup,
+  OverlayTrigger,
+  Tooltip,
 } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import { remote, clipboard } from 'electron';
@@ -576,34 +578,43 @@ class Editor extends React.Component {
                   onChange={this.handleChangeFontsize}
                   style={{ width: 32, padding: 6 }}
                 />
-                <DropdownButton
-                  componentClass={InputGroup.Button}
-                  title=""
-                  bsSize="small"
-                  id="choose-theme"
-                >
-                  <MenuItem
-                    onClick={() => this.changeFontsizeToFont(8)}
-                  >8</MenuItem>
-                  <MenuItem
-                    onClick={() => this.changeFontsizeToFont(12)}
-                  >12</MenuItem>
-                  <MenuItem
-                    onClick={() => this.changeFontsizeToFont(14)}
-                  >14</MenuItem>
-                  <MenuItem
-                    onClick={() => this.changeFontsizeToFont(16)}
-                  >16</MenuItem>
-                  <MenuItem
-                    onClick={() => this.changeFontsizeToFont(20)}
-                  >20</MenuItem>
-                  <MenuItem
-                    onClick={() => this.changeFontsizeToFont(24)}
-                  >24</MenuItem>
-                  <MenuItem
-                    onClick={() => this.changeFontsizeToFont(28)}
-                  >28</MenuItem>
-                </DropdownButton>
+                <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
+                  <DropdownButton
+                    componentClass={InputGroup.Button}
+                    title=""
+                    bsSize="small"
+                    id="choose-font-size"
+                  >
+                    <MenuItem
+                      class="dropdown-item"
+                      onClick={() => this.changeFontsizeToFont(8)}
+                    >8</MenuItem>
+                    <MenuItem
+                      class="dropdown-item"
+                      onClick={() => this.changeFontsizeToFont(12)}
+                    >12</MenuItem>
+                    <MenuItem
+                      class="dropdown-item"
+                      onClick={() => this.changeFontsizeToFont(14)}
+                    >14</MenuItem>
+                    <MenuItem
+                      class="dropdown-item"
+                      onClick={() => this.changeFontsizeToFont(16)}
+                    >16</MenuItem>
+                    <MenuItem
+                      class="dropdown-item"
+                      onClick={() => this.changeFontsizeToFont(20)}
+                    >20</MenuItem>
+                    <MenuItem
+                      class="dropdown-item"
+                      onClick={() => this.changeFontsizeToFont(24)}
+                    >24</MenuItem>
+                    <MenuItem
+                      class="dropdown-item"
+                      onClick={() => this.changeFontsizeToFont(28)}
+                    >28</MenuItem>
+                  </DropdownButton>
+                </OverlayTrigger>
               </InputGroup>
             </FormGroup>
             {' '}

@@ -29,8 +29,24 @@ ENV PATH="/home/ubuntu/bin:${PATH}" \
 RUN pipenv install --dev --python=/usr/bin/python3.7
 SHELL ["/bin/bash", "-c"]
 RUN uname -a
+
+WORKDIR /home/ubuntu/protoc
+RUN wget https://github.com/protocolbuffers/protobuf/archive/v3.2.0.tar.gz
 RUN ls
-COPY runtime/__pycache__ __pycache__
+RUN tar -xzf v3.2.0.tar.gz
+RUN rm v3.2.0.tar.gz
 RUN ls
+RUN cd protobuf-3.2.0
+
+WORKDIR /home/ubuntu/protoc/protobuf-3.2.0
+RUN apt-get install curl autoconf automake libtool make g++ unzip -y
+RUN ./autogen.sh
+RUN ./configure
+RUN make
+RUN make install
+RUN ldconfig
+
+WORKDIR /home/ubuntu/PieCentral/runtime
+RUN protoc -I ../ansible-protos --python_out=. ../ansible-protos/*.proto
 EXPOSE 1234/tcp 1235/udp 1236/udp
 CMD ["/usr/bin/env", "pipenv", "run", "python3", "/home/ubuntu/PieCentral/runtime/runtime.py"]

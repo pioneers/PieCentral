@@ -30,7 +30,7 @@ RUN pipenv install --dev --python=/usr/bin/python3.7
 SHELL ["/bin/bash", "-c"]
 RUN uname -a
 RUN ls
-COPY runtime/__pycache__ __pycache__
+COPY runtime/*_pb2.py .
 RUN ls
 EXPOSE 1234/tcp 1235/udp 1236/udp
 CMD ["/usr/bin/env", "pipenv", "run", "python3", "/home/ubuntu/PieCentral/runtime/runtime.py"]

@@ -33,4 +33,4 @@ RUN ls
 COPY runtime/*_pb2.py .
 RUN ls
 EXPOSE 1234/tcp 1235/udp 1236/udp
-CMD ["/usr/bin/env", "pipenv", "run", "python3", "/home/ubuntu/PieCentral/runtime/runtime.py"]
+ENTRYPOINT ["/usr/bin/env", "pipenv", "run", "python3", "runtime.py"]

@@ -8,14 +8,6 @@ RUN apt-get update -y && apt-get upgrade -y
 RUN apt-get install -y build-essential wget unzip python3.7 python3.7-dev python3-pip
 RUN python3.7 -m pip install pipenv
 
-WORKDIR /home/ubuntu
-WORKDIR /home/ubuntu/protoc
-RUN wget http://mirror.archlinuxarm.org/arm/extra/protobuf-3.6.1.3-1-arm.pkg.tar.xz
-RUN tar -xf protobuf-3.6.1.3-1-arm.pkg.tar.xz
-RUN rm protobuf-3.6.1.3-1-arm.pkg.tar.xz
-RUN mv ./usr/bin/protoc /usr/bin/ 
-
-
 WORKDIR /home/ubuntu/PieCentral
 ADD ansible-protos ansible-protos
 ADD runtime runtime
@@ -28,9 +20,6 @@ ENV PATH="/home/ubuntu/bin:${PATH}" \
     LANG="C.UTF-8"
 RUN pipenv install --dev --python=/usr/bin/python3.7
 SHELL ["/bin/bash", "-c"]
-RUN uname -a
-RUN ls
 COPY runtime/*_pb2.py .
-RUN ls
 EXPOSE 1234/tcp 1235/udp 1236/udp
 ENTRYPOINT ["/usr/bin/env", "pipenv", "run", "python3", "runtime.py"]

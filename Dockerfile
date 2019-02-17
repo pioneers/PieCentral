@@ -20,6 +20,6 @@ ENV PATH="/home/ubuntu/bin:${PATH}" \
     LANG="C.UTF-8"
 RUN pipenv install --dev --python=/usr/bin/python3.7
 SHELL ["/bin/bash", "-c"]
-COPY runtime/*_pb2.py .
+COPY runtime/*_pb2.py ./
 EXPOSE 1234/tcp 1235/udp 1236/udp
 ENTRYPOINT ["/usr/bin/env", "pipenv", "run", "python3", "runtime.py"]

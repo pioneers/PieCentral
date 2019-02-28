@@ -54,6 +54,23 @@
                                                      ]
     },
 
+    {"id": 12,     "name": "PolarBear",      "params": [
+                                                          {"number": 0  , "name": "duty_cycle"          , "type": "float"    , "read": true , "write": true  },
+                                                          {"number": 1  , "name": "pid_pos_setpoint"    , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 2  , "name": "pid_pos_kp"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 3  , "name": "pid_pos_ki"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 4  , "name": "pid_pos_kd"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 5  , "name": "pid_vel_setpoint"    , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 6  , "name": "pid_vel_kp"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 7  , "name": "pid_vel_ki"          , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 8  , "name": "pid_vel_kd"         , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 9  , "name": "current_thresh"     , "type": "float"    , "read": false , "write": true  },
+                                                          {"number": 10  , "name": "enc_pos"            , "type": "float"    , "read": true , "write": true  },
+                                                          {"number": 11  , "name": "enc_vel"            , "type": "float"    , "read": true , "write": false  },
+                                                          {"number": 12  , "name": "motor_current"      , "type": "float"    , "read": true , "write": false  },
+                                                          {"number": 13  , "name": "deadband"           , "type": "float"    , "read": true , "write": true  }
+                                                     ]
+    },
 
     {"id": 10,     "name": "YogiBear",      "params": [
                                                           {"number": 0  , "name": "duty_cycle"          , "type": "float"    , "read": true , "write": true  },

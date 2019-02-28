@@ -17,7 +17,6 @@ from hibike_tests.utils import AsyncTestCase
 import hibike_message as hm
 from hibike_tester import Hibike
 
-
 def add_runtime_to_path():
     """
     Enable import of runtime modules.
@@ -163,7 +162,7 @@ class ReadWriteTests(unittest.TestCase):
         """
         for _ in range(self.READ_WRITE_ATTEMPTS):
             self.hibike.read(uid, [param])
-            time.sleep(self.READ_WRITE_DELAY)
+        time.sleep(self.READ_WRITE_DELAY)
         return self.hibike.get_last_cached(uid, param)
 
     def test_write_then_read(self):
@@ -177,6 +176,19 @@ class ReadWriteTests(unittest.TestCase):
                 self.write(uid, [("duty_cycle", duty_cycle_val)])
                 hibike_value = self.read(uid, "duty_cycle")
                 self.assertAlmostEqual(hibike_value, duty_cycle_val)
+
+    def test_subscribe_write(self):
+        """
+        Test that subscribing sends up to date values.
+        """
+        self.hibike.subscribe_all()
+        for (uid, dev_type) in self.hibike.get_uids_and_types():
+            if dev_type == "YogiBear":
+                self.write(uid, [("duty_cycle", random.random())])
+                new_val = random.random()
+                self.write(uid, [("duty_cycle", new_val)])
+                new_hibike_val = self.hibike.get_last_cached(uid, "duty_cycle")
+                self.assertAlmostEqual(new_hibike_val, new_val)
 
     def test_nonexistent_device(self):
         """

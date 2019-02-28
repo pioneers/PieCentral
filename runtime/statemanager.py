@@ -33,6 +33,7 @@ class StateManager: # pylint: disable=too-many-public-methods
             "BatteryBuzzer": ["v_batt", "is_unsafe"],
             "ServoControl": ["servo0", "servo1"],
             "YogiBear": ["duty_cycle", "enc_pos", "enc_vel"],
+            "PolarBear": ["duty_cycle", "enc_pos", "enc_vel"],
             "RFID": ["id", "tag_detect"],
             "ExampleDevice": ["hazuki", "sapphire", "reina", "asuka"]
         }

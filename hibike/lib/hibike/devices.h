@@ -8,6 +8,7 @@ typedef enum {
   BATTERY_BUZZER = 0x04,
   TEAM_FLAG = 0x05,
   YOGI_BEAR = 0x0A,
+  POLAR_BEAR = 0x0C,
   RFID = 0x0B,
   SERVO_CONTROL = 0x07,
   COLOR_SENSOR = 0x09,

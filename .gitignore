@@ -397,5 +397,5 @@ hibike/virtual_devices.txt
 # Webstorm project settings
 .idea
 
-# Visual Studio Code settings
-.vscode/
+# Visual Studio Code config
+.vscode

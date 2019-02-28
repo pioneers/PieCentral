@@ -26,7 +26,7 @@ class RUNTIME_CONFIG(Enum):
     """Assorted runtime constants."""
     STUDENT_CODE_TIMELIMIT      = 1
     STUDENT_CODE_HZ             = 20 # Number of times to execute studentCode.main per second
-    DEBUG_DELIMITER_STRING      = "****************** RUNTIME DEBUG ******************"
+    DEBUG_DELIMITER_STRING      = "\n****************** RUNTIME MESSAGE ******************"
     PIPE_READY                  = ["ready"]
     TEST_OUTPUT_DIR             = "test_outputs/"
     VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH = __version__
@@ -47,6 +47,7 @@ class BAD_EVENTS(Enum):
     UDP_SEND_ERROR            = "UDPSend Process Crashed"
     UDP_RECV_ERROR            = "UDPRecv Process Crashed"
     TCP_ERROR                 = "TCP Process Crashed"
+    HIBIKE_START_ERROR        = "Hibike Process failed to start"
     ENTER_TELEOP              = "Dawn says enter Teleop"
     ENTER_AUTO                = "Dawn says enter Auto"
     ENTER_IDLE                = "Dawn says enter Idle"

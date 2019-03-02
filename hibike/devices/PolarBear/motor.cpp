@@ -9,6 +9,9 @@
 
 bool motorEnabled = false;
 float deadBand = 0.05;
+bool invHigh = false;
+int currpwm1 = 0;
+int currpwm2 = 0;
 
 void motorSetup() 
 {
@@ -52,18 +55,56 @@ float readCurrent()
 void drive(float target) 
 {
 	if (target < -deadBand) {
-		digitalWrite(INV, LOW);
-		analogWrite(PWM1, 255);
-		analogWrite(PWM2, 255 + (int) (target * 255));
+		int target = 255 + (int) (target * 255);
+		change_pwm2(currpwm2, target, !invHigh);
 	} else if (target > deadBand) {
 		target = target * -1;
-		digitalWrite(INV, HIGH);
-		analogWrite(PWM1, 255);
-		analogWrite(PWM2, 255 + (int) (target * 255));
+		int target = 255 + (int) (target * 255);
+		change_pwm2(currpwm2, target, invHigh);
 	} else {
-		analogWrite(PWM2, HIGH);
-		analogWrite(PWM1, HIGH);
+		change_pwm2(currpwm2, 255, false);
 	}
+}
+
+void change_pwm2(int current, int target, bool flip) {
+	if (!flip) {
+		if (target > current) {
+			for (current < target; current++) {
+				analogWrite(PWM2, current);
+				if (current % 4 == 0) {
+					delay(1);
+				}
+			}
+		} else {
+			for (current > target; current--) {
+				analogWrite(PWM2, current);
+				if (current % 4 == 0) {
+					delay(1);
+				}
+			}
+		}
+	} else {
+		for (current > 0; current--) {
+			analogWrite(PWM2, current);
+			if (current % 4 == 0) {
+				delay(1);
+			}
+		}
+		if (invHigh) {
+			digitalWrite(INV, LOW);
+			invHigh = false;
+		} else {
+			digitalWrite(INV, HIGH);
+			invHigh = true;
+		}
+		for (current < target, current++) {
+			analogWrite(PWM2, current);
+			if (current % 4 == 0) {
+				delay(1);
+			}
+		}
+	}
+	currpwm2 = target;
 }
 
 
@@ -71,6 +112,7 @@ void clearFault()
 {
 	analogWrite(PWM1, 255);
 	analogWrite(PWM2, 255);
+	pwm2curr = 255;
 }
 
 void setDeadBand(float range) 

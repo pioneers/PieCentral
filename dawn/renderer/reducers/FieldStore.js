@@ -30,6 +30,11 @@ const fieldStore = (state = initialFieldState, action) => {
         ...state,
         heart: !state.heart,
       };
+    case ActionTypes.UPDATE__:
+      return {
+        ...state,
+        master: _______
+      };
     case ActionTypes.UPDATE_MATCH:
       return {
         ...state,

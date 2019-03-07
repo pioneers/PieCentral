@@ -11,6 +11,10 @@ export const runtimeConnect = () => ({
   type: 'RUNTIME_CONNECT',
 });
 
+export const masterStatus = () => ({
+  type: 'ROBOT_MASTER',
+});
+
 export const runtimeDisconnect = () => ({
   type: 'RUNTIME_DISCONNECT',
 });

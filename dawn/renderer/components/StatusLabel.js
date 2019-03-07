@@ -9,7 +9,7 @@ const StatusLabelComponent = (props) => {
   let labelText = 'Disconnected';
   let labelText2 = ' ';
   if (props.masterStatus) {
-    labelText2 = 'Master1';
+    labelText2 = 'Master';
   }
   if (props.connectionStatus) {
     if (!props.runtimeStatus) {

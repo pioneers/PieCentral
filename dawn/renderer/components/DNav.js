@@ -40,6 +40,13 @@ class DNavComponent extends React.Component {
     return `Dawn v${VERSION}`;
   }
 
+  createMaster() {
+    if (this.props.fieldControlStatus) {
+      return this.props.masterStatus;
+    }
+    return false;
+  }
+
   render() {
     return (
       <Navbar fixedTop fluid>
@@ -76,7 +83,7 @@ class DNavComponent extends React.Component {
             <StatusLabel
               connectionStatus={this.props.connectionStatus}
               runtimeStatus={this.props.runtimeStatus}
-              masterStatus={this.props.masterStatus}
+              masterStatus={this.createMaster()}
             />
           </Navbar.Text>
           <Navbar.Form

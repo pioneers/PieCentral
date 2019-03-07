@@ -12,6 +12,9 @@ float deadBand = 0.05;
 bool invHigh = false;
 int currpwm1 = 0;
 int currpwm2 = 0;
+int delayMod = 1;
+float dpwm_dt = 255 / 200000;
+
 
 void motorSetup()
 {
@@ -52,28 +55,33 @@ float readCurrent()
 }
 
 void change_pwm2(int current, int target, bool flip) {
+	int pwm_difference;
+        if (!flip) {
+		pwm_difference = current - target;
+		if (pwm_difference < 0) {
+			pwm_difference *= -1;
+		}
+	} else {
+		pwm_difference = (255 - current) + (255 - target);
+	}
+	float total_time = pwm_difference / dpwm_dt;
+	int unit_delay = (int) (total_time / pwm_difference);
 	if (!flip) {
 		if (target > current) {
 			for (; current < target; current++) {
 				analogWrite(PWM2, current);
-				if (current % 4 == 0) {
-					delay(1);
-				}
+				delayMicroseconds(unit_delay);
 			}
 		} else {
 			for (; current > target; current--) {
 				analogWrite(PWM2, current);
-				if (current % 4 == 0) {
-					delay(1);
-				}
+				delayMicroseconds(unit_delay);
 			}
 		}
 	} else {
-		for (; current > 0; current--) {
+		for (; current < 255; current++) {
 			analogWrite(PWM2, current);
-			if (current % 4 == 0) {
-				delay(1);
-			}
+			delayMicroseconds(unit_delay);
 		}
 		if (invHigh) {
 			digitalWrite(INV, LOW);
@@ -82,11 +90,9 @@ void change_pwm2(int current, int target, bool flip) {
 			digitalWrite(INV, HIGH);
 			invHigh = true;
 		}
-		for (; current < target; current++) {
+		for (; current > target; current--) {
 			analogWrite(PWM2, current);
-			if (current % 4 == 0) {
-				delay(1);
-			}
+			delayMicroseconds(unit_delay);
 		}
 	}
 	currpwm2 = target;
@@ -96,12 +102,12 @@ void change_pwm2(int current, int target, bool flip) {
 void drive(float target)
 {
 	if (target < -deadBand) {
-		int target = 255 + (int) (target * 255);
-		change_pwm2(currpwm2, target, !invHigh);
+		int goal = 255 + (int) (target * 255);
+		change_pwm2(currpwm2, goal, !invHigh);
 	} else if (target > deadBand) {
 		target = target * -1;
-		int target = 255 + (int) (target * 255);
-		change_pwm2(currpwm2, target, invHigh);
+		int goal = 255 + (int) (target * 255);
+		change_pwm2(currpwm2, goal, invHigh);
 	} else {
 		change_pwm2(currpwm2, 255, false);
 	}

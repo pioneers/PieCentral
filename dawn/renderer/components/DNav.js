@@ -47,6 +47,7 @@ class DNavComponent extends React.Component {
           isRunningCode={this.props.isRunningCode}
           connectionStatus={this.props.connectionStatus}
           runtimeStatus={this.props.runtimeStatus}
+          masterStatus={this.props.masterStatus}
           shouldShow={this.state.showUpdateModal}
           ipAddress={this.props.ipAddress}
           hide={this.toggleUpdateModal}
@@ -75,6 +76,7 @@ class DNavComponent extends React.Component {
             <StatusLabel
               connectionStatus={this.props.connectionStatus}
               runtimeStatus={this.props.runtimeStatus}
+              masterStatus={this.props.masterStatus}
             />
           </Navbar.Text>
           <Navbar.Form
@@ -121,6 +123,7 @@ class DNavComponent extends React.Component {
 DNavComponent.propTypes = {
   connectionStatus: PropTypes.bool.isRequired,
   runtimeStatus: PropTypes.bool.isRequired,
+  masterStatus: PropTypes.bool.isRequired,
   isRunningCode: PropTypes.bool.isRequired,
   ipAddress: PropTypes.string.isRequired,
   startTour: PropTypes.func.isRequired,
@@ -131,6 +134,7 @@ DNavComponent.propTypes = {
 };
 
 const mapStateToProps = state => ({
+  masterStatus: state.fieldStore.masterStatus,
   robotState: state.info.robotState,
   heart: state.fieldStore.heart,
   ipAddress: state.info.ipAddress,

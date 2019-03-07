@@ -41,11 +41,11 @@ const info = (state = initialInfoState, action) => {
         ...state,
         runtimeStatus: true,
       };
-    case 'ROBOT_MASTER':
+    case 'MASTER_ROBOT':
       return {
         ...state,
         masterStatus: true,
-      }
+      };
     case 'RUNTIME_DISCONNECT':
       return {
         ...state,

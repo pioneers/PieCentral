@@ -3,14 +3,14 @@ import PropTypes from 'prop-types';
 import { Label } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import numeral from 'numeral';
-import
 
 const StatusLabelComponent = (props) => {
   let labelStyle = 'default';
   let labelText = 'Disconnected';
-  const j = 'test';
-  const g = 'test2';
-  console.log("props.master: " + props.master);
+  let labelText2 = ' ';
+  if (props.masterStatus) {
+    labelText2 = 'Master1';
+  }
   if (props.connectionStatus) {
     if (!props.runtimeStatus) {
       labelStyle = 'danger';
@@ -26,7 +26,8 @@ const StatusLabelComponent = (props) => {
   return (
     <div id="parent">
       <Label bsStyle={labelStyle}>{labelText}</Label>
-      <Label asStyle={j}>{g}</Label>
+      {' '}
+      <Label asStyle={labelStyle}>{labelText2}</Label>
     </div>
   );
 };
@@ -36,14 +37,14 @@ StatusLabelComponent.propTypes = {
   runtimeStatus: PropTypes.bool.isRequired,
   batteryLevel: PropTypes.number.isRequired,
   batterySafety: PropTypes.bool.isRequired,
-  master: PropTypes.bool.isRequired
+  masterStatus: PropTypes.bool.isRequired,
 };
 
 
 const mapStateToProps = state => ({
   batteryLevel: state.peripherals.batteryLevel,
   batterySafety: state.peripherals.batterySafety,
-  master: state.peripheral.master
+  masterStatus: state.fieldStore.masterStatus,
 });
 
 const StatusLabel = connect(mapStateToProps)(StatusLabelComponent);

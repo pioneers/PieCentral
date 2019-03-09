@@ -182,7 +182,7 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
 
         signal.alarm(RUNTIME_CONFIG.STUDENT_CODE_TIMELIMIT.value)
         try:
-            import studentCode
+            import studentcode as studentCode
         except SyntaxError as e:
             raise RuntimeError("Student code has a syntax error: {}".format(e))
         signal.alarm(0)
@@ -389,7 +389,7 @@ def terminate_process(process_name):
 
 def runtime_test(test_names):
     # Normally dangerous. Allowed here because we put testing code there.
-    import studentCode
+    import studentCode as studentcode
 
     test_name_regex = re.compile(".*_setup")
     all_test_names = [test_name[:-len("_setup")]
@@ -518,6 +518,7 @@ def main():
     parser.add_argument('-v', '--version', action='store_true',
                         help='Print the version and exit.')
     arguments = parser.parse_args()
+    print('Starting runtime.')
     if arguments.version:
         print_version()
     elif arguments.test is None:

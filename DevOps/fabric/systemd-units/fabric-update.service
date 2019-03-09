@@ -1,0 +1,14 @@
+[Unit]
+Description=Fabric Update Daemon
+After=multi-user.target
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/fabric/.local/bin/fabric-update
+ExecStop=
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,7 @@
+[Path]
+Unit=fabric-update.service
+MakeDirectory=true
+DirectoryNotEmpty=/home/fabric/updates
+
+[Install]
+WantedBy=multi-user.target

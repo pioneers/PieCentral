@@ -93,16 +93,22 @@ pi@raspberrypi:~ $ sudo reboot
 
 Once the Pi reboots, on the host, copy over these configuration files to the Pi (you may have to re-set the Pi's IP address):
 ```sh
-$ scp fabric-update.* dhcpcd.conf fabric-update fabric@192.168.0.2:~
+$ scp dhcpcd.conf fabric@192.168.0.2:~
+$ scp -r bin fabric@192.168.0.2:~
+$ scp -r systemd-units fabric@192.168.0.2:~
 $ scp bashrc fabric@192.168.0.2:~/.bashrc
 ```
 
 Now, log in as `fabric` with password `fabric`, and run:
 ```sh
 fabric@fabric:~ $ sudo userdel -rf pi
-fabric@fabric:~ $ chmod +x fabric-update
-fabric@fabric:~ $ mv fabric-update ~/.local/bin
-fabric@fabric:~ $ sudo mv fabric-update.* /etc/systemd/system
+fabric@fabric:~ $ mkdir -p updates .local
+fabric@fabric:~ $ chmod +x bin/* && mv bin .local
+fabric@fabric:~ $ sudo mv systemd-units/* /etc/systemd/system
 fabric@fabric:~ $ sudo systemctl enable fabric-update.service
+fabric@fabric:~ $ sudo systemctl enable fabric-update.path
+fabric@fabric:~ $ sudo systemctl enable fabric-start.service
 fabric@fabric:~ $ sudo systemctl daemon-reload
+fabric@fabric:~ $ rmdir systemd-units
+fabric@fabric:~ $ sudo mv dhcpcd.conf /etc
 ```

@@ -15,7 +15,6 @@ flask = "*"
 aioprocessing = "*"
 pyserial-asyncio = "*"
 aiofiles = "*"
-uvloop = "*"
 cobs = "*"
 
 

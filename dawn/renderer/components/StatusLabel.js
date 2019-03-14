@@ -26,7 +26,7 @@ const StatusLabelComponent = (props) => {
   return (
     <div id="parent">
       <Label bsStyle={labelStyle}>{labelText}</Label>
-      {' '}
+      {'  '}
       <Label asStyle={labelStyle}>{labelText2}</Label>
     </div>
   );

@@ -12,7 +12,7 @@ const initialFieldState = {
   mTeamNumbers: [0, 0, 0, 0],
   mTeamNames: ['Offline', 'Offline', 'Offline', 'Offline'],
   teamNumber: 0,
-  teamColor: 'Unknown'
+  teamColor: 'Unknown',
 };
 
 const fieldStore = (state = initialFieldState, action) => {

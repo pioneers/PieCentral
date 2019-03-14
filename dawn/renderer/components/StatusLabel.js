@@ -8,8 +8,12 @@ const StatusLabelComponent = (props) => {
   let labelStyle = 'default';
   let labelText = 'Disconnected';
   let labelText2 = ' ';
+  let teamIP = ' ';
   if (props.masterStatus) {
-    labelText2 = props.teamNumber;
+    teamIP = props.ipAddress.substring(props.ipAddress.length-2, props.ipAddress.length)
+    if (parseInt(teamIP) === props.teamNumber) {
+
+    }
   }
   if (props.connectionStatus) {
     if (!props.runtimeStatus) {
@@ -27,7 +31,7 @@ const StatusLabelComponent = (props) => {
     <div id="parent">
       <Label bsStyle={labelStyle}>{labelText}</Label>
       {'  '}
-      <Label asStyle={labelStyle}>{labelText2}</Label>
+      <Label asStyle={labelStyle}>{labelText2}</Label>>
     </div>
   );
 };
@@ -40,6 +44,7 @@ StatusLabelComponent.propTypes = {
   masterStatus: PropTypes.bool.isRequired,
   teamColor: PropTypes.string.isRequired,
   teamNumber: PropTypes.number.isRequired,
+  ipAddress: PropTypes.string.isRequired,
 };
 
 
@@ -48,7 +53,8 @@ const mapStateToProps = state => ({
   batterySafety: state.peripherals.batterySafety,
   masterStatus: state.fieldStore.masterStatus,
   teamNumber: state.fieldStore.teamNumber,
-  teamColor: state.fieldControl.teamColor,
+  teamColor: state.fieldStore.teamColor,
+  ipAddress: state.info.ipAddress,
 });
 
 const StatusLabel = connect(mapStateToProps)(StatusLabelComponent);

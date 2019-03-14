@@ -86,6 +86,7 @@ class DNavComponent extends React.Component {
               masterStatus={this.props.masterStatus}
               teamColor={this.props.teamColor}
               teamNumber={this.props.teamNumber}
+              ipAddress={this.props.ipAddress}
             />
           </Navbar.Text>
           <Navbar.Form
@@ -147,7 +148,7 @@ DNavComponent.propTypes = {
 const mapStateToProps = state => ({
   masterStatus: state.fieldStore.masterStatus,
   teamNumber: state.fieldStore.teamNumber,
-  teamColor: state.fieldControl.teamColor,
+  teamColor: state.fieldStore.teamColor,
   robotState: state.info.robotState,
   heart: state.fieldStore.heart,
   ipAddress: state.info.ipAddress,

@@ -84,6 +84,8 @@ class DNavComponent extends React.Component {
               connectionStatus={this.props.connectionStatus}
               runtimeStatus={this.props.runtimeStatus}
               masterStatus={this.props.masterStatus}
+              teamColor={this.props.teamColor}
+              teamNumber={this.props.teamNumber}
             />
           </Navbar.Text>
           <Navbar.Form
@@ -138,16 +140,19 @@ DNavComponent.propTypes = {
   robotState: PropTypes.number.isRequired,
   heart: PropTypes.bool.isRequired,
   fieldControlStatus: PropTypes.bool.isRequired,
+  teamColor: PropTypes.string.isRequired,
+  teamNumber: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = state => ({
   masterStatus: state.fieldStore.masterStatus,
+  teamNumber: state.fieldStore.teamNumber,
+  teamColor: state.fieldControl.teamColor,
   robotState: state.info.robotState,
   heart: state.fieldStore.heart,
   ipAddress: state.info.ipAddress,
   fieldControlStatus: state.fieldStore.fieldControl,
   runtimeVersion: state.peripherals.runtimeVersion,
-  teamNumber: msg.match_number,
 });
 
 

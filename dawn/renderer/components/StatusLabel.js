@@ -9,7 +9,7 @@ const StatusLabelComponent = (props) => {
   let labelText = 'Disconnected';
   let labelText2 = ' ';
   if (props.masterStatus) {
-    labelText2 = 'Master';
+    labelText2 = props.teamNumber;
   }
   if (props.connectionStatus) {
     if (!props.runtimeStatus) {
@@ -38,6 +38,8 @@ StatusLabelComponent.propTypes = {
   batteryLevel: PropTypes.number.isRequired,
   batterySafety: PropTypes.bool.isRequired,
   masterStatus: PropTypes.bool.isRequired,
+  teamColor: PropTypes.string.isRequired,
+  teamNumber: PropTypes.number.isRequired,
 };
 
 
@@ -45,6 +47,8 @@ const mapStateToProps = state => ({
   batteryLevel: state.peripherals.batteryLevel,
   batterySafety: state.peripherals.batterySafety,
   masterStatus: state.fieldStore.masterStatus,
+  teamNumber: state.fieldStore.teamNumber,
+  teamColor: state.fieldControl.teamColor,
 });
 
 const StatusLabel = connect(mapStateToProps)(StatusLabelComponent);

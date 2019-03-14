@@ -33,8 +33,8 @@ class FCInternals {
           this.logger.log('Trying to send FC Info to Disconnected Robot');
         }
       });
-      this.socket.on('master', () => {
-        RendererBridge.reduxDispatch(updateMaster());
+      this.socket.on('master', (data) => {
+        RendererBridge.reduxDispatch(updateMaster(JSON.parse(data)));
       });
     });
   }

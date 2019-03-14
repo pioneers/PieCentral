@@ -83,7 +83,7 @@ class DNavComponent extends React.Component {
             <StatusLabel
               connectionStatus={this.props.connectionStatus}
               runtimeStatus={this.props.runtimeStatus}
-              masterStatus={this.createMaster()}
+              masterStatus={this.props.masterStatus}
             />
           </Navbar.Text>
           <Navbar.Form
@@ -147,6 +147,7 @@ const mapStateToProps = state => ({
   ipAddress: state.info.ipAddress,
   fieldControlStatus: state.fieldStore.fieldControl,
   runtimeVersion: state.peripherals.runtimeVersion,
+  teamNumber: msg.match_number,
 });
 
 

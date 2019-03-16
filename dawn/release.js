@@ -1,7 +1,8 @@
 const minimist = require('minimist');
 const packager = require('electron-packager');
 const path = require('path');
-const { execSync } = require('child_process');
+const { exec } = require('child_process');
+const { promisify } = require('util');
 
 /* General release command: 'node release.js'
  * For a specific target: 'node release.js --platform=... --arch=...'
@@ -25,20 +26,14 @@ function pack(platform, arch) {
     packageOptions.arch = arch;
   }
 
-  packager(packageOptions, (err, appPaths) => {
-    if (err) {
+  packager(packageOptions)
+    .then(appPaths => Promise.all(appPaths.map(path => {
+      console.log(`Zipping ${path}`);
+      return promisify(exec)(`zip -r ${path}.zip ${path}`);
+    })))
+    .catch(err => {
       console.log(err);
-      return;
-    }
-    for (const folderPath of appPaths) {
-      console.log(`Zipping ${folderPath}`);
-      execSync(`7z a -tzip ${folderPath}.zip ${folderPath}`, (err, stdout, stderr) => {
-        if (err !== null) {
-          console.log('Error: ', err);
-        }
-      });
-    }
-  });
+    });
 }
 
 function main() {

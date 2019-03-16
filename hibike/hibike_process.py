@@ -8,11 +8,9 @@ import sys
 import random
 import time
 
-
 import serial_asyncio
 import aioprocessing
 import aiofiles
-import uvloop
 
 
 import hibike_message as hm
@@ -23,8 +21,6 @@ except ImportError:
     USING_PACKET_EXTENSION = False
 
 __all__ = ["hibike_process"]
-
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 # .04 milliseconds sleep is the same frequency we subscribe to devices at
 BATCH_SLEEP_TIME = .04

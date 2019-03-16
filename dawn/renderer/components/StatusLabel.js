@@ -32,7 +32,6 @@ const StatusLabelComponent = (props) => {
     <div id="parent">
       <Label bsStyle={labelStyle}>{labelText}</Label>
       {'  '}
-      {console.log(props.fieldControlStatus)}
       <Label bsStyle={masterRobotStyle !== ' ' ? masterRobotStyle : labelStyle}>
         {(parseInt(teamIP, 10) === props.teamNumber &&
           props.fieldControlStatus) ? masterRobotHeader + teamIP : null}

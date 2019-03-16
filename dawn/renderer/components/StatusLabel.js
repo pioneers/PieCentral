@@ -7,14 +7,15 @@ import numeral from 'numeral';
 const StatusLabelComponent = (props) => {
   let labelStyle = 'default';
   let labelText = 'Disconnected';
-  let labelText2 = ' ';
-  let teamIP = ' ';
-  if (props.masterStatus) {
-    teamIP = props.ipAddress.substring(props.ipAddress.length-2, props.ipAddress.length)
-    if (parseInt(teamIP) === props.teamNumber) {
-
-    }
+  const masterRobotHeader = 'Master Robot: Team ';
+  const teamIP = props.ipAddress.substring(props.ipAddress.length - 2, props.ipAddress.length);
+  let masterRobotStyle = ' ';
+  if (props.teamColor === 'blue') {
+    masterRobotStyle = 'primary';
+  } else if (props.teamColor === 'gold') {
+    masterRobotStyle = 'warning';
   }
+
   if (props.connectionStatus) {
     if (!props.runtimeStatus) {
       labelStyle = 'danger';
@@ -31,7 +32,11 @@ const StatusLabelComponent = (props) => {
     <div id="parent">
       <Label bsStyle={labelStyle}>{labelText}</Label>
       {'  '}
-      <Label asStyle={labelStyle}>{labelText2}</Label>>
+      {console.log(props.fieldControlStatus)}
+      <Label bsStyle={masterRobotStyle !== ' ' ? masterRobotStyle : labelStyle}>
+        {(parseInt(teamIP, 10) === props.teamNumber &&
+          props.fieldControlStatus) ? masterRobotHeader + teamIP : null}
+      </Label>
     </div>
   );
 };
@@ -41,10 +46,10 @@ StatusLabelComponent.propTypes = {
   runtimeStatus: PropTypes.bool.isRequired,
   batteryLevel: PropTypes.number.isRequired,
   batterySafety: PropTypes.bool.isRequired,
-  masterStatus: PropTypes.bool.isRequired,
   teamColor: PropTypes.string.isRequired,
   teamNumber: PropTypes.number.isRequired,
   ipAddress: PropTypes.string.isRequired,
+  fieldControlStatus: PropTypes.bool.isRequired,
 };
 
 
@@ -55,6 +60,7 @@ const mapStateToProps = state => ({
   teamNumber: state.fieldStore.teamNumber,
   teamColor: state.fieldStore.teamColor,
   ipAddress: state.info.ipAddress,
+  fieldControlStatus: state.fieldStore.fieldControl,
 });
 
 const StatusLabel = connect(mapStateToProps)(StatusLabelComponent);

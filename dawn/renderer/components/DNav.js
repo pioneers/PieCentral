@@ -87,6 +87,7 @@ class DNavComponent extends React.Component {
               teamColor={this.props.teamColor}
               teamNumber={this.props.teamNumber}
               ipAddress={this.props.ipAddress}
+              fieldControlStatus={this.props.fieldControlStatus}
             />
           </Navbar.Text>
           <Navbar.Form

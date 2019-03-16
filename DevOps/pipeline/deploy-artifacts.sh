@@ -4,7 +4,7 @@
 
 set -e
 pushd DevOps
-pip3 install --user pipenv
+python3 -m pip install --user pipenv
 pipenv install --dev
 pushd pipeline
 echo "Deploying artifacts for '$TRAVIS_TAG' ..."

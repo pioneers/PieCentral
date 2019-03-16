@@ -42,14 +42,12 @@ cp "$piecentral_backup/runtime/studentCode.py" "$piecentral/runtime"
 cp "$piecentral_backup/runtime/namedPeripherals.csv" "$piecentral/runtime"
 ln -s "$piecentral/hibike/hibikeDevices.json" "$piecentral/runtime/hibikeDevices.json"
 
-# Configure executable permissions
-replace_package "$1/resources/update" "$HOME/bin/update"
-sudo chown "$USER:$USER" "$HOME/bin/"*
-chmod 755 "$HOME/bin/"*
-
-# Copy `.bashrc` with aliases
-replace_package "$1/resources/bashrc" "$HOME/.bashrc"
-chmod 644 "$HOME/.bashrc"
+# Copy `.bashrc` and executables
+replace_package "$1/resources/update.sh" "/home/ubuntu/bin/update.sh"
+chmod 755 "/home/ubuntu/bin/"*
+replace_package "$1/resources/bashrc" "/home/ubuntu/.bashrc"
+chmod 644 "/home/ubuntu/.bashrc"
+sudo chown -R "ubuntu:ubuntu" /home/ubuntu
 
 # Update and enable services
 sudo mv "$1/resources/runtime.service" "$systemd_units/runtime.service"
@@ -57,5 +55,3 @@ sudo mv "$1/resources/update.service" "$systemd_units/update.service"
 sudo systemctl daemon-reload
 sudo systemctl reenable update.service
 sudo systemctl reenable runtime.service
-
-sudo mv "$1/resources/blacklist.conf" "/etc/modprobe.d"

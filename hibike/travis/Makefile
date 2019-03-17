@@ -14,7 +14,7 @@ lint:
 	cd .. && find . -type d -name "hibike_packet_extension" -prune -o -type f -name "*.py" -print | xargs pylint
 
 unit_tests:
-	cd .. && pipenv run python3.7 -m unittest hibike_tests/*.py
+	cd .. && pipenv run python3 -m unittest hibike_tests/*.py
 
 test: $(DEVICES) unit_tests
 

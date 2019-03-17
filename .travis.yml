@@ -29,9 +29,9 @@ cache:
     - $HOME/.cache/yarn
 before_install:
   - openssl aes-256-cbc -K $encrypted_516b8f19f8a6_key -iv $encrypted_516b8f19f8a6_iv -in DevOps/pipeline/piecentral-artifacts.pem.encrypted -out DevOps/pipeline/piecentral-artifacts.pem -d
-  - mkdir -p artifacts build-deps/bin
+  - mkdir -p artifacts
+  - mkdir -p build-deps/bin
   - export PATH="${PATH}:$(pwd)/build-deps/bin"
-  - command -v pip3 || sudo apt install python3-pip
   - if [[ $TEST_DIR = dawn ]] && git tag -l --points-at HEAD | grep dawn; then
     export DEPLOY_ARTIFACTS=1; fi
   - if [[ $TEST_DIR = runtime ]] && git tag -l --points-at HEAD | grep runtime; then

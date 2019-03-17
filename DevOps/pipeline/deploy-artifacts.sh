@@ -4,7 +4,6 @@
 
 set -e
 pushd DevOps
-eval "$(pyenv init -)"
 sudo pip3 install pipenv
 pipenv install --dev
 pushd pipeline

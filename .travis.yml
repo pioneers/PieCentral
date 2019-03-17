@@ -62,7 +62,7 @@ branches:
     - /^test\/.*$/
 deploy:
   provider: script
-  script: bash DevOps/pipeline/deploy-artifacts.sh "$APP_ID" "$TRAVIS_TAG" "$(pwd)/artifacts"
+  script: ./DevOps/pipeline/deploy-artifacts.sh "$APP_ID" "$TRAVIS_TAG" "$(pwd)/artifacts"
   skip_cleanup: true
   on:
     # branch: master

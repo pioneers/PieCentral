@@ -15,7 +15,7 @@ function get_runtime_version {
 }
 
 function get_dawn_version {
-  bash -c "cd '$piecentral/dawn' && npm run version --silent"
+  cat "${piecentral}/dawn/package.json" | python -c 'import sys, json; print(json.load(sys.stdin)["version"])'
 }
 
 function set_runtime_version {

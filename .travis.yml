@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 sudo: required
 os:
   - linux
@@ -19,13 +19,6 @@ matrix:
       language: python
       python: 3.6
       env: TEST_DIR=shepherd
-addons:
-  apt:
-    sources:
-      - deadsnakes
-    packages:
-      - python3.7-dev
-      - python3-pip
 env:
   global:
     - APP_ID=15634

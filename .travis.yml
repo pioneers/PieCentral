@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 sudo: required
 os:
   - linux
@@ -19,6 +19,10 @@ matrix:
       language: python
       python: 3.6
       env: TEST_DIR=shepherd
+addons:
+  apt:
+    packages:
+      - socat
 env:
   global:
     - APP_ID=15634
@@ -37,11 +41,12 @@ before_install:
   - if [[ $TEST_DIR = shepherd ]] && git tag -l --points-at HEAD | grep shepherd; then
     export DEPLOY_ARTIFACTS=1; fi
   - pushd $TEST_DIR
-  - mkdir -p build-deps
-  - export PATH="$PATH:$PWD/build-deps/bin"
+  - mkdir -p build-deps/bin
+  - export PATH="${PATH}:$(pwd)/build-deps/bin"
   - popd
 install:
   - pushd $TEST_DIR
+  - command -v pip3 || sudo apt install python3-pip
   - make install
   - if [[ $DEPLOY_ARTIFACTS = 1 ]]; then make artifacts-install; fi
   - popd
@@ -62,7 +67,7 @@ branches:
     - /^test\/.*$/
 deploy:
   provider: script
-  script: bash DevOps/pipeline/deploy-artifacts.sh "$APP_ID" "$TRAVIS_TAG" "$(pwd)/artifacts"
+  script: ./DevOps/pipeline/deploy-artifacts.sh "$APP_ID" "$TRAVIS_TAG" "$(pwd)/artifacts"
   skip_cleanup: true
   on:
     branch: master

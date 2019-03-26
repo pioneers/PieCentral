@@ -150,7 +150,7 @@ def make_pull_request(repo, tag, artifacts, src_branch='master'):
 @click.command()
 @click.option('-k', '--key-file', help='Path to GitHub Apps private key file', required=True)
 @click.option('-a', '--app-id', help='GitHub App ID', required=True)
-@click.option('-d', '--artifacts-dir', help='artifacts directory', required=True)
+@click.option('-d', '--artifacts-dir', help='Artifacts directory', required=True)
 @click.option('-t', '--tag', help='Tag name', required=True)
 @click.option('-p', '--prerelease', help='Prerelease', is_flag=True)
 @click.option('-x', '--draft', help='Draft release', is_flag=True)

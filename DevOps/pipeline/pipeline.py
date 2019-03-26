@@ -158,12 +158,11 @@ def make_pull_request(repo, tag, artifacts, src_branch='master'):
 def cli(key_file, app_id, artifacts_dir, tag, prerelease, draft, website):
     """ Command-line tool for uploading releases to GitHub and updating the software page links. """
     app = GitHubApp(app_id, key_file)
-    piecentral = app.get_repo('pioneers', 'PieCentral')
-    release = True
-    release, artifacts = create_release(piecentral, tag, artifacts_dir, draft=draft, prerelease=prerelease)
+    piecentral_repo = app.get_repo('pioneers', 'PieCentral')
+    release, artifacts = create_release(piecentral_repo, tag, artifacts_dir, draft=draft, prerelease=prerelease)
     if release and website:
-        website = app.get_repo('pioneers', 'website')
-        make_pull_request(website, tag, artifacts)
+        website_repo = app.get_repo('pioneers', 'website')
+        make_pull_request(website_repo, tag, artifacts)
 
 
 if __name__ == '__main__':

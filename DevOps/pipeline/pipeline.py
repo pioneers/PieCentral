@@ -82,9 +82,9 @@ class GitHubApp:
         return Github(access_token).get_repo(f'{owner}/{repo}')
 
 
-def get_commit_from_tag(repo, tag):
+def get_commit_from_tag(repo, target_tag):
     for tag in repo.get_tags():
-        if tag.name == tag:
+        if tag.name == target_tag:
             return tag.commit
 
 
@@ -99,7 +99,7 @@ def artifact_label(name):
 def create_release(repo, tag, artifacts_dir, draft=False, prerelease=False):
     commit = get_commit_from_tag(repo, tag)
     if not commit:
-        logging.warn(f'Unable to find tag "{tag}". Skipping release.')
+        logging.warning(f'Unable to find tag "{tag}". Skipping release.')
         return None, []
     release = repo.create_git_release(tag, tag, commit.commit.message,
                                       draft=draft, prerelease=prerelease)
@@ -110,7 +110,7 @@ def create_release(repo, tag, artifacts_dir, draft=False, prerelease=False):
             artifact = release.upload_asset(artifact, label=artifact_label(filename))
             logging.info(f'Uploading artifact "{artifact}" ...')
         else:
-            logging.warn(f'Cannot upload directory "{artifact}". Skipping.')
+            logging.warning(f'Cannot upload directory "{artifact}". Skipping.')
     logging.info(f'Created release for tag "{tag}".')
     return release, artifacts
 
@@ -133,7 +133,7 @@ def make_pull_request(repo, tag, artifacts, src_branch='master'):
                 contents = replace_page_key(contents, page_key, artifact.browser_download_url)
                 break
         else:
-            logging.warn('Unable to find artifact for "{page_key}". Skipping.')
+            logging.warning('Unable to find artifact for "{page_key}". Skipping.')
 
     today = datetime.date.today().strftime('%B %d, %Y')
     contents = replace_page_key(contents, f'{project}-latest-ver', version)

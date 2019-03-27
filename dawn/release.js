@@ -27,9 +27,12 @@ function pack(platform, arch) {
   }
 
   packager(packageOptions)
-    .then(appPaths => Promise.all(appPaths.map(path => {
-      console.log(`Zipping ${path}`);
-      return promisify(exec)(`zip -r ${path}.zip ${path}`);
+    .then(appPaths => Promise.all(appPaths.map(appPath => {
+      if (appPath === true) {
+        return;
+      }
+      console.log(`Zipping ${appPath}`);
+      return promisify(exec)(`cd .. && zip -r ${appPath}.zip ${path.basename(appPath)}`);
     })))
     .catch(err => {
       console.log(err);

@@ -22,6 +22,7 @@ matrix:
 addons:
   apt:
     packages:
+      - python3-pip
       - socat
 env:
   global:
@@ -46,7 +47,6 @@ before_install:
   - popd
 install:
   - pushd $TEST_DIR
-  - command -v pip3 || sudo apt install python3-pip
   - make install
   - if [[ $DEPLOY_ARTIFACTS = 1 ]]; then make artifacts-install; fi
   - popd
@@ -73,12 +73,3 @@ deploy:
     branch: master
     tags: true
     condition: $DEPLOY_ARTIFACTS = 1
-notifications:
-  slack:
-    rooms:
-      - secure: iByImumEaLfRhxD5wxER3qovftyqSeaQdtdp5y80MSPZMa9AL6NkpyhZPl8WaQxUYvvzWo4/dbal+Qb17ew4hRDsprKbvXh3SP/0SLSe0QAK3ShB+iLBAFX04ZoTRMxdgKvU4LZPbJGSizBWD6lHHz3JCILSpjXtfgL1g74vejVJY2VqMW4Vn4YXfPx39z5v23O9GNzx9S2zGb0dN77ilSRJr/wVzsYqZD8jcgaD63pZ/TCSgxJcVQAvztVaWKkbh19qrP6M4WV1rxIZN8ksnBe1gUJ/VIylMWnf3CRwLaJw4+Z+aqm1GUbD7tsi9BA2D7gmlJC/yv4vzejMCtOpU8z4ymBpvJ6A7uBdv5CMGcOWx35FEpB5LwSGKXk0/5/Ar3HjHzQtB/K7a7PuzvHUROdNUi+9Q6kUAZlEfzEsbEd/sxMy09m6kBKUpluDueJCBcS0qGYlZ+7roQwEs5CEPBqOUhZne3kNH+HXsyHgs4r83FlPEqqnhdswqQYgWYOdrIQVUXX3L8CnCpuFojevwdN+nb/ahwsl0XQl5lgaFcIsU4tZpYHxXExzpWJfN7Y3MvRbFOfNab8LSodAHjvvzXJrmh8lrlv3TYtW5mWDyPg56CTysMOuVRyc74bvvhidff3tUTw62VqH13XESVcdsOEv0g8Jz4ZnzInxJTimX9o=
-    template:
-      - "Build <%{build_url}|#%{build_number}> (<%{compare_url}|%{commit}>) of %{repository}@%{branch} by %{author} %{result} in %{duration}"
-      - "@onibrow Your meatballs are ready!"
-    on_success: change
-    on_failure: always

@@ -27,14 +27,18 @@ logging.basicConfig(format='[{asctime}][{levelname}]: {message}', style='{',
 
 SOFTWARE_PAGE = 'software/index.html'
 PR_COMMIT_TEMPLATE = 'Software Release "{tag}"'
-artifactS = {
+PR_BODY_TEMPLATE = """
+| Artifact Name | Size (KiB) | Content Type |
+|-------------- | ---------- | ------------ |
+""".strip()
+ARTIFACTS = {
     'dawn': {
         re.compile(r'^dawn-win32'): 'dawn-win32-url',
         re.compile(r'^dawn-darwin'): 'dawn-macos-url',
         re.compile(r'^dawn-linux'): 'dawn-linux-url',
     },
     'runtime': {
-        re.compile(r'^frankfurter'): 'runtime-url',
+        re.compile(r'^frankfurter-update'): 'runtime-url',
     }
 }
 TAG_PATTERN = re.compile(r'^(?P<project>dawn|runtime)/(?P<version>[\d\.]+)')
@@ -82,9 +86,9 @@ class GitHubApp:
         return Github(access_token).get_repo(f'{owner}/{repo}')
 
 
-def get_commit_from_tag(repo, tag):
+def get_commit_from_tag(repo, target_tag):
     for tag in repo.get_tags():
-        if tag.name == tag:
+        if tag.name == target_tag:
             return tag.commit
 
 
@@ -99,7 +103,7 @@ def artifact_label(name):
 def create_release(repo, tag, artifacts_dir, draft=False, prerelease=False):
     commit = get_commit_from_tag(repo, tag)
     if not commit:
-        logging.warn(f'Unable to find tag "{tag}". Skipping release.')
+        logging.warning(f'Unable to find tag "{tag}". Skipping release.')
         return None, []
     release = repo.create_git_release(tag, tag, commit.commit.message,
                                       draft=draft, prerelease=prerelease)
@@ -108,9 +112,10 @@ def create_release(repo, tag, artifacts_dir, draft=False, prerelease=False):
         artifact = os.path.join(artifacts_dir, filename)
         if os.path.isfile(artifact):
             artifact = release.upload_asset(artifact, label=artifact_label(filename))
-            logging.info(f'Uploading artifact "{artifact}" ...')
+            artifacts.append(artifact)
+            logging.info(f'Uploading artifact "{artifact.name}" ...')
         else:
-            logging.warn(f'Cannot upload directory "{artifact}". Skipping.')
+            logging.warning(f'Cannot upload directory "{artifact}". Skipping.')
     logging.info(f'Created release for tag "{tag}".')
     return release, artifacts
 
@@ -124,16 +129,21 @@ def make_pull_request(repo, tag, artifacts, src_branch='master'):
     page = repo.get_file_contents(SOFTWARE_PAGE, ref=branch_to_ref(src_branch))
     contents = base64.b64decode(page.content.encode('utf-8')).decode('utf-8')
 
-    tag_match = TAG_PATTERN.match(tag)
+    tag_match, pr_body = TAG_PATTERN.match(tag), PR_BODY_TEMPLATE
     project, version = tag_match.group('project'), tag_match.group('version')
-    for label_pattern, page_key in artifactS.get(project, {}).items():
+    for label_pattern, page_key in ARTIFACTS.get(project, {}).items():
         for artifact in artifacts:
             label = artifact.label or artifact_label(artifact.name)
             if label_pattern.match(label):
                 contents = replace_page_key(contents, page_key, artifact.browser_download_url)
+                pr_body += ' | '.join([
+                    f'[`{artifact.name}`]({artifact.browser_download_url})',
+                    str(round(artifact.size/1024, 1)),
+                    f'`{artifact.content_type}`',
+                ]).strip() + '\n'
                 break
         else:
-            logging.warn('Unable to find artifact for "{page_key}". Skipping.')
+            logging.warning(f'Unable to find artifact for "{page_key}". Skipping.')
 
     today = datetime.date.today().strftime('%B %d, %Y')
     contents = replace_page_key(contents, f'{project}-latest-ver', version)
@@ -142,7 +152,7 @@ def make_pull_request(repo, tag, artifacts, src_branch='master'):
     ref = repo.create_git_ref(branch_to_ref(tag), sha=branch.commit.sha)
     message = PR_COMMIT_TEMPLATE.format(tag=tag)
     repo.update_file(SOFTWARE_PAGE, message, contents.encode('utf-8'), page.sha, branch=tag)
-    pr = repo.create_pull(title=message, base=src_branch, head=tag)
+    pr = repo.create_pull(title=message, body=pr_body, base=src_branch, head=tag)
     logging.info(f'Created pull request #{pr.id} for "{repo.owner}/{repo.name}".')
     return pr
 

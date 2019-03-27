@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: ./DevOps/pipeline/artifacts-pipeline.sh "<app-id>" "<tag>" "<artifacts-dir>"
+# Usage: ./deploy-artifacts.sh "<app-id>" "<tag>" "<artifacts-dir>"
 
 set -e
 pushd DevOps

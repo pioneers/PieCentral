@@ -22,6 +22,7 @@ matrix:
 addons:
   apt:
     packages:
+      - python3-pip
       - socat
 env:
   global:
@@ -46,7 +47,6 @@ before_install:
   - popd
 install:
   - pushd $TEST_DIR
-  - command -v pip3 || sudo apt install python3-pip
   - make install
   - if [[ $DEPLOY_ARTIFACTS = 1 ]]; then make artifacts-install; fi
   - popd

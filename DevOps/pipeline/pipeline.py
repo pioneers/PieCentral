@@ -41,7 +41,7 @@ ARTIFACTS = {
         re.compile(r'^frankfurter-update'): 'runtime-url',
     }
 }
-TAG_PATTERN = re.compile(r'^(?P<project>dawn|runtime)/(?P<version>[\d\.]+)')
+TAG_PATTERN = re.compile(r'^(?P<project>[a-z]+)/(?P<version>[\d\.]+)')
 
 
 class GitHubApp:
@@ -127,20 +127,21 @@ def replace_page_key(contents, key, value):
 def make_pull_request(repo, tag, artifacts, src_branch='master'):
     branch = repo.get_branch(src_branch)
     page = repo.get_file_contents(SOFTWARE_PAGE, ref=branch_to_ref(src_branch))
-    contents = base64.b64decode(page.content.encode('utf-8')).decode('utf-8')
+    contents = old_contents = base64.b64decode(page.content.encode('utf-8')).decode('utf-8')
 
     tag_match, pr_body = TAG_PATTERN.match(tag), PR_BODY_TEMPLATE
+    if not tag_match:
+        logging.error('Tag does not match the expected pattern. Aborting pull request.')
+        return
     project, version = tag_match.group('project'), tag_match.group('version')
     for label_pattern, page_key in ARTIFACTS.get(project, {}).items():
         for artifact in artifacts:
             label = artifact.label or artifact_label(artifact.name)
             if label_pattern.match(label):
                 contents = replace_page_key(contents, page_key, artifact.browser_download_url)
-                pr_body += ' | '.join([
-                    f'[`{artifact.name}`]({artifact.browser_download_url})',
-                    str(round(artifact.size/1024, 1)),
-                    f'`{artifact.content_type}`',
-                ]).strip() + '\n'
+                pr_body += (f'\n| [`{artifact.name}`]({artifact.browser_download_url}) '
+                            f'| {round(artifact.size/1024, 1)} '
+                            f'| `{artifact.content_type}` |')
                 break
         else:
             logging.warning(f'Unable to find artifact for "{page_key}". Skipping.')
@@ -149,12 +150,13 @@ def make_pull_request(repo, tag, artifacts, src_branch='master'):
     contents = replace_page_key(contents, f'{project}-latest-ver', version)
     contents = replace_page_key(contents, f'{project}-last-update', today)
 
-    ref = repo.create_git_ref(branch_to_ref(tag), sha=branch.commit.sha)
-    message = PR_COMMIT_TEMPLATE.format(tag=tag)
-    repo.update_file(SOFTWARE_PAGE, message, contents.encode('utf-8'), page.sha, branch=tag)
-    pr = repo.create_pull(title=message, body=pr_body, base=src_branch, head=tag)
-    logging.info(f'Created pull request #{pr.id} for "{repo.owner}/{repo.name}".')
-    return pr
+    if contents != old_contents:
+        ref = repo.create_git_ref(branch_to_ref(tag), sha=branch.commit.sha)
+        message = PR_COMMIT_TEMPLATE.format(tag=tag)
+        repo.update_file(SOFTWARE_PAGE, message, contents.encode('utf-8'), page.sha, branch=tag)
+        pr = repo.create_pull(title=message, body=pr_body, base=src_branch, head=tag)
+        logging.info(f'Created pull request #{pr.id} for "{repo.owner}/{repo.name}".')
+        return pr
 
 
 @click.command()

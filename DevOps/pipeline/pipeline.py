@@ -19,7 +19,7 @@ import re
 from typing import Dict
 
 import click
-from github import Github
+import github
 import jwt
 
 logging.basicConfig(format='[{asctime}][{levelname}]: {message}', style='{',
@@ -75,32 +75,33 @@ class GitHubApp:
         with urlopen(request) as response:
             return json.load(response)
 
-    def retrieve_access_token(self, owner, repo):
+    def retrieve_access_token(self, owner: str, repo: str) -> str:
         install_url = urljoin(self.api_base_url, f'/repos/{owner}/{repo}/installation')
         headers = {'Authorization': f'Bearer {self.generate_client_token()}'}
         access_url = self.make_request(install_url, headers=headers)['access_tokens_url']
         return self.make_request(access_url, headers=headers, method='POST')['token']
 
-    def get_repo(self, owner, repo):
+    def get_repo(self, owner: str, repo: str) -> github.Repository:
         access_token = self.retrieve_access_token(owner, repo)
-        return Github(access_token).get_repo(f'{owner}/{repo}')
+        return github.Github(access_token).get_repo(f'{owner}/{repo}')
 
 
-def get_commit_from_tag(repo, target_tag):
+def get_commit_from_tag(repo: github.Repository, target_tag: str) -> github.GitCommit:
     for tag in repo.get_tags():
         if tag.name == target_tag:
             return tag.commit
 
 
-def branch_to_ref(branch):
+def branch_to_ref(branch: str) -> str:
     return 'refs/heads/' + branch
 
 
-def artifact_label(name):
+def artifact_label(name: str) -> str:
     return os.path.splitext(name)[0]
 
 
-def create_release(repo, tag, artifacts_dir, draft=False, prerelease=False):
+def create_release(repo: github.Repository, tag: str, artifacts_dir: str,
+                   draft: bool = False, prerelease: bool = False):
     commit = get_commit_from_tag(repo, tag)
     if not commit:
         logging.warning(f'Unable to find tag "{tag}". Skipping release.')
@@ -120,7 +121,7 @@ def create_release(repo, tag, artifacts_dir, draft=False, prerelease=False):
     return release, artifacts
 
 
-def replace_page_key(contents, key, value):
+def replace_page_key(contents: str, key: str, value: str) -> str:
     return re.sub(r'({0}):\s*.*\n'.format(key), r'\1: {0}\n'.format(value), contents)
 
 
@@ -155,18 +156,19 @@ def make_pull_request(repo, tag, artifacts, src_branch='master'):
         message = PR_COMMIT_TEMPLATE.format(tag=tag)
         repo.update_file(SOFTWARE_PAGE, message, contents.encode('utf-8'), page.sha, branch=tag)
         pr = repo.create_pull(title=message, body=pr_body, base=src_branch, head=tag)
-        logging.info(f'Created pull request #{pr.id} for "{repo.owner}/{repo.name}".')
+        logging.info(f'Created pull request #{pr.id} for "{repo.owner.login}/{repo.name}".')
         return pr
 
 
 @click.command()
 @click.option('-k', '--key-file', help='Path to GitHub Apps private key file', required=True)
 @click.option('-a', '--app-id', help='GitHub App ID', required=True)
-@click.option('-d', '--artifacts-dir', help='Artifacts directory', required=True)
+@click.option('-d', '--artifacts-dir', help='Artifacts directory', required=True,
+              type=click.Path(file_okay=False, dir_okay=True, exists=True))
 @click.option('-t', '--tag', help='Tag name', required=True)
 @click.option('-p', '--prerelease', help='Prerelease', is_flag=True)
 @click.option('-x', '--draft', help='Draft release', is_flag=True)
-@click.option('-w', '--website', help='Update website', is_flag=True)
+@click.option('-w', '--website', help='If set, submit a PR to update the website', is_flag=True)
 def cli(key_file, app_id, artifacts_dir, tag, prerelease, draft, website):
     """ Command-line tool for uploading releases to GitHub and updating the software page links. """
     app = GitHubApp(app_id, key_file)

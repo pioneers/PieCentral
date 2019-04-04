@@ -7,9 +7,12 @@ const initialFieldState = {
   rTeamNumber: 0,
   rTeamName: 'Unknown',
   heart: false,
+  masterStatus: false,
   mMatchNumber: 0,
   mTeamNumbers: [0, 0, 0, 0],
   mTeamNames: ['Offline', 'Offline', 'Offline', 'Offline'],
+  teamNumber: 0,
+  teamColor: 'Unknown',
 };
 
 const fieldStore = (state = initialFieldState, action) => {
@@ -29,6 +32,13 @@ const fieldStore = (state = initialFieldState, action) => {
       return {
         ...state,
         heart: !state.heart,
+      };
+    case ActionTypes.UPDATE_MASTER:
+      return {
+        ...state,
+        masterStatus: true,
+        teamNumber: action.teamNumber,
+        teamColor: action.alliance,
       };
     case ActionTypes.UPDATE_MATCH:
       return {

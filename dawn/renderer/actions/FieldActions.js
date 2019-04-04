@@ -11,6 +11,12 @@ export const updateHeart = () => ({
   type: ActionTypes.UPDATE_HEART,
 });
 
+export const updateMaster = msg => ({
+  type: ActionTypes.UPDATE_MASTER,
+  alliance: msg.alliance,
+  teamNumber: msg.team_number,
+});
+
 export const updateMatch = msg => ({
   type: ActionTypes.UPDATE_MATCH,
   matchNumber: msg.match_number,

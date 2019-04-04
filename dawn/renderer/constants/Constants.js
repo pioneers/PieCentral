@@ -18,6 +18,7 @@ export const PeripheralTypes = keyMirror({
   BatteryBuzzer: null,
   TeamFlag: null,
   GameValues: null,
+  master: null,
 });
 
 export const ActionTypes = keyMirror({
@@ -39,6 +40,7 @@ export const ActionTypes = keyMirror({
   UPDATE_HEART: null,
   UPDATE_ROBOT: null,
   UPDATE_MATCH: null,
+  UPDATE_MASTER: null,
   ADD_ALERT: null,
   REMOVE_ALERT: null,
   CLEAR_CONSOLE: null,

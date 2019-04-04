@@ -16,4 +16,4 @@ cobs = "*"
 
 [dev-packages]
 pylint = "==1.8.1"
-yappi = "*"
+yappi = "~=1.0"

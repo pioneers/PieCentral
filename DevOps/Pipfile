@@ -6,9 +6,10 @@ verify_ssl = true
 python_version = "3.7"
 
 [packages]
-selenium = "*"
-pyjwt = "*"
-cryptography = "*"
-click = "*"
-pytest = "*"
-PyGithub = "*"
+selenium = "~=3.14"
+pyjwt = "~=1.6"
+cryptography = "~=2.3"
+click = "~=7.0"
+pytest = "~=3.8"
+PyGithub = "~=1.43"
+slackclient = "~=1.3"

@@ -36,27 +36,8 @@ const peripherals = (state = initialPeripheralState, action) => {
           nextState.runtimeVersion = `${version.major}.${version.minor}.${version.patch}`;
         } else {
           keys.push(peripheral.uid);
-          switch (peripheral.uid) {
-            case '0': {
-              peripheral.device_name = 'Blackout';
-              peripheral.device_type = PeripheralTypes.GameValues;
-              break;
-            }
-            case '1': {
-              peripheral.device_name = 'Supercharge';
-              peripheral.device_type = PeripheralTypes.GameValues;
-              break;
-            }
-            case '2': {
-              peripheral.device_name = 'Solar Inverter';
-              peripheral.device_type = PeripheralTypes.GameValues;
-              break;
-            }
-            default: {
-              if (peripheral.uid in nextPeripherals) {
-                peripheral.device_name = nextPeripherals[peripheral.uid].device_name;
-              }
-            }
+          if (peripheral.uid in nextPeripherals) {
+            peripheral.device_name = nextPeripherals[peripheral.uid].device_name;
           }
           nextPeripherals[peripheral.uid] = peripheral;
         }

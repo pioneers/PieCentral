@@ -1,316 +1,255 @@
-import time
-import asyncio
-from runtimeUtil import *
+right_motor = "47257694863303572622996"
+left_motor = "56692491028743135592595"
+servo_controller = "33083708407374743778514"
+rfid_sensor = "51967350706562744010830"
+wrist_servo = "servo0"
+elbow_servo = "servo1"
 
+HIGH_FIVE_START_ANGLE = .8
+HIGH_FIVE_BACK_ANGLE = -1
+
+# Joystick input values less than this will be rounded to 0
+JOYSTICK_DEAD_ZONE = .15
+
+import math
 
 def autonomous_setup():
-    pass
-
+    print("Autonomous mode has started!")
 
 def autonomous_main():
     pass
 
-def teleop_setup():
-    pass
+async def autonomous_actions():
+    print("Autonomous action sequence started")
+    await Actions.sleep(1.0)
+    print("1 second has passed in autonomous mode")
 
+def teleop_setup():
+    print("Tele-operated mode has started!")
+    set_elbow_servo(HIGH_FIVE_START_ANGLE)
 
 def teleop_main():
-    pass
-
-
-def setup():
-    pass
-
-
-def main():
-    pass
-
-
-def asyncawait_setup():
-    Robot.create_key("right")
-    Robot.create_key("counter")
-    Robot._set_sm_value(3.0, "right")
-    Robot._set_sm_value(0.0, "counter")
-    Robot.run(asyncawait_helper)
-
-
-def asyncawait_main():
-    Robot._set_sm_value(Robot._get_sm_value("counter") + 1, "counter")
-    if Robot._get_sm_value("right") == 4 and Robot._get_sm_value("counter") == 3:
-        print("Async Success")
-
-
-async def asyncawait_helper():
-    Robot._set_sm_value(Robot._get_sm_value("right") + 1, "right")
-
-
-def test0_setup():
-    print("test0_setup")
-
-
-def test0_main():
-    print("test0_main")
-
-
-def mainTest_setup():
-    pass
-
-
-def mainTest_main():
-    response = Robot._get_sm_value("incrementer")
-    print("Get Info:", response)
-    response -= 1
-
-    Robot._set_sm_value(response, "incrementer")
-
-    print("Saying hello to the other side")
-    print("DAT:", 1.0 / response)
-
-
-async def sleepDurationHelper():
-    await sleep_duration(1)
-
-def sleepDuration_setup():
-    print("Doing sleep test")
-    run_async(sleepDurationHelper)
-    print(is_robot_running(sleepDurationHelper))
-
-def sleepDuration_main():
-    pass
-
-
-def newAPI_setup():
-    print("running test")
-    print(get_gamepad_value("button_a"))
-    print(get_gamepad_value("joystick_left_x"))
-
-def newAPI_main():
-    pass
-
-def nestedDict_setup():
-    pass
-
-
-def nestedDict_main():
-    print("CODE LOOP")
-    response = Robot._get_sm_value("dict1", "inner_dict1_int")
-    print("Get Info:", response)
-
-    response = 1
-    Robot._set_sm_value(response, "dict1", "inner_dict1_int")
-    response = Robot._get_sm_value("dict1", "inner_dict1_int")
-    print("Get Info2:", response)
-
-
-def studentCodeMainCount_setup():
-    pass
-
-
-def studentCodeMainCount_main():
-    print(Robot._get_sm_value("runtime_meta", "studentCode_main_count"))
-
-
-def createKey_setup():
-    Robot.create_key("Restarts")
-    Robot._set_sm_value(0, "Restarts")
-    if Robot._get_sm_value("Restarts") != 0:
-        print("Either getValue or setValue is not working correctly")
-    pass
-
-
-def createKey_main():
-    Robot.create_key("Restarts")
-    if Robot._get_sm_value("Restarts") == 0:
-        try:
-            print("Making sure setValue can't create new key")
-            Robot._set_sm_value(707, "Klefki")
-        except StudentAPIKeyError:
-            print("Success!")
+    deadzone = lambda val : val if abs(val) > JOYSTICK_DEAD_ZONE else 0
+    left_joystick = deadzone(Gamepad.get_value("joystick_left_y"))
+    right_joystick = deadzone(Gamepad.get_value("joystick_right_y"))
+    bound = lambda x : max(-1, min( 1, x))
+    left_motor_power = left_joystick
+    right_motor_power = right_joystick
+    set_right_motor(right_motor_power)
+    set_left_motor(left_motor_power)
+    if Gamepad.get_value("l_bumper"):
+        Robot.run(wave)
+    if Gamepad.get_value("r_bumper"):
+        Robot.run(high_five)
+    if Gamepad.get_value("r_trigger"):
+        reset_elbow()
+    if (Robot.get_value(rfid_sensor, "tag_detect")):
+        if (Robot.get_value(rfid_sensor, "id") % 100 == 25):
+            Robot.run(wave)
         else:
-            print("ERROR: setValue can create keys :(")
+            Robot.run(high_five)
+    
+def set_left_motor(power):
+    """Sets the power of the left motor"""
+    Robot.set_value(left_motor, "duty_cycle", -1 *power)
+    
+def set_right_motor(power):
+    """Sets the power of the right motor"""
+    Robot.set_value(right_motor, "duty_cycle", 1 * power)
+    
+def set_wrist_servo(angle):
+    Robot.set_value(servo_controller, wrist_servo, angle)
+    
+def set_elbow_servo(angle):
+    Robot.set_value(servo_controller, elbow_servo, angle)
 
-    print("Creating key 'Klefki' and setting to value 707")
-    Robot.create_key("Klefki")
-    Robot._set_sm_value(707, "Klefki")
-    print("Success!")
+def reset_elbow():
+    Robot.set_value(servo_controller, elbow_servo, HIGH_FIVE_START_ANGLE)
 
-    print("Creating nested keys")
-    Robot.create_key("Mankey", "EVOLUTION")
-    Robot._set_sm_value("Primeape", "Mankey", "EVOLUTION")
-    print("Success!")
-    restarts = Robot._get_sm_value("Restarts")
-    Robot._set_sm_value(restarts + 1, "Restarts")
-
-
-def timestamp_setup():
-    pass
-
-
-def timestamp_main():
-    path = ["dict1", "inner_dict_1_string"]
-
-    print("Getting timestamp")
-    initialTime = Robot.get_timestamp(*path)
-    print("Success!")
-
-    print("Setting timestamp")
-    Robot._set_sm_value("bye", *path)
-    print("Success!")
-
-    print("Getting new timestamp")
-    newTime = Robot.get_timestamp(*path)
-    if newTime > initialTime and time.time() - newTime < 1:
-        print("Success!")
-    else:
-        print("Timestamp did not update correctly")
-
-    print("Testing nested timestamps")
-    if newTime == Robot.get_timestamp(*path[:-1]):
-        print("Success!")
-    else:
-        print("Nested timestamps did not update correctly")
+async def wave():
+    set_wrist_servo(0)
+    for _ in range(3):
+        set_wrist_servo(-1)
+        await Actions.sleep(.5)
+        set_wrist_servo(1)
+        await Actions.sleep(.5)
+    set_wrist_servo(0)
 
 
-def infiniteSetupLoop_setup():
-    print("setup")
-    while True:
-        time.sleep(.1)
-
-
-def infiniteSetupLoop_main():
-    print("main")
-
-
-def infiniteMainLoop_setup():
-    print("setup")
-
-
-def infiniteMainLoop_main():
-    print("main")
-    while True:
-        time.sleep(.1)
-
-
-def optionalhibikeSensorMappings_setup():
-    pass
-
-
-def optionalhibikeSensorMappings_main():
-    print(Robot._hibike_get_uid('zero'))
-    print(Robot._hibike_get_uid('one'))
-    print(Robot._hibike_get_uid('two'))
-    print(Robot._hibike_get_uid('three'))
-
-
-def gamepadGetVal_setup():
-    pass
-
-
-def gamepadGetVal_main():
-    print("running test")
-    print(Gamepad.get_value("button_a"))
-    print(Gamepad.get_value("joystick_left_x"))
-
-
-def asyncIsRunning_setup():
-    pass
-
-
-def asyncIsRunning_main():
-    Robot.run(asyncIsRunningHelper)
-    print(Robot.is_running(asyncIsRunningHelper))
-
-
-async def asyncIsRunningHelper():
+async def high_five():
+    set_elbow_servo(HIGH_FIVE_START_ANGLE)
+    await Actions.sleep(.75)
+    set_elbow_servo(HIGH_FIVE_BACK_ANGLE)
+    await Actions.sleep(.75)
+    set_elbow_servo(HIGH_FIVE_START_ANGLE)
+    print("resetting elbow servo")
     await Actions.sleep(1)
 
+async def wave_and_high_five():
+    set_wrist_servo(0)
+    for _ in range(2):
+        set_elbow_servo(0)
+        await Actions.sleep(1)
+        set_elbow_servo(-1)
+        await Actions.sleep(1)
 
-def optionalapiGetVal_setup():
-    Robot.create_key("hibike", "devices", 47223664828696452136960, "duty_cycle")
-    Robot._set_sm_value(0.5, "hibike", "devices",
-                      47223664828696452136960, "duty_cycle")
-
-
-def optionalapiGetVal_main():
-    print(Robot.get_value("motor1", "duty_cycle"))
-
-
-def optionalTestsDisabled_setup():
-    assert False, "This optional test should never be run"
-
-
-def optionalTestsDisabled_main():
-    assert False, "This optional test should never be run"
-
-
-def optionalTestsWork_setup():
-    pass
-
-
-def optionalTestsWork_main():
-    pass
-
-
-def asyncSleep_setup():
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncSleepHelper())
-
-
-def asyncSleep_main():
-    pass
-
-
-async def asyncSleepHelper():
-    sleepTestVal = {'test': False}
-    Robot.run(asyncSleepHelper2, sleepTestVal)
-
-    await Actions.sleep(.1)
-    print('Testing sleep part 1')
-    if sleepTestVal['test']:
-        print('Success!')
-    else:
-        print('Failed to sleep for the correct amount of time')
-
+    set_elbow_servo(.1)
+    await Actions.sleep(.3)
+    set_elbow_servo(.05)
+    await Actions.sleep(.3)
+    set_elbow_servo(0)
+    await Actions.sleep(1)
+    
+    for _ in range(3):
+        set_wrist_servo(-1)
+        await Actions.sleep(1)
+        set_wrist_servo(1)
+        await Actions.sleep(1)
+    
+async def jiggle(power):
+    set_right_motor(power)
+    set_left_motor(power)
     await Actions.sleep(.5)
-    print('Testing sleep part 2')
-    if not sleepTestVal['test']:
-        print('Success!')
-    else:
-        print('Failed to sleep for the correct amount of time')
-
-
-async def asyncSleepHelper2(sleepTestVal):
-    sleepTestVal['test'] = True
+    set_right_motor(0)
+    set_left_motor(0)
+    await Actions.sleep(1)
+    set_right_motor(-power)
+    set_left_motor(-power)
+    await Actions.sleep(.9)
+    set_right_motor(0)
+    set_left_motor(0)
     await Actions.sleep(.5)
-    sleepTestVal['test'] = False
 
-###########################
-# Solar Scramble Functions 
-###########################   
 
-def next_power(num):
+"""
+def tennis_ball(n):
+    return 1
+
+def remove_duplicates(n):
+    return 1
+
+def rotate(n):
+    return 1
+
+def next_fib(n):
+    return 1
+
+def most_common(n):
+    return 1
+
+def get_coins(n):
+    return 1
+"""
+
+
+def rotate(numbers):
+    copy = numbers
+    max_num = 0
+    while copy:
+        num = copy % 10
+        copy = copy // 10
+        size = math.log(numbers)//math.log(10)
+        max_num = num if num > max_num else max_num
+    for i in range(max_num):
+        lsd = numbers % 10
+        numbers = numbers // 10
+        msd = (lsd) * 10**(size)
+        numbers = numbers + msd
+    return int(numbers)
+
+def tennis_ball(num):
+    index = 5
+    while index > 0:
+        if num % 3 == 0:
+            num = num // 3
+        elif num % 2 == 1:
+            num = num * 4 + 2
+        else:
+            num += 1
+        index -= 1
     return num
 
-def reverse_digits(num):
-    return num
+def most_common(num):
+    parse = []
+    while num != 0:
+        parse.append(num % 10)
+        num = num // 10
+    parse.reverse()
+    l = list(set(parse))
+    if len(l) <= 4:
+        l = sorted(l, reverse=True)
+    else:
+        ret = []
+        d = {}
+        for n in parse:
+            if n in d.keys():
+                d[n] += 1
+            else:
+                d[n] = 1
+        final = []
+        boolean = {}
+        for key, value in sorted(d.items(), key=lambda kv: kv[1], reverse = True):
+            final.append(key)
+            boolean[key] = False
+        boolean[final[3]] = True
+        for key in final:
+            if d[key] == d[final[3]]:
+                boolean[key] = True
+        for i in range(4):
+            if boolean[final[i]] == False:
+                ret.append(final[i])
+        left = 4 - len(ret)
+        if left != 0:
+            for i in range(len(parse)):
+                if boolean[parse[i]] == True and parse[i] not in ret:
+                    print(parse[i])
+                    ret.append(parse[i])
+                    left -= 1
+                    if left == 0:
+                        break
+        l = sorted(ret, reverse=True)
+    final_num = 0
+    while l != []:
+        final_num = final_num * 10 + l[0]
+        l = l[1:]
+    return final_num
 
-def smallest_prime_fact(num):
-    return num
+def remove_duplicates(num):
+    l = []
+    while num > 0:
+        l = [num % 10] + l
+        num = num // 10
+    final = []
+    for i in range(len(l)):
+        y = 0
+        exist = False
+        while y < i:
+            if l[i] == l[y]:
+                exist = True
+            y += 1
+        if not exist:
+            final = [l[i]] + final
+    n = 0
+    while final != []:
+        n = 10 * n + final[-1]
+        final = final[:-1]
+    return n
 
-def prime_factor(num):
-    return num
+def next_fib(num):
+    first = 0
+    second = 1
+    sum = 0
+    if num == 0:
+        return 0
+    for i in range(num):
+        sum = first + second
+        if sum >= num:
+            return sum
+        first = second
+        second = sum
 
-def silly_base_two(num):
-    return num
-
-def most_common_digit(num):
-    return num
-
-def valid_isbn_ten(num):
-    return num
-
-def simd_four_square(num):
-    return num
-
-def double_caesar_cipher(key):
-    return key
+def get_coins(num):
+    quarters = num // 25
+    nickels = (num - 25 * quarters) // 5
+    pennies = num - nickels * 5 - quarters * 25
+    return int(str(quarters) + str(nickels) + str(pennies))

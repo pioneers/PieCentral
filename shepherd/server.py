@@ -13,7 +13,7 @@ PORT = 5000
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'omegalul!'
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode="gevent")
 
 @app.route('/')
 def hello_world():
@@ -27,9 +27,14 @@ def score_adjustment():
 def staff_gui():
     return render_template('staff_gui.html')
 
+@app.route('/stage_control.html/')
+def stage_control():
+    return render_template('stage_control.html')
+
 @socketio.on('join')
 def handle_join(client_name):
     print('confirmed join: ' + client_name)
+    lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.REQUEST_CONNECTIONS)
 
 #Score Adjustment
 @socketio.on('ui-to-server-scores')
@@ -71,6 +76,8 @@ def receiver():
                 socketio.emit('server-to-ui-teamsinfo', json.dumps(event[1], ensure_ascii=False))
             elif event[0] == UI_HEADER.SCORES:
                 socketio.emit('server-to-ui-scores', json.dumps(event[1], ensure_ascii=False))
+            elif event[0] == UI_HEADER.CONNECTIONS:
+                socketio.emit('server-to-ui-connections', json.dumps(event[1], ensure_ascii=False))
         socketio.sleep(0.1)
 
 socketio.start_background_task(receiver)

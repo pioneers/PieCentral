@@ -16,6 +16,11 @@ make
 sudo make install
 sudo ldconfig
 
+cd lcm-python
+python3 setup.py build
+python3 setup.py install
+cd ..
+
 # Cleanup
 cd ..
 rm -rf "lcm-$lcm_version"

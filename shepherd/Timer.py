@@ -24,10 +24,8 @@ class busyThread(threading.Thread):
             if self.queue and self.queue[0].end_time < time.time():
                 Timer.queueLock.acquire()
                 event = heapq.heappop(self.queue)
-                if event.timer_type == TIMER_TYPES.MATCH:
-                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.STAGE_TIMER_END)
-                if event.timer_type == TIMER_TYPES.EXTENDED_TELEOP:
-                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.END_EXTENDED_TELEOP)
+                if event.timer_type is not None and event.timer_type["NEEDS_FUNCTION"]:
+                    LCM.lcm_send(LCM_TARGETS.SHEPHERD, event.timer_type["FUNCTION"])
                 event.active = False
                 Timer.queueLock.release()
         for timer in self.queue:
@@ -80,7 +78,6 @@ class Timer:
             heapq.heappush(Timer.eventQueue, self)
             self.active = True
             Timer.queueLock.release()
-
 
     def reset(self):
         """Stops the current timer (if any) and sets timer to inactive"""

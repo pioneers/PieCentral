@@ -23,6 +23,7 @@ addons:
   apt:
     packages:
       - python3-pip
+      - libasound2-dev
       - socat
 env:
   global:

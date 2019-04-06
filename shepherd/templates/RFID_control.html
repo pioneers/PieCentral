@@ -1,0 +1,161 @@
+<html>
+
+<head>
+  <title>RFID Control</title>
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <script type="text/javascript" src={{url_for( 'static', filename='jquery-1.12.3.min.js' )}}></script>
+  <script type="text/javascript" src={{url_for( 'static', filename='tabletop.js' )}}></script>
+  <script type="text/javascript" src={{url_for( 'static', filename='lcm_ws_bridge.js' )}}></script>
+  <script type="text/javascript" src={{url_for( 'static', filename='socket.io.js' )}}></script>
+  <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script> -->
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="{{url_for('static', filename='bootstrap.min.css')}}">
+  <!-- Styles -->
+  <style>
+    .blue-field {
+      border-radius: 15px;
+      border: 8px solid blue;
+    }
+
+    .gold-field {
+      border-radius: 15px;
+      border: 8px solid gold;
+    }
+
+    .bottom-padding {
+      margin-bottom: 15px;
+    }
+
+    .left-margin {
+      margin-left: 80px;
+    }
+
+    .right-margin {
+      margin-right: 80px;
+    }
+  </style>
+
+  <!-- Javascript -->
+  <script type="text/javascript" charset="utf-8">
+    var RFID_list = ['x', 'x', 'x', 'x', 'x', 'x'];
+    var socket = io('http://127.0.0.1:5000');
+
+    $(document).ready(function() {
+
+    	function getCookie(cname) {
+     var name = cname + "=";
+     var ca = document.cookie.split(';');
+     for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if(c.indexOf(name) == 0)
+           return c.substring(name.length,c.length);
+     }
+     return "";
+}
+
+      socket.on('connect', function(data) {
+        socket.emit('join', 'RFID_control');
+      });
+
+      var RFID_cookie = getCookie("RFID_LIST");
+      if (RFID_cookie != "") {
+        RFID_list = decodeURIComponent(document.cookie).slice(10).split(",")
+        showRFID()
+    }
+
+      socket.on('server-to-ui-rfidlist', function(data) {
+        console.log(data)
+        console.log(JSON.parse(data))
+        RFID_list = JSON.parse(data).RFID_list
+        document.cookie = "RFID_LIST=" + RFID_list.toString()
+        showRFID();
+      });
+
+      /**$("#show-rfid").click(
+        function() {
+          console.log('showing rfid');
+          showRFID();
+        }
+      );**/
+
+      $("#generate-rfid").click(
+        function() {
+          console.log('generating rfid');
+          socket.emit('ui-to-server-rfid-request');
+        }
+      );
+
+      function showRFID() {
+        $("#rfid-blue-1").html(RFID_list[0]);
+        $("#rfid-blue-2").html(RFID_list[1]);
+        $("#rfid-blue-3").html(RFID_list[2]);
+        $("#rfid-gold-1").html(RFID_list[3]);
+        $("#rfid-gold-2").html(RFID_list[4]);
+        $("#rfid-gold-3").html(RFID_list[5]);
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <img alt="Brand" src={{url_for( 'static', filename='favicon.ico' )}} width="40" height="40" class="d-inline-block align-bottom" alt="">
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="activex"><a href="../staff_gui.html">Staff Gui</a></li>
+          <li class="activex"><a href="../score_adjustment.html">Score Adjustment</a></li>
+          <li class="active"><a href="../RFID_control.html">RFID Control</a></li>
+        </ul>
+      </div>
+      <!-- /.navbar-collapse -->
+
+    </div>
+    <!-- /.container-fluid -->
+  </nav>
+
+  <div class="container">
+    <div class="row container">
+      <h1>RFID Control</h1>
+    </div>
+
+    <div class="col-xs-6 blue-field bottom-padding">
+      <div class="text-center left-margin">
+        <h1 id="rfid-blue-1">~</h1>
+      </div>
+      <div class="left-margin">
+        <h1 id="rfid-blue-2">~</h1>
+      </div>
+      <div class="text-center left-margin">
+        <h1 id="rfid-blue-3">~</h1>
+      </div>
+    </div>
+    <div class="col-xs-6 gold-field bottom-padding">
+      <div class="text-center right-margin">
+        <h1 id="rfid-gold-1">~</h1>
+      </div>
+      <div class="text-right right-margin">
+        <h1 id="rfid-gold-2">~</h1>
+      </div>
+      <div class="text-center right-margin">
+        <h1 id="rfid-gold-3">~</h1>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button class="btn btn-info btn-lg" role="button" id="generate-rfid">Generate RFIDs</button>
+      <!---<button class="btn btn-info btn-lg" type="button" id="show-rfid">Show RFIDs</button>-->
+    </div>
+
+  </div>
+
+</body>
+
+</html>

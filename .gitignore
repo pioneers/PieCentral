@@ -397,9 +397,5 @@ hibike/virtual_devices.txt
 # Webstorm project settings
 .idea
 
-# Visual Studio Code config
-.vscode
-
-
-### Custom
-/dawn-*
+# Visual Studio Code settings
+.vscode/

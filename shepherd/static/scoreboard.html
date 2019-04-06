@@ -1,0 +1,229 @@
+<html>
+
+<head>
+
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.bundle.js" crossorigin="anonymous"></script> -->
+
+  <link rel="stylesheet" type="text/css" href={{url_for( 'static', filename='scoreboard.css' )}} media="screen" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src={{url_for( 'static', filename='scoreboard.js' )}}></script>
+
+  <style>
+    .blue-team-info {
+      border-radius: 15px;
+      border: 4px solid blue;
+      margin-top: 20px;
+    }
+    .gold-team-info {
+      border-radius: 15px;
+      border: 4px solid gold;
+      margin-top: 20px;
+    }
+    .team-info {
+      margin-bottom: 0rem;
+    }
+    svg {
+      display: block;
+      margin: 50px auto;
+      z-index: 0;
+    }
+    #timer1 {
+      position: absolute;
+    }
+    #timer1box {
+      fill: red
+    }
+    #loader {
+      fill: #0088cc;
+      opacity: 0.7;
+    }
+    #textbox {
+      font-size: 75px;
+      z-index: 1;
+      position: absolute;
+      margin: 100px auto;
+      left: 70px;
+    }
+    div.square {
+      position: absolute;
+      margin: 50px auto;
+      width: 200px;
+      height: 200px;
+      background-color: pink;
+      z-index: -1;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-sm">
+        <div class="row justify-content-center blue-team-info">
+          <div class="col-sm">
+            <div class="row justify-content-right">
+              <div class="col-2">
+                <p class="team-info" id="blue-1-num">10</p>
+              </div>
+              <div class="col-sm">
+                <p class="team-info" id="blue-1-name">Blue 1</p>
+              </div>
+              <div class="w-100"></div>
+              <div class="col-2">
+                <p class="team-info" id="blue-2-num">24</p>
+              </div>
+              <div class="col-sm">
+                <p class="team-info" id="blue-2-name">Blue 2</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-3">
+            <h1 id="blue-score" style="vertical-align: middle;">104</h1>
+          </div>
+
+        </div>
+        <div class="row justify-content-center" style="padding-top:10px">
+          <div><img id="r" src={{url_for( 'static', filename='Perk_1.png' )}} alt="Blue is Twisted" style="width:60px; height:60px; border-radius: 3px; border-width: 3px; border-color: blue; border-style: solid;"></div>
+          <div style="transform: perspective(1px) translateY(50%);"><img id="r" src={{url_for( 'static', filename='Bar.png' )}} alt="Bar" style="width:20px;"></div>
+          <div><img id="r" src={{url_for( 'static', filename='Perk_2.png' )}} alt="Blue is Twisted" style="width:60px; height:60px; border-radius: 3px; border-width: 3px; border-color: blue; border-style: solid;"></div>
+          <div style="transform: perspective(1px) translateY(50%);"><img id="r" src={{url_for( 'static', filename='Bar.png' )}} alt="Bar" style="width:20px;"></div>
+          <div><img id="r" src={{url_for( 'static', filename='Perk_3.png' )}} alt="Blue is Twisted" style="width:60px; height:60px; border-radius: 3px; border-width: 3px; border-color: blue; border-style: solid;"></div>
+        </div>
+      </div>
+      <div class="col-2">
+        <div class="col">
+          <div class="row-sm">
+            <p id="stage" style="text-align: center; margin-top:20px;">Autonomous Period
+              <p>
+          </div>
+          <div class="row-sm">
+            <h3 id="stage-timer" style="text-align: center; font-size:60px">0:00</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm">
+        <div class="row justify-content-center gold-team-info">
+          <div class="col-3">
+            <h1 id="gold-score" style="vertical-align: middle;">104</h1>
+          </div>
+          <div class="col-sm">
+            <div class="row justify-content-right">
+              <div class="col-2">
+                <p class="team-info" id="gold-1-num">10</p>
+              </div>
+              <div class="col-sm">
+                <p class="team-info" id="gold-1-name">Blue 1</p>
+              </div>
+              <div class="w-100"></div>
+              <div class="col-2">
+                <p class="team-info" id="gold-2-num">24</p>
+              </div>
+              <div class="col-sm">
+                <p class="team-info" id="gold-2-name">Blue 2</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-center" style="padding-top:10px">
+          <div><img id="r" src={{url_for( 'static', filename='Perk_1.png' )}} alt="Blue is Twisted" style="width:60px; height:60px; border-radius: 3px; border-width: 3px; border-color: gold; border-style: solid;"></div>
+          <div style="transform: perspective(1px) translateY(50%);"><img id="r" src={{url_for( 'static', filename='Bar.png' )}} alt="Bar" style="width:20px;"></div>
+          <div><img id="r" src={{url_for( 'static', filename='Perk_2.png' )}} alt="Blue is Twisted" style="width:60px; height:60px; border-radius: 3px; border-width: 3px; border-color: gold; border-style: solid;"></div>
+          <div style="transform: perspective(1px) translateY(50%);"><img id="r" src={{url_for( 'static', filename='Bar.png' )}} alt="Bar" style="width:20px;"></div>
+          <div><img id="r" src={{url_for( 'static', filename='Perk_3.png' )}} alt="Blue is Twisted" style="width:60px; height:60px; border-radius: 3px; border-width: 3px; border-color: gold; border-style: solid;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="overdriveText" style="text-align:center; font-family: Impact; font-size:48px; color: white">OVERDRIVE</div>
+  <div class="container">
+    <div id="progressBar">
+      <div class="bar"></div>
+    </div>
+  </div>
+  <button onclick="stageTimerStart(100)">START</button>
+  <button onclick="startOverdrive(30)">Click this</button>
+
+
+  <div>
+    <div class="d-flex flex-row justify-content-around">
+      <div class="p-2 bd-highlight">
+        <div class="item html">
+          <h2><div class="timer1">30</div></h2>
+          <svg width="160" height="160" xmlns="http://www.w3.org/2000/svg">
+                     <g>
+                      <title>Layer 1</title>
+                      <circle id="circle1" class="circle_animation1" r="69.85699" cy="81" cx="81" stroke-width="8" stroke="#191970" fill="none"/>
+                     </g>
+                    </svg>
+        </div>
+      </div>
+      <div class="p-2 bd-highlight">
+        <div class="item html">
+          <h2><div class="timer2">30</div></h2>
+          <svg width="160" height="160" xmlns="http://www.w3.org/2000/svg">
+                     <g>
+                      <title>Layer 1</title>
+                      <circle id="circle2" class="circle_animation2" r="69.85699" cy="81" cx="81" stroke-width="8" stroke="#00bfff" fill="none"/>
+                     </g>
+                    </svg>
+        </div>
+      </div>
+      <div class="p-2 bd-highlight">
+        <div class="item html">
+          <h2><div class="timer3">30</div></h2>
+          <svg width="160" height="160" xmlns="http://www.w3.org/2000/svg">
+                     <g>
+                      <title>Layer 1</title>
+                      <circle id="circle3" class="circle_animation3" r="69.85699" cy="81" cx="81" stroke-width="8" stroke="#ffff00" fill="none"/>
+                     </g>
+                    </svg>
+        </div>
+      </div>
+      <div class="p-2 bd-highlight">
+        <div class="item html">
+          <h2><div class="timer4">30</div></h2>
+          <svg width="160" height="160" xmlns="http://www.w3.org/2000/svg">
+                     <g>
+                      <title>Layer 1</title>
+                      <circle id="circle4" class="circle_animation4" r="69.85699" cy="81" cx="81" stroke-width="8" stroke="#ffd700" fill="none"/>
+                     </g>
+                    </svg>
+        </div>
+      </div>
+    </div>
+    <button onclick="runTimer1()">Run Timer 1</button>
+    <button onclick="runTimer2()">Run Timer 2</button>
+    <button onclick="runTimer3()">Run Timer 3</button>
+    <button onclick="runTimer4()">Run Timer 4</button>
+
+
+      <div class="row justify-content-center">
+        <div class="col">
+            <div class="row">
+            <div class="col-2"></div>
+            <img id="blueTwist" src={{url_for( 'static', filename='Blank300x100.png' )}} alt="Blue is Twisted" style="width:240px;height:80px;">
+            <img id="blueSpoiled" src={{url_for( 'static', filename='Spoiled_Candies.png' )}} alt="Blue is Twisted" style="width:240px;height:80px;visibility:hidden">
+            <div ><h1 style="font-size: 300%">x</h1></div>
+            <!--<h1 id="blueSpoiledNumber" style="font-size: 350%">0</h1>-->
+            </div>
+        </div>
+        <div class="col">
+            <div class="row">
+            <div class="col-1"></div>
+            <img id="goldTwist" src={{url_for( 'static', filename='Blank300x100.png' )}} alt="Blue is Twisted" style="width:240px;height:80px;">
+            <img id="goldSpoiled" src={{url_for( 'static', filename='Spoiled_Candies.png' )}} alt="Blue is Twisted" style="width:240px;height:80px;visibility:hidden">
+            <div ><h1 style="font-size: 300%">x</h1></div>
+            <!--<h1 id="goldSpoiledNumber" style="font-size: 350%">0</h1>-->
+            </div>
+        </div>
+      </div>
+
+    <button onclick="testing()">Reset Timers</button>
+    <button onclick="nextMatch(1,2,3,4,5,6,7,8)">Test Item</button>
+</body>
+
+</html>

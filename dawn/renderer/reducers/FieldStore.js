@@ -37,8 +37,8 @@ const fieldStore = (state = initialFieldState, action) => {
       return {
         ...state,
         masterStatus: true,
-        teamNumber: action.teamNumber,
-        teamColor: action.alliance,
+        blueMaster: action.blueMaster,
+        goldMaster: action.goldMaster,
       };
     case ActionTypes.UPDATE_MATCH:
       return {

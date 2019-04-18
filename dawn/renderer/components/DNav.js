@@ -84,8 +84,8 @@ class DNavComponent extends React.Component {
               connectionStatus={this.props.connectionStatus}
               runtimeStatus={this.props.runtimeStatus}
               masterStatus={this.props.masterStatus}
-              teamColor={this.props.teamColor}
-              teamNumber={this.props.teamNumber}
+              blueMaster={this.props.blueMaster}
+              goldMaster={this.props.goldMaster}
               ipAddress={this.props.ipAddress}
               fieldControlStatus={this.props.fieldControlStatus}
             />
@@ -142,14 +142,14 @@ DNavComponent.propTypes = {
   robotState: PropTypes.number.isRequired,
   heart: PropTypes.bool.isRequired,
   fieldControlStatus: PropTypes.bool.isRequired,
-  teamColor: PropTypes.string.isRequired,
-  teamNumber: PropTypes.number.isRequired,
+  blueMaster: PropTypes.number.isRequired,
+  goldMaster: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = state => ({
   masterStatus: state.fieldStore.masterStatus,
-  teamNumber: state.fieldStore.teamNumber,
-  teamColor: state.fieldStore.teamColor,
+  blueMaster: state.fieldStore.blueMaster,
+  goldMaster: state.fieldStore.goldMaster,
   robotState: state.info.robotState,
   heart: state.fieldStore.heart,
   ipAddress: state.info.ipAddress,

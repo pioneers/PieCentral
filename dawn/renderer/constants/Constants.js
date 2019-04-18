@@ -19,6 +19,7 @@ export const PeripheralTypes = keyMirror({
   TeamFlag: null,
   GameValues: null,
   master: null,
+  PolarBear: null,
 });
 
 export const ActionTypes = keyMirror({

@@ -27,21 +27,21 @@ sed -i "10s/psk=\"\"/psk=\"$router_psk\"/" "$build_dir/wpa_supplicant.conf"
 
 #Take in SD Card name and create directory to prepare for mounting process
 CARDNAME=$1
-mkdir /mnt/SD
+sudo mkdir /mnt/temp
 
 #Unmount SD Card if already mounted
 sudo umount $CARDNAME
 
 #Mount SD Card
-sudo mount -t vfat $CARDNAME /mnt/SD
+sudo mount $CARDNAME /mnt/temp
 
 #Move relevant files to SD Card
-mv "$build_dir/interfaces" /mnt/SD/etc/network/
-mv "$build_dir/wpa_supplicant.conf" /mnt/SD/etc/wpa_supplicant/
+sudo mv "$build_dir/interfaces" /mnt/temp/etc/network/
+sudo mv "$build_dir/wpa_supplicant.conf" /mnt/temp/etc/wpa_supplicant/
 
 #Delete build_dir to avoid redundancy
-rm -r "$build_dir"
+sudo rm -r "$build_dir"
 
 #Unmount SD Card and remove the directory
 sudo umount $CARDNAME
-rm -r /mnt/SD
+sudo rm -r /mnt/temp

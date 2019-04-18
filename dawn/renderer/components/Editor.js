@@ -12,10 +12,12 @@ import {
   OverlayTrigger,
   Tooltip,
 } from 'react-bootstrap';
+
 import AceEditor from 'react-ace';
 import { remote, clipboard } from 'electron';
 import storage from 'electron-json-storage';
 import _ from 'lodash';
+import PanelGroup from 'react-PanelGroup';
 
 
 // React-ace extensions and modes
@@ -202,7 +204,7 @@ class Editor extends React.Component {
   getEditorHeight() {
     const windowNonEditorHeight = windowInfo.NONEDITOR +
       (this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
-    return `${String(window.innerHeight - windowNonEditorHeight)}px`;
+    return `${String(window.innerHeight)}px`;
   }
 
   beforeUnload(event) {
@@ -428,251 +430,256 @@ class Editor extends React.Component {
       this.toggleConsole();
     }
     return (
-      <Panel bsStyle="primary">
-        <Panel.Heading>
-          <Panel.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Panel.Title>
-        </Panel.Heading>
-        <Panel.Body>
-          <Form inline onSubmit={this.handleSubmitFontsize}>
-            <ButtonGroup id="file-operations-buttons">
-              <DropdownButton
-                title="File"
-                bsSize="small"
-                id="choose-theme"
-              >
-                <MenuItem
-                  onClick={this.props.onCreateNewFile}
-                >New File</MenuItem>
-                <MenuItem
-                  onClick={this.props.onOpenFile}
-                >Open</MenuItem>
-                <MenuItem
-                  onClick={this.props.onSaveFile}
-                >Save</MenuItem>
-                <MenuItem
-                  onClick={_.partial(this.props.onSaveFile, true)}
-                >Save As</MenuItem>
-              </DropdownButton>
-              <TooltipButton
-                id="upload"
-                text="Upload"
-                onClick={this.upload}
-                glyph="upload"
-                disabled={false}
-              />
-              <TooltipButton
-                id="download"
-                text="Download from Robot"
-                onClick={this.props.onDownloadCode}
-                glyph="download"
-                disabled={!this.props.runtimeStatus || this.props.ipAddress === defaults.IPADDRESS}
-              />
-            </ButtonGroup>
-            {' '}
-            <ButtonGroup id="code-execution-buttons">
-              <TooltipButton
-                id="run"
-                text="Run"
-                onClick={this.startRobot}
-                glyph="play"
-                disabled={this.props.isRunningCode
-                || !this.props.runtimeStatus
-                || this.props.fieldControlActivity}
-              />
-              <TooltipButton
-                id="stop"
-                text="Stop"
-                onClick={this.stopRobot}
-                glyph="stop"
-                disabled={!(this.props.isRunningCode || this.state.simulate)}
-              />
-              <DropdownButton
-                title={this.state.modeDisplay}
-                bsSize="small"
-                key="dropdown"
-                id="modeDropdown"
-                disabled={this.state.simulate
-                || this.props.fieldControlActivity
-                || !this.props.runtimeStatus}
-              >
-                <MenuItem
-                  eventKey="1"
-                  active={this.state.mode === robotState.TELEOP && !this.state.simulate}
-                  onClick={() => {
-                    this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
-                  }}
-                >
-                  Tele-Operated
-                </MenuItem>
-                <MenuItem
-                  eventKey="2"
-                  active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
-                  onClick={() => {
-                    this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
-                  }}
-                >
-                  Autonomous
-                </MenuItem>
-                <MenuItem
-                  eventKey="3"
-                  active={this.state.simulate}
-                  onClick={this.simulateCompetition}
-                >
-                  Simulate Competition
-                </MenuItem>
-              </DropdownButton>
-              <TooltipButton
-                id="e-stop"
-                text="E-STOP"
-                onClick={this.estop}
-                glyph="fire"
-                disabled={false}
-              />
-            </ButtonGroup>
-            {' '}
-            <ButtonGroup id="console-buttons">
-              <TooltipButton
-                id="toggle-console"
-                text="Toggle Console"
-                onClick={this.toggleConsole}
-                glyph="console"
-                disabled={false}
-                bsStyle={this.props.consoleUnread ? 'danger' : ''}
-              />
-              <TooltipButton
-                id="clear-console"
-                text="Clear Console"
-                onClick={this.props.onClearConsole}
-                glyph="remove"
-                disabled={false}
-              />
-              <TooltipButton
-                id="raise-console"
-                text="Raise Console"
-                onClick={this.raiseConsole}
-                glyph="arrow-up"
-                disabled={this.state.consoleHeight > windowInfo.CONSOLEMAX}
-              />
-              <TooltipButton
-                id="lower-console"
-                text="Lower Console"
-                onClick={this.lowerConsole}
-                glyph="arrow-down"
-                disabled={this.state.consoleHeight < windowInfo.CONSOLEMIN}
-              />
-              <TooltipButton
-                id="copy-console"
-                text="Copy Console"
-                onClick={this.copyConsole}
-                glyph="copy"
-                disabled={false}
-              />
-            </ButtonGroup>
-            {' '}
-            <FormGroup>
-              <InputGroup>
-                <FormControl
-                  type="number"
-                  value={this.state.fontsize}
+      <div>
+        <Panel bsStyle="primary">
+          <Panel.Heading>
+            <Panel.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Panel.Title>
+          </Panel.Heading>
+          <Panel.Body>
+            <Form inline onSubmit={this.handleSubmitFontsize}>
+              <ButtonGroup id="file-operations-buttons">
+                <DropdownButton
+                  title="File"
                   bsSize="small"
-                  onChange={this.handleChangeFontsize}
-                  style={{ width: 32, padding: 6 }}
-                />
-                <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
-                  <DropdownButton
-                    componentClass={InputGroup.Button}
-                    title=""
-                    bsSize="small"
-                    id="choose-font-size"
-                  >
-                    <MenuItem
-                      class="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(8)}
-                    >8</MenuItem>
-                    <MenuItem
-                      class="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(12)}
-                    >12</MenuItem>
-                    <MenuItem
-                      class="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(14)}
-                    >14</MenuItem>
-                    <MenuItem
-                      class="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(16)}
-                    >16</MenuItem>
-                    <MenuItem
-                      class="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(20)}
-                    >20</MenuItem>
-                    <MenuItem
-                      class="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(24)}
-                    >24</MenuItem>
-                    <MenuItem
-                      class="dropdown-item"
-                      onClick={() => this.changeFontsizeToFont(28)}
-                    >28</MenuItem>
-                  </DropdownButton>
-                </OverlayTrigger>
-              </InputGroup>
-            </FormGroup>
-            {' '}
-            <ButtonGroup id="editor-settings-buttons" class="form-inline">
-              <TooltipButton
-                id="increase-font-size"
-                text="Increase font size"
-                onClick={this.increaseFontsize}
-                glyph="zoom-in"
-                disabled={this.props.fontSize >= 28}
-              />
-              <TooltipButton
-                id="decrease-font-size"
-                text="Decrease font size"
-                onClick={this.decreaseFontsize}
-                glyph="zoom-out"
-                disabled={this.props.fontSize <= 8}
-              />
-              <DropdownButton
-                title="Theme"
-                bsSize="small"
-                id="choose-theme"
-              >
-                {this.themes.map(theme => (
+                  id="choose-theme"
+                >
                   <MenuItem
-                    active={theme === this.props.editorTheme}
-                    onClick={_.partial(this.changeTheme, theme)}
-                    key={theme}
+                    onClick={this.props.onCreateNewFile}
+                  >New File</MenuItem>
+                  <MenuItem
+                    onClick={this.props.onOpenFile}
+                  >Open</MenuItem>
+                  <MenuItem
+                    onClick={this.props.onSaveFile}
+                  >Save</MenuItem>
+                  <MenuItem
+                    onClick={_.partial(this.props.onSaveFile, true)}
+                  >Save As</MenuItem>
+                </DropdownButton>
+                <TooltipButton
+                  id="upload"
+                  text="Upload"
+                  onClick={this.upload}
+                  glyph="upload"
+                  disabled={false}
+                />
+                <TooltipButton
+                  id="download"
+                  text="Download from Robot"
+                  onClick={this.props.onDownloadCode}
+                  glyph="download"
+                  disabled={!this.props.runtimeStatus || this.props.ipAddress === defaults.IPADDRESS}
+                />
+              </ButtonGroup>
+              {' '}
+              <ButtonGroup id="code-execution-buttons">
+                <TooltipButton
+                  id="run"
+                  text="Run"
+                  onClick={this.startRobot}
+                  glyph="play"
+                  disabled={this.props.isRunningCode
+                  || !this.props.runtimeStatus
+                  || this.props.fieldControlActivity}
+                />
+                <TooltipButton
+                  id="stop"
+                  text="Stop"
+                  onClick={this.stopRobot}
+                  glyph="stop"
+                  disabled={!(this.props.isRunningCode || this.state.simulate)}
+                />
+                <DropdownButton
+                  title={this.state.modeDisplay}
+                  bsSize="small"
+                  key="dropdown"
+                  id="modeDropdown"
+                  disabled={this.state.simulate
+                  || this.props.fieldControlActivity
+                  || !this.props.runtimeStatus}
+                >
+                  <MenuItem
+                    eventKey="1"
+                    active={this.state.mode === robotState.TELEOP && !this.state.simulate}
+                    onClick={() => {
+                      this.setState({ mode: robotState.TELEOP, modeDisplay: robotState.TELEOPSTR });
+                    }}
                   >
-                    {theme}
+                    Tele-Operated
                   </MenuItem>
-                ))}
-              </DropdownButton>
-            </ButtonGroup>
-          </Form>
-
-          <AceEditor
-            mode="python"
-            theme={this.props.editorTheme}
-            width="100%"
-            fontSize={this.props.fontSize}
-            ref={(input) => { this.CodeEditor = input; }}
-            name="CodeEditor"
-            height={this.state.editorHeight.toString()}
-            value={this.props.editorCode}
-            onChange={this.props.onEditorUpdate}
-            onPaste={Editor.onEditorPaste}
-            editorProps={{ $blockScrolling: Infinity }}
-          />
-          <ConsoleOutput
-            toggleConsole={this.toggleConsole}
-            show={this.props.showConsole}
-            height={this.state.consoleHeight}
-            output={this.props.consoleData}
-            disableScroll={this.props.disableScroll}
-          />
-        </Panel.Body>
-      </Panel>
+                  <MenuItem
+                    eventKey="2"
+                    active={this.state.mode === robotState.AUTONOMOUS && !this.state.simulate}
+                    onClick={() => {
+                      this.setState({ mode: robotState.AUTONOMOUS, modeDisplay: robotState.AUTOSTR });
+                    }}
+                  >
+                    Autonomous
+                  </MenuItem>
+                  <MenuItem
+                    eventKey="3"
+                    active={this.state.simulate}
+                    onClick={this.simulateCompetition}
+                  >
+                    Simulate Competition
+                  </MenuItem>
+                </DropdownButton>
+                <TooltipButton
+                  id="e-stop"
+                  text="E-STOP"
+                  onClick={this.estop}
+                  glyph="fire"
+                  disabled={false}
+                />
+              </ButtonGroup>
+              {' '}
+              <ButtonGroup id="console-buttons">
+                <TooltipButton
+                  id="toggle-console"
+                  text="Toggle Console"
+                  onClick={this.toggleConsole}
+                  glyph="console"
+                  disabled={false}
+                  bsStyle={this.props.consoleUnread ? 'danger' : ''}
+                />
+                <TooltipButton
+                  id="clear-console"
+                  text="Clear Console"
+                  onClick={this.props.onClearConsole}
+                  glyph="remove"
+                  disabled={false}
+                />
+                <TooltipButton
+                  id="raise-console"
+                  text="Raise Console"
+                  onClick={this.raiseConsole}
+                  glyph="arrow-up"
+                  disabled={this.state.consoleHeight > windowInfo.CONSOLEMAX}
+                />
+                <TooltipButton
+                  id="lower-console"
+                  text="Lower Console"
+                  onClick={this.lowerConsole}
+                  glyph="arrow-down"
+                  disabled={this.state.consoleHeight < windowInfo.CONSOLEMIN}
+                />
+                <TooltipButton
+                  id="copy-console"
+                  text="Copy Console"
+                  onClick={this.copyConsole}
+                  glyph="copy"
+                  disabled={false}
+                />
+              </ButtonGroup>
+              {' '}
+              <FormGroup>
+                <InputGroup>
+                  <FormControl
+                    type="number"
+                    value={this.state.fontsize}
+                    bsSize="small"
+                    onChange={this.handleChangeFontsize}
+                    style={{ width: 32, padding: 6 }}
+                  />
+                  <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Text Size</Tooltip>}>
+                    <DropdownButton
+                      componentClass={InputGroup.Button}
+                      title=""
+                      bsSize="small"
+                      id="choose-font-size"
+                    >
+                      <MenuItem
+                        class="dropdown-item"
+                        onClick={() => this.changeFontsizeToFont(8)}
+                      >8</MenuItem>
+                      <MenuItem
+                        class="dropdown-item"
+                        onClick={() => this.changeFontsizeToFont(12)}
+                      >12</MenuItem>
+                      <MenuItem
+                        class="dropdown-item"
+                        onClick={() => this.changeFontsizeToFont(14)}
+                      >14</MenuItem>
+                      <MenuItem
+                        class="dropdown-item"
+                        onClick={() => this.changeFontsizeToFont(16)}
+                      >16</MenuItem>
+                      <MenuItem
+                        class="dropdown-item"
+                        onClick={() => this.changeFontsizeToFont(20)}
+                      >20</MenuItem>
+                      <MenuItem
+                        class="dropdown-item"
+                        onClick={() => this.changeFontsizeToFont(24)}
+                      >24</MenuItem>
+                      <MenuItem
+                        class="dropdown-item"
+                        onClick={() => this.changeFontsizeToFont(28)}
+                      >28</MenuItem>
+                    </DropdownButton>
+                  </OverlayTrigger>
+                </InputGroup>
+              </FormGroup>
+              {' '}
+              <ButtonGroup id="editor-settings-buttons" class="form-inline">
+                <TooltipButton
+                  id="increase-font-size"
+                  text="Increase font size"
+                  onClick={this.increaseFontsize}
+                  glyph="zoom-in"
+                  disabled={this.props.fontSize >= 28}
+                />
+                <TooltipButton
+                  id="decrease-font-size"
+                  text="Decrease font size"
+                  onClick={this.decreaseFontsize}
+                  glyph="zoom-out"
+                  disabled={this.props.fontSize <= 8}
+                />
+                <DropdownButton
+                  title="Theme"
+                  bsSize="small"
+                  id="choose-theme"
+                >
+                  {this.themes.map(theme => (
+                    <MenuItem
+                      active={theme === this.props.editorTheme}
+                      onClick={_.partial(this.changeTheme, theme)}
+                      key={theme}
+                    >
+                      {theme}
+                    </MenuItem>
+                  ))}
+                </DropdownButton>
+              </ButtonGroup>
+            </Form>
+            <PanelGroup direction="column" borderColor="grey">
+                <AceEditor
+                  mode="python"
+                  theme={this.props.editorTheme}
+                  width="100%"
+                  fontSize={this.props.fontSize}
+                  ref={(input) => { this.CodeEditor = input; }}
+                  name="CodeEditor"
+                  height={this.state.editorHeight.toString()}
+                  value={this.props.editorCode}
+                  onChange={this.props.onEditorUpdate}
+                  onPaste={Editor.onEditorPaste}
+                  editorProps={{ $blockScrolling: Infinity }}
+                />
+              <ConsoleOutput
+                id="console-output"
+                toggleConsole={this.toggleConsole}
+                show={this.props.showConsole}
+                height={this.state.consoleHeight}
+                editorHeight={100}
+                output={this.props.consoleData}
+                disableScroll={this.props.disableScroll}
+              />
+            </PanelGroup>
+          </Panel.Body>
+        </Panel>
+      </div>
     );
   }
 }

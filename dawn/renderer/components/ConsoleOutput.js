@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import { Panel } from 'react-bootstrap';
 
 class ConsoleOutput extends React.Component {
+  static getHeight() {
+    return 100;
+  }
   constructor(props) {
     super(props);
     this.scrollToBottom = this.scrollToBottom.bind(this);
@@ -32,47 +35,50 @@ class ConsoleOutput extends React.Component {
   render() {
     const height = `${String(this.props.height)}px`; // TODO: Use Panel.Collapse
     return (
-      <div>
-        <Panel
-          style={{
+      <Panel
+        id="console-panel"
+        style={{
             display: this.props.show ? 'block' : 'none',
             marginBottom: '0',
             borderRadius: '0',
+            width: '1000px',
           }}
-        >
-          <Panel.Body>
-            <pre
-              style={{
+      >
+        <Panel.Body>
+          <pre
+            style={{
                 position: 'relative',
                 margin: '0',
                 height,
               }}
-            >
-              <div
-                style={{
+          >
+            <div
+              style={{
                   position: 'absolute',
                   bottom: '0',
-                  maxHeight: height,
                   overflowY: 'auto',
                   padding: '20px',
-                  width: '99%',
+                  width: '1000px',
                 }}
-                ref={(el) => { this.outerDiv = el; }}
-              >
-                {this.props.output.map(line => (
-                  <code key={`${line}-Code-${Math.random()}`}>{line}</code>
+              ref={(el) => { this.outerDiv = el; }}
+            >
+              {this.props.output.map(line => (
+                <code key={`${line}-Code-${Math.random()}`}>{line}</code>
                 ))}
-              </div>
-            </pre>
-          </Panel.Body>
-        </Panel>
-      </div>
+            </div>
+            <div>
+                Height is {this.props.editorHeight};
+            </div>
+          </pre>
+        </Panel.Body>
+      </Panel>
     );
   }
 }
 
 ConsoleOutput.propTypes = {
   height: PropTypes.number.isRequired,
+  editorHeight: PropTypes.number.isRequired,
   output: PropTypes.array.isRequired,
   toggleConsole: PropTypes.func.isRequired,
   show: PropTypes.bool.isRequired,

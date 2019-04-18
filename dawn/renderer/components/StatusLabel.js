@@ -7,6 +7,20 @@ import numeral from 'numeral';
 const StatusLabelComponent = (props) => {
   let labelStyle = 'default';
   let labelText = 'Disconnected';
+  const masterRobotHeader = 'Master Robot: Team ';
+  const teamIP = props.ipAddress.substring(props.ipAddress.length - 2, props.ipAddress.length);
+  const shouldDisplayMaster = teamNumber => parseInt(teamIP, 10) === teamNumber
+                                            && props.fieldControlStatus;
+  let masterRobot = null;
+  let masterRobotStyle = ' ';
+  if (shouldDisplayMaster(props.blueMaster)) {
+    masterRobot = props.blueMaster;
+    masterRobotStyle = 'primary';
+  } else if (shouldDisplayMaster(props.goldMaster)) {
+    masterRobot = props.goldMaster;
+    masterRobotStyle = 'warning';
+  }
+
   if (props.connectionStatus) {
     if (!props.runtimeStatus) {
       labelStyle = 'danger';
@@ -20,7 +34,13 @@ const StatusLabelComponent = (props) => {
     }
   }
   return (
-    <Label bsStyle={labelStyle}>{labelText}</Label>
+    <div id="parent">
+      <Label bsStyle={labelStyle}>{labelText}</Label>
+      {' '}
+      <Label bsStyle={masterRobotStyle !== ' ' ? masterRobotStyle : labelStyle}>
+        {masterRobot !== null ? masterRobotHeader + masterRobot : null}
+      </Label>
+    </div>
   );
 };
 
@@ -29,12 +49,21 @@ StatusLabelComponent.propTypes = {
   runtimeStatus: PropTypes.bool.isRequired,
   batteryLevel: PropTypes.number.isRequired,
   batterySafety: PropTypes.bool.isRequired,
+  blueMaster: PropTypes.number.isRequired,
+  goldMaster: PropTypes.number.isRequired,
+  ipAddress: PropTypes.string.isRequired,
+  fieldControlStatus: PropTypes.bool.isRequired,
 };
 
 
 const mapStateToProps = state => ({
   batteryLevel: state.peripherals.batteryLevel,
   batterySafety: state.peripherals.batterySafety,
+  masterStatus: state.fieldStore.masterStatus,
+  blueMaster: state.fieldStore.blueMaster,
+  goldMaster: state.fieldStore.goldMaster,
+  ipAddress: state.info.ipAddress,
+  fieldControlStatus: state.fieldStore.fieldControl,
 });
 
 const StatusLabel = connect(mapStateToProps)(StatusLabelComponent);

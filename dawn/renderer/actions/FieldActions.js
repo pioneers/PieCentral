@@ -11,6 +11,12 @@ export const updateHeart = () => ({
   type: ActionTypes.UPDATE_HEART,
 });
 
+export const updateMaster = msg => ({
+  type: ActionTypes.UPDATE_MASTER,
+  blueMaster: msg.blue,
+  goldMaster: msg.gold,
+});
+
 export const updateMatch = msg => ({
   type: ActionTypes.UPDATE_MATCH,
   matchNumber: msg.match_number,

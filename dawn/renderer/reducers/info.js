@@ -9,6 +9,7 @@ const initialInfoState = {
   isRunningCode: false,
   connectionStatus: false,
   runtimeStatus: false,
+  masterStatus: false,
   notificationHold: 0,
   fieldControlDirective: robotState.TELEOP,
   fieldControlActivity: false,
@@ -39,6 +40,11 @@ const info = (state = initialInfoState, action) => {
       return {
         ...state,
         runtimeStatus: true,
+      };
+    case 'MASTER_ROBOT':
+      return {
+        ...state,
+        masterStatus: true,
       };
     case 'RUNTIME_DISCONNECT':
       return {

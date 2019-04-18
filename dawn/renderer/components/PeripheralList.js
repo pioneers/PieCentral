@@ -17,7 +17,7 @@ cleanerNames[PeripheralTypes.Encoder] = 'Encoders';
 cleanerNames[PeripheralTypes.MetalDetector] = 'Metal Detectors';
 cleanerNames[PeripheralTypes.ServoControl] = 'Servo Controllers';
 cleanerNames[PeripheralTypes.RFID] = 'RFID';
-cleanerNames[PeripheralTypes.YogiBear] = 'Yogi Bear';
+// cleanerNames[PeripheralTypes.YogiBear] = 'Yogi Bear';
 cleanerNames[PeripheralTypes.GameValues] = 'Game Values';
 cleanerNames[PeripheralTypes.PolarBear] = 'Polar Bear';
 

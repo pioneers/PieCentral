@@ -13,7 +13,7 @@ export const PeripheralTypes = keyMirror({
   MetalDetector: null,
   ExampleDevice: null,
   ServoControl: null,
-  YogiBear: null,
+  // YogiBear: null,
   RFID: null,
   BatteryBuzzer: null,
   TeamFlag: null,

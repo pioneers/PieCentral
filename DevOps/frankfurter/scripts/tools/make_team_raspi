@@ -13,17 +13,17 @@ if [[ -z $(echo "$team_number" | grep -E '^[0-9]+$') || ("$team_number" -gt 50) 
   echo "Team number must be integer between 0 and 50, inclusive."
   exit 1
 fi
-read -e -p 'Enter the team router password: ' router_psk
+#read -e -p 'Enter the team router password: ' router_psk
 
 # Copy config file templates
 cp "$frankfurter/resources/interfaces" "$build_dir"
-cp "$frankfurter/resources/wpa_supplicant.conf" "$build_dir"
+#cp "$frankfurter/resources/wpa_supplicant.conf" "$build_dir"
 
 # Perform substitutions
 sed -i "s/address 192.168.128.200/address 192.168.128.$(( team_number + 200 ))/" "$build_dir/interfaces"
 sed -i "s/address 192.168.0.200/address 192.168.0.$(( team_number + 200 ))/" "$build_dir/interfaces"
-sed -i "9s/ssid=\"\"/ssid=\"Team$team_number\"/" "$build_dir/wpa_supplicant.conf"
-sed -i "10s/psk=\"\"/psk=\"$router_psk\"/" "$build_dir/wpa_supplicant.conf"
+#sed -i "9s/ssid=\"\"/ssid=\"Team$team_number\"/" "$build_dir/wpa_supplicant.conf"
+#sed -i "10s/psk=\"\"/psk=\"$router_psk\"/" "$build_dir/wpa_supplicant.conf"
 
 #Take in SD Card name and create directory to prepare for mounting process
 CARDNAME=$1
@@ -37,7 +37,7 @@ sudo mount $CARDNAME /mnt/temp
 
 #Move relevant files to SD Card
 sudo mv "$build_dir/interfaces" /mnt/temp/etc/network/
-sudo mv "$build_dir/wpa_supplicant.conf" /mnt/temp/etc/wpa_supplicant/
+#sudo mv "$build_dir/wpa_supplicant.conf" /mnt/temp/etc/wpa_supplicant/
 
 #Delete build_dir to avoid redundancy
 sudo rm -r "$build_dir"

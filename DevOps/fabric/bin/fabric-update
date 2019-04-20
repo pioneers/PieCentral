@@ -13,9 +13,9 @@ if [[ "${update}" = *".sh" ]]; then
 elif [[ "${update}" = *".py" ]]; then
   python3 "${update}"
 elif [[ "${update}" = *".tar.gz" ]]; then
-  /home/fabric/.local/bin/fabric-stop
+  sudo systemctl stop fabric.service
   sudo docker images rm pioneers/fabric:latest
   sudo docker load -i "${update}"
-  /home/fabric/.local/bin/fabric-start
+  sudo systemctl start fabric.service
 fi
 rm -rf "${update}"

@@ -6,7 +6,7 @@ After=docker.service
 [Service]
 Type=oneshot
 ExecStart=/home/fabric/.local/bin/fabric-start
-ExecStop=
+ExecStop=/home/fabric.local/bin/fabric-stop
 User=root
 Group=root
 

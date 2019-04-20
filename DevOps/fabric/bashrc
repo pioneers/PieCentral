@@ -112,6 +112,11 @@ if ! shopt -oq posix; then
   fi
 fi
 
-local_bin="${HOME}/.local/bin"
-mkdir -p "${local_bin}"
-export PATH="${local_bin}:${PATH}"
+localbin="${HOME}/.local/bin"
+mkdir -p "${localbin}"
+export PATH="${localbin}:${PATH}"
+
+commonenv="${localbin}/fabric-common.bash"
+if [ -e "${commonenv}" ]; then
+  source "${commonenv}"
+fi

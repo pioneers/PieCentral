@@ -18,9 +18,9 @@ This procedure exists only for the sake of reproducibility.
 Download the [latest Raspbian Lite image](https://downloads.raspberrypi.org/raspbian_lite_latest).
 At the time of this writing, this image was:
 ```
-Release date: 2018-11-13
+Release date: 2019-04-08
 Kernel version: 4.14
-SHA-256: 47ef1b2501d0e5002675a50b6868074e693f78829822eef64f3878487953234d
+SHA-256: a3ced697ca0481bb0ab3b1bd42c93eb24de6264f4b70ea0f7b6ecd74b33d83eb
 ```
 
 Using a app like [Etcher](https://www.balena.io/etcher/), burn this image to a microSD card.

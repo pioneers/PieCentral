@@ -3,10 +3,9 @@ Description=Fabric Initialization Daemon
 After=multi-user.target
 After=docker.service
 
-
 [Service]
 Type=oneshot
-ExecStart=/home/fabric/.local/bin/fabric-install
+ExecStart=/home/fabric/.local/bin/fabric-start
 ExecStop=
 User=root
 Group=root

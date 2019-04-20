@@ -14,6 +14,7 @@ aioprocessing = "*"
 pyserial-asyncio = "*"
 aiofiles = "*"
 cobs = "*"
+aio_msgpack_rpc = "*"
 
 [dev-packages]
 pylint = "==1.8.1"

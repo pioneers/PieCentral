@@ -15,6 +15,7 @@ import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
+const { Client } = require('ssh2');
 
 
 const { Client } = require('ssh2');
@@ -473,12 +474,28 @@ function* uploadStudentCode() {
             resolve(1);
           }
           sftp.fastPut(
-            stateSlice.filepath, defaults.STUDENTCODELOC,
+            stateSlice.filepath, defaults.TMPSTUDENTCODELOC,
             (err2) => {
               if (err2) {
                 logging.log(err2);
                 resolve(2);
               }
+              /**
+               *  FIXME: need to use SSH to edit `studentcode.py` in-place,
+               *  triggering an update in the Docker bind mount.
+               */
+              const conn = new Client();
+              conn.exec(
+                `cat ${defaults.TMPSTUDENTCODELOC} > ${defaults.STUDENTCODELOC} && rm ${defaults.TMPSTUDENTCODELOC}`,
+                { pty: true }, (err, stream) => {
+                  if (!err) {
+                    stream.write(`${defaults.PASSWORD}\n`);
+                    stream.on('exit', (statusCode) => {
+                      conn.end();
+                    });
+                  }
+                }
+              )
               resolve(0);
             },
           );

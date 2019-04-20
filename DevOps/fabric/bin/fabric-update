@@ -4,7 +4,7 @@ source /home/fabric/.local/bin/fabric-common.bash
 
 # Docker bookkeeping
 sudo docker rm $(sudo docker ps -a -f status=exited -q)
-sudo docker rmi $(sudo docker images -a -q)
+sudo docker rmi $(sudo docker images -a -f "before=pioneers/fabric:latest" -q)
 
 cd "${fabricupdates}"
 update=$(pwd)/$(ls -t | head -1)

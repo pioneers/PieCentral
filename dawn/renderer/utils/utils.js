@@ -58,10 +58,11 @@ export const runtimeState = {
 
 export const defaults = {
   PORT: 22,
-  USERNAME: 'ubuntu',
-  PASSWORD: 'temppwd',
-  IPADDRESS: '192.168.7.2',
-  STUDENTCODELOC: './PieCentral/runtime/studentCode.py',
+  USERNAME: 'fabric',
+  PASSWORD: 'fabric',
+  IPADDRESS: '192.168.6.2',
+  STUDENTCODELOC: '/home/fabric/storage/studentcode.py',
+  TMPSTUDENTCODELOC: '/tmp/studentcode.py',
 };
 
 export const timings = {

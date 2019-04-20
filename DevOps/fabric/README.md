@@ -102,7 +102,7 @@ $ scp bashrc fabric@192.168.0.2:~/.bashrc
 Now, log in as `fabric` with password `fabric`, and run:
 ```sh
 fabric@fabric:~ $ sudo userdel -rf pi
-fabric@fabric:~ $ mkdir -p updates .local
+fabric@fabric:~ $ mkdir -p storage updates .local
 fabric@fabric:~ $ chmod +x bin/* && mv bin .local
 fabric@fabric:~ $ sudo mv systemd-units/* /etc/systemd/system
 fabric@fabric:~ $ sudo systemctl enable fabric-update.service

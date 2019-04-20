@@ -58,7 +58,7 @@ class UpdateBox extends React.Component {
                 logging.log(err2);
               } else {
                 conn.exec(
-                  'sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service',
+                  'sudo systemctl restart fabric.service',
                   { pty: true }, (uperr, stream) => {
                     if (uperr) {
                       this.props.onAlertAdd(

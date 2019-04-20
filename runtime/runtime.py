@@ -389,7 +389,7 @@ def terminate_process(process_name):
 
 def runtime_test(test_names):
     # Normally dangerous. Allowed here because we put testing code there.
-    import studentCode as studentcode
+    import studentcode as studentCode
 
     test_name_regex = re.compile(".*_setup")
     all_test_names = [test_name[:-len("_setup")]

@@ -2,10 +2,8 @@
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
-
 [requires]
 python_version = "3.7"
-
 
 [packages]
 protobuf = "==3.2.0"
@@ -14,10 +12,8 @@ flask = "*"
 aioprocessing = "*"
 pyserial-asyncio = "*"
 aiofiles = "*"
-uvloop = "*"
 cobs = "*"
-
 
 [dev-packages]
 pylint = "==1.8.1"
-yappi = "*"
+yappi = "~=1.0"

@@ -1,7 +1,6 @@
 import keyMirror from 'keymirror';
 
-// Read as YEAR.PUBLIC.INTERNAL
-export const VERSION = '2019.1.0';
+export const VERSION = '2.0.0';
 export const PeripheralTypes = keyMirror({
   MOTOR_SCALAR: null,
   SENSOR_BOOLEAN: null,
@@ -19,6 +18,8 @@ export const PeripheralTypes = keyMirror({
   BatteryBuzzer: null,
   TeamFlag: null,
   GameValues: null,
+  master: null,
+  PolarBear: null,
 });
 
 export const ActionTypes = keyMirror({
@@ -40,6 +41,7 @@ export const ActionTypes = keyMirror({
   UPDATE_HEART: null,
   UPDATE_ROBOT: null,
   UPDATE_MATCH: null,
+  UPDATE_MASTER: null,
   ADD_ALERT: null,
   REMOVE_ALERT: null,
   CLEAR_CONSOLE: null,

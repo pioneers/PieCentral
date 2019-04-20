@@ -37,6 +37,7 @@ class ConfigBoxComponent extends React.Component {
     this.handleClose = this.handleClose.bind(this);
   }
 
+
   componentDidMount() {
     storage.get('ipAddress', (err, data) => {
       if (err) {

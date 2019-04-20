@@ -24,7 +24,7 @@ test:
 
 artifacts:
 	yarn run build
-	node release.js --platform=win32 --arch=ia32
-	node release.js --platform=darwin --arch=x64
-	node release.js --platform=linux --arch=x64
+	yarn run pkg --platform=win32 --arch=ia32
+	yarn run pkg --platform=darwin --arch=x64
+	yarn run pkg --platform=linux --arch=x64
 	cp ../*.zip ../artifacts

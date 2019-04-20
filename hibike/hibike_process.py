@@ -22,8 +22,6 @@ except ImportError:
 
 __all__ = ["hibike_process"]
 
-asyncio.set_event_loop_policy(asyncio.EventLoopPolicy())
-
 # .04 milliseconds sleep is the same frequency we subscribe to devices at
 BATCH_SLEEP_TIME = .04
 # Time in seconds to wait until reading from a potential sensor

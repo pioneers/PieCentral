@@ -114,6 +114,7 @@ class AppComponent extends React.Component {
         <DNav
           startTour={this.startTour}
           runtimeStatus={this.props.runtimeStatus}
+          masterStatus={this.props.masterStatus}
           connectionStatus={this.props.connectionStatus}
           isRunningCode={this.props.isRunningCode}
         />
@@ -150,6 +151,7 @@ class AppComponent extends React.Component {
 AppComponent.propTypes = {
   connectionStatus: PropTypes.bool.isRequired,
   runtimeStatus: PropTypes.bool.isRequired,
+  masterStatus: PropTypes.bool.isRequired,
   isRunningCode: PropTypes.bool.isRequired,
   asyncAlerts: PropTypes.array.isRequired,
   onAlertDone: PropTypes.func.isRequired,
@@ -159,6 +161,7 @@ AppComponent.propTypes = {
 const mapStateToProps = state => ({
   connectionStatus: state.info.connectionStatus,
   runtimeStatus: state.info.runtimeStatus,
+  masterStatus: state.fieldStore.masterStatus,
   isRunningCode: state.info.isRunningCode,
   asyncAlerts: state.asyncAlerts,
 });

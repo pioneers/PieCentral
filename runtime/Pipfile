@@ -2,10 +2,8 @@
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
-
 [requires]
 python_version = "3.7"
-
 
 [packages]
 click = "*"
@@ -16,7 +14,6 @@ aioprocessing = "*"
 pyserial-asyncio = "*"
 aiofiles = "*"
 cobs = "*"
-
 
 [dev-packages]
 pylint = "==1.8.1"

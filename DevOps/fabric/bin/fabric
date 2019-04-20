@@ -1,0 +1,14 @@
+#!/bin/bash
+
+source /home/fabric/.local/bin/fabric-common.bash
+subcommands=$(compgen -c | sort | uniq | grep -oE 'fabric-(.+)' | cut -d '-' -f 2)
+if [ ! "$1" ]; then
+  echo "Usage: $0 [subcommand] [options]" >&2
+  exit 1
+fi
+if [[ "${subcommands}" = *"$1"* ]]; then
+  fabric-$1
+else
+  echo -e ${red}"fabric: Unrecognized subcommand: '$1'."${clear}
+  exit 2
+fi

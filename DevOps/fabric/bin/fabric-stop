@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source /home/fabric/.local/bin/fabric-common.bash
+echo -e ${green}"Stopping Fabric container '${containername}'."${clear}
+sudo docker kill "${containername}"

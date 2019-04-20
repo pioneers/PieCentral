@@ -10,12 +10,11 @@ build:
 	gzip $(TAR)
 
 run:
-	docker run --rm -it --privileged \
-						 -p 1234-1236:1234-1236 -p 6020:6020 \
+	docker run --name=runtime --net=host --rm -it --privileged \
 						 -v studentcode:/root/runtime/studentCode.py $(TAG):latest
 
 shell:
-	docker run --rm -it $(TAG) $(TARGET_SHELL)
+	docker run --name=runtime --net=host --rm -it $(TAG) $(TARGET_SHELL)
 
 all:
 

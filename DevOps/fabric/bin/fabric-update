@@ -1,0 +1,21 @@
+#!/bin/bash
+
+source /home/fabric/.local/bin/fabric-common.bash
+
+# Docker bookkeeping
+sudo docker rm $(sudo docker ps -a -f status=exited -q)
+sudo docker rmi $(sudo docker images -a -q)
+
+cd "${fabricupdates}"
+update=$(pwd)/$(ls -t | head -1)
+if [[ "${update}" = *".sh" ]]; then
+  bash "${update}"
+elif [[ "${update}" = *".py" ]]; then
+  python3 "${update}"
+elif [[ "${update}" = *".tar.gz" ]]; then
+  /home/fabric/.local/bin/fabric-stop
+  sudo docker images rm pioneers/fabric:latest
+  sudo docker load -i "${update}"
+  /home/fabric/.local/bin/fabric-start
+fi
+rm -rf "${update}"

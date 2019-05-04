@@ -52,8 +52,6 @@ install:
   - popd
 script:
   - pushd $TEST_DIR
-  - make test
-  - make lint
   - if [[ $DEPLOY_ARTIFACTS = 1 ]]; then make artifacts; fi
   - popd
 branches:

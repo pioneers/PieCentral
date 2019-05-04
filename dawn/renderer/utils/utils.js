@@ -60,7 +60,7 @@ export const defaults = {
   PORT: 22,
   USERNAME: 'fabric',
   PASSWORD: 'fabric',
-  IPADDRESS: '192.168.6.2',
+  IPADDRESS: '192.168.7.2',
   STUDENTCODELOC: '/home/fabric/storage/studentcode.py',
   TMPSTUDENTCODELOC: '/tmp/studentcode.py',
 };

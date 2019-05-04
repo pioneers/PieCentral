@@ -42,43 +42,21 @@ class UpdateBox extends React.Component {
         if (err) {
           logging.log(err);
         } else {
-          logging.log('SSH Connection');
+          logging.log(`SSH Connection: Uploading ${this.state.updateFilepath}`);
           sftp.fastPut(
             this.state.updateFilepath,
             `./updates/${update}`, (err2) => {
               if (err2) {
-                conn.end();
-                this.setState({ isUploading: false });
-                this.props.hide();
                 this.props.onAlertAdd(
                   'Robot Connectivity Error',
                   `Dawn was unable to upload the update to the robot
                   Please check your robot connectivity.`,
                 );
                 logging.log(err2);
-              } else {
-                conn.exec(
-                  'sudo systemctl restart fabric.service',
-                  { pty: true }, (uperr, stream) => {
-                    if (uperr) {
-                      this.props.onAlertAdd(
-                        'Update Script Error',
-                        `Dawn was unable to run update scripts.
-                        Please check your robot connectivity.`,
-                      );
-                    }
-                    stream.write(`${defaults.PASSWORD}\n`);
-                    stream.on('exit', (code) => {
-                      logging.log(`Update Script Returned ${code}`);
-                      setTimeout(() => {
-                        this.setState({ isUploading: false });
-                        this.props.hide();
-                      }, 10000);
-                      conn.end();
-                    });
-                  },
-                );
               }
+              conn.end();
+              this.setState({ isUploading: false });
+              this.props.hide();
             },
           );
         }

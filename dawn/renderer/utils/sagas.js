@@ -15,8 +15,6 @@ import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from '../utils/utils';
-const { Client } = require('ssh2');
-
 
 const { Client } = require('ssh2');
 
@@ -328,7 +326,7 @@ function* restartRuntime() {
     const network = yield call(() => new Promise((resolve) => {
       conn.on('ready', () => {
         conn.exec(
-          'sudo systemctl restart runtime.service',
+          'sudo systemctl restart fabric.service',
           { pty: true }, (uperr, stream) => {
             if (uperr) {
               resolve(1);
@@ -484,19 +482,17 @@ function* uploadStudentCode() {
                *  FIXME: need to use SSH to edit `studentcode.py` in-place,
                *  triggering an update in the Docker bind mount.
                */
-              const conn = new Client();
               conn.exec(
-                `cat ${defaults.TMPSTUDENTCODELOC} > ${defaults.STUDENTCODELOC} && rm ${defaults.TMPSTUDENTCODELOC}`,
-                { pty: true }, (err, stream) => {
-                  if (!err) {
-                    stream.write(`${defaults.PASSWORD}\n`);
-                    stream.on('exit', (statusCode) => {
-                      conn.end();
-                    });
-                  }
-                }
-              )
-              resolve(0);
+                `cat ${defaults.TMPSTUDENTCODELOC} > `
+                  + `${defaults.STUDENTCODELOC} && rm ${defaults.TMPSTUDENTCODELOC}`,
+                { pty: true }, (overwriteErr, stream) => {
+                  stream.write(`${defaults.PASSWORD}\n`);
+                  stream.on('exit', () => {
+                    conn.end();
+                    resolve(0);
+                  });
+                },
+              );
             },
           );
         });

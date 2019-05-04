@@ -2081,9 +2081,10 @@ ejs@^2.3.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/ejs/-/ejs-2.6.1.tgz#498ec0d495655abc6f23cd61868d926464071aa0"
 
-electron-devtools-installer@2.2.3:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/electron-devtools-installer/-/electron-devtools-installer-2.2.3.tgz#58b9a4ec507377bc46e091cd43714188e0c369be"
+electron-devtools-installer@2.2.4:
+  version "2.2.4"
+  resolved "https://registry.yarnpkg.com/electron-devtools-installer/-/electron-devtools-installer-2.2.4.tgz#261a50337e37121d338b966f07922eb4939a8763"
+  integrity sha512-b5kcM3hmUqn64+RUcHjjr8ZMpHS2WJ5YO0pnG9+P/RTdx46of/JrEjuciHWux6pE+On6ynWhHJF53j/EDJN0PA==
   dependencies:
     "7zip" "0.0.6"
     cross-unzip "0.0.2"

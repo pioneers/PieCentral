@@ -7,10 +7,14 @@ module.exports = {
       test: /\.(js|jsx)$/i,
       exclude: /node_modules/,
       use: ['babel-loader', 'eslint-loader'],
+    }, {
+      test: /\.scss$/i,
+      exclude: /node_modules/,
+      use: ['style-loader', 'css-loader', 'sass-loader'],
+    }, {
+      test: /\.(woff|woff2|eot|ttf|otf)$/i,
+      use: ['file-loader'],
     }],
-  },
-  resolve: {
-    extensions: ['*', '.js', '.jsx'],
   },
   output: {
     path: path.join(__dirname, '/dist'),

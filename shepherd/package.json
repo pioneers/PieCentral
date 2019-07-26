@@ -10,17 +10,25 @@
   },
   "main": "server/index.js",
   "bin": "./bin/shepherd",
-  "files": ["./app", "./bin", "./dist", "./server"],
+  "files": [
+    "./client",
+    "./bin",
+    "./dist",
+    "./server"
+  ],
   "scripts": {
-    "develop": "webpack-dev-server --hot --inline",
-    "build": "webpack --mode production"
+    "dev-client": "webpack-dev-server --hot --inline",
+    "dev-server": "export NODE_ENV=development && bin/shepherd",
+    "build": "webpack --mode production",
+    "start": "bin/shepherd"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.17.1",
     "express": "^4.17.1",
     "oclif": "^1.13.5",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

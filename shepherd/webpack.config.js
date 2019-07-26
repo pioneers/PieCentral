@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './app/app.js',
+  entry: './client/app.js',
   module: {
     rules: [{
       test: /\.(js|jsx)$/i,

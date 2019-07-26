@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+
+require('../server/cli')
+  .run()
+  .catch(require('@oclif/errors/handle'));

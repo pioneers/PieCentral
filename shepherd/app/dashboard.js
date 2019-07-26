@@ -1,13 +1,9 @@
 import React from 'react';
 import { Alignment, Button, H1, Navbar, Tab, Tabs } from '@blueprintjs/core';
 
+import GamePanel from './game';
 import { DARK_THEME } from './util';
 
-class GamePanel extends React.Component {
-  render() {
-    return (<span>Game</span>);
-  }
-}
 
 class MetricsPanel extends React.Component {
   render() {

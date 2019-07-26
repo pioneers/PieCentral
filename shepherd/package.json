@@ -8,12 +8,17 @@
     "type": "git",
     "url": "https://github.com/pioneers/PieCentral.git"
   },
+  "main": "server/index.js",
+  "bin": "./bin/shepherd",
+  "files": ["./app", "./bin", "./dist", "./server"],
   "scripts": {
-    "start": "webpack-dev-server --hot --inline",
+    "develop": "webpack-dev-server --hot --inline",
     "build": "webpack --mode production"
   },
   "dependencies": {
     "@blueprintjs/core": "^3.17.1",
+    "express": "^4.17.1",
+    "oclif": "^1.13.5",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Redirect, Route } from 'react-router-dom';
+import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import { Colors, FocusStyleManager } from '@blueprintjs/core';
 
@@ -35,9 +35,12 @@ class App extends React.Component {
       <HashRouter>
         <div className={`bg-theme bp3-text-large ${className}`} style={{ background }}>
           <div className='container'>
-            <Redirect from='/' to='/dashboard' />
-            <Route path='/dashboard' render={() => <Dashboard {...themeProps} />} />
-            <Route path='/scoreboard' render={() => <Scoreboard {...themeProps} />} />
+            <Switch>
+              <Route path='/dashboard' render={() => <Dashboard {...themeProps} />} />
+              <Route path='/scoreboard' render={() => <Scoreboard {...themeProps} />} />
+              <Redirect from='/' exact to='/dashboard' />
+              <Route path='*' exact render={() => <p>Page Not Found</p>} />
+            </Switch>
           </div>
         </div>
       </HashRouter>

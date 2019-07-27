@@ -16,7 +16,7 @@ Shepherd, a heavily event-driven application, is primarily written in JavaScript
 Requirements:
 1. Field control is the sole source of truth about all that goes on in each match.
    That means Shepherd should produce a detailed audit log that can be read in case.
-2. The frontend should minimize the burden placed on the
+2. The frontend should minimize the burden placed on the operators.
 
 ## Getting Started
 

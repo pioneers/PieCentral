@@ -34,14 +34,12 @@ class App extends React.Component {
     return (
       <HashRouter>
         <div className={`bg-theme bp3-text-large ${className}`} style={{ background }}>
-          <div className='container'>
-            <Switch>
-              <Route path='/dashboard' render={() => <Dashboard {...themeProps} />} />
-              <Route path='/scoreboard' render={() => <Scoreboard {...themeProps} />} />
-              <Redirect from='/' exact to='/dashboard' />
-              <Route path='*' exact render={() => <p>Page Not Found</p>} />
-            </Switch>
-          </div>
+          <Switch>
+            <Route path='/dashboard' render={() => <Dashboard {...themeProps} />} />
+            <Route path='/scoreboard' render={() => <Scoreboard {...themeProps} />} />
+            <Redirect from='/' exact to='/dashboard' />
+            <Route path='*' exact render={() => <p>Page Not Found</p>} />
+          </Switch>
         </div>
       </HashRouter>
     );

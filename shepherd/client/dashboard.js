@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Container } from 'react-grid-system';
 import { Alignment, Button, H1, Navbar, Tab, Tabs } from '@blueprintjs/core';
 
 import GamePanel from './game';
@@ -42,7 +43,7 @@ class Dashboard extends React.Component {
   render() {
     let { title, component } = this.getPanel();
     return (
-      <div>
+      <Container fluid style={{ maxWidth: 1400, paddingTop: 15, paddingBottom: 15 }}>
         <nav>
           <Navbar>
             <Navbar.Group>
@@ -73,7 +74,7 @@ class Dashboard extends React.Component {
           <H1>{title || 'Page Not Found'}</H1>
           {component || <p>No content available.</p>}
         </main>
-      </div>
+      </Container>
     );
   }
 }

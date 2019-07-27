@@ -6,12 +6,6 @@ html, body, #app, #app > .bg-theme {
   height: 100%;
 }
 
-.container {
-  margin: 0 auto;
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
-  max-width: 1400px;
-}
-
 .navbar-tabs {
   .bp3-large > .bp3-tab {
     line-height: 50px;
@@ -28,4 +22,12 @@ html, body, #app, #app > .bg-theme {
 
 main {
   margin-top: 1rem;
+}
+
+.team-form {
+  margin: 1rem 0;
+}
+
+.team-form-row {
+  margin: 0.6rem 0;
 }

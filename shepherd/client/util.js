@@ -23,4 +23,14 @@ const ThemeToggleButton = props => {
   )
 };
 
-export { LIGHT_THEME, DARK_THEME, ThemeToggleButton };
+const ALLIANCES = {
+  BLUE: 'Blue',
+  GOLD: 'Gold'
+};
+
+export {
+  LIGHT_THEME,
+  DARK_THEME,
+  ThemeToggleButton,
+  ALLIANCES
+};

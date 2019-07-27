@@ -29,6 +29,7 @@
     "oclif": "^1.13.5",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-grid-system": "^4.4.10",
     "react-router": "^5.0.1",
     "react-router-dom": "^5.0.1",
     "socket.io": "^2.2.0",

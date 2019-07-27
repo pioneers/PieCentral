@@ -13,10 +13,17 @@ html, body, #app, #app > .bg-theme {
 }
 
 .navbar-tabs {
-  margin-left: 15px;
   .bp3-large > .bp3-tab {
     line-height: 50px;
   }
+}
+
+.bp3-navbar-divider {
+  margin: 0 20px;
+}
+
+.bp3-navbar-heading {
+  margin: 0;
 }
 
 main {

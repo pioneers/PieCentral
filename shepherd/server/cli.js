@@ -46,13 +46,15 @@ ServerCommand.flags = {
   help: flags.help({ char: 'h' }),
   host: flags.string({
     char: 'n',
+    env: 'HOST',
     description: 'Host to bind the server to',
     default: '127.0.0.1',
   }),
   port: flags.string({
     char: 'p',
+    env: 'PORT',
     description: 'Port to bind the server to',
-    default: 6060,
+    default: 8100,
   }),
   log: flags.string({
     char: 'l',
@@ -60,7 +62,7 @@ ServerCommand.flags = {
     default: 'log/aggregate.log',
   }),
   mode: flags.string({
-    mode: 'm',
+    char: 'm',
     env: 'NODE_ENV',
     default: 'development',
     description: 'Mode',

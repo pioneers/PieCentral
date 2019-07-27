@@ -1,8 +1,9 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Alignment, Button, H1, Navbar, Tab, Tabs } from '@blueprintjs/core';
 
 import GamePanel from './game';
-import { DARK_THEME } from './util';
+import { ThemeToggleButton } from './util';
 
 
 class MetricsPanel extends React.Component {
@@ -40,14 +41,6 @@ class Dashboard extends React.Component {
 
   render() {
     let { title, component } = this.getPanel();
-    let themeToggleText, themeToggleIcon;
-    if (this.props.theme === DARK_THEME) {
-      themeToggleText = 'Light theme';
-      themeToggleIcon = 'flash';
-    } else {
-      themeToggleText = 'Dark theme';
-      themeToggleIcon = 'moon';
-    }
     return (
       <div>
         <nav>
@@ -56,21 +49,22 @@ class Dashboard extends React.Component {
               <Navbar.Heading>Shepherd Dashboard</Navbar.Heading>
               <Navbar.Divider />
               <Tabs
-                  id='navbar-tabs'
-                  className='navbar-tabs'
-                  selectedTabId={this.state.panelId}
-                  onChange={this.handleTabChange}
-                  large
+                id='navbar-tabs'
+                className='navbar-tabs'
+                selectedTabId={this.state.panelId}
+                onChange={this.handleTabChange}
+                large
               >
                 {this.panels.map(({ id, title }, index) =>
                   <Tab key={index} id={id} title={title} />)}
               </Tabs>
+              <Navbar.Divider />
+              <Link to='/scoreboard'>Scoreboard</Link>
             </Navbar.Group>
             <Navbar.Group align={Alignment.RIGHT}>
-              <Button
-                text={themeToggleText}
-                icon={themeToggleIcon}
-                onClick={this.props.toggleTheme}
+              <ThemeToggleButton
+                theme={this.props.theme}
+                toggleTheme={this.props.toggleTheme}
               />
             </Navbar.Group>
           </Navbar>

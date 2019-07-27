@@ -13,14 +13,50 @@ Shepherd, a heavily event-driven application, is primarily written in JavaScript
   The frontend expects to communicate asynchronously with the backend server.
 * The backend server uses ExpressJS to expose APIs for interacting with the field.
 
+Requirements:
+1. Field control is the sole source of truth about all that goes on in each match.
+   That means Shepherd should produce a detailed audit log that can be read in case.
+2. The frontend should minimize the burden placed on the
+
 ## Getting Started
 
-To develop,
 ```sh
-$ npm run develop
+$ npm install
+$ npm start
 ```
 
-To deploy,
-```sh
-$ npm run build
+## Data Model
+
+Due to the real-time nature of field control, we use [RethinkDB](https://www.rethinkdb.com/) to persist our data.
+
+Team:
+
+```json
+{
+  "number": 1,
+  "name": "* High School",
+  "matches": ["<uuid>"],
+}
+```
+
+Match:
+
+```json
+{
+  "id": "<uuid>",
+  "transitions": [
+    { "state": "autonomous", "timestamp": 1000 },
+    { "state": "idle", "timestamp": 2000 }
+  ],
+  "blue": {
+    "teams": [1, 2],
+    "scoreLog": [
+      { "delta": 1, "timestamp": 10000, "source": "button", "by": 1 },
+      { "delta": -10, "source": "penalty", "context": "Damaged the field" }
+    ]
+  },
+  "gold": {
+    "teams": [3],
+  }
+}
 ```

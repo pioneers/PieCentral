@@ -1,9 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Button } from '@blueprintjs/core';
-import io from 'socket.io-client';
-
-export const socket = io(`http://localhost:8100`);
 
 export const LIGHT_THEME = 'light';
 export const DARK_THEME = 'dark';

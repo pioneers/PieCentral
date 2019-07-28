@@ -11,7 +11,9 @@ const logger = winston.createLogger({
 class FieldControlEngine {
   constructor(flags) {
     this.flags = flags;
-    this.app = buildServer(logger, flags);
+    let { server, io } = buildServer(logger, flags);
+    this.server = server;
+    this.io = io;
     this.slackClient = new SlackNotificationClient(logger, flags['slack-token']);
   }
 
@@ -40,7 +42,7 @@ class FieldControlEngine {
     logger.debug('Logging initialized');
 
     let host = this.flags.host, port = this.flags.port;
-    this.app.listen(port, host, () => {
+    this.server.listen(port, host, () => {
       logger.info(`Server listening on ${host}:${port}`, {host, port});
     });
   }

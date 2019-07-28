@@ -15,10 +15,21 @@ import {
 import { MODES, toOptions } from '../util';
 
 const DEFAULT_MATCH = {
+  phase: { totalDuration: NaN, remainingDuration: NaN }
 };
 
-export function handleMatchUpdate(match = DEFAULT_MATCH, { type }) {
-  //
+const UPDATE_TIMER = 'UPDATE_TIMER';
+const RESET_TIMER = 'RESET_TIMER';
+
+export const updateTimer = update => ({ type: UPDATE_TIMER, update });
+
+export function handleMatchUpdate(match = DEFAULT_MATCH, { type, update }) {
+  switch (type) {
+    case UPDATE_TIMER:
+      return { ...match, phase: Object.assign({}, match.phase, update) };
+    default:
+      return match;
+  }
 }
 
 class MatchEditor extends React.Component {

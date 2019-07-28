@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
   Alignment,
@@ -12,7 +13,6 @@ import { ThemeToggleButton } from './util';
 class Scoreboard extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { phaseProgress: 0 };
     this.timerRef = React.createRef();
   }
 
@@ -26,6 +26,12 @@ class Scoreboard extends React.Component {
   }
 
   render() {
+    let phaseProgress = 0;
+    let { remainingDuration, totalDuration } = this.props;
+    if (!isNaN(remainingDuration) && !isNaN(remainingDuration)) {
+      phaseProgress = remainingDuration/totalDuration;
+    }
+
     return (
       <div>
         <nav>
@@ -43,9 +49,9 @@ class Scoreboard extends React.Component {
         <main>
           <Spinner
             className='scoreboard-timer'
-            value={this.state.phaseProgress}
+            value={phaseProgress}
             size={700}
-            intent={this.state.phaseProgress > 0.05 ? Intent.PRIMARY : Intent.DANGER}
+            intent={phaseProgress > 0.05 ? Intent.PRIMARY : Intent.DANGER}
             ref={this.timerRef}
           />
         </main>
@@ -54,4 +60,4 @@ class Scoreboard extends React.Component {
   }
 }
 
-export default Scoreboard;
+export default connect(state => ({ ...state.match.phase }))(Scoreboard);

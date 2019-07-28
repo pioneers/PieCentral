@@ -6,6 +6,7 @@ import { Colors, FocusStyleManager } from '@blueprintjs/core';
 
 import Dashboard from './dashboard';
 import Scoreboard from './scoreboard';
+import './messaging';
 import store from './store';
 import { LIGHT_THEME, DARK_THEME } from './util';
 import './style.scss';

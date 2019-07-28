@@ -20,8 +20,18 @@ module.exports = function(logger, { mode }) {
   }
 
   io.on('connection', function(socket) {
-    logger.debug('SocketIO running!');
+    // For testing purposes
+    setInterval(() => {
+      logger.debug('Timer firing');
+      let totalDuration = 15*1000;
+      let remainingDuration = totalDuration - new Date().getTime() % totalDuration;
+      socket.emit('timer', {
+        phaseId: 'TELEOP',
+        totalDuration,
+        remainingDuration
+      });
+    }, 100);
   });
 
-  return server;
+  return { server, io };
 };

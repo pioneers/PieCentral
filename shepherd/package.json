@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^3.17.1",
+    "@slack/web-api": "^5.1.0",
     "express": "^4.17.1",
     "oclif": "^1.13.5",
     "react": "^16.8.6",

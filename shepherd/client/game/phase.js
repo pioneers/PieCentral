@@ -1,4 +1,5 @@
 import React from 'react';
+import { Row, Col } from 'react-grid-system';
 import {
   Card,
   H2
@@ -9,6 +10,9 @@ class PhaseEditor extends React.Component {
     return (
       <Card>
         <H2>Phases</H2>
+        <Row>
+          <Col><strong>Phase name</strong></Col>
+        </Row>
       </Card>
     );
   }

@@ -8,9 +8,18 @@ import {
   Card,
   ControlGroup,
   H2,
+  HTMLSelect,
   Intent,
   NumericInput
 } from '@blueprintjs/core';
+import { MODES, toOptions } from '../util';
+
+const DEFAULT_MATCH = {
+};
+
+export function handleMatchUpdate(match = DEFAULT_MATCH, { type }) {
+  //
+}
 
 class MatchEditor extends React.Component {
   constructor(props) {
@@ -75,7 +84,8 @@ class MatchEditor extends React.Component {
           </Col>
           <Col>
             <ControlGroup>
-              <Button text='Set mode' />
+              <HTMLSelect options={toOptions(MODES)} />
+              <Button text='Set mode' intent={Intent.WARNING} />
             </ControlGroup>
           </Col>
         </Row>

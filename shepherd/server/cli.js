@@ -1,43 +1,11 @@
 const { Command, flags } = require('@oclif/command');
-const winston = require('winston');
-const app = require('./views');
-
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.json(),
-  defaultMeta: { service: 'shepherd' }
-});
+const FieldControlEngine = require('./index');
 
 class ServerCommand extends Command {
-  configureLogger(flags) {
-    switch (flags.mode) {
-      case 'production':
-        logger.add(new winston.transports.File({
-          filename: flags.log
-        }));
-        break;
-      default:
-        logger.add(new winston.transports.Console({
-          level: 'debug',
-          format: winston.format.combine(
-            winston.format.colorize(),
-            winston.format.printf(info => `${new Date().toISOString()} [${info.level}]: ${info.message}`)
-          )
-        }));
-        break;
-    }
-  }
-
   async run() {
     const { flags } = this.parse(ServerCommand);
-    this.configureLogger(flags);
-    logger.debug('Logging initialized');
-    app.listen(flags.port, flags.host, () => {
-      logger.info(`Server listening on ${flags.host}:${flags.port}`, {
-        host: flags.host,
-        port: flags.port,
-      });
-    });
+    let engine = new FieldControlEngine(flags);
+    await engine.runForever();
   }
 }
 
@@ -68,6 +36,16 @@ ServerCommand.flags = {
     description: 'Mode',
     options: ['development', 'production'],
   }),
+  'slack-token': flags.string({
+    char: 's',
+    env: 'SLACK_TOKEN',
+    description: 'Slack token'
+  }),
+  'slack-channel': flags.string({
+    env: 'SLACK_CHANNEL',
+    default: '#shepherd-bot-testing',
+    description: 'Slack channel'
+  })
 };
 
 module.exports = ServerCommand;

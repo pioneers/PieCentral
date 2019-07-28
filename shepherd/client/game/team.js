@@ -11,7 +11,7 @@ import {
   Intent,
   NumericInput
 } from '@blueprintjs/core';
-import { ALLIANCES } from '../util';
+import { ALLIANCES, toOptions } from '../util';
 
 const ADD_TEAM = 'ADD_TEAM';
 const UPDATE_TEAM = 'UPDATE_TEAM';
@@ -68,7 +68,7 @@ const TeamFormRow = props => (
       <HTMLSelect
         fill
         disabled={props.disabled}
-        options={Object.entries(ALLIANCES).map(([value, label]) => ({value, label}))}
+        options={toOptions(ALLIANCES)}
         value={props.team.alliance || 0}
         onChange={event => props.updateTeam({ alliance: event.target.value })}
       />

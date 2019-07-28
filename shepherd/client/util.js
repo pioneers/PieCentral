@@ -30,5 +30,14 @@ export const ThemeToggleButton = connect(
 
 export const ALLIANCES = {
   BLUE: 'Blue',
-  GOLD: 'Gold'
+  GOLD: 'Gold',
 };
+
+export const MODES = {
+  IDLE: 'Idle',
+  AUTO: 'Autonomous',
+  TELEOP: 'Tele-op',
+};
+
+export const toOptions =
+  pairs => Object.entries(pairs).map(([value, label]) => ({ value, label }));

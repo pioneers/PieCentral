@@ -11,7 +11,7 @@ import {
   Intent,
   NumericInput
 } from '@blueprintjs/core';
-import { ALLIANCES } from './util';
+import { ALLIANCES } from '../util';
 
 const ADD_TEAM = 'ADD_TEAM';
 const UPDATE_TEAM = 'UPDATE_TEAM';
@@ -110,8 +110,8 @@ class TeamEditor extends React.Component {
         </div>
         <ButtonGroup>
           <Button text='Add Team' onClick={this.props.addTeam} />
-          <Button text='Populate' />
-          <Button text='Update' />
+          <Button text='Populate From Schedule' />
+          <Button text='Update Schedule' />
         </ButtonGroup>
       </Card>
     );

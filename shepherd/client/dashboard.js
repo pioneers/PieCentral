@@ -1,9 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Container } from 'react-grid-system';
-import { Alignment, Button, H1, Navbar, Tab, Tabs } from '@blueprintjs/core';
+import {
+  Alignment,
+  Button,
+  ButtonGroup,
+  Classes,
+  Drawer,
+  H1,
+  Navbar,
+  Tab,
+  Tabs
+} from '@blueprintjs/core';
 
-import GamePanel from './game';
+import { GamePanel, GamePanelHelp } from './game';
+import ScheduleViewer from './schedule';
 import { ThemeToggleButton } from './util';
 
 
@@ -13,6 +24,18 @@ class MetricsPanel extends React.Component {
   }
 }
 
+const DashboardHelp = props => {
+  return (
+    <Drawer isOpen={props.isOpen} onClose={props.onClose} title='Using the Shepherd Dashboard' icon='help'>
+      <div className={Classes.DRAWER_BODY}>
+        <div className={Classes.DIALOG_BODY}>
+          {props.help}
+        </div>
+      </div>
+    </Drawer>
+  );
+};
+
 class Dashboard extends React.Component {
   constructor(props) {
     super(props);
@@ -21,12 +44,17 @@ class Dashboard extends React.Component {
       id: 'game',
       title: 'Game',
       component: <GamePanel />,
+      help: <GamePanelHelp />,
+    }, {
+      id: 'schedule',
+      title: 'Schedule',
+      component: <ScheduleViewer />,
     }, {
       id: 'metrics',
       title: 'Metrics',
       component: <MetricsPanel />,
     }];
-    this.state = { panelId: 'game' };
+    this.state = { panelId: 'game', isHelpOpen: false };
 
     this.handleTabChange = this.handleTabChange.bind(this);
     this.getPanel = this.getPanel.bind(this);
@@ -41,7 +69,7 @@ class Dashboard extends React.Component {
   }
 
   render() {
-    let { title, component } = this.getPanel();
+    let { title, component, help } = this.getPanel();
     return (
       <Container fluid style={{ maxWidth: 1400, paddingTop: 15, paddingBottom: 15 }}>
         <nav>
@@ -63,13 +91,25 @@ class Dashboard extends React.Component {
               <Link to='/scoreboard'>Scoreboard</Link>
             </Navbar.Group>
             <Navbar.Group align={Alignment.RIGHT}>
-              <ThemeToggleButton />
+              <ButtonGroup>
+                <Button
+                  icon='help'
+                  text='Help'
+                  onClick={() => this.setState({ isHelpOpen: true })}
+                />
+                <ThemeToggleButton />
+              </ButtonGroup>
             </Navbar.Group>
           </Navbar>
         </nav>
         <main>
           <H1>{title || 'Page Not Found'}</H1>
           {component || <p>No content available.</p>}
+          <DashboardHelp
+            isOpen={this.state.isHelpOpen}
+            help={help || <p>No help page available.</p>}
+            onClose={() => this.setState({ isHelpOpen: false })}
+          />
         </main>
       </Container>
     );

@@ -4,14 +4,24 @@ const path = require('path');
 const express = require('express');
 const socketio = require('socket.io');
 
-const app = express();
-const server = http.Server(app);
-const io = socketio(server);
+module.exports = function(logger, { mode }) {
+  let app = express();
+  let server = http.Server(app);
+  let io = socketio(server);
 
-app.get('/', (req, res) => {
-  res.send('OK!');
-});
+  if (mode === 'production') {
+    app.get('/', (req, res) => {
+      res.sendFile(path.join(__dirname, '../dist/index.html'));
+    });
 
-// app.get('/api/game', )
+    app.get('/bundle.js', (req, res) => {
+      res.sendFile(path.join(__dirname, '../dist/bundle.js'));
+    });
+  }
 
-module.exports = server;
+  io.on('connection', function(socket) {
+    logger.debug('SocketIO running!');
+  });
+
+  return server;
+};

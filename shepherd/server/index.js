@@ -1,5 +1,5 @@
 const winston = require('winston');
-const app = require('./views');
+const buildServer = require('./views');
 const SlackNotificationClient = require('./notification');
 
 const logger = winston.createLogger({
@@ -11,6 +11,7 @@ const logger = winston.createLogger({
 class FieldControlEngine {
   constructor(flags) {
     this.flags = flags;
+    this.app = buildServer(logger, flags);
     this.slackClient = new SlackNotificationClient(logger, flags['slack-token']);
   }
 
@@ -35,12 +36,12 @@ class FieldControlEngine {
 
   async runForever() {
     this.configureLogger();
+    logger.debug(`Running server with mode "${this.flags.mode}"`);
     logger.debug('Logging initialized');
 
     let host = this.flags.host, port = this.flags.port;
-    app.listen(port, host, () => {
+    this.app.listen(port, host, () => {
       logger.info(`Server listening on ${host}:${port}`, {host, port});
-
     });
   }
 }

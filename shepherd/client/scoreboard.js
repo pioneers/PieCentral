@@ -12,7 +12,7 @@ import { ThemeToggleButton } from './util';
 class Scoreboard extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { phaseProgress: 1 };
+    this.state = { phaseProgress: 0 };
     this.timerRef = React.createRef();
   }
 

@@ -1,4 +1,5 @@
 import { createStore, combineReducers } from 'redux';
-import { updateTeams as teams } from './team';
+import { handleTeamsUpdate as teams } from './team';
+import { handleThemeToggle as theme } from './util';
 
-export default createStore(combineReducers({ teams }));
+export default createStore(combineReducers({ teams, theme }));

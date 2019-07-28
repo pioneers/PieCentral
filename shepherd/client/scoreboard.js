@@ -16,10 +16,7 @@ class Scoreboard extends React.Component {
               <Link to='/dashboard'>Dashboard</Link>
             </Navbar.Group>
             <Navbar.Group align={Alignment.RIGHT}>
-              <ThemeToggleButton
-                theme={this.props.theme}
-                toggleTheme={this.props.toggleTheme}
-              />
+              <ThemeToggleButton />
             </Navbar.Group>
           </Navbar>
         </nav>

@@ -1,36 +1,34 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Button } from '@blueprintjs/core';
 
-const LIGHT_THEME = 'light';
-const DARK_THEME = 'dark';
+export const LIGHT_THEME = 'light';
+export const DARK_THEME = 'dark';
 
-const ThemeToggleButton = props => {
-  let themeToggleText, themeToggleIcon;
-  if (props.theme === DARK_THEME) {
-    themeToggleText = 'Light theme';
-    themeToggleIcon = 'flash';
-  } else {
-    themeToggleText = 'Dark theme';
-    themeToggleIcon = 'moon';
+const TOGGLE_THEME = 'TOGGLE_THEME';
+const toggleTheme = () => ({ type: TOGGLE_THEME });
+
+export function handleThemeToggle(theme = DARK_THEME, { type }) {
+  if (type === TOGGLE_THEME) {
+    return theme === LIGHT_THEME ? DARK_THEME : LIGHT_THEME;
   }
+  return theme;
+}
 
-  return (
-    <Button
-      text={themeToggleText}
-      icon={themeToggleIcon}
-      onClick={props.toggleTheme}
-    />
-  )
-};
+export const ThemeToggleButton = connect(
+  state => ({ theme: state.theme }),
+  { toggleTheme }
+)(props => {
+  let styling;
+  if (props.theme === DARK_THEME) {
+    styling = { text: 'Light theme', icon: 'flash' };
+  } else {
+    styling = { text: 'Dark theme', icon: 'moon' };
+  }
+  return <Button {...styling} onClick={props.toggleTheme} />;
+});
 
-const ALLIANCES = {
+export const ALLIANCES = {
   BLUE: 'Blue',
   GOLD: 'Gold'
-};
-
-export {
-  LIGHT_THEME,
-  DARK_THEME,
-  ThemeToggleButton,
-  ALLIANCES
 };

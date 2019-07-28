@@ -17,19 +17,11 @@ const ADD_TEAM = 'ADD_TEAM';
 const UPDATE_TEAM = 'UPDATE_TEAM';
 const DELETE_TEAM = 'DELETE_TEAM';
 
-function addTeam() {
-  return { type: ADD_TEAM };
-}
+const addTeam = () => ({ type: ADD_TEAM });
+const updateTeam = (index, update = {}) => ({ type: UPDATE_TEAM, index, update });
+const deleteTeam = index => ({ type: DELETE_TEAM, index });
 
-function updateTeam(index, update = {}) {
-  return { type: UPDATE_TEAM, index, update };
-}
-
-function deleteTeam(index) {
-  return { type: DELETE_TEAM, index };
-}
-
-export function updateTeams(teams = [{}], { type, index, update }) {
+export function handleTeamsUpdate(teams = [{}], { type, index, update }) {
   if (type === ADD_TEAM) {
     return [...teams, {}];
   }
@@ -127,6 +119,6 @@ class TeamEditor extends React.Component {
 }
 
 export default connect(
-  state => ({ teams: state.teams || [] }),
+  state => ({ teams: state.teams }),
   { addTeam, updateTeam, deleteTeam }
 )(TeamEditor);

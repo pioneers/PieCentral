@@ -7,12 +7,9 @@ import {
   Card,
   ControlGroup,
   H2,
-  HTMLSelect,
-  InputGroup,
   Intent,
   NumericInput
 } from '@blueprintjs/core';
-import { ALLIANCES } from './util';
 import TeamEditor from './team';
 
 class MatchCard extends React.Component {

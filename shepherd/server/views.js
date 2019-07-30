@@ -23,10 +23,10 @@ module.exports = function(logger, { mode }) {
     // For testing purposes
     setInterval(() => {
       logger.debug('Timer firing');
-      let totalDuration = 15*1000;
+      let totalDuration = 30*1000;
       let remainingDuration = totalDuration - new Date().getTime() % totalDuration;
       socket.emit('timer', {
-        phaseId: 'TELEOP',
+        mode: 'AUTO',
         totalDuration,
         remainingDuration
       });

@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { ScreenClassProvider } from 'react-grid-system';
 import { Provider, connect } from 'react-redux';
 import { HashRouter, Redirect, Route, Switch } from 'react-router-dom';
 import { Colors, FocusStyleManager } from '@blueprintjs/core';
@@ -23,16 +24,18 @@ class App extends React.Component {
     }
 
     return (
-      <HashRouter>
-        <div className={`bg-theme bp3-text-large ${className}`} style={{ background }}>
-          <Switch>
-            <Route path='/dashboard' render={() => <Dashboard />} />
-            <Route path='/scoreboard' render={() => <Scoreboard />} />
-            <Redirect from='/' exact to='/dashboard' />
-            <Route path='*' exact render={() => <p>Page Not Found</p>} />
-          </Switch>
-        </div>
-      </HashRouter>
+      <ScreenClassProvider>
+        <HashRouter>
+          <div className={`bg-theme bp3-text-large ${className}`} style={{ background }}>
+            <Switch>
+              <Route path='/dashboard' render={() => <Dashboard />} />
+              <Route path='/scoreboard' render={() => <Scoreboard />} />
+              <Redirect from='/' exact to='/dashboard' />
+              <Route path='*' exact render={() => <p>Page Not Found</p>} />
+            </Switch>
+          </div>
+        </HashRouter>
+      </ScreenClassProvider>
     );
   }
 }

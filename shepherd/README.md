@@ -25,6 +25,12 @@ $ npm install
 $ npm start
 ```
 
+The frontend will be running on `http://localhost:8080`.
+
+## Contributing
+
+Documentation should be written in the [JSDoc](https://jsdoc.app/) format.
+
 ## Data Model
 
 Due to the real-time nature of field control, we use [RethinkDB](https://www.rethinkdb.com/) to persist our data.

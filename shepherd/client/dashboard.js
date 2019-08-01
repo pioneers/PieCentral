@@ -71,7 +71,7 @@ class Dashboard extends React.Component {
   render() {
     let { title, component, help } = this.getPanel();
     return (
-      <Container fluid style={{ maxWidth: 1400, paddingTop: 15, paddingBottom: 15 }}>
+      <Container fluid style={{ maxWidth: 1600, paddingTop: 15, paddingBottom: 15 }}>
         <nav>
           <Navbar>
             <Navbar.Group>

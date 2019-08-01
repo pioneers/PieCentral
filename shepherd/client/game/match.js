@@ -7,8 +7,10 @@ import {
   ButtonGroup,
   Card,
   ControlGroup,
+  FormGroup,
   H2,
   HTMLSelect,
+  InputGroup,
   Intent,
   NumericInput
 } from '@blueprintjs/core';
@@ -59,10 +61,43 @@ class MatchEditor extends React.Component {
     return (
       <Card>
         <H2>Match</H2>
-        <NumericInput placeholder='Match number' />
+        <Row>
+          <Col>
+            <FormGroup
+              label='Match number'
+              labelInfo='(optional)'
+              helperText={
+                <p>
+                  The match number is used
+                </p>
+              }
+            >
+              <NumericInput placeholder='Match number' />
+            </FormGroup>
+          </Col>
+          <Col>
+            <FormGroup
+              label='Match name'
+              labelInfo='(optional)'
+              helperText={
+                <p>
+                  This name will be shown on the scoreboard.
+                  For example: <em>Semifinal Match 1 of 3</em>.
+                </p>
+              }
+            >
+              <InputGroup
+                placeholder='Match name'
+              />
+            </FormGroup>
+          </Col>
+        </Row>
         <Row style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
           <Col>
             <ButtonGroup>
+              <Button
+                text='Update'
+              />
               <Button
                 text='Start'
                 intent='primary'

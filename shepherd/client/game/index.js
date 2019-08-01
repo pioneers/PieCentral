@@ -31,21 +31,20 @@ const GamePanelHelp = props => (
 
 class GamePanel extends React.Component {
   render() {
+    let gutterWidth = this.props.gutterWidth || 16;
     return (
       <div>
-        <Row>
-          <Col md={8}>
+        <Row gutterWidth={gutterWidth}>
+          <Col xl={6} lg={12}>
             <TeamEditor />
           </Col>
-          <Col md={4}>
+          <Col xl={6} lg={12}>
             <MatchEditor />
           </Col>
         </Row>
-        <Row>
-          <Col md={8}>
+        <Row gutterWidth={gutterWidth}>
+          <Col>
             <PhaseEditor />
-          </Col>
-          <Col md={4}>
           </Col>
         </Row>
       </div>

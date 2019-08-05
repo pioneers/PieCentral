@@ -1,9 +1,17 @@
 const path = require('path');
+const webpack = require('webpack');
 const UglifyJSPlugin = require('uglify-js-plugin');
 
 module.exports = (env, argv) => {
   let production = argv.mode === 'production';
   minimizer = production ? [new UglifyJSPlugin()] : [];
+
+  // FIXME
+  let defines = {
+    SERVER_PORT: null,
+    SERVER_HOST: null,
+  };
+
   return {
     entry: './client/app.js',
     module: {
@@ -28,6 +36,9 @@ module.exports = (env, argv) => {
     devServer: {
       contentBase: './dist',
     },
-    optimization: { minimizer }
+    optimization: { minimizer },
+    plugins: [
+      new webpack.DefinePlugin(defines),
+    ]
   };
 };

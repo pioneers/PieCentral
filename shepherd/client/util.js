@@ -39,5 +39,14 @@ export const MODES = {
   TELEOP: 'Tele-op',
 };
 
+export const RESOURCE_TYPE = {
+  ROBOT: 'Robot',
+  ARDUINO: 'Arduino',
+};
+
+export const RESOURCE_STATUS = {
+  OK: 'OK',
+};
+
 export const toOptions =
   pairs => Object.entries(pairs).map(([value, label]) => ({ value, label }));

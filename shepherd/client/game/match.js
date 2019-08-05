@@ -59,7 +59,7 @@ class MatchEditor extends React.Component {
 
   render() {
     return (
-      <Card>
+      <div>
         <H2>Match</H2>
         <Row>
           <Col>
@@ -135,7 +135,7 @@ class MatchEditor extends React.Component {
             </ControlGroup>
           </Col>
         </Row>
-      </Card>
+      </div>
     );
   }
 }

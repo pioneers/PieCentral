@@ -59,9 +59,9 @@ const TeamFormRow = props => (
     <Col md={3}>
       <InputGroup
         disabled={props.disabled}
-        placeholder='Hostname'
-        value={props.team.hostname || ''}
-        onChange={event => props.updateTeam({ hostname: event.target.value })}
+        placeholder='Host'
+        value={props.team.host || ''}
+        onChange={event => props.updateTeam({ host: event.target.value })}
       />
     </Col>
     <Col md={2}>
@@ -89,13 +89,13 @@ class TeamEditor extends React.Component {
   render() {
     let gutterWidth = this.props.gutterWidth || 12;
     return (
-      <Card>
+      <div className='game-form-section'>
         <H2>Teams</H2>
-        <div className='team-form'>
+        <div>
           <Row gutterWidth={gutterWidth}>
             <Col><strong>Team number</strong></Col>
             <Col><strong>Team name</strong></Col>
-            <Col><strong>Hostname</strong></Col>
+            <Col><strong>Host</strong></Col>
             <Col><strong>Alliance</strong></Col>
           </Row>
           {this.props.teams.map((team, index) =>
@@ -108,12 +108,8 @@ class TeamEditor extends React.Component {
             />
           )}
         </div>
-        <ButtonGroup>
-          <Button text='Add Team' onClick={this.props.addTeam} />
-          <Button text='Populate From Schedule' />
-          <Button text='Update Schedule' />
-        </ButtonGroup>
-      </Card>
+        <Button text='Add Team' onClick={this.props.addTeam} />
+      </div>
     );
   }
 }

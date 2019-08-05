@@ -1,9 +1,12 @@
 import React from 'react';
 import { Row, Col } from 'react-grid-system';
+import {
+  Card,
+} from '@blueprintjs/core';
 
 import TeamEditor from './team';
-import PhaseEditor from './phase';
 import MatchEditor from './match';
+import ResourceStatusTable from './resource';
 
 const GamePanelHelp = props => (
   <div>
@@ -36,15 +39,15 @@ class GamePanel extends React.Component {
       <div>
         <Row gutterWidth={gutterWidth}>
           <Col xl={6} lg={12}>
-            <TeamEditor />
+            <Card>
+              <TeamEditor />
+              <MatchEditor />
+            </Card>
           </Col>
           <Col xl={6} lg={12}>
-            <MatchEditor />
-          </Col>
-        </Row>
-        <Row gutterWidth={gutterWidth}>
-          <Col>
-            <PhaseEditor />
+            <Card>
+              <ResourceStatusTable />
+            </Card>
           </Col>
         </Row>
       </div>

@@ -35,34 +35,24 @@ Documentation should be written in the [JSDoc](https://jsdoc.app/) format.
 
 Due to the real-time nature of field control, we use [RethinkDB](https://www.rethinkdb.com/) to persist our data.
 
-Team:
+Client state:
 
 ```json
 {
-  "number": 1,
-  "name": "* High School",
-  "matches": ["<uuid>"],
-}
-```
-
-Match:
-
-```json
-{
-  "id": "<uuid>",
-  "transitions": [
-    { "state": "autonomous", "timestamp": 1000 },
-    { "state": "idle", "timestamp": 2000 }
-  ],
-  "blue": {
-    "teams": [1, 2],
-    "scoreLog": [
-      { "delta": 1, "timestamp": 10000, "source": "button", "by": 1 },
-      { "delta": -10, "source": "penalty", "context": "Damaged the field" }
-    ]
+  "theme": "dark",
+  "match": {
+    "phase": {
+      "remainingDuration": 0,
+      "totalDuration": 0
+    }
   },
-  "gold": {
-    "teams": [3],
-  }
+  "teams": [
+    {
+      "number": 1,
+      "name": "HS",
+      "host": "127.0.0.1",
+      "alliance": "BLUE"
+    }
+  ]
 }
 ```

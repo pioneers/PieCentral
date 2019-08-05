@@ -65,7 +65,7 @@ class Scoreboard extends React.Component {
             </Navbar.Group>
           </Navbar>
         </nav>
-        <main id="scoreboard">
+        <main id='scoreboard'>
           <Row>
             <Col style={goldStyle}>
               <h2>Gold Alliance</h2>

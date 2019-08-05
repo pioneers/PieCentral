@@ -19,6 +19,10 @@ html, body, #app, #app > .bg-theme {
   margin: 0 20px;
 }
 
+table.bp3-large {
+  font-size: 16px;
+}
+
 .bp3-navbar-heading {
   margin: 0;
 }
@@ -27,8 +31,8 @@ main {
   margin-top: 1rem;
 }
 
-.team-form {
-  margin: 1rem 0;
+.game-form-section {
+  margin-bottom: 1.5rem;
 }
 
 .team-form-row {

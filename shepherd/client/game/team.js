@@ -1,4 +1,5 @@
 import React from 'react';
+import { createActions, handleActions } from 'redux-actions';
 import { Row, Col } from 'react-grid-system';
 import { connect } from 'react-redux';
 import {
@@ -13,28 +14,22 @@ import {
 } from '@blueprintjs/core';
 import { ALLIANCES, toOptions } from '../util';
 
-const ADD_TEAM = 'ADD_TEAM';
-const UPDATE_TEAM = 'UPDATE_TEAM';
-const DELETE_TEAM = 'DELETE_TEAM';
+export const { addTeam, updateTeam, deleteTeam } = createActions({
+  ADD_TEAM: () => ({}),
+  UPDATE_TEAM: (index, update = {}) => ({ index, update }),
+  DELETE_TEAM: index => ({ index }),
+});
 
-const addTeam = () => ({ type: ADD_TEAM });
-const updateTeam = (index, update = {}) => ({ type: UPDATE_TEAM, index, update });
-const deleteTeam = index => ({ type: DELETE_TEAM, index });
-
-export function handleTeamsUpdate(teams = [{}], { type, index, update }) {
-  if (type === ADD_TEAM) {
-    return [...teams, {}];
-  }
-  let before = teams.slice(0, index);
-  let after = teams.slice(index + 1);
-  switch(type) {
-    case UPDATE_TEAM:
-      let updatedTeam = Object.assign({}, teams[index], update);
-      return before.concat([updatedTeam]).concat(after);
-    case DELETE_TEAM: return before.concat(after);
-    default: return teams;
-  }
-}
+export const handleTeamsUpdate = handleActions({
+  ADD_TEAM: teams => [...teams, {}],
+  UPDATE_TEAM: (teams, { payload: { index, update } }) => {
+    let before = teams.slice(0, index);
+    let after = teams.slice(index + 1);
+    return [...before, {...teams[index], ...update}, ...after];
+  },
+  DELETE_TEAM: (teams, { payload: { index } }) =>
+    teams.length > 1 ? [...teams.slice(0, index), ...teams.slice(index + 1)] : [{}],
+}, [{}]);
 
 const TeamFormRow = props => (
   <Row className='team-form-row' gutterWidth={props.gutterWidth}>

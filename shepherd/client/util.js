@@ -46,6 +46,8 @@ export const RESOURCE_TYPE = {
 
 export const RESOURCE_STATUS = {
   OK: 'OK',
+  WARNING: 'Warning',
+  FAILURE: 'Failure',
 };
 
 export const toOptions =

@@ -1,1 +1,7 @@
-@Reviewers
+# Project managers are automatically requested for review
+/dawn/            @Funplings @kdarken
+/DevOps/          @herojelly @rs4ostrea
+/ansible-protos/  @benliao1
+/runtime/         @benliao1
+/hibike/          @benliao1
+/shepherd/        @FIREdog5 @kaipinryankoh

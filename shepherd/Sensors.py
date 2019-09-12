@@ -32,7 +32,7 @@ def get_working_serial_ports(excludes: set):
     for p in maybe_ports:
         try:
             working.append(serial.Serial(p, baudrate=115200))
-        except Exception as _: #pylint: disable=broad-except
+        except serial.SerialException:
             pass
 
     return working
@@ -46,7 +46,7 @@ def identify_relevant_ports(working_ports):
     def maybe_identify_sensor(serial_port, timeout, msg_q):
         """Check whether a serial port contains a sensor.
         Parameters:
-            sewrial_port -- the port to check
+            serial_port -- the port to check
             timeout -- quit reading from the serial port after this
             amount of time
             msg_q -- a queue to set if a device is successfully identified

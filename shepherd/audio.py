@@ -2,8 +2,8 @@ import time
 import simpleaudio as sa
 
 
-perk = sa.WaveObject.from_wave_file('perkphase.wav')
-horn = sa.WaveObject.from_wave_file('AIRHORNMLG.wav')
+perk = sa.WaveObject.from_wave_file('static/perkphase.wav')
+horn = sa.WaveObject.from_wave_file('static/AIRHORNMLG.wav')
 playbacks = []
 def play_perk_music():
     stop_music()

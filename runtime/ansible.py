@@ -511,8 +511,9 @@ def load_coding_challenges():
         return []
 
     def stub_out(funcname):
-        def stub(x):
+        def stub(_):
             if hasattr(student_code, 'print'):
+                # pylint: disable=no-member
                 student_code.print(f'"{funcname}" not defined.'
                                    'Unable to run the coding challenge.')
             return None
@@ -534,6 +535,7 @@ def load_coding_challenges():
     ], getattr(student_code, 'print', lambda *args, **kwargs: None)
 
 
+# pylint: disable=invalid-name,global-statement
 solution = None
 
 
@@ -570,7 +572,7 @@ class FieldControlServer:
                     for challenge in coding_challenges:
                         try:
                             solution = challenge(solution)
-                        except Exception as exc:
+                        except Exception:
                             return
                 await asyncio.wait_for(chain(), timeout)
             except asyncio.TimeoutError:
@@ -585,7 +587,7 @@ class FieldControlServer:
             return solution
 
 
-async def run_field_control_server(server, host, port, state_queue):
+async def run_field_control_server(server, host, port):
     try:
         server = await asyncio.start_server(rpc.Server(server), host=host, port=port)
         async with server:

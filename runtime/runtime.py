@@ -71,7 +71,7 @@ def print_version():
     print('.'.join([str(n.value) for n in version_numbers]))
 
 
-# pylint: disable=too-many-branches
+# pylint: disable=too-many-branches,too-many-locals
 def runtime(test_name=""): # pylint: disable=too-many-statements
     test_mode = test_name != ""
     max_iter = 3 if test_mode else None
@@ -91,8 +91,13 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
         spawn_process(PROCESS_NAMES.STATE_MANAGER, start_state_manager)
         spawn_process(PROCESS_NAMES.UDP_RECEIVE_PROCESS, start_udp_receiver)
         spawn_process(PROCESS_NAMES.HIBIKE, start_hibike)
-        fc_server = FieldControlServer(state_queue)
-        fc_thread = threading.Thread(target=lambda: asyncio.run(run_field_control_server(fc_server, '0.0.0.0', 6020, state_queue)), daemon=True)
+
+        def fc_server_target():
+            fc_server = FieldControlServer(state_queue)
+            # pylint: disable=no-member
+            asyncio.run(run_field_control_server(fc_server, '0.0.0.0', 6020))
+
+        fc_thread = threading.Thread(target=fc_server_target, daemon=True)
         fc_thread.start()
         control_state = "idle"
         dawn_connected = False
@@ -134,12 +139,12 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
                 elif new_bad_thing.event == BAD_EVENTS.ENTER_TELEOP and control_state != "teleop":
                     terminate_process(PROCESS_NAMES.STUDENT_CODE)
                     name = test_name or "teleop"
-                    spawn_process(PROCESS_NAMES.STUDENT_CODE, run_student_code, fc_server, name, max_iter)
+                    spawn_process(PROCESS_NAMES.STUDENT_CODE, run_student_code, name, max_iter)
                     control_state = "teleop"
                     continue
                 elif new_bad_thing.event == BAD_EVENTS.ENTER_AUTO and control_state != "auto":
                     terminate_process(PROCESS_NAMES.STUDENT_CODE)
-                    spawn_process(PROCESS_NAMES.STUDENT_CODE, run_student_code, fc_server, "autonomous")
+                    spawn_process(PROCESS_NAMES.STUDENT_CODE, run_student_code, "autonomous")
                     control_state = "auto"
                     continue
                 elif new_bad_thing.event == BAD_EVENTS.ENTER_IDLE and control_state != "idle":
@@ -172,7 +177,8 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
         print("".join(traceback.format_tb(sys.exc_info()[2])))
 
 
-def run_student_code(bad_things_queue, state_queue, pipe, fc_server, test_name="", max_iter=None): # pylint: disable=too-many-locals
+# pylint: disable=too-many-locals
+def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter=None):
     try:
         terminated = False
 

@@ -159,7 +159,7 @@ class Robot(StudentAPI):
     def set_value(self, device_name, param, value):
         """Set a parameter value for device."""
         uid = self._hibike_get_uid(device_name)
-        if uid == None:
+        if uid is None:
             return
         self._check_write_params(uid, param)
         self._check_value(param, value)
@@ -167,7 +167,7 @@ class Robot(StudentAPI):
 
     def set_motor(self, device_name, value):
         uid = self._hibike_get_uid(device_name)
-        if uid == None:
+        if uid is None:
             return
         self._check_write_params(uid, "duty_cycle")
         self._check_value("duty_cycle", value)
@@ -175,7 +175,7 @@ class Robot(StudentAPI):
 
     def stop_motor(self, device_name):
         uid = self._hibike_get_uid(device_name)
-        if uid == None:
+        if uid is None:
             return
         self._check_write_params(uid, "duty_cycle")
         self._check_value("duty_cycle", 0)
@@ -276,11 +276,12 @@ class Robot(StudentAPI):
             raise message
         return message
 
+    # pylint: disable=inconsistent-return-statements
     def _hibike_get_uid(self, name):
         # TODO: Implement sensor mappings, right now uid is the number (or string of number)
         try:
             device = int(name)
-        except ValueError as exc:
+        except ValueError:
             self._print(f'Device UID must be an integer. Found: "{str(name)}".')
             return
         if device in self.peripherals:
@@ -288,7 +289,8 @@ class Robot(StudentAPI):
         if device in self.nonexistent_sensors:
             return
         self.nonexistent_sensors += [device]
-        self.to_manager.put([SM_COMMANDS.SEND_CONSOLE, ['Warning: device not found: ' + str(name) + '\n']])
+        self.to_manager.put([SM_COMMANDS.SEND_CONSOLE,
+                             ['Warning: device not found: ' + str(name) + '\n']])
 
     def emergency_stop(self):
         """Stop the robot."""

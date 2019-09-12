@@ -1,0 +1,57 @@
+#progressBar {
+  width: 100%;
+  margin: 10px auto;
+  height: 22px;
+  background-color: white;
+}
+
+#progressBar div {
+  height: 100%;
+  text-align: right;
+  padding: 0px;
+  line-height: 22px; /* same as #progressBar height if we want text middle aligned */
+  width: 0;
+  background-color: #CBEA00;
+  box-sizing: border-box;
+}
+
+.item {
+  position: relative;
+  float: left;
+}
+
+.item h2 {
+  text-align:center;
+  position: absolute;
+  line-height: 250px;
+  width: 100%;
+}
+
+svg {
+ -webkit-transform: rotate(-90deg);
+  transform: rotate(-90deg);
+}
+
+.circle_animation1 {
+  stroke-dasharray: 440; /* this value is the pixel circumference of the circle */
+  stroke-dashoffset: 0;
+  transition: all 1s linear;
+}
+
+.circle_animation2 {
+  stroke-dasharray: 440; /* this value is the pixel circumference of the circle */
+  stroke-dashoffset: 0;
+  transition: all 1s linear;
+}
+
+.circle_animation3 {
+  stroke-dasharray: 440; /* this value is the pixel circumference of the circle */
+  stroke-dashoffset: 0;
+  transition: all 1s linear;
+}
+
+.circle_animation4 {
+  stroke-dasharray: 440; /* this value is the pixel circumference of the circle */
+  stroke-dashoffset: 0;
+  transition: all 1s linear;
+  }

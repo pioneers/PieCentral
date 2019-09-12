@@ -17,12 +17,13 @@ matrix:
       env: TEST_DIR=runtime
     - name: Shepherd
       language: python
-      python: 3.6
+      python: 3.7
       env: TEST_DIR=shepherd
 addons:
   apt:
     packages:
       - python3-pip
+      - libasound2-dev
       - socat
 env:
   global:

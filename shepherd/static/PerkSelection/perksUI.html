@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.bundle.js" crossorigin="anonymous"></script> -->
+
+</head>
+
+<body>
+  <form>
+
+    <link rel="stylesheet" type="text/css" href="css/perksUI.css" media="screen" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="js/perksUI.js"></script>
+
+    <h1 align="center">Perk Selection</h1>
+    <br>
+    <!-- <h5 align="center">Master Robot Selection: &ensp; 23 <input type="radio" name="master_robot"> &emsp; 14 <input type="radio" name="master_robot"></h5> -->
+
+    <!-- <h5 align="center">
+      Master Robot Selection: &ensp;
+      <input type="radio" id="master1" name="masterrobot" />
+      <label for="master1"><textarea rows="2" cols="2" onmouseover="select('master1')">text text text</textarea></label> &emsp;
+      <input type="radio" id="master2" name="masterrobot" />
+      <label for="master2"><textarea rows="2" cols="2" onmouseover="select('master2')">text text text 2</textarea></label>
+    </h5> -->
+
+	<h5 align="center" style="justify-content: center">Master Robot Selection:
+	  	<div id="div_top_hypers">
+	      <ul id="masterrobot">
+			<li><input type="radio" id="mr1" class="MasterRobot" name="master_robot">
+			  <label for="mr1" id="mr1label" onmouseover="select('mr1')">Team Number 1</label></li>
+				<li><input type="radio" id="mr2" class="MasterRobot" name="master_robot">
+					 <label for="mr2" id="mr2label" onmouseover="select('mr2')">Team Number 2</label></li>
+	  	  </ul>
+		</div>
+  	</h5>
+
+    <h3>&ensp; Perk 1</h3>
+    <div id="div_top_hypers">
+      <ul id="ul_top_hypers">
+        <li><input type="radio" id="cb1" name="tier1" />
+          <label for="cb1"><img src="assets/DummyPerks/bubblegum.png" onmouseover="select('cb1')" /></label>
+        </li>
+        <li><input type="radio" id="cb2" name="tier1" />
+          <label for="cb2"><img src="assets/DummyPerks/diet.png" onmouseover="select('cb2')" /></label>
+        </li>
+        <li><input type="radio" id="cb3" name="tier1" />
+          <label for="cb3"><img src="assets/DummyPerks/sweet spot.png" onmouseover="select('cb3')" /></label>
+        </li>
+        <li><input type="radio" id="cb4" name="tier1" />
+          <label for="cb4"><img src="assets/DummyPerks/taffy.png" onmouseover="select('cb4')" /></label>
+        </li>
+      </ul>
+    </div>
+    <h3>&ensp;Perk 2</h3>
+    <div id="div_top_hypers">
+      <ul id="ul_top_hypers">
+        <li><input type="radio" id="cb5" name="tier2" />
+          <label for="cb5"><img src="assets/DummyPerks/chocolate-covered espresso beans.png" onmouseover="select('cb5')" /></label>
+        </li>
+        <li><input type="radio" id="cb6" name="tier2" />
+          <label for="cb6"><img src="assets/DummyPerks/minty fresh start.png" onmouseover="select('cb6')" /></label>
+        </li>
+        <li><input type="radio" id="cb7" name="tier2" />
+          <label for="cb7"><img src="assets/DummyPerks/raspberry cotton candy.png" onmouseover="select('cb7')" /></label>
+        </li>
+      </ul>
+    </div>
+    <h3>&ensp;Perk 3</h3>
+    <div id="div_top_hypers">
+      <ul id="ul_top_hypers">
+        <li><input type="radio" id="cb8" name="tier3" />
+          <label for="cb8"><img src={{url_for( 'static', filename="PerkSelection/assets/DummyPerks/artificial_sweetener.png")}} onmouseover="select('cb9')" /></label>
+        </li>
+        <li><input type="radio" id="cb9" name="tier3" />
+          <label for="cb9"><img src="assets/DummyPerks/artificial sweetener.png" onmouseover="select('cb9')" /></label>
+        </li>
+        <li><input type="radio" id="cb10" name="tier3" />
+          <label for="cb10"><img src="assets/DummyPerks/jawbreaker.png" onmouseover="select('cb10')" /></label>
+        </li>
+        <li><input type="radio" id="cb11" name="tier3" />
+          <label for="cb11"><img src="assets/DummyPerks/sour gummy worms.png" onmouseover="select('cb11')" /></label>
+        </li>
+      </ul>
+    </div>
+
+
+  </form>
+</body>
+
+</html>

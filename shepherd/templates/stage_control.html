@@ -1,0 +1,384 @@
+<html>
+
+<head>
+  <title>Stage Control</title>
+  <script type="text/javascript" src={{url_for( 'static', filename='jquery-1.12.3.min.js' )}}></script>
+  <script type="text/javascript" src={{url_for( 'static', filename='tabletop.js' )}}></script>
+  <script type="text/javascript" src={{url_for( 'static', filename='lcm_ws_bridge.js' )}}></script>
+  <script type="text/javascript" src={{url_for( 'static', filename='socket.io.js' )}}></script>
+  <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script> -->
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="{{url_for('static', filename='bootstrap.min.css')}}">
+  <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"> -->
+
+  <!-- Styles -->
+  <style>
+    /*Disables spinning on number forms*/
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .bottom-padding {
+      margin-bottom: 15px;
+    }
+
+    .form-inline {
+      flex-flow: row wrap;
+    }
+
+    .led-green,
+    .heartbeat-light {
+      width: 24px;
+      height: 24px;
+      background-color: #ABFF00;
+      border-radius: 50%;
+      box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px;
+    }
+
+    .led-red {
+      width: 24px;
+      height: 24px;
+      background-color: #F00;
+      border-radius: 50%;
+      box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
+    }
+  </style>
+  <script>
+    $(document).ready(function() {
+
+      var socket = io('http://127.0.0.1:5000');
+      var match_num = 0
+      var blue_1_num = 0
+      var blue_1_name = ""
+      var blue_2_num = 0
+      var blue_2_name = ""
+      var gold_2_num = 0
+      var gold_2_name = ""
+      var gold_1_num = 0
+      var gold_1_name = ""
+
+      var blue_1_starting_spot = ""
+      var blue_2_starting_spot = ""
+      var gold_1_starting_spot = ""
+      var gold_2_starting_spot = ""
+
+      var blue_1_custom_ip = ""
+      var blue_2_custom_ip = ""
+      var gold_1_custom_ip = ""
+      var gold_2_custom_ip = ""
+
+      function getCookie(cname) {
+          var name = cname + "=";
+          var ca = document.cookie.split(';');
+          for (var i = 0; i < ca.length; i++) {
+              var c = ca[i];
+              while (c.charAt(0) == ' ') c = c.substring(1);
+              if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+          }
+          return "";
+      }
+
+      if (getCookie("match_num") != "") {
+        match_num = parseInt(decodeURIComponent(getCookie("match_num")))
+        blue_1_num = parseInt(decodeURIComponent(getCookie("blue_1_num")))
+        blue_1_name = decodeURIComponent(getCookie("blue_1_name"))
+        blue_2_num = parseInt(decodeURIComponent(getCookie("blue_2_num")))
+        blue_2_name = decodeURIComponent(getCookie("blue_2_name"))
+        gold_2_num = parseInt(decodeURIComponent(getCookie("gold_2_num")))
+        gold_2_name = decodeURIComponent(getCookie("gold_2_name"))
+        gold_1_num = parseInt(decodeURIComponent(getCookie("gold_1_num")))
+        gold_1_name = decodeURIComponent(getCookie("gold_1_name"))
+
+        blue_1_num = parseInt(decodeURIComponent(getCookie("blue_1_custom_ip")))
+        blue_2_num = parseInt(decodeURIComponent(getCookie("blue_2_custom_ip")))
+        gold_1_num = parseInt(decodeURIComponent(getCookie("gold_1_custom_ip")))
+        gold_2_num = parseInt(decodeURIComponent(getCookie("gold_2_custom_ip")))
+
+        setDefaultTeamsInfo()
+      }
+
+      socket.on('connect', function(data) {
+        socket.emit('join', 'stage_control');
+      });
+
+      $("#populate-match").click(function() {
+        match_num = $("#new-match-num").val()
+        console.log(match_num)
+        socket.emit('ui-to-server-teams-info-request', JSON.stringify({"match_num" : match_num}))
+      });
+
+      $("#create-match").click(function() {
+        setTeamsInfoVars()
+        data = {"match_num" : match_num,
+                "b1num" : blue_1_num, "b1name" : blue_1_name, 
+                "b1_starting_spot" : blue_1_starting_spot, "b1_custom_ip" : blue_1_custom_ip,
+
+                "b2num" : blue_2_num, "b2name" : blue_2_name, 
+                "b2_starting_spot" : blue_2_starting_spot, "b2_custom_ip" : blue_2_custom_ip,
+
+                "g1num" : gold_1_num, "g1name" : gold_1_name, 
+                "g1_starting_spot" : gold_1_starting_spot, "g1_custom_ip" : gold_1_custom_ip,
+
+                "g2num" : gold_2_num, "g2name" : gold_2_name, 
+                "g2_starting_spot" : gold_2_starting_spot, "g2_custom_ip" : gold_2_custom_ip}
+        socket.emit('ui-to-server-setup-match', JSON.stringify(data))
+        document.cookie = "match_num=" + match_num
+        document.cookie = "blue_1_num=" + blue_1_num
+        document.cookie = "blue_1_name=" + blue_1_name
+        document.cookie = "blue_2_num=" + blue_2_num
+        document.cookie = "blue_2_name=" + blue_2_name
+        document.cookie = "gold_2_num=" + gold_2_num
+        document.cookie = "gold_2_name=" + gold_2_name
+        document.cookie = "gold_1_num=" + gold_1_num
+        document.cookie = "gold_1_name=" + gold_1_name
+
+        document.cookie = "blue_1_custom_ip" + blue_1_custom_ip
+        document.cookie = "blue_2_custom_ip" + blue_2_custom_ip
+        document.cookie = "gold_1_custom_ip" + gold_1_custom_ip
+        document.cookie = "gold_2_custom_ip" + gold_2_custom_ip
+      });
+
+      socket.on('server-to-ui-teamsinfo', function(data) {
+        parsed_data = JSON.parse(data)
+        match_num = parsed_data.match_num
+        blue_1_num = parsed_data.b1num
+        blue_1_name = parsed_data.b1name
+        blue_2_num = parsed_data.b2num
+        blue_2_name = parsed_data.b2name
+        gold_1_num =  parsed_data.g1num
+        gold_1_name = parsed_data.g1name
+        gold_2_num = parsed_data.g2num
+        gold_2_name = parsed_data.g2name
+        setDefaultTeamsInfo()
+      });
+
+      function setDefaultTeamsInfo() {
+        $("#new-match-num").val(match_num);
+        $("#blue-1-number").val(blue_1_num);
+        $("#blue-1-name").val(blue_1_name);
+        $("#blue-2-number").val(blue_2_num);
+        $("#blue-2-name").val(blue_2_name);
+        $("#gold-1-number").val(gold_1_num);
+        $("#gold-1-name").val(gold_1_name);
+        $("#gold-2-number").val(gold_2_num);
+        $("#gold-2-name").val(gold_2_name);
+      }
+
+      function setTeamsInfoVars() {
+        match_num = $("#new-match-num").val();
+        blue_1_num = $("#blue-1-number").val();
+        blue_1_name = $("#blue-1-name").val();
+        blue_2_num = $("#blue-2-number").val();
+        blue_2_name = $("#blue-2-name").val();
+        gold_1_num = $("#gold-1-number").val();
+        gold_1_name = $("#gold-1-name").val();
+        gold_2_num = $("#gold-2-number").val();
+        gold_2_name = $("#gold-2-name").val();
+
+        blue_1_starting_spot = $("#blue-1-starting-spot").val();
+        blue_2_starting_spot = $("#blue-2-starting-spot").val();
+        gold_1_starting_spot = $("#gold-1-starting-spot").val();
+        gold_2_starting_spot = $("#gold-2-starting-spot").val();
+
+        blue_1_custom_ip = $("#blue-1-custom-ip").val();
+        blue_2_custom_ip = $("#blue-2-custom-ip").val();
+        gold_1_custom_ip = $("#gold-1-custom-ip").val();
+        gold_2_custom_ip = $("#gold-2-custom-ip").val();
+      }
+
+      $("#match-start").click(function() {
+        socket.emit('ui-to-server-start-next-stage')
+      });
+
+     /** $("#match-next-stage").click(function() {
+        socket.emit('ui-to-server-start-next-stage')
+    });**/
+
+     /** $("#match-reset-stage").click(function() {
+        socket.emit('ui-to-server-reset-stage')
+    });**/
+
+      $("#match-reset").click(function() {
+        socket.emit('ui-to-server-reset-match')
+      });
+
+      socket.on('server-to-ui-connections', function(data) {
+        parsed_data = JSON.parse(data)
+        toggleBlue1(parsed_data.b_1_connection)
+        toggleBlue2(parsed_data.b_2_connection)
+        toggleGold1(parsed_data.g_1_connection)
+        toggleGold2(parsed_data.g_2_connection)
+      });
+
+      // Heartbeat
+      function toggleBlue1(connected) {
+        toggleLed($(".blue-1-hb"), connected);
+      }
+
+      function toggleBlue2(connected) {
+        toggleLed($(".blue-2-hb"), connected);
+      }
+
+      function toggleGold1(connected) {
+        toggleLed($(".gold-1-hb"), connected);
+      }
+
+      function toggleGold2(connected) {
+        toggleLed($(".gold-2-hb"), connected);
+      }
+
+      function toggleLed(lightName, connected) {
+        if (connected) {
+          lightName.toggleClass("led-red", false);
+        } else {
+          lightName.toggleClass("led-red", true);
+        }
+      }
+    });
+  </script>
+</head>
+
+<body>
+  
+  <nav class="navbar navbar-expand-sm navbar-light bg-light">
+  <a class="navbar-brand" href="#">Staff UI</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="../staff_gui.html">Match Creator</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="../score_adjustment.html">Score Adjustment</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="../stage_control.html">Stage Control<span class="sr-only">(current)</span></a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+  <div class="container" style="max-width:1405px">
+    <h2>Stage Control</h2>
+    <div class="btn-group bottom-padding" role="group" aria-label="...">
+      <button type="button" class="btn btn-success" id="match-start"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> Set Stage</button>
+
+      <button type="button" class="btn" id="toggle-all"> Toggle All</button>
+
+
+    </div>
+
+    <div class="input-group col-xs-6 bottom-padding">
+      <input type="number" class="form-control" id="new-match-num" placeholder="Match number" aria-describedby="basicaddon2">
+      <span class="input-group-btn">
+        <button class="btn btn-default" id="populate-match" type="button">Populate</button>
+        <button class="btn btn-info" id="create-match" type="button">Create Match</button>
+      </span>
+    </div>
+
+    <form class="form-inline bottom-padding">
+      <div class="form-group">
+        <select id="blue-1-starting-spot">
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+          <option value="vending">Vending</option>
+          <option value="shelf">Shelf</option>
+        </select>
+      </div>
+      <div class="form-group heartbeat-light blue-1-hb"></div>
+      <button class="btn btn-danger" type="button" id="stop-blue-1">Stop Blue 1</button>
+      <div class="form-group">
+        <input type="number" class="form-control" id="blue-1-number" style="width: 81px;" placeholder="Blue 1 #">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="blue-1-name" placeholder="Blue 1 Team Name">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="gold-1-name" placeholder="Gold 1 Team Name">
+      </div>
+      <div class="form-group">
+        <input type="number" class="form-control" id="gold-1-number" style="width: 81px;" placeholder="Gold 1 #">
+      </div>
+      <button class="btn btn-danger" type="button" id="stop-gold-1">Stop Gold 1</button>
+      <div class="form-group heartbeat-light gold-1-hb"></div>
+      <div class="form-group">
+        <select id="gold-1-starting-spot">
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+          <option value="vending">Vending</option>
+          <option value="shelf">Shelf</option>
+        </select>
+      </div>
+    </form>
+    <form class="form-inline bottom-padding">
+      <div class="form-group">
+        <input type="number" class="form-control" id="blue-1-custom-ip" placeholder="Blue 1 Custom IP">
+      </div>
+      <div class="form-group">
+        <input type="number" class="form-control" id="gold-1-custom-ip" placeholder="Gold 1 Custom IP">
+      </div>
+    </form>
+    <form class="form-inline bottom-padding">
+      <div class="form-group">
+        <select id="blue-2-starting-spot">
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+          <option value="vending">Vending</option>
+          <option value="shelf">Shelf</option>
+        </select>
+      </div>
+      <div class="form-group heartbeat-light blue-2-hb"></div>
+      <button class="btn btn-danger" type="button" id="stop-blue-2">Stop Blue 2</button>
+      <div class="form-group">
+        <input type="number" class="form-control" id="blue-2-number" style="width: 81px;" placeholder="Blue 2 #">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="blue-2-name" placeholder="Blue 2 Team Name">
+      </div>
+      <div class="form-group">
+        <input type="text" class="form-control" id="gold-2-name" placeholder="Gold 2 Team Name">
+      </div>
+      <div class="form-group">
+        <input type="number" class="form-control" id="gold-2-number" style="width: 81px;" placeholder="Gold 2 #">
+      </div>
+      <button class="btn btn-danger" type="button" id="stop-gold-2">Stop Gold 2</button>
+      <div class="form-group heartbeat-light gold-2-hb"></div>
+      <div class="form-group">
+        <select id="gold-2-starting-spot">
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+          <option value="vending">Vending</option>
+          <option value="shelf">Shelf</option>
+        </select>
+      </div>
+    </form>
+    <form class="form-inline bottom-padding">
+      <div class="form-group">
+        <input type="number" class="form-control" id="blue-2-custom-ip" placeholder="Blue 2 Custom IP">
+      </div>
+      <div class="form-group">
+        <input type="number" class="form-control" id="gold-2-custom-ip" placeholder="Gold 2 Custom IP">
+      </div>
+    </form>
+
+    <div class="form-group">
+      <select id="Game Mode">
+        <option value="perk_selection">Perk Selection</option>
+        <option value="autonomous">Autonomous</option>
+        <option value="teleop">Teleop</option>
+      </select>
+    </div>
+  </div>
+</body>
+
+</html>

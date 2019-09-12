@@ -1,0 +1,162 @@
+<html>
+
+<head>
+  <title>Score Adjustment</title>
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <script type="text/javascript" src={{url_for( 'static', filename='jquery-1.12.3.min.js' )}}></script>
+  <script type="text/javascript" src={{url_for( 'static', filename='tabletop.js' )}}></script>
+  <script type="text/javascript" src={{url_for( 'static', filename='lcm_ws_bridge.js' )}}></script>
+  <script type="text/javascript" src={{url_for( 'static', filename='socket.io.js' )}}></script>
+  <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script> -->
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="{{url_for('static', filename='bootstrap.min.css')}}">
+
+  <!-- Styles -->
+  <style>
+    /*Disables spinning on number forms*/
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .blue-score {
+      border-radius: 15px;
+      border: 8px solid blue;
+    }
+
+    .gold-score {
+      border-radius: 15px;
+      border: 8px solid gold;
+    }
+
+    .bottom-padding {
+      margin-bottom: 15px;
+    }
+  </style>
+
+  <!-- Javascript -->
+  <script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+
+      var blueScore = 0;
+      var goldScore = 0;
+      var socket = io('http://127.0.0.1:5000');
+
+
+      socket.on('connect', function(data) {
+        socket.emit('join', 'score_adjustment');
+        socket.emit('ui-to-server-score-request');
+      });
+
+      socket.on('server-to-ui-scores', function(scores) {
+        console.log(scores)
+        blueScore = JSON.parse(scores).blue_score
+        goldScore = JSON.parse(scores).gold_score
+        updateScores()
+      });
+
+      function updateScores() {
+        $("#blue-score").html(blueScore);
+        $("#gold-score").html(goldScore);
+      }
+
+      $("#blue-change").click(
+        function() {
+          blueScore = parseInt($("#blue-adjustment").val());
+          updateScores();
+        });
+
+      $("#gold-change").click(
+        function() {
+          goldScore = parseInt($("#gold-adjustment").val());
+          updateScores();
+        });
+
+      $("#reset-scores").click(
+      function() {
+        socket.emit('ui-to-server-score-request');
+      });
+
+      $("#send-scores").click(
+      function() {
+        data = {"blue_score" : blueScore, "gold_score" : goldScore}
+        socket.emit('ui-to-server-scores', JSON.stringify(data))
+      });
+
+    });
+  </script>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-sm navbar-light bg-light">
+  <a class="navbar-brand" href="#">Staff UI</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="../staff_gui.html">Match Creator</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="../score_adjustment.html">Score Adjustment</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="../stage_control.html">Stage Control</a>
+      </li>
+    </ul>
+  </div>
+  </nav>
+
+  <div class="container">
+    <div class="row container">
+      <h1>Score Adjustment</h1>
+    </div>
+
+    <div class="row container">
+    <div class="col blue-score text-center bottom-padding">
+      <h1>Blue Score</h1>
+      <h1 id="blue-score">0</h1>
+    </div>
+    <div class="col gold-score text-center bottom-padding">
+      <h1>Gold Score</h1>
+      <h1 id="gold-score">0</h1>
+    </div>
+    </div>
+
+    <div class="row bottom-padding">
+      <div class="col">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-success" type="button" id="blue-change">Change</button>
+          </span>
+          <input type="number" class="form-control" value="0" id="blue-adjustment">
+        </div>
+      </div>
+      <div class="col">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button class="btn btn-success" type="button" id="gold-change">Change</button>
+          </span>
+          <input type="number" class="form-control" value="0" id="gold-adjustment">
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center">
+      <button class="btn btn-secondary btn-lg" type="button" id="reset-scores">Reset</button>
+      <button class="btn btn-info btn-lg" type="button" id="send-scores">Confirm</button>
+    </div>
+
+  </div>
+
+</body>
+
+</html>

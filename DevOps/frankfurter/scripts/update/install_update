@@ -4,6 +4,8 @@
 #
 # Usage: install_update [extracted-tarball-root]
 
+sudo rm -rf /docs
+
 piecentral="$HOME/PieCentral"
 piecentral_backup="$HOME/PieCentral-backup"
 systemd_units="/etc/systemd/system"
@@ -36,6 +38,8 @@ function replace_package {
 replace_package "$1/runtime" "$piecentral/runtime"
 replace_package "$1/hibike" "$piecentral/hibike"
 replace_package "$1/docs" "$HOME/docs"
+
+sudo pip3 install "$1/resources/"*.whl "$1/resources/"*.tar.gz
 
 # Restore files that should persist
 cp "$piecentral_backup/runtime/studentCode.py" "$piecentral/runtime"

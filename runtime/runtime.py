@@ -7,10 +7,17 @@ import os
 import re
 import signal
 import sys
+import threading
 import traceback
 import warnings
 
-from ansible import TCPClass, UDPRecvClass, UDPSendClass
+from ansible import (
+    TCPClass,
+    UDPRecvClass,
+    UDPSendClass,
+    FieldControlServer,
+    run_field_control_server,
+)
 import runtime_pb2
 from runtimeUtil import (
     BAD_EVENTS,
@@ -23,7 +30,7 @@ from runtimeUtil import (
     StudentAPIError,
 )
 from statemanager import StateManager
-from studentapi import Actions, Gamepad, Robot
+from studentapi import Actions, Gamepad, Field, Robot
 
 COROUTINE_WARNING = """
 The PiE API has upgraded the above RuntimeWarning to a runtime error!
@@ -64,7 +71,7 @@ def print_version():
     print('.'.join([str(n.value) for n in version_numbers]))
 
 
-# pylint: disable=too-many-branches
+# pylint: disable=too-many-branches,too-many-locals
 def runtime(test_name=""): # pylint: disable=too-many-statements
     test_mode = test_name != ""
     max_iter = 3 if test_mode else None
@@ -84,6 +91,14 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
         spawn_process(PROCESS_NAMES.STATE_MANAGER, start_state_manager)
         spawn_process(PROCESS_NAMES.UDP_RECEIVE_PROCESS, start_udp_receiver)
         spawn_process(PROCESS_NAMES.HIBIKE, start_hibike)
+
+        def fc_server_target():
+            fc_server = FieldControlServer(state_queue)
+            # pylint: disable=no-member
+            asyncio.run(run_field_control_server(fc_server, '0.0.0.0', 6020))
+
+        fc_thread = threading.Thread(target=fc_server_target, daemon=True)
+        fc_thread.start()
         control_state = "idle"
         dawn_connected = False
 
@@ -162,7 +177,8 @@ def runtime(test_name=""): # pylint: disable=too-many-statements
         print("".join(traceback.format_tb(sys.exc_info()[2])))
 
 
-def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter=None): # pylint: disable=too-many-locals
+# pylint: disable=too-many-locals
+def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter=None):
     try:
         terminated = False
 
@@ -204,64 +220,9 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
         ensure_is_function(test_name + "main", main_fn)
         ensure_not_overridden(studentCode, "Robot")
 
-        # Solar Scramble specific handling
-        def stub_out(funcname):
-            def stub(_):
-                line1 = "Failed to generate power-up code: "
-                line2 = "you haven't defined {}".format(funcname)
-                raise AttributeError(line1 + line2)
-            return stub
-
-        def get_or_stub_out(funcname):
-            try:
-                return getattr(studentCode, funcname)
-            except AttributeError:
-                return stub_out(funcname)
-
-        def identity(value):
-            '''
-            Used only in the (hopefully) rare event that none of the other
-            functions are bijections with a given domain of RFIDs
-            '''
-            return value
-
-        def limit_input_to(limit):
-            '''Generate a function to limit size of inputs'''
-            def retval(input_val):
-                while input_val > limit:
-                    input_val = (input_val % limit) + (input_val // limit)
-                return input_val
-            return retval
-
-        def compose_funcs(func_a, func_b):
-            '''
-            Composes two single-input functions together, A(B(x))
-            '''
-            return lambda x: func_a(func_b(x))
-
-        next_power = get_or_stub_out("next_power")
-        reverse_digits = get_or_stub_out("reverse_digits")
-        smallest_prime_fact = get_or_stub_out("smallest_prime_fact")
-        double_caesar_cipher = get_or_stub_out("double_caesar_cipher")
-        silly_base_two = get_or_stub_out("silly_base_two")
-        most_common_digit = get_or_stub_out("most_common_digit")
-        valid_isbn_ten = get_or_stub_out("valid_isbn_ten")
-        simd_four_square = get_or_stub_out("simd_four_square")
-
-        func_map = [
-            identity,
-            next_power,
-            reverse_digits,
-            compose_funcs(smallest_prime_fact, limit_input_to(1000000)),
-            double_caesar_cipher,
-            silly_base_two,
-            most_common_digit,
-            valid_isbn_ten,
-            simd_four_square
-        ]
-
-        studentCode.Robot = Robot(state_queue, pipe, func_map)
+        studentCode.Robot = Robot(state_queue, pipe)
         studentCode.Gamepad = Gamepad(state_queue, pipe)
+        studentCode.Field = Field(state_queue, pipe)
         studentCode.Actions = Actions
         studentCode.print = studentCode.Robot._print # pylint: disable=protected-access
 
@@ -274,7 +235,6 @@ def run_student_code(bad_things_queue, state_queue, pipe, test_name="", max_iter
         studentCode.sleep_duration = studentCode.Actions.sleep
 
         check_timed_out(setup_fn)
-
         exception_cell = [None]
         clarify_coroutine_warnings(exception_cell)
 

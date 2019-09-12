@@ -4,6 +4,7 @@ import asyncio
 import csv
 import inspect
 import io
+import time
 
 from runtimeUtil import *
 
@@ -12,6 +13,7 @@ class Actions:
     @staticmethod
     async def sleep(seconds):
         await asyncio.sleep(seconds)
+
 
 class StudentAPI:
     """Hidden interface with State Manager."""
@@ -38,6 +40,20 @@ class StudentAPI:
         if isinstance(message, Exception):
             raise message
         return message
+
+
+class Field(StudentAPI):
+    @property
+    def starting_zone(self):
+        return self._get_sm_value('starting_zone')
+
+    @property
+    def master(self):
+        return self._get_sm_value('master')
+
+    @property
+    def time(self):
+        return time.time()
 
 
 class Gamepad(StudentAPI):
@@ -120,15 +136,14 @@ class Robot(StudentAPI):
         "led4": [(bool,)],
     }
 
-    def __init__(self, to_manager, from_manager, func_map):
+    def __init__(self, to_manager, from_manager):
         super().__init__(to_manager, from_manager)
-        self.func_map = func_map
         self._create_sensor_mapping()
         self._coroutines_running = set()
         self._stdout_buffer = io.StringIO()
         self._get_all_sensors()
 
-
+        self.nonexistent_sensors = []
         self.student_code_writes = {}
 
     def _get_all_sensors(self):
@@ -144,18 +159,24 @@ class Robot(StudentAPI):
     def set_value(self, device_name, param, value):
         """Set a parameter value for device."""
         uid = self._hibike_get_uid(device_name)
+        if uid is None:
+            return
         self._check_write_params(uid, param)
         self._check_value(param, value)
         self.hibike_write_value(uid, [(param, value)])
 
     def set_motor(self, device_name, value):
         uid = self._hibike_get_uid(device_name)
+        if uid is None:
+            return
         self._check_write_params(uid, "duty_cycle")
         self._check_value("duty_cycle", value)
         self.hibike_write_value(uid, [("duty_cycle", value)])
 
     def stop_motor(self, device_name):
         uid = self._hibike_get_uid(device_name)
+        if uid is None:
+            return
         self._check_write_params(uid, "duty_cycle")
         self._check_value("duty_cycle", 0)
         self.hibike_write_value(uid, [("duty_cycle", 0)])
@@ -255,13 +276,21 @@ class Robot(StudentAPI):
             raise message
         return message
 
+    # pylint: disable=inconsistent-return-statements
     def _hibike_get_uid(self, name):
+        # TODO: Implement sensor mappings, right now uid is the number (or string of number)
         try:
-            # TODO: Implement sensor mappings, right now uid is the number (or string of number)
             device = int(name)
+        except ValueError:
+            self._print(f'Device UID must be an integer. Found: "{str(name)}".')
+            return
+        if device in self.peripherals:
             return device
-        except (ValueError, KeyError) as exc:
-            raise StudentAPIKeyError('Device not found: ' + str(name)) from exc
+        if device in self.nonexistent_sensors:
+            return
+        self.nonexistent_sensors += [device]
+        self.to_manager.put([SM_COMMANDS.SEND_CONSOLE,
+                             ['Warning: device not found: ' + str(name) + '\n']])
 
     def emergency_stop(self):
         """Stop the robot."""

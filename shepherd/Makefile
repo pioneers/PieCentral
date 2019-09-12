@@ -15,4 +15,4 @@ test:
 	$(nop)
 
 artifacts:
-	$(nop)
+	zip -r ../artifacts/shepherd.zip .

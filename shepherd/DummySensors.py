@@ -21,8 +21,6 @@ def sender():
     input_to_launch = {
         "1"     : 1,
         "2"     : 2,
-        "3"     : 3,
-        "4"     : 4,
     }
 
     input_to_effect = {
@@ -41,7 +39,7 @@ def sender():
                                               "overdrive, timer, perk} "))
         if new_input == SHEPHERD_HEADER.LAUNCH_BUTTON_TRIGGERED:
             alliance = input_to_alliance.get(input("Alliance: blue gold "))
-            button_num = input_to_goal.get(input("Launch button: 1 2"))
+            button_num = input_to_launch.get(input("Launch button: 1 2 "))
             if button_num is None or alliance is None:
                 print("Invalid input")
                 continue

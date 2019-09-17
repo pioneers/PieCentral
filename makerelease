@@ -4,6 +4,7 @@
 #
 # Script for creating tags in a standard format interactively.
 
+set -e
 source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
 
 function get_shepherd_version {

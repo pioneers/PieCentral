@@ -19,7 +19,7 @@ import re
 from typing import Dict
 
 import click
-from github import Github
+import github
 import jwt
 
 logging.basicConfig(format='[{asctime}][{levelname}]: {message}', style='{',
@@ -41,7 +41,7 @@ ARTIFACTS = {
         re.compile(r'^frankfurter-update'): 'runtime-url',
     }
 }
-TAG_PATTERN = re.compile(r'^(?P<project>dawn|runtime)/(?P<version>[\d\.]+)')
+TAG_PATTERN = re.compile(r'^(?P<project>[a-z]+)/(?P<version>[\d\.]+)')
 
 
 class GitHubApp:
@@ -75,32 +75,33 @@ class GitHubApp:
         with urlopen(request) as response:
             return json.load(response)
 
-    def retrieve_access_token(self, owner, repo):
+    def retrieve_access_token(self, owner: str, repo: str) -> str:
         install_url = urljoin(self.api_base_url, f'/repos/{owner}/{repo}/installation')
         headers = {'Authorization': f'Bearer {self.generate_client_token()}'}
         access_url = self.make_request(install_url, headers=headers)['access_tokens_url']
         return self.make_request(access_url, headers=headers, method='POST')['token']
 
-    def get_repo(self, owner, repo):
+    def get_repo(self, owner: str, repo: str) -> github.Repository:
         access_token = self.retrieve_access_token(owner, repo)
-        return Github(access_token).get_repo(f'{owner}/{repo}')
+        return github.Github(access_token).get_repo(f'{owner}/{repo}')
 
 
-def get_commit_from_tag(repo, target_tag):
+def get_commit_from_tag(repo: github.Repository, target_tag: str) -> github.GitCommit:
     for tag in repo.get_tags():
         if tag.name == target_tag:
             return tag.commit
 
 
-def branch_to_ref(branch):
+def branch_to_ref(branch: str) -> str:
     return 'refs/heads/' + branch
 
 
-def artifact_label(name):
+def artifact_label(name: str) -> str:
     return os.path.splitext(name)[0]
 
 
-def create_release(repo, tag, artifacts_dir, draft=False, prerelease=False):
+def create_release(repo: github.Repository, tag: str, artifacts_dir: str,
+                   draft: bool = False, prerelease: bool = False):
     commit = get_commit_from_tag(repo, tag)
     if not commit:
         logging.warning(f'Unable to find tag "{tag}". Skipping release.')
@@ -120,27 +121,28 @@ def create_release(repo, tag, artifacts_dir, draft=False, prerelease=False):
     return release, artifacts
 
 
-def replace_page_key(contents, key, value):
+def replace_page_key(contents: str, key: str, value: str) -> str:
     return re.sub(r'({0}):\s*.*\n'.format(key), r'\1: {0}\n'.format(value), contents)
 
 
 def make_pull_request(repo, tag, artifacts, src_branch='master'):
     branch = repo.get_branch(src_branch)
     page = repo.get_file_contents(SOFTWARE_PAGE, ref=branch_to_ref(src_branch))
-    contents = base64.b64decode(page.content.encode('utf-8')).decode('utf-8')
+    contents = old_contents = base64.b64decode(page.content.encode('utf-8')).decode('utf-8')
 
     tag_match, pr_body = TAG_PATTERN.match(tag), PR_BODY_TEMPLATE
+    if not tag_match:
+        logging.error('Tag does not match the expected pattern. Aborting pull request.')
+        return
     project, version = tag_match.group('project'), tag_match.group('version')
     for label_pattern, page_key in ARTIFACTS.get(project, {}).items():
         for artifact in artifacts:
             label = artifact.label or artifact_label(artifact.name)
             if label_pattern.match(label):
                 contents = replace_page_key(contents, page_key, artifact.browser_download_url)
-                pr_body += ' | '.join([
-                    f'[`{artifact.name}`]({artifact.browser_download_url})',
-                    str(round(artifact.size/1024, 1)),
-                    f'`{artifact.content_type}`',
-                ]).strip() + '\n'
+                pr_body += (f'\n| [`{artifact.name}`]({artifact.browser_download_url}) '
+                            f'| {round(artifact.size/1024, 1)} '
+                            f'| `{artifact.content_type}` |')
                 break
         else:
             logging.warning(f'Unable to find artifact for "{page_key}". Skipping.')
@@ -149,22 +151,24 @@ def make_pull_request(repo, tag, artifacts, src_branch='master'):
     contents = replace_page_key(contents, f'{project}-latest-ver', version)
     contents = replace_page_key(contents, f'{project}-last-update', today)
 
-    ref = repo.create_git_ref(branch_to_ref(tag), sha=branch.commit.sha)
-    message = PR_COMMIT_TEMPLATE.format(tag=tag)
-    repo.update_file(SOFTWARE_PAGE, message, contents.encode('utf-8'), page.sha, branch=tag)
-    pr = repo.create_pull(title=message, body=pr_body, base=src_branch, head=tag)
-    logging.info(f'Created pull request #{pr.id} for "{repo.owner}/{repo.name}".')
-    return pr
+    if contents != old_contents:
+        ref = repo.create_git_ref(branch_to_ref(tag), sha=branch.commit.sha)
+        message = PR_COMMIT_TEMPLATE.format(tag=tag)
+        repo.update_file(SOFTWARE_PAGE, message, contents.encode('utf-8'), page.sha, branch=tag)
+        pr = repo.create_pull(title=message, body=pr_body, base=src_branch, head=tag)
+        logging.info(f'Created pull request #{pr.id} for "{repo.owner.login}/{repo.name}".')
+        return pr
 
 
 @click.command()
 @click.option('-k', '--key-file', help='Path to GitHub Apps private key file', required=True)
-@click.option('-a', '--app-id', help='GitHub App ID', required=True)
-@click.option('-d', '--artifacts-dir', help='Artifacts directory', required=True)
+@click.option('-a', '--app-id', envvar='APP_ID', help='GitHub App ID', required=True)
+@click.option('-d', '--artifacts-dir', help='Artifacts directory', required=True,
+              type=click.Path(file_okay=False, dir_okay=True, exists=True))
 @click.option('-t', '--tag', help='Tag name', required=True)
 @click.option('-p', '--prerelease', help='Prerelease', is_flag=True)
 @click.option('-x', '--draft', help='Draft release', is_flag=True)
-@click.option('-w', '--website', help='Update website', is_flag=True)
+@click.option('-w', '--website', help='If set, submit a PR to update the website', is_flag=True)
 def cli(key_file, app_id, artifacts_dir, tag, prerelease, draft, website):
     """ Command-line tool for uploading releases to GitHub and updating the software page links. """
     app = GitHubApp(app_id, key_file)

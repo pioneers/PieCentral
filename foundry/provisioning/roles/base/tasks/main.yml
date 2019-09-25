@@ -7,23 +7,28 @@
 - name: install debian apt packages
   import_tasks: debian.yml
   when: ansible_facts['os_family']|lower == 'debian'
+  become: yes
+  become_user: root
 - name: configure git
   template:
     src: gitconfig.j2
     dest: "{{ ansible_env.HOME }}/.gitconfig"
-- name: configure oh-my-zsh
-  block:
+- block:
     - name: download oh-my-zsh install script
       get_url:
         url: https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
         dest: "{{ install_script_path }}"
         mode: '0755'
     - name: install oh-my-zsh
-      shell: "{{ install_script_path }} --unattended"
+      command: "{{ install_script_path }} --unattended"
     - name: remove oh-my-zsh install script
       file:
         state: absent
         path: "{{ install_script_path }}"
+    - name: copy .zshrc
+      template:
+        src: zshrc.j2
+        dest: "{{ ansible_env.HOME }}/.zshrc"
   ignore_errors: yes
   vars:
     install_script_path: /tmp/zsh-install.sh

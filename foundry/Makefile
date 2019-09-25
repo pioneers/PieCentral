@@ -9,7 +9,7 @@ artifacts-install:
 
 lint:
 	cd anvil && vagrant validate
-	pipenv shell ansible-lint provisioning/*.yml
+	pipenv run ansible-lint provisioning/*.yml
 
 test:
 	$(nop)

@@ -88,11 +88,20 @@
         name:
           - nodejs
           - npm
+    - name: download nvm install script
+      get_url:
+        url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh
+        dest: "{{ install_script_path }}"
     - name: install nvm
-      shell: >
-        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+      command: "bash {{ install_script_path }}"
       args:
         creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+    - name: delete nvm install script
+      file:
+        state: absent
+        path: "{{ install_script_path }}"
+  vars:
+    install_script_path: /tmp/nvm-install.sh
   tags:
     - node
 - name: install ruby

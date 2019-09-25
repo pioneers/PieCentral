@@ -18,10 +18,11 @@
       get_url:
         url: https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
         dest: "{{ install_script_path }}"
-        mode: '0755'
     - name: install oh-my-zsh
-      command: "{{ install_script_path }} --unattended"
-    - name: remove oh-my-zsh install script
+      command: "bash {{ install_script_path }} --unattended"
+      creates:
+        args: "{{ ansible_env.HOME }}/.zshrc"
+    - name: delete oh-my-zsh install script
       file:
         state: absent
         path: "{{ install_script_path }}"

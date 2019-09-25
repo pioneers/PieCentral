@@ -29,8 +29,6 @@ addons:
       - python3-pip
       - libasound2-dev
       - socat
-      - virtualbox
-      - vagrant
 env:
   global:
     - APP_ID=15634

@@ -19,3 +19,4 @@
       git:
         repo: git@github.com:pioneers/PieCentral.git
         dest: "{{ ansible_env.HOME }}/PieCentral"
+        accept_hostkey: yes

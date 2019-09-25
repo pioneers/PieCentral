@@ -1,51 +1,55 @@
 ---
+- name: set kernel release
+  shell: uname -r
+  register: kernel_release
 - name: install apt packages
   become: yes
   become_user: root
   block:
     - name: upgrade existing packages
       apt:
-        upgrade: dist
+        upgrade: 'yes'
+        update_cache: yes
     - name: install development packages
       apt:
-        name: "{{ item }}"
-        state: latest
-      with_items:
-        - vim
-        - zsh
-        - git
-        - gcc
-        - make
-        - wget
-        - htop
-        - curl
-        - zip
-        - unzip
-        - hub
-        - build-essential
-        # - linux-headers-generic
+        name:
+          - vim
+          - zsh
+          - git
+          - gcc
+          - make
+          - wget
+          - htop
+          - curl
+          - zip
+          - unzip
+          - hub
+          - build-essential
+          - "linux-headers-{{ kernel_release.stdout }}"
     - name: install docker
       block:
-        - apt:
-            name: "{{ item }}"
-            state: latest
-          with_items:
-            - apt-transport-https
-            - ca-certificates
-            - gnupg2
-            - software-properties-common
-        - apt_key:
+        - name: install docker dependencies
+          apt:
+            name:
+              - apt-transport-https
+              - ca-certificates
+              - gnupg2
+              - software-properties-common
+        - name: add docker gpg key
+          apt_key:
             url: https://download.docker.com/linux/ubuntu/gpg
-        - apt_repository:
+        - name: add docker repo
+          apt_repository:
             repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
-        - apt:
-            name: "{{ item }}"
+        - name: install docker-ce packages
+          apt:
+            name:
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io
             state: latest
-          with_items:
-            - docker-ce
-            - docker-ce-cli
-            - containerd.io
       tags:
+        - never
         - docker
     - name: clean packages
       apt:

@@ -8,11 +8,11 @@ artifacts-install:
 	$(nop)
 
 lint:
-#	ansible-lint
+	cd anvil && vagrant validate
+	pipenv shell ansible-lint provisioning/*.yml
 
 test:
-	cd anvil && vagrant validate
-	# TODO: validate playbooks
+	$(nop)
 
 artifacts:
-	cp -r anvil provisioning README.md ../artifacts
+	zip -r ../artifacts/foundry.zip *

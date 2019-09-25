@@ -25,6 +25,8 @@ GitHub hosts all PiE software projects.
    * If you're using OS X, open the `Terminal` app.
    * If you're using Windows, install, then open, [GitBash](https://gitforwindows.org/).
    * If you're using Linux, you probably already know how to open a terminal.
+1. Install [`git`](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
+   If you're using GitBash, you already have `git` installed.
 1. Use `cd` to navigate to the directory (folder) where you downloaded the install script.
 1. Execute the install script with `bash install.sh`.
    Vagrant is now downloading a lot of software.

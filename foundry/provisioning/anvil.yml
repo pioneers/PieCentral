@@ -30,3 +30,16 @@
             dest: /etc/update-motd.d/20-logo
             mode: '0755'
             backup: yes
+    - block:
+        - name: add PieCentral remote
+          command: cd "{{ repo.path }}" && git init && git remote add "{{ repo.remote.name }}" "{{ repo.remote.url }}"
+        - name: pull from PieCentral
+          command: cd "{{ repo.path }}" && git pull "{{ repo.remote.name }}" "{{ repo.main_branch }}"
+      vars:
+        repo:
+          path: /vagrant/PieCentral
+          remote:
+            name: origin
+            url: git@github.com:pioneers/PieCentral.git
+          main_branch: master
+      ignore_errors: yes

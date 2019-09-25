@@ -1,0 +1,6 @@
+#!/bin/bash
+
+yellow="\e[1;33m"
+clear="\e[0m"
+
+echo -e ${yellow}"[!] Before pushing, please ensure your changes do not include sensitive data like webhook URLs, tokens, etc."${clear}

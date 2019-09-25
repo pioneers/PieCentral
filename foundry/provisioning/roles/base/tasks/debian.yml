@@ -22,6 +22,7 @@
           - zip
           - unzip
           - hub
+          - fortune
           - build-essential
           - "linux-headers-{{ kernel_release.stdout }}"
     # The desktop is quite heavyweight, and there are issues with the screen
@@ -100,3 +101,12 @@
       - ruby-dev
   tags:
     - ruby
+- block:
+    - name: copy quotes file
+      copy:
+        src: pie-fortunes
+        dest: "{{ fortune_path }}/pie-fortunes"
+    - name: compile quotes file
+      command: strfile -c % "{{ fortune_path }}/pie-fortunes" "{{ fortune_path }}/pie-fortunes.dat"
+  vars:
+    fortune_path: /usr/share/games/fortunes

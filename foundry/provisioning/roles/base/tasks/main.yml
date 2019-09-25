@@ -38,3 +38,8 @@
   user:
     name: "{{ ansible_env.USER }}"
     shell: /usr/bin/zsh
+- name: install git hooks template
+  copy:
+    src: git-template/
+    dest: "{{ ansible_env.HOME }}/.git-template"
+    mode: '0755'

@@ -18,7 +18,7 @@ In just a few steps, you too can begin hacking away at your first PiE project!
    Your native operating system (OS) is called the _host_.
    The nested OS is known as the _guest_.
 1. Download [PieCentral](https://github.com/pioneers/PieCentral/archive/master.zip) as a ZIP, then unzip it.
-1. Open [`roles/base/defaults/main.yml`](roles/base/defaults/main.yml) in a text editor, and change `name` and `email` to your name and your `_@pioneers.berkeley.edu` email.
+1. Open [`provisioning/roles/base/defaults/main.yml`](provisioning/roles/base/defaults/main.yml) in a text editor, and change `name` and `email` to your name and your `_@pioneers.berkeley.edu` email.
 1. Open a terminal.
    * If you're using OS X, open the `Terminal` app.
    * If you're using Windows, open `Command Prompt`, or use [GitBash](https://gitforwindows.org/).
@@ -33,7 +33,7 @@ In just a few steps, you too can begin hacking away at your first PiE project!
 1. If you haven't already, sign up for a [GitHub](https://github.com/) account.
    GitHub hosts all PiE software projects.
    Send your GitHub username to your PM so that you can be invited to the @pioneers organization, and be on the lookout for an email to confirm your membership.
-1. Run `cat ~/.ssh/id_rsa.pub`.
+1. Run `cat ~/.ssh/id_rsa.pub` on the guest.
    It will print something like: `ssh-rsa <random characters> _@pioneers.berkeley.edu`.
    Copy this line and [follow these instructions](https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account) for adding this key to your GitHub account.
    Now, whenever you push code, you won't need to enter a password.

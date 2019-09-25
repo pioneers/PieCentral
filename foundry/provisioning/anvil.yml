@@ -1,0 +1,21 @@
+---
+- name: provision development environment
+  hosts: all
+  roles:
+    - base
+  tasks:
+    - name: set hostname
+      become: yes
+      become_user: root
+      hostname:
+        name: anvil.local
+    - name: generate SSH key
+      openssh_keypair:
+        comment: "{{ user.email }}"
+        path: "{{ ansible_env.HOME }}/.ssh/id_rsa"
+        type: rsa
+        size: 4096
+    - name: clone PieCentral
+      git:
+        repo: git@github.com:pioneers/PieCentral.git
+        dest: "{{ ansible_env.HOME }}/PieCentral"

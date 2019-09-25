@@ -1,0 +1,36 @@
+---
+- name: set timezone
+  become: yes
+  become_user: root
+  timezone:
+    name: "{{ timezone }}"
+- name: install debian apt packages
+  import_tasks: debian.yml
+  when: ansible_facts['os_family']|lower == 'debian'
+- name: configure git
+  template:
+    src: gitconfig.j2
+    dest: "{{ ansible_env.HOME }}/.gitconfig"
+- name: configure oh-my-zsh
+  block:
+    - name: delete oh-my-zsh if present
+      file:
+        state: absent
+        path: "{{ ansible_env.HOME }}/.oh-my-zsh"
+    - name: download oh-my-zsh install script
+      get_url:
+        url: https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+        dest: "{{ install_script_path }}"
+        mode: '0755'
+    - name: install oh-my-zsh
+      shell: "{{ install_script_path }} --unattended"
+    - name: remove oh-my-zsh install script
+      file:
+        state: absent
+        path: "{{ install_script_path }}"
+  vars:
+    install_script_path: /tmp/zsh-install.sh
+- name: configure user
+  user:
+    name: "{{ ansible_env.USER }}"
+    shell: /usr/bin/zsh

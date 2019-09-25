@@ -1,0 +1,14 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/buster64"
+  config.vm.hostname = "anvil"
+  config.ssh.forward_agent = true
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 4
+    vb.memory = "1024"
+  end
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "../provisioning/anvil.yml"
+  end
+end

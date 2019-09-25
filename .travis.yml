@@ -29,6 +29,7 @@ addons:
       - python3-pip
       - libasound2-dev
       - socat
+      - virtualbox
       - vagrant
 env:
   global:
@@ -46,8 +47,6 @@ before_install:
   - if [[ $TEST_DIR = runtime ]] && git tag -l --points-at HEAD | grep runtime; then
     export DEPLOY_ARTIFACTS=1; fi
   - if [[ $TEST_DIR = shepherd ]] && git tag -l --points-at HEAD | grep shepherd; then
-    export DEPLOY_ARTIFACTS=1; fi
-  - if [[ $TEST_DIR = foundry ]] && git tag -l --points-at HEAD | grep foundry; then
     export DEPLOY_ARTIFACTS=1; fi
   - pushd $TEST_DIR
   - mkdir -p build-deps/bin

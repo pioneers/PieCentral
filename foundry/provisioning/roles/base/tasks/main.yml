@@ -20,8 +20,8 @@
         dest: "{{ install_script_path }}"
     - name: install oh-my-zsh
       command: "bash {{ install_script_path }} --unattended"
-      creates:
-        args: "{{ ansible_env.HOME }}/.zshrc"
+      args:
+        creates: "{{ ansible_env.HOME }}/.zshrc"
     - name: delete oh-my-zsh install script
       file:
         state: absent

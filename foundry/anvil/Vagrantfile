@@ -20,5 +20,7 @@ Vagrant.configure("2") do |config|
     ansible.playbook = "../provisioning/anvil.yml"
   end
 
-  config.vm.synced_folder "../..", "/vagrant/PieCentral"
+  if ENV['MOUNT_SYNCED'] != 'no' then
+    config.vm.synced_folder("../..", "/vagrant/PieCentral", type: "virtualbox")
+  end
 end

@@ -1,13 +1,19 @@
 ---
-- name: set kernel release
-  command: uname -r
-  register: kernel_release
-  changed_when: no
 - block:
     - name: upgrade existing packages
       apt:
         upgrade: 'yes'
         update_cache: yes
+    - name: upgrade distribution
+      apt:
+        upgrade: dist
+    - name: allow new kernel to take effect
+      reboot:
+        reboot_timeout: 600
+    - name: set kernel release
+      command: uname -r
+      register: kernel_release
+      changed_when: no
     - name: install development packages
       apt:
         name:
@@ -77,9 +83,7 @@
           - python3-pip
           - python3-dev
     - name: install pipenv
-      pip:
-        name: pipenv
-        executable: pip3
+      command: pip3 install pipenv
   tags:
     - python
 - block:

@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision "ansible_local" do |ansible|
-    ansible.playbook = "../provisioning/anvil.yml"
+    ansible.playbook = "anvil.yml"
     ansible.extra_vars = {
       user: {
         name: ENV['NAME'],

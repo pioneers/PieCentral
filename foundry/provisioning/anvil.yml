@@ -31,3 +31,4 @@
             dest: /etc/update-motd.d/20-logo
             mode: '0755'
             backup: yes
+    # TODO: install git hooks to PieCentral

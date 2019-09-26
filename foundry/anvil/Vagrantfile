@@ -1,0 +1,46 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "debian/buster64"
+  config.vm.hostname = "anvil"
+  config.ssh.forward_agent = true
+
+  desktop_mode = ENV['DESKTOP'] == 'yes'
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.cpus = 4
+    vb.memory = "1024"
+
+    # Only needed for the desktop.
+    if desktop_mode then
+      vb.gui = true
+      vb.customize ["modifyvm", :id, "--vram", "16"]
+    end
+  end
+
+  private_ip = ENV['PRIVATE_IP']
+  config.vm.network("private_network", ip: private_ip) unless private_ip.nil?
+
+  forwarded_ports = ENV['FORWARDED_PORTS']
+  if !forwarded_ports.nil? then
+    forwarded_ports.split(',').each do |port|
+      config.vm.network "forwarded_port", guest: port, host: port
+    end
+  end
+
+  config.vm.provision "ansible_local" do |ansible|
+    ansible.playbook = "../provisioning/anvil.yml"
+    ansible.extra_vars = {
+      user: {
+        name: ENV['NAME'],
+        email: ENV['EMAIL'],
+      },
+      desktop: ,
+    }
+
+    ansible.tags = []
+    ansible.tags.push('desktop') if desktop_mode
+  end
+
+  if ENV['MOUNT_SYNCED'] != 'no' then
+    config.vm.synced_folder("../..", "/home/vagrant/PieCentral", type: "virtualbox")
+  end
+end

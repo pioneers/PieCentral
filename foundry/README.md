@@ -56,7 +56,7 @@ If all else fails, feel free to submit a [bug report](https://github.com/pioneer
 * `vagrant status`: Reports the state of the VM.
 * `vagrant destroy`: Wipes out your VM.
 
-Note that all of these commands have to be run on the host from `PieCentral/foundry/anvil`.
+Note that all of these commands have to be run on the host from `PieCentral/foundry/provisioning`.
 If you get a message like the one shown below, that means your current working directory is not `anvil`.
 ```
 A Vagrant environment or target machine is required to run this

@@ -10,7 +10,8 @@
       hostname:
         name: anvil.local
     - name: generate SSH key
-      command: "ssh-keygen -t rsa -b 4096 -C '{{ user.email }}' -p -N '' -f {{ ansible_env.HOME }}/.ssh/id_rsa"
+      command: "ssh-keygen -t rsa -b 4096 -C '{{ user.email }}' -N '' -f {{ ansible_env.HOME }}/.ssh/id_rsa"
+      ignore_errors: yes
       args:
         creates:
           - "{{ ansible_env.HOME }}/.ssh/id_rsa"

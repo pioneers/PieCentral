@@ -25,7 +25,7 @@ GitHub hosts all PiE software projects.
    Your native operating system (OS) is called the _host_.
    The nested OS is known as the _guest_.
 1. Open a terminal.
-   * If you're using OS X, open the `Terminal` app.
+   * If you're using macOS, open the `Terminal` app.
    * If you're using Windows, install, then open, [GitBash](https://gitforwindows.org/).
    * If you're using Linux, you probably already know how to open a terminal.
 1. Install [`git`](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
@@ -59,8 +59,8 @@ This means you can use your favorite text editor on the host to make changes, an
 | `vagrant status` | Reports the state of the VM. |
 | `vagrant destroy` | Wipes out your VM from disk. |
 
-Note that all of these commands have to be run on the host from `PieCentral/foundry/anvil`.
-If you get a message like the one shown below, that means your current working directory is not `anvil`.
+Note that all of these commands have to be run on the host from `PieCentral/foundry/provisioning`.
+If you get a message like the one shown below, that means your current working directory is not `provisioning`.
 ```
 A Vagrant environment or target machine is required to run this
 command. Run `vagrant init` to create a new Vagrant environment. Or,

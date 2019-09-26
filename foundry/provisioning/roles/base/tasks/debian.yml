@@ -4,12 +4,6 @@
       apt:
         upgrade: 'yes'
         update_cache: yes
-    - name: upgrade distribution
-      apt:
-        upgrade: dist
-    - name: allow new kernel to take effect
-      reboot:
-        reboot_timeout: 600
     - name: set kernel release
       command: uname -r
       register: kernel_release

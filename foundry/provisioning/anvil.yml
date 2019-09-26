@@ -10,11 +10,11 @@
       hostname:
         name: anvil.local
     - name: generate SSH key
-      openssh_keypair:
-        comment: "{{ user.email }}"
-        path: "{{ ansible_env.HOME }}/.ssh/id_rsa"
-        type: rsa
-        size: 4096
+      command: "ssh-keygen -t rsa -b 4096 -C '{{ user.email }}' -p -N '' -f {{ ansible_env.HOME }}/.ssh/id_rsa"
+      args:
+        creates:
+          - "{{ ansible_env.HOME }}/.ssh/id_rsa"
+          - "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
     - become: yes
       become_user: root
       block:

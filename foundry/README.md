@@ -20,7 +20,7 @@ GitHub hosts all PiE software projects.
    This will allow you to provision and run a virtual machine (VM).
    Your native operating system (OS) is called the _host_.
    The nested OS is known as the _guest_.
-1. Download [`https://raw.githubusercontent.com/pioneers/PieCentral/master/foundry/anvil/install.sh`](https://raw.githubusercontent.com/pioneers/PieCentral/master/foundry/anvil/install.sh).
+1. Download [`https://raw.githubusercontent.com/pioneers/PieCentral/master/foundry/provisioning/anvil-install.sh`](https://raw.githubusercontent.com/pioneers/PieCentral/master/foundry/provisioning/anvil-install.sh).
 1. Open a terminal.
    * If you're using OS X, open the `Terminal` app.
    * If you're using Windows, install, then open, [GitBash](https://gitforwindows.org/).
@@ -28,7 +28,7 @@ GitHub hosts all PiE software projects.
 1. Install [`git`](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
    If you're using GitBash, you already have `git` installed.
 1. Use `cd` to navigate to the directory (folder) where you downloaded the install script.
-1. Execute the install script with `bash install.sh`.
+1. Execute the install script with `bash anvil-install.sh`.
    Vagrant is now downloading a lot of software.
    Setup should take about 10 minutes.
 1. When the install script succeeds, it will print something like: `ssh-rsa <random characters> _@pioneers.berkeley.edu`.

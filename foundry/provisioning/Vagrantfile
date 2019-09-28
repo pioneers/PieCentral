@@ -1,3 +1,6 @@
+CYAN = "\e[1;36m"
+CLEAR = "\e[0m"
+
 Vagrant.configure("2") do |config|
   config.vm.box = "debian/buster64"
   config.vm.hostname = "anvil"
@@ -28,18 +31,28 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "ansible_local" do |ansible|
     ansible.playbook = "anvil.yml"
-    ansible.extra_vars = {
-      user: {
-        name: ENV['NAME'],
-        email: ENV['EMAIL'],
-      },
-    }
+    ansible.extra_vars = {}
+    name, email = ENV['NAME'], ENV['EMAIL']
+    if !name.nil? and !email.nil? then
+      ansible.extra_vars[:user] = {
+        name: name,
+        email: email,
+      }
+    end
 
-    ansible.tags = []
-    ansible.tags.push('desktop') if desktop_mode
+    # TODO: add desktop tag if desktop_mode
   end
 
   if ENV['MOUNT_SYNCED'] != 'no' then
     config.vm.synced_folder("../..", "/home/vagrant/PieCentral", type: "virtualbox")
+  end
+
+  config.trigger.after :provision do |trigger|
+    trigger.info = "#{CYAN}Anvil setup completed successfully!#{CLEAR}\n"
+    trigger.info += "#{CYAN}Please copy the SSH key below (starts with 'ssh-rsa') and follow these instructions:#{CLEAR}\n"
+    trigger.info += "#{CYAN}  https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account#{CLEAR}\n"
+    trigger.run_remote = {
+      inline: "cat .ssh/id_rsa.pub"
+    }
   end
 end

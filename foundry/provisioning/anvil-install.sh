@@ -1,9 +1,5 @@
 #!/bin/bash
 
-highlight="\e[1;36m"
-yellow="\e[1;33m"
-clear="\e[0m"
-
 set -e
 
 if ! type "vagrant" 2>/dev/null >/dev/null; then
@@ -19,18 +15,9 @@ fi
 export MOUNT_SYNCED=no
 vagrant up --no-provision
 vagrant ssh -c "sudo apt update -y && sudo apt dist-upgrade -y"
-vagrant reload  # Implicitly provisions the machine
+vagrant reload --no-provision
 vagrant plugin install --local vagrant-vbguest
 unset MOUNT_SYNCED
-vagrant reload
-
-echo -e "${highlight}"
-echo "Setup completed successfully! Please copy the SSH key below (in yellow) and follow these instructions: "
-echo "  https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account."
-echo
-vagrant ssh -c "echo -ne '${yellow}'; cat .ssh/id_rsa.pub; echo -e '${clear}'"
-echo -e "${highlight}"
-echo "You can now log into your development environment running 'vagrant ssh' from the 'foundry/provisioning' directory."
-echo -e "${clear}"
-
+vagrant reload --no-provision
+vagrant provision
 git remote set-url origin git@github.com:pioneers/PieCentral.git

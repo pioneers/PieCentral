@@ -1,0 +1,12 @@
+[alias]
+  graph = log --graph --oneline --all
+  update = fetch --all --prune
+[color]
+  ui = auto
+[core]
+  editor = vim
+[user]
+  name = {{ user.name }}
+  email = {{ user.email }}
+[init]
+  templatedir = ~/.git-template

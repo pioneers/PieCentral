@@ -32,7 +32,7 @@ GitHub hosts all PiE software projects.
    If you're using GitBash, you already have `git` installed.
 1. Use `cd` to navigate to the directory (folder) where you would like to download PieCentral.
 1. Run `export NAME="<your name here>"` and `export EMAIL="<your email>@pioneers.berkeley.edu"`.
-1. Run `curl https://raw.githubusercontent.com/pioneers/PieCentral/master/foundry/provisioning/anvil-install.sh | bash`.
+1. Run `bash -c "$(curl -fsSL https://raw.githubusercontent.com/pioneers/PieCentral/master/foundry/provisioning/anvil-install.sh)"`.
    Vagrant is now downloading a lot of software.
    Setup is fully autonomous, and should take about 10 minutes.
 1. When the install script succeeds, it will print something like: `ssh-rsa <random characters> _@pioneers.berkeley.edu`.

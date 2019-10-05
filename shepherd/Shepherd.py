@@ -46,18 +46,6 @@ def start():
                 func(payload[1])
             else:
                 print("Invalid Event in Setup")
-        elif GAME_STATE == STATE.PERK_SELCTION:
-            func = PERK_SELECTION_FUNCTIONS.get(payload[0])
-            if func is not None:
-                func(payload[1])
-            else:
-                print("Invalid Event in Perk_selection")
-        elif GAME_STATE == STATE.AUTO_WAIT:
-            func = AUTO_WAIT_FUNCTIONS.get(payload[0])
-            if func is not None:
-                func(payload[1])
-            else:
-                print("Invalid Event in Auto_wait")
         elif GAME_STATE == STATE.AUTO:
             func = AUTO_FUNCTIONS.get(payload[0])
             if func is not None:
@@ -114,14 +102,12 @@ def to_setup(args):
     if ALLIANCES[ALLIANCE_COLOR.BLUE] is not None:
         reset()
 
-    code_setup()
+    #code_setup()
 
     ALLIANCES[ALLIANCE_COLOR.BLUE] = Alliance(ALLIANCE_COLOR.BLUE, b1_name,
                                               b1_num, b2_name, b2_num, b1_custom_ip, b2_custom_ip)
     ALLIANCES[ALLIANCE_COLOR.GOLD] = Alliance(ALLIANCE_COLOR.GOLD, g1_name,
                                               g1_num, g2_name, g2_num, g1_custom_ip, g2_custom_ip)
-
-    msg = {"b1num":b1_num, "b2num":           b2_num, "g1num":g1_num, "g2num":g2_num}
 
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.TEAMS, {
         "b1name" : b1_name, "b1num" : b1_num,
@@ -195,12 +181,6 @@ def to_teleop(args):
 
     Timer.reset_all()
     GAME_TIMER.start_timer(CONSTANTS.TELEOP_TIME + 2)
-    overdrive_time = random.randint(0, CONSTANTS.TELEOP_TIME -
-                                    CONSTANTS.OVERDRIVE_TIME)
-    OVERDRIVE_TIMER.start_timer(overdrive_time)
-    overdrive_time = CONSTANTS.TELEOP_TIME - overdrive_time
-    print("overdrive will happen at " + str(overdrive_time // 60) + ":" +
-          str(overdrive_time % 60))
 
     enable_robots(False)
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
@@ -428,9 +408,9 @@ SETUP_FUNCTIONS = {
 AUTO_FUNCTIONS = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.STAGE_TIMER_END : to_wait,
-    SHEPHERD_HEADER.CODE_APPLICATION : auto_apply_code,
+    #SHEPHERD_HEADER.CODE_APPLICATION : auto_apply_code,
     SHEPHERD_HEADER.ROBOT_OFF : disable_robot,
-    SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
+    #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
     SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections
 
@@ -448,9 +428,9 @@ WAIT_FUNCTIONS = {
 TELEOP_FUNCTIONS = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.STAGE_TIMER_END : to_end,
-    SHEPHERD_HEADER.CODE_APPLICATION : apply_code,
+    #SHEPHERD_HEADER.CODE_APPLICATION : apply_code,
     SHEPHERD_HEADER.ROBOT_OFF : disable_robot,
-    SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
+    #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
     SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections
 
@@ -473,7 +453,6 @@ END_FUNCTIONS = {
 
 GAME_STATE = STATE.END
 GAME_TIMER = Timer(TIMER_TYPES.MATCH)
-EXTENDED_TELEOP_TIMER = Timer(TIMER_TYPES.EXTENDED_TELEOP)
 
 MATCH_NUMBER = -1
 ALLIANCES = {ALLIANCE_COLOR.GOLD: None, ALLIANCE_COLOR.BLUE: None}

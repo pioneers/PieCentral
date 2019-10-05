@@ -22,14 +22,6 @@ def log(Exception):
     file.write("gold alliance: " + str(Shepherd.alliances[ALLIANCE_COLOR.GOLD])+"\n")
     file.write("blue alliance: " + str(Shepherd.alliances[ALLIANCE_COLOR.BLUE])+"\n")
     file.write("game timer running?: " + str(Shepherd.game_timer.is_running())+"\n")
-    file.write("extended teleop timer running?: " +
-               str(Shepherd.extended_teleop_timer.is_running())+"\n")
-    file.write("launch button timers running(g1 g2 b1 b2)?: " +
-               str(Shepherd.launch_button_timer_gold_1.is_running()) + " " +
-               str(Shepherd.launch_button_timer_gold_2.is_running()) + " " +
-               str(Shepherd.launch_button_timer_blue_1.is_running()) + " " +
-               str(Shepherd.launch_button_timer_blue_2.is_running())+"\n")
-    file.write("overdrive timer active?: " + str(Shepherd.overdrive_timer.is_running())+"\n")
     file.write("the last received header was:" + str(last_header)+"\n")
     file.write("a stacktrace of the error may be found below\n")
     file.write(str(Exception))

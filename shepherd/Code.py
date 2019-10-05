@@ -6,7 +6,6 @@ from Utils import *
 codes = []
 solutions = []
 code_solution = {}
-code_effect = {}
 
 def generate_code(code_list):
     '''
@@ -47,13 +46,3 @@ def assign_code_solution():
     for i in range(16):
         code_solution[codes[i]] = solutions[i]
     return code_solution
-
-def assign_code_effect():
-    '''
-    Assign each code to a random effect
-    '''
-    for i in range(16):
-        code_effect[codes[i]] = (EFFECTS.TWIST if random.random() <
-                                 CONSTANTS.TWIST_CHANCE else
-                                 EFFECTS.SPOILED_CANDY)
-    return code_effect

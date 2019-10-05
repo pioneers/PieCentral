@@ -128,14 +128,13 @@ class LCM_TARGETS():
 # pylint: disable=invalid-name
 class TIMER_TYPES():
     MATCH = {"TYPE":"match", "NEEDS_FUNCTION": True,
-             "FUNCTION":SHEPHERD_HEADER.STAGE_TIMER_END} 
+             "FUNCTION":SHEPHERD_HEADER.STAGE_TIMER_END}
     STUDENT_DECODE = {"TYPE":"student_decode", "NEEDS_FUNCTION": True,
                       "FUNCTION":SHEPHERD_HEADER.CODE_RETRIEVAL}
 
 # pylint: disable=invalid-name
 class STATE():
     SETUP = "setup"
-    AUTO_WAIT = "auto_wait"
     AUTO = "auto"
     WAIT = "wait"
     TELEOP = "teleop"

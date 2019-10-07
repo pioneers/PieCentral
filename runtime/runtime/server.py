@@ -1,2 +1,0 @@
-def bootstrap():
-    print('Hello!')

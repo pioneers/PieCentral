@@ -1,3 +1,7 @@
+"""
+The runtime command-line interface.
+"""
+
 import asyncio
 import os
 
@@ -5,7 +9,7 @@ import click
 import yaml
 
 import runtime
-import runtime.server
+import runtime.engine
 
 
 def get_module_path(filename: str) -> str:
@@ -19,29 +23,23 @@ def cli(**options):
     pass
 
 
-@cli.command()
-@click.option('-c', '--config',
+@cli.command(context_settings={'max_content_width': 800})
+@click.option('-l', '--log-level', default='INFO', help='Log level emitted',
+              type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']))
+@click.option('-c', '--config-file',
               type=click.Path(dir_okay=False, exists=True),
               default=get_module_path('config/default.yaml'),
               help='Configuration file')
-def server(**options):
-    """
-    Run the PiE Runtime server.
-    """
-    runtime.server.bootstrap(**options)
-
-
-@cli.command()
-def client(**options):
-    """
-    Run the PiE Runtime client.
-    """
+def run(**options):
+    """ Execute runtime. """
+    with runtime.engine.Runtime(**options) as engine:
+        asyncio.run(engine.main())
 
 
 @cli.command()
 def version():
     """ Print the PiE Runtime version and exit. """
-    print('.'.join(map(str, runtime.__version__)))
+    print(runtime.get_version())
 
 
 if __name__ == '__main__':

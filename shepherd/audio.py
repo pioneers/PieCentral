@@ -1,3 +1,4 @@
+"""
 import time
 import simpleaudio as sa
 
@@ -16,3 +17,4 @@ def play_horn():
 def stop_music():
     for playback in playbacks:
         playback.stop()
+"""

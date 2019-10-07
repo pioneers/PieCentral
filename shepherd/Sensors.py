@@ -1,4 +1,4 @@
-import sys
+"""import sys
 import time
 import threading
 from multiprocessing import Queue
@@ -20,9 +20,9 @@ alliance_mapping = {
 IDENTIFY_TIMEOUT = 5
 
 def get_working_serial_ports(excludes: set):
-    """Get a list of working serial ports, excluding some.
+    """"""Get a list of working serial ports, excluding some.
     Returns a list of `serial.Serial` object.
-    """
+    """"""
     import glob
     maybe_ports = set(glob.glob("/dev/ttyACM*"))
     # maybe_ports = set(glob.glob("/dev/tty.usb*"))
@@ -39,18 +39,18 @@ def get_working_serial_ports(excludes: set):
 
 
 def identify_relevant_ports(working_ports):
-    """ Check which ports have linebreak sensors or bidding stations on them.
+    """""" Check which ports have linebreak sensors or bidding stations on them.
     Returns a list of tuples containing the object type, alliance,
     and its corresponding serial port.
-    """
+    """"""
     def maybe_identify_sensor(serial_port, timeout, msg_q):
-        """Check whether a serial port contains a sensor.
+        """"""Check whether a serial port contains a sensor.
         Parameters:
             serial_port -- the port to check
             timeout -- quit reading from the serial port after this
             amount of time
             msg_q -- a queue to set if a device is successfully identified
-        """
+        """"""
         prev_timeout = serial_port.timeout
         serial_port.timeout = timeout
         try:
@@ -133,3 +133,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""

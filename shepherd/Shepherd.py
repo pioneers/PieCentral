@@ -46,18 +46,6 @@ def start():
                 func(payload[1])
             else:
                 print("Invalid Event in Setup")
-        elif GAME_STATE == STATE.PERK_SELCTION:
-            func = PERK_SELECTION_FUNCTIONS.get(payload[0])
-            if func is not None:
-                func(payload[1])
-            else:
-                print("Invalid Event in Perk_selection")
-        elif GAME_STATE == STATE.AUTO_WAIT:
-            func = AUTO_WAIT_FUNCTIONS.get(payload[0])
-            if func is not None:
-                func(payload[1])
-            else:
-                print("Invalid Event in Auto_wait")
         elif GAME_STATE == STATE.AUTO:
             func = AUTO_FUNCTIONS.get(payload[0])
             if func is not None:
@@ -114,15 +102,12 @@ def to_setup(args):
     if ALLIANCES[ALLIANCE_COLOR.BLUE] is not None:
         reset()
 
-    code_setup()
+    #code_setup()
 
     ALLIANCES[ALLIANCE_COLOR.BLUE] = Alliance(ALLIANCE_COLOR.BLUE, b1_name,
                                               b1_num, b2_name, b2_num, b1_custom_ip, b2_custom_ip)
     ALLIANCES[ALLIANCE_COLOR.GOLD] = Alliance(ALLIANCE_COLOR.GOLD, g1_name,
                                               g1_num, g2_name, g2_num, g1_custom_ip, g2_custom_ip)
-
-    msg = {"b1num":b1_num, "b2num":           b2_num, "g1num":g1_num, "g2num":g2_num}
-    lcm_send(LCM_TARGETS.TABLET, TABLET_HEADER.TEAMS, msg)
 
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.TEAMS, {
         "b1name" : b1_name, "b1num" : b1_num,
@@ -136,27 +121,6 @@ def to_setup(args):
     print("ENTERING SETUP STATE")
     print({"blue_score" : ALLIANCES[ALLIANCE_COLOR.BLUE].score,
            "gold_score" : ALLIANCES[ALLIANCE_COLOR.GOLD].score})
-
-
-def to_perk_selection(args):
-    bot.announce_next_match(int(MATCH_NUMBER))
-
-    global GAME_STATE
-    GAME_TIMER.start_timer(CONSTANTS.PERK_SELECTION_TIME + 2)
-    GAME_STATE = STATE.PERK_SELCTION
-    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE, {"stage": GAME_STATE})
-    lcm_send(LCM_TARGETS.TABLET, TABLET_HEADER.COLLECT_PERKS)
-    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
-             {"time" : CONSTANTS.PERK_SELECTION_TIME})
-    print("ENTERING PERK SELECTION STATE")
-    # audio.play_perk_music()
-
-def to_auto_wait(args):
-    global GAME_STATE
-    GAME_STATE = STATE.AUTO_WAIT
-    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE, {"stage": GAME_STATE})
-    lcm_send(LCM_TARGETS.TABLET, TABLET_HEADER.COLLECT_CODES)
-    print("ENTERING AUTO_WAIT STATE")
 
 def to_auto(args):
     '''
@@ -217,12 +181,6 @@ def to_teleop(args):
 
     Timer.reset_all()
     GAME_TIMER.start_timer(CONSTANTS.TELEOP_TIME + 2)
-    overdrive_time = random.randint(0, CONSTANTS.TELEOP_TIME -
-                                    CONSTANTS.OVERDRIVE_TIME)
-    OVERDRIVE_TIMER.start_timer(overdrive_time)
-    overdrive_time = CONSTANTS.TELEOP_TIME - overdrive_time
-    print("overdrive will happen at " + str(overdrive_time // 60) + ":" +
-          str(overdrive_time % 60))
 
     enable_robots(False)
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
@@ -364,13 +322,6 @@ def log(Exception):
     file.write("gold alliance: " + str(ALLIANCES[ALLIANCE_COLOR.GOLD])+"\n")
     file.write("blue alliance: " + str(ALLIANCES[ALLIANCE_COLOR.BLUE])+"\n")
     file.write("game timer running?: " + str(GAME_TIMER.is_running())+"\n")
-    file.write("extended teleop timer running?: " + str(EXTENDED_TELEOP_TIMER.is_running())+"\n")
-    file.write("launch button timers running(g1 g2 b1 b2)?: " +
-               str(LAUNCH_BUTTON_TIMER_GOLD_1.is_running()) + " " +
-               str(LAUNCH_BUTTON_TIMER_GOLD_2.is_running()) + " " +
-               str(LAUNCH_BUTTON_TIMER_BLUE_1.is_running()) + " " +
-               str(LAUNCH_BUTTON_TIMER_BLUE_2.is_running())+"\n")
-    file.write("overdrive timer active?: " + str(OVERDRIVE_TIMER.is_running())+"\n")
     file.write("the last received header was:" + str(LAST_HEADER)+"\n")
     file.write("a stacktrace of the error may be found below\n")
     file.write(str(Exception))
@@ -403,160 +354,6 @@ def set_master_robot(args):
     msg = {"alliance": alliance, "team_number": int(team_number)}
     lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.MASTER, msg)
 
-def next_code():
-    if CODES_USED == []:
-        CODES_USED.append(codes[0])
-        return codes[0]
-    index = len(CODES_USED)
-    CODES_USED.append(codes[index])
-    return codes[index]
-
-def code_setup():
-    '''
-    Set up code_solution and code_effect dictionaries and send code_solution to Dawn
-    '''
-    global code_solution
-    global code_effect
-    code_solution = assign_code_solution()
-    code_effect = assign_code_effect()
-
-def bounce_code(args):
-    """bounce the code"""
-    try:
-        student_solutions = clients.get_challenge_solutions()
-        print(student_solutions)
-        for ss in student_solutions.keys():
-            if student_solutions[ss] is not None:
-                alliance = None
-                if int(ALLIANCES[ALLIANCE_COLOR.BLUE].team_1_number) == int(ss):
-                    alliance = ALLIANCE_COLOR.BLUE
-                if int(ALLIANCES[ALLIANCE_COLOR.GOLD].team_1_number) == int(ss):
-                    alliance = ALLIANCE_COLOR.GOLD
-                if int(ALLIANCES[ALLIANCE_COLOR.BLUE].team_2_number) == int(ss):
-                    alliance = ALLIANCE_COLOR.BLUE
-                if int(ALLIANCES[ALLIANCE_COLOR.GOLD].team_2_number) == int(ss):
-                    alliance = ALLIANCE_COLOR.GOLD
-                msg = {"alliance": alliance, "result": student_solutions[ss]}
-                lcm_send(LCM_TARGETS.TABLET, TABLET_HEADER.CODE, msg)
-    except Exception as exc:
-        log(exc)
-
-def auto_apply_code(args):
-    '''
-    Send Scoreboard the effect if the answer is correct
-    '''
-    alliance = ALLIANCES[args["alliance"]]
-    answer = int(args["answer"])
-    print('Codegen answers:', answer, code_solution)
-    if (answer is not None and answer in code_solution.values()):
-        #code = [k for k, v in code_solution.items() if v == answer][0]
-        alliance.change_score(10)
-    else:
-        msg = {"alliance": alliance.name}
-        lcm_send(LCM_TARGETS.SENSORS, SENSORS_HEADER.FAILED_POWERUP, msg)
-        # msg2 = {"alliance": alliance.name, "feedback": False}
-        # lcm_send(LCM_TARGETS.TABLET, TABLET_HEADER.CODE_FEEDBACK, msg2)
-def apply_code(args):
-    '''
-    Send Scoreboard the new score if the answer is correct #TODO
-    '''
-    alliance = ALLIANCES[args["alliance"]]
-    answer = int(args["answer"])
-    if (answer is not None and answer in code_solution.values()):
-        code = [k for k, v in code_solution.items() if v == answer][0]
-        if code_effect[code] == EFFECTS.TWIST:
-            if alliance.name == ALLIANCE_COLOR.BLUE:
-                msg = {"alliance": ALLIANCE_COLOR.GOLD, "effect": code_effect[code]}
-            else:
-                msg = {"alliance": ALLIANCE_COLOR.BLUE, "effect": code_effect[code]}
-        else:
-            msg = {"alliance": alliance.name, "effect": code_effect[code]}
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.APPLIED_EFFECT, msg)
-    else:
-        msg = {"alliance": alliance.name}
-        # msg2 = {"alliance": alliance.name, "feedback": False}
-        lcm_send(LCM_TARGETS.SENSORS, SENSORS_HEADER.FAILED_POWERUP, msg)
-        # lcm_send(LCM_TARGETS.TABLET, TABLET_HEADER.CODE_FEEDBACK, msg2)
-
-
-def end_teleop(args):
-    """Ending teleop"""
-    blue_robots_disabled = False
-    gold_robots_disabled = False
-    if PERKS.TAFFY not in alliance_perks(ALLIANCES[ALLIANCE_COLOR.BLUE]):
-        blue_robots_disabled = True
-    if PERKS.TAFFY not in alliance_perks(ALLIANCES[ALLIANCE_COLOR.GOLD]):
-        gold_robots_disabled = True
-    if (PERKS.TAFFY in alliance_perks(ALLIANCES[ALLIANCE_COLOR.BLUE]) or PERKS.TAFFY
-            in alliance_perks(ALLIANCES[ALLIANCE_COLOR.GOLD])):
-        EXTENDED_TELEOP_TIMER.start_timer(CONSTANTS.TAFFY_TIME)
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
-                 {"time" : CONSTANTS.TAFFY_TIME})
-    else:
-        to_end(args)
-    if gold_robots_disabled:
-        disable_robot({"team_number":ALLIANCES[ALLIANCE_COLOR.GOLD].team_1_number})
-        disable_robot({"team_number":ALLIANCES[ALLIANCE_COLOR.GOLD].team_2_number})
-    if blue_robots_disabled:
-        disable_robot({"team_number":ALLIANCES[ALLIANCE_COLOR.BLUE].team_1_number})
-        disable_robot({"team_number":ALLIANCES[ALLIANCE_COLOR.BLUE].team_2_number})
-
-def alliance_perks(alliance):
-    return (alliance.perk_1, alliance.perk_2, alliance.perk_3)
-
-def apply_perks(args):
-    alliance = ALLIANCES[args['alliance']]
-    alliance.perk_1 = args['perk_1']
-    alliance.perk_2 = args['perk_2']
-    alliance.perk_3 = args['perk_3']
-    msg = {"alliance": args['alliance'], "perk_1":args['perk_1'],
-           "perk_2":args['perk_2'], "perk_3":args['perk_3']}
-    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.PERKS_SELECTED, msg)
-
-def launch_button_triggered(args):
-    '''
-    check if allowed once every 30 seconds, give one of the codes to the correct
-    alliance through Dawn, update scoreboard
-    '''
-    try:
-        alliance = ALLIANCES[args['alliance']]
-        button = args["button"]
-        l_b = alliance.name + "_" + str(button)
-        if not TIMER_DICTIONARY[l_b].is_running():
-            msg = {"alliance": alliance.name, "button": button}
-            code = next_code()
-            client = clients.clients[int(MASTER_ROBOTS[alliance.name])]
-            if client:
-                client.run_challenge(code)
-            STUDENT_DECODE_TIMER.start_timer(CONSTANTS.STUDENT_DECODE_TIME)
-            TIMER_DICTIONARY[l_b].start_timer(CONSTANTS.COOLDOWN)
-            lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.LAUNCH_BUTTON_TIMER_START, msg)
-    except Exception as exc:
-        log(exc)
-
-def auto_launch_button_triggered(args):
-    """trigger automatic launch button"""
-    ##  mark button as dirty, sent to sc (both things)
-    ## Isn't this already done in auto_apply_code?
-    try:
-        alliance = ALLIANCES[args['alliance']]
-        button = args["button"]
-        temp_str = alliance.name + "_" + str(button)
-        if not BUTTONS[temp_str]:
-            msg = {"alliance": alliance.name, "button": button}
-            code = next_code()
-            client = clients.clients[int(MASTER_ROBOTS[alliance.name])]
-            if client:
-                client.run_challenge(code, timeout=1)
-
-            STUDENT_DECODE_TIMER.start_timer(CONSTANTS.STUDENT_DECODE_TIME)
-            BUTTONS[temp_str] = True
-            msg = {"alliance": alliance.name, "button": button}
-            lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.LAUNCH_BUTTON_TIMER_START, msg)
-    except Exception as exc:
-        log(exc)
-
-
 def final_score(args):
     '''
     send shepherd the final score, send score to scoreboard
@@ -569,15 +366,6 @@ def final_score(args):
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE, msg)
     msg = {"alliance": ALLIANCE_COLOR.BLUE, "amount": blue_final}
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE, msg)
-
-
-def overdrive_triggered(args):
-    """Trigger Overdrive"""
-    size = random.choice(CONSTANTS.CRATE_SIZES)
-    msg = {"size": size}
-    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.OVERDRIVE_START, msg)
-    print("overdrive is active for the next 30 seconds for "+size+" size crates.")
-    audio.play_horn()
 
 def set_connections(args):
     """Set connections"""
@@ -614,37 +402,15 @@ SETUP_FUNCTIONS = {
     SHEPHERD_HEADER.SETUP_MATCH: to_setup,
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
     SHEPHERD_HEADER.GET_MATCH_INFO : get_match,
-    SHEPHERD_HEADER.START_NEXT_STAGE: to_perk_selection
-}
-
-PERK_SELECTION_FUNCTIONS = {
-    SHEPHERD_HEADER.RESET_MATCH : reset,
-    SHEPHERD_HEADER.APPLY_PERKS: apply_perks,
-    SHEPHERD_HEADER.MASTER_ROBOT: set_master_robot,
-    SHEPHERD_HEADER.STAGE_TIMER_END: to_auto_wait,
-    SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
-    SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections
-}
-
-AUTO_WAIT_FUNCTIONS = {
-    SHEPHERD_HEADER.RESET_MATCH : reset,
-    SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
-    SHEPHERD_HEADER.APPLY_PERKS: apply_perks,
-    SHEPHERD_HEADER.MASTER_ROBOT: set_master_robot,
-    SHEPHERD_HEADER.CODE_APPLICATION : auto_apply_code,
-    SHEPHERD_HEADER.GET_SCORES : get_score,
-    SHEPHERD_HEADER.START_NEXT_STAGE : to_auto,
-    SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
-    SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections
+    SHEPHERD_HEADER.START_NEXT_STAGE: to_auto
 }
 
 AUTO_FUNCTIONS = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.STAGE_TIMER_END : to_wait,
-    SHEPHERD_HEADER.LAUNCH_BUTTON_TRIGGERED : auto_launch_button_triggered,
-    SHEPHERD_HEADER.CODE_APPLICATION : auto_apply_code,
+    #SHEPHERD_HEADER.CODE_APPLICATION : auto_apply_code,
     SHEPHERD_HEADER.ROBOT_OFF : disable_robot,
-    SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
+    #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
     SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections
 
@@ -661,13 +427,10 @@ WAIT_FUNCTIONS = {
 
 TELEOP_FUNCTIONS = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
-    SHEPHERD_HEADER.STAGE_TIMER_END : end_teleop,
-    SHEPHERD_HEADER.LAUNCH_BUTTON_TRIGGERED : launch_button_triggered,
-    SHEPHERD_HEADER.CODE_APPLICATION : apply_code,
+    SHEPHERD_HEADER.STAGE_TIMER_END : to_end,
+    #SHEPHERD_HEADER.CODE_APPLICATION : apply_code,
     SHEPHERD_HEADER.ROBOT_OFF : disable_robot,
-    SHEPHERD_HEADER.END_EXTENDED_TELEOP : to_end,
-    SHEPHERD_HEADER.TRIGGER_OVERDRIVE : overdrive_triggered,
-    SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
+    #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
     SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections
 
@@ -690,7 +453,6 @@ END_FUNCTIONS = {
 
 GAME_STATE = STATE.END
 GAME_TIMER = Timer(TIMER_TYPES.MATCH)
-EXTENDED_TELEOP_TIMER = Timer(TIMER_TYPES.EXTENDED_TELEOP)
 
 MATCH_NUMBER = -1
 ALLIANCES = {ALLIANCE_COLOR.GOLD: None, ALLIANCE_COLOR.BLUE: None}
@@ -703,17 +465,10 @@ LAST_HEADER = None
 ###########################################
 BUTTONS = {'gold_1': False, 'gold_2': False, 'blue_1': False, 'blue_2': False}
 STARTING_SPOTS = ["unknown", "unknown", "unknown", "unknown"]
-LAUNCH_BUTTON_TIMER_GOLD_1 = Timer(TIMER_TYPES.LAUNCH_BUTTON)
-LAUNCH_BUTTON_TIMER_GOLD_2 = Timer(TIMER_TYPES.LAUNCH_BUTTON)
-LAUNCH_BUTTON_TIMER_BLUE_1 = Timer(TIMER_TYPES.LAUNCH_BUTTON)
-LAUNCH_BUTTON_TIMER_BLUE_2 = Timer(TIMER_TYPES.LAUNCH_BUTTON)
-TIMER_DICTIONARY = {'gold_1': LAUNCH_BUTTON_TIMER_GOLD_1, 'gold_2': LAUNCH_BUTTON_TIMER_GOLD_2,
-                    'blue_1': LAUNCH_BUTTON_TIMER_BLUE_1, 'blue_2': LAUNCH_BUTTON_TIMER_BLUE_2}
 MASTER_ROBOTS = {ALLIANCE_COLOR.BLUE: None, ALLIANCE_COLOR.GOLD: None}
 
 STUDENT_DECODE_TIMER = Timer(TIMER_TYPES.STUDENT_DECODE)
 
-OVERDRIVE_TIMER = Timer(TIMER_TYPES.OVERDRIVE_DELAY)
 CODES_USED = []
 
 #nothing

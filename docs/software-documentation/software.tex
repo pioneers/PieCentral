@@ -1,6 +1,7 @@
 \documentclass[12pt]{book}
 
 \usepackage[toc]{glossaries}
+\usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{tikz}
@@ -77,59 +78,6 @@
   \maketitle
   \tableofcontents
 
-  \chapter{Preface}
-
-  \section{Who is This Document for?}
-
-  This documentation is targeted for new PiE developers who will be delving into the gory details of the PiE kit to make improvements.
-  If you're just trying to use the kit and API (for example, getting the robot to drive), you should consult the user guide on the website instead.
-
-  \section{Acknowledgements}
-
-  The modern PiE software stack would not have been possible without the blood, sweat, and tears of many talented individuals (in no particular order):
-  \begin{itemize}
-    \item
-      Aravind Kumaraguru (EECS '17): Year 9 Director of Engineering.
-    \item
-      Doug Hutchings (MechE '15): Key Hibike contributor.
-    \item
-      Brandon Lee (EECS '19): Year 10 Director of Engineering. Key Runtime and Shepherd contributor.
-    \item
-      Bob Dai (CS '19): Year 10 software coordinator. Key Runtime and Shepherd contributor.
-    \item
-      Sam Zhou (CS '19): Year 10 Shepherd Projet Manager (PM).
-    \item
-      Charles Hong (EECS): Year 11 Shepherd PM.
-    \item
-      Matt Harrigan (EECS): Year 11 Shepherd PM.
-    \item
-      Kevin Ma (EECS '18): Year 9 and 10 Dawn PM.
-    \item
-      Edward Wang (EECS): Year 11 Dawn PM.
-    \item
-      Lawrence Chen (EECS): Year 11 Dawn PM.
-    \item
-      Brose Johnstone (CS '19): Year 10 Runtime PM.
-      Original author of the \textsc{Robot Plumbing Guide}.
-    \item
-      Tiffany Chien (CS '19): Year 10 Runtime PM.
-    \item
-      Andrew Lou (CS): Year 11 Runtime PM.
-    \item
-      James Fong (CS): Year 11 Runtime PM.
-    \item
-      Arjun Sridhar (EECS '18): Year 9 DevOps PM and Year 10 Dawn PM.
-    \item
-      Ravi Mandla ('19): Year 11 DevOps PM.
-    \item
-      Jonathan Lee (EECS '19): Year 11 Director of Engineering.
-      Year 10 DevOps PM.
-      Primary author of this documentation.
-      Please direct questions, complaints, and other feedback to him.\footnote{\url{jonathanlee@pioneers.berkeley.edu}}
-    \item
-      Countless others.
-  \end{itemize}
-
   \mainmatter
 
   \chapter{Introduction}
@@ -153,8 +101,8 @@
     \item
       \textbf{The kit should handle faults gracefully.}
       Errors are a fact of life (and perhaps even more so for robotics, where we need to interact with the physical world).
-      Hardware will break\footnote{An Ethernet cable actually failed during Scrimmage 2019.} and code will contain bugs.
-      However, with careful design and automated monitoring, we can know when components break and prevent failures from cascading.\footnote{This actually happened: a robot that had an infinite loop crashed field control by blocking the other robots from starting. This is \textbf{not} how to write fault-tolerant software.}
+      Hardware will break and code will contain bugs.
+      However, with careful design and automated monitoring, we can know when components break and prevent failures from cascading.
 
     \item
       \textbf{The kit should be backwards-compatible.}
@@ -180,21 +128,24 @@
 
   \chapter{Runtime}
 
-  \textsc{Runtime} is a Python application that runs on each robot to manage Smart Sensors and the robot's state.
-  This entails:
-  \begin{itemize}
-    \item Accepting \gls{gamepad}
-  \end{itemize}
+  \textsc{Runtime} is a Python application that runs on each robot to manage sensors and actuators, communicate with the field, and execute student code.
 
   \section{Architecture}
 
   \begin{figure}[!htbp]
     \centering
     \begin{tikzpicture}
-      \node at (0, 0) {Networking};
-      % \node at
+      \node[inner sep=8pt, fill=blue!10] (shepherd) at (0, 2) {Shepherd};
+      \node[inner sep=8pt, fill=blue!10] (dawn) at (0, 0) {Dawn};
+      \node[inner sep=8pt, fill=blue!10] (student) at (0, -3) {Student};
+      \node[inner sep=8pt, fill=green!10] (control) at (3.5, 0) {Control};
+      \node[inner sep=8pt, fill=green!10] (devices) at (6, -3) {Device};
+
+      \draw[<->, thick] (student.north) -- (dawn.south) node[midway, fill=white] {Screen \& Gamepad};
+      \draw[<->, thick] (dawn.east) -- (control.west) node[midway, above] {Wifi};
+      \draw[<->, thick] (shepherd.east) -| (control.north);
     \end{tikzpicture}
-    \caption{Runtime architecture.}
+    \caption{High-level Runtime architecture.}
     \label{fig:runtime-architecture}
   \end{figure}
 

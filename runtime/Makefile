@@ -1,18 +1,38 @@
 .PHONY: build clean install artifacts-install lint test artifacts
 
+USER=pioneers
+PROJECT=runtime
+NAME=$(USER)/$(PROJECT)
+BUILD_FLAGS=
+
+buildbase:
+	docker build $(BUILD_FLAGS) --target base -t $(NAME):base .
+
+buildprod:
+	docker build $(BUILD_FLAGS) --quiet --target production -t $(NAME):latest --force-rm --pull .
+
+clean:
+	docker image rm $(shell docker images --filter="reference=pioneers/runtime:*" -q) --force
+
+export: buildprod
+	docker save $(NAME):production | gzip --best > $(PROJECT)-production.tar.gz
+
+run: buildbase
+	docker image rm $(shell docker image ls --filter reference=$(NAME):development -q)
+	docker build --target development -t $(NAME):development .
+	docker run --rm -it $(NAME):development
+
 build:
 	python setup.py build_ext --inplace
 
 package:
 	python setup.py sdist bdist_wheel
 
-clean:
-	rm -f runtime/*.cpython-*.so runtime/*.c
-	rm -f runtime/packet.cpp runtime/buffer.cpp
+#clean:
+#	rm -f runtime/*.cpython-*.so runtime/*.c
+#	rm -f runtime/packet.cpp runtime/buffer.cpp
 
 install:
-	cd build-deps && wget https://github.com/google/protobuf/releases/download/v3.2.0/protoc-3.2.0-linux-x86_64.zip
-	cd build-deps && unzip protoc-3.2.0-linux-x86_64.zip
 	pip3 install pipenv
 	pipenv install --dev
 
@@ -20,8 +40,7 @@ artifacts-install:
 	$(nop)
 
 lint:
-	pylint runtime/statemanager.py
-#	pylint --load-plugins=$(shell pwd)/lints ansible.py runtime.py statemanager.py studentapi.py runtimeUtil.py fakedawn.py hibikesimulator.py
+	$(nop)
 
 test:
 	pipenv run pytest \
@@ -30,9 +49,6 @@ test:
 		tests/test_asyncutil.py \
 		tests/test_shm.py \
 		tests/test_storeservice.py \
-
-# 	tests/test_executor.py
-#	cd ../DevOps/frankfurter/scripts/update && ./create_update -p
 
 artifacts:
 	cp ../DevOps/frankfurter/build/*.tar.gz ../artifacts

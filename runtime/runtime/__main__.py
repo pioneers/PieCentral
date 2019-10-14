@@ -9,7 +9,7 @@ import click
 import yaml
 
 import runtime
-import runtime.engine
+import runtime.supervisor
 
 
 def get_module_path(filename: str) -> str:
@@ -26,14 +26,14 @@ def cli(**options):
 @cli.command(context_settings={'max_content_width': 800})
 @click.option('-l', '--log-level', default='INFO', help='Log level emitted',
               type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']))
+@click.option('-p', '--log-pretty', is_flag=True, help='Pretty-print log records')
 @click.option('-c', '--config-file',
               type=click.Path(dir_okay=False, exists=True),
               default=get_module_path('config/default.yaml'),
               help='Configuration file')
 def run(**options):
     """ Execute runtime. """
-    with runtime.engine.Runtime(**options) as engine:
-        asyncio.run(engine.main())
+    asyncio.run(runtime.supervisor.Runtime(**options).main())
 
 
 @cli.command()

@@ -2,4 +2,4 @@
 
 # rtdev -- Run runtime in development mode.
 
-python -m runtime -l DEBUG | python -m runtime.journal
+python -m runtime run --log-level DEBUG --log-pretty

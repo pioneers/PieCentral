@@ -8,7 +8,7 @@ services:
         address: tcp://127.0.0.1:6000
       journal_in:
         socket_type: sub
-        address: unix:///tmp/journal.sock
+        address: ipc:///tmp/journal.sock
       journal_out:
         socket_type: pub
         address: tcp://127.0.0.1:6010
@@ -17,14 +17,14 @@ services:
         frontend: journal_in
         backend: journal_out
 
-  # executor:
-  #   sockets:
-  #     journal:
-  #       type: pub
-  #       connect: unix:///tmp/journal.sock
-  #
-  # device:
-  #   sockets:
-  #     journal:
-  #       type: pub
-  #       connect: unix:///tmp/journal.sock
+  executor:
+    sockets:
+      journal:
+        socket_type: pub
+        address: ipc:///tmp/journal.sock
+
+  device:
+    sockets:
+      journal:
+        socket_type: pub
+        address: ipc:///tmp/journal.sock

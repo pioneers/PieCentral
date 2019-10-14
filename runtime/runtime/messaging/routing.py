@@ -8,6 +8,7 @@ import collections
 import dataclasses
 import functools
 import enum
+import math
 from typing import Callable, Set, Tuple
 
 import backoff
@@ -20,11 +21,13 @@ from runtime.monitoring.retry import Proxy, Policies
 
 
 def make_socket(context: Context, socket_type: int, address: str,
-                send_timeout: int = 5000, recv_timeout: int = 5000):
+                send_timeout=float('inf'), recv_timeout=float('inf')):
     """ Initialize a raw ZMQ socket. """
     socket = context.socket(socket_type)
-    socket.setsockopt(zmq.SNDTIMEO, send_timeout)
-    socket.setsockopt(zmq.RCVTIMEO, recv_timeout)
+    if not math.isinf(send_timeout):
+        socket.setsockopt(zmq.SNDTIMEO, int(send_timeout))
+    if not math.isinf(recv_timeout):
+        socket.setsockopt(zmq.RCVTIMEO, int(recv_timeout))
 
     if socket_type in (zmq.PUB, zmq.REP, zmq.PUSH):
         socket.bind(address)
@@ -35,20 +38,24 @@ def make_socket(context: Context, socket_type: int, address: str,
     return socket
 
 
-def make_retryable_socket(socket_factory: Callable, logger, policies: Policies = None):
-    """
-    References::
-        * http://zguide.zeromq.org/py:lpclient
-    """
-    if policies is None:
-        default_policy = functools.partial(
-            backoff.on_exception,
-            backoff.constant,
-            zmq.ZMQError,
-            max_tries=10,
-        )
-        policies = collections.defaultdict(lambda: default_policy)
-    return Proxy(socket_factory, logger, policies, lambda socket: socket.close(linger=0))
+class RetryableSocket:
+    pass
+
+
+# def make_retryable_socket(socket_factory: Callable, logger, policies: Policies = None):
+#     """
+#     References::
+#         * http://zguide.zeromq.org/py:lpclient
+#     """
+#     if policies is None:
+#         default_policy = functools.partial(
+#             backoff.on_exception,
+#             backoff.constant,
+#             zmq.ZMQError,
+#             max_tries=10,
+#         )
+#         policies = collections.defaultdict(lambda: default_policy)
+#     return Proxy(socket_factory, logger, policies, lambda socket: socket.close(linger=0))
 
 
 @dataclasses.dataclass

@@ -2,9 +2,11 @@
 
 \usepackage[toc]{glossaries}
 \usepackage[margin=1in]{geometry}
+\usepackage{csquotes}
 \usepackage{hyperref}
 \usepackage{listings}
 \usepackage{tikz}
+\usepackage[normalem]{ulem}
 \usepackage{url}
 
 \hypersetup{
@@ -132,6 +134,77 @@
 
   \section{Architecture}
 
+  In essence, Runtime is a distributed system, meaning it consists of a decentralized set of processes.
+  While this increases the complexity of coordination and data sharing, there are numerous advantages to this architecture:
+  \begin{itemize}
+  \item
+    \textbf{Abstraction:} Each process performs a limited number of tasks and is easy to reason about.
+  \item
+    \textbf{Isolation:} Failures in one process are less likely to spill over into others (in other words, each process has as small as ``blast radius'' as possible).
+    Each process can also be restarted independently.
+  \item
+    \textbf{Parallelism:} Many Python implementations implement a Global Interpreter Lock (GIL) for memory management reasons, meaning a multithreaded program cannot actually run on multiple physical cores simultaenously.
+    Multiprocessing does not face this issue, since each process runs its own Python interpreter.
+  \end{itemize}
+
+  \subsection{Services}
+
+  The basic unit of execution in Runtime is a service, which consists of one or more processes.
+  Although rare, a stateless service might have more than one process to speed up the execution of CPU-bound tasks.
+  The services and their processes are supervised by the the Runtime engine.
+
+  Almost all the main responsibilities of Runtime are siloed in services, whereas the engine is purposely designed to only manage services.
+  Because of the engine has minimal responsibility, it can be made very reliable.
+  A failure within the engine itself would indicate major issues.
+
+  Currently, the services Runtime has include:
+  \begin{itemize}
+  \item \texttt{broker}: Manages network forwarding.
+  \item \texttt{executor}: Executes student code and stores game state.
+  \item \texttt{devices}: Manages device events and Smart Sensor packet encoding/decoding.
+  \end{itemize}
+
+  \subsection{Communication}
+
+  Almost all communication in Runtime is accomplished with \href{https://zeromq.org/}{ZeroMQ} (ZMQ), a popular networking library.
+  ZMQ is used to build complex network topologies at a higher level of abstraction than raw sockets (for example, implementing a publish-subscribe pattern).
+  It is performant, has bindings in many languages, and supports a variety of transports.
+
+  \begin{displayquote}
+    Networks \sout{Ogres} are like onions.
+  \end{displayquote}
+
+  \begin{figure}[!ht]
+    \centering
+    \begin{tikzpicture}
+      \node[inner sep=6pt, fill=blue!10] (tcp-send) at (-4, 0) {TCP/UDP Packets};
+      \node[inner sep=6pt, fill=blue!10] (tcp-send) at (4, 0) {TCP/UDP Packets};
+      \node[inner sep=6pt, fill=blue!10] (tcp-send) at (-4, 2) {Bytes};
+      \node[inner sep=6pt, fill=blue!10] (tcp-send) at (4, 2) {Bytes};
+      \node[inner sep=6pt, fill=blue!10] (tcp-send) at (-4, 4) {JSON Object};
+      \node[inner sep=6pt, fill=blue!10] (tcp-send) at (4, 4) {JSON Object};
+    \end{tikzpicture}
+    \caption{Network stack}
+    \label{fig:network-stack}
+  \end{figure}
+
+  % All communication within and outside of Runtime can be categorized as one of the following:
+  % \begin{itemize}
+  % \item
+  %   Reliable streams.
+  %   Using TCP, PGM, or Unix sockets, these channels carry messages that should be
+  %
+  % \item
+  %   Datagrams.
+  %   Using UDP, these channels carry data
+  %
+  % \item
+  %   Shared memory.
+  % \end{itemize}
+
+  The broker sits on the border between all other Runtime services and the ``outside world'' (for example, Dawn and Shepherd).
+  The advantage of having a broker is
+
   \begin{figure}[!htbp]
     \centering
     \begin{tikzpicture}
@@ -149,32 +222,34 @@
     \label{fig:runtime-architecture}
   \end{figure}
 
-  \section{Networking}
+  \section{Smart Sensor Protocol}
 
-  Control pub-sub
-  \begin{itemize}
-    \item \texttt{}
-  \end{itemize}
-
-  First and foremost, for
-
-  \section{Journal}
-
-  Logs, metrics, and monitors are the tools with which we pinpoint failures and measure performance.
-  In a toy program, you might add print statements to trace the flow of execution and watch the data as it is transformed.
-  However, for a system as complex and with as many modules as Runtime, we need a more rigorous approach for collecting diagnostic information---this is the purpose of the Runtime \texttt{journal} module.
-
-  The journal is essentially a structured logging layer built on top of Python's built-in \texttt{logging} module.\footnote{Like \href{https://github.com/trentm/node-bunyan}{\texttt{node-bunyan}}.}
-  However, unlike conventional logs, which are human-readable strings of text, \href{https://stackify.com/what-is-structured-logging-and-why-developers-need-it/}{structured logs} are written in machine-readable formats like \href{https://www.json.org/}{JSON}.
-  This is useful because
-
-  \begin{lstlisting}[gobble=4]
-    python -m runtime | python -m runtime.journal
-  \end{lstlisting}
-
-  \section{Devices}
-
-  \section{Testing}
+  % \section{Networking}
+  %
+  % Control pub-sub
+  % \begin{itemize}
+  %   \item \texttt{}
+  % \end{itemize}
+  %
+  % First and foremost, for
+  %
+  % \section{Journal}
+  %
+  % Logs, metrics, and monitors are the tools with which we pinpoint failures and measure performance.
+  % In a toy program, you might add print statements to trace the flow of execution and watch the data as it is transformed.
+  % However, for a system as complex and with as many modules as Runtime, we need a more rigorous approach for collecting diagnostic information---this is the purpose of the Runtime \texttt{journal} module.
+  %
+  % The journal is essentially a structured logging layer built on top of Python's built-in \texttt{logging} module.\footnote{Like \href{https://github.com/trentm/node-bunyan}{\texttt{node-bunyan}}.}
+  % However, unlike conventional logs, which are human-readable strings of text, \href{https://stackify.com/what-is-structured-logging-and-why-developers-need-it/}{structured logs} are written in machine-readable formats like \href{https://www.json.org/}{JSON}.
+  % This is useful because
+  %
+  % \begin{lstlisting}[gobble=4]
+  %   python -m runtime | python -m runtime.journal
+  % \end{lstlisting}
+  %
+  % \section{Devices}
+  %
+  % \section{Testing}
 
   \chapter{DevOps}
 

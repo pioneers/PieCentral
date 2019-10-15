@@ -5,21 +5,7 @@ from runtime.service.base import Service
 import aio_msgpack_rpc as rpc
 
 
-class Protocol(asyncio.DatagramProtocol):
-    """
-    Receives and parses commands from Dawn.
-    """
-    def connection_made(self, transport):
-        self.transport = transport
 
-    def datagram_received(self, data):
-        pass
-
-    def error_received(self, exc):
-        pass
-
-    def connection_lost(self, exc):
-        pass
 
 
 class ControlService(Service):

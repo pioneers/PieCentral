@@ -6,12 +6,15 @@ services:
       fieldcontrol:
         socket_type: sub
         address: tcp://127.0.0.1:6000
+        bind: true
       journal_in:
         socket_type: sub
         address: ipc:///tmp/journal.sock
+        bind: true
       journal_out:
         socket_type: pub
         address: tcp://127.0.0.1:6010
+        bind: true
     proxies:
       journal:
         frontend: journal_in
@@ -22,9 +25,18 @@ services:
       journal:
         socket_type: pub
         address: ipc:///tmp/journal.sock
+      device:
+        socket_type: sub
+        address: ipc:///tmp/device.sock
+    variables:
+      execution_period: 0.05  # 20 Hz
 
   device:
     sockets:
       journal:
         socket_type: pub
         address: ipc:///tmp/journal.sock
+      device:
+        socket_type: pub
+        address: ipc:///tmp/device.sock
+        bind: true

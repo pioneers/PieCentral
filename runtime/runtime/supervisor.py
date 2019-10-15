@@ -88,11 +88,12 @@ class Runtime:
             level=self.log_level,
         )
 
+        # FIXME: logging broken for Python 3.8
         processors = [
-            structlog.stdlib.filter_by_level,
-            structlog.stdlib.add_logger_name,
+            # structlog.stdlib.filter_by_level,
+            # structlog.stdlib.add_logger_name,
             structlog.stdlib.add_log_level,
-            structlog.stdlib.PositionalArgumentsFormatter(),
+            # structlog.stdlib.PositionalArgumentsFormatter(),
             structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
@@ -110,7 +111,7 @@ class Runtime:
         structlog.configure(
             processors=processors,
             context_class=dict,
-            logger_factory=structlog.stdlib.LoggerFactory(),
+            # logger_factory=structlog.stdlib.LoggerFactory(),
             wrapper_class=structlog.stdlib.BoundLogger,
             cache_logger_on_first_use=True,
         )

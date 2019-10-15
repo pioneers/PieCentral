@@ -18,9 +18,12 @@ export: buildprod
 	docker save $(NAME):production | gzip --best > $(PROJECT)-production.tar.gz
 
 run: buildbase
-	docker image rm $(shell docker image ls --filter reference=$(NAME):development -q)
+	docker image rm $(shell docker image ls --filter reference=$(NAME):development -q) --force
 	docker build --target development -t $(NAME):development .
 	docker run --rm -it $(NAME):development
+
+shell:
+	docker run --rm -it $(NAME):development /bin/ash
 
 build:
 	python setup.py build_ext --inplace

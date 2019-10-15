@@ -3,7 +3,7 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
 
 [packages]
 click = "~=7.0"
@@ -11,7 +11,6 @@ pyserial = "~=3.4"
 pyudev = "~=0.21"
 pyyaml = "~=3.13"
 pyserial-asyncio = "*"
-# aiofiles = "*"
 # uvloop = "*"
 yappi = "*"
 cobs = "~=1.1"
@@ -20,10 +19,11 @@ msgpack = "*"
 schema = "~=0.7"
 backoff = "*"
 colorama = "*"
-pyzmq = "~=18.1"
+# pyzmq = "~=18.1"
 aio-msgpack-rpc = "*"
 structlog = "*"
 aiofiles = "*"
+cachetools = "*"
 
 [dev-packages]
 cython = "~=0.29"

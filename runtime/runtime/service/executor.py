@@ -5,23 +5,6 @@ import dataclasses
 from runtime.service.base import Service
 
 
-class Protocol(asyncio.DatagramProtocol):
-    """
-    Receives and parses commands from Dawn.
-    """
-    def connection_made(self, transport):
-        self.transport = transport
-
-    def datagram_received(self, data):
-        pass
-
-    def error_received(self, exc):
-        pass
-
-    def connection_lost(self, exc):
-        pass
-
-
 class Mode(enum.IntEnum):
     IDLE = enum.auto()
     AUTO = enum.auto()
@@ -55,5 +38,5 @@ class ExecutorService(Service):
                 await self.raw_sockets['journal'].send(b'executor')
             await asyncio.sleep(1)
             i += 1
-        # while True:
-        #     pass
+        from runtime.util.exception import EmergencyStopException
+        raise EmergencyStopException()

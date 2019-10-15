@@ -4,30 +4,40 @@ import dataclasses
 import datetime
 from typing import Any, Mapping
 
+from schema import And, Schema, Use, Optional
 import structlog
 import zmq
 from zmq.asyncio import Context, Socket
 
-from runtime.messaging.routing import make_socket
+from runtime.messaging import routing
+
+
+SOCKETS_SCHEMA = Schema(And(Use(dict), {
+    'socket_type': And(Use(str.upper), Use(routing.SOCKET_TYPES.get)),
+    'address': str,
+    Optional('bind', default=False): bool,
+}))
 
 
 @dataclasses.dataclass
 class Service(abc.ABC):
-    config: Any
     zmq_context: Context = dataclasses.field(default_factory=Context)
-    raw_sockets: Mapping[str, Socket] = dataclasses.field(default_factory=dict)
+    connections: Mapping[str, routing.Connection] = dataclasses.field(default_factory=dict)
     logger: structlog.BoundLoggerBase = dataclasses.field(default_factory=structlog.get_logger)
-    shutdown_timeout: datetime.timedelta = datetime.timedelta(seconds=10)
 
-    def __call__(self):
-        asyncio.run(self.bootstrap())
+    def __call__(self, *args, **kwargs):
+        asyncio.run(self.bootstrap(*args, **kwargs))
 
-    async def bootstrap(self):
-        for name, socket_config in self.config['sockets'].items():
-            socket_config['socket_type'] = ({'pub': zmq.PUB, 'sub': zmq.SUB})[socket_config['socket_type']]
-            self.raw_sockets[name] = make_socket(self.zmq_context, **socket_config)
-        await self.main()
+    def create_connections(self, sockets):
+        for name, config in sockets.items():
+            config = SOCKETS_SCHEMA.validate(config)
+            socket = routing.make_socket(**config, context=self.zmq_context)
+            self.connections[name] = routing.Connection(socket)
+
+    async def bootstrap(self, *, sockets=None, proxies=None, config=None):
+        self.create_connections(sockets)
+        await self.main(config)
 
     @abc.abstractmethod
-    async def main(self):
+    async def main(self, config):
         pass

@@ -38,8 +38,8 @@ class ServiceSupervisor:
 
     @backoff.on_predicate(backoff.constant, interval=1, max_tries=5, logger=LOGGER)
     async def spawn(self, name: str, service: Service, *args, **kwargs):
-        subprocess = aioprocessing.AioProcess(name=name, target=service,
-                                              *args, **kwargs, daemon=True)
+        subprocess = aioprocessing.AioProcess(name=name, target=service, *args,
+                                              **kwargs, daemon=True)
         subprocess.start()
         self.subprocesses[subprocess.pid] = subprocess
         LOGGER.debug('Started subprocess', name=name)
@@ -68,8 +68,8 @@ class ServiceSupervisor:
         for name, config in services.items():
             replicas = config.get('replicas', 1)
             for replica in range(replicas):
-                service = SERVICES[name](config)
-                subprocesses.append(self.spawn(f'{name}-{replica}', service))
+                service = SERVICES[name]()
+                subprocesses.append(self.spawn(f'{name}-{replica}', service, **config))
         await asyncio.wait(subprocesses, return_when=asyncio.FIRST_COMPLETED)
 
 
@@ -88,12 +88,11 @@ class Runtime:
             level=self.log_level,
         )
 
-        # FIXME: logging broken for Python 3.8
         processors = [
-            # structlog.stdlib.filter_by_level,
-            # structlog.stdlib.add_logger_name,
+            structlog.stdlib.filter_by_level,
+            structlog.stdlib.add_logger_name,
             structlog.stdlib.add_log_level,
-            # structlog.stdlib.PositionalArgumentsFormatter(),
+            structlog.stdlib.PositionalArgumentsFormatter(),
             structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
@@ -111,7 +110,7 @@ class Runtime:
         structlog.configure(
             processors=processors,
             context_class=dict,
-            # logger_factory=structlog.stdlib.LoggerFactory(),
+            logger_factory=structlog.stdlib.LoggerFactory(),
             wrapper_class=structlog.stdlib.BoundLogger,
             cache_logger_on_first_use=True,
         )

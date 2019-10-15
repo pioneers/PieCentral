@@ -1,23 +1,21 @@
 """
 Low-level routing module for building networking topologies using ZMQ.
 
-The purpose of this module is to deliver packets of bytes to various agents.
+The purpose of this module is to deliver packets of bytes between two endpoints.
 """
 
-import collections
 import dataclasses
-import functools
-import enum
 import math
-from typing import Callable, Set, Tuple
 
-import backoff
 import msgpack
-import structlog
 import zmq
 from zmq.asyncio import Context, Socket
 
-from runtime.monitoring.retry import Proxy, Policies
+
+SOCKET_TYPES = {
+    'SUB': zmq.SUB,
+    'PUB': zmq.PUB,
+}
 
 
 def make_socket(context: Context, socket_type: int, address: str, bind=False,
@@ -36,26 +34,6 @@ def make_socket(context: Context, socket_type: int, address: str, bind=False,
     if socket_type == zmq.SUB:
         socket.subscribe(b'')
     return socket
-
-
-class RetryableSocket:
-    pass
-
-
-# def make_retryable_socket(socket_factory: Callable, logger, policies: Policies = None):
-#     """
-#     References::
-#         * http://zguide.zeromq.org/py:lpclient
-#     """
-#     if policies is None:
-#         default_policy = functools.partial(
-#             backoff.on_exception,
-#             backoff.constant,
-#             zmq.ZMQError,
-#             max_tries=10,
-#         )
-#         policies = collections.defaultdict(lambda: default_policy)
-#     return Proxy(socket_factory, logger, policies, lambda socket: socket.close(linger=0))
 
 
 @dataclasses.dataclass

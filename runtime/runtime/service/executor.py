@@ -22,21 +22,15 @@ class ExecutorService(Service):
     alliance: Alliance = None
     mode: Mode = None
 
-    async def set_alliance(self, alliance: Alliance):
+    async def set_alliance(self, alliance: Alliance = None):
         async with self.access:
             self.alliance = alliance
 
-    async def change_mode(self, alliance: Alliance):
+    async def change_mode(self, mode: Mode = None):
         async with self.access:
             pass  # TODO
 
-    async def main(self):
-        i = 0
-        while i < 5:
-            async with self.access:
-                self.logger.debug('Sending ping to journal.')
-                await self.raw_sockets['journal'].send(b'executor')
+    async def main(self, config):
+        while True:
+            self.logger.info('Executor firing')
             await asyncio.sleep(1)
-            i += 1
-        from runtime.util.exception import EmergencyStopException
-        raise EmergencyStopException()

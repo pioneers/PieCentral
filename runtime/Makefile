@@ -8,6 +8,9 @@ BUILD_FLAGS=
 buildbase:
 	docker build $(BUILD_FLAGS) --target base -t $(NAME):base .
 
+builddev:
+	docker build --target development -t $(NAME):development .
+
 buildprod:
 	docker build $(BUILD_FLAGS) --quiet --target production -t $(NAME):latest --force-rm --pull .
 
@@ -17,12 +20,13 @@ clean:
 export: buildprod
 	docker save $(NAME):production | gzip --best > $(PROJECT)-production.tar.gz
 
-run: buildbase
-	docker image rm $(shell docker image ls --filter reference=$(NAME):development -q) --force
-	docker build --target development -t $(NAME):development .
+run: builddev
 	docker run --rm -it $(NAME):development
 
-shell:
+runprod: builddev
+	docker run --rm -it $(NAME):development /usr/bin/env pipenv run python3 -m runtime run
+
+shell: buildbase
 	docker run --rm -it $(NAME):development /bin/ash
 
 build:
@@ -45,13 +49,16 @@ artifacts-install:
 lint:
 	$(nop)
 
-test:
-	pipenv run pytest \
-		runtime/journal.py \
-		runtime/util.py \
-		tests/test_asyncutil.py \
-		tests/test_shm.py \
-		tests/test_storeservice.py \
+test: buildbase
+	docker run --rm -it $(NAME):development python3 -m doctest \
+		runtime/util/exception.py \
+		runtime/service/device.py
+	# pipenv run pytest \
+	# 	runtime/journal.py \
+	# 	runtime/util.py \
+	# 	tests/test_asyncutil.py \
+	# 	tests/test_shm.py \
+	# 	tests/test_storeservice.py \
 
 artifacts:
 	cp ../DevOps/frankfurter/build/*.tar.gz ../artifacts

@@ -28,7 +28,6 @@ LOGGER = structlog.get_logger()
 @dataclasses.dataclass
 class ServiceSupervisor:
     subprocesses: Mapping[int, Any] = dataclasses.field(default_factory=dict)
-    stopped: asyncio.Event = dataclasses.field(default_factory=asyncio.Event)
 
     def __enter__(self):
         return self
@@ -37,8 +36,7 @@ class ServiceSupervisor:
         for subprocess in self.subprocesses.values():
             self.terminate(subprocess)
 
-    @backoff.on_predicate(backoff.constant, lambda stopped: stopped,
-                          interval=1, max_tries=5, logger=LOGGER)
+    @backoff.on_predicate(backoff.constant, interval=1, max_tries=5, logger=LOGGER)
     async def spawn(self, name: str, service: Service, *args, **kwargs):
         subprocess = aioprocessing.AioProcess(name=name, target=service,
                                               *args, **kwargs, daemon=True)
@@ -50,7 +48,7 @@ class ServiceSupervisor:
             LOGGER.critical('Received emergency stop', name=name)
             raise EmergencyStopException()
         self.terminate(subprocess)
-        return self.stopped.is_set()
+        del self.subprocesses[subprocess.pid]
 
     def terminate(self, subprocess, terminate_timeout=2):
         subprocess.terminate()

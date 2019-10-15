@@ -20,7 +20,7 @@ from zmq.asyncio import Context, Socket
 from runtime.monitoring.retry import Proxy, Policies
 
 
-def make_socket(context: Context, socket_type: int, address: str,
+def make_socket(context: Context, socket_type: int, address: str, bind=False,
                 send_timeout=float('inf'), recv_timeout=float('inf')):
     """ Initialize a raw ZMQ socket. """
     socket = context.socket(socket_type)
@@ -29,7 +29,7 @@ def make_socket(context: Context, socket_type: int, address: str,
     if not math.isinf(recv_timeout):
         socket.setsockopt(zmq.RCVTIMEO, int(recv_timeout))
 
-    if socket_type in (zmq.PUB, zmq.REP, zmq.PUSH):
+    if bind:
         socket.bind(address)
     else:
         socket.connect(address)

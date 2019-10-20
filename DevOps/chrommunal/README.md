@@ -1,47 +1,69 @@
-# chrommunal
+# Chromebook Setup
 
-chrommunal is a collection of setup scripts written to ease the process of setting up a PiE
-public-use chromebook to run both the Dawn IDE and ubuntu via crouton. Unfortunately, it is more or
-less impossible to totally automate the process, but we attempt to simplify the entire process to
-being only a few steps given in the instructions below.
+Chromebooks come pre-installed with Chrome OS, which is not very developer friendly. To circumnavigate this issue, linux is installed on chromebooks so both staff and students can use them.
 
-## Setup instructions
+PiE currently has 5 Acer R11 Chromebooks (CB5-132T). These chromebooks have baytrail cpu architecture. Linux can be installed on these computers using a script written by MrChromebox. For more information on the options available, visit their [site.](https://www.mrchromebox.tech)
 
-* Switch the chromebook to developer mode. Instructions on how to do this can be found
-  [here](http://www.howtogeek.com/210817/how-to-enable-developer-mode-on-your-chromebook/). Note
-  that the power button on the convertible Acer chromebooks can be found on the right-hand side
-  of the laptop (it's pretty easy to miss).
+## Pre-requisites
+### Enable Developer Mode
+Each chromebook has a slightly different way of enabling developer mode. In general, the most common way is to hit "Esc + refresh + power". Then, turn off OS verification and wait for the changes to take place (could take a while)
+### Removing the hardware lock screw
+This screw only needs to be removed for certain linux installations (see below). The location is different in different chromebooks. In the Acer R11, unscrew the back panel and remove the big screw with the white arrow.
 
-* Open a crosh developer terminal by typing `ctrl+alt+t`, and type `shell` to switch to a real unix
-  shell. From there, copy/paste or type the following command, then hit enter
+## ![write-protect](images/write-protect.png)
 
-  `wget -O - https://raw.githubusercontent.com/pioneers/DevOps/master/chrommunal/setup-chrome.sh | bash`
+## Installation
 
-  * If you get the following error:
-  
-  ```
-  Please specify a username for the primary user: Failed to complete chroot setup. The chroot setup script may be broken. Your chroot is not fully configured. Removing the chroot setup script. You may want to update your chroot again. UID 1000 not found in trusty
-  ``` 
-  
-  run: `sudo sh ~/Downloads/crouton -u -n trusty`
+There are three options for installing linux onto a chromebook:
+1. Dual-boot linux with chrome os, but have chrome os boot first
+2. Dual-boot linux with chrome os, but have linux boot first
+3. Install a linux vm ontop of chrome os
 
-* After the script finishes running, enter the following into the linux terminal that your shell
-  instance was replaced with.
+### Dual-boot linux with chrome os, but have chrome os boot first (**NOT IDEAL**)
 
-  ```wget -O - https://raw.githubusercontent.com/pioneers/DevOps/master/chrommunal/setup-ubuntu.sh | bash```
+This method is the most easy to revert and relatively less involved. The steps include:
+1. Turn off os-verification/enable developer mode in chrome os.
+2. Open a terminal, type `shell` and hit enter
+3. Copy and paste `cd; curl -LO https://mrchromebox.tech/firmware-util.sh && sudo bash firmware-util.sh` and hit enter
+4. Select "Install/Update RW_LEGACY Firmware
+5. After script finishes, plug in a USB drive with some linux image installed and reboot
+6. At the OS Verification screen, hit "Ctrl + l". This should boot up legacy mode and allow the USB drive to be read
+7. Boot linux from the USB and test to make sure this version of linux is compatible with the chromebook (the most common issue is the keyboard doesn't work). If there is some error, try a different linux version.
+8. After confirming linux works, follow the installation instructions on the Desktop
 
-## Usage
+NOTE: After enabling this method, Chrome OS will not run. And, everytime the chromebook is power cycled, the OS Verification screen will always appear first. If "Ctrl + l" is not hit, or OS Verification is re-enabled, Chrome OS will attempt to boot. This causes legacy boot to no longer work, and the chromebook must be reset. Additionally, Chrome OS reserves most of the space on the chromebook for itself, preventing a decently sized partition for linux. And the Chrome OS Partition cannot be resized due to a hardware lock in place.
 
-Now that everything is installed, you can find a short (and probably incomplete) list of things that
-the chromebooks can do below. For all of these commands, we assume that you have already opened up
-a crosh shell using `ctrl+alt+t` and typed `shell` to enter a real unix shell.
+![](images/osverif.jpg)
 
-* `dawn` can be used to open an instance of Dawn within ChromeOS
-* `term` enters the install within the terminal currently open (think of it as ssh-ing in) again
-   within ChromeOS.
-* `ubuntu` switches the GUI entirely to an ubuntu environment. Switching back and forth is possible
-  with `ctrl+alt+shift+<left/right arrow>`.
+### Dual-boot linux with chrome os, but have linux boot first (IDEAL)
 
-## Names
+This method is more involved and not as easy to revert. The steps include:
+1. Remove the hardware lock on the chromebook. To do this, unscrew the back panel of the chromebook and remove it. Then, unscrew the hard lock screw and set aside. Reattach the back panel and re-fasten the screws.
+2. Turn off os-verification/enable developer mode in chrome os
+3. Open a terminal, type `shell` and hit enter
+4. Copy and paste `cd; curl -LO https://mrchromebox.tech/firmware-util.sh && sudo bash firmware-util.sh` and hit enter
+5. Select "Install/Update the BOOT_STUB Firmware"
+6. After script finishes, plug in a USB drive with some linux image installed and reboot
+7. UEFI should boot, followed by linux
+8. Boot linux from the USB and test to make sure this version of linux is compatible with the chromebook (the most common issue is the keyboard doesn't work). If there is some error, try a different linux version
+9. After confirming linux works, follow the installation instructions on the Desktop
 
-All chrommunal laptops will be named after *-creme
+NOTE: Chrome OS will not run anymore with this method. To re-enable chrome os, re-run `cd; curl -LO https://mrchromebox.tech/firmware-util.sh && sudo bash firmware-util.sh` and select Restore Stock BOOT_STUB. This method avoids the legacy boot issues of easily being able to delete the linux partition. And, the chrome partition can be partitioned to give more dedicated storage space to linux.
+
+### Install a linux vm ontop of chrome os (Crouton) (**NOT IDEAL**)
+
+Check the "crouton" directory for instructions of installing Crouton
+
+NOTE: Crouton is considerably slower than the above solutions, and due to how Crouton handles networking, we have been unsuccessful in connecting robots to Dawn running in Crouton.
+
+## Common Errors
+
+### Chrome OS is missing or damaged
+
+If Linux is installed in legacy mode, then it is very easy to re-enable chrome os, causing linux to no longer be able to boot. Additionally, Chrome OS will detect the linux partition and throw up an error, saying that it is damaged. To fix, plug in the Chrome OS SD Card into the laptop. The SD card currently only has software to repair the Acer Chromebook R11.
+
+### Black screen after booting legacy mode
+
+Occasionally a black screen will appear after hitting "Ctrl + L"  and you will only be able to type. Type `live` and hit enter to boot linux.
+
+

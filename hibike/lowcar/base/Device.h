@@ -17,8 +17,8 @@ public:
 	void loop ();
 	
 	//Device-specific read, write, enable, disable functions
-	virtual uint32_t device_write (uint8_t param, uint8_t* data, size_t len);
-	virtual uint8_t device_read (uint8_t param, uint8_t* data, size_t len);
+	virtual uint32_t device_write (uint8_t param, uint8_t *data, size_t len);
+	virtual uint8_t device_read (uint8_t param, uint8_t *data, size_t len);
 	virtual void device_disable ();
 	virtual uint8_t device_enable (); 
 };

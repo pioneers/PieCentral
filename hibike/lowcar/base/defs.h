@@ -22,15 +22,15 @@
 
 //message ID enumerations
 enum class MessageID {
-  PING                    = 0x10,
-  SUBSCRIPTION_REQUEST    = 0x11,
-  SUBSCRIPTION_RESPONSE   = 0x12,
-  DEVICE_READ             = 0x13,
-  DEVICE_WRITE            = 0x14,
-  DEVICE_DATA             = 0x15,
-  DEVICE_DISABLE          = 0x16,
-  HEART_BEAT_REQUEST      = 0x17,
-  HEART_BEAT_RESPONSE     = 0x18,
+  PING                    = 0x00,
+  SUBSCRIPTION_REQUEST    = 0x01,
+  SUBSCRIPTION_RESPONSE   = 0x02,
+  DEVICE_READ             = 0x03,
+  DEVICE_WRITE            = 0x04,
+  DEVICE_DATA             = 0x05,
+  DEVICE_DISABLE          = 0x06,
+  HEARTBEAT_REQUEST      = 0x07,
+  HEARTBEAT_RESPONSE     = 0x08,
 
   ERROR                   = 0xFF,
 };

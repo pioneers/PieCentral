@@ -24,8 +24,8 @@ void Device::loop ()
 	//manage heartbeats
 }
 
-//functions that need to be overriden by specific devices
-virtual uint32_t Device::device_write (uint8_t param, uint8_t* data, size_t len);
-virtual uint8_t Device::device_read (uint8_t param, uint8_t* data, size_t len);
+//functions that need to be overridden by specific devices
+virtual uint32_t Device::device_write (uint8_t param, uint8_t *data, size_t len);
+virtual uint8_t Device::device_read (uint8_t param, uint8_t *data, size_t len);
 virtual void Device::device_disable ();
 virtual uint8_t Device::device_enable ();	

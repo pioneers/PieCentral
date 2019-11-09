@@ -1,17 +1,20 @@
 #include "Device.h"
 
 //Device constructor, fill in parameters
-Device::Device ()
+Device::Device (uint32_t disable_time = 1000, uint32_t heartbeat_delay = 200)
 {
+	//initialize variables
 	msngr = new Messenger();
-	//something something
+	led = new StatusLED();
+	
+	this->disable_time = disable_time;
+	this->heartbeat_delay = heartbeat_delay;
+	this->sub_delay = 0; //default 0 to signal not subscribed
 }
 
 //setup function
 void Device::setup ()
 {
-	//initialize variables
-	//instantiate Messenger
 	//call this device's setup function
 }
 

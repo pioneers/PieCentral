@@ -21,9 +21,9 @@ Messenger::Messenger ()
 }
 
 // TODO: check buffer size
-int Messenger::send_message (MessageID msg_id, message_t *msg, uint16_t params = 0, uint16_t delay = 0, uid_t *uid = NULL)
+Status Messenger::send_message (MessageID msg_id, message_t *msg, uint16_t params = 0, uint16_t delay = 0, uid_t *uid = NULL)
 {
-	format_msg(msg_id, msg, params, delay, uid); //formats msg for heartbeat- and subscription-related messages
+	build_msg(msg_id, msg, params, delay, uid); //build msg for heartbeat- and subscription-related messages
 	
 	size_t msg_len = msg->payload_length + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES + CHECKSUM_BYTES;
     uint8_t data[msg_len];
@@ -40,18 +40,20 @@ int Messenger::send_message (MessageID msg_id, message_t *msg, uint16_t params =
 	
     written = Serial.write(cobs_buf, 2 + cobs_len); //write to serial port
 	
-	return (written == 2 + cobs_len) ? return 0 : return -1;
+	return (written == 2 + cobs_len) ? return Status::SUCCESS : return Status::PROCESS_ERROR;
 }
 
 //TODO: check buffer size
 //TODO: be more specific about errors and maybe define the error types in defs.h
 //reads in data from serial port, if any, and attempts to parse it
 //returns 0 on success with MSG updated with received packet; -1 on malformed packet
-int Messenger::read_message (message_t *msg)
+Status Messenger::read_message (message_t *msg)
 {
-	uint8_t data[MAX_PAYLOAD_SIZE + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES];
-	uint8_t cobs_buf[MAX_PAYLOAD_SIZE + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES + 1]; //for leading zero
-
+	//if nothing to read
+	if (!Serial.available()) {
+		return Status::NO_DATA;
+	}
+	
 	//find the start of packet
 	int last_byte_read = -1;
 	while (Serial.available()) {
@@ -62,16 +64,18 @@ int Messenger::read_message (message_t *msg)
 	}
 
 	if (last_byte_read != 0) { //no start of packet found
-		return -1;
+		return Status::MALFORMED_DATA;
 	}
 	if (Serial.available() == 0 || Serial.peek() == 0) { //no packet length found
-		return -1;
+		return Status::MALFORMED_DATA;
 	}
 	
+	uint8_t data[MAX_PAYLOAD_SIZE + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES];
+	uint8_t cobs_buf[MAX_PAYLOAD_SIZE + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES + 1]; //for leading zero
 	size_t cobs_len = Serial.read();
 	size_t read_len = Serial.readBytesUntil(0x00, (char *)cobs_buf, cobs_len);
 	if (cobs_len != read_len || cobs_decode(data, cobs_buf, cobs_len) < 3) {
-		return -1;
+		return Status::PROCESS_ERROR;
 	}
 	
 	uint8_t messageID = data[0];
@@ -79,21 +83,21 @@ int Messenger::read_message (message_t *msg)
 	uint8_t expected_chk = checksum(data, payload_length + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES);
 	uint8_t received_chk = data[MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES + payload_length];
 	if (received_chk != expected_chk) { //if checksums don't match (no need to empty cobs buffer)
-		return -1;
+		return Status::MALFORMED_DATA;
 	}
 	//copy received data into msg
 	msg->messageID = messageID;
 	msg->payload_length = payload_length;
-	memcpy(msg->payload, &data[MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES], payload_length);
-	return 0;
+	memcpy(msg->payload, &data[MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES], payload_length);
+	return Status::SUCCESS;
 }
 
 //************************************** HELPER FUNCTIONS ************************************//
 
 //expects msg to exist
-//formats the appropriate payload in msg according to msg_id
-//returns -1 if error when appending to payload; 0 on success
-int Messenger::format_msg (MessageID msg_id, message_t *msg, uint16_t params = 0, uint16_t delay = 0, uid_t *uid = NULL)
+//builds the appropriate payload in msg according to msg_id, or doesn't do anything if msg should already be built
+//returns Status to report on success/failure
+Status Messenger::build_msg (MessageID msg_id, message_t *msg, uint16_t params = 0, uint16_t delay = 0, uid_t *uid = NULL)
 {
 	int status = 0;
 	if (msg_id == MessageID::HEARTBEAT_REQUEST) {
@@ -116,7 +120,7 @@ int Messenger::format_msg (MessageID msg_id, message_t *msg, uint16_t params = 0
 	    status += append_payload(&msg, (uint8_t*) &uid->year, UID_YEAR_BYTES); //append year
 	    status += append_payload(&msg, (uint8_t*) &uid->id, UID_ID_BYTES); //append uid
 	}
-	return (status > 0) ? -1 : status;
+	return (status < 0) ? Status::PROCESS_ERROR : Status::SUCCESS;
 }
 
 //appends DATA with length LENGTH to the end of the payload array of MSG

@@ -3,14 +3,13 @@
 
 #include "defs.h"
 #include "Messenger.h"
+#include "StatusLED.h"
 
 class Device
-{
-private:
-	Messenger *msngr;
-	
+{	
 public:
-	Device (); //constructor, fill in parameters
+	//constructor with default args (times in ms)
+	Device (uint32_t disable_time = 1000, uint32_t heartbeat_delay = 200); 
 	
 	//Device setup and loop functions
 	void setup ();
@@ -21,6 +20,13 @@ public:
 	virtual uint8_t device_read (uint8_t param, uint8_t *data, size_t len);
 	virtual void device_disable ();
 	virtual uint8_t device_enable (); 
+
+private:
+	Messenger *msngr;
+	StatusLED *led;
+	uint16_t sub_delay; //time between successive subscription responses (ms)
+	uint32_t disable_time, heartbeat_delay; //time betweeen heartbeat requests (ms)
+	uint64_t prev_sub_time, prev_hb_time, curr_time; //variables to hold times (ms)
 };
 
 #endif

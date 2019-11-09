@@ -20,7 +20,7 @@
 
 #define LED_PIN 13
 
-//message ID enumerations
+//identification for message types
 enum class MessageID {
   PING                    = 0x00,
   SUBSCRIPTION_REQUEST    = 0x01,
@@ -29,8 +29,8 @@ enum class MessageID {
   DEVICE_WRITE            = 0x04,
   DEVICE_DATA             = 0x05,
   DEVICE_DISABLE          = 0x06,
-  HEARTBEAT_REQUEST      = 0x07,
-  HEARTBEAT_RESPONSE     = 0x08,
+  HEARTBEAT_REQUEST		  = 0x07,
+  HEARTBEAT_RESPONSE      = 0x08,
 
   ERROR                   = 0xFF,
 };
@@ -46,6 +46,14 @@ enum class DeviceID {
   SERVO_CONTROL = 0x06,
   COLOR_SENSOR = 0x07,
   EXAMPLE_DEVICE = 0xFF
+};
+
+//identification for resulting status types
+enum class Status {
+	SUCCESS;
+	PROCESS_ERROR;
+	MALFORMED_DATA;
+	NO_DATA;
 };
 
 //decoded lowcar packet

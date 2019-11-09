@@ -46,4 +46,5 @@ export const ActionTypes = keyMirror({
   REMOVE_ALERT: null,
   CLEAR_CONSOLE: null,
   runtime_version: null,
+  STORE_TIMESTAMPS: null,
 });

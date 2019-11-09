@@ -1,5 +1,4 @@
 import { ipcRenderer } from 'electron';
-import { ActionTypes } from '../constants/Constants';
 import { robotState, runtimeState, defaults } from '../utils/utils';
 
 const initialInfoState = {
@@ -13,6 +12,7 @@ const initialInfoState = {
   notificationHold: 0,
   fieldControlDirective: robotState.TELEOP,
   fieldControlActivity: false,
+  timestamps: [],
 };
 
 const info = (state = initialInfoState, action) => {
@@ -64,7 +64,7 @@ const info = (state = initialInfoState, action) => {
         ...state,
         ipAddress: action.ipAddress,
       };
-    case ActionTypes.UPDATE_ROBOT: {
+    case 'UPDATE_ROBOT': {
       const stateChange = (action.autonomous) ? robotState.AUTONOMOUS : robotState.TELEOP;
       ipcRenderer.send('studentCodeStatus', { studentCodeStatus: (!action.enabled) ? robotState.IDLE : stateChange });
       return {
@@ -75,6 +75,11 @@ const info = (state = initialInfoState, action) => {
         studentCodeStatus: (!action.enabled) ? robotState.IDLE : stateChange,
       };
     }
+    case 'STORE_TIMESTAMPS':
+      return {
+        ...state,
+        timestamps: action.timestamps,
+      };
     default:
       return state;
   }

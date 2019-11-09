@@ -28,3 +28,8 @@ export const ipChange = ipAddress => ({
   type: 'IP_CHANGE',
   ipAddress,
 });
+
+export const storeTimestamps = timestamps => ({
+  type: 'STORE_TIMESTAMPS',
+  timestamps,
+});

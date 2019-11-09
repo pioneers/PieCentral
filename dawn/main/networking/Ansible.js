@@ -10,6 +10,7 @@ import {
   ansibleDisconnect,
   infoPerMessage,
   updateCodeStatus,
+  storeTimestamps,
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
 import { robotState, Logger, defaults } from '../../renderer/utils/utils';
@@ -179,6 +180,7 @@ class TCPSocket {
 
     this.logger = logger;
     this.socket = socket;
+    this.timestamps = null;
 
     this.logger.log('Runtime connected');
     this.socket.on('end', () => {
@@ -194,7 +196,9 @@ class TCPSocket {
           RendererBridge.reduxDispatch(updateConsole(decoded.console_output));
           break;
         case Notification.Type.TIMESTAMP_UP:
-          this.logger.log(`TIMESTAMP: ${_.toArray(decoded.timestamps)}`);
+          this.timestamps = _.toArray(decoded.timestamps);
+          this.logger.log(`TIMESTAMP: ${this.timestamps}`);
+          RendererBridge.reduxDispatch(storeTimestamps(this.timestamps));
           break;
       }
     });

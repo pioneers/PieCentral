@@ -122,6 +122,15 @@ class DNavComponent extends React.Component {
                   id="update-software-button"
                   glyph="cloud-upload"
                 />
+                <TooltipButton
+                  placement="bottom"
+                  text="Latency"
+                  bsStyle="info"
+                  onClick={this.toggleUpdateModal}
+                  disabled={!this.props.runtimeStatus}
+                  id="update-software-button"
+                  glyph="time"
+                />
               </ButtonGroup>
             </ButtonToolbar>
           </Navbar.Form>

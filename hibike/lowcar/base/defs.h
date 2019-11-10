@@ -66,14 +66,14 @@ enum class RWMode {
 };
 
 //decoded lowcar packet
-typedef struct _message {
+typedef struct {
 	MessageID message_id;
 	uint8_t payload_length;
 	uint8_t payload[MAX_PAYLOAD_SIZE];
 } message_t;
 
 //unique id struct for a specific device
-typedef struct _uid {
+typedef struct {
 	DeviceID device_type;
 	uint8_t year;
 	uint64_t id;

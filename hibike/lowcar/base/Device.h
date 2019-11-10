@@ -13,8 +13,9 @@ public:
 	 * set disable_time to 0 if no disable on lack of heartbeat requests
 	 * set heartbeat_delay to 0 if no sending heartbeat requests
 	 * calls device_enable to enable the device
+	 * dev_id and dev_year are the device type and device year of the device
 	 */
-	Device (uint32_t disable_time = 1000, uint32_t heartbeat_delay = 200); 
+	Device (DeviceID dev_id, uint8_t dev_year, uint32_t disable_time = 1000, uint32_t heartbeat_delay = 200);
 	
 	/* Generic device loop function that wraps all device actions
 	 * asks Messenger to read a new packet, if any, and responds appropriately
@@ -71,6 +72,7 @@ private:
 	//******************************* PRIVATE VARIABLES AND HELPER METHOD ************************************** //
 	Messenger *msngr; //deals with all encoding/decoding and sending/reading of messages on serial
 	StatusLED *led;
+	uid_t UID; //UID of this device
 	uint16_t params; //bitmap for which parameters are subscribed to on this device
 	uint16_t sub_delay; //time between successive subscription responses (ms)
 	uint32_t disable_time, heartbeat_delay; //time betweeen heartbeat requests (ms)

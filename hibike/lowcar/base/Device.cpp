@@ -1,7 +1,7 @@
 #include "Device.h"
 
 //Device constructor
-Device::Device (uint32_t disable_time = 1000, uint32_t heartbeat_delay = 200)
+Device::Device (DeviceID dev_id, uint8_t dev_year, uint32_t disable_time = 1000, uint32_t heartbeat_delay = 200)
 {
 	//initialize variables
 	this->msngr = new Messenger();
@@ -13,6 +13,10 @@ Device::Device (uint32_t disable_time = 1000, uint32_t heartbeat_delay = 200)
 	this->heartbeat_delay = heartbeat_delay;
 	this->prev_sub_time = this->prev_hb_time = this->prev_hbresp_time = this->curr_time = millis(); //init all these times
 	
+	this->UID.device_type = dev_id;
+	this->UID.year = dev_year;
+	this->UID.id = UID_RANDOM;
+	
 	device_enable(); //call device's enable function
 }
 
@@ -22,6 +26,7 @@ Device::Device (uint32_t disable_time = 1000, uint32_t heartbeat_delay = 200)
 void Device::loop ()
 {
 	Status sts;
+	uint16_t *payload_ptr_uint16; //use this to shove 16 bits into the first two elements of the payload (which is of type uint8_t *)
 	
 	this->curr_time = millis();
 	sts = msngr->read_message(&(this->curr_msg)); //try to read a new message
@@ -40,13 +45,15 @@ void Device::loop ()
 				
 			case MessageID::DEVICE_READ:
 				//read all specified values from device and store in curr_msg; set payload[0:2] to successfully read params
-				*((uint16_t *) &(this->curr_msg.payload[0])) = device_rw_all(&(this->curr_msg), curr_msg->payload[0], RWMode::READ);
+				payload_ptr_uint16 = (uint16_t *) this->curr_msg.payload; //store the pointer to the front of the payload, cast to uint16_t
+				*payload_ptr_uint16 = device_rw_all(&(this->curr_msg), curr_msg->payload[0], RWMode::READ);
 				msngr->send_message(MessageID::DEVICE_DATA, &(this->curr_msg)); //report device data back to controller
 				break;
 				
 			case MessageID::DEVICE_WRITE:
 				//attempt to write specified specified params to device; set payload[0:2] to successfully written params
-				*((uint16_t *) &(this->curr_msg.payload[0])) = device_rw_all(&(this->curr_msg), curr_msg->payload[0], RWMode::WRITE);
+				payload_ptr_uint16 = (uint16_t *) this->curr_msg.payload; //store pointer to the front of the payload, cast to uint16_t
+				*payload_ptr_uint16 = device_rw_all(&(this->curr_msg), curr_msg->payload[0], RWMode::WRITE);
 				device_rw_all(&(this->curr_msg), curr_msg->payload[0], RWMode::READ); //read all values from device and store in curr_msg
 				msngr->send_message(MessageID::DEVICE_DATA, &(this->curr_msg)); //report device data back to controller
 				break;
@@ -74,7 +81,8 @@ void Device::loop ()
 	//if it's time to send data again
 	if ((this->sub_delay > 0) && (this->curr_time - this->prev_sub_time >= this->sub_delay)) {
 		this->prev_sub_time = this->curr_time;
-		device_rw_all(&(this->curr_msg), this->params, RWMode::READ); //read all subscribed values from device and store in curr_msg
+		payload_ptr_uint16 = (uint16_t *) this->curr_msg.payload; //store the pointer to the front of the payload, cast to uint16_t
+		*payload_ptr_uint16 = device_rw_all(&(this->curr_msg), this->params, RWMode::READ); //read all subscribed values from device and store in curr_msg
 		msngr->send_message(MessageID::DEVICE_DATA, &(this->curr_msg));
 	}
 	
@@ -95,31 +103,31 @@ void Device::loop ()
 //************************************************ DEFAULT DEVICE-SPECIFIC METHODS ******************************************* //
 
 //a device uses this function to return data about its state
-virtual uint8_t Device::device_read (uint8_t param, uint8_t *data_buf, size_t data_buf_len)
+uint8_t Device::device_read (uint8_t param, uint8_t *data_buf, size_t data_buf_len)
 {
 	return 0; //by default, we read 0 bytes into buffer	
 }
 
 //a device uses this function to change a state
-virtual uint32_t Device::device_write (uint8_t param, uint8_t *data_buf)
+uint32_t Device::device_write (uint8_t param, uint8_t *data_buf)
 {
 	return 0; //by default, we wrote 0 bytes successfully to device
 }
 
 //a device uses this function to enable itself
-virtual void Device::device_enable ()
+void Device::device_enable ()
 {
 	return; //by default, enabling the device does nothing
 }
 
 //a device uses this function to disable itself
-virtual void Device::device_disable ()
+void Device::device_disable ()
 {
 	return; //by default, disabling the device does nothing
 }
 
 //a device uses this function to perform any continuous updates or actions
-virtual void Device::device_actions ()
+void Device::device_actions ()
 {
 	return; //by default, device does nothing on every loop
 }

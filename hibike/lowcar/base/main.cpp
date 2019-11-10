@@ -10,6 +10,7 @@ Device *device; //declare this device
 void setup()
 {
 	//TODO: put actual params here once we've written the Device class
+	//TODO: should actually be like new LimitSwitch() or new PolarBear() or something like that
 	device = new Device();
 }
 

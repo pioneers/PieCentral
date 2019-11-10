@@ -14,6 +14,6 @@ public:
 	
 private:
 	bool led_enabled; //keeps track of whether LED is on or off
-}
+};
 
 #endif

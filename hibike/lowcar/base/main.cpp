@@ -11,10 +11,9 @@ void setup()
 {
 	//TODO: put actual params here once we've written the Device class
 	device = new Device();
-	device.setup();
 }
 
 void loop()
 {
-	device.loop();
+	device->loop();
 }

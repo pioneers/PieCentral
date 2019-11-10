@@ -20,8 +20,12 @@
 
 #define LED_PIN 13
 
+//Maximum size of a message payload
+#define MAX_PAYLOAD_SIZE    100
+
 //identification for message types
-enum class MessageID {
+//TODO: maybe add a DEVICE_ENABLE message type to wake up a device if it died
+enum class MessageID : uint8_t {
   PING                    = 0x00,
   SUBSCRIPTION_REQUEST    = 0x01,
   SUBSCRIPTION_RESPONSE   = 0x02,
@@ -36,7 +40,7 @@ enum class MessageID {
 };
 
 //identification for device types
-enum class DeviceID {
+enum class DeviceID : uint16_t {
   LIMIT_SWITCH = 0x00,
   POLAR_BEAR = 0x01
   LINE_FOLLOWER = 0x02,
@@ -50,22 +54,28 @@ enum class DeviceID {
 
 //identification for resulting status types
 enum class Status {
-	SUCCESS;
-	PROCESS_ERROR;
-	MALFORMED_DATA;
-	NO_DATA;
+	SUCCESS,
+	PROCESS_ERROR,
+	MALFORMED_DATA,
+	NO_DATA
+};
+
+//useful for specifiying read/write state
+enum class RWMode {
+	READ,
+	WRITE,
 };
 
 //decoded lowcar packet
 typedef struct _message {
-  uint8_t message_id;
+  MessageID message_id;
   uint8_t payload_length;
   uint8_t payload[MAX_PAYLOAD_SIZE];
 } message_t;
 
 //unique id struct for a specific device
 typedef struct _uid {
-  uint16_t device_type;
+  DeviceID device_type;
   uint8_t year;
   uint64_t id;
 } uid_t;

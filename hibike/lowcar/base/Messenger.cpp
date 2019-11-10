@@ -1,12 +1,9 @@
 #include "Messenger.h"
 
 //protocol constants
-#define MAX_PAYLOAD_SIZE    100
 #define MESSAGEID_BYTES     1							//bytes in message ID field of packet
 #define PAYLOAD_SIZE_BYTES  1							//bytes in payload size field of packet
 #define CHECKSUM_BYTES      1							//bytes in checksum field of packet
-
-#define MAX_FRAGMENT_SIZE   (MAX_PAYLOAD_SIZE - 1)
 
 #define UID_DEVICE_BYTES    2							//bytes in device type field of uid
 #define UID_YEAR_BYTES      1							//bytes in year field of uid
@@ -45,8 +42,6 @@ Status Messenger::send_message (MessageID msg_id, message_t *msg, uint16_t param
 
 //TODO: check buffer size
 //TODO: be more specific about errors and maybe define the error types in defs.h
-//reads in data from serial port, if any, and attempts to parse it
-//returns 0 on success with MSG updated with received packet; -1 on malformed packet
 Status Messenger::read_message (message_t *msg)
 {
 	//if nothing to read
@@ -78,7 +73,7 @@ Status Messenger::read_message (message_t *msg)
 		return Status::PROCESS_ERROR;
 	}
 	
-	uint8_t messageID = data[0];
+	uint8_t message_id = data[0];
 	uint8_t payload_length = data[1];
 	uint8_t expected_chk = checksum(data, payload_length + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES);
 	uint8_t received_chk = data[MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES + payload_length];
@@ -86,13 +81,13 @@ Status Messenger::read_message (message_t *msg)
 		return Status::MALFORMED_DATA;
 	}
 	//copy received data into msg
-	msg->messageID = messageID;
+	msg->message_id = message_id;
 	msg->payload_length = payload_length;
 	memcpy(msg->payload, &data[MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES], payload_length);
 	return Status::SUCCESS;
 }
 
-//************************************** HELPER FUNCTIONS ************************************//
+//************************************** HELPER METHODS *****************************************//
 
 //expects msg to exist
 //builds the appropriate payload in msg according to msg_id, or doesn't do anything if msg should already be built
@@ -100,27 +95,24 @@ Status Messenger::read_message (message_t *msg)
 Status Messenger::build_msg (MessageID msg_id, message_t *msg, uint16_t params = 0, uint16_t delay = 0, uid_t *uid = NULL)
 {
 	int status = 0;
+	msg->message_id = msg_id;
 	if (msg_id == MessageID::HEARTBEAT_REQUEST) {
-	    msg.messageID = HEART_BEAT_REQUEST;
-	    msg.payload_length = 0;
-	    status += append_payload(&msg, 0, sizeof(uint8_t));
+	    msg->payload_length = 0;
+	    status += append_payload(msg, 0, sizeof(uint8_t));
 	} else if (msg_id == MessageID::HEARTBEAT_RESPONSE) {
-	    msg.messageID = HEART_BEAT_RESPONSE;
-	    msg.payload_length = 0;
+	    msg->payload_length = 0;
 	   	status += append_payload(msg, 1, sizeof(uint8_t));
-	} else if (msg_id == MessageID::SUBSCRIPTION_REQUEST) {
-		;
 	} else if (msg_id == MessageID::SUBSCRIPTION_RESPONSE || msg_id == MessageID::PING) {
-	    msg.messageID = SUBSCRIPTION_RESPONSE;
-	    msg.payload_length = 0;
+	    msg->message_id = SUBSCRIPTION_RESPONSE;
+	    msg->payload_length = 0;
 		
-	    status += append_payload(&msg, (uint8_t*) &params, sizeof(params)); //append device param subscriptions
-	    status += append_payload(&msg, (uint8_t*) &delay, sizeof(delay)); //append heartbeat delay
-	    status += append_payload(&msg, (uint8_t*) &uid->device_type, UID_DEVICE_BYTES); //append device type
-	    status += append_payload(&msg, (uint8_t*) &uid->year, UID_YEAR_BYTES); //append year
-	    status += append_payload(&msg, (uint8_t*) &uid->id, UID_ID_BYTES); //append uid
+	    status += append_payload(msg, (uint8_t *) &params, sizeof(params)); //append device param subscriptions
+	    status += append_payload(msg, (uint8_t *) &delay, sizeof(delay)); //append heartbeat delay
+	    status += append_payload(msg, (uint8_t *) &uid->device_type, UID_DEVICE_BYTES); //append device type
+	    status += append_payload(msg, (uint8_t *) &uid->year, UID_YEAR_BYTES); //append year
+	    status += append_payload(msg, (uint8_t *) &uid->id, UID_ID_BYTES); //append uid
 	}
-	return (status < 0) ? Status::PROCESS_ERROR : Status::SUCCESS;
+	return (status < 0 || msg->payload_length > MAX_PAYLOAD_SIZE) ? Status::PROCESS_ERROR : Status::SUCCESS;
 }
 
 //appends DATA with length LENGTH to the end of the payload array of MSG
@@ -135,7 +127,7 @@ int Messenger::append_payload(message_t *msg, uint8_t *data, uint8_t length)
 //stores members of MSG into array DATA
 void Messenger::message_to_byte(uint8_t *data, message_t *msg)
 {
-	data[0] = msg->messageID; //first byte ie messageID
+	data[0] = msg->message_id; //first byte ie messageID
 	data[1] = msg->payload_length; //second byte is payload length
 	for (int i = 0; i < msg->payload_length; i++) { //copy the payload in one byte at a time
 		data[i + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES] = msg->payload[i];
@@ -158,11 +150,11 @@ uint8_t Messenger::checksum (uint8_t *data, int length)
  * transport. Read more here: https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing
  */
 
-#define finish_block() {      \
-  *block_len_loc = block_len; \
-  block_len_loc = dst++;      \
-  out_len++;                  \
-  block_len = 0x01;           \
+#define finish_block() {		\
+	*block_len_loc = block_len; \
+	block_len_loc = dst++;      \
+	out_len++;                  \
+	block_len = 0x01;           \
 }
 
 // Encodes src into dst and returns the size of dst. Note that dst will have no

@@ -17,7 +17,7 @@ Messenger::Messenger ()
 	Serial.begin(115200); //open Serial (USB) connection
 }
 
-// TODO: check buffer size
+//TODO: check buffer size
 Status Messenger::send_message (MessageID msg_id, message_t *msg, uint16_t params = 0, uint16_t delay = 0, uid_t *uid = NULL)
 {
 	build_msg(msg_id, msg, params, delay, uid); //build msg for heartbeat- and subscription-related messages
@@ -102,8 +102,7 @@ Status Messenger::build_msg (MessageID msg_id, message_t *msg, uint16_t params =
 	} else if (msg_id == MessageID::HEARTBEAT_RESPONSE) {
 	    msg->payload_length = 0;
 	   	status += append_payload(msg, 1, sizeof(uint8_t));
-	} else if (msg_id == MessageID::SUBSCRIPTION_RESPONSE || msg_id == MessageID::PING) {
-	    msg->message_id = SUBSCRIPTION_RESPONSE;
+	} else if (msg_id == MessageID::SUBSCRIPTION_RESPONSE) {
 	    msg->payload_length = 0;
 		
 	    status += append_payload(msg, (uint8_t *) &params, sizeof(params)); //append device param subscriptions
@@ -127,7 +126,7 @@ int Messenger::append_payload(message_t *msg, uint8_t *data, uint8_t length)
 //stores members of MSG into array DATA
 void Messenger::message_to_byte(uint8_t *data, message_t *msg)
 {
-	data[0] = msg->message_id; //first byte ie messageID
+	data[0] = msg->message_id; //first byte is messageID
 	data[1] = msg->payload_length; //second byte is payload length
 	for (int i = 0; i < msg->payload_length; i++) { //copy the payload in one byte at a time
 		data[i + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES] = msg->payload[i];

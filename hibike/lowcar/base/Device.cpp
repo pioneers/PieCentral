@@ -16,7 +16,7 @@ Device::Device (uint32_t disable_time = 1000, uint32_t heartbeat_delay = 200)
 	device_enable(); //call device's enable function
 }
 
-
+//universal loop function
 //TODO: report errors or do something with them
 //TODO: do something when device disables because of time out
 void Device::loop ()
@@ -27,7 +27,7 @@ void Device::loop ()
 	sts = msngr->read_message(&(this->curr_msg)); //try to read a new message
 	
 	if (sts == Status::SUCCESS) { //we have a message!
-		switch (curr_msg.message_id) {
+		switch (this->curr_msg.message_id) {
 			case MessageID::PING:
 				msngr->send_message(MessageID::SUBSCRIPTION_RESPONSE, &(this->curr_msg), params, sub_delay, &UID);
 				break;
@@ -39,14 +39,15 @@ void Device::loop ()
 				break;
 				
 			case MessageID::DEVICE_READ:
-				device_rw_all(&(this->curr_msg), success_params, RWMode::READ); //read all values from device and store in curr_msg
+				//read all specified values from device and store in curr_msg; set payload[0:2] to successfully read params
+				*((uint16_t *) &(this->curr_msg.payload[0])) = device_rw_all(&(this->curr_msg), curr_msg->payload[0], RWMode::READ);
 				msngr->send_message(MessageID::DEVICE_DATA, &(this->curr_msg)); //report device data back to controller
 				break;
 				
 			case MessageID::DEVICE_WRITE:
-				//attempt to write specified specified params to device; set payload[0:1] to successfully written params
+				//attempt to write specified specified params to device; set payload[0:2] to successfully written params
 				*((uint16_t *) &(this->curr_msg.payload[0])) = device_rw_all(&(this->curr_msg), curr_msg->payload[0], RWMode::WRITE);
-				device_rw_all(&(this->curr_msg), success_params, RWMode::READ); //read all values from device and store in curr_msg
+				device_rw_all(&(this->curr_msg), curr_msg->payload[0], RWMode::READ); //read all values from device and store in curr_msg
 				msngr->send_message(MessageID::DEVICE_DATA, &(this->curr_msg)); //report device data back to controller
 				break;
 				
@@ -73,17 +74,17 @@ void Device::loop ()
 	//if it's time to send data again
 	if ((this->sub_delay > 0) && (this->curr_time - this->prev_sub_time >= this->sub_delay)) {
 		this->prev_sub_time = this->curr_time;
-		device_rw_all(&(this->curr_msg), success_params, RWMode::READ); //read all values from device and store in curr_msg
+		device_rw_all(&(this->curr_msg), this->params, RWMode::READ); //read all subscribed values from device and store in curr_msg
 		msngr->send_message(MessageID::DEVICE_DATA, &(this->curr_msg));
 	}
 	
-	//if it's time to send another heartbeat
+	//if it's time to send another heartbeat request
 	if ((this->heartbeat_delay > 0) && (this->curr_time - this->prev_hb_time >= this->heartbeat_delay)) {
 		this->prev_hb_time = this->curr_time;
 		msngr->send_message(MeessageID::HEARTBEAT_REQUEST, &(this->curr_msg));
 	}
 	
-	//if it's been too long since previous heartbeat, disable device
+	//if it's been too long since previous heartbeat response, disable device
 	if ((this->disable_time > 0)  && (this->curr_time - this->prev_hbresp_time >= this->disable_time)) {
 		device_disable();
 	}

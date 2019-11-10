@@ -26,30 +26,29 @@
 //identification for message types
 //TODO: maybe add a DEVICE_ENABLE message type to wake up a device if it died
 enum class MessageID : uint8_t {
-  PING                    = 0x00,
-  SUBSCRIPTION_REQUEST    = 0x01,
-  SUBSCRIPTION_RESPONSE   = 0x02,
-  DEVICE_READ             = 0x03,
-  DEVICE_WRITE            = 0x04,
-  DEVICE_DATA             = 0x05,
-  DEVICE_DISABLE          = 0x06,
-  HEARTBEAT_REQUEST		  = 0x07,
-  HEARTBEAT_RESPONSE      = 0x08,
-
-  ERROR                   = 0xFF,
+	PING					= 0x00,
+	SUBSCRIPTION_REQUEST	= 0x01,
+	SUBSCRIPTION_RESPONSE	= 0x02,
+	DEVICE_READ				= 0x03,
+	DEVICE_WRITE			= 0x04,
+	DEVICE_DATA				= 0x05,
+	DEVICE_DISABLE			= 0x06,
+	HEARTBEAT_REQUEST		= 0x07,
+	HEARTBEAT_RESPONSE		= 0x08,
+	ERROR					= 0xFF
 };
 
 //identification for device types
 enum class DeviceID : uint16_t {
-  LIMIT_SWITCH = 0x00,
-  POLAR_BEAR = 0x01
-  LINE_FOLLOWER = 0x02,
-  BATTERY_BUZZER = 0x03,
-  TEAM_FLAG = 0x04,
-  RFID = 0x05,
-  SERVO_CONTROL = 0x06,
-  COLOR_SENSOR = 0x07,
-  EXAMPLE_DEVICE = 0xFF
+	LIMIT_SWITCH		= 0x00,
+	POLAR_BEAR			= 0x01,
+	LINE_FOLLOWER		= 0x02,
+	BATTERY_BUZZER		= 0x03,
+	TEAM_FLAG			= 0x04,
+	RFID				= 0x05,
+	SERVO_CONTROL		= 0x06,
+	COLOR_SENSOR		= 0x07,
+	EXAMPLE_DEVICE		= 0xFF
 };
 
 //identification for resulting status types
@@ -63,21 +62,21 @@ enum class Status {
 //useful for specifiying read/write state
 enum class RWMode {
 	READ,
-	WRITE,
+	WRITE
 };
 
 //decoded lowcar packet
 typedef struct _message {
-  MessageID message_id;
-  uint8_t payload_length;
-  uint8_t payload[MAX_PAYLOAD_SIZE];
+	MessageID message_id;
+	uint8_t payload_length;
+	uint8_t payload[MAX_PAYLOAD_SIZE];
 } message_t;
 
 //unique id struct for a specific device
 typedef struct _uid {
-  DeviceID device_type;
-  uint8_t year;
-  uint64_t id;
+	DeviceID device_type;
+	uint8_t year;
+	uint64_t id;
 } uid_t;
 
 #endif

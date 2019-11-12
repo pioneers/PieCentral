@@ -1,4 +1,4 @@
-#include "LineFollower.h"
+#include "../LineFollower.h"
 
 //default constructor simply specifies DeviceID and year to generic constructor
 LineFollower::LineFollower () : Device (DeviceID::LINE_FOLLOWER, 1)

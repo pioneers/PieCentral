@@ -1,7 +1,7 @@
 #ifndef MESSENGER_H
 #define MESSENGER_H
 
-#include "defs.h"
+#include "../defs.h"
 
 class Messenger 
 {

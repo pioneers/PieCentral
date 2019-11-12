@@ -1,7 +1,7 @@
 #ifndef STATUSLED_H
 #define STATUSLED_H
 
-#include "defs.h"
+#include "../defs.h"
 
 class StatusLED
 {

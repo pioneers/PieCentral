@@ -2,8 +2,8 @@
 #define DEVICE_H
 
 #include "defs.h"
-#include "Messenger.h"
-#include "StatusLED.h"
+#include "Device/Messenger.h"
+#include "Device/StatusLED.h"
 
 class Device
 {	

@@ -1,4 +1,4 @@
-#include "Device.h"
+#include "../Device.h"
 
 #define MAX_SUB_DELAY_MS 250.0	//maximum tolerable subscription delay, in ms
 #define MIN_SUB_DELAY_MS 40.0	//minimum tolderable subscription delay, in ms

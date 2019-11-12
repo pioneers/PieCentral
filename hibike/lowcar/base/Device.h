@@ -38,7 +38,7 @@ public:
 	 * 
 	 * return			-   sizeof(<parameter_value>) on success; 0 otherwise
 	 */
-	virtual uint8_t Device::device_read (uint8_t param, uint8_t *data_buf, size_t data_buf_len);
+	virtual uint8_t device_read (uint8_t param, uint8_t *data_buf, size_t data_buf_len);
 	
 	/* This function is called when the device receives a Device Write packet.
 	 * Updates PARAM to new value contained in DATA.
@@ -47,26 +47,26 @@ public:
 	 *
 	 * return			-   sizeof(<bytes_written>) on success; 0 otherwise
 	 */
-	virtual uint32_t Device::device_write (uint8_t param, uint8_t *data_buf);
+	virtual uint32_t device_write (uint8_t param, uint8_t *data_buf);
 	
 	/* This function is called in the Device constructor 
 	 * (or potentially on receiving a Device Enable packet in the future).
 	 * It should do whatever setup is necessary for the device to operate.
 	 */
-	virtual void Device::device_enable ();
+	virtual void device_enable ();
 	
 	/* This function is called when receiving a Device Disable packet, or 
 	 * when the controller has stopped responding to heartbeat requests.
 	 * It should do whatever cleanup is necessary for the device to disable.
 	 */
-	virtual void Device::device_disable ();
+	virtual void device_disable ();
 	
 	/* This function is called each time the device goes through the main loop.
 	 * Any continuously updating actions the device needs to do should be placed
 	 * in this function.
 	 * IMPORTANT: This function should not block!
 	 */
-	virtual void Device::device_actions ();
+	virtual void device_actions ();
 
 private:
 	//******************************* PRIVATE VARIABLES AND HELPER METHOD ************************************** //
@@ -80,7 +80,9 @@ private:
 	message_t curr_msg; //current message being processed
 	
 	//read or write data to device (more detail in source file)
-	uint16_t device_rw_all (message_t *msg, uint16_t params, RWMode mode) 
+	uint16_t device_rw_all (message_t *msg, uint16_t params, RWMode mode);
+	//update subscription delays on heartbeat response packets
+	void update_sub_delay (uint8_t payload_val);
 };
 
 #endif

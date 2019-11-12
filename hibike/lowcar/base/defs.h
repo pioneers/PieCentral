@@ -38,6 +38,22 @@ enum class MessageID : uint8_t {
 	ERROR					= 0xFF
 };
 
+/* 
+//currently need to use these ID's because that's how they are on old runtime
+enum class MessageID : uint8_t {
+	PING					= 0x10,
+	SUBSCRIPTION_REQUEST	= 0x11,
+	SUBSCRIPTION_RESPONSE	= 0x12,
+	DEVICE_READ				= 0x13,
+	DEVICE_WRITE			= 0x14,
+	DEVICE_DATA				= 0x15,
+	DEVICE_DISABLE			= 0x16,
+	HEARTBEAT_REQUEST		= 0x17,
+	HEARTBEAT_RESPONSE		= 0x18,
+	ERROR					= 0xFF
+};
+*/
+
 //identification for device types
 enum class DeviceID : uint16_t {
 	LIMIT_SWITCH		= 0x00,
@@ -50,6 +66,22 @@ enum class DeviceID : uint16_t {
 	COLOR_SENSOR		= 0x07,
 	EXAMPLE_DEVICE		= 0xFF
 };
+
+/* 
+//currently need to use these ID's because that's how they are on old runtime
+//identification for device types
+enum class DeviceID : uint16_t {
+	LIMIT_SWITCH		= 0x00,
+	POLAR_BEAR			= 0x0C,
+	LINE_FOLLOWER		= 0x01,
+	BATTERY_BUZZER		= 0x04,
+	TEAM_FLAG			= 0x05,
+	RFID				= 0x0B,
+	SERVO_CONTROL		= 0x07,
+	COLOR_SENSOR		= 0x09,
+	EXAMPLE_DEVICE		= 0xFF
+};
+*/
 
 //identification for resulting status types
 enum class Status {

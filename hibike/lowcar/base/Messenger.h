@@ -2,7 +2,6 @@
 #define MESSENGER_H
 
 #include "defs.h"
-#include <cstring.h>
 
 class Messenger 
 {

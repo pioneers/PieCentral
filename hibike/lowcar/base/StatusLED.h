@@ -10,7 +10,7 @@ public:
 	StatusLED ();
 	
 	//toggles LED between on and off
-	toggle ();
+	void toggle ();
 	
 private:
 	bool led_enabled; //keeps track of whether LED is on or off

@@ -1,8 +1,8 @@
 #ifndef LINE_FOLLOWER_H
 #define LINE_FOLLOWER_H
 
-#include "../../base/Device.h"
-#include "../../base/defs.h"
+#include "Device.h"
+#include "defs.h"
 
 #define NUM_PINS 3 //number of pins used on device
 

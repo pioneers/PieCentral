@@ -18,7 +18,7 @@ Messenger::Messenger ()
 }
 
 //TODO: check buffer size
-Status Messenger::send_message (MessageID msg_id, message_t *msg, uint16_t params = 0, uint16_t delay = 0, uid_t *uid = NULL)
+Status Messenger::send_message (MessageID msg_id, message_t *msg, uint16_t params, uint16_t delay, uid_t *uid)
 {
 	build_msg(msg_id, msg, params, delay, uid); //build msg for heartbeat- and subscription-related messages
 	
@@ -37,7 +37,7 @@ Status Messenger::send_message (MessageID msg_id, message_t *msg, uint16_t param
 	
     written = Serial.write(cobs_buf, 2 + cobs_len); //write to serial port
 	
-	return (written == 2 + cobs_len) ? return Status::SUCCESS : return Status::PROCESS_ERROR;
+	return (written == 2 + cobs_len) ? Status::SUCCESS : Status::PROCESS_ERROR;
 }
 
 //TODO: check buffer size
@@ -81,7 +81,7 @@ Status Messenger::read_message (message_t *msg)
 		return Status::MALFORMED_DATA;
 	}
 	//copy received data into msg
-	msg->message_id = message_id;
+	msg->message_id = (MessageID) message_id;
 	msg->payload_length = payload_length;
 	memcpy(msg->payload, &data[MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES], payload_length);
 	return Status::SUCCESS;
@@ -92,16 +92,17 @@ Status Messenger::read_message (message_t *msg)
 //expects msg to exist
 //builds the appropriate payload in msg according to msg_id, or doesn't do anything if msg should already be built
 //returns Status to report on success/failure
-Status Messenger::build_msg (MessageID msg_id, message_t *msg, uint16_t params = 0, uint16_t delay = 0, uid_t *uid = NULL)
+Status Messenger::build_msg (MessageID msg_id, message_t *msg, uint16_t params, uint16_t delay, uid_t *uid)
 {
 	int status = 0;
+	uint8_t fill_data[1] = {0};
 	msg->message_id = msg_id;
 	if (msg_id == MessageID::HEARTBEAT_REQUEST) {
 	    msg->payload_length = 0;
-	    status += append_payload(msg, 0, sizeof(uint8_t));
+	    status += append_payload(msg, fill_data, sizeof(uint8_t));
 	} else if (msg_id == MessageID::HEARTBEAT_RESPONSE) {
 	    msg->payload_length = 0;
-	   	status += append_payload(msg, 1, sizeof(uint8_t));
+	    status += append_payload(msg, fill_data, sizeof(uint8_t));
 	} else if (msg_id == MessageID::SUBSCRIPTION_RESPONSE) {
 	    msg->payload_length = 0;
 		
@@ -126,7 +127,7 @@ int Messenger::append_payload(message_t *msg, uint8_t *data, uint8_t length)
 //stores members of MSG into array DATA
 void Messenger::message_to_byte(uint8_t *data, message_t *msg)
 {
-	data[0] = msg->message_id; //first byte is messageID
+	data[0] = (uint8_t) msg->message_id; //first byte is messageID
 	data[1] = msg->payload_length; //second byte is payload length
 	for (int i = 0; i < msg->payload_length; i++) { //copy the payload in one byte at a time
 		data[i + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES] = msg->payload[i];

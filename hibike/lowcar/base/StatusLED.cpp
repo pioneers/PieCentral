@@ -7,7 +7,7 @@ StatusLED::StatusLED ()
 	led_enabled = false;
 }
 
-StatusLED::toggle ()
+void StatusLED::toggle ()
 {
 	(led_enabled) ? digitalWrite(LED_PIN, LOW) : digitalWrite(LED_PIN, HIGH);
 	led_enabled = !led_enabled;

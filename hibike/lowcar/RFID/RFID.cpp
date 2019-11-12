@@ -3,10 +3,13 @@
 #define RST_PIN 9
 #define SS_PIN 10
 
-//default constructor simply specifies DeviceID and year to generic constructor
+//default constructor simply specifies DeviceID and year to generic constructor and initializes variables
 RFID::RFID () : Device (DeviceID::RFID, 1)
 {
-	this->mfrc522 = new MFRC522(SS_PIN, RST_PIN); //instatiate the RFID object
+	this->tag_detector = new MFRC522(SS_PIN, RST_PIN); //instatiate the RFID object
+	this->id = 0;
+	this->tag_detect = 0;
+	this->delay = false;
 }
 
 uint8_t RFID::device_read (uint8_t param, uint8_t *data_buf, size_t data_buf_len)
@@ -36,36 +39,30 @@ uint8_t RFID::device_read (uint8_t param, uint8_t *data_buf, size_t data_buf_len
 void device_enable ()
 {
 	SPI.begin(); //begin SPI (what's this?)
-	this->mfrc522->PCD_Init(); //initialize the RFID object
+	this->tag_detector->PCD_Init(); //initialize the RFID object
 }
 
-//TODO: Perhaps use a ProtoThread here, I think this would be a great place to use it
 void device_actions ()
 {
-	//Checks if there is a card at reader (returns true if a card responds to a request)
-	//The sensor is too slow, so we have to delay the read by one loop
-	//The delay makes sure that id and tag_detect don't update for
-	//one cycle of the loop after finding a tag
-	if (!this->mfrc522->PICC_IsNewCardPresent()) {
+	/* If we either don't sense a card or can't read the UID, we invalidate the data
+	 * The sensor is too slow, so we have to delay the read by one loop
+	 * The delay makes sure that id and tag_detect don't update for
+	 * one cycle of the loop after finding a tag
+	 */
+	if (!this->tag_detector->PICC_IsNewCardPresent() || !this->tag_detector->PICC_ReadCardSerial()) {
 		if (this->delay) {
-			this->tag_detect = 0;
-			this->id = 0;
+			this->id = 0; //clear the id to invalidate it
+			this->tag_detect = 0; //no tag detected
 		}
 		this->del = true;
 		return; //after resetting all our values, we return
 	}
 	
-	//This function returns true if a UID could be read from the card
-	if (!this->mfrc522->PICC_ReadCardSerial()) {
-		this->id = 0;
-		this->tag_detect = 0;
-		return; //we reset everything also if we can't read the UID
-	}
-	
 	//Otherwise, if there is a card that we can read the UID from, we grab the data
-	this->id =	(uint32_t)(mfrc522.uid.uidByte[2]) << 16 |
-				(uint32_t)(mfrc522.uid.uidByte[1]) << 8  |
-				(uint32_t)(mfrc522.uid.uidByte[0]);
+	//and set tag_detect to 1 to signal that we have a new tag UID
+	this->id =	(uint32_t)(this->tag_detector.uid.uidByte[2]) << 16 |
+				(uint32_t)(this->tag_detector.uid.uidByte[1]) << 8  |
+				(uint32_t)(this->tag_detector.uid.uidByte[0]);
 	this->tag_detect = 1;
 	this->del = false; //reset the delay
 }

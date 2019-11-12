@@ -16,6 +16,7 @@ class RFID : public Device
 {
 public:
 	//constructs an RFID; simply calls generic Device constructor with device type and year
+	//instatiates the mfrc522 private variable, and initializes the other private variables
 	RFID ();
 	
 	//overridden functions from Device class; see descriptions in Device.h
@@ -24,7 +25,7 @@ public:
 	virtual void device_actions ();
 	
 private:
-	MFRC522 *mfrc522; //object used to operate the actual RFID tag
+	MFRC522 *tag_detector; //object used to operate the actual RFID tag detector
 	uint32_t id; //id parameter
 	uint8_t tag_detect; //tag_detect parameter
 	bool delay; //for delaying the reading of the device

@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# TODO: ask Dawn to change calling command
-
-read -e -p 'Enter the team number: ' team_number
-ip="192.168.0.$(( 200 + team_number ))"
-ssh "ubuntu@$ip" "mv ~/bin/update.sh ~/bin/update && echo '#!/bin/bash' > ~/bin/update.sh && echo 'sudo -u ubuntu /home/ubuntu/bin/update' >> ~/bin/update.sh && chmod +x /home/ubuntu/bin/update.sh"

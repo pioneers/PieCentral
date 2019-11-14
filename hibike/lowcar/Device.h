@@ -70,6 +70,10 @@ public:
 
 private:
 	//******************************* PRIVATE VARIABLES AND HELPER METHOD ************************************** //
+	const static float MAX_SUB_DELAY_MS;	//maximum tolerable subscription delay, in ms
+	const static float MIN_SUB_DELAY_MS;	//minimum tolerable subscription delay, in ms
+	const static float ALPHA;				//subscription delay interpolation tuning constant
+	
 	Messenger *msngr; //deals with all encoding/decoding and sending/reading of messages on serial
 	StatusLED *led;
 	uid_t UID; //UID of this device

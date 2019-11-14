@@ -23,7 +23,7 @@ uint8_t LineFollower::device_read (uint8_t param, uint8_t *data_buf, size_t data
 void LineFollower::device_enable ()
 {
 	//set all pins to INPUT mode
-	for (int i = 0; i < NUM_PINS; i++) {
+	for (int i = 0; i < LineFollower::NUM_PINS; i++) {
 		pinMode(pins[i], INPUT);
 	}
 }

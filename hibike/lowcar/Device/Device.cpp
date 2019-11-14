@@ -1,8 +1,8 @@
 #include "../Device.h"
 
-#define MAX_SUB_DELAY_MS 250.0	//maximum tolerable subscription delay, in ms
-#define MIN_SUB_DELAY_MS 40.0	//minimum tolderable subscription delay, in ms
-#define ALPHA 0.25		//tuning parameter for how the interpolation for updating subscription delay should happen
+const static float Device::MAX_SUB_DELAY_MS = 250.0;	//maximum tolerable subscription delay, in ms
+const static float Device::MIN_SUB_DELAY_MS = 40.0;		//minimum tolderable subscription delay, in ms
+const static float Device::ALPHA 0.25;					//tuning parameter for how the interpolation for updating subscription delay should happen
 
 //Device constructor
 Device::Device (DeviceID dev_id, uint8_t dev_year, uint32_t disable_time, uint32_t heartbeat_delay)
@@ -174,6 +174,6 @@ uint16_t Device::device_rw_all (message_t *msg, uint16_t params, RWMode mode)
 void Device::update_sub_delay (uint8_t payload_val)
 {
 	payload_val = min(payload_val, 100); //don't want the value to be > 100
-	float holding = max(MAX_SUB_DELAY_MS * (float) payload_val / 100.0, MIN_SUB_DELAY_MS); //interpolate between min delay and max delay
-	this->sub_delay = (uint16_t)(ALPHA * this->sub_delay + (1.0 - ALPHA) * holding); //set the new sub_delay
+	float holding = max(Device::MAX_SUB_DELAY_MS * (float) payload_val / 100.0, Device::MIN_SUB_DELAY_MS); //interpolate between min delay and max delay
+	this->sub_delay = (uint16_t)(Device::ALPHA * this->sub_delay + (1.0 - Device::ALPHA) * holding); //set the new sub_delay
 }

@@ -4,11 +4,11 @@
 #
 # Team-specific configuration (e.g. networking) is handled separately.
 #
-# This script assumes the Beaglebone initially runs vanilla Ubuntu and has an
+# This script assumes the Raspberry Pi initially runs vanilla Ubuntu and has an
 # internet connection through its host (see 'usb_net_fwd').
 #
-# Should not be used in production (too slow). Images should instead be flashed
-# via eMMC on SD cards.
+# Should not be used in production (too slow). Images should instead be replicated by
+# pulling a base image off a microSD card.
 
 wifi_driver_src="$HOME/wifi-driver-src"
 

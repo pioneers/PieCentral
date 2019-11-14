@@ -17,7 +17,7 @@ public:
 	virtual void device_enable ();
 	
 private:
-	uint8_t pins[NUM_SWITCHES] = {IN_0, IN_1, IN_2}; //pins that the line follower reads data from (defined in defs.h)
+	uint8_t pins[NUM_SWITCHES] = {IN_0, IN_1, IN_2}; //pins that the limit switch reads data from (defined in defs.h)
 };
 
 #endif

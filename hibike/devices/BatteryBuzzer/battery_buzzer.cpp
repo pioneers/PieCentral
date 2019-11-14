@@ -85,44 +85,50 @@ bool is_calibrated(){
 //
 //    return          -   sizeof(param) on success; 0 otherwise
 
-uint8_t device_read(uint8_t param, uint8_t* data, size_t len) {
-  if (len > sizeof(bool)) {
-    if(param == IS_UNSAFE){
-      data[0] = is_unsafe();
-      return sizeof(bool);
-    }
-    if(param == CALIBRATED){
-      data[0] = is_calibrated();
-      return sizeof(bool);
-    }
-  }
+uint8_t device_read(uint8_t param, uint8_t* data, size_t len) 
+{
+	if (len > sizeof(bool)) {
+		if (param == IS_UNSAFE){
+			data[0] = is_unsafe();
+			return sizeof(bool);
+		}
+		if (param == CALIBRATED){
+			data[0] = is_calibrated();
+			return sizeof(bool);
+		}
+	}
 
-  if (len < sizeof(float) || param >= 8){
-    return 0;
-  }
+	if (len < sizeof(float) || param >= 8) {
+		return 0;
+	}
 
 
-  float* float_buf = (float *) data;
-  if(param == V_CELL1){
-    float_buf[0] = v_cell1;
-  }
-  else if(param == V_CELL2){
-    float_buf[0] = v_cell2;
-  }
-  else if(param == V_CELL3){
-    float_buf[0] = v_cell3;
-  }
-  else if(param == V_BATT){
-    float_buf[0] = v_batt;
-  }
-  else if(param == DV_CELL2){
-    float_buf[0] = dv_cell2;
-  }
-  else if(param == DV_CELL3){
-    float_buf[0] = dv_cell3;
-  }
-  data = (uint8_t*) float_buf;
-  return sizeof(float);
+	float *float_buf = (float *) data;
+	
+	switch (param) {
+		case V_CELL1:
+			float_buf[0] = v_cell1;
+			break;
+		case V_CELL2:
+			float_buf[0] = v_cell2;
+			break;
+		case V_CELL3:
+			float_buf[0] = v_cell3;
+			break;
+		case V_BATT:
+			float_buf[0] = v_batt;
+			break;
+		case DV_CELL2:
+			float_buf[0] = dv_cell2;
+			break;
+		case DV_CELL3:
+			float_buf[0] = dv_cell3;
+			break;
+		default;
+			float_buf[0] = 0;
+	}
+	data = (uint8_t*) float_buf;
+	return sizeof(float);
 }
 
 // You must implement this function.

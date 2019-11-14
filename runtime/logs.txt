@@ -1,0 +1,1 @@
+{ "name": "runtime.journal", "level": 30, "pid": 460, "time": "Mon Apr 10 20:26:26 2017", "message": "Logging OK", "context": { "readings": [1.1, 1.2, 1.3], "mapping": { "083940": 129384 } } }

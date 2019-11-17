@@ -15,8 +15,8 @@ public:
 	virtual void device_enable ();
 	
 private:
-	const static int NUM_PINS = 3; //number of pins used for I/O for LineFollower
-	uint8_t pins[LineFollower::NUM_PINS] = {Analog::IO0, Analog::IO1, Analog::IO1}; //pins that the line follower reads data from (defined in defs.h)
+	const static int NUM_PINS; //number of pins used for I/O for LineFollower
+	const static int uint8_t pins[LineFollower::NUM_PINS]; //pins that the line follower reads data from (defined in defs.h)
 };
 
 #endif

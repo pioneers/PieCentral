@@ -25,6 +25,10 @@ public:
 	virtual void device_actions ();
 	
 private:
+	//Pin definitions
+	const static int RST_PIN;
+	const static int SS_PIN;
+	
 	MFRC522 *tag_detector; //object used to operate the actual RFID tag detector
 	uint32_t id; //id parameter
 	uint8_t tag_detect; //tag_detect parameter

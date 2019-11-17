@@ -34,7 +34,7 @@ public:
 	 * It modifies DATA_BUF to contain the most recent value of parameter PARAM.
 	 * param			-   Parameter index (0, 1, 2, 3 ...)
 	 * data_buf 		-   Buffer to return data in, little-endian
-	 * buf_len			-   Maximum length of the buffer
+	 * buf_len			-   Number of bytes available in data_buf to store data
 	 * 
 	 * return			-   sizeof(<parameter_value>) on success; 0 otherwise
 	 */

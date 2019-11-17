@@ -4,8 +4,6 @@
 #include "Device.h"
 #include "defs.h"
 
-#define NUM_SWITCHES 3 //number of pins used on device
-
 class LimitSwitch : public Device
 {
 public:
@@ -17,7 +15,8 @@ public:
 	virtual void device_enable ();
 	
 private:
-	uint8_t pins[NUM_SWITCHES] = {IN_0, IN_1, IN_2}; //pins that the limit switch reads data from (defined in defs.h)
+	const static int NUM_SWITCHES; //number of swithches (one switch per pin) on a limit switch
+	const statatic uint8_t pins[LimitSwitch::NUM_SWITCHES]; //pins that the limit switch reads data from (defined in defs.h)
 };
 
 #endif

@@ -5,12 +5,10 @@ const static float Device::MIN_SUB_DELAY_MS = 40.0;		//minimum tolderable subscr
 const static float Device::ALPHA 0.25;					//tuning parameter for how the interpolation for updating subscription delay should happen
 
 //Device constructor
-Device::Device (DeviceID dev_id, uint8_t dev_year, uint32_t disable_time, uint32_t heartbeat_delay)
+//initializer list at end of this line initializes the this->msngr and this->led variables properly
+Device::Device (DeviceID dev_id, uint8_t dev_year, uint32_t disable_time, uint32_t heartbeat_delay) : msngr(), led()
 {
-	//initialize variables
-	this->msngr = new Messenger();
-	this->led = new StatusLED();
-
+	//initialize primitive variables
 	this->sub_delay = 0; //default 0 to signal not subscribed
 	this->params = 0; //nothing subscribed to right now
 	this->disable_time = disable_time;
@@ -19,7 +17,7 @@ Device::Device (DeviceID dev_id, uint8_t dev_year, uint32_t disable_time, uint32
 	
 	this->UID.device_type = dev_id;
 	this->UID.year = dev_year;
-	this->UID.id = UID_RANDOM;
+	this->UID.id = UID_RANDOM; //this is defined at compile time by the flash script
 	
 	device_enable(); //call device's enable function
 }

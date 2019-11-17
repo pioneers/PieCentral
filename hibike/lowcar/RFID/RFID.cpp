@@ -1,12 +1,12 @@
 #include "../RFID.h"
 
-#define RST_PIN 9
-#define SS_PIN 10
+const static int RFID::RST_PIN = 9;
+const static int RFID::SS_PIN = 10;
 
 //default constructor simply specifies DeviceID and year to generic constructor and initializes variables
-RFID::RFID () : Device (DeviceID::RFID, 1)
+//initializes the msfrc22 object in the initializer list
+RFID::RFID () : Device (DeviceID::RFID, 1), tag_detector(RFID::SS_PIN, RFID::RST_PIN)
 {
-	this->tag_detector = new MFRC522(SS_PIN, RST_PIN); //instatiate the RFID object
 	this->id = 0;
 	this->tag_detect = 0;
 	this->delay = false;

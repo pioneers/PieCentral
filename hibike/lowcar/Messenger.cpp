@@ -2,13 +2,13 @@
 
 //************************************* MESSENGER CLASS CONSTANTS *********************************** //
 
-const static int Messenger::MESSAGEID_BYTES = 1;		//bytes in message ID field of packet
-const static int Messenger::PAYLOAD_SIZE_BYTES = 1; 	//bytes in payload size field of packet
-const static int Messenger::CHECKSUM_BYTES = 1; 		//bytes in checksum field of packet
+const int Messenger::MESSAGEID_BYTES = 1;		//bytes in message ID field of packet
+const int Messenger::PAYLOAD_SIZE_BYTES = 1; 	//bytes in payload size field of packet
+const int Messenger::CHECKSUM_BYTES = 1; 		//bytes in checksum field of packet
 
-const static int Messenger::UID_DEVICE_BYTES = 2; 		//bytes in device type field of uid
-const static int Messenger::UID_YEAR_BYTES = 1; 		//bytes in year field of uid
-const static int Messenger::UID_ID_BYTES = 8; 			//bytes in uid field of uid
+const int Messenger::UID_DEVICE_BYTES = 2; 		//bytes in device type field of uid
+const int Messenger::UID_YEAR_BYTES = 1; 		//bytes in year field of uid
+const int Messenger::UID_ID_BYTES = 8; 			//bytes in uid field of uid
 
 //************************************** MESSENGER CLASS METHODS ************************************//
 

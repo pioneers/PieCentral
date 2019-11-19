@@ -16,7 +16,7 @@ public:
 	
 private:
 	const static int NUM_PINS; //number of pins used for I/O for LineFollower
-	const static int uint8_t pins[LineFollower::NUM_PINS]; //pins that the line follower reads data from (defined in defs.h)
+	const static uint8_t pins[]; //pins that the line follower reads data from (defined in defs.h)
 };
 
 #endif

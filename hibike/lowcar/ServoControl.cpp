@@ -1,16 +1,17 @@
 #include "../ServoControl.h"
 
-const static int ServoControl::NUM_SERVOS = 2;
-const static int ServoControl::SERVO_0 = 5;
-const static int ServoControl::SERVO_1 = 6;
-const static int ServoControl::SERVO_CENTER = 1500; //center position on servo, in microseconds (?)
-const static int ServoControl::SERVO_RANGE = 1000; //range of movement of servo is SERVO_CENTER +/- SERVO_RANGE
-const static uint8_t ServoControl::pins[ServoControl::NUM_SERVOS] = {ServoControl::SERVO_0, ServoControl::SERVO_1}
+const int ServoControl::NUM_SERVOS = 2;
+const int ServoControl::SERVO_0 = 5;
+const int ServoControl::SERVO_1 = 6;
+const int ServoControl::SERVO_CENTER = 1500; //center position on servo, in microseconds (?)
+const int ServoControl::SERVO_RANGE = 1000; //range of movement of servo is SERVO_CENTER +/- SERVO_RANGE
+const uint8_t ServoControl::pins[] = {ServoControl::SERVO_0, ServoControl::SERVO_1}
 
 //runs default Device constructor and then disables all servos at start
 //initializes this->servos[] to contain references to the two Servo objects in initializer list
 ServoControl::ServoControl() : Device(DeviceID::SERVO_CONTROL, 1), servos(this->servo0, this->servo1)
 {
+	this->positions = { 0.0, 0.0 };
 	disable_all();
 }
 

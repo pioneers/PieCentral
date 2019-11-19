@@ -16,7 +16,7 @@ public:
 	
 private:
 	const static int NUM_SWITCHES; //number of swithches (one switch per pin) on a limit switch
-	const statatic uint8_t pins[LimitSwitch::NUM_SWITCHES]; //pins that the limit switch reads data from (defined in defs.h)
+	const static uint8_t pins[]; //pins that the limit switch reads data from (defined in defs.h)
 };
 
 #endif

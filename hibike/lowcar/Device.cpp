@@ -1,8 +1,8 @@
-#include "../Device.h"
+#include "Device.h"
 
-const static float Device::MAX_SUB_DELAY_MS = 250.0;	//maximum tolerable subscription delay, in ms
-const static float Device::MIN_SUB_DELAY_MS = 40.0;		//minimum tolderable subscription delay, in ms
-const static float Device::ALPHA 0.25;					//tuning parameter for how the interpolation for updating subscription delay should happen
+const float Device::MAX_SUB_DELAY_MS = 250.0;	//maximum tolerable subscription delay, in ms
+const float Device::MIN_SUB_DELAY_MS = 40.0;	//minimum tolderable subscription delay, in ms
+const float Device::ALPHA = 0.25;		//tuning parameter for how the interpolation for updating subscription delay should happen
 
 //Device constructor
 //initializer list at end of this line initializes the this->msngr and this->led variables properly

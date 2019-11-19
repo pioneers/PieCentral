@@ -20,11 +20,11 @@ public:
 private:
 	//class constants and variables
 	const static int NUM_SERVOS, SERVO_0, SERVO_1, SERVO_CENTER, SERVO_RANGE;
-	const static uint8_t pins[ServoControl::NUM_PINS];
+	const static uint8_t pins[];
 	
 	Servo servo0, servo1;
-	Servo servos[LimitSwitch::NUM_SERVOS];
-	float positions[LimitSwitch::NUM_SERVOS];
+	Servo servos[];
+	float positions[];
 	
 	//detaches all servos
 	void disable_all ();

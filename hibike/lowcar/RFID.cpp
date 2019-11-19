@@ -1,7 +1,7 @@
-#include "../RFID.h"
+#include "RFID.h"
 
-const static int RFID::RST_PIN = 9;
-const static int RFID::SS_PIN = 10;
+const int RFID::RST_PIN = 9;
+const int RFID::SS_PIN = 10;
 
 //default constructor simply specifies DeviceID and year to generic constructor and initializes variables
 //initializes the msfrc22 object in the initializer list

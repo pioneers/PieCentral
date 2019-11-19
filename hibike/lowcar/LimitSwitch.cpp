@@ -1,7 +1,7 @@
-#include "../LimitSwitch.h"
+#include "LimitSwitch.h"
 
-const static int LimitSwitch::NUM_SWITCHES = 3; //number of switches on a limit switch (how many input pins)
-const static uint8_t LimitSwitch::pins[LimitSwitch::NUM_SWITCHES] = {Analog::IO_0, Analog::IO_1, Analog::IO_2};
+const int LimitSwitch::NUM_SWITCHES = 3; //number of switches on a limit switch (how many input pins)
+const uint8_t LimitSwitch::pins[] = {(const uint8_t) Analog::IO0, (const uint8_t) Analog::IO1, (const uint8_t) Analog::IO2};
 
 //default constructor simply specifies DeviceID and year to generic constructor
 LimitSwitch::LimitSwitch () : Device (DeviceID::LIMIT_SWITCH, 0)

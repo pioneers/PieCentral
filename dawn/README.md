@@ -11,7 +11,7 @@ Dawn is a cross-platform frontend for the [PiE](https://pioneers.berkeley.edu) r
 3. Dawn is a part of the [PieCentral](https://github.com/pioneers/PieCentral) repository, which contains the code for many of PiE's projects. If you have not already cloned the PieCentral repo, do so now.
 4. From the Dawn folder under PieCentral:
     1. Run `make watch`. This will pull all the necessary dawn dependencies and start the webpack bundler. Leave
-    this running, it will try to automatically rebundle the app as you make changes. If it doesn't rebuild after fixing your lint errors, you should kill it and restart.
+    this running, it will try to automatically rebundle the app as you make changes. If you encounter lint errors relating to `Expected linebreaks to be 'LF'...`, fix the lint errors by running `yarn lint --fix`. If it doesn't rebuild after fixing your lint errors, you should kill it and restart.
     2. In a separate terminal tab/window, launch the application itself: `make start`. Leave this terminal window also running. Dawn should open. (Note: For tmux users, do not use tmux for this step due to a [bug in Electron](https://github.com/electron/electron/issues/4236).)
     3. When you make a change, the webpack watcher should automatically re-bundle your code. To see your changes in the app, you can refresh by clicking `Debug > Reload` from the menu bar or enter CMD-R.
 

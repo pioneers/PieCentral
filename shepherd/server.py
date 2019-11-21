@@ -31,6 +31,10 @@ def staff_gui():
 def stage_control():
     return render_template('stage_control.html')
 
+@app.route('/match_recovery.html/')
+def match_recovery():
+    return render_template('match_recovery.html')
+
 @socketio.on('join')
 def handle_join(client_name):
     print('confirmed join: ' + client_name)

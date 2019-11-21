@@ -10,6 +10,7 @@
 
   <!-- Latest compiled and minified CSS -->
   <link rel="stylesheet" href="{{url_for('static', filename='bootstrap.min.css')}}">
+  <link rel = "stylesheet" href = "../static/bootstrap.min.css">
   <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"> -->
 
   <!-- Styles -->
@@ -261,10 +262,11 @@
       <li class="nav-item">
         <a class="nav-link" href="../score_adjustment.html">Score Adjustment</a>
       </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="../stage_control.html">Stage Control<span class="sr-only">(current)</span></a>
-      </li>
       <li class="nav-item">
+        <a class="nav-link" href="../stage_control.html">Stage Control
+          <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item active">
         <a class="nav-link" href="../match_recovery.html">Match Recovery</a>
       </li>
     </ul>
@@ -272,7 +274,7 @@
 </nav>
 
   <div class="container" style="max-width:1405px">
-    <h2>Stage Control</h2>
+    <h2>Match Recovery</h2>
     <div class="btn-group bottom-padding" role="group" aria-label="...">
       <button type="button" class="btn btn-success" id="match-start"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> Set Stage</button>
 
@@ -290,6 +292,10 @@
     </div>
 
     <form class="form-inline bottom-padding">
+      <div class = "row col-lg-12 d-flex justify-content-around">
+
+      <div class = "col-lg-5 text-center">
+      <div class = "row d-flex justify-content-between">
       <div class="form-group">
         <select id="blue-1-starting-spot">
           <option value="left">Left</option>
@@ -299,13 +305,21 @@
         </select>
       </div>
       <div class="form-group heartbeat-light blue-1-hb"></div>
-      <button class="btn btn-danger" type="button" id="stop-blue-1">Stop Blue 1</button>
+      <div class = "text-center">
+        <button class="btn btn-danger" type="button" id="stop-blue-1">Stop Blue 1</button>
+      </div>
       <div class="form-group">
         <input type="number" class="form-control" id="blue-1-number" style="width: 81px;" placeholder="Blue 1 #">
       </div>
       <div class="form-group">
         <input type="text" class="form-control" id="blue-1-name" placeholder="Blue 1 Team Name">
       </div>
+    </div>
+      </div>
+
+      <div class = "col-lg-5">
+        
+        <div class = "row d-flex justify-content-between">
       <div class="form-group">
         <input type="text" class="form-control" id="gold-1-name" placeholder="Gold 1 Team Name">
       </div>
@@ -321,6 +335,9 @@
           <option value="vending">Vending</option>
           <option value="shelf">Shelf</option>
         </select>
+      </div>
+    </div>
+      </div>
       </div>
     </form>
     <form class="form-inline bottom-padding">

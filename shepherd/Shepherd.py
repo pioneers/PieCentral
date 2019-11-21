@@ -35,6 +35,17 @@ def start():
     EVENTS = queue.Queue()
     lcm_start_read(LCM_TARGETS.SHEPHERD, EVENTS)
     while True:
+        
+        # {"LAST_HEADER": LAST_HEADER, "payload": payload}
+        # No need "EVENTS"
+        # "GAME_STATE": GAME_STATE
+        # "MATCH_NUMBER": MATCH_NUMBER
+        # "STARTING_SPOTS": STARTING_SPOTS
+        # "MASTER_ROBOTS": MASTER_ROBOTS       # Variables will evaluate (the dot stuff)
+        # "BUTTONS": BUTTONS
+        # "CODES_USED": CODES_USED
+
+
         print("GAME STATE OUTSIDE: ", GAME_STATE)
         time.sleep(0.1)
         payload = EVENTS.get(True)

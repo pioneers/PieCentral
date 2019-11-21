@@ -24,7 +24,7 @@ ARDUINO_LIBS := Wire Servo
 
 ### USER_LIB_PATH
 ### Path to where your project's libraries are stored.
-SKETCH_LIBS = lowcar Adafruit_TCS34725 EEPROM SevenSeg TimerOne TimerThree FlexiTimer2 PID_v1 Encoder MFRC522 SPI NicoHID NicoHID/SingleReport
+SKETCH_LIBS = Adafruit_TCS34725 EEPROM SevenSeg TimerOne TimerThree FlexiTimer2 PID_v1 Encoder MFRC522 SPI NicoHID NicoHID/SingleReport
 USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
 
 ### BOARD_TAG & BOARD_SUB

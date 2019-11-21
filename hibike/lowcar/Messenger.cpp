@@ -1,14 +1,14 @@
 #include "Messenger.h"
 
-//protocol constants
-#define MESSAGEID_BYTES     1							//bytes in message ID field of packet
-#define PAYLOAD_SIZE_BYTES  1							//bytes in payload size field of packet
-#define CHECKSUM_BYTES      1							//bytes in checksum field of packet
+//************************************* MESSENGER CLASS CONSTANTS *********************************** //
 
-#define UID_DEVICE_BYTES    2							//bytes in device type field of uid
-#define UID_YEAR_BYTES      1							//bytes in year field of uid
-#define UID_ID_BYTES        8							//bytes in uid field of uid
-#define UID_BYTES           (UID_DEVICE_BYTES+UID_YEAR_BYTES+UID_ID_BYTES)
+const int Messenger::MESSAGEID_BYTES = 1;		//bytes in message ID field of packet
+const int Messenger::PAYLOAD_SIZE_BYTES = 1; 	//bytes in payload size field of packet
+const int Messenger::CHECKSUM_BYTES = 1; 		//bytes in checksum field of packet
+
+const int Messenger::UID_DEVICE_BYTES = 2; 		//bytes in device type field of uid
+const int Messenger::UID_YEAR_BYTES = 1; 		//bytes in year field of uid
+const int Messenger::UID_ID_BYTES = 8; 			//bytes in uid field of uid
 
 //************************************** MESSENGER CLASS METHODS ************************************//
 
@@ -22,14 +22,14 @@ Status Messenger::send_message (MessageID msg_id, message_t *msg, uint16_t param
 {
 	build_msg(msg_id, msg, params, delay, uid); //build msg for heartbeat- and subscription-related messages
 	
-	size_t msg_len = msg->payload_length + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES + CHECKSUM_BYTES;
+	size_t msg_len = msg->payload_length + Messenger::MESSAGEID_BYTES + Messenger::PAYLOAD_SIZE_BYTES + Messenger::CHECKSUM_BYTES;
     uint8_t data[msg_len];
     uint8_t cobs_buf[2 + msg_len + 1]; //cobs encoding adds at most 2 overhead and one leading 0
 	size_t cobs_len; //length of cobs-encoded data array, as reported by cobs_encode()
 	uint8_t written; //number of bytes written to serial
 	
     message_to_byte(data, msg);
-    data[msg_len - CHECKSUM_BYTES] = checksum(data, msg_len - CHECKSUM_BYTES); //put the checksum into data
+    data[msg_len - Messenger::CHECKSUM_BYTES] = checksum(data, msg_len - Messenger::CHECKSUM_BYTES); //put the checksum into data
 	
     cobs_buf[0] = 0x00; //set overhead bytes to 0 as placeholder
     cobs_len = cobs_encode(&cobs_buf[2], data, msg_len);
@@ -65,8 +65,8 @@ Status Messenger::read_message (message_t *msg)
 		return Status::MALFORMED_DATA;
 	}
 	
-	uint8_t data[MAX_PAYLOAD_SIZE + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES];
-	uint8_t cobs_buf[MAX_PAYLOAD_SIZE + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES + 1]; //for leading zero
+	uint8_t data[MAX_PAYLOAD_SIZE + Messenger::MESSAGEID_BYTES + Messenger::PAYLOAD_SIZE_BYTES];
+	uint8_t cobs_buf[MAX_PAYLOAD_SIZE + Messenger::MESSAGEID_BYTES + Messenger::PAYLOAD_SIZE_BYTES + 1]; //for leading zero
 	size_t cobs_len = Serial.read();
 	size_t read_len = Serial.readBytesUntil(0x00, (char *)cobs_buf, cobs_len);
 	if (cobs_len != read_len || cobs_decode(data, cobs_buf, cobs_len) < 3) {
@@ -75,15 +75,15 @@ Status Messenger::read_message (message_t *msg)
 	
 	uint8_t message_id = data[0];
 	uint8_t payload_length = data[1];
-	uint8_t expected_chk = checksum(data, payload_length + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES);
-	uint8_t received_chk = data[MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES + payload_length];
+	uint8_t expected_chk = checksum(data, payload_length + Messenger::MESSAGEID_BYTES + Messenger::PAYLOAD_SIZE_BYTES);
+	uint8_t received_chk = data[Messenger::MESSAGEID_BYTES + Messenger::PAYLOAD_SIZE_BYTES + payload_length];
 	if (received_chk != expected_chk) { //if checksums don't match (no need to empty cobs buffer)
 		return Status::MALFORMED_DATA;
 	}
 	//copy received data into msg
 	msg->message_id = (MessageID) message_id;
 	msg->payload_length = payload_length;
-	memcpy(msg->payload, &data[MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES], payload_length);
+	memcpy(msg->payload, &data[Messenger::MESSAGEID_BYTES + Messenger::PAYLOAD_SIZE_BYTES], payload_length);
 	return Status::SUCCESS;
 }
 
@@ -108,9 +108,9 @@ Status Messenger::build_msg (MessageID msg_id, message_t *msg, uint16_t params, 
 		
 	    status += append_payload(msg, (uint8_t *) &params, sizeof(params)); //append device param subscriptions
 	    status += append_payload(msg, (uint8_t *) &delay, sizeof(delay)); //append heartbeat delay
-	    status += append_payload(msg, (uint8_t *) &uid->device_type, UID_DEVICE_BYTES); //append device type
-	    status += append_payload(msg, (uint8_t *) &uid->year, UID_YEAR_BYTES); //append year
-	    status += append_payload(msg, (uint8_t *) &uid->id, UID_ID_BYTES); //append uid
+	    status += append_payload(msg, (uint8_t *) &uid->device_type, Messenger::UID_DEVICE_BYTES); //append device type
+	    status += append_payload(msg, (uint8_t *) &uid->year, Messenger::UID_YEAR_BYTES); //append year
+	    status += append_payload(msg, (uint8_t *) &uid->id, Messenger::UID_ID_BYTES); //append uid
 	}
 	return (status < 0 || msg->payload_length > MAX_PAYLOAD_SIZE) ? Status::PROCESS_ERROR : Status::SUCCESS;
 }
@@ -130,7 +130,7 @@ void Messenger::message_to_byte(uint8_t *data, message_t *msg)
 	data[0] = (uint8_t) msg->message_id; //first byte is messageID
 	data[1] = msg->payload_length; //second byte is payload length
 	for (int i = 0; i < msg->payload_length; i++) { //copy the payload in one byte at a time
-		data[i + MESSAGEID_BYTES + PAYLOAD_SIZE_BYTES] = msg->payload[i];
+		data[i + Messenger::MESSAGEID_BYTES + Messenger::PAYLOAD_SIZE_BYTES] = msg->payload[i];
 	}
 }
 

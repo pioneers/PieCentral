@@ -2,8 +2,8 @@
 #define DEVICE_H
 
 #include "defs.h"
-#include "Device/Messenger.h"
-#include "Device/StatusLED.h"
+#include "Messenger.h"
+#include "StatusLED.h"
 
 class Device
 {	
@@ -34,7 +34,7 @@ public:
 	 * It modifies DATA_BUF to contain the most recent value of parameter PARAM.
 	 * param			-   Parameter index (0, 1, 2, 3 ...)
 	 * data_buf 		-   Buffer to return data in, little-endian
-	 * buf_len			-   Maximum length of the buffer
+	 * buf_len			-   Number of bytes available in data_buf to store data
 	 * 
 	 * return			-   sizeof(<parameter_value>) on success; 0 otherwise
 	 */
@@ -70,6 +70,10 @@ public:
 
 private:
 	//******************************* PRIVATE VARIABLES AND HELPER METHOD ************************************** //
+	const static float MAX_SUB_DELAY_MS;	//maximum tolerable subscription delay, in ms
+	const static float MIN_SUB_DELAY_MS;	//minimum tolerable subscription delay, in ms
+	const static float ALPHA;				//subscription delay interpolation tuning constant
+	
 	Messenger *msngr; //deals with all encoding/decoding and sending/reading of messages on serial
 	StatusLED *led;
 	uid_t UID; //UID of this device

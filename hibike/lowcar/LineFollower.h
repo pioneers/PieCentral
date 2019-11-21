@@ -4,8 +4,6 @@
 #include "Device.h"
 #include "defs.h"
 
-#define NUM_PINS 3 //number of pins used on device
-
 class LineFollower : public Device
 {
 public:
@@ -17,7 +15,8 @@ public:
 	virtual void device_enable ();
 	
 private:
-	uint8_t pins[NUM_PINS] = {A0, A1, A2}; //pins that the line follower reads data from (defined in defs.h)
+	const static int NUM_PINS; //number of pins used for I/O for LineFollower
+	const static uint8_t pins[]; //pins that the line follower reads data from (defined in defs.h)
 };
 
 #endif

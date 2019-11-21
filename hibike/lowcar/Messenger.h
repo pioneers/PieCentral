@@ -1,7 +1,7 @@
 #ifndef MESSENGER_H
 #define MESSENGER_H
 
-#include "../defs.h"
+#include "defs.h"
 
 class Messenger 
 {
@@ -22,6 +22,16 @@ public:
 	Status read_message (message_t *msg);
 	
 private:
+	//protocol constants
+	const static int MESSAGEID_BYTES;		//bytes in message ID field of packet
+	const static int PAYLOAD_SIZE_BYTES; 	//bytes in payload size field of packet
+	const static int CHECKSUM_BYTES; 		//bytes in checksum field of packet
+	
+	const static int UID_DEVICE_BYTES; 		//bytes in device type field of uid
+	const static int UID_YEAR_BYTES; 		//bytes in year field of uid
+	const static int UID_ID_BYTES; 			//bytes in uid field of uid
+	
+	
 	//helper methods; see source file for more detailed description of functionality
 	Status build_msg (MessageID msg_id, message_t *msg, uint16_t params = 0, uint16_t delay = 0, uid_t *uid = NULL);
 	int append_payload (message_t *msg, uint8_t *data, uint8_t length);

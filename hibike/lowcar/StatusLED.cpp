@@ -9,6 +9,6 @@ StatusLED::StatusLED ()
 
 void StatusLED::toggle ()
 {
-	(led_enabled) ? digitalWrite(StatusLED::LED_PIN, LOW) : digitalWrite(StatusLED::LED_PIN, HIGH);
+	digitalWrite(StatusLED::LED_PIN, led_enabled ? LOW : HIGH);
 	led_enabled = !led_enabled;
 }

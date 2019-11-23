@@ -15,18 +15,13 @@ class Alliance:
     """
 
     def __init__(self, name, team_1_name, team_1_number, team_2_name,
-                 team_2_number, perk_1=PERKS.EMPTY, perk_2=PERKS.EMPTY,
-                 perk_3=PERKS.EMPTY, team_1_custom_ip=None, team_2_custom_ip=None):
+                 team_2_number, team_1_custom_ip=None, team_2_custom_ip=None):
         self.name = name
         self.team_1_name = team_1_name
         self.team_2_name = team_2_name
         self.team_1_number = team_1_number
         self.team_2_number = team_2_number
         self.score = 0
-        self.perk_1 = 0
-        self.perk_2 = 0
-        self.perk_3 = 0
-        self.can_twist = True
         self.team_1_connection = False
         self.team_2_connection = False
         self.team_1_custom_ip = team_1_custom_ip
@@ -42,10 +37,6 @@ class Alliance:
 
     def reset(self):
         self.score = 0
-        self.perk_1 = 0
-        self.perk_2 = 0
-        self.perk_3 = 0
-        self.can_twist = True
         self.team_1_connection = False
         self.team_2_connection = False
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,
@@ -57,5 +48,4 @@ class Alliance:
     def __str__(self):
         return ("<alliance: " + self.name + "> <teams: " + self.team_1_name + " " +
                 str(self.team_1_number) + ", " + self.team_2_name + " " + str(self.team_2_number) +
-                "> <score: " + str(self.score) + "> <perks: " + self.perk_1 + ", " + self.perk_2 +
-                ", " + self.perk_3 + "> <can twist: " + str(self.can_twist) + ">")
+                "> <score: " + str(self.score) + ">")

@@ -10,6 +10,8 @@ fi
 if ! git rev-parse --git-dir 2>/dev/null >/dev/null; then
   git clone -b master https://github.com/pioneers/PieCentral.git
   cd PieCentral/foundry/provisioning
+else
+  cd "$(git rev-parse --show-toplevel)/foundry/provisioning"
 fi
 
 export MOUNT_SYNCED=no

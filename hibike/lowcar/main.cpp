@@ -3,10 +3,11 @@
 #include "LineFollower.h"
 #include "RFID.h"
 #include "ServoControl.h"
+#include "BatteryBuzzer.h"
 
 /* This main file should be as simple as possible.
  * Every device runs this main file.
- * All device-specific behaviors are encapsulated by 
+ * All device-specific behaviors are encapsulated by
  * the Device class and its derived classes.
  */
 

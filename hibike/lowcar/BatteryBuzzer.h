@@ -30,7 +30,6 @@ public:
 private:
   unsigned long last_check_time;
   bool calibrated;
-  float vref_guess;
 
   bool is_calibrated ();
 };

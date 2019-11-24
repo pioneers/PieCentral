@@ -11,3 +11,5 @@
       become_user: root
       hostname:
         name: team{{ team_num }}
+  # TODO: Take team number as an argument
+  # TODO: Install and set up Avahi for mDNS

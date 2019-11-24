@@ -1,2 +1,13 @@
 ---
-# TODO: add provisioning playbook
+- name: provision raspberry pi
+  hosts: all
+  roles:
+    - base
+  vars:
+    - team_num: 00
+  tasks:
+    - name: set hostname
+      become: yes
+      become_user: root
+      hostname:
+        name: team{{ team_num }}

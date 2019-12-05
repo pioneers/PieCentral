@@ -45,6 +45,8 @@ class Alliance:
         #TODO: Send info to UI about reset
         #TODO: Move score sends to shepherd.py
 
+    # __dict__ is a Class Built-In to get the instance variable values of instance {VARIABLE, VALUE}
+
     def __str__(self):
         return ("<alliance: " + self.name + "> <teams: " + self.team_1_name + " " +
                 str(self.team_1_number) + ", " + self.team_2_name + " " + str(self.team_2_number) +

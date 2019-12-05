@@ -418,9 +418,41 @@ def load_game():
     """
     game_serialization.load_json()
 
+def load_game_data(args):
+    global GAME_STATE
+    global MATCH_NUMBER
+    global STARTING_SPOTS
+    global MASTER_ROBOTS
+    global BUTTONS
+    global CODES_USED
+    global ALLIANCES
+
+    GAME_STATE = args["GAME_STATE"]
+    MATCH_NUMBER = args["MATCH_NUMBER"]
+    STARTING_SPOTS = args["STARTING_SPOTS"]
+    MASTER_ROBOTS = args["MASTER_ROBOTS"]
+    BUTTONS = args["BUTTONS"]
+    CODES_USED = args["CODES_USED"]
+    ALLIANCES = args["ALLIANCES"]
+
+    for key in list(ALLIANCES.keys):
+        if ALLIANCES[key] is not None:
+            param_data = ALLIANCES[key]
+            ALLIANCES[key] = Alliance(param_data["name"], param_data["team_1_name"], param_data["team_1_number"], \
+                param_data["team_2_name"], param_data["team_2_number"], param_data["team_1_custom_ip"], \
+                    param_data["team_2_custom_ip"])
+
+
 def save_game():
+
+    alliance_procesed = dict(ALLIANCES)
+
+    for key in list(alliance_procesed.keys):
+        if alliance_procesed[key] is not None:
+            alliance_procesed[key] = alliance_procesed[key].__dict__
+
     game_serialization.create_json({"GAME_STATE": GAME_STATE, "MATCH_NUMBER": MATCH_NUMBER, "STARTING_SPOTS": STARTING_SPOTS, \
-                "MASTER_ROBOTS": MASTER_ROBOTS, "BUTTONS": BUTTONS, "CODES_USED": CODES_USED})
+                "MASTER_ROBOTS": MASTER_ROBOTS, "BUTTONS": BUTTONS, "CODES_USED": CODES_USED, "ALLIANCES": alliance_procesed})
 
 ###########################################
 # Event to Function Mappings for each Stage
@@ -431,7 +463,8 @@ SETUP_FUNCTIONS = {
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
     SHEPHERD_HEADER.GET_MATCH_INFO : get_match,
     SHEPHERD_HEADER.START_NEXT_STAGE: to_auto,
-    SHEPHERD_HEADER.LOAD_PREV_GAME: load_game
+    SHEPHERD_HEADER.LOAD_PREV_GAME: load_game,
+    SHEPHERD_HEADER.LOAD_GAME_DATA: load_game_data
 }
 
 AUTO_FUNCTIONS = {

@@ -58,6 +58,9 @@ class SHEPHERD_HEADER():
     
     LOAD_PREV_GAME = "load_prev_game"
         #
+
+    LOAD_GAME_DATA = "load_game_data"
+        #
     
     GAME_LOAD_CONFIRM = "game_load_confirm"
         #

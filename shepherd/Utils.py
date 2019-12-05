@@ -55,6 +55,12 @@ class SHEPHERD_HEADER():
 
     REQUEST_CONNECTIONS = "request_connections"
         #REQUEST_CONNECTIONS{}
+    
+    LOAD_PREV_GAME = "load_prev_game"
+        #
+    
+    GAME_LOAD_CONFIRM = "game_load_confirm"
+        #
 
 # pylint: disable=invalid-name
 class DAWN_HEADER():
@@ -80,6 +86,7 @@ class UI_HEADER():
     TEAMS_INFO = "teams_info"
     SCORES = "scores"
     CONNECTIONS = "connections"
+    LOAD_DATA = "load_data"
     #CONNECTIONS{g_1_connection[True/False], g_2_connection[True/False],
     # b_1_connection[True/False], b_2_connection[True/False]}
 

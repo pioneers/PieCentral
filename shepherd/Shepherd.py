@@ -13,6 +13,7 @@ from runtimeclient import RuntimeClientManager
 import Sheet
 import bot
 import audio
+import game_serialization
 
 
 clients = RuntimeClientManager((), ())
@@ -36,7 +37,7 @@ def start():
     lcm_start_read(LCM_TARGETS.SHEPHERD, EVENTS)
     while True:
         
-        # {"LAST_HEADER": LAST_HEADER, "payload": payload}
+        # # Will not be used (same as LAST_HEADER), {"LAST_HEADER": LAST_HEADER, "payload": payload}
         # No need "EVENTS"
         # "GAME_STATE": GAME_STATE
         # "MATCH_NUMBER": MATCH_NUMBER
@@ -44,7 +45,6 @@ def start():
         # "MASTER_ROBOTS": MASTER_ROBOTS       # Variables will evaluate (the dot stuff)
         # "BUTTONS": BUTTONS
         # "CODES_USED": CODES_USED
-
 
         print("GAME STATE OUTSIDE: ", GAME_STATE)
         time.sleep(0.1)
@@ -176,6 +176,7 @@ def to_wait(args):
     Some years, there might be methods that can be called once in the wait stage
     '''
     global GAME_STATE
+
     GAME_STATE = STATE.WAIT
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE, {"stage": GAME_STATE})
     disable_robots()
@@ -187,6 +188,9 @@ def to_teleop(args):
     By the end, should be in teleop state and the teleop match timer should be started.
     '''
     global GAME_STATE
+
+    save_game()
+
     GAME_STATE = STATE.TELEOP
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE, {"stage": GAME_STATE})
 
@@ -204,6 +208,9 @@ def to_end(args):
     and final score adjustments can be made.
     '''
     global GAME_STATE
+
+    save_game()
+
     lcm_send(LCM_TARGETS.UI, UI_HEADER.SCORES,
              {"blue_score" : math.floor(ALLIANCES[ALLIANCE_COLOR.BLUE].score),
               "gold_score" : math.floor(ALLIANCES[ALLIANCE_COLOR.GOLD].score)})
@@ -405,6 +412,16 @@ def send_connections(args):
     #        "b_2_connection" : ALLIANCES[ALLIANCE_COLOR.BLUE].team_2_connection}
     # lcm_send(LCM_TARGETS.UI, UI_HEADER.CONNECTIONS, msg)
 
+def load_game():
+    """
+    Load the game since last game
+    """
+    game_serialization.load_json()
+
+def save_game():
+    game_serialization.create_json({"GAME_STATE": GAME_STATE, "MATCH_NUMBER": MATCH_NUMBER, "STARTING_SPOTS": STARTING_SPOTS, \
+                "MASTER_ROBOTS": MASTER_ROBOTS, "BUTTONS": BUTTONS, "CODES_USED": CODES_USED})
+
 ###########################################
 # Event to Function Mappings for each Stage
 ###########################################
@@ -413,7 +430,8 @@ SETUP_FUNCTIONS = {
     SHEPHERD_HEADER.SETUP_MATCH: to_setup,
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
     SHEPHERD_HEADER.GET_MATCH_INFO : get_match,
-    SHEPHERD_HEADER.START_NEXT_STAGE: to_auto
+    SHEPHERD_HEADER.START_NEXT_STAGE: to_auto,
+    SHEPHERD_HEADER.LOAD_PREV_GAME: load_game
 }
 
 AUTO_FUNCTIONS = {

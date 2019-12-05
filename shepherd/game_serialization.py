@@ -1,4 +1,5 @@
 import json
+from Shepherd import lcm_send, LCM_TARGETS, UI_HEADER
 
 def serialize(saving):
     """
@@ -11,20 +12,15 @@ def serialize(saving):
     True - successful load signal
     False - unseccessful load signal
     """
-    assert type(saving) == dict, "Input must be a dictionary"
+    assert isinstance(saving, dict), "Input must be a dictionary"
     create_json(saving)
-
-def load_game():
-    """
-    Load the game since last game
-    """
-    return load_json()
 
 def load_json(path = "", fileName = "game_data.json"):
     with open(path + fileName) as json_file:
         data = json.load(json_file)
-        return data
-    return None
+        lcm_send(LCM_TARGETS.UI, UI_HEADER.LOAD_DATA, data)
+        return
+    print("JSON not loaded")
 
 def create_json(data, path = "", fileName = "game_data.json"):
     with open(path + fileName, 'w') as outfile:

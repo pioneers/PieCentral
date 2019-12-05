@@ -59,7 +59,7 @@ class SHEPHERD_HEADER():
     LOAD_PREV_GAME = "load_prev_game"
         #
     
-    GAME_LOAD_CONFIRM = "game_load_confirm"
+    LOAD_PREV_GAME_REQUEST = "load_prev_game_request"
         #
 
 # pylint: disable=invalid-name

@@ -417,6 +417,9 @@ def load_game():
     Load the game since last game
     """
     game_serialization.load_json()
+    lcm_send(LCM_TARGETS.UI, UI_HEADER.SCORES,
+                 {"blue_score" : None,
+                  "gold_score" : None})
 
 def save_game():
     game_serialization.create_json({"GAME_STATE": GAME_STATE, "MATCH_NUMBER": MATCH_NUMBER, "STARTING_SPOTS": STARTING_SPOTS, \
@@ -431,7 +434,8 @@ SETUP_FUNCTIONS = {
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
     SHEPHERD_HEADER.GET_MATCH_INFO : get_match,
     SHEPHERD_HEADER.START_NEXT_STAGE: to_auto,
-    SHEPHERD_HEADER.LOAD_PREV_GAME: load_game
+    SHEPHERD_HEADER.LOAD_PREV_GAME: load_game,
+    SHEPHERD_HEADER.LOAD_PREV_GAME_REQUEST: load_game_request
 }
 
 AUTO_FUNCTIONS = {

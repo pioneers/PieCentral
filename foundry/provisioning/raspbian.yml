@@ -3,13 +3,25 @@
   hosts: all
   roles:
     - base
-  vars:
-    - team_num: 00
   tasks:
     - name: set hostname
       become: yes
       become_user: root
       hostname:
         name: team{{ team_num }}
+    - name: install Avahi
+      become: yes
+      become_method: sudo
+      become_user: root
+      apt:
+        name: avahi-daemon
+    - name: change the raspberry pi hostname files
+      become: yes
+      become_method: sudo
+      become_user: root
+      lineinfile: 
+        path: /etc/host
+
   # TODO: Take team number as an argument
+  #       Command line argument --extra-vars '{"team_num":"__"}'
   # TODO: Install and set up Avahi for mDNS

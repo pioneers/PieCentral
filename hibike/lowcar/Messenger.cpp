@@ -20,7 +20,11 @@ Messenger::Messenger ()
 //TODO: check buffer size
 Status Messenger::send_message (MessageID msg_id, message_t *msg, uint16_t params, uint16_t delay, uid_t *uid)
 {
-	build_msg(msg_id, msg, params, delay, uid); //build msg for heartbeat- and subscription-related messages
+	//build msg for heartbeat- and subscription-related messages
+	if (build_msg(msg_id, msg, params, delay, uid) == Status::PROCESS_ERROR)
+	{
+		return Status::PROCESS_ERROR;
+	}
 	
 	size_t msg_len = msg->payload_length + Messenger::MESSAGEID_BYTES + Messenger::PAYLOAD_SIZE_BYTES + Messenger::CHECKSUM_BYTES;
     uint8_t data[msg_len];

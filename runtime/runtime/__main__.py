@@ -21,11 +21,11 @@ def cli(**options):
 @click.option('-l', '--log-level', default='INFO', help='Log level emitted',
               type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']))
 @click.option('-p', '--log-pretty', is_flag=True, help='Pretty-print log records')
-@click.option('-c', '--config-file', type=click.Path(dir_okay=False, exists=True),
-              default=get_module_path('config/default.yaml'), help='Configuration file')
+@click.option('-c', '--config-path', type=click.Path(dir_okay=False, exists=True),
+              default=get_module_path('config/default.yaml'), help='Configuration file path')
 def run(**options):
     """ Execute runtime. """
-    asyncio.run(runtime.supervisor.Runtime(**options).main())
+    asyncio.run(runtime.supervisor.start(**options))
 
 
 @cli.command()

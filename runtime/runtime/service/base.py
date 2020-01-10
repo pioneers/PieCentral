@@ -2,6 +2,7 @@ import abc
 import asyncio
 import dataclasses
 import datetime
+import threading
 from typing import Any, Mapping
 
 from schema import And, Schema, Use, Optional
@@ -12,11 +13,13 @@ from zmq.asyncio import Context, Socket
 from runtime.messaging import routing
 
 
-SOCKETS_SCHEMA = Schema(And(Use(dict), {
+SOCKET_SCHEMA = Schema({
     'socket_type': And(Use(str.upper), Use(routing.SOCKET_TYPES.get)),
     'address': str,
-    Optional('bind', default=False): bool,
-}))
+    Optional('bind', default=False): Use(bool),
+    Optional('send_timeout'): Use(float),
+    Optional('recv_timeout'): Use(float),
+})
 
 
 @dataclasses.dataclass
@@ -25,18 +28,19 @@ class Service(abc.ABC):
     connections: Mapping[str, routing.Connection] = dataclasses.field(default_factory=dict)
     logger: structlog.BoundLoggerBase = dataclasses.field(default_factory=structlog.get_logger)
 
-    def __call__(self, *args, **kwargs):
-        asyncio.run(self.bootstrap(*args, **kwargs))
+    def __call__(self, config, *args, **kwargs):
+        asyncio.run(self.bootstrap(config, *args, **kwargs))
 
     def create_connections(self, sockets):
-        for name, config in sockets.items():
-            config = SOCKETS_SCHEMA.validate(config)
-            socket = routing.make_socket(**config, context=self.zmq_context)
+        for name, socket_conf in sockets.items():
+            self.logger.debug('Creating connection', name=name, **socket_conf)
+            socket_conf = SOCKET_SCHEMA.validate(socket_conf)
+            socket = routing.make_socket(**socket_conf, context=self.zmq_context)
             self.connections[name] = routing.Connection(socket)
 
-    async def bootstrap(self, *, sockets=None, proxies=None, config=None):
-        self.create_connections(sockets)
-        await self.main(config)
+    async def bootstrap(self, config):
+        self.create_connections(config['sockets'])
+        await self.main(config['config'])
 
     @abc.abstractmethod
     async def main(self, config):

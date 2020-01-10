@@ -33,4 +33,5 @@ class ExecutorService(Service):
     async def main(self, config):
         while True:
             self.logger.info('Executor firing')
-            await asyncio.sleep(1)
+            await self.connections['journal'].send({'x': 1})
+            await asyncio.sleep(2)

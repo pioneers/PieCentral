@@ -8,7 +8,7 @@ import zmq.asyncio
 async def main():
     context = zmq.asyncio.Context()
     socket = context.socket(zmq.SUB)
-    socket.connect('tcp://127.0.0.1:6010')
+    socket.connect('tcp://127.0.0.1:6003')
     socket.subscribe(b'')
     while True:
         packet = await socket.recv()

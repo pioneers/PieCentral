@@ -2,6 +2,10 @@
 
 services:
   broker:
+    replicas: 1
+    retry:
+      - strategy: loop
+        interval: 5
     sockets:
       fieldcontrol:
         socket_type: sub
@@ -15,20 +19,25 @@ services:
         socket_type: pub
         address: tcp://127.0.0.1:6003
         bind: true
-    proxies:
-      journal:
-        frontend: journal_in
-        backend: journal_out
-    config: {}  # TODO: remove
+    config:
+      max_workers: 5
+      proxies:
+        journal:
+          frontend: journal_in
+          backend: journal_out
   executor:
+    replicas: 1
+    retry:
+      - strategy: loop
+        interval: 5
     sockets:
       journal:
         socket_type: pub
         address: ipc:///tmp/journal.sock
         send_timeout: 5
-      device:
+      device_status:
         socket_type: sub
-        address: ipc:///tmp/device.sock
+        address: ipc:///tmp/device-status.sock
     config:
       execution_period: 0.05  # 20 Hz
       device_schema: config/devices.yaml
@@ -37,14 +46,18 @@ services:
         recv_port: 6000
         send_port: 6001
   device:
+    replicas: 1
+    retry:
+      - strategy: loop
+        interval: 5
     sockets:
       journal:
         socket_type: pub
         address: ipc:///tmp/journal.sock
         send_timeout: 5
-      device:
+      device_status:
         socket_type: pub
-        address: ipc:///tmp/device.sock
+        address: ipc:///tmp/device-status.sock
         bind: true
     config:
       device_schema: config/devices.yaml

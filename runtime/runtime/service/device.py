@@ -19,9 +19,9 @@ from runtime.util import get_module_path
 from runtime.util.exception import EmergencyStopException, RuntimeBaseException
 
 
-class DeviceProtocol(asyncio.Protocol):
+class SmartSensorProtocol(asyncio.Protocol):
     def connection_made(self, transport):
-        pass
+        self.transport = transport
 
     def connection_lost(self, exc):
         pass
@@ -33,100 +33,51 @@ class DeviceProtocol(asyncio.Protocol):
         pass
 
 
-class DeviceStructure(ctypes.LittleEndianStructure):
-    """
-    A struct representing a device (for example, a Smart Sensor).
-    """
-    Parameter = collections.namedtuple(
-        'Parameter',
-        ['name', 'type', 'lower', 'upper', 'readable', 'writeable'],
-        defaults=[float('-inf'), float('inf'), True, False],
-    )
-    timestamp_type = ctypes.c_double
+class SmartSensorObserver(MonitorObserver):
+    def __init__(self, baud_rate: int, name: str = 'device-observer',
+                 subsystem: str = 'usb', device_type: str = 'usb_interface'):
+        self.context = Context()
+        self.monitor = Monitor.from_netlink(self.context)
+        self.monitor.filter_by(subsystem, device_type)
+        super().__init__(self.monitor, self.handle_hotplug_event, name=name)
+
+    def handle_hotplug_event(self, action, device):
+        path, product = device.sys_path, device.properties.get('PRODUCT')
+        if SmartSensorObserver.is_sensor(device):
+            if action.lower() == 'add':
+                for com_port in self.get_com_ports({device}):
+                    self.open_serial_conn(com_port)
+                return
+            elif action.lower() == 'remove':
+                return
+        logger.debug('Ignoring irrelevant hotplug event', action=action,
+                     path=path, product=product)
 
     @staticmethod
-    def _get_timestamp_name(param_name: str) -> str:
-        return f'{param_name}_ts'
+    def is_sensor(device: Device) -> bool:
+        """
+        Determine whether the USB descriptor belongs to an Arduino Micro (CDC ACM).
+        .. _Linux USB Project ID List
+            http://www.linux-usb.org/usb.ids
+        """
+        try:
+            vendor_id, product_id, _ = device.properties['PRODUCT'].split('/')
+            return int(vendor_id, 16) == 0x2341 and int(product_id, 16) == 0x8037
+        except (KeyError, ValueError):
+            return False
 
     @staticmethod
-    def _get_time() -> Real:
-        return time.time()
-
-    def last_modified(self, param_name: str) -> Real:
-        return getattr(self, self._get_timestamp_name(param_name))
-
-    def __setattr__(self, param_name: str, value):
-        """ Validate and assign a parameter value, and update its timestamp. """
-        param = self._params[param_name]
-        if isinstance(value, Real):
-            if not param.lower <= value <= param.upper:
-                raise RuntimeBaseException(
-                    'Invalid value assigned to device parameter',
-                    cause='invalid-bounds',
-                    value=value,
-                    lower=param.lower,
-                    upper=param.upper,
-                    param_name=param.name,
-                    dev_name=self.__class__.__name__,
-                )
-        super().__setattr__(self._get_timestamp_name(param_name), self._get_time())
-        super().__setattr__(param_name, value)
-
-    @classmethod
-    def make_type(cls: type, name: str, type_id: int, params: List[Parameter], *extra_fields) -> type:
-        """
-        Create a new device structure type using subclassing.
-
-        Arguments:
-            name: The name of the device.
-            type_id: The unique device type identifier, as outlined in the Smart Sensors spec.
-            params: A list of device parameters.
-            extra_fields: Auxiliary fields (not Smart Sensor parameters).
-        """
-        fields = list(extra_fields)
-        for param in params:
-            fields.extend([
-                (param.name, param.type),
-                (cls._get_timestamp_name(name), cls.timestamp_type),
-            ])
-
-        return type(name, (cls, ), {
-            '_params': {param.name: param for param in params},
-            '_fields_': fields,
-            'type_id': type_id,
-        })
-
-
-DEVICES_SCHEMA = Schema(And(Use(dict), {
-    str: And(Use(dict), {
-        str: And(Use(dict), {
-            'id': And(Use(int), lambda type_id: 0 <= type_id < 0xffff),
-            'params': And(Use(list),
-                [And(Use(dict), {
-                    'name': Use(str),
-                    'type': And(Use(str), Use(lambda dev_type: getattr(ctypes, f'c_{dev_type}'))),
-                    Optional('lower'): Use(float),
-                    Optional('upper'): Use(float),
-                    Optional('readable'): Use(bool),
-                    Optional('writeable'): Use(bool),
-                })],
-            ),
-        }),
-    }),
-}), ignore_extra_keys=True)
-
-
-async def get_device_schema(schema_path: str):
-    async with aiofiles.open(schema_path) as schema_file:
-        device_schema = yaml.load(await schema_file.read())
-    device_schema = DEVICES_SCHEMA.validate(device_schema)
-    device_types = {}
-    for protocol, devices in device_schema.items():
-        for device, config in devices.items():
-            device_types[device] = DeviceStructure.make_type(device, config['id'], [
-                DeviceStructure.Parameter(**param) for param in config['params']
-            ])
-    return device_types
+    def get_com_ports(devices: Sequence[Device]):
+        """ Translate a sequence of `pyudev` devices into usable COM ports. """
+        ports = serial.tools.list_ports.comports(include_links=True)
+        port_devices = {port.location: port.device for port in ports}
+        for device in devices:
+            for filename in os.listdir(device.sys_path):
+                if filename.startswith('tty'):
+                    for port in ports:
+                        if port.location in device.sys_path:
+                            yield port.device
+                            break
 
 
 @dataclasses.dataclass
@@ -141,13 +92,6 @@ class DeviceService(Service):
         #     y.duty_cycle = 2
         #     await asyncio.sleep(1)
 
-        # self.logger.debug('Config', config=device_schema)
-
-        # while True:
-        #     self.logger.debug('Sending ping to journal.')
-        #     await self.raw_sockets['journal'].send(b'ping')
-        #     await asyncio.sleep(1)
-
         while True:
-            self.logger.debug('Hello!')
-            await asyncio.sleep(1)
+            self.logger.debug('Devices firing')
+            await asyncio.sleep(20)

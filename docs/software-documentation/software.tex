@@ -64,7 +64,7 @@
   showtabs=false,
   tabsize=4,
   backgroundcolor=\color{silver},
-  basicstyle=\ttfamily,
+  basicstyle=\ttfamily\footnotesize,
   keywordstyle=\bfseries\color{light-blue},
   commentstyle=\color{dark-gray},
   identifierstyle=\color{cyan},
@@ -140,8 +140,7 @@
   \item
     \textbf{Abstraction:} Each process performs a limited number of tasks and is easy to reason about.
   \item
-    \textbf{Isolation:} Each process has a small ``blast radius'' and are unlikely to cause failures in other processes.
-    Each process can also be restarted independently.
+    \textbf{Isolation:} Each process has a small ``blast radius,'' is unlikely to cause failures in other processes, and can restart independently.
   \item
     \textbf{Parallelism:} Many Python implementations implement a Global Interpreter Lock (GIL) for memory management reasons, meaning a multithreaded program cannot actually run on multiple physical cores simultaenously.
     Multiprocessing does not face this issue, since each process runs its own Python interpreter.
@@ -161,7 +160,7 @@
 
   Currently, the services Runtime has include:
   \begin{itemize}
-  % \item \texttt{broker}: Aggregates network requests.
+  \item \texttt{broker}: Aggregates network requests.
   \item \texttt{executor}: Executes student code and stores game state.
   \item \texttt{devices}: Manages device events and Smart Sensor packet encoding/decoding.
   \end{itemize}
@@ -172,9 +171,9 @@
   ZMQ is used to build complex network topologies at a higher level of abstraction than raw sockets (for example, implementing a publish-subscribe pattern).
   It is performant, has bindings in many languages, and supports a variety of transports like TCP, UDP, and Unix sockets.
 
-  \begin{displayquote}
-    Networks \sout{Ogres} are like onions.
-  \end{displayquote}
+  % \begin{displayquote}
+  %   Networks \sout{Ogres} are like onions.
+  % \end{displayquote}
 
   % \begin{figure}[!ht]
   %   \centering
@@ -224,16 +223,58 @@
     \label{fig:runtime-architecture}
   \end{figure}
 
-  \begin{lstlisting}[gobble=4]
+  \section{Networking}
+
+  All messages are \texttt{msgpack}-encoded and transmitted either through ZMQ sockets or through raw UDP.
+
+  \begin{lstlisting}[gobble=4, caption={\texttt{device-event} message (Unix socket published by \texttt{devices})}]
     {
-      "mode": ,
-      "gamepads": [{
-        ""
+      "uid": "<str>",
+      "shm_name": "<str>",
+      "status": "(connected|disconnected)"
+    }
+  \end{lstlisting}
+
+  \begin{lstlisting}[gobble=4, caption={\texttt{gamepad} message (UDP from Dawn to Runtime)}]
+    [{
+      "x_axes": <float>,
+      "y_axes": <float>,
+      "x": <bool>,
+      "y": <bool>,
+      "a": <bool>,
+      "b": <bool>,
+      "up": <bool>,
+      "down": <bool>,
+      "left": <bool>,
+      "right": <bool>
+    }]
+  \end{lstlisting}
+
+  \begin{lstlisting}[gobble=4, caption={\texttt{device-params} message (UDP from Runtime to Dawn)}]
+    {
+      "<uid: str>": [<device_type: int>, "<device_name: str>", {
+        "<param_name: str>": <value>
       }]
     }
   \end{lstlisting}
 
+  \begin{lstlisting}[gobble=4, caption={Heartbeat ping}]
+    {
+      "mode": "<str>",
+      "severity": <int>,
+      "send_count": <int>,
+    }
+  \end{lstlisting}
+
+  \begin{lstlisting}[gobble=4, caption={Heartbeat response}]
+    {
+      "recv_count": <int>,
+    }
+  \end{lstlisting}
+
   \section{Smart Sensor Protocol}
+
+  \subsection{Hotplugging}
 
   % \section{Networking}
   %

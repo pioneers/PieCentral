@@ -16,14 +16,15 @@ yappi = "*"
 cobs = "~=1.1"
 aioprocessing = "*"
 msgpack = "*"
-schema = "~=0.7"
+schema = "*"
 backoff = "*"
 colorama = "*"
-pyzmq = "~=18.1"
 aio-msgpack-rpc = "*"
 structlog = "*"
 aiofiles = "*"
 cachetools = "*"
+# Note: `pyzmq` should be installed separately because it relies on several
+# --install-option flags to use draft sockets.
 
 [dev-packages]
 cython = "~=0.29"
@@ -31,3 +32,4 @@ pylint = "~=2.2"
 pytest = "~=4.1"
 pytest-timeout = "~=1.3"
 asynctest = "~=0.12"
+memory-profiler = "*"

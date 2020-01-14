@@ -10,7 +10,6 @@ click = "~=7.0"
 pyserial = "~=3.4"
 pyudev = "~=0.21"
 pyyaml = "~=3.13"
-pyserial-asyncio = "*"
 # uvloop = "*"
 yappi = "*"
 cobs = "~=1.1"
@@ -25,6 +24,8 @@ aiofiles = "*"
 cachetools = "*"
 # Note: `pyzmq` should be installed separately because it relies on several
 # --install-option flags to use draft sockets.
+aioserial = "*"
+uvloop = "*"
 
 [dev-packages]
 cython = "~=0.29"

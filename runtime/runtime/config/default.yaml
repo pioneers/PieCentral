@@ -7,10 +7,6 @@ services:
       - strategy: loop
         interval: 5
     sockets:
-      fieldcontrol:
-        socket_type: sub
-        address: tcp://127.0.0.1:6002
-        bind: true
       journal_in:
         socket_type: sub
         address: ipc:///tmp/journal.sock
@@ -35,12 +31,16 @@ services:
         socket_type: pub
         address: ipc:///tmp/journal.sock
         send_timeout: 5
-      device_status:
+      fieldcontrol:
+        socket_type: rep
+        address: tcp://127.0.0.1:6002
+        bind: true
+      device_event:
         socket_type: sub
-        address: ipc:///tmp/device-status.sock
+        address: ipc:///tmp/device-event.sock
     config:
+      student_code: runtime.game.studentcode
       execution_period: 0.05  # 20 Hz
-      device_schema: config/devices.yaml
       dawn:
         recv_host: 127.0.0.1
         recv_port: 6000
@@ -55,10 +55,13 @@ services:
         socket_type: pub
         address: ipc:///tmp/journal.sock
         send_timeout: 5
-      device_status:
+      device_event:
         socket_type: pub
-        address: ipc:///tmp/device-status.sock
+        address: ipc:///tmp/device-event.sock
         bind: true
+      device_command:
+        socket_type: sub
+        address: ipc:///tmp/device-command.sock
     config:
-      device_schema: config/devices.yaml
-      max_devices: 20
+      baud_rate: 115200
+      hotplug_max_events: 128

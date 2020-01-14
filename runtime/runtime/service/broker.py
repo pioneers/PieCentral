@@ -1,6 +1,7 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
+import structlog
 import zmq
 import zmq.asyncio
 
@@ -9,12 +10,15 @@ from runtime.messaging.routing import Connection
 from runtime.util.exception import EmergencyStopException
 
 
+LOGGER = structlog.get_logger()
+
+
 class BrokerService(Service):
     def serve_proxy(self, proxy):
         frontend, backend = proxy['frontend'], proxy['backend']
         frontend_socket = self.connections[frontend].socket
         backend_socket = self.connections[backend].socket
-        self.logger.debug('Serving proxy', frontend=frontend, backend=backend)
+        LOGGER.debug('Serving proxy', frontend=frontend, backend=backend)
         zmq.proxy(frontend_socket, backend_socket)  # FIXME
 
     async def main(self, config):

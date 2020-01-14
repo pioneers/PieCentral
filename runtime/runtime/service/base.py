@@ -7,12 +7,18 @@ from typing import Any, Mapping
 
 from schema import And, Schema, Use, Optional
 import structlog
+try:
+    import uvloop
+    uvloop.install()
+except ImportError:
+    pass
 import zmq
 from zmq.asyncio import Context, Socket
 
 from runtime.messaging import routing
 
 
+LOGGER = structlog.get_logger()
 SOCKET_SCHEMA = Schema({
     'socket_type': And(Use(str.upper), Use(routing.SOCKET_TYPES.get)),
     'address': str,
@@ -26,14 +32,13 @@ SOCKET_SCHEMA = Schema({
 class Service(abc.ABC):
     zmq_context: Context = dataclasses.field(default_factory=Context)
     connections: Mapping[str, routing.Connection] = dataclasses.field(default_factory=dict)
-    logger: structlog.BoundLoggerBase = dataclasses.field(default_factory=structlog.get_logger)
 
     def __call__(self, config, *args, **kwargs):
         asyncio.run(self.bootstrap(config, *args, **kwargs))
 
     def create_connections(self, sockets):
         for name, socket_conf in sockets.items():
-            self.logger.debug('Creating connection', name=name, **socket_conf)
+            LOGGER.debug('Creating connection', name=name, **socket_conf)
             socket_conf = SOCKET_SCHEMA.validate(socket_conf)
             socket = routing.make_socket(**socket_conf, context=self.zmq_context)
             self.connections[name] = routing.Connection(socket)

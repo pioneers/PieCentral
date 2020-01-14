@@ -17,6 +17,7 @@ import yaml
 import zmq.asyncio
 
 from runtime import get_version
+from runtime.messaging.device import load_device_types
 from runtime.service import SERVICES
 from runtime.service.base import Service
 from runtime.monitoring import retry, log
@@ -68,10 +69,10 @@ async def spin(services):
             subprocesses.append(run_subprocess(name, config))
     done, pending = await asyncio.wait(subprocesses, return_when=asyncio.FIRST_COMPLETED)
     for subprocess in pending:
-        pending.cancel()
+        subprocess.cancel()
 
 
-async def start(config_path: str, log_level: str, log_pretty: bool):
+async def start(config_path: str, dev_schema_path: str, log_level: str, log_pretty: bool):
     try:
         log.configure_logging(log_level, log_pretty)
         LOGGER.debug(f'Runtime v{get_version()}')
@@ -80,6 +81,11 @@ async def start(config_path: str, log_level: str, log_pretty: bool):
         async with aiofiles.open(config_path) as config_file:
             config = yaml.load(await config_file.read())
         LOGGER.debug(f'Read configuration from disk', config_path=config_path)
+
+        async with aiofiles.open(dev_schema_path) as schema_file:
+            schema = yaml.load(await schema_file.read())
+        load_device_types(schema)
+        LOGGER.debug(f'Read device schema from disk', dev_schema_path=dev_schema_path)
 
         await spin(config['services'])
     except Exception as exc:

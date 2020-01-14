@@ -15,6 +15,8 @@ from zmq.asyncio import Context, Socket
 SOCKET_TYPES = {
     'SUB': zmq.SUB,
     'PUB': zmq.PUB,
+    'REP': zmq.REP,
+    'REQ': zmq.REQ,
 }
 
 
@@ -48,9 +50,9 @@ class Connection:
     def loads(self, data: bytes):
         return msgpack.loads(data)
 
-    async def send(self, data):
+    async def send(self, payload):
         """ Serialize the outbound data and send the packet in chunks. """
-        packet = self.dumps(data)
+        packet = self.dumps(payload)
         chunks = [packet[i : i+self.chunk_size] for i in range(0, len(packet), self.chunk_size)]
         await self.socket.send_multipart(chunks, copy=False)
 

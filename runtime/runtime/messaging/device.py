@@ -1,18 +1,30 @@
+import asyncio
 import collections
 import ctypes
 import dataclasses
 from multiprocessing.shared_memory import SharedMemory
 from multiprocessing.managers import SharedMemoryManager
 import time
+from typing import Callable, Iterable, List, Union
 
 import cachetools
+import yaml
 import zmq
+from schema import And, Optional, Regex, Schema, Use
+import structlog
+
+from runtime.messaging.routing import Connection
 from runtime.util.exception import RuntimeBaseException
+
+
+LOGGER = structlog.get_logger()
+# The Smart Sensor protocol uses little Endian byte order (least-significant byte first).
+Structure = ctypes.LittleEndianStructure
 
 
 @cachetools.cached(cache={})
 def make_timestamped_parameter(param_type) -> type:
-    class TimestampedParameter(ctypes.Structure):
+    class TimestampedParameter(Structure):
         _fields_ = [
             ('value', param_type),
             ('last_updated', ctypes.c_double),
@@ -26,15 +38,25 @@ def make_timestamped_parameter(param_type) -> type:
     return TimestampedParameter
 
 
-class SmartSensorUID(ctypes.Structure):
+class SmartSensorUID(Structure):
+    _pack_ = 1  # Ensure the fields are byte-aligned (pack as densely as possible)
     _fields_ = [
         ('device_type', ctypes.c_uint16),
         ('year', ctypes.c_uint8),
         ('id', ctypes.c_uint64),
     ]
 
+    def to_int(self):
+        return (self.device_type << 72) | (self.year << 64) | self.id
 
-class DeviceStructure(ctypes.Structure):
+
+def get_field_bytes(structure: ctypes.Structure, field_name: str) -> bytes:
+    field_description = getattr(type(structure), field_name)
+    field_ref = ctypes.byref(structure, field_description.offset)
+    return ctypes.string_at(field_ref, field_description.size)
+
+
+class DeviceStructure(Structure):
     """
     The state of a device with readable/writeable parameters.
 
@@ -48,6 +70,28 @@ class DeviceStructure(ctypes.Structure):
         defaults=[float('-inf'), float('inf'), True, False],
     )
 
+    SMART_SENSOR_MAX_PARAMETERS = 16
+    SMART_SENSOR_CLEAN = 0x0000
+
+    @classmethod
+    def _normalize_param_id(cls, param_id: Union[int, str]) -> str:
+        return param_id if isinstance(param_id, str) else cls._params[param_id].name
+
+    def get_current(self, param_name: str):
+        return getattr(self, f'current_{param_name}').value
+
+    def set_desired(self, param_name: str, value):
+        getattr(self, f'desired_{param_name}').value = value
+
+    def set_current(self, param_name: str, value):
+        getattr(self, f'current_{param_name}').value = value
+
+    @classmethod
+    def get_parameters(cls, bitmap: int) -> Iterable[str]:
+        for i in range(len(cls._params)):
+            if (bitmap >> i) & 0b1:
+                yield cls._params[i]
+
     @classmethod
     def make_type(cls: type, name: str, type_id: int, params: List[Parameter], *extra_fields):
         fields = list(extra_fields)
@@ -55,7 +99,7 @@ class DeviceStructure(ctypes.Structure):
             ctype = make_timestamped_parameter(param.type)
             fields.extend([(f'current_{param.name}', ctype), (f'desired_{param.name}', ctype)])
         return type(name, (cls, ), {
-            '_params': {param.name: param for param in params},
+            '_params': params,
             '_fields_': fields,
             'type_id': type_id,
         })
@@ -73,7 +117,7 @@ class DeviceStructure(ctypes.Structure):
             is subscribed to.
           * `uid`: The unique identifier of the Smart Sensor.
         """
-        if len(params) > 16:
+        if len(params) > DeviceStructure.SMART_SENSOR_MAX_PARAMETERS:
             raise RuntimeBaseException('Maxmimum number of Smart Sensor parameters exceeded')
         extra_fields = [
             ('dirty', ctypes.c_uint16),
@@ -91,7 +135,7 @@ DEVICE_SCHEMA = Schema({
             'id': And(Use(int), lambda type_id: 0 <= type_id < 0xFFFF),
             'params': [{
                 'name': Use(str),
-                'type': And(Use(str), Use(lambda: dev_type: getattr(ctypes, f'c_{dev_type}'))),
+                'type': And(Use(str), Use(lambda dev_type: getattr(ctypes, f'c_{dev_type}'))),
                 Optional('lower'): Use(float),
                 Optional('upper'): Use(float),
                 Optional('readable'): Use(bool),
@@ -100,33 +144,42 @@ DEVICE_SCHEMA = Schema({
         }
     }
 })
+DEVICES = {}
+
+
+def load_device_types(schema: str, smart_sensor_protocol: str = 'smartsensor'):
+    schema = DEVICE_SCHEMA.validate(schema)
+    for protocol, devices in schema.items():
+        DEVICES[protocol] = {}
+        if protocol == smart_sensor_protocol:
+            make_device_type = DeviceStructure.make_smart_sensor_type
+        else:
+            make_device_type = DeviceStructure.make_type
+        for device_name, device_conf in devices.items():
+            params = [DeviceStructure.Parameter(**param_conf)
+                      for param_conf in device_conf['params']]
+            type_id = device_conf['id']
+            DEVICES[protocol][device_name] = make_device_type(device_name, type_id, params)
+            LOGGER.debug('Loaded device type', name=device_name, type_id=type_id)
+
+
+@cachetools.cached(cache={})
+def get_smart_sensor_type(device_type: int, protocol: str = 'smartsensor') -> type:
+    for device_name, device in DEVICES[protocol].items():
+        if device_type == device.type_id:
+            return device_name, device
+    raise RuntimeBaseException('Device not found', device_type=device_type, protocol=protocol)
+
+
+DeviceBuffer = collections.namedtuple('DeviceBuffer', ['shm', 'struct'])
 
 
 @dataclasses.dataclass
-class Device:
-    buffer: ctypes.Structure
-    send: Callable
-    recv: Callable
-
-    device_types = {}
-    smart_sensor_protocol_name = 'smartsensor'
-
-    @classmethod
-    def load_device_types(cls: type, schema):
-        """ Populate the device type registry from a raw device schema. """
-        schema = DEVICE_SCHEMA.validate(schema)
-        cls.device_types.clear()
-        for protocol, devices in schema.items():
-            cls.device_types[protocol] = {}
-            if protocol == cls.smart_sensor_protocol_name:
-                make_device_type = DeviceStructure.make_smart_sensor_type
-            else:
-                make_device_type = DeviceStructure.make_device_type
-            for device_name, device_conf in devices.items():
-                params = [DeviceStructure.Parameter(*param_conf)
-                          for param_conf in device_conf['params']]
-                cls.device_types[protocol][device_name] = make_device_type(
-                    device_name, device_conf['id'], params)
+class SmartSensorProxy:
+    event_subscriber: Connection
+    command_publisher: Connection
+    ready: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
+    buffer: DeviceBuffer = dataclasses.field(default=None, init=False)
 
     def ping(self):
         pass
@@ -136,84 +189,3 @@ class Device:
 
     def request_heartbeat(self):
         pass
-
-
-"""
-class DeviceStructure(ctypes.LittleEndianStructure):
-    Parameter = collections.namedtuple(
-        'Parameter',
-        ['name', 'type', 'lower', 'upper', 'readable', 'writeable'],
-        defaults=[float('-inf'), float('inf'), True, False],
-    )
-    timestamp_type = ctypes.c_double
-
-    @staticmethod
-    def _get_timestamp_name(param: str) -> str:
-        return f'{param}_ts'
-
-    def __setattr__(self, name: str, value):
-        param = self._params[name]
-        if isinstance(value, numbers.Real):
-            if not param.lower <= value <= param.upper:
-                raise RuntimeBaseException(
-                    'Invalid value assigned to device parameter',
-                    cause='invalid-bounds',
-                    value=value,
-                    lower=param.lower,
-                    upper=param.upper,
-                    param_name=param.name,
-                    dev_name=self.__class__.__name__,
-                )
-"""
-#
-#
-# @dataclasses.dataclass(init=False)
-# class Device:
-#     def __init__(self, struct: type, read_buf: SharedMemory, write_buf: SharedMemory):
-#         self.struct, self.read_buf, self.write_buf = struct, read_buf, write_buf
-#         self.read_struct = struct.from_buffer(self.read_buf)
-#         self.write_struct = struct.from_buffer(self.write_buf)
-#
-#     @staticmethod
-#     def open_device(struct: type, read_buf_name: str, write_buf_name: str):
-#         """ Open a device with existing shared memory buffers. """
-#         return Device(struct, SharedMemory(read_buf_name), SharedMemory(write_buf_name))
-#
-#     @staticmethod
-#     def create_device(shm_manager: SharedMemoryManager, struct: type):
-#         """ Create a device with new shared memory buffers. """
-#         size = ctypes.sizeof(struct)
-#         read_buf = shm_manager.SharedMemory(size)
-#         write_buf = shm_manager.SharedMemory(size)
-#         return Device(struct, read_buf, write_buf)
-#
-#     def close(self):
-#         self.read_buf.close()
-#         self.write_buf.close()
-#
-#     def __getattr__(self, name: str):
-#         param = self.struct._params.get(name)
-#         if param is not None:
-#             if param.readable:
-#                 return getattr(self.read_struct, name)
-#             else:
-#                 raise RuntimeBaseException('Parameter is not readable')
-#         else:
-#             raise AttributeError
-#
-#     def __setattr__(self, name: str, value):
-#         param = self.struct._params.get(name)
-#         if param is not None:
-#             if param.writeable:
-#                 setattr(self.write_struct, name, value)
-#             else:
-#                 raise RuntimeBaseException('Parameter is not writeable')
-#         else:
-#             super().__setattr__(name, value)
-#
-#
-# @dataclasses.dataclass
-# class DeviceManager:
-#     publisher: zmq.Socket
-#     subscriber: zmq.Socket
-#     device_id: Mapping[str, Device]

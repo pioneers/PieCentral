@@ -23,6 +23,8 @@ def cli(**options):
 @click.option('-p', '--log-pretty', is_flag=True, help='Pretty-print log records')
 @click.option('-c', '--config-path', type=click.Path(dir_okay=False, exists=True),
               default=get_module_path('config/default.yaml'), help='Configuration file path')
+@click.option('-d', '--dev-schema-path', type=click.Path(dir_okay=False, exists=True),
+              default=get_module_path('config/devices.yaml'), help='Device schema path')
 def run(**options):
     """ Execute runtime. """
     asyncio.run(runtime.supervisor.start(**options))

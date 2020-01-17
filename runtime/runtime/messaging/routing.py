@@ -48,7 +48,7 @@ class Connection:
         return msgpack.dumps(data)
 
     def loads(self, data: bytes):
-        return msgpack.loads(data)
+        return msgpack.loads(data, raw=False)
 
     async def send(self, payload):
         """ Serialize the outbound data and send the packet in chunks. """

@@ -28,6 +28,7 @@ from runtime.messaging.device import (
     get_smart_sensor_type,
 )
 from runtime.service.base import Service
+from runtime.util import POSITIVE_INTEGER
 from runtime.util.exception import EmergencyStopException, RuntimeBaseException
 
 LOGGER = structlog.get_logger()
@@ -81,9 +82,8 @@ class SmartSensorObserver(MonitorObserver):
                  subsystem: str = 'usb', device_type: str = 'usb_interface'):
         self.hotplug_queue = hotplug_queue
         self.subsystem, self.device_type = subsystem, device_type
-        # We need to store the event loop of the main thread, since `get_event_loop`
-        # will create a new event loop if called from the background thread.
-        self.loop = asyncio.get_event_loop()
+        # We need to store the event loop of the main thread.
+        self.loop = asyncio.get_running_loop()
         self.context = Context()
         monitor = Monitor.from_netlink(self.context)
         monitor.filter_by(subsystem, device_type)
@@ -101,14 +101,6 @@ class SmartSensorObserver(MonitorObserver):
             if event.action is HotplugAction.ADD:
                 event.ports.extend(get_com_ports({device}))
             self.loop.call_soon_threadsafe(self.hotplug_queue.put_nowait, event)
-
-
-def initialize_hotplugging(max_size=0):
-    event_queue = asyncio.Queue(maxsize=max_size)
-    observer = SmartSensorObserver(event_queue)
-    observer.handle_initial_sensors()
-    observer.start()
-    return event_queue
 
 
 class SmartSensorEvent(enum.Enum):
@@ -134,7 +126,7 @@ class SmartSensor:
         uid = packet.uid
         if not self.buffer:
             device_name, device_type = get_smart_sensor_type(uid.device_type)
-            shm = SharedMemory(f'smart-sensor-{uid}', create=True, size=ctypes.sizeof(device_type))
+            shm = SharedMemory(f'smart-sensor-{uid.to_int()}', create=True, size=ctypes.sizeof(device_type))
             self.buffer = DeviceBuffer(shm, device_type.from_buffer(shm.buf))
             LOGGER.debug('Initialized device buffer', uid=uid.to_int(), device_name=device_name)
         self.ready.set()
@@ -261,6 +253,19 @@ class SmartSensor:
 
 @dataclasses.dataclass
 class DeviceService(Service):
+    config_schema = dict(Service.config_schema)
+    config_schema.update({
+        'baud_rate': POSITIVE_INTEGER,
+        'hotplug_max_events': POSITIVE_INTEGER,
+    })
+
+    def initialize_hotplugging(self):
+        event_queue = asyncio.Queue(self.config['hotplug_max_events'])
+        observer = SmartSensorObserver(event_queue)
+        observer.handle_initial_sensors()
+        observer.start()
+        return event_queue
+
     async def open_serial_connections(self, hotplug_event, **serial_options):
         for port in hotplug_event.ports:
             serial_conn = aioserial.AioSerial(port, **serial_options)
@@ -269,11 +274,12 @@ class DeviceService(Service):
                 serial_conn,
                 self.connections['device_event'],
                 self.connections['device_command'],
+                write_interval=0.2,  # TODO: remove
             ).spin())
 
-    async def main(self, config):
-        event_queue = initialize_hotplugging(config.get('hotplug_max_events', 0))
+    async def main(self):
+        event_queue = self.initialize_hotplugging()
         while True:
             hotplug_event = await event_queue.get()
             if hotplug_event.action is HotplugAction.ADD:
-                await self.open_serial_connections(hotplug_event, baudrate=config['baud_rate'])
+                await self.open_serial_connections(hotplug_event, baudrate=self.config['baud_rate'])

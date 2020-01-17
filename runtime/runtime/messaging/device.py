@@ -14,6 +14,7 @@ from schema import And, Optional, Regex, Schema, Use
 import structlog
 
 from runtime.messaging.routing import Connection
+from runtime.util import VALID_NAME
 from runtime.util.exception import RuntimeBaseException
 
 
@@ -128,7 +129,6 @@ class DeviceStructure(Structure):
         return DeviceStructure.make_type(name, type_id, params, *extra_fields)
 
 
-VALID_NAME = Regex(r'^[a-zA-Z_]\w*$')
 DEVICE_SCHEMA = Schema({
     And(Use(str), VALID_NAME): {        # Protocol name
         And(Use(str), VALID_NAME): {    # Device name

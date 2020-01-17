@@ -21,8 +21,9 @@ def cli(**options):
 @click.option('-l', '--log-level', default='INFO', help='Log level emitted',
               type=click.Choice(['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']))
 @click.option('-p', '--log-pretty', is_flag=True, help='Pretty-print log records')
-@click.option('-c', '--config-path', type=click.Path(dir_okay=False, exists=True),
-              default=get_module_path('config/default.yaml'), help='Configuration file path')
+@click.option('-c', '--srv-config-path', type=click.Path(dir_okay=False, exists=True),
+              default=get_module_path('config/srv-default.yaml'),
+              help='Service configuration file path')
 @click.option('-d', '--dev-schema-path', type=click.Path(dir_okay=False, exists=True),
               default=get_module_path('config/devices.yaml'), help='Device schema path')
 def run(**options):

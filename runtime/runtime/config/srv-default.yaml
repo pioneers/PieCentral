@@ -14,6 +14,13 @@ broker:
       socket_type: pub
       address: tcp://127.0.0.1:6003
       bind: true
+    datagram_recv:
+      socket_type: dish
+      address: udp://*:6000
+      bind: true
+    device_event:
+      socket_type: pub
+      address: ipc:///tmp/device-event.sock
   max_workers: 5
   proxies:
     journal:
@@ -38,6 +45,7 @@ executor:
     device_event:
       socket_type: sub
       address: ipc:///tmp/device-event.sock
+      bind: true
   student_code: runtime.game.studentcode
   device_aliases: config/device-aliases.yaml
   loop_interval: 1 # 0.05  # 20 Hz
@@ -55,7 +63,6 @@ device:
     device_event:
       socket_type: pub
       address: ipc:///tmp/device-event.sock
-      bind: true
     device_command:
       socket_type: sub
       address: ipc:///tmp/device-command.sock

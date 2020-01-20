@@ -6,6 +6,9 @@ import enum
 import functools
 import importlib
 import inspect
+import multiprocessing
+from multiprocessing.connection import Connection as ProcessConnection
+from numbers import Real
 import os
 import queue
 import shutil
@@ -48,14 +51,15 @@ class RequestType(enum.Enum):
     GET_MATCH = enum.auto()
     SET_MATCH = enum.auto()
     RUN_CHALLENGE = enum.auto()
-    LIST_DEVICE_NAMES = enum.auto()
-    SET_DEVICE_NAME = enum.auto()
-    DEL_DEVICE_NAME = enum.auto()
+    LIST_ALIASES = enum.auto()
+    SET_ALIAS = enum.auto()
+    DEL_ALIAS = enum.auto()
+    LINT = enum.auto()
 
 
 class ActionExecutor(threading.Thread):
     def __init__(self, name: str = 'action-executor'):
-        self.running_actions = set()
+        self.running_actions = dict()
         super().__init__(target=self, daemon=True, name=name)
 
     def __call__(self):
@@ -74,57 +78,67 @@ class ActionExecutor(threading.Thread):
     def register_action_threadsafe(self, action, *args):
         self.loop.call_soon_threadsafe(self.register_action, action, *args)
 
+    def unregister_all(self):
+        for action in self.running_actions:
+            self.loop.call_soon_threadsafe(self.unregister_action, action)
+
     def register_action(self, action: typing.Callable, *args):
         if not inspect.iscoroutinefunction(action):
             LOGGER.warn('Action should be a coroutine function')
         elif self.is_running(action):
             LOGGER.warn('Action is already running, ignoring', action=action.__name__)
         else:
-            self.running_actions.add(action)
-            action_task = asyncio.get_running_loop().create_task(action(*args))
+            loop = asyncio.get_running_loop()
+            self.running_actions[action] = action_task = loop.create_task(action(*args))
             action_task.add_done_callback(functools.partial(self.unregister_action, action))
             LOGGER.debug('Registered action', action=action.__name__)
 
     def unregister_action(self, action: typing.Callable, *_):
-        if action in self.running_actions:
-            self.running_actions.remove(action)
+        try:
+            self.running_actions.pop(action).cancel()
             LOGGER.debug('Unregistered action', action=action.__name__)
+        except KeyError:
+            LOGGER.debug('Attempted to unregister action not running', action=action.__name__)
 
 
 class DeviceAliasManager(collections.UserDict):
-    def __init__(self, filename: str):
+    def __init__(self, filename: str, persist_timeout: Real):
         super().__init__()
-        self.filename = filename
-        asyncio.create_task(self.load_initial_aliases())
+        self.filename, self.persist_timeout = filename, persist_timeout
+        self.persisting = asyncio.Lock()
+        asyncio.create_task(asyncio.wait_for(self.load_initial_aliases(), self.persist_timeout))
 
     async def load_initial_aliases(self):
-        try:
-            async with aiofiles.open(self.filename) as alias_file:
-                self.update(yaml.loads(await alias_file.read()))
-        except FileNotFoundError:
-            pass
-
-    async def persist_aliases(self):
-        tmp_path = os.path.join(tempfile.gettempdir(), f'dev-aliases-{uuid.uuid4()}')
-        async with aiofiles.open(tmp_path, mode='w+') as alias_file:
-            await alias_file.write(yaml.dump(self.data, default_flow_style=False))
-        try:
-            shutil.move(tmp_path, self.filename)
-            LOGGER.debug('Persisted device aliases')
-        finally:
+        async with self.persisting:
             try:
-                os.unlink(tmp_path)
-                LOGGER.error('Failed to move temporary device aliases file')
-            except OSError:
+                async with aiofiles.open(self.filename) as alias_file:
+                    self.data.update(yaml.load(await alias_file.read()))
+                LOGGER.debug('Loaded initial aliases', aliases=self.data)
+            except FileNotFoundError:
                 pass
 
-    def __setitem__(self, uid: typing.Union[str, int], alias: str):
-        super().__setitem__(str(uid), alias)
-        asyncio.create_task(self.persist_aliases())
+    async def persist_aliases(self):
+        async with self.persisting:
+            tmp_path = os.path.join(tempfile.gettempdir(), f'dev-aliases-{uuid.uuid4()}')
+            async with aiofiles.open(tmp_path, mode='w+') as alias_file:
+                await alias_file.write(yaml.dump(self.data, default_flow_style=False))
+            try:
+                shutil.move(tmp_path, self.filename)
+                LOGGER.debug('Persisted device aliases', aliases=self.data)
+            finally:
+                try:
+                    os.unlink(tmp_path)
+                    LOGGER.error('Failed to move temporary device aliases file')
+                except OSError:
+                    pass
 
-    def __delitem__(self, uid: typing.Union[str, int]):
-        super().__delitem__(str(uid))
-        asyncio.create_task(self.persist_aliases())
+    def __setitem__(self, name: str, uid: typing.Union[str, int]):
+        super().__setitem__(name, uid)
+        asyncio.create_task(asyncio.wait_for(self.persist_aliases(), self.persist_timeout))
+
+    def __delitem__(self, name: str):
+        super().__delitem__(name)
+        asyncio.create_task(asyncio.wait_for(self.persist_aliases(), self.persist_timeout))
 
 
 def handle_timeout(_signum, _stack_frame):
@@ -143,10 +157,11 @@ def _print(*values, sep=' ', _file=None, _flush=False):
     LOGGER.info(sep.join(map(str, values)))
 
 
-CHALLENGE_FN = typing.Callable[[int], int]
+Challenge = typing.Callable[[int], int]
+Pipe = typing.Tuple[ProcessConnection, ProcessConnection]
 
 
-def run_challenge(challenges: typing.Iterable[CHALLENGE_FN], seed: int) -> int:
+def run_challenge(challenges: typing.Iterable[Challenge], seed: int) -> int:
     try:
         reducer = lambda result, challenge: challenge(result)
         return functools.reduce(reducer, challenges, seed)
@@ -154,13 +169,25 @@ def run_challenge(challenges: typing.Iterable[CHALLENGE_FN], seed: int) -> int:
         LOGGER.error('Failed to run challenge', exc=str(exc))
 
 
-@dataclasses.dataclass
-class Executor:
-    match: Match
-    config: typing.Any
-    mode_queue: queue.Queue
-    student_code: types.ModuleType = None
-    action_executor: ActionExecutor = dataclasses.field(default_factory=ActionExecutor)
+class StudentCodeExecutor(multiprocessing.Process):
+    # TODO: handle unlimited recursion
+    def __init__(self, config, match_receiver: ProcessConnection):
+        self.config, self.match_receiver = config, match_receiver
+        self.student_code, self.action_executor = None, ActionExecutor()
+        super().__init__(name='student-code-executor', daemon=True, target=self.spin)
+
+    def run(self):
+        signal.signal(signal.SIGALRM, handle_timeout)
+        self.action_executor.start()
+        super().run()
+
+    def get_function(self, name: str):
+        try:
+            fn = getattr(self.student_code, name)
+        except AttributeError:
+            LOGGER.warn('Unable to get function, using stub', fn=name)
+            fn = lambda: None
+        return fn
 
     def get_functions(self, mode: Mode):
         if mode is Mode.AUTO:
@@ -169,10 +196,8 @@ class Executor:
             prefix = 'teleop'
         else:
             raise RuntimeBaseException('Cannot execute mode', mode=mode.name)
-        return (
-            getattr(self.student_code, f'{prefix}_setup'),
-            getattr(self.student_code, f'{prefix}_main'),
-        )
+        return (self.get_function(self.student_code, f'{prefix}_setup'),
+                self.get_function(self.student_code, f'{prefix}_main'))
 
     def import_student_code(self):
         if not self.student_code:
@@ -180,25 +205,15 @@ class Executor:
         else:
             self.student_code = importlib.reload(self.student_code)
 
-    def reload_student_code(self):
+    def reload_student_code(self, match):
         run_with_timeout(self.import_student_code, self.config['import_timeout'])
         self.student_code.print = _print
         self.student_code.Actions = Actions
         self.student_code.Alliance = Alliance
         self.student_code.Mode = Mode
-        self.student_code.Match = self.match
-        self.student_code.Robot = Robot()
-        self.student_code.Robot.run = self.action_executor.register_action_threadsafe
-        self.student_code.Robot.is_running = self.action_executor.is_running
-
-    # def run_challenge(self, challenges: typing.Iterable[CHALLENGE_FN], seed: int) -> int:
-    #     if not self.student_code:
-    #         self.reload_student_code()
-    #     result = seed
-    #     for challenge_name in challenges:
-    #         challenge = getattr(self.student_code, challenge_name)
-    #         result = challenge(result)
-    #     return result
+        self.student_code.Match = match
+        self.student_code.Robot = Robot(self.action_executor)
+        self.student_code.Gamepad = Gamepad(match.mode)
 
     def run_cycle(self, main, loop_interval):
         try:
@@ -218,7 +233,7 @@ class Executor:
             LOGGER.error('Unable to run setup', fn=setup.__name__, exc=str(exc))
         loop_interval = self.config['loop_interval']
         signal.setitimer(signal.ITIMER_REAL, loop_interval, loop_interval)
-        while self.mode_queue.empty():
+        while not self.match_receiver.poll():
             try:
                 self.run_cycle(main, loop_interval)
             except TimeoutError:
@@ -228,37 +243,40 @@ class Executor:
         signal.setitimer(signal.ITIMER_REAL, 0)
 
     def spin(self):
-        self.action_executor.start()
         while True:
-            mode = self.mode_queue.get()
-            LOGGER.debug('Changing mode', mode=mode.name)
-            if mode is Mode.ESTOP:
+            match = self.match_receiver.recv()
+            LOGGER.debug('Setting match information', mode=match.mode.name,
+                         alliance=match.mode.name)
+            if match.mode is Mode.ESTOP:
                 raise EmergencyStopException
-            elif mode is not Mode.IDLE:
+            self.action_executor.unregister_all()
+            if match.mode is not Mode.IDLE:
                 try:
-                    self.reload_student_code()
+                    self.reload_student_code(match)
                 except Exception as exc:
                     LOGGER.error('Unable to import student code', exc=str(exc))
                 else:
-                    self.loop(mode)
+                    self.loop(match.mode)
 
 
 @dataclasses.dataclass
 class ExecutorService(Service):
     access: asyncio.Lock = dataclasses.field(default_factory=asyncio.Lock)
     match: Match = dataclasses.field(default_factory=Match)
-    mode_queue: queue.Queue = dataclasses.field(default_factory=queue.Queue)
-    executor: Executor = dataclasses.field(init=False, default=None)
+    match_pipe: Pipe = dataclasses.field(default_factory=lambda: multiprocessing.Pipe(False))
+    aliases: DeviceAliasManager = dataclasses.field(init=False, default=None)
+    executor: StudentCodeExecutor = dataclasses.field(init=False, default=None)
 
-    config_schema = dict(Service.config_schema)
-    config_schema.update({
+    config_schema = {
+        **Service.config_schema,
         'student_code': str,
         'device_aliases': Use(get_module_path),
         Optional('loop_interval', default=0.03): POSITIVE_REAL,
         Optional('import_timeout', default=2): POSITIVE_REAL,
         Optional('setup_timeout', default=1): POSITIVE_REAL,
         Optional('challenge_timeout', default=5): POSITIVE_REAL,
-    })
+        Optional('persist_timeout', default=5): POSITIVE_REAL,
+    }
 
     request_schema = Schema({
         'type': And(Use(str.upper), Use(RequestType.__getitem__)),
@@ -266,16 +284,19 @@ class ExecutorService(Service):
         Optional('alliance'): And(Use(str.upper), Use(Alliance.__getitem__)),
         Optional('challenges', default=[]): [VALID_NAME],
         Optional('seed'): int,
-        Optional('name_assignment'): {
+        Optional('alias'): {
             'name': VALID_NAME,
             Optional('uid'): Use(int),
         }
     })
 
     def __post_init__(self):
-        self.executor = Executor(self.match, self.config, self.mode_queue)
+        self.aliases = DeviceAliasManager(self.config['device_aliases'],
+                                          self.config['persist_timeout'])
+        self.executor = StudentCodeExecutor(self.config, self.match_pipe[0])
+        self.executor.start()
 
-    async def get_match(self):
+    async def get_match(self, _request):
         async with self.access:
             return self.match.as_dict()
 
@@ -283,54 +304,62 @@ class ExecutorService(Service):
         """ Set the match information. """
         async with self.access:
             self.match.alliance, self.match.mode = request['alliance'], request['mode']
-            self.mode_queue.put_nowait(self.match.mode)
+            self.match_pipe[1].send(self.match)
             return self.match.as_dict()
 
     async def run_challenge(self, request: dict):
-        self.executor.reload_student_code()
+        self.executor.reload_student_code(self.match)
+        seed = request['seed']
         challenges = [getattr(self.executor.student_code, challenge)
                       for challenge in request['challenges']]
         with ProcessPoolExecutor() as executor:
             loop = asyncio.get_running_loop()
-            answer = await loop.run_in_executor(executor, run_challenge,
-                                                challenges, request['seed'])
-            return {'answer': answer}
+            answer = await loop.run_in_executor(executor, run_challenge, challenges, seed)
+            LOGGER.info('Completed coding challenge', seed=seed, answer=answer,
+                        challenges=request['challenges'])
+            # Serialize as a string, since the answer may exceed the capacity of an unsigned long.
+            return {'answer': str(answer)}
 
-    async def dispatch_command(self, request: dict, aliases: DeviceAliasManager):
-        commands = {
-            RequestType.GET_MATCH: self.get_match,
-            RequestType.SET_MATCH: lambda: self.set_match(request),
-            RequestType.RUN_CHALLENGE: lambda: self.run_challenge(request),
-        }
-        return await commands[request['type']]()
+    async def list_aliases(self, _request):
+        async with self.access:
+            return {'aliases': dict(self.aliases.data)}
+
+    async def set_alias(self, request):
+        async with self.access:
+            alias = request['alias']
+            self.aliases[alias['name']] = alias['uid']
+            return {'aliases': dict(self.aliases.data)}
+
+    async def del_alias(self, request):
+        async with self.access:
+            del self.aliases[request['alias']['name']]
+            return {'aliases': dict(self.aliases.data)}
+
+    async def lint(self):
+        raise NotImplemented
 
     async def main(self):
-        aliases = DeviceAliasManager(self.config['device_aliases'])
-        command_conn = self.connections['command']
+        command_conn = self.connections.command
         while True:
             request, response = await command_conn.recv(), {'received': time.time()}
-            LOGGER.debug('Received request', **request)
+            LOGGER.info('Received request', **request)
             try:
                 request = self.request_schema.validate(request) or {}
-                response.update(await self.dispatch_command(request, aliases) or {})
+                command = getattr(self, request['type'].name.lower())
+                response.update(await command(request) or {})
             except SchemaError as exc:
                 response['exc'] = str(exc)
-                LOGGER.error('Received bad command, treating as no-op', **response)
+                LOGGER.error('Received bad command, treating as no-op')
             except RuntimeBaseException as exc:
                 response['exc'] = str(exc)
                 response.update(exc.context)
-                LOGGER.error('Unable to execute command', **response)
+                LOGGER.error('Unable to execute command')
             finally:
                 response['completed'] = time.time()
-                await command_conn.send(response)
+                # TODO: clean up nested try/except logic
+                try:
+                    await command_conn.send(response)
+                except OverflowError:
+                    await command_conn.send({})
+                LOGGER.debug('Sent response', **response)
                 response.clear()
-
-    def __call__(self):
-        # A necessary hack to ensure SIGALARM is delivered to the thread
-        # running student code on timeouts. (Signal handlers run in the main
-        # thread, i.e., the thread the interpreter was started in.)
-        server_thread = threading.Thread(target=lambda: asyncio.run(self.bootstrap()),
-                                         daemon=True, name='command-server')
-        server_thread.start()
-        signal.signal(signal.SIGALRM, handle_timeout)
-        self.executor.spin()

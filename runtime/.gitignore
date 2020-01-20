@@ -6,4 +6,4 @@
 *.cpp
 
 # Device aliases
-runtime/game/device-aliases.yaml
+runtime/config/device-aliases.yaml

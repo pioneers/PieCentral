@@ -4,10 +4,10 @@ import time
 #     print('You cannot import me')
 #     time.sleep(1)
 
-async def autonomous_actions():
+async def autonomous_actions(n=100):
     print('Running autonomous action ...')
-    for i in range(10):
-        print(f'Doing action computation ({i+1}/10) ...')
+    for i in range(n):
+        print(f'Doing action computation ({i+1}/{n}) ...')
         await Actions.sleep(0.5)
 
 def autonomous_setup():
@@ -29,3 +29,6 @@ def teleop_main():
     while True:
         print(f'Teleop main has been running for {round(time.time() - start, 3)}s')
         time.sleep(0.1)
+
+def double(x):
+    return 2*x

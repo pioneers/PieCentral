@@ -27,6 +27,7 @@ cachetools = "*"
 aioserial = "*"
 uvloop = "*"
 pylint = "~=2.2"
+aiorwlock = "*"
 
 [dev-packages]
 cython = "~=0.29"

@@ -103,13 +103,19 @@ cpdef Packet make_sub_req():
     return Packet(SUB_REQ, payload)
 
 
-# cpdef Packet make_dev_read():
-#     pass
+cpdef Packet make_dev_read(sensor_struct):
+    cdef string payload = get_field_bytes(sensor_struct, 'read')
+    return Packet(DEV_READ, payload)
 
 
 cpdef Packet make_dev_write(sensor_struct):
-    cdef string payload = get_field_bytes(sensor_struct, 'dirty')
-    for param in sensor_struct.get_parameters(sensor_struct.dirty):
+    """
+    Note::
+        The parameter map is not validated for which parameters are actually
+        writable.
+    """
+    cdef string payload = get_field_bytes(sensor_struct, 'write')
+    for param in sensor_struct.get_parameters(sensor_struct.write):
         if param.writeable:
             param = getattr(sensor_struct, f'desired_{param.name}')
             payload += <string> get_field_bytes(param, 'value')

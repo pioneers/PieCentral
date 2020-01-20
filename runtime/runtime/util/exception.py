@@ -35,3 +35,7 @@ class RuntimeBaseException(Exception):
             kwargs = ', '.join(f'{name}={repr(value)}' for name, value in self.context.items())
             return f'{cls_name}({repr(msg)}, {kwargs})'
         return f'{cls_name}({repr(msg)})'
+
+
+class RuntimeExecutionError(RuntimeBaseException):
+    pass

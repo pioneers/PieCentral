@@ -2,6 +2,7 @@ import asyncio
 import collections
 import ctypes
 import dataclasses
+import enum
 from multiprocessing.shared_memory import SharedMemory
 from multiprocessing.managers import SharedMemoryManager
 import time
@@ -71,8 +72,8 @@ class DeviceStructure(Structure):
         defaults=[float('-inf'), float('inf'), True, False],
     )
 
-    SMART_SENSOR_MAX_PARAMETERS = 16
-    SMART_SENSOR_CLEAN = 0x0000
+    SMART_SENSOR_MAX_PARAMETERS: int = 16
+    SMART_SENSOR_RESET = 0x0000
 
     @classmethod
     def _normalize_param_id(cls, param_id: Union[int, str]) -> str:
@@ -111,8 +112,8 @@ class DeviceStructure(Structure):
         Make a device type with extra fields to handle the Smart Sensor protocol.
 
         The extra fields included are:
-          * `dirty`: A bitmap used to see what parameters have been written to
-            since the last device write.
+          * `write`: A bitmap indicating which parameters should be written.
+          * `read`: A bitmap indicating which parameters should be read.
           * `delay`: The current subscription period.
           * `subscription`: A bitmap of the parameters the Smart Sensor consumer
             is subscribed to.
@@ -121,7 +122,8 @@ class DeviceStructure(Structure):
         if len(params) > DeviceStructure.SMART_SENSOR_MAX_PARAMETERS:
             raise RuntimeBaseException('Maxmimum number of Smart Sensor parameters exceeded')
         extra_fields = [
-            ('dirty', ctypes.c_uint16),
+            ('write', ctypes.c_uint16),
+            ('read', ctypes.c_uint16),
             ('delay', ctypes.c_uint16),
             ('subscription', ctypes.c_uint16),
             ('uid', SmartSensorUID),
@@ -164,28 +166,46 @@ def load_device_types(schema: str, smart_sensor_protocol: str = 'smartsensor'):
 
 
 @cachetools.cached(cache={})
-def get_smart_sensor_type(device_type: int, protocol: str = 'smartsensor') -> type:
-    for device_name, device in DEVICES[protocol].items():
-        if device_type == device.type_id:
-            return device_name, device
+def get_device_type(device_type: int = None, device_name: str = None,
+                    protocol: str = 'smartsensor') -> type:
+    for name, device in DEVICES[protocol].items():
+        if device_type == device.type_id or name == device_name:
+            return name, device
     raise RuntimeBaseException('Device not found', device_type=device_type, protocol=protocol)
 
 
 DeviceBuffer = collections.namedtuple('DeviceBuffer', ['shm', 'struct'])
 
 
+class SmartSensorEvent(enum.Enum):
+    READY = enum.auto()
+    HEARTBEAT_RES = enum.auto()
+    ERROR = enum.auto()
+    CLOSING = enum.auto()
+
+
 @dataclasses.dataclass
-class SmartSensorProxy:
+class SmartSensorProxy(collections.UserDict):
     event_subscriber: Connection
     command_publisher: Connection
     ready: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
     buffer: DeviceBuffer = dataclasses.field(default=None, init=False)
 
-    def ping(self):
+    async def ping(self):
         pass
 
-    def request_subscription(self):
+    async def request_subscription(self):
         pass
 
-    def request_heartbeat(self):
+    async def request_heartbeat(self):
         pass
+
+    def read_soon(self, param_name: str):
+        pass
+
+    def write_soon(self, param_name: str, value):
+        pass
+
+    async def event_loop(self):
+        while True:
+            event = await self.event_subscriber.recv()

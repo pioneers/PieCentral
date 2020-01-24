@@ -24,6 +24,6 @@ private:
 	double setPoint;
 	double errorSum;
 	Encoder* enc;
-}
+};
 
-#endif PID_h
+#endif

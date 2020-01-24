@@ -1,28 +1,43 @@
 #include "PolarBear.h"
-#include "pid.h"
-#include "encoder.h"
-#include "LED.h"
-#include "pindefs.h"
-#include <cstdlib> // For abs() in drive()
 
-//////////////// DEVICE UID ///////////////////
-hibike_uid_t UID = {
-	POLAR_BEAR,     // Device Type
-	0x01,           // Year
-	UID_RANDOM,     // ID
-};
-///////////////////////////////////////////////
+typedef enum {
+    DUTY_CYCLE = 0,
+    PID_POS_SETPOINT = 1,
+    PID_POS_KP = 2,
+    PID_POS_KI = 3,
+    PID_POS_KD = 4,
+    /**PID_VEL_SETPOINT = 5,
+    PID_VEL_KP = 6,
+    PID_VEL_KI = 7,
+    PID_VEL_KD = 8, */
+    CURRENT_THRESH = 9,
+    ENC_POS = 10,
+    ENC_VEL = 11,
+    MOTOR_CURRENT = 12,
+    DEADBAND = 13,
+    MOTOR_ENABLED = 14, // Added for lowcar; only in DEVICE_READ (not write)
+    PWM_INPUT = 15, // Lowcar to get rid of read/reset PWMInput
+    DRIVE_MODE = 16 // Lowcar to get rid of read/reset drive mode
+  } param;
 
-PolarBear::PolarBear () : Device (DeviceID::POLAR_BEAR, 2),  encdr(encoder0PinA, encoder0PinB), msngr(), pid(0, 0, 0, 0, millis(), encdr)
+ typedef enum {
+    MANUALDRIVE = 0,
+    PID_VEL = 1,
+    PID_POS = 2
+  } DriveModes;
+
+PolarBear::PolarBear () : Device (DeviceID::POLAR_BEAR, 2) //,  encdr(encoder0PinA, encoder0PinB), pid(0.0, 0.0, 0.0, 0.0, (double) millis(), encdr)
 {
-	this.pwmInput = 0; // Setpoint to be used with PID
-	this.driveMode = 0;
-	this.motorEnabled = false;
-	this.deadBand = 0.05;
-	this.currpwm1 = 255;
-	this.currpwm2 = 255;
-	this.delayMod = 1;
-	this.dpwm_dt = 255 / 200000;
+	this->encdr = new Encoder(encoder0PinA, encoder0PinB);
+	this->pid = new PID(0.0, 0.0, 0.0, 0.0, (double) millis(), this->encdr);
+	this->pwmInput = 0; // Setpoint to be used with PID
+	this->driveMode = 0;
+	this->motorEnabled = false;
+	this->deadBand = 0.05;
+	this->currpwm1 = 255;
+	this->currpwm2 = 255;
+	this->delayMod = 1;
+	this->dpwm_dt = 255 / 200000;
 }
 
 // You must implement this function.
@@ -42,11 +57,11 @@ uint8_t PolarBear::device_read (uint8_t param, uint8_t *data_buf, size_t data_bu
 	switch (param) {
 
 		case DUTY_CYCLE:
-			if(buf_len < sizeof(float)) {
+			if(data_buf_len < sizeof(float)) {
 				return 0;
 			}
 			float_buf = (float *) data_buf;
-			float_buf[0] = this.pwmInput; // Same as devie_read on PWMINPUT
+			float_buf[0] = this->pwmInput; // Same as devie_read on PWMINPUT
 			return sizeof(float);
 			break;
 
@@ -66,25 +81,25 @@ uint8_t PolarBear::device_read (uint8_t param, uint8_t *data_buf, size_t data_bu
 			break;
 
 		case ENC_POS:
-			if (buf_len < sizeof(double)) {
+			if (data_buf_len < sizeof(double)) {
 				return 0;
 			}
 			double_buf = (double *) data_buf;
-			double_buf[0] = this.encdr.readPos();
+			double_buf[0] = this->encdr->readPos();
 			return sizeof(double);
 			break;
 
 		case ENC_VEL:
-			if (buf_len < sizeof(double)) {
+			if (data_buf_len < sizeof(double)) {
 				return 0;
 			}
 			double_buf = (double *) data_buf;
-			double_buf[0] = this.encdr.readVel();
+			double_buf[0] = this->encdr->readVel();
 			return sizeof(double);
 			break;
 
 		case MOTOR_CURRENT:
-			if (buf_len < sizeof(float)) {
+			if (data_buf_len < sizeof(float)) {
 				return 0;
 			}
 			float_buf = (float *) data_buf;
@@ -93,37 +108,37 @@ uint8_t PolarBear::device_read (uint8_t param, uint8_t *data_buf, size_t data_bu
 			break;
 
 		case DEADBAND:
-			if (buf_len< sizeof(float)){
+			if (data_buf_len< sizeof(float)){
 				return 0;
 			}
 			float_buf = (float *) data_buf;
-			float_buf[0] = this.deadBand;
+			float_buf[0] = this->deadBand;
 			return sizeof(float);
 			break;
 
 		case MOTOR_ENABLED: // Lowcar: Reads whether or not motor is enabled.
-			if (buf_len < sizeof(boolean)) {
+			if (data_buf_len < sizeof(boolean)) {
 				return 0;
 			}
 			boolean_buf = (boolean *) data_buf;
-			boolean_buf[0] = this.motorEnabled;
+			boolean_buf[0] = this->motorEnabled;
 			return sizeof(boolean);
 			break;
 
 		case PWM_INPUT: // Lowcar: Replacement for readPWMInput
-			if (buf_len < sizeof(float)) {
+			if (data_buf_len < sizeof(float)) {
 				return 0;
 			}
 			float_buf = (float *) data_buf;
-			float_buf[0] = this.pwmInput;
+			float_buf[0] = this->pwmInput;
 			return sizeof(float);
 			break;
 
 		case DRIVE_MODE: // Lowcar: Replacement for readDriveMode
-			if (buf_len < sizeof(uint8_t)) {
+			if (data_buf_len < sizeof(uint8_t)) {
 				return 0;
 			}
-			data_buf[0] = this.driveMode
+			data_buf[0] = this->driveMode;
 			return sizeof(uint8_t);
 			break;
 
@@ -147,39 +162,39 @@ uint32_t PolarBear::device_write (uint8_t param, uint8_t *data_buf)
   switch (param) {
 
 		case DUTY_CYCLE:
-			this.driveMode = MANUALDRIVE;
-			this.pwmInput = ((float *)data)[0];
+			this->driveMode = MANUALDRIVE;
+			this->pwmInput = ((float *)data_buf)[0];
 			return sizeof(float);
 			break;
 
 		case PID_POS_SETPOINT:
-			this.driveMode = PID_POS;
-			this.pid.setSetpoint(((double *)data)[0]);
+			this->driveMode = PID_POS;
+			this->pid->setSetpoint(((double *)data_buf)[0]);
 			return sizeof(double);
 			break;
 
 		case PID_POS_KP:
-			this.pid.setCoefficients(((double *)data)[0], this.pid.getKI(), this.pid.getKD());
+			this->pid->setCoefficients(((double *)data_buf)[0], this->pid->getKI(), this->pid->getKD());
 			return sizeof(double);
 			break;
 
 		case PID_POS_KI:
-			this.pid.setCoefficients(this.pid.getKP(), ((double *)data)[0], this.pid.getKD());
+			this->pid->setCoefficients(this->pid->getKP(), ((double *)data_buf)[0], this->pid->getKD());
 			return sizeof(double);
 			break;
 
 		case PID_POS_KD:
-			this.pid.setCoefficients(this.pid.getKP(), this.pid.getKI(), ((double *)data)[0]);
+			this->pid->setCoefficients(this->pid->getKP(), this->pid->getKI(), ((double *)data_buf)[0]);
 			return sizeof(double);
 			break;
 
 		case CURRENT_THRESH:
-			setCurrentThreshold(((float *)data)[0]);
-			return sizeof(float);
+			//setCurrentThreshold(((float *)data_buf)[0]);
+			//return sizeof(float);
 			break;
 
 		case ENC_POS:
-			if ((float) data[0] == 0) {
+			if ((float) data_buf[0] == 0) {
 				resetEncoder();
 				return sizeof(float);
 			}
@@ -192,7 +207,7 @@ uint32_t PolarBear::device_write (uint8_t param, uint8_t *data_buf)
 			break;
 
 		case DEADBAND:
-			this.deadBand = ((float *)data)[0];
+			this->deadBand = ((float *)data_buf)[0];
 			return sizeof(float);
 			break;
 
@@ -200,12 +215,12 @@ uint32_t PolarBear::device_write (uint8_t param, uint8_t *data_buf)
 			break;
 
 		case PWM_INPUT: // Lowcar: replaces resetPWMInput
-			this.pwmInput = 0
+			this->pwmInput = 0;
 			return sizeof(float);
 			break;
 
 		case DRIVE_MODE: // Lowcar: replaces resetDriveMode
-			this.driveMode = MANUALDRIVE
+			this->driveMode = MANUALDRIVE;
 			return sizeof(uint8_t);
 			break;
 
@@ -234,18 +249,18 @@ void PolarBear::device_enable ()
 // Consult README.md, section 6, to see what exact functionality is expected out of disable.
 void PolarBear::device_disable ()
 {
-	this.pid.setCoefficients(1, 0, 0);
+	this->pid->setCoefficients(1, 0, 0);
 	resetEncoder();
-	this.device_write(PWM_INPUT, 0);
-	this.device_write(DRIVE_MODE, 0);
-	this.motorEnabled = false;
+	this->device_write(PWM_INPUT, 0);
+	this->device_write(DRIVE_MODE, 0);
+	this->motorEnabled = false;
 }
 
 void PolarBear::device_actions ()
 {
 	ctrl_LEDs();
-	pid.setSetpoint(pwmInput);
-	drive(pid.compute());
+	pid->setSetpoint(pwmInput);
+	drive(pid->compute());
 }
 
 /* Given a value between -1 and 1 inclusive,
@@ -255,12 +270,12 @@ void PolarBear::device_actions ()
 ** If moving backwards, set pwm2 to 255, then move pwm1 down
 ** Make sure that at least one of the pins is set to 255 at all times.
 */
-void drive(float target)
+void PolarBear::drive(float target)
 {
-	int goal = abs((int) (target * 255));
+	int goal = (int) ((target * 255) < 0 ? (target * 255 * -1) : (target * 255));
 	int direction = (target > 0) ? 1 : ((target < 0) ? -1 : 0);
 	int pwm_difference;
-	int delay = 1 / this.dpwm_dt; // About 784
+	int delay = 1 / this->dpwm_dt; // About 784
 	if (direction > 0) { // Moving forwards
 		for (; currpwm1 < 255; currpwm1++) { // Set pwm1 to 255
 			analogWrite(PWM1, currpwm1);

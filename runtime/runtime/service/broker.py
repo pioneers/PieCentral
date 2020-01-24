@@ -116,13 +116,16 @@ class DatagramServer:
     async def recv_loop(self):
         while True:
             message = await self.connections.datagram_recv.recv()
-            address = message.get('src')
-            if address:
-                await self.handle_client(address, message.get('timeout'))
-            gamepad = message.get('gamepad') or {}
-            for index, gamepad_data in gamepad.items():
-                self.update_gamepad_data(index, gamepad_data)
             self.recv_count += 1
+            try:
+                address = message.get('src')
+                if address:
+                    await self.handle_client(address, message.get('timeout'))
+                gamepads = message.get('gamepads') or {}
+                for index, gamepad in gamepads.items():
+                    self.update_gamepad_data(index, gamepad)
+            except RuntimeBaseException as exc:
+                LOGGER.warn('Encountered error while decoding datagram', exc=str(exc))
 
     async def broadcast(self):
         update = {}

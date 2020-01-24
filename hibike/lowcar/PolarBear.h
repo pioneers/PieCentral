@@ -40,6 +40,7 @@ public:
     PWM_INPUT = 15, // Lowcar to get rid of read/reset PWMInput
     DRIVE_MODE = 16 // Lowcar to get rid of read/reset drive mode
   } param;
+  
 private:
   float pwmInput;
   uint8_t driveMode;
@@ -54,37 +55,5 @@ private:
   PID pid;
   void drive(float target);
 };
-
-
-
-// function prototypes
-//void setup();
-//void loop();
-/* Moved to device read/write
-float readPWMInput();
-void resetPWMInput();
-void resetDriveMode();
-uint8_t readDriveMode();
-*/
-
-// ****************
-// FROM OLD MOTOR.H
-// ****************
-
-
-//function prototypes
-//void motorSetup(); Moved to device_enable
-//void motorEnable(); Moved to device_enable
-//void motorDisable(); Moved to device_disable
-//bool isMotorEnabled(); Moved to device_read
-
-//returns current in amps
-//float readCurrent(); moved to device_read
-
-//takes a value from -1 to 1 inclusive and writes to the motor and sets the INA and INB pins for direction
-//void drive(float target);
-//void clearFault(); lowcar: current limiting moved
-//void setDeadBand(float range); moved to device_write
-//float readDeadBand(); moved to device_read
 
 #endif /* POLARBEAR_H */

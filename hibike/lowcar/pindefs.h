@@ -20,6 +20,5 @@
 #define LED_GREEN 		4
 #define encoder0PinA  	14 //encoders are the same fucntionality
 #define encoder0PinB  	15
-#define INV				5 //digitalwrite to low or else things will go backwards
 
 #endif /* PINDEFS_H */

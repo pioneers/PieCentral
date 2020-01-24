@@ -1,7 +1,7 @@
  #include "PolarBear.h"
 //#include "motor.h" // Merged
-#include "pid.h"
-#include "encoder.h"
+//#include "pid.h"
+//#include "encoder.h"
 //#include "current_limit.h"
 #include "LED.h"
 #include "pindefs.h"

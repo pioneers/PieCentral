@@ -5,13 +5,17 @@ const int ServoControl::SERVO_0 = 5;
 const int ServoControl::SERVO_1 = 6;
 const int ServoControl::SERVO_CENTER = 1500; //center position on servo, in microseconds (?)
 const int ServoControl::SERVO_RANGE = 1000; //range of movement of servo is SERVO_CENTER +/- SERVO_RANGE
-const uint8_t ServoControl::pins[] = {ServoControl::SERVO_0, ServoControl::SERVO_1};
+const uint8_t ServoControl::pins[] = {SERVO_0, SERVO_1};
+
+Servo *servo0 = new Servo();
+Servo *servo1 = new Servo();
+Servo servos[2] = { *servo0, *servo1 };
 
 //runs default Device constructor and then disables all servos at start
 //initializes this->servos[] to contain references to the two Servo objects in initializer list
-ServoControl::ServoControl() : Device(DeviceID::SERVO_CONTROL, 1), servo0(), servo1(), servos(this->servo0, this->servo1)
+ServoControl::ServoControl() : Device(DeviceID::SERVO_CONTROL, 1) //, servo0(), servo1() //, servos{ *servo0, *servo1 }
 {
-	this->positions = new float[ServoControl::NUM_SERVOS];
+	this->positions = new float[NUM_SERVOS];
 	for (int i = 0; i < ServoControl::NUM_SERVOS; i++) {
 		this->positions[i] = 0.0;
 	}
@@ -40,15 +44,15 @@ uint32_t ServoControl::device_write (uint8_t param, uint8_t *data_buf)
 {
 	float value = ((float *) data_buf)[0];
 	if (value < -1 || value > 1) {
-		return sizeof(float);
+		return 0;
 	}
 	
 	//if servo isn't attached yet, attach the pin to the servo object
-	//if (!this->servos[param].attached()) {
-		this->servos[param].attach(this->pins[param]);
-	//}
+	if (!servos[param].attached()) {
+		servos[param].attach(this->pins[param]);
+	}
 	this->positions[param] = value;
-	this->servos[param].writeMicroseconds(ServoControl::SERVO_CENTER + (this->positions[param] * ServoControl::SERVO_RANGE / 2.0));
+	servos[param].writeMicroseconds(ServoControl::SERVO_CENTER + (this->positions[param] * ServoControl::SERVO_RANGE / 2.0));
 	return sizeof(float);
 }
 
@@ -63,6 +67,6 @@ void ServoControl::device_disable()
 //disables all servos by detaching them
 void ServoControl::disable_all() {
 	for (int i = 0; i < ServoControl::NUM_SERVOS; i++) {
-		this->servos[i].detach();
+		servos[i].detach();
 	}
 }

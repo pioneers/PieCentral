@@ -1,10 +1,10 @@
 #include "LED.h"
 #include "pindefs.h"
-#include "encoder.h"
+//#include "encoder.h"
 //#include "current_limit.h"
 //#include "motor.h"
 #include "Arduino.h"
-#include "PolarBear.h"
+//#include "PolarBear.h"
 
 //place all LED control functions in here
 void ctrl_LEDs() {
@@ -17,9 +17,9 @@ void ctrl_LEDs() {
 void ctrl_RED() {
 	bool redOn = false;
 
-	if(readVel() < 0 || !isMotorEnabled()) {
-		redOn = true;
-	}
+	//if(readVel() < 0 || !isMotorEnabled()) {
+	//	redOn = true;
+	//}
 
 	if(redOn) {
 		digitalWrite(LED_RED, HIGH);
@@ -32,9 +32,9 @@ void ctrl_RED() {
 void ctrl_YELLOW() {
 	bool yellowOn = false;
 
-	if(read_limit_state() == 2 || read_limit_state() == 3 || !isMotorEnabled()) { //limit state number
-		yellowOn = true;
-	}
+	//if(read_limit_state() == 2 || read_limit_state() == 3 || !isMotorEnabled()) { //limit state number
+	//	yellowOn = true;
+	//}
 
 	if(yellowOn) {
 		digitalWrite(LED_YELLOW, HIGH);
@@ -47,9 +47,9 @@ void ctrl_YELLOW() {
 void ctrl_GREEN() {
 	bool greenOn = false;
 
-	if(readVel() > 0 || !isMotorEnabled()) {
-		greenOn = true;
-	}
+	//if(readVel() > 0 || !isMotorEnabled()) {
+	//	greenOn = true;
+	//}
 
 	if(greenOn) {
 		digitalWrite(LED_GREEN, HIGH);

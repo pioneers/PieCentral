@@ -55,7 +55,8 @@ class Robot(StudentAPI):
     def __init__(self, action_executor):
         self.action_executor = action_executor
 
-    def run(self, action, *args):
+    def run(self, action, *args, timeout: float = 15):
+        # TODO: use timeout parameter
         self.action_executor.register_action_threadsafe(action, *args)
 
     def is_running(self, action):

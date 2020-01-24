@@ -5,7 +5,7 @@ const int RFID::SS_PIN = 10;
 
 //default constructor simply specifies DeviceID and year to generic constructor and initializes variables
 //initializes the msfrc22 object in the initializer list
-RFID::RFID () : Device (DeviceID::RFID, 1), tag_detector(RFID::SS_PIN, RFID::RST_PIN)
+RFID::RFID () : Device (DeviceID::RFID, 1), tag_detector (RFID::SS_PIN, RFID::RST_PIN)
 {
 	this->id = 0;
 	this->tag_detect = 0;
@@ -36,13 +36,13 @@ uint8_t RFID::device_read (uint8_t param, uint8_t *data_buf, size_t data_buf_len
 	}
 }
 
-void device_enable ()
+void RFID::device_enable ()
 {
 	SPI.begin(); //begin SPI (what's this?)
 	this->tag_detector->PCD_Init(); //initialize the RFID object
 }
 
-void device_actions ()
+void RFID::device_actions ()
 {
 	/* If we either don't sense a card or can't read the UID, we invalidate the data
 	 * The sensor is too slow, so we have to delay the read by one loop
@@ -54,15 +54,15 @@ void device_actions ()
 			this->id = 0; //clear the id to invalidate it
 			this->tag_detect = 0; //no tag detected
 		}
-		this->del = true;
+		this->delay = true;
 		return; //after resetting all our values, we return
 	}
 	
 	//Otherwise, if there is a card that we can read the UID from, we grab the data
 	//and set tag_detect to 1 to signal that we have a new tag UID
-	this->id =	(uint32_t)(this->tag_detector.uid.uidByte[2]) << 16 |
-				(uint32_t)(this->tag_detector.uid.uidByte[1]) << 8  |
-				(uint32_t)(this->tag_detector.uid.uidByte[0]);
+	this->id =	(uint32_t)(this->tag_detector->uid.uidByte[2]) << 16 |
+				(uint32_t)(this->tag_detector->uid.uidByte[1]) << 8  |
+				(uint32_t)(this->tag_detector->uid.uidByte[0]);
 	this->tag_detect = 1;
-	this->del = false; //reset the delay
+	this->delay = false; //reset the delay
 }

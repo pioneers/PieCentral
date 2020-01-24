@@ -22,9 +22,7 @@ private:
 	const static int NUM_SERVOS, SERVO_0, SERVO_1, SERVO_CENTER, SERVO_RANGE;
 	const static uint8_t pins[];
 	
-	Servo servo0, servo1;
-	Servo servos[];
-	float positions[];
+	float *positions;
 	
 	//detaches all servos
 	void disable_all ();

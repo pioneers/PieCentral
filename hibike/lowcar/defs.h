@@ -8,7 +8,7 @@
 #define MAX_PAYLOAD_SIZE    100
 
 //manual UID for testing
-#define UID_RANDOM 0x0123456789ABCDEF
+//#define UID_RANDOM 0x0123456789ABCDEF
 
 //identification for analog pins
 enum class Analog : uint8_t {

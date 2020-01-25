@@ -25,7 +25,10 @@ public:
   void setup_display();
 
 private:
-  const int numOfDigits;
+
+  SevenSeg disp;
+
+  const int numOfDigits = 4;
   int digitPins[numOfDigits];
 
   unsigned long last_LED_time;  //Time the last LED switched

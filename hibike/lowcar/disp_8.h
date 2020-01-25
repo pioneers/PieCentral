@@ -28,7 +28,7 @@ private:
 
   SevenSeg disp;
 
-  const int numOfDigits = 4;
+  int numOfDigits;
   int digitPins[numOfDigits];
 
   unsigned long last_LED_time;  //Time the last LED switched

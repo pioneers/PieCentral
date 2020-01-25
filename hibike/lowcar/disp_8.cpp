@@ -4,10 +4,10 @@
 
 disp_8::disp_8 (VoltageTracker v_tracker)
 {
-  disp(A, B, C, D, E, F, G);
+  this->disp = SevenSeg(A, B, C, D, E, F, G);
 
-  //const int disp_8::numOfDigits = 4;
-  this->disp_8::digitPins[] = {DISP_PIN_1, DISP_PIN_2, DISP_PIN_3, DISP_PIN_4};
+  this->disp_8::numOfDigits = 4;
+  this->disp_8::digitPins = {DISP_PIN_1, DISP_PIN_2, DISP_PIN_3, DISP_PIN_4};
 
   this->disp_8::last_LED_time = 0;  //Time the last LED switched
   this->disp_8::sequence = 0; //used to switch states for the display.  Remember that the hangle_8_segment cannot be blocking.

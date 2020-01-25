@@ -1,3 +1,6 @@
+#ifndef PDB_DEFS
+#define PDB_DEFS
+
 //voltage_sense
 //All resistor values (R2-7) are in kOhms
 #define R2 10.0
@@ -45,3 +48,5 @@ typedef enum {
   DV_CELL3,
   VREF_GUESS
 } PARAMS;
+
+#endif

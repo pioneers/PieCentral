@@ -13,10 +13,10 @@ class EmergencyStopException(SystemExit):
 
 class RuntimeBaseException(Exception):
     """
-    Base class for Runtime-specific exceptions.
+    Base for Runtime-specific exceptions.
 
-    Unlike built-in Exceptions, ``RuntimeBaseException`` accepts arbitrary data
-    that can be examined in post-mortems or written into structured logs.
+    ``RuntimeBaseException`` accepts arbitrary data that can be examined in
+    post-mortems or written into structured logs.
 
     Example:
 
@@ -38,4 +38,4 @@ class RuntimeBaseException(Exception):
 
 
 class RuntimeExecutionError(RuntimeBaseException):
-    pass
+    """ An exception that occurred while attempting to execute student code. """

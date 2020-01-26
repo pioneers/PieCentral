@@ -19,6 +19,9 @@ from runtime.messaging.device import DeviceBuffer
 from runtime.util.exception import RuntimeExecutionError
 
 
+Action = typing.Callable[..., None]
+
+
 class DeviceAliasManager(collections.UserDict):
     def __init__(self, filename: str, persist_timeout: Real,
                  logger: structlog.BoundLoggerBase = None):
@@ -28,6 +31,7 @@ class DeviceAliasManager(collections.UserDict):
         self.persisting = asyncio.Lock()
 
     async def load_initial_aliases(self):
+        """ Populate this manager with existing device aliases. """
         async with self.persisting:
             try:
                 async with aiofiles.open(self.filename) as alias_file:
@@ -35,8 +39,18 @@ class DeviceAliasManager(collections.UserDict):
                 self.logger.debug('Loaded initial aliases', aliases=self.data)
             except FileNotFoundError:
                 pass
+            except yaml.error.YAMLError:
+                self.logger.error('Unable to read aliases file (possible corruption)')
 
     async def persist_aliases(self):
+        """
+        Write the state of this manager to disk.
+
+        The manager writes the aliases to a temporary file before atomically
+        moving the temporary file to the desired location (using the `rename`
+        semantics of POSIX). This ensures that even if Runtime crashes during a
+        write, the aliases file will always contain well-formatted YAML.
+        """
         async with self.persisting:
             tmp_path = os.path.join(tempfile.gettempdir(), f'dev-aliases-{uuid.uuid4()}')
             async with aiofiles.open(tmp_path, mode='w+') as alias_file:
@@ -64,7 +78,7 @@ DeviceBufferMap = typing.Mapping[str, DeviceBuffer]
 
 
 class StudentAPI(abc.ABC):
-    """ Base abstract type for all interfaces exposed to student code. """
+    """ Base abstract type for all callable interfaces exposed to student code. """
 
 
 @dataclasses.dataclass
@@ -72,27 +86,37 @@ class DeviceAPI(StudentAPI):
     device_buffers: DeviceBufferMap
     logger: structlog.BoundLoggerBase
 
-    def _get_device_buffer(self, device_uid: str):
+    def _get_device_buffer(self, device_uid: str) -> DeviceBuffer:
+        """ Retrieve a device buffer, or emit a warning if not found. """
         try:
             return self.device_buffers[device_uid]
-        except KeyError:
-            self.logger.warn('Unrecognized device', device_uid=device_uid)
+        except KeyError as exc:
+            raise RuntimeExecutionError('Unrecognized device', device_uid=device_uid) from exc
 
-    def get_value(self, device_uid: str, param: str):
+    def _get_value(self, device_uid: str, param: str) -> typing.Any:
+        """ Read a device parameter. """
         device = self._get_device_buffer(device_uid)
-        if device:
-            try:
-                return device.struct.get_current(param)
-            except AttributeError:
-                self.logger.warn(
-                    'Unrecognized or unreadable parameter',
-                    device_uid=device_uid,
-                    device_type=device.struct.__class__.__name__,
-                    param=param,
-                )
+        try:
+            return device.struct.get_current(param)
+        except AttributeError as exc:
+            raise RuntimeExecutionError(
+                'Unrecognized or unreadable parameter',
+                device_uid=device_uid,
+                device_type=type(device.struct).__name__,
+                param=param,
+            ) from exc
 
 
 class Mode(enum.Enum):
+    """
+    The mode is an execution state of the robot.
+
+    Attributes:
+        IDLE: Student code is not executing.
+        AUTO: Autonomous mode. Gamepad usage is disallowed.
+        TELEOP: Tele-operation mode. Gamepad usage is allowed.
+        ESTOP: Emergency stop. Immediately triggers a Runtime exit.
+    """
     IDLE = enum.auto()
     AUTO = enum.auto()
     TELEOP = enum.auto()
@@ -100,6 +124,13 @@ class Mode(enum.Enum):
 
 
 class Alliance(enum.Enum):
+    """
+    The alliance are the teams playing the game.
+
+    Attributes:
+        BLUE: The blue team.
+        GOLD: The gold team.
+    """
     BLUE = enum.auto()
     GOLD = enum.auto()
 
@@ -107,7 +138,8 @@ class Alliance(enum.Enum):
 @dataclasses.dataclass
 class Actions(StudentAPI):
     @staticmethod
-    async def sleep(seconds):
+    async def sleep(seconds: Real):
+        """ Suspend execution of this awaitable. """
         await asyncio.sleep(seconds)
 
 
@@ -116,7 +148,8 @@ class Match(StudentAPI):
     alliance: Alliance = None
     mode: Mode = Mode.IDLE
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
+        """ Export this match as a serializable dictionary. """
         return {'alliance': self.alliance.name, 'mode': self.mode.name}
 
 
@@ -129,7 +162,7 @@ class Gamepad(DeviceAPI):
             raise RuntimeExecutionError(f'Cannot use Gamepad during {self.mode.name}',
                                         mode=self.mode.name, gamepad_id=gamepad_id,
                                         param=param)
-        return super().get_value(f'gamepad-{gamepad_id}', param)
+        return super()._get_value(f'gamepad-{gamepad_id}', param)
 
 
 @dataclasses.dataclass
@@ -137,37 +170,31 @@ class Robot(DeviceAPI):
     action_executor: threading.Thread
     aliases: DeviceAliasManager
 
-    def run(self, action, *args, timeout: float = 30):
+    def run(self, action: Action, *args, timeout: float = 30):
         self.action_executor.register_action_threadsafe(action, *args, timeout=timeout)
 
-    def is_running(self, action):
+    def is_running(self, action: Action):
         self.action_executor.is_running(action)
 
     def _normalize_device_uid(self, device_uid: typing.Union[str, int]) -> str:
         if isinstance(device_uid, str) and device_uid in self.aliases:
             device_uid = self.aliases[device_uid]
-        else:
-            device_uid = device_uid
         return f'smart-sensor-{device_uid}'
 
-    def get_value(self, device_uid: typing.Union[str, int], param: str):
-        return super().get_value(self._normalize_device_uid(device_uid), param)
+    def get_value(self, device_uid: typing.Union[str, int], param: str) -> typing.Any:
+        return super()._get_value(self._normalize_device_uid(device_uid), param)
 
     def set_value(self, device_uid: typing.Union[str, int], param: str, value):
         device = self._get_device_buffer(self._normalize_device_uid(device_uid))
-        if device:
-            try:
-                device.struct.set_desired(param, value)
-            except AttributeError:
-                self.logger.warn(
-                    'Unrecognized or read-only parameter',
-                    device_uid=device_uid,
-                    device_type=device.struct.__class__.__name__,
-                    param=param,
-                )
+        try:
+            device.struct.set_desired(param, value)
+        except AttributeError as exc:
+            raise RuntimeExecutionError(
+                'Unrecognized or read-only parameter',
+                device_uid=device_uid,
+                device_type=type(device.struct).__name__,
+                param=param,
+            ) from exc
 
     def testing_mode(self, enabled: bool = False):
-        pass
-
-    async def spin(self):
         pass

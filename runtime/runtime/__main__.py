@@ -24,6 +24,8 @@ def cli(**options):
 @click.option('-c', '--srv-config-path', type=click.Path(dir_okay=False, exists=True),
               default=get_module_path('config/srv-default.yaml'),
               help='Service configuration file path')
+@click.option('-m', '--max-retries', default=8, help='Maximum number of retries')
+@click.option('-r', '--retry-interval', default=4, help='Duration between retries')
 @click.option('-d', '--dev-schema-path', type=click.Path(dir_okay=False, exists=True),
               default=get_module_path('config/devices.yaml'), help='Device schema path')
 def run(**options):

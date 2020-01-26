@@ -4,13 +4,9 @@ import dataclasses
 import threading
 
 from schema import Optional, Or, Schema, Use
-import structlog
 
 from runtime.messaging.routing import ConnectionManager
 from runtime.util import POSITIVE_INTEGER, VALID_NAME
-
-
-LOGGER = structlog.get_logger()
 
 
 @dataclasses.dataclass(init=False)
@@ -29,7 +25,6 @@ class Service(abc.ABC):
     config_schema = {
         Optional('replicas', default=1): POSITIVE_INTEGER,
         Optional('daemon', default=True): bool,
-        Optional('retry'): list,  # FIXME
         Optional('sockets', default={}): {
             VALID_NAME: {
                 'socket_type': Or(Use(str.upper), int),
@@ -40,6 +35,7 @@ class Service(abc.ABC):
                 Optional('group', default=b''): (lambda group: len(group) < 16),
             }
         },
+        Optional('debug', default=True): bool,
     }
 
     @classmethod
@@ -47,17 +43,16 @@ class Service(abc.ABC):
         return Schema(cls.config_schema)
 
     def __call__(self):
-        threading.current_thread().name = self.__class__.__name__.lower()
-        asyncio.run(self.bootstrap())
+        threading.current_thread().name = type(self).__name__.lower()
+        asyncio.run(self.bootstrap(), debug=self.config['debug'])
 
     async def bootstrap(self):
-        for name, socket_config in self.config['sockets'].items():
-            self.connections.open_connection(name, socket_config)
-        # TODO: handle Unix signals (https://docs.python.org/3/library/asyncio-eventloop.html#id13)
-        try:
+        with self.connections:
+            for name, socket_config in self.config['sockets'].items():
+                self.connections.open_connection(name, socket_config)
+            # TODO: handle Unix signals
+            # (https://docs.python.org/3/library/asyncio-eventloop.html#id13)
             await self.main()
-        finally:
-            self.connections.clear()
 
     @abc.abstractmethod
     async def main(self):

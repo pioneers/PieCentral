@@ -3,6 +3,7 @@ import collections
 import dataclasses
 import functools
 import logging
+from numbers import Real
 import operator
 import time
 from typing import Any, Callable, Coroutine, Mapping, Set, Sequence
@@ -50,7 +51,6 @@ def terminate_subprocess(subprocess, timeout: float = 2):
         raise EmergencyStopException
 
 
-@backoff.on_predicate(backoff.constant, interval=1, max_tries=5, logger=LOGGER)
 async def run_subprocess(service, config):
     name = f'{service.__name__.lower()}-{uuid.uuid4()}'
     subprocess = aioprocessing.AioProcess(name=name, target=service(config),
@@ -78,7 +78,8 @@ async def spin(service_config):
         subprocess.cancel()
 
 
-async def start(srv_config_path: str, dev_schema_path: str, log_level: str, log_pretty: bool):
+async def start(srv_config_path: str, dev_schema_path: str, log_level: str, log_pretty: bool,
+                max_retries: int, retry_interval: Real):
     try:
         log.configure_logging(log_level, log_pretty)
         LOGGER.debug(f'Runtime v{get_version()}')
@@ -93,7 +94,13 @@ async def start(srv_config_path: str, dev_schema_path: str, log_level: str, log_
         load_device_types(dev_schema)
         LOGGER.debug(f'Read device schema from disk', dev_schema_path=dev_schema_path)
 
-        await spin(service_config)
+        retryable = backoff.on_predicate(
+            backoff.constant,
+            interval=retry_interval,
+            max_tries=max_retries,
+            logger=LOGGER,
+        )
+        await retryable(spin)(service_config)
     except Exception as exc:
         LOGGER.critical('Error reached the top of the call stack')
         raise exc

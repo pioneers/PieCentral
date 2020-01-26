@@ -4,7 +4,6 @@ import ctypes
 import dataclasses
 import enum
 from multiprocessing.shared_memory import SharedMemory
-from multiprocessing.managers import SharedMemoryManager
 import time
 from typing import Callable, Iterable, List, Union
 
@@ -169,14 +168,35 @@ def load_device_types(schema: str, smart_sensor_protocol: str = 'smartsensor'):
 
 @cachetools.cached(cache={})
 def get_device_type(device_id: int = None, device_name: str = None,
-                    protocol: str = 'smartsensor') -> type:
-    for name, device in DEVICES[protocol].items():
-        if device_id == device.type_id or name == device_name:
-            return device
+                    protocol: str = None) -> type:
+    protocols = [protocol] if protocol is not None else DEVICES.keys()
+    for protocol in protocols:
+        for name, device in DEVICES[protocol].items():
+            if device_id == device.type_id or name == device_name:
+                return device
     raise RuntimeBaseException('Device not found', device_id=device_id, protocol=protocol)
 
 
-DeviceBuffer = collections.namedtuple('DeviceBuffer', ['shm', 'struct'])
+@dataclasses.dataclass
+class DeviceBuffer:
+    shm: SharedMemory
+    struct: DeviceStructure
+
+    @property
+    def status(self):
+        return {'device_type': type(self.struct).__name__, 'device_uid': self.shm.name}
+
+    @classmethod
+    def open(cls, device_type: type, device_uid: str, *, create=False):
+        context = {'device_type': device_type.__name__, 'device_uid': device_uid}
+        try:
+            shm = SharedMemory(device_uid, create=create, size=ctypes.sizeof(device_type))
+        except FileExistsError:
+            shm = SharedMemory(device_uid)
+            LOGGER.warn('Shared memory block already exists', **context)
+        else:
+            LOGGER.debug('Opened shared memory block', create=create, **context)
+        return DeviceBuffer(shm, device_type.from_buffer(shm.buf))
 
 
 class DeviceEvent(enum.Enum):

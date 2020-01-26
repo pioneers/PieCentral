@@ -1,10 +1,12 @@
 import time
 
+RFID = '51975776734790250051004'
+
 # while True:
 #     print('You cannot import me')
 #     time.sleep(1)
 
-async def autonomous_actions(n=100):
+async def autonomous_actions(n=1000):
     print('Running autonomous action ...')
     for i in range(n):
         print(f'Doing action computation ({i+1}/{n}) ...')
@@ -15,14 +17,15 @@ def autonomous_setup():
     Robot.run(autonomous_actions)
 
 def autonomous_main():
-    print('Running autonomous main ...')
+    pass
+    # print('Running autonomous main ...')
     # start = time.time()
     # print('I wrote an infinite loop')
     # while True:
     #     print(f'Teleop main has been running for {round(time.time() - start, 3)}s')
     #     time.sleep(0.1)
     #
-    x()
+    # x()
     #
     # Robot.run(autonomous_actions)
 
@@ -38,8 +41,14 @@ def teleop_main():
     # print('Y -> ', Gamepad.get_value('button_y'))
     # print('Xbox -> ', Gamepad.get_value('button_xbox'))
     # print('Dpad up -> ', Gamepad.get_value('dpad_up'))
-    print('joystick_left_x -> ', Gamepad.get_value('joystick_left_x'))
-    print('joystick_right_y -> ', Gamepad.get_value('joystick_right_y'))
+    # print('joystick_left_x -> ', Gamepad.get_value('joystick_left_x'))
+    # print('joystick_right_y -> ', Gamepad.get_value('joystick_right_y'))
+    print('=>', Robot.get_value('my_rfid', 'id'), Robot.get_value('my_rfid2', 'tag_detect'))
+
+# Times out
+# def autonomous_main():
+#     print('Running autonomous main ...')
+#     autonomous_main()
 
 def double(x):
     return 2*x

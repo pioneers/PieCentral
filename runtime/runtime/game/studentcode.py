@@ -16,19 +16,30 @@ def autonomous_setup():
 
 def autonomous_main():
     print('Running autonomous main ...')
-    # x()
+    # start = time.time()
+    # print('I wrote an infinite loop')
+    # while True:
+    #     print(f'Teleop main has been running for {round(time.time() - start, 3)}s')
+    #     time.sleep(0.1)
+    #
+    x()
+    #
     # Robot.run(autonomous_actions)
 
 def teleop_setup():
     print('Teleop setup has begun!')
 
 def teleop_main():
-    print('Running teleop main ...')
-    start = time.time()
-    print('I wrote an infinite loop')
-    while True:
-        print(f'Teleop main has been running for {round(time.time() - start, 3)}s')
-        time.sleep(0.1)
+    # print('Running teleop main ...')
+    # print(Gamepad.get_value('a'))
+    # print('A -> ', Gamepad.get_value('button_a'))
+    # print('B -> ', Gamepad.get_value('button_b'))
+    # print('X -> ', Gamepad.get_value('button_x'))
+    # print('Y -> ', Gamepad.get_value('button_y'))
+    # print('Xbox -> ', Gamepad.get_value('button_xbox'))
+    # print('Dpad up -> ', Gamepad.get_value('dpad_up'))
+    print('joystick_left_x -> ', Gamepad.get_value('joystick_left_x'))
+    print('joystick_right_y -> ', Gamepad.get_value('joystick_right_y'))
 
 def double(x):
     return 2*x

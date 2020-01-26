@@ -15,7 +15,7 @@ import zmq
 import zmq.asyncio
 
 from runtime.service.base import Service
-from runtime.messaging.device import DeviceBuffer, get_device_type
+from runtime.messaging.device import DeviceEvent, DeviceBuffer, get_device_type
 from runtime.messaging.routing import Connection, ConnectionManager
 from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL, VALID_NAME
 from runtime.util.exception import EmergencyStopException
@@ -80,38 +80,33 @@ class DatagramServer:
                 del self.clients[address]
                 self.close_connection(address)
 
-    def update_gamepad_data(self, index: int, gamepad_data):
-        if index not in self.gamepads:
-            _, gamepad_type = get_device_type(device_name='Gamepad', protocol='dawn')
-            shm = SharedMemory(f'gamepad-{index}', create=True, size=ctypes.sizeof(gamepad_type))
-            self.gamepads[index] = DeviceBuffer(shm, gamepad_type.from_buffer(shm.buf))
-            LOGGER.debug('New gamepad connected', index=index)
-            # TODO: transmit
-        struct = self.gamepads[index].struct
-        struct.joystick_left_x = gamepad_data.get('lx', 0)
-        struct.joystick_left_y = gamepad_data.get('ly', 0)
-        struct.joystick_right_x = gamepad_data.get('rx', 0)
-        struct.joystick_right_y = gamepad_data.get('ry', 0)
+    def create_gamepad(self, gamepad_id: int):
+        device_info = {'protocol': 'dawn', 'device_name': 'Gamepad'}
+        gamepad_type = get_device_type(**device_info)
+        device_info.update({
+            'evt': DeviceEvent.CONNECT.name,
+            'shm': f'gamepad-{gamepad_id}',
+            'gamepad_id': gamepad_id,
+        })
+        shm = SharedMemory(device_info['shm'], create=True, size=ctypes.sizeof(gamepad_type))
+        self.gamepads[gamepad_id] = DeviceBuffer(shm, gamepad_type.from_buffer(shm.buf))
+        LOGGER.debug('Initialized new gamepad', **device_info)
+        asyncio.create_task(self.connections.gamepad_event.send(device_info))
+
+    async def update_gamepad_data(self, gamepad_id: int, gamepad_data):
+        if gamepad_id not in self.gamepads:
+            await asyncio.sleep(1)
+            self.create_gamepad(gamepad_id)
+        struct = self.gamepads[gamepad_id].struct
+        struct.set_current('joystick_left_x', gamepad_data.get('lx', 0))
+        struct.set_current('joystick_left_y', gamepad_data.get('ly', 0))
+        struct.set_current('joystick_right_x', gamepad_data.get('rx', 0))
+        struct.set_current('joystick_right_y', gamepad_data.get('ry', 0))
         button_map = gamepad_data.get('btn', 0)
-        (
-            struct.button_a,
-            struct.button_b,
-            struct.button_x,
-            struct.button_y,
-            struct.l_bumper,
-            struct.r_bumper,
-            struct.l_trigger,
-            struct.r_trigger,
-            struct.button_back,
-            struct.button_start,
-            struct.l_stick,
-            struct.r_stick,
-            struct.dpad_up,
-            struct.dpad_down,
-            struct.dpad_left,
-            struct.dpad_right,
-            struct.button_xbox,
-        ) = (bool((button_map >> i) & 0b1) for i in range(17))
+        gamepad_type = get_device_type(protocol='dawn', device_name='Gamepad')
+        for i, param in enumerate(gamepad_type._params):
+            if param.type == ctypes.c_bool:
+                struct.set_current(param.name, bool((button_map >> i) & 0b1))
 
     async def recv_loop(self):
         while True:
@@ -122,18 +117,17 @@ class DatagramServer:
                 if address:
                     await self.handle_client(address, message.get('timeout'))
                 gamepads = message.get('gamepads') or {}
-                for index, gamepad in gamepads.items():
-                    self.update_gamepad_data(index, gamepad)
+                for gamepad_id, gamepad in gamepads.items():
+                    await self.update_gamepad_data(gamepad_id, gamepad)
             except RuntimeBaseException as exc:
                 LOGGER.warn('Encountered error while decoding datagram', exc=str(exc))
 
     async def broadcast(self):
         update = {}
         async with self.client_access.reader:
-            send_tasks = {client.conn.send(update) for client in self.clients.values()}
-        if send_tasks:
-            await asyncio.gather(*send_tasks)
-            self.send_count += len(send_tasks)
+            for client in self.clients.values():
+                asyncio.create_task(client.conn.send(update))
+                self.send_count += 1
 
     async def log_statistics(self):
         while True:
@@ -197,10 +191,7 @@ class BrokerService(Service):
             await asyncio.wait(proxies)
 
     async def main(self):
-        datagram_server = DatagramServer(
-            self.connections,
-            self.config,
-        )
+        datagram_server = DatagramServer(self.connections, self.config)
         await asyncio.gather(
             self.serve_proxies(),
             datagram_server.recv_loop(),

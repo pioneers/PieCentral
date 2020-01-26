@@ -18,9 +18,13 @@ broker:
       socket_type: dish
       address: udp://*:6000
       bind: true
-    device_event:
+    gamepad_event:
       socket_type: pub
-      address: ipc:///tmp/device-event.sock
+      address: ipc:///tmp/gamepad-event.sock
+      bind: true
+    sensor_event:
+      socket_type: sub
+      address: ipc:///tmp/sensor-event.sock
   max_workers: 5
   proxies:
     journal:
@@ -44,11 +48,13 @@ executor:
       bind: true
     device_event:
       socket_type: sub
-      address: ipc:///tmp/device-event.sock
-      bind: true
+      address:
+        - ipc:///tmp/gamepad-event.sock
+        - ipc:///tmp/sensor-event.sock
+      # bind: true
   student_code: runtime.game.studentcode
   device_aliases: config/device-aliases.yaml
-  loop_interval: 1 # 0.05  # 20 Hz
+  loop_interval: 0.05  # 20 Hz
 
 device:
   replicas: 1
@@ -60,11 +66,13 @@ device:
       socket_type: pub
       address: ipc:///tmp/journal.sock
       send_timeout: 5
-    device_event:
+    sensor_event:
       socket_type: pub
-      address: ipc:///tmp/device-event.sock
-    device_command:
+      address: ipc:///tmp/sensor-event.sock
+      bind: true
+    sensor_command:
       socket_type: sub
-      address: ipc:///tmp/device-command.sock
+      address: ipc:///tmp/sensor-command.sock
+      bind: true
   baud_rate: 115200
   hotplug_max_events: 128

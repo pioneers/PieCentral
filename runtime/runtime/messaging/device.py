@@ -35,7 +35,7 @@ def make_timestamped_parameter(param_type) -> type:
         def __setattr__(self, name: str, value):
             if name == 'value':
                 self.last_updated = time.time()
-            # TODO: validate parameter bounds?
+            # TODO: validate parameter bounds? or saturate
             super().__setattr__(name, value)
     return TimestampedParameter
 
@@ -166,22 +166,22 @@ def load_device_types(schema: str, smart_sensor_protocol: str = 'smartsensor'):
 
 
 @cachetools.cached(cache={})
-def get_device_type(device_type: int = None, device_name: str = None,
+def get_device_type(device_id: int = None, device_name: str = None,
                     protocol: str = 'smartsensor') -> type:
     for name, device in DEVICES[protocol].items():
-        if device_type == device.type_id or name == device_name:
-            return name, device
-    raise RuntimeBaseException('Device not found', device_type=device_type, protocol=protocol)
+        if device_id == device.type_id or name == device_name:
+            return device
+    raise RuntimeBaseException('Device not found', device_id=device_id, protocol=protocol)
 
 
 DeviceBuffer = collections.namedtuple('DeviceBuffer', ['shm', 'struct'])
 
 
-class SmartSensorEvent(enum.Enum):
-    READY = enum.auto()
+class DeviceEvent(enum.Enum):
+    CONNECT = enum.auto()
+    DISCONNECT = enum.auto()
     HEARTBEAT_RES = enum.auto()
     ERROR = enum.auto()
-    CLOSING = enum.auto()
 
 
 @dataclasses.dataclass

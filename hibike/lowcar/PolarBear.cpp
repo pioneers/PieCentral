@@ -28,8 +28,7 @@ typedef enum {
 
 PolarBear::PolarBear () : Device (DeviceID::POLAR_BEAR, 2) //,  encdr(encoder0PinA, encoder0PinB), pid(0.0, 0.0, 0.0, 0.0, (double) millis(), encdr)
 {
-	this->encdr = new Encoder(encoder0PinA, encoder0PinB);
-	this->pid = new PID(0.0, 0.0, 0.0, 0.0, (double) millis(), this->encdr);
+	this->pid = new PID(0.0, 0.0, 0.0, 0.0, (double) millis())
 	this->pwmInput = 0; // Setpoint to be used with PID
 	this->driveMode = 0;
 	this->motorEnabled = false;
@@ -85,7 +84,7 @@ uint8_t PolarBear::device_read (uint8_t param, uint8_t *data_buf, size_t data_bu
 				return 0;
 			}
 			double_buf = (double *) data_buf;
-			double_buf[0] = this->encdr->readPos();
+			double_buf[0] = this->pid->readPos();
 			return sizeof(double);
 			break;
 
@@ -94,7 +93,7 @@ uint8_t PolarBear::device_read (uint8_t param, uint8_t *data_buf, size_t data_bu
 				return 0;
 			}
 			double_buf = (double *) data_buf;
-			double_buf[0] = this->encdr->readVel();
+			double_buf[0] = this->pid->readVel();
 			return sizeof(double);
 			break;
 
@@ -195,7 +194,7 @@ uint32_t PolarBear::device_write (uint8_t param, uint8_t *data_buf)
 
 		case ENC_POS:
 			if ((float) data_buf[0] == 0) {
-				resetEncoder();
+				this->pid->resetEncoder();
 				return sizeof(float);
 			}
 			break;
@@ -232,10 +231,10 @@ uint32_t PolarBear::device_write (uint8_t param, uint8_t *data_buf)
 
 void PolarBear::device_enable ()
 {
-  encoderSetup();
-  setup_LEDs();
-  test_LEDs();
-  driveMode = MANUALDRIVE;
+    this->pid->encoderSetup();
+    setup_LEDs();
+    test_LEDs();
+    driveMode = MANUALDRIVE;
 
 	// From old motor.cpp motorSetup()
 	pinMode(feedback,INPUT);
@@ -250,7 +249,7 @@ void PolarBear::device_enable ()
 void PolarBear::device_disable ()
 {
 	this->pid->setCoefficients(1, 0, 0);
-	resetEncoder();
+	this->pid->resetEncoder();
 	this->device_write(PWM_INPUT, 0);
 	this->device_write(DRIVE_MODE, 0);
 	this->motorEnabled = false;

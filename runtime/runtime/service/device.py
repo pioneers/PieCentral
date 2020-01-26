@@ -109,18 +109,21 @@ class SmartSensor:
     A Smart Sensor and an implementation of its initialize/read/write protocols.
     """
     serial_conn: aioserial.AioSerial
-    conn_manager: ConnectionManager
+    connections: ConnectionManager
     write_interval: Real = 0.02
     ready: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
     buffer: DeviceBuffer = None
 
+    def initialize_sensor(self, uid: SmartSensorUID):
+        device_type = get_device_type(uid.device_type)
+        shm = SharedMemory(f'smart-sensor-{uid.to_int()}', create=True, size=ctypes.sizeof(device_type))
+        self.buffer = DeviceBuffer(shm, device_type.from_buffer(shm.buf))
+        LOGGER.debug('Initialized device buffer', uid=uid.to_int(), device_name=device_type.__name__)
+
     def handle_sub_res(self, packet):
         uid = packet.uid
         if not self.buffer:
-            device_name, device_type = get_device_type(uid.device_type)
-            shm = SharedMemory(f'smart-sensor-{uid.to_int()}', create=True, size=ctypes.sizeof(device_type))
-            self.buffer = DeviceBuffer(shm, device_type.from_buffer(shm.buf))
-            LOGGER.debug('Initialized device buffer', uid=uid.to_int(), device_name=device_name)
+            self.initialize_sensor(uid)
         self.ready.set()
 
         buf = self.buffer.struct
@@ -175,10 +178,10 @@ class SmartSensor:
             await asyncio.sleep(self.write_interval)
 
             # Testing
-            self.buffer.struct.write = 0xffff
-            self.buffer.struct.set_desired('duty_cycle', 0.1)
-            self.buffer.struct.set_desired('enc_pos', 20)  # Doesn't work
-            self.buffer.struct.set_desired('deadband', 1)
+            # self.buffer.struct.write = 0xffff
+            # self.buffer.struct.set_desired('duty_cycle', 0.1)
+            # self.buffer.struct.set_desired('enc_pos', 20)  # Doesn't work
+            # self.buffer.struct.set_desired('deadband', 1)
 
             if self.buffer.struct.write != DeviceStructure.SMART_SENSOR_RESET:
                 packet = packetlib.make_dev_write(self.buffer.struct)
@@ -199,13 +202,10 @@ class SmartSensor:
 
     async def write_commands_loop(self):
         while True:
-            command = await self.command_subscriber.recv()
+            command = await self.connections.sensor_command.recv()
             print(command)
 
-    async def write_loop(self):
-        await asyncio.gather(self.write_parameters_loop(), self.write_commands_loop())
-
-    async def initialize_sensor(self, timeout: Real = 10):
+    async def ping(self, timeout: Real = 10):
         """
         Initialize this sensor's data structures and notify all proxies.
 
@@ -229,15 +229,17 @@ class SmartSensor:
         # Block until the subscription request arrives.
         await asyncio.wait_for(self.ready.wait(), timeout)
 
-        # await asyncio.sleep(10)
-        # await packetlib.send(self.serial_conn, packetlib.make_dev_)
-
     async def spin(self):
         """ Run this sensor indefinitely. """
         try:
-            await asyncio.gather(self.initialize_sensor(), self.read_loop(), self.write_loop())
+            await asyncio.gather(
+                self.ping(),
+                self.read_loop(),
+                self.write_parameters_loop(),
+                self.write_commands_loop(),
+            )
         except SerialException as exc:
-            LOGGER.warn('Serial exception, closing Smart Sensor', message=str(exc))
+            LOGGER.error('Serial exception, closing Smart Sensor', message=str(exc))
         except Exception as exc:  # FIXME: remove after debugging
             import traceback
             traceback.print_exc()

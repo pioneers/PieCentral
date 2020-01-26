@@ -11,7 +11,7 @@ import dataclasses
 import enum
 import functools
 import math
-import typing
+from typing import List, Mapping, Union
 
 import msgpack
 import structlog
@@ -37,8 +37,9 @@ class SocketType(enum.IntEnum):
 UDP = set([SocketType.RADIO, SocketType.DISH])
 
 
-def make_socket(context: zmq.Context, socket_type: SocketType, address: str, bind=False,
-                group: str = None, send_timeout=float('inf'), recv_timeout=float('inf')):
+def make_socket(context: zmq.Context, socket_type: SocketType, address: Union[str, List[str]],
+                bind: bool = False, group: str = None, send_timeout=float('inf'),
+                recv_timeout=float('inf')):
     """ Initialize a raw ZMQ socket. """
     socket = context.socket(socket_type.value)
     if not math.isinf(send_timeout):
@@ -49,7 +50,9 @@ def make_socket(context: zmq.Context, socket_type: SocketType, address: str, bin
     if bind:
         socket.bind(address)
     else:
-        socket.connect(address)
+        addresses = address if isinstance(address, list) else [address]
+        for address in addresses:
+            socket.connect(address)
 
     if socket_type is SocketType.SUB:
         socket.subscribe(b'')
@@ -58,7 +61,7 @@ def make_socket(context: zmq.Context, socket_type: SocketType, address: str, bin
     return socket
 
 
-def get_socket_type(socket_type: typing.Union[int, str, SocketType]) -> SocketType:
+def get_socket_type(socket_type: Union[int, str, SocketType]) -> SocketType:
     if isinstance(socket_type, str):
         return SocketType.__members__[socket_type]
     elif isinstance(socket_type, int):
@@ -124,7 +127,7 @@ class Connection:
 class ConnectionManager(collections.abc.Mapping):
     udp_context: zmq.Context = dataclasses.field(default_factory=zmq.Context)
     stream_context: zmq.asyncio.Context = dataclasses.field(default_factory=zmq.asyncio.Context)
-    connections: typing.Mapping[str, Connection] = dataclasses.field(default_factory=dict)
+    connections: Mapping[str, Connection] = dataclasses.field(default_factory=dict)
 
     def open_connection(self, name: str, socket_config, **conn_options):
         socket_type = get_socket_type(socket_config['socket_type'])

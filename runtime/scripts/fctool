@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+
+import asyncio
+import msgpack
+import zmq
+import zmq.asyncio
+import click
+
+
+async def _set_match(mode, alliance):
+    context = zmq.asyncio.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect('tcp://127.0.0.1:6002')
+    socket.send(msgpack.packb({'type': 'set_match', 'mode': mode, 'alliance': alliance}))
+
+    #socket = context.socket(zmq.SUB)
+    #socket.connect('tcp://127.0.0.1:6003')
+    #socket.subscribe(b'')
+    #while True:
+    #    packet = await socket.recv()
+    #    print(packet)
+
+
+@click.group()
+@click.option('--cmd-addr', default='tcp://127.0.0.1:6002')
+def cli(cmd_addr):
+    """
+    fctool -- Field control command-line interface
+    """
+    pass
+
+
+@cli.command('set-match')
+@click.option('-m', '--mode', default='IDLE', help='Robot execution state',
+              type=click.Choice(['IDLE', 'AUTO', 'TELEOP', 'ESTOP']))
+@click.option('-a', '--alliance', default='BLUE', help='Robot alliance',
+              type=click.Choice(['BLUE', 'GOLD']))
+def set_match(**options):
+    asyncio.run(_set_match(**options))
+
+
+@cli.command('devices')
+def listdev():
+    pass
+
+
+@cli.command()
+def listen():
+    pass
+
+
+if __name__ == '__main__':
+    cli()

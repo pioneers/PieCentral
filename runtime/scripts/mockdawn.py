@@ -78,6 +78,9 @@ class Gamepad:
         'z': 'left_stick',
     }
     JOYSTICK_DELTA = 0.1
+    BUTTONS = ['a', 'b', 'x', 'y', 'left_bumper', 'right_bumper', 'left_trigger',
+               'right_trigger', 'back', 'start', 'left_stick', 'right_stick',
+               'dpad_up', 'dpad_down', 'dpad_left', 'dpad_right', 'xbox']
 
     def update_joystick(self, key, left, right, up, down, side: str = 'left'):
         x, y = getattr(self, f'joystick_{side}_x'), getattr(self, f'joystick_{side}_y')
@@ -103,10 +106,16 @@ class Gamepad:
         self.update_joystick(key, 'KEY_LEFT', 'KEY_RIGHT', 'KEY_UP', 'KEY_DOWN', 'right')
 
     def as_dict(self):
-        payload = {}
-        for name, field in self.__class__.__dataclass_fields__.items():
-            if field.type is bool and getattr(self, name):
-                payload[name] = True
+        payload = {
+            'lx': self.joystick_left_x,
+            'ly': self.joystick_left_y,
+            'rx': self.joystick_right_x,
+            'ry': self.joystick_right_y,
+        }
+        payload['btn'] = 0
+        for i, attr in enumerate(self.BUTTONS):
+            if getattr(self, attr):
+                payload['btn'] |= 1 << i
         return payload
 
 

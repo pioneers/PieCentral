@@ -261,11 +261,11 @@ dawn:
         type: float
         lower: -1.0
         upper: 1.0
-      - name: joytick_right_x
+      - name: joystick_right_x
         type: float
         lower: -1.0
         upper: 1.0
-      - name: joytick_right_y
+      - name: joystick_right_y
         type: float
         lower: -1.0
         upper: 1.0

@@ -3,7 +3,6 @@ import asyncio
 import dataclasses
 import datetime
 import threading
-from typing import Any, Mapping
 
 from schema import And, Optional, Or, Schema, Use
 import structlog
@@ -27,7 +26,7 @@ class Service(abc.ABC):
     References::
         https://github.com/zeromq/libzmq/issues/2941
     """
-    config: Any
+    config: dict
     connections: ConnectionManager = dataclasses.field(default_factory=ConnectionManager)
 
     config_schema = {
@@ -37,7 +36,7 @@ class Service(abc.ABC):
         Optional('sockets', default={}): {
             VALID_NAME: {
                 'socket_type': Or(Use(str.upper), int),
-                'address': str,
+                'address': Or(str, [str]),
                 Optional('bind', default=False): bool,
                 Optional('send_timeout'): Use(float),
                 Optional('recv_timeout'): Use(float),

@@ -1,12 +1,10 @@
 import asyncio
 from concurrent.futures import ProcessPoolExecutor
-import ctypes
 import dataclasses
 import enum
 import functools
 import importlib
 import inspect
-from multiprocessing.shared_memory import SharedMemory
 from numbers import Real
 import signal
 import threading
@@ -22,6 +20,7 @@ from runtime.game.studentapi import (
     DeviceAliasManager,
     Mode,
     Alliance,
+    Action,
     Actions,
     Match,
     Gamepad,
@@ -77,7 +76,7 @@ class ActionExecutor(threading.Thread):
         for action in self.running_actions:
             self.loop.call_soon_threadsafe(self.unregister_action, action)
 
-    def register_action(self, action: typing.Callable, timeout: Real, *args):
+    def register_action(self, action: Action, timeout: Real, *args):
         if not inspect.iscoroutinefunction(action):
             LOGGER.warn('Action should be a coroutine function')
         elif self.is_running(action):
@@ -89,7 +88,7 @@ class ActionExecutor(threading.Thread):
             action_task.add_done_callback(functools.partial(self.unregister_action, action))
             LOGGER.debug('Registered action', action=action.__name__)
 
-    def unregister_action(self, action: typing.Callable, *_):
+    def unregister_action(self, action: Action, *_):
         try:
             self.running_actions.pop(action).cancel()
             LOGGER.debug('Unregistered action', action=action.__name__)
@@ -303,31 +302,19 @@ class ExecutorService(Service):
             return {'stdout': stdout.read(), 'stderr': stderr.read()}
         raise RuntimeBaseException('Unable to lint student code (failed to import)')
 
-    async def initialize_device(self, request):
-        async with self.access:
-            device_name, device_uid = request['device_name'], request['device_uid']
-            device_type = get_device_type(protocol=request['protocol'], device_name=device_name)
-            try:
-                shm = SharedMemory(device_uid, create=True, size=ctypes.sizeof(device_type))
-            except FileExistsError:
-                shm = SharedMemory(device_uid)
-                LOGGER.warn('Shared memory block already exists', device_name=device_name,
-                            device_uid=device_uid, size=shm.size)
-            self.device_buffers[shm.name] = DeviceBuffer(shm, device_type.from_buffer(shm.buf))
-            LOGGER.debug('Created shared memory block', device_type=device_name,
-                         device_uid=device_uid, size=shm.size)
-            asyncio.create_task(self.connections.bus.send(request))
-
-    async def terminate_device(self, request):
-        async with self.access:
-            shm = self.device_buffers[request['device_uid']].shm
-            # NOTE: We cannot call `shm.close` here (see device service).
-            shm.unlink()
-            del self.device_buffers[shm.name]
-            LOGGER.debug('Unlinked shared memory block', **request)
-            asyncio.create_task(self.connections.bus.send(request))
+    async def listen_for_device_status(self):
+        while True:
+            status = await self.connections.device_status.recv()
+            devices = status.get('devices') or []
+            for device in devices:
+                device_uid = device['device_uid']
+                if device_uid not in self.device_buffers:
+                    device_type = get_device_type(device_name=device['device_type'])
+                    device_buffer = DeviceBuffer.open(device_type, device_uid)
+                    self.device_buffers[device_uid] = device_buffer
 
     async def main(self):
+        asyncio.create_task(self.listen_for_device_status())
         command_conn = self.connections.command
         while True:
             request, response = await command_conn.recv(), {'received': time.time()}
@@ -355,7 +342,7 @@ class ExecutorService(Service):
                 response.clear()
 
     def __call__(self):
-        threading.current_thread().name = self.__class__.__name__.lower()
+        threading.current_thread().name = type(self).__name__.lower()
         signal.signal(signal.SIGALRM, handle_timeout)
         command_thread = threading.Thread(target=lambda: asyncio.run(self.bootstrap()),
                                           daemon=True, name='command-thread')

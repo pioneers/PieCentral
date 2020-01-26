@@ -24,7 +24,7 @@ run: builddev
 	docker run --rm -it $(NAME):development
 
 runprod: builddev
-	docker run --rm -it $(NAME):development /usr/bin/env pipenv run python3 -m runtime run
+	docker run --restart=always --rm -it $(NAME):development /usr/bin/env pipenv run python3 -m runtime run
 
 shell: buildbase
 	docker run --rm -it $(NAME):development /bin/ash

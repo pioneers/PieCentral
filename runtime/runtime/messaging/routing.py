@@ -18,6 +18,8 @@ import structlog
 import zmq
 import zmq.asyncio
 
+from runtime.util.exception import RuntimeBaseException
+
 
 LOGGER = structlog.get_logger()
 
@@ -119,6 +121,12 @@ class Connection:
         self.bytes_recv += len(packet)
         return self.loads(packet)
 
+    async def req(self, payload):
+        if self.socket.type != SocketType.REQ.value:
+            raise RuntimeBaseException('Cannot make requests with non-REQ socket')
+        await self.send(payload)
+        return await self.recv()
+
     def close(self):
         self.socket.close()
 
@@ -143,8 +151,11 @@ class ConnectionManager(collections.abc.Mapping):
         self.connections.pop(name).close()
         LOGGER.debug('Closed connection', name=name)
 
-    def clear(self):
-        for name in self.connections:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, _type, _exc, _traceback):
+        for name in list(self.connections):
             self.close_connection(name)
 
     def __getattr__(self, name: str):

@@ -3,21 +3,22 @@ import collections
 import ctypes
 import dataclasses
 import enum
+import functools
 from multiprocessing.shared_memory import SharedMemory
 from numbers import Real
 import os
 import time
-from typing import Iterable
+from typing import Iterable, Set
 
 import aioserial
 import backoff
 from pyudev import Context, Device, Monitor, MonitorObserver
+from schema import Optional
 from serial.serialutil import SerialException
 from serial.tools import list_ports
 import structlog
 
 from runtime.messaging import packet as packetlib
-from runtime.messaging.routing import ConnectionManager
 from runtime.messaging.device import (
     DeviceBuffer,
     DeviceStructure,
@@ -25,7 +26,7 @@ from runtime.messaging.device import (
     get_device_type,
 )
 from runtime.service.base import Service
-from runtime.util import POSITIVE_INTEGER
+from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL
 from runtime.util.exception import RuntimeBaseException
 
 LOGGER = structlog.get_logger()
@@ -106,25 +107,21 @@ class SmartSensor:
     A Smart Sensor and an implementation of its initialize/read/write protocols.
     """
     serial_conn: aioserial.AioSerial
-    connections: ConnectionManager
-    write_interval: Real = 0.02
+    event_queue: asyncio.Queue
+    command_queue: asyncio.Queue = dataclasses.field(default_factory=asyncio.Queue)
+    write_interval: Real = 0.05
     ready: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
-    buffer: DeviceBuffer = None
+    buffer: DeviceBuffer = dataclasses.field(default=None, init=False)
+
+    def __hash__(self):
+        return hash(self.serial_conn.port)
 
     async def initialize_sensor(self, uid: SmartSensorUID):
         device_type = get_device_type(uid.device_type)
-        device_name = device_type.__name__
         device_uid = f'smart-sensor-{uid.to_int()}'
-        await self.connections.executor.send({
-            'type': 'initialize_device',
-            'device_uid': device_uid,
-            'protocol': 'smartsensor',
-            'device_name': device_name,
-        })
-        await self.connections.executor.recv()
-        shm = SharedMemory(device_uid)
-        self.buffer = DeviceBuffer(shm, device_type.from_buffer(shm.buf))
-        LOGGER.info('Initialized new sensor', device_uid=device_uid, device_name=device_name)
+        self.buffer = DeviceBuffer.open(device_type, device_uid, create=True)
+        LOGGER.info('Initialized new sensor', device_type=device_type.__name__,
+                    device_uid=device_uid)
 
     async def handle_sub_res(self, packet):
         uid = packet.uid
@@ -207,8 +204,7 @@ class SmartSensor:
                              frequency=frequency, uid=self.buffer.struct.uid.to_int())
 
     async def write_commands_loop(self):
-        while True:
-            await self.connections.bus.recv()
+        pass
 
     @backoff.on_exception(backoff.constant, asyncio.TimeoutError, max_tries=10, logger=LOGGER)
     async def ping(self, timeout: Real = 1):
@@ -235,6 +231,12 @@ class SmartSensor:
         # Block until the subscription request arrives.
         await asyncio.wait_for(self.ready.wait(), timeout)
 
+    @backoff.on_exception(backoff.constant, BufferError, max_tries=5, interval=1, logger=LOGGER)
+    async def terminate(self, shm: SharedMemory):
+        shm.close()
+        shm.unlink()
+        LOGGER.info('Smart sensor terminated', device_uid=shm.name)
+
     async def spin(self):
         """ Run this sensor indefinitely. """
         try:
@@ -248,29 +250,29 @@ class SmartSensor:
             LOGGER.error('Serial exception, closing Smart Sensor', message=str(exc))
         finally:
             if self.buffer:
-                device_uid = self.buffer.shm.name
-                # NOTE: We cannot close shared memory buffer (as recommended)
-                # because the struct is included in the buffer's reference
-                # count and the struct will point to garbage. It suffices for
-                # executor to unlink the memory.
-                await self.connections.executor.send({
-                    'type': 'terminate_device',
-                    'device_uid': device_uid,
-                })
-                await self.connections.executor.recv()
-                LOGGER.info('Smart sensor terminated', device_uid=device_uid)
+                shm = self.buffer.shm
+                # NOTE: `shm.close` can fail sometimes because the ctype struct
+                # maintains a pointer to the buffer. We need to trigger the
+                # garbage collection of the struct.
+                del self.buffer
+                await self.terminate(shm)
 
 
 @dataclasses.dataclass
 class DeviceService(Service):
+    sensors: Set = dataclasses.field(default_factory=set)
+    event_queue: asyncio.Queue = dataclasses.field(default_factory=asyncio.Queue)
+
     config_schema = {
         **Service.config_schema,
-        'baud_rate': POSITIVE_INTEGER,
-        'hotplug_max_events': POSITIVE_INTEGER,
+        Optional('baud_rate', default=115200): POSITIVE_INTEGER,
+        Optional('max_hotplug_events', default=128): POSITIVE_INTEGER,
+        Optional('broadcast_interval', default=1): POSITIVE_REAL,
+        Optional('write_interval', default=0.05): POSITIVE_REAL,
     }
 
     def initialize_hotplugging(self):
-        event_queue = asyncio.Queue(self.config['hotplug_max_events'])
+        event_queue = asyncio.Queue(self.config['max_hotplug_events'])
         observer = SmartSensorObserver(event_queue)
         observer.handle_initial_sensors()
         observer.start()
@@ -280,13 +282,20 @@ class DeviceService(Service):
         for port in hotplug_event.ports:
             serial_conn = aioserial.AioSerial(port, **serial_options)
             serial_conn.rts = False
-            asyncio.create_task(SmartSensor(
-                serial_conn,
-                self.connections,
-                write_interval=0.2,  # TODO: remove
-            ).spin())
+            sensor = SmartSensor(serial_conn, self.event_queue,
+                                 write_interval=self.config['write_interval'])
+            self.sensors.add(sensor)
+            sensor_task = asyncio.create_task(sensor.spin())
+            sensor_task.add_done_callback(functools.partial(self.sensors.remove, sensor))
+
+    async def broadcast_status(self):
+        while True:
+            devices = [sensor.buffer.status for sensor in self.sensors if sensor.buffer]
+            await self.connections.sensor_status.send({'devices': devices})
+            await asyncio.sleep(self.config['broadcast_interval'])
 
     async def main(self):
+        asyncio.create_task(self.broadcast_status())
         event_queue = self.initialize_hotplugging()
         while True:
             hotplug_event = await event_queue.get()

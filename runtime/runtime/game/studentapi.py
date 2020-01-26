@@ -7,6 +7,7 @@ import os
 from numbers import Real
 import shutil
 import tempfile
+import threading
 import typing
 import uuid
 
@@ -19,18 +20,19 @@ from runtime.util.exception import RuntimeExecutionError
 
 
 class DeviceAliasManager(collections.UserDict):
-    def __init__(self, filename: str, persist_timeout: Real):
+    def __init__(self, filename: str, persist_timeout: Real,
+                 logger: structlog.BoundLoggerBase = None):
         super().__init__()
         self.filename, self.persist_timeout = filename, persist_timeout
+        self.logger = logger or structlog.get_logger()
         self.persisting = asyncio.Lock()
-        asyncio.create_task(asyncio.wait_for(self.load_initial_aliases(), self.persist_timeout))
 
     async def load_initial_aliases(self):
         async with self.persisting:
             try:
                 async with aiofiles.open(self.filename) as alias_file:
                     self.data.update(yaml.load(await alias_file.read()))
-                LOGGER.debug('Loaded initial aliases', aliases=self.data)
+                self.logger.debug('Loaded initial aliases', aliases=self.data)
             except FileNotFoundError:
                 pass
 
@@ -41,16 +43,16 @@ class DeviceAliasManager(collections.UserDict):
                 await alias_file.write(yaml.dump(self.data, default_flow_style=False))
             try:
                 shutil.move(tmp_path, self.filename)
-                LOGGER.debug('Persisted device aliases', aliases=self.data)
+                self.logger.debug('Persisted device aliases', aliases=self.data)
             finally:
                 try:
                     os.unlink(tmp_path)
-                    LOGGER.error('Failed to move temporary device aliases file')
+                    self.logger.error('Failed to move temporary device aliases file')
                 except OSError:
                     pass
 
     def __setitem__(self, name: str, uid: typing.Union[str, int]):
-        super().__setitem__(name, uid)
+        super().__setitem__(name, str(uid))
         asyncio.create_task(asyncio.wait_for(self.persist_aliases(), self.persist_timeout))
 
     def __delitem__(self, name: str):
@@ -58,8 +60,36 @@ class DeviceAliasManager(collections.UserDict):
         asyncio.create_task(asyncio.wait_for(self.persist_aliases(), self.persist_timeout))
 
 
+DeviceBufferMap = typing.Mapping[str, DeviceBuffer]
+
+
 class StudentAPI(abc.ABC):
     """ Base abstract type for all interfaces exposed to student code. """
+
+
+@dataclasses.dataclass
+class DeviceAPI(StudentAPI):
+    device_buffers: DeviceBufferMap
+    logger: structlog.BoundLoggerBase
+
+    def _get_device_buffer(self, device_uid: str):
+        try:
+            return self.device_buffers[device_uid]
+        except KeyError:
+            self.logger.warn('Unrecognized device', device_uid=device_uid)
+
+    def get_value(self, device_uid: str, param: str):
+        device = self._get_device_buffer(device_uid)
+        if device:
+            try:
+                return device.struct.get_current(param)
+            except AttributeError:
+                self.logger.warn(
+                    'Unrecognized or unreadable parameter',
+                    device_uid=device_uid,
+                    device_type=device.struct.__class__.__name__,
+                    param=param,
+                )
 
 
 class Mode(enum.Enum):
@@ -91,42 +121,50 @@ class Match(StudentAPI):
 
 
 @dataclasses.dataclass
-class Gamepad(StudentAPI):
+class Gamepad(DeviceAPI):
     mode: Mode
-    device_buffers: typing.Mapping[str, DeviceBuffer]
-    logger: structlog.BoundLoggerBase = dataclasses.field(default_factory=structlog.get_logger)
 
     def get_value(self, param: str, gamepad_id: str = 0):
         if self.mode is not Mode.TELEOP:
             raise RuntimeExecutionError(f'Cannot use Gamepad during {self.mode.name}',
                                         mode=self.mode.name, gamepad_id=gamepad_id,
                                         param=param)
-        try:
-            buffer = self.device_buffers[f'gamepad-{gamepad_id}']
-            return buffer.struct.get_current(param)
-        except KeyError:
-            self.logger.warn('Unrecognized Gamepad', gamepad_id=gamepad_id)
-        except AttributeError:
-            self.logger.warn('Unknown parameter', param=param)
+        return super().get_value(f'gamepad-{gamepad_id}', param)
 
 
-@dataclasses.dataclass(init=False)
-class Robot(StudentAPI):
-    def __init__(self, action_executor, aliases: DeviceAliasManager):
-        self.action_executor, self.aliases = action_executor, aliases
+@dataclasses.dataclass
+class Robot(DeviceAPI):
+    action_executor: threading.Thread
+    aliases: DeviceAliasManager
 
-    def run(self, action, *args, timeout: float = 15):
-        # TODO: use timeout parameter
-        self.action_executor.register_action_threadsafe(action, *args)
+    def run(self, action, *args, timeout: float = 30):
+        self.action_executor.register_action_threadsafe(action, *args, timeout=timeout)
 
     def is_running(self, action):
         self.action_executor.is_running(action)
 
-    def get_value(self, device_id: typing.Union[str, int], param: str):
-        pass
+    def _normalize_device_uid(self, device_uid: typing.Union[str, int]) -> str:
+        if isinstance(device_uid, str) and device_uid in self.aliases:
+            device_uid = self.aliases[device_uid]
+        else:
+            device_uid = device_uid
+        return f'smart-sensor-{device_uid}'
 
-    def set_value(self, device_id: typing.Union[str, int], param: str, value):
-        pass
+    def get_value(self, device_uid: typing.Union[str, int], param: str):
+        return super().get_value(self._normalize_device_uid(device_uid), param)
+
+    def set_value(self, device_uid: typing.Union[str, int], param: str, value):
+        device = self._get_device_buffer(self._normalize_device_uid(device_uid))
+        if device:
+            try:
+                device.struct.set_desired(param, value)
+            except AttributeError:
+                self.logger.warn(
+                    'Unrecognized or read-only parameter',
+                    device_uid=device_uid,
+                    device_type=device.struct.__class__.__name__,
+                    param=param,
+                )
 
     def testing_mode(self, enabled: bool = False):
         pass

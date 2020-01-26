@@ -3,21 +3,18 @@ import collections
 import ctypes
 import dataclasses
 import enum
-import functools
 from multiprocessing.shared_memory import SharedMemory
 from numbers import Real
 import os
-import operator
 import time
-from typing import List, Iterable, Mapping, Tuple
+from typing import Iterable
 
 import aioserial
-from pyudev import Context, Devices, Device, Monitor, MonitorObserver
-from schema import Schema, And, Use, Optional
+import backoff
+from pyudev import Context, Device, Monitor, MonitorObserver
 from serial.serialutil import SerialException
 from serial.tools import list_ports
 import structlog
-import yaml
 
 from runtime.messaging import packet as packetlib
 from runtime.messaging.routing import ConnectionManager
@@ -29,7 +26,7 @@ from runtime.messaging.device import (
 )
 from runtime.service.base import Service
 from runtime.util import POSITIVE_INTEGER
-from runtime.util.exception import EmergencyStopException, RuntimeBaseException
+from runtime.util.exception import RuntimeBaseException
 
 LOGGER = structlog.get_logger()
 
@@ -114,16 +111,25 @@ class SmartSensor:
     ready: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
     buffer: DeviceBuffer = None
 
-    def initialize_sensor(self, uid: SmartSensorUID):
+    async def initialize_sensor(self, uid: SmartSensorUID):
         device_type = get_device_type(uid.device_type)
-        shm = SharedMemory(f'smart-sensor-{uid.to_int()}', create=True, size=ctypes.sizeof(device_type))
+        device_name = device_type.__name__
+        device_uid = f'smart-sensor-{uid.to_int()}'
+        await self.connections.executor.send({
+            'type': 'initialize_device',
+            'device_uid': device_uid,
+            'protocol': 'smartsensor',
+            'device_name': device_name,
+        })
+        await self.connections.executor.recv()
+        shm = SharedMemory(device_uid)
         self.buffer = DeviceBuffer(shm, device_type.from_buffer(shm.buf))
-        LOGGER.debug('Initialized device buffer', uid=uid.to_int(), device_name=device_type.__name__)
+        LOGGER.info('Initialized new sensor', device_uid=device_uid, device_name=device_name)
 
-    def handle_sub_res(self, packet):
+    async def handle_sub_res(self, packet):
         uid = packet.uid
         if not self.buffer:
-            self.initialize_sensor(uid)
+            await self.initialize_sensor(uid)
         self.ready.set()
 
         buf = self.buffer.struct
@@ -155,7 +161,7 @@ class SmartSensor:
         elif packet.message_id == packetlib.MessageType.DEV_DATA:
             await self.handle_dev_data(packet)
         elif packet.message_id == packetlib.MessageType.SUB_RES:
-            self.handle_sub_res(packet)
+            await self.handle_sub_res(packet)
         elif packet.message_id == packetlib.MessageType.ERROR:
             pass
         else:
@@ -202,10 +208,10 @@ class SmartSensor:
 
     async def write_commands_loop(self):
         while True:
-            command = await self.connections.sensor_command.recv()
-            print(command)
+            await self.connections.bus.recv()
 
-    async def ping(self, timeout: Real = 10):
+    @backoff.on_exception(backoff.constant, asyncio.TimeoutError, max_tries=10, logger=LOGGER)
+    async def ping(self, timeout: Real = 1):
         """
         Initialize this sensor's data structures and notify all proxies.
 
@@ -240,13 +246,19 @@ class SmartSensor:
             )
         except SerialException as exc:
             LOGGER.error('Serial exception, closing Smart Sensor', message=str(exc))
-        except Exception as exc:  # FIXME: remove after debugging
-            import traceback
-            traceback.print_exc()
         finally:
             if self.buffer:
-                self.buffer.shm.unlink()
-                LOGGER.debug('Unlinked device buffer', name=self.buffer.shm.name)
+                device_uid = self.buffer.shm.name
+                # NOTE: We cannot close shared memory buffer (as recommended)
+                # because the struct is included in the buffer's reference
+                # count and the struct will point to garbage. It suffices for
+                # executor to unlink the memory.
+                await self.connections.executor.send({
+                    'type': 'terminate_device',
+                    'device_uid': device_uid,
+                })
+                await self.connections.executor.recv()
+                LOGGER.info('Smart sensor terminated', device_uid=device_uid)
 
 
 @dataclasses.dataclass

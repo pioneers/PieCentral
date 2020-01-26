@@ -84,6 +84,7 @@ class DeviceStructure(Structure):
 
     def set_desired(self, param_name: str, value):
         getattr(self, f'desired_{param_name}').value = value
+        self.dirty |= 1 << self._param_ids[param_name]
 
     def set_current(self, param_name: str, value):
         getattr(self, f'current_{param_name}').value = value
@@ -102,6 +103,7 @@ class DeviceStructure(Structure):
             fields.extend([(f'current_{param.name}', ctype), (f'desired_{param.name}', ctype)])
         return type(name, (cls, ), {
             '_params': params,
+            '_param_ids': {param.name: index for index, param in enumerate(params)},
             '_fields_': fields,
             'type_id': type_id,
         })
@@ -186,7 +188,7 @@ class DeviceEvent(enum.Enum):
 
 @dataclasses.dataclass
 class SmartSensorProxy(collections.UserDict):
-    event_subscriber: Connection
+    connections: Connection
     command_publisher: Connection
     ready: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
     buffer: DeviceBuffer = dataclasses.field(default=None, init=False)

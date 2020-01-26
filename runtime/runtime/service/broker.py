@@ -1,24 +1,22 @@
 import asyncio
-import collections
 from concurrent.futures import ThreadPoolExecutor
 import ctypes
 import dataclasses
-import enum
 from multiprocessing.shared_memory import SharedMemory
 from numbers import Real
-from typing import Callable, Mapping, Tuple
+from typing import Mapping
 
 import aiorwlock
-from schema import And, Optional, Schema, Use
+from schema import Optional
 import structlog
 import zmq
 import zmq.asyncio
 
 from runtime.service.base import Service
-from runtime.messaging.device import DeviceEvent, DeviceBuffer, get_device_type
+from runtime.messaging.device import DeviceBuffer, get_device_type
 from runtime.messaging.routing import Connection, ConnectionManager
 from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL, VALID_NAME
-from runtime.util.exception import EmergencyStopException
+from runtime.util.exception import RuntimeBaseException
 
 
 LOGGER = structlog.get_logger()
@@ -66,7 +64,7 @@ class DatagramServer:
                     self.connections.open_connection(address, socket_config),
                     timeout or self.config['client_timeout'],
                 )
-            LOGGER.debug('New client connected', address=address)
+            LOGGER.debug('New datagram client connected', address=address)
             asyncio.create_task(self.expire(address, client))
 
     async def expire(self, address: str, client: DatagramClient):
@@ -78,26 +76,23 @@ class DatagramServer:
         finally:
             async with self.client_access.writer:
                 del self.clients[address]
-                self.close_connection(address)
+                self.connections.close_connection(address)
 
-    def create_gamepad(self, gamepad_id: int):
-        device_info = {'protocol': 'dawn', 'device_name': 'Gamepad'}
-        gamepad_type = get_device_type(**device_info)
-        device_info.update({
-            'evt': DeviceEvent.CONNECT.name,
-            'shm': f'gamepad-{gamepad_id}',
-            'gamepad_id': gamepad_id,
-        })
-        shm = SharedMemory(device_info['shm'], create=True, size=ctypes.sizeof(gamepad_type))
-        self.gamepads[gamepad_id] = DeviceBuffer(shm, gamepad_type.from_buffer(shm.buf))
-        LOGGER.debug('Initialized new gamepad', **device_info)
-        asyncio.create_task(self.connections.gamepad_event.send(device_info))
+    async def get_gamepad_struct(self, gamepad_id: int):
+        device_uid = f'gamepad-{gamepad_id}'
+        if device_uid not in self.gamepads:
+            device_info = {'protocol': 'dawn', 'device_name': 'Gamepad'}
+            device_type = get_device_type(**device_info)
+            await self.connections.executor.send({'type': 'initialize_device',
+                                                  'device_uid': device_uid, **device_info})
+            await self.connections.executor.recv()
+            shm = SharedMemory(device_uid)
+            self.gamepads[device_uid] = DeviceBuffer(shm, device_type.from_buffer(shm.buf))
+            LOGGER.info('Initialized new gamepad', device_uid=device_uid)
+        return self.gamepads[device_uid].struct
 
     async def update_gamepad_data(self, gamepad_id: int, gamepad_data):
-        if gamepad_id not in self.gamepads:
-            await asyncio.sleep(1)
-            self.create_gamepad(gamepad_id)
-        struct = self.gamepads[gamepad_id].struct
+        struct = await self.get_gamepad_struct(gamepad_id)
         struct.set_current('joystick_left_x', gamepad_data.get('lx', 0))
         struct.set_current('joystick_left_y', gamepad_data.get('ly', 0))
         struct.set_current('joystick_right_x', gamepad_data.get('rx', 0))
@@ -181,6 +176,8 @@ class BrokerService(Service):
         frontend_socket = self.connections[frontend].socket
         backend_socket = self.connections[backend].socket
         LOGGER.debug('Serving proxy', frontend=frontend, backend=backend)
+        # `zmq.proxy` is a C extension function, which `pylint` cannot detect.
+        # pylint: disable=no-member
         zmq.proxy(frontend_socket, backend_socket)  # FIXME
 
     async def serve_proxies(self):

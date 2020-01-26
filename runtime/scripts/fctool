@@ -7,12 +7,11 @@ import zmq.asyncio
 import click
 
 
-async def _set_match(mode, alliance):
-    context = zmq.asyncio.Context()
-    socket = context.socket(zmq.REQ)
-    socket.connect('tcp://127.0.0.1:6002')
-    socket.send(msgpack.packb({'type': 'set_match', 'mode': mode, 'alliance': alliance}))
+CONTEXT = zmq.Context()
 
+
+def _set_match(mode, alliance):
+    ...
     #socket = context.socket(zmq.SUB)
     #socket.connect('tcp://127.0.0.1:6003')
     #socket.subscribe(b'')
@@ -23,11 +22,13 @@ async def _set_match(mode, alliance):
 
 @click.group()
 @click.option('--cmd-addr', default='tcp://127.0.0.1:6002')
-def cli(cmd_addr):
+@click.pass_context
+def cli(ctx, cmd_addr):
     """
     fctool -- Field control command-line interface
     """
-    pass
+    ctx.obj = ctx.obj or {}
+    ctx.obj['cmd_addr'] = cmd_addr
 
 
 @cli.command('set-match')
@@ -35,17 +36,50 @@ def cli(cmd_addr):
               type=click.Choice(['IDLE', 'AUTO', 'TELEOP', 'ESTOP']))
 @click.option('-a', '--alliance', default='BLUE', help='Robot alliance',
               type=click.Choice(['BLUE', 'GOLD']))
-def set_match(**options):
-    asyncio.run(_set_match(**options))
+@click.pass_context
+def set_match(ctx, mode, alliance):
+    socket = CONTEXT.socket(zmq.REQ)
+    socket.connect(ctx.obj['cmd_addr'])
+    socket.send(msgpack.packb({'type': 'set_match', 'mode': mode, 'alliance': alliance}))
+    socket.close()
 
 
-@cli.command('devices')
-def listdev():
-    pass
+@cli.command('list-aliases')
+@click.pass_context
+def list_dev(ctx, ):
+    socket = CONTEXT.socket(zmq.REQ)
+    socket.connect(ctx.obj['cmd_addr'])
+    socket.send(msgpack.packb({'type': 'list_aliases'}))
+    chunks, packet = socket.recv_multipart(), bytearray()
+    for chunk in chunks:
+        packet.extend(chunk)
+    payload = msgpack.unpackb(packet, raw=False)
+    socket.close()
+    print(payload)
+
+
+@cli.command('lint')
+@click.pass_context
+def lint(ctx, ch='#', side=25):
+    socket = CONTEXT.socket(zmq.REQ)
+    socket.connect(ctx.obj['cmd_addr'])
+    socket.send(msgpack.packb({'type': 'lint'}))
+    chunks, packet = socket.recv_multipart(), bytearray()
+    for chunk in chunks:
+        packet.extend(chunk)
+    payload = msgpack.unpackb(packet, raw=False)
+    socket.close()
+
+    print(f'{ch*side} stdout {ch*side}', end='\n'*2)
+    print(payload['stdout'].strip(), end='\n'*2)
+    print(f'{ch*(8 + 2*side)}', end='\n'*3)
+    print(f'{ch*side} stderr {ch*side}', end='\n'*2)
+    print(payload['stderr'].strip(), end='\n'*2)
+    print(f'{ch*(8 + 2*side)}')
 
 
 @cli.command()
-def listen():
+def listen(ctx):
     pass
 
 

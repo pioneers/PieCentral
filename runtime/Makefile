@@ -47,7 +47,9 @@ artifacts-install:
 	$(nop)
 
 lint:
-	$(nop)
+	pylint \
+		runtime/game/studentapi.py \
+		runtime/service
 
 test: buildbase
 	docker run --rm -it $(NAME):development python3 -m doctest \

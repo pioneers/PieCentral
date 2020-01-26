@@ -1,11 +1,11 @@
 import asyncio
 from concurrent.futures import ProcessPoolExecutor
+import ctypes
 import dataclasses
 import enum
 import functools
 import importlib
 import inspect
-import multiprocessing
 from multiprocessing.shared_memory import SharedMemory
 from numbers import Real
 import signal
@@ -14,8 +14,7 @@ import time
 import types
 import typing
 
-import aiofiles
-import pylint
+from pylint import epylint as lint
 import structlog
 from schema import And, Optional, Schema, SchemaError, Use
 
@@ -28,7 +27,7 @@ from runtime.game.studentapi import (
     Gamepad,
     Robot,
 )
-from runtime.messaging.device import DeviceBuffer, DeviceEvent, get_device_type
+from runtime.messaging.device import DeviceBuffer, get_device_type
 from runtime.service.base import Service
 from runtime.util import (
     POSITIVE_REAL,
@@ -49,11 +48,13 @@ class RequestType(enum.Enum):
     SET_ALIAS = enum.auto()
     DEL_ALIAS = enum.auto()
     LINT = enum.auto()
+    INITIALIZE_DEVICE = enum.auto()
+    TERMINATE_DEVICE = enum.auto()
 
 
 class ActionExecutor(threading.Thread):
     def __init__(self, name: str = 'action-executor'):
-        self.running_actions = dict()
+        self.running_actions, self.loop = dict(), None
         super().__init__(target=self, daemon=True, name=name)
 
     def __call__(self):
@@ -69,21 +70,22 @@ class ActionExecutor(threading.Thread):
     def is_running(self, action):
         return action in self.running_actions
 
-    def register_action_threadsafe(self, action, *args):
-        self.loop.call_soon_threadsafe(self.register_action, action, *args)
+    def register_action_threadsafe(self, action, *args, timeout: Real = 30):
+        self.loop.call_soon_threadsafe(self.register_action, action, timeout, *args)
 
     def unregister_all(self):
         for action in self.running_actions:
             self.loop.call_soon_threadsafe(self.unregister_action, action)
 
-    def register_action(self, action: typing.Callable, *args):
+    def register_action(self, action: typing.Callable, timeout: Real, *args):
         if not inspect.iscoroutinefunction(action):
             LOGGER.warn('Action should be a coroutine function')
         elif self.is_running(action):
             LOGGER.warn('Action is already running, ignoring', action=action.__name__)
         else:
             loop = asyncio.get_running_loop()
-            self.running_actions[action] = action_task = loop.create_task(action(*args))
+            timed_action = asyncio.wait_for(action(*args), timeout)
+            self.running_actions[action] = action_task = loop.create_task(timed_action)
             action_task.add_done_callback(functools.partial(self.unregister_action, action))
             LOGGER.debug('Registered action', action=action.__name__)
 
@@ -99,10 +101,10 @@ def handle_timeout(_signum: int, _stack_frame):
     raise TimeoutError('Task timed out')
 
 
-def run_with_timeout(fn: typing.Callable[[], typing.Any], timeout: float, *args, **kwargs):
-    signal.setitimer(signal.ITIMER_REAL, timeout)
+def run_with_timeout(func: typing.Callable[[], typing.Any], timeout: Real, *args, **kwargs):
+    signal.setitimer(signal.ITIMER_REAL, float(timeout))
     try:
-        return fn(*args, **kwargs)
+        return func(*args, **kwargs)
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0)
 
@@ -131,11 +133,11 @@ class StudentCodeExecutor:
 
     def get_function(self, name: str):
         try:
-            fn = getattr(self.student_code, name)
+            func = getattr(self.student_code, name)
         except AttributeError:
-            LOGGER.warn('Unable to get function, using stub', fn=name)
-            fn = lambda: None
-        return fn
+            LOGGER.warn('Unable to get function, using stub', func=name)
+            func = lambda: None
+        return func
 
     def get_functions(self):
         if self.match.mode is Mode.AUTO:
@@ -147,13 +149,17 @@ class StudentCodeExecutor:
         return (self.get_function(f'{prefix}_setup'), self.get_function(f'{prefix}_main'))
 
     def import_student_code(self):
-        if not self.student_code:
+        if not self.student_code or not hasattr(self.student_code, '__file__'):
             self.student_code = importlib.import_module(self.config['student_code'])
         else:
             self.student_code = importlib.reload(self.student_code)
 
     def reload_student_code(self):
-        run_with_timeout(self.import_student_code, self.config['import_timeout'])
+        try:
+            run_with_timeout(self.import_student_code, self.config['import_timeout'])
+        except (TimeoutError, NameError, SyntaxError) as exc:
+            self.student_code = types.ModuleType(self.config['student_code'])
+            LOGGER.warn('Unable to import student code', exc=str(exc))
         logger = structlog.get_logger(self.config['student_code'])
         def _print(*values, sep=' ', _file=None, _flush=False):
             logger.info(sep.join(map(str, values)))
@@ -162,14 +168,15 @@ class StudentCodeExecutor:
         self.student_code.Alliance = Alliance
         self.student_code.Mode = Mode
         self.student_code.Match = self.match
-        self.student_code.Robot = Robot(self.action_executor, self.aliases)
-        self.student_code.Gamepad = Gamepad(self.match.mode, self.device_buffers, LOGGER)
+        self.student_code.Robot = Robot(self.device_buffers, LOGGER,
+                                        self.action_executor, self.aliases)
+        self.student_code.Gamepad = Gamepad(self.device_buffers, LOGGER, self.match.mode)
 
     def run_cycle(self, main, loop_interval):
         try:
             main()
         except Exception as exc:
-            LOGGER.error('Unable to run main', fn=main.__name__, exc=str(exc))
+            LOGGER.error('Unable to run main', func=main.__name__, exc=str(exc))
             if isinstance(exc, TimeoutError):
                 raise
         finally:
@@ -180,7 +187,7 @@ class StudentCodeExecutor:
         try:
             run_with_timeout(setup, self.config['setup_timeout'])
         except Exception as exc:
-            LOGGER.error('Unable to run setup', fn=setup.__name__, exc=str(exc))
+            LOGGER.error('Unable to run setup', func=setup.__name__, exc=str(exc))
         loop_interval = self.config['loop_interval']
         signal.setitimer(signal.ITIMER_REAL, loop_interval, loop_interval)
         while not self.mode_changed.is_set():
@@ -193,7 +200,6 @@ class StudentCodeExecutor:
         signal.setitimer(signal.ITIMER_REAL, 0)
 
     def spin(self):
-        signal.signal(signal.SIGALRM, handle_timeout)
         self.action_executor.start()
         while True:
             self.mode_changed.wait()
@@ -204,12 +210,8 @@ class StudentCodeExecutor:
                 raise EmergencyStopException
             self.action_executor.unregister_all()
             if self.match.mode is not Mode.IDLE:
-                try:
-                    self.reload_student_code()
-                except Exception as exc:
-                    LOGGER.error('Unable to import student code', exc=str(exc))
-                else:
-                    self.loop()
+                self.reload_student_code()
+                self.loop()
 
 
 @dataclasses.dataclass
@@ -236,19 +238,24 @@ class ExecutorService(Service):
         'type': And(Use(str.upper), Use(RequestType.__getitem__)),
         Optional('mode'): And(Use(str.upper), Use(Mode.__getitem__)),
         Optional('alliance'): And(Use(str.upper), Use(Alliance.__getitem__)),
-        Optional('challenges', default=[]): [VALID_NAME],
+        Optional('challenges'): [VALID_NAME],
         Optional('seed'): int,
         Optional('alias'): {
             'name': VALID_NAME,
             Optional('uid'): Use(int),
-        }
+        },
+        Optional('protocol'): str,
+        Optional('device_name'): str,
+        Optional('device_uid'): str,
     })
 
-    def __post_init__(self):
+    async def bootstrap(self):
         self.aliases = DeviceAliasManager(self.config['device_aliases'],
-                                          self.config['persist_timeout'])
+                                          self.config['persist_timeout'], LOGGER)
         self.executor = StudentCodeExecutor(self.config, self.match, self.mode_changed,
                                             self.device_buffers, self.aliases)
+        asyncio.create_task(self.aliases.load_initial_aliases())
+        await super().bootstrap()
 
     async def get_match(self, _request):
         async with self.access:
@@ -288,29 +295,43 @@ class ExecutorService(Service):
             del self.aliases[request['alias']['name']]
             return {'aliases': dict(self.aliases.data)}
 
-    async def lint(self):
-        raise NotImplemented
+    async def lint(self, _request):
+        student_code = self.executor.student_code
+        if hasattr(student_code, '__file__'):
+            # TODO: ignore some lint issues
+            stdout, stderr = lint.py_run(student_code.__file__, return_std=True)
+            return {'stdout': stdout.read(), 'stderr': stderr.read()}
+        raise RuntimeBaseException('Unable to lint student code (failed to import)')
 
-    async def listen_device_events(self):
-        while True:
-            device_event = await self.connections.device_event.recv()
-            LOGGER.debug('Received device event', **device_event)
-            event_type = DeviceEvent.__members__[device_event['evt']]
-            if event_type is event_type.CONNECT:
-                device_type = get_device_type(protocol=device_event['protocol'],
-                                              device_name=device_event['device_name'])
-                shm = SharedMemory(device_event['shm'])
-                self.device_buffers[shm.name] = DeviceBuffer(shm, device_type.from_buffer(shm.buf))
-                LOGGER.debug('Device connected', shm=shm.name)
-            elif event_type is event_type.DISCONNECT:
-                LOGGER.debug('Device disconnected')
+    async def initialize_device(self, request):
+        async with self.access:
+            device_name, device_uid = request['device_name'], request['device_uid']
+            device_type = get_device_type(protocol=request['protocol'], device_name=device_name)
+            try:
+                shm = SharedMemory(device_uid, create=True, size=ctypes.sizeof(device_type))
+            except FileExistsError:
+                shm = SharedMemory(device_uid)
+                LOGGER.warn('Shared memory block already exists', device_name=device_name,
+                            device_uid=device_uid, size=shm.size)
+            self.device_buffers[shm.name] = DeviceBuffer(shm, device_type.from_buffer(shm.buf))
+            LOGGER.debug('Created shared memory block', device_type=device_name,
+                         device_uid=device_uid, size=shm.size)
+            asyncio.create_task(self.connections.bus.send(request))
+
+    async def terminate_device(self, request):
+        async with self.access:
+            shm = self.device_buffers[request['device_uid']].shm
+            # NOTE: We cannot call `shm.close` here (see device service).
+            shm.unlink()
+            del self.device_buffers[shm.name]
+            LOGGER.debug('Unlinked shared memory block', **request)
+            asyncio.create_task(self.connections.bus.send(request))
 
     async def main(self):
-        asyncio.create_task(self.listen_device_events())
         command_conn = self.connections.command
         while True:
             request, response = await command_conn.recv(), {'received': time.time()}
-            LOGGER.info('Received request', **request)
+            LOGGER.debug('Received request', **request)
             try:
                 request = self.request_schema.validate(request) or {}
                 command = getattr(self, request['type'].name.lower())
@@ -327,14 +348,17 @@ class ExecutorService(Service):
                 # TODO: clean up nested try/except logic
                 try:
                     await command_conn.send(response)
+                    LOGGER.debug('Sent response', **response)
                 except OverflowError:
                     await command_conn.send({})
-                LOGGER.debug('Sent response', **response)
+                    LOGGER.warn('Encountered overflow error', **response)
                 response.clear()
 
     def __call__(self):
         threading.current_thread().name = self.__class__.__name__.lower()
+        signal.signal(signal.SIGALRM, handle_timeout)
         command_thread = threading.Thread(target=lambda: asyncio.run(self.bootstrap()),
                                           daemon=True, name='command-thread')
         command_thread.start()
+        self.executor.reload_student_code()
         self.executor.spin()

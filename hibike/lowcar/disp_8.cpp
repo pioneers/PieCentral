@@ -4,24 +4,24 @@
 
 disp_8::disp_8 (VoltageTracker v_tracker)
 {
-  SevenSeg disp(A, B, C, D, E, F, G);
+  this->disp = SevenSeg(A, B, C, D, E, F, G);
 
-  const int disp_8::numOfDigits = 4;
-  int disp_8::digitPins[numOfDigits] = {DISP_PIN_1, DISP_PIN_2, DISP_PIN_3, DISP_PIN_4};
+  this->disp_8::numOfDigits = 4;
+  this->disp_8::digitPins = {DISP_PIN_1, DISP_PIN_2, DISP_PIN_3, DISP_PIN_4};
 
-  unsigned long disp_8::last_LED_time = 0;  //Time the last LED switched
-  int disp_8::sequence = 0; //used to switch states for the display.  Remember that the hangle_8_segment cannot be blocking.
+  this->disp_8::last_LED_time = 0;  //Time the last LED switched
+  this->disp_8::sequence = 0; //used to switch states for the display.  Remember that the hangle_8_segment cannot be blocking.
 
-  SEQ_NUM disp_8::segment_8_run = NORMAL_VOLT_READ;  //0 for the normal voltage readout.  1 for "Clear Calibration".  2 for "New Calibration"
+  this->disp_8::segment_8_run = NORMAL_VOLT_READ;  //0 for the normal voltage readout.  1 for "Clear Calibration".  2 for "New Calibration"
 
-  VoltageTracker disp_8::voltage_tracker = v_tracker;
+  this->disp_8::voltage_tracker = v_tracker;
 }
 
 
 
 void disp_8::setup_display()
 {
-  disp.setDigitPins(disp_8::numOfDigits,disp_8::digitPins);
+  disp.setDigitPins(disp_8::numOfDigits, disp_8::digitPins);
   disp.setDPPin(DECIMAL_POINT);  //set the Decimal Point pin to #1
 }
 
@@ -47,19 +47,19 @@ void disp_8::handle_8_segment() //handles the 8-segment display, and prints out 
     switch(disp_8::sequence) {
       case 0: disp.write("ALL");
               break;
-      case 1: disp.write(disp_8::voltage_tracker.get(V_BATT), 2);
+      case 1: disp.write(disp_8::voltage_tracker.get_voltage(V_BATT), 2);
               break;
       case 2: disp.write("CEL.1");
               break;
-      case 3: disp.write(disp_8::voltage_tracker.get(V_CELL1), 2);
+      case 3: disp.write(disp_8::voltage_tracker.get_voltage(V_CELL1), 2);
               break;
       case 4: disp.write("CEL.2");
               break;
-      case 5: disp.write(disp_8::voltage_tracker.get(DV_CELL2), 2);
+      case 5: disp.write(disp_8::voltage_tracker.get_voltage(DV_CELL2), 2);
               break;
       case 6: disp.write("CEL.3");
               break;
-      case 7: disp.write(disp_8::voltage_tracker.get(DV_CELL3), 2);
+      case 7: disp.write(disp_8::voltage_tracker.get_voltage(DV_CELL3), 2);
               break;
     }
 
@@ -89,7 +89,7 @@ void disp_8::handle_8_segment() //handles the 8-segment display, and prints out 
       disp_8::sequence = disp_8::sequence + 1;
       if(disp_8::sequence == 2)
       {
-        disp_8::start_8_seg_sequence(0); //return to default Programming... showing battery voltages.
+        disp_8::start_8_seg_sequence(NORMAL_VOLT_READ); //return to default Programming... showing battery voltages.
       }
       disp_8::last_LED_time = millis();
     }
@@ -123,7 +123,7 @@ void disp_8::handle_8_segment() //handles the 8-segment display, and prints out 
         disp_8::sequence = disp_8::sequence + 1;
         if(disp_8::sequence == 8)
         {
-          start_8_seg_sequence(0); //return to default Programming... showing battery voltages.
+          start_8_seg_sequence(NORMAL_VOLT_READ); //return to default Programming... showing battery voltages.
         }
         last_LED_time = millis();
       }
@@ -138,7 +138,7 @@ void disp_8::handle_8_segment() //handles the 8-segment display, and prints out 
                 break;
         case 2: disp.write("CAL");
                 break;
-        case 3: disp.write(disp_8::voltage_tracker.get(VREF_GUESS), 3);
+        case 3: disp.write(disp_8::voltage_tracker.get_voltage(VREF_GUESS), 3);
                 break;
       }
 
@@ -147,7 +147,7 @@ void disp_8::handle_8_segment() //handles the 8-segment display, and prints out 
         disp_8::sequence = disp_8::sequence + 1;
         if(disp_8::sequence == 4)
         {
-          disp_8::start_8_seg_sequence(0); //return to default Programming... showing battery voltages.
+          disp_8::start_8_seg_sequence(NORMAL_VOLT_READ); //return to default Programming... showing battery voltages.
         }
         disp_8::last_LED_time = millis();
       }

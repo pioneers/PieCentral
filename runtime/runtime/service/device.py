@@ -21,7 +21,7 @@ import structlog
 from runtime.messaging import packet as packetlib
 from runtime.messaging.device import (
     DeviceBuffer,
-    DeviceStructure,
+    SmartSensorStructure,
     SmartSensorUID,
     get_device_type,
 )
@@ -110,6 +110,7 @@ class SmartSensor:
     event_queue: asyncio.Queue
     command_queue: asyncio.Queue = dataclasses.field(default_factory=asyncio.Queue)
     write_interval: Real = 0.05
+    terminate_timeout: Real = 2
     ready: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
     buffer: DeviceBuffer = dataclasses.field(default=None, init=False)
 
@@ -182,18 +183,18 @@ class SmartSensor:
 
             # Testing
             # self.buffer.struct.write = 0xffff
-            # self.buffer.struct.set_desired('duty_cycle', 0.1)
+            # self.buffer.struct.set_desired('duty_cycle', 0.5)
             # self.buffer.struct.set_desired('enc_pos', 20)  # Doesn't work
             # self.buffer.struct.set_desired('deadband', 1)
 
-            if self.buffer.struct.write != DeviceStructure.SMART_SENSOR_RESET:
+            if self.buffer.struct.write != SmartSensorStructure.RESET_MAP:
                 packet = packetlib.make_dev_write(self.buffer.struct)
-                self.buffer.struct.write = DeviceStructure.SMART_SENSOR_RESET
+                self.buffer.struct.write = SmartSensorStructure.RESET_MAP
                 await packetlib.send(self.serial_conn, packet)
 
-            if self.buffer.struct.read != DeviceStructure.SMART_SENSOR_RESET:
+            if self.buffer.struct.read != SmartSensorStructure.RESET_MAP:
                 packet = packetlib.make_dev_read(self.buffer.struct)
-                self.buffer.struct.read = DeviceStructure.SMART_SENSOR_RESET
+                self.buffer.struct.read = SmartSensorStructure.RESET_MAP
                 await packetlib.send(self.serial_conn, packet)
 
             count = (count + 1)%cycle_period
@@ -255,6 +256,7 @@ class SmartSensor:
                 # maintains a pointer to the buffer. We need to trigger the
                 # garbage collection of the struct.
                 del self.buffer
+                await asyncio.sleep(self.terminate_timeout)
                 await self.terminate(shm)
 
 
@@ -267,8 +269,9 @@ class DeviceService(Service):
         **Service.config_schema,
         Optional('baud_rate', default=115200): POSITIVE_INTEGER,
         Optional('max_hotplug_events', default=128): POSITIVE_INTEGER,
-        Optional('broadcast_interval', default=1): POSITIVE_REAL,
+        Optional('broadcast_interval', default=0.5): POSITIVE_REAL,
         Optional('write_interval', default=0.05): POSITIVE_REAL,
+        Optional('terminate_timeout', default=2): POSITIVE_REAL,
     }
 
     def initialize_hotplugging(self):
@@ -282,8 +285,12 @@ class DeviceService(Service):
         for port in hotplug_event.ports:
             serial_conn = aioserial.AioSerial(port, **serial_options)
             serial_conn.rts = False
-            sensor = SmartSensor(serial_conn, self.event_queue,
-                                 write_interval=self.config['write_interval'])
+            sensor = SmartSensor(
+                serial_conn,
+                self.event_queue,
+                write_interval=self.config['write_interval'],
+                terminate_timeout=self.config['terminate_timeout'],
+            )
             self.sensors.add(sensor)
             sensor_task = asyncio.create_task(sensor.spin())
             sensor_task.add_done_callback(functools.partial(self.sensors.remove, sensor))

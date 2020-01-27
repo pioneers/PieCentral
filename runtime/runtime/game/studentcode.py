@@ -1,6 +1,7 @@
 import time
 
 RFID = '51975776734790250051004'
+MOTOR = '56704262785351728773095'
 
 # while True:
 #     print('You cannot import me')
@@ -17,7 +18,7 @@ def autonomous_setup():
     Robot.run(autonomous_actions)
 
 def autonomous_main():
-    pass
+    print(Robot.get_value('51975776734790250051004', 'id'), Robot.get_value('51975776734790250051004', 'tag_detect'))
     # print('Running autonomous main ...')
     # start = time.time()
     # print('I wrote an infinite loop')
@@ -43,7 +44,11 @@ def teleop_main():
     # print('Dpad up -> ', Gamepad.get_value('dpad_up'))
     # print('joystick_left_x -> ', Gamepad.get_value('joystick_left_x'))
     # print('joystick_right_y -> ', Gamepad.get_value('joystick_right_y'))
-    print('=>', Robot.get_value('my_rfid', 'id'), Robot.get_value('my_rfid2', 'tag_detect'))
+
+    # print('=>', Robot.get_value('my_rfid', 'id'), Robot.get_value('my_rfid2', 'tag_detect'))
+    if Gamepad.get_value('button_a'):
+        print('Running motor ...')
+        Robot.set_value(MOTOR, 'duty_cycle', 1)
 
 # Times out
 # def autonomous_main():

@@ -3,7 +3,7 @@ ENV SHELL /bin/sh
 ENV ZMQ_VERSION 4.3.2
 LABEL maintainer="devops@pioneers.berkeley.edu"
 # Reduce size of the package
-RUN apk add binutils build-base python3-dev
+RUN apk add binutils build-base python3-dev libuv
 WORKDIR /tmp
 RUN wget https://github.com/zeromq/libzmq/releases/download/v${ZMQ_VERSION}/zeromq-${ZMQ_VERSION}.tar.gz -O libzmq.tar.gz
 RUN tar -xzf libzmq.tar.gz

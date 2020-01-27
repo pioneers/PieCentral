@@ -26,7 +26,7 @@ from runtime.game.studentapi import (
     Gamepad,
     Robot,
 )
-from runtime.messaging.device import DeviceBuffer, get_device_type
+from runtime.messaging.device import DeviceBuffer, DeviceMapping, get_device_type
 from runtime.service.base import Service
 from runtime.util import (
     POSITIVE_REAL,
@@ -124,11 +124,17 @@ class StudentCodeExecutor:
     config: dict
     match: Match
     mode_changed: threading.Event
-    device_buffers: typing.Mapping[str, DeviceBuffer]
+    device_buffers: DeviceMapping
     aliases: DeviceAliasManager
     action_executor: ActionExecutor = dataclasses.field(default_factory=ActionExecutor)
     student_code: types.ModuleType = dataclasses.field(init=False, default=None)
     # TODO: handle unlimited recursion
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, _type, _exc, _traceback):
+        self.device_buffers.clear()
 
     def get_function(self, name: str):
         try:
@@ -167,9 +173,8 @@ class StudentCodeExecutor:
         self.student_code.Alliance = Alliance
         self.student_code.Mode = Mode
         self.student_code.Match = self.match
-        self.student_code.Robot = Robot(self.device_buffers, LOGGER,
-                                        self.action_executor, self.aliases)
-        self.student_code.Gamepad = Gamepad(self.device_buffers, LOGGER, self.match.mode)
+        self.student_code.Robot = Robot(self.device_buffers, self.action_executor, self.aliases)
+        self.student_code.Gamepad = Gamepad(self.device_buffers, self.match.mode)
 
     def run_cycle(self, main, loop_interval):
         try:
@@ -218,7 +223,7 @@ class ExecutorService(Service):
     access: asyncio.Lock = dataclasses.field(default_factory=asyncio.Lock)
     match: Match = dataclasses.field(default_factory=Match)
     mode_changed: threading.Event = dataclasses.field(default_factory=threading.Event)
-    device_buffers: typing.Mapping[str, DeviceBuffer] = dataclasses.field(default_factory=dict)
+    devices_buffers: DeviceMapping = dataclasses.field(init=False, default=None)
     aliases: DeviceAliasManager = dataclasses.field(init=False, default=None)
     executor: StudentCodeExecutor = dataclasses.field(init=False, default=None)
 
@@ -231,6 +236,7 @@ class ExecutorService(Service):
         Optional('setup_timeout', default=1): POSITIVE_REAL,
         Optional('challenge_timeout', default=5): POSITIVE_REAL,
         Optional('persist_timeout', default=5): POSITIVE_REAL,
+        Optional('device_timeout', default=1): POSITIVE_REAL,
     }
 
     request_schema = Schema({
@@ -247,6 +253,9 @@ class ExecutorService(Service):
         Optional('device_name'): str,
         Optional('device_uid'): str,
     })
+
+    def __post_init__(self):
+        self.device_buffers = DeviceMapping(self.config['device_timeout'], LOGGER)
 
     async def bootstrap(self):
         self.aliases = DeviceAliasManager(self.config['device_aliases'],
@@ -307,11 +316,8 @@ class ExecutorService(Service):
             status = await self.connections.device_status.recv()
             devices = status.get('devices') or []
             for device in devices:
-                device_uid = device['device_uid']
-                if device_uid not in self.device_buffers:
-                    device_type = get_device_type(device_name=device['device_type'])
-                    device_buffer = DeviceBuffer.open(device_type, device_uid)
-                    self.device_buffers[device_uid] = device_buffer
+                device_type = get_device_type(device_name=device['device_type'])
+                await self.device_buffers.open(device['device_uid'], device_type)
 
     async def main(self):
         asyncio.create_task(self.listen_for_device_status())
@@ -348,4 +354,5 @@ class ExecutorService(Service):
                                           daemon=True, name='command-thread')
         command_thread.start()
         self.executor.reload_student_code()
-        self.executor.spin()
+        with self.executor:
+            self.executor.spin()

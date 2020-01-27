@@ -11,9 +11,14 @@ import zmq
 import zmq.asyncio
 
 from runtime.service.base import Service
-from runtime.messaging.device import DeviceBuffer, get_device_type
+from runtime.messaging.device import (
+    DeviceBuffer,
+    DeviceMapping,
+    SmartSensorStructure,
+    get_device_type,
+)
 from runtime.messaging.routing import Connection, ConnectionManager
-from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL, VALID_NAME
+from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL, VALID_NAME, TTLMapping
 from runtime.util.exception import RuntimeBaseException
 
 
@@ -21,74 +26,45 @@ LOGGER = structlog.get_logger()
 
 
 @dataclasses.dataclass
-class DatagramClient:
-    conn: Connection
-    timeout: Real
-    pinged: asyncio.Condition = dataclasses.field(default_factory=asyncio.Condition)
-
-    async def keep_alive(self):
-        async with self.pinged:
-            self.pinged.notify_all()
-
-    async def expire(self):
-        while True:
-            async with self.pinged:
-                await asyncio.wait_for(self.pinged.wait(), self.timeout)
-
-
-@dataclasses.dataclass
 class DatagramServer:
     connections: ConnectionManager
     config: dict
-    gamepads: Mapping[int, DeviceBuffer] = dataclasses.field(default_factory=dict)
-    clients: Mapping[str, DatagramClient] = dataclasses.field(default_factory=dict)
+    device_buffers: DeviceMapping = dataclasses.field(init=False, default=None)
+    clients: TTLMapping = dataclasses.field(default=None, init=False)
     send_count: int = 0
     recv_count: int = 0
+
+    def __post_init__(self):
+        self.device_buffers = DeviceMapping(self.config['device_timeout'], LOGGER)
+        self.clients = TTLMapping(self.config['client_timeout'], self.on_client_disconnect)
 
     def __enter__(self):
         return self
 
     def __exit__(self, _type, _exc, _traceback):
-        for gamepad in self.gamepads.values():
-            gamepad.shm.unlink()
+        self.device_buffers.clear()
 
-    async def handle_client(self, address: str, timeout: Real = None):
+    async def handle_client(self, address: str):
         """
         Create or keep alive a connection for a new client.
         """
-        client = self.clients.get(address)
-        if client:
-            await client.keep_alive()
-            client.timeout = client.timeout or timeout
+        if address in self.clients:
+            await self.clients.keep_alive(address)
         else:
             socket_config = {'socket_type': 'RADIO', 'address': address}
-            client = self.clients[address] = DatagramClient(
-                self.connections.open_connection(address, socket_config),
-                timeout or self.config['client_timeout'],
-            )
+            self.clients[address] = self.connections.open_connection(address, socket_config)
+            asyncio.create_task(self.clients.expire(address))
             LOGGER.debug('New datagram client connected', address=address)
-            asyncio.create_task(self.expire(address, client))
 
-    async def expire(self, address: str, client: DatagramClient):
-        """ Watchdog timer for handling client timeouts. """
-        try:
-            await client.expire()
-        except asyncio.TimeoutError:
-            LOGGER.debug('Client timed out', address=address)
-        finally:
-            del self.clients[address]
-            self.connections.close_connection(address)
-
-    def get_gamepad_struct(self, gamepad_id: int):
-        device_uid = f'gamepad-{gamepad_id}'
-        if device_uid not in self.gamepads:
-            device_type = get_device_type(protocol='dawn', device_name='Gamepad')
-            self.gamepads[device_uid] = DeviceBuffer.open(device_type, device_uid, create=True)
-            LOGGER.info('Initialized new gamepad', device_uid=device_uid)
-        return self.gamepads[device_uid].struct
+    def on_client_disconnect(self, address: str, _connection: Connection):
+        self.connections.close_connection(address)
+        LOGGER.debug('Client disconnected', address=address)
 
     async def update_gamepad_data(self, gamepad_id: int, gamepad_data):
-        struct = self.get_gamepad_struct(gamepad_id)
+        device_uid = f'gamepad-{gamepad_id}'
+        device_type = get_device_type(protocol='dawn', device_name='Gamepad')
+        await self.device_buffers.open(device_uid, device_type, create=True)
+        struct = self.device_buffers[device_uid].struct
         struct.set_current('joystick_left_x', gamepad_data.get('lx', 0))
         struct.set_current('joystick_left_y', gamepad_data.get('ly', 0))
         struct.set_current('joystick_right_x', gamepad_data.get('rx', 0))
@@ -106,7 +82,7 @@ class DatagramServer:
             try:
                 address = message.get('src')
                 if address:
-                    await self.handle_client(address, message.get('timeout'))
+                    await self.handle_client(address)
                 gamepads = message.get('gamepads') or {}
                 for gamepad_id, gamepad in gamepads.items():
                     if 0 <= gamepad_id < self.config['max_gamepads']:
@@ -118,9 +94,22 @@ class DatagramServer:
                 LOGGER.warn('Encountered error while decoding datagram', exc=str(exc))
 
     async def broadcast(self):
-        update = {}
+        device_updates = {}
+        for device in self.device_buffers.values():
+            if device.is_smart_sensor:
+                device_update = device_updates[str(device.struct.uid.to_int())] = {}
+                device_update['type'] = type(device.struct).__name__
+                device_update['params'] = params = {}
+
+                # device.struct.set_current('tag_detect', 1) # TODO: remove after testing
+
+                for param in device.struct.get_parameters(device.struct.send):
+                    params[param.name] = device.struct.get_current(param.name)
+                device.struct.send = SmartSensorStructure.RESET_MAP
+
+        update = {'devices': device_updates}
         for client in self.clients.values():
-            asyncio.create_task(client.conn.send(update))
+            asyncio.create_task(client.send(update))
             self.send_count += 1
 
     async def log_statistics(self):
@@ -128,8 +117,8 @@ class DatagramServer:
             await asyncio.sleep(self.config['log_interval'])
             bytes_sent = 0
             for client in self.clients.values():
-                bytes_sent += client.conn.bytes_sent
-                client.conn.bytes_sent = 0
+                bytes_sent += client.bytes_sent
+                client.bytes_sent = 0
             recv_conn = self.connections.datagram_recv
             LOGGER.info(
                 'Datagram server statistics', clients=list(self.clients),
@@ -140,7 +129,7 @@ class DatagramServer:
 
     async def send_loop(self):
         loop = asyncio.get_running_loop()
-        start, interval = loop.time(), self.config['send_interval']
+        start, interval = loop.time(), self.config['sensor_send_interval']
         while True:
             try:
                 start = loop.time()
@@ -152,11 +141,20 @@ class DatagramServer:
             except asyncio.TimeoutError:
                 LOGGER.warn('Send cycle timed out')
 
+    async def listen_for_device_status(self):
+        while True:
+            status = await self.connections.sensor_status.recv()
+            devices = status.get('devices') or []
+            for device in devices:
+                device_type = get_device_type(device_name=device['device_type'])
+                await self.device_buffers.open(device['device_uid'], device_type)
+
     async def broadcast_status(self):
         while True:
-            devices = [buffer.status for buffer in self.gamepads.values()]
+            devices = [buffer.status for buffer in self.device_buffers.values()
+                       if not buffer.is_smart_sensor]
             await self.connections.gamepad_status.send({'devices': devices})
-            await asyncio.sleep(self.config['broadcast_interval'])
+            await asyncio.sleep(self.config['gamepad_send_interval'])
 
 
 @dataclasses.dataclass
@@ -164,10 +162,11 @@ class BrokerService(Service):
     config_schema = {
         **Service.config_schema,
         Optional('max_workers', default=5): POSITIVE_INTEGER,
-        Optional('send_interval', default=0.05): POSITIVE_REAL,
+        Optional('sensor_send_interval', default=0.1): POSITIVE_REAL,
         Optional('log_interval', default=30): POSITIVE_REAL,
+        Optional('device_timeout', default=1): POSITIVE_REAL,
         Optional('client_timeout', default=15): POSITIVE_REAL,
-        Optional('broadcast_interval', default=1): POSITIVE_REAL,
+        Optional('gamepad_send_interval', default=0.5): POSITIVE_REAL,
         Optional('max_gamepads', default=4): POSITIVE_INTEGER,
         Optional('proxies', default={}): {
             VALID_NAME: {
@@ -201,4 +200,5 @@ class BrokerService(Service):
                 datagram_server.send_loop(),
                 datagram_server.log_statistics(),
                 datagram_server.broadcast_status(),
+                datagram_server.listen_for_device_status(),
             )

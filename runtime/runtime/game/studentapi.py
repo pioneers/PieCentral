@@ -3,6 +3,7 @@ import asyncio
 import collections
 import dataclasses
 import enum
+import functools
 import os
 from numbers import Real
 import shutil
@@ -15,11 +16,12 @@ import aiofiles
 import structlog
 import yaml
 
-from runtime.messaging.device import DeviceBuffer
-from runtime.util.exception import RuntimeExecutionError
+from runtime.messaging.device import DeviceBuffer, DeviceMapping
+from runtime.util.exception import RuntimeBaseException, RuntimeExecutionError
 
 
 Action = typing.Callable[..., None]
+LOGGER = structlog.get_logger()
 
 
 class DeviceAliasManager(collections.UserDict):
@@ -74,7 +76,14 @@ class DeviceAliasManager(collections.UserDict):
         asyncio.create_task(asyncio.wait_for(self.persist_aliases(), self.persist_timeout))
 
 
-DeviceBufferMap = typing.Mapping[str, DeviceBuffer]
+def safe(api_method):
+    @functools.wraps(api_method)
+    def api_wrapper(*args, **kwargs):
+        try:
+            return api_method(*args, **kwargs)
+        except RuntimeBaseException as exc:
+            LOGGER.error(str(exc), **exc.context)
+    return api_wrapper
 
 
 class StudentAPI(abc.ABC):
@@ -83,8 +92,7 @@ class StudentAPI(abc.ABC):
 
 @dataclasses.dataclass
 class DeviceAPI(StudentAPI):
-    device_buffers: DeviceBufferMap
-    logger: structlog.BoundLoggerBase
+    device_buffers: DeviceMapping
 
     def _get_device_buffer(self, device_uid: str) -> DeviceBuffer:
         """ Retrieve a device buffer, or emit a warning if not found. """
@@ -157,6 +165,7 @@ class Match(StudentAPI):
 class Gamepad(DeviceAPI):
     mode: Mode
 
+    @safe
     def get_value(self, param: str, gamepad_id: str = 0):
         if self.mode is not Mode.TELEOP:
             raise RuntimeExecutionError(f'Cannot use Gamepad during {self.mode.name}',
@@ -170,9 +179,11 @@ class Robot(DeviceAPI):
     action_executor: threading.Thread
     aliases: DeviceAliasManager
 
+    @safe
     def run(self, action: Action, *args, timeout: float = 30):
         self.action_executor.register_action_threadsafe(action, *args, timeout=timeout)
 
+    @safe
     def is_running(self, action: Action):
         self.action_executor.is_running(action)
 
@@ -181,9 +192,11 @@ class Robot(DeviceAPI):
             device_uid = self.aliases[device_uid]
         return f'smart-sensor-{device_uid}'
 
+    @safe
     def get_value(self, device_uid: typing.Union[str, int], param: str) -> typing.Any:
         return super()._get_value(self._normalize_device_uid(device_uid), param)
 
+    @safe
     def set_value(self, device_uid: typing.Union[str, int], param: str, value):
         device = self._get_device_buffer(self._normalize_device_uid(device_uid))
         try:
@@ -196,5 +209,6 @@ class Robot(DeviceAPI):
                 param=param,
             ) from exc
 
+    @safe
     def testing_mode(self, enabled: bool = False):
         pass

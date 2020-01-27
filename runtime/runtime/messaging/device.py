@@ -4,6 +4,7 @@ import ctypes
 import dataclasses
 import enum
 from multiprocessing.shared_memory import SharedMemory
+from numbers import Real
 import time
 from typing import Callable, Iterable, List, Union
 
@@ -14,7 +15,7 @@ from schema import And, Optional, Regex, Schema, Use
 import structlog
 
 from runtime.messaging.routing import Connection
-from runtime.util import VALID_NAME
+from runtime.util import VALID_NAME, TTLMapping
 from runtime.util.exception import RuntimeBaseException
 
 
@@ -71,19 +72,12 @@ class DeviceStructure(Structure):
         defaults=[float('-inf'), float('inf'), True, False],
     )
 
-    SMART_SENSOR_MAX_PARAMETERS: int = 16
-    SMART_SENSOR_RESET = 0x0000
-
     @classmethod
     def _normalize_param_id(cls, param_id: Union[int, str]) -> str:
         return param_id if isinstance(param_id, str) else cls._params[param_id].name
 
     def get_current(self, param_name: str):
         return getattr(self, f'current_{param_name}').value
-
-    def set_desired(self, param_name: str, value):
-        getattr(self, f'desired_{param_name}').value = value
-        self.dirty |= 1 << self._param_ids[param_name]
 
     def set_current(self, param_name: str, value):
         getattr(self, f'current_{param_name}').value = value
@@ -95,20 +89,34 @@ class DeviceStructure(Structure):
                 yield cls._params[i]
 
     @classmethod
-    def make_type(cls: type, name: str, type_id: int, params: List[Parameter], *extra_fields):
+    def make_type(cls: type, name: str, type_id: int, params: List[Parameter],
+                  *extra_fields, base_cls: type = None):
         fields = list(extra_fields)
         for param in params:
             ctype = make_timestamped_parameter(param.type)
             fields.extend([(f'current_{param.name}', ctype), (f'desired_{param.name}', ctype)])
-        return type(name, (cls, ), {
+        return type(name, (base_cls or cls, ), {
             '_params': params,
             '_param_ids': {param.name: index for index, param in enumerate(params)},
             '_fields_': fields,
             'type_id': type_id,
         })
 
+
+class SmartSensorStructure(DeviceStructure):
+    RESET_MAP: int = 0x0000
+    MAX_PARAMETERS: int = 16
+
+    def set_desired(self, param_name: str, value):
+        getattr(self, f'desired_{param_name}').value = value
+        self.write |= 1 << self._param_ids[param_name]
+
+    def set_current(self, param_name: str, value):
+        self.send |= 1 << self._param_ids[param_name]
+        super().set_current(param_name, value)
+
     @classmethod
-    def make_smart_sensor_type(cls: type, name: str, type_id: int, params: List[Parameter]):
+    def make_type(cls: type, name: str, type_id: int, params: List[DeviceStructure.Parameter]):
         """
         Make a device type with extra fields to handle the Smart Sensor protocol.
 
@@ -120,16 +128,17 @@ class DeviceStructure(Structure):
             is subscribed to.
           * `uid`: The unique identifier of the Smart Sensor.
         """
-        if len(params) > DeviceStructure.SMART_SENSOR_MAX_PARAMETERS:
+        if len(params) > cls.MAX_PARAMETERS:
             raise RuntimeBaseException('Maxmimum number of Smart Sensor parameters exceeded')
         extra_fields = [
             ('write', ctypes.c_uint16),
             ('read', ctypes.c_uint16),
+            ('send', ctypes.c_uint16),
             ('delay', ctypes.c_uint16),
             ('subscription', ctypes.c_uint16),
             ('uid', SmartSensorUID),
         ]
-        return DeviceStructure.make_type(name, type_id, params, *extra_fields)
+        return DeviceStructure.make_type(name, type_id, params, *extra_fields, base_cls=cls)
 
 
 DEVICE_SCHEMA = Schema({
@@ -150,19 +159,16 @@ DEVICE_SCHEMA = Schema({
 DEVICES = {}
 
 
-def load_device_types(schema: str, smart_sensor_protocol: str = 'smartsensor'):
+def load_device_types(schema: str, sensor_protocol: str = 'smartsensor'):
     schema = DEVICE_SCHEMA.validate(schema)
     for protocol, devices in schema.items():
         DEVICES[protocol] = {}
-        if protocol == smart_sensor_protocol:
-            make_device_type = DeviceStructure.make_smart_sensor_type
-        else:
-            make_device_type = DeviceStructure.make_type
+        device_type = SmartSensorStructure if protocol == sensor_protocol else DeviceStructure
         for device_name, device_conf in devices.items():
             params = [DeviceStructure.Parameter(**param_conf)
                       for param_conf in device_conf['params']]
             type_id = device_conf['id']
-            DEVICES[protocol][device_name] = make_device_type(device_name, type_id, params)
+            DEVICES[protocol][device_name] = device_type.make_type(device_name, type_id, params)
             LOGGER.debug('Loaded device type', name=device_name, type_id=type_id)
 
 
@@ -183,6 +189,10 @@ class DeviceBuffer:
     struct: DeviceStructure
 
     @property
+    def is_smart_sensor(self):
+        return isinstance(self.struct, SmartSensorStructure)
+
+    @property
     def status(self):
         return {'device_type': type(self.struct).__name__, 'device_uid': self.shm.name}
 
@@ -191,6 +201,9 @@ class DeviceBuffer:
         context = {'device_type': device_type.__name__, 'device_uid': device_uid}
         try:
             shm = SharedMemory(device_uid, create=create, size=ctypes.sizeof(device_type))
+        except FileNotFoundError:
+            LOGGER.error('Cannot attach to nonexistent shared memory block', **context)
+            raise
         except FileExistsError:
             shm = SharedMemory(device_uid)
             LOGGER.warn('Shared memory block already exists', **context)
@@ -204,6 +217,25 @@ class DeviceEvent(enum.Enum):
     DISCONNECT = enum.auto()
     HEARTBEAT_RES = enum.auto()
     ERROR = enum.auto()
+
+
+class DeviceMapping(TTLMapping):
+    def __init__(self, ttl: Real, logger: None = structlog.BoundLoggerBase):
+        super().__init__(ttl, self.on_device_disconnect)
+        self.logger = logger or LOGGER
+
+    async def open(self, device_uid: str, device_type: type, *, create=False):
+        if device_uid in self:
+            await self.keep_alive(device_uid)
+        else:
+            self[device_uid] = DeviceBuffer.open(device_type, device_uid, create=create)
+            asyncio.create_task(self.expire(device_uid))
+            self.logger.debug('Opened device', device_uid=device_uid, device_type=device_type.__name__)
+
+    def on_device_disconnect(self, device_uid: str, device_buffer: DeviceBuffer):
+        del device_buffer.struct
+        device_buffer.shm.close()
+        self.logger.debug('Device disconnected', device_uid=device_uid)
 
 
 @dataclasses.dataclass

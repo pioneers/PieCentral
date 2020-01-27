@@ -47,7 +47,7 @@ def terminate_subprocess(subprocess, timeout: float = 2):
         LOGGER.debug('Subprocess terminated cleanly', **context)
 
     if subprocess.exitcode == EmergencyStopException.EXIT_CODE:
-        LOGGER.critical('Received emergency stop', name=name)
+        LOGGER.critical('Received emergency stop', **context)
         raise EmergencyStopException
 
 

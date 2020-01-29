@@ -293,18 +293,18 @@
     <script>
       $(document).ready(function() {
 
-      var socket = io('http://127.0.0.1:5000');
+      // var socket = io('http://127.0.0.1:5000');
 
-      socket.on('connect', function(data) {
-        console.log("requesting latest data")
-        socket.emit('request-latest-data');
-        console.log("requested latest data")
-      });
+      // socket.on('connect', function(data) {
+      //   console.log("requesting latest data")
+      //   socket.emit('request-latest-data');
+      //   console.log("requested latest data")
+      // });
 
-      socket.on('load-latest-data', function(data) {
-        console.log("received latest data")
-        console.log(data)
-      });
+      // socket.on('load-latest-data', function(data) {
+      //   console.log("received latest data")
+      //   console.log(data)
+      // });
 
       var data = {"GAME_STATE": "setup", "MATCH_NUMBER": "1", "STARTING_SPOTS": ["left", "left", "left", "left"], "MASTER_ROBOTS": {"blue": null, "gold": null}, "BUTTONS": {"gold_1": false, "gold_2": false, "blue_1": false, "blue_2": false}, "CODES_USED": [], "ALLIANCES": {"gold": {"name": "gold", "team_1_name": "Skyline", "team_2_name": "Albany", "team_1_number": "10", "team_2_number": "1", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}, "blue": {"name": "blue", "team_1_name": "CCPA", "team_2_name": "Pinole Valley", "team_1_number": "37", "team_2_number": "15", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}}}
 
@@ -325,11 +325,20 @@
           if (typeof data[k] !== "object"){
             generateIndividualField(k, data[k]);
           }
+          else if (k == "ALLIANCES") {
+            for (var attribute in data[k]["gold"]) {
+              if(attribute.includes("team_")) {
+                data[k]["gold"][attribute]
+                data[k]["blue"][attribute] 
+
+              }
+            }
+            
+          }
           else if (Object.keys(data[k]).length == 2){
             generateTwoField(k, data[k]);
           }
           else if (Object.keys(data[k]).length == 4){
-            console.log("test in gen fields");
             generateFourField(k, data[k]);
           }
 
@@ -413,16 +422,16 @@
             "<div class='col-md-10'>"+
             "<div class='form-group row'>" +
             "<div class='col-md-3'>" +
-            "<input type='text' class='form-control' id='staticEmail' value='" + gold_val_1 + "'>" +
+            "<input type='text' class='form-control' id='" + var_name + "_gold_1"  + "' value='" + gold_val_1 + "'>" +
             "</div>"+
             "<div class='col-md-3'>" +
-            "<input type='text' class='form-control' id='staticEmail' value='" + gold_val_2 + "'>" +
+            "<input type='text' class='form-control' id='" + var_name + "_gold_2"  + "' value='" + gold_val_2 + "'>" +
             "</div>"+
             "<div class='col-md-3'>" +
-            "<input type='text' class='form-control' id='staticEmail' value='" + blue_val_1 + "'>" +
+            "<input type='text' class='form-control' id='" + var_name + "_blue_1"  + "' value='" + blue_val_1 + "'>" +
             "</div>"+
             "<div class='col-md-3'>" +
-            "<input type='text' class='form-control' id='staticEmail' value='" + blue_val_2 + "'>" +
+            "<input type='text' class='form-control' id='" + var_name + "_blue_2"  + "' value='" + blue_val_2 + "'>" +
             "</div>"+
             "</div>"+
             "</div>"+

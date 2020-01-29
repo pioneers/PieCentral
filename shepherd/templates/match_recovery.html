@@ -53,15 +53,19 @@
   </style>
   <script>
     $(document).ready(function() {
+      var socket = io('http://127.0.0.1:5000');
 
       socket.on('connect', function(data) {
-        socket.emit('load-prev-game-request');
+        console.log("requesting latest data")
+        socket.emit('request-latest-data');
+        console.log("requested latest data")
       });
 
-      socket.on('load-prev-game', function(data) {
+      socket.on('load-latest-data', function(data) {
+        console.log("received latest data")
         console.log(data)
       });
-
+      /*
       var socket = io('http://127.0.0.1:5000');
       var match_num = 0
       var blue_1_num = 0
@@ -201,6 +205,7 @@
       $("#match-start").click(function() {
         socket.emit('ui-to-server-start-next-stage')
       });
+      */
 
      /** $("#match-next-stage").click(function() {
         socket.emit('ui-to-server-start-next-stage')
@@ -210,6 +215,7 @@
         socket.emit('ui-to-server-reset-stage')
     });**/
 
+      /*
       $("#match-reset").click(function() {
         socket.emit('ui-to-server-reset-match')
       });
@@ -246,6 +252,8 @@
           lightName.toggleClass("led-red", true);
         }
       }
+      */
+
     });
   </script>
 </head>

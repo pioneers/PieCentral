@@ -59,7 +59,7 @@ class SHEPHERD_HEADER():
     LOAD_PREV_GAME = "load_prev_game"
         #
 
-    LOAD_GAME_DATA = "load_game_data"
+    REQUEST_LATEST_DATA = "request_latest_data"
         #
     
     LOAD_PREV_GAME_REQUEST = "load_prev_game_request"
@@ -89,7 +89,8 @@ class UI_HEADER():
     TEAMS_INFO = "teams_info"
     SCORES = "scores"
     CONNECTIONS = "connections"
-    LOAD_DATA = "load_data"
+    LOAD_GAME = "load_game"
+    LOAD_LATEST_DATA = "load_latest_data"
     #CONNECTIONS{g_1_connection[True/False], g_2_connection[True/False],
     # b_1_connection[True/False], b_2_connection[True/False]}
 

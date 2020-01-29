@@ -71,9 +71,9 @@ def ui_to_server_reset_match():
 def ui_to_server_load_prev_game_request():
     lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.RESET_MATCH)
 
-@socketio.on('load-prev-game')
+@socketio.on('request-latest-data')
 def ui_to_server_load_prev_game():
-    lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.RESET_MATCH)
+    lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.REQUEST_LATEST_DATA)
 
 
 def receiver():
@@ -91,8 +91,8 @@ def receiver():
                 socketio.emit('server-to-ui-scores', json.dumps(event[1], ensure_ascii=False))
             elif event[0] == UI_HEADER.CONNECTIONS:
                 socketio.emit('server-to-ui-connections', json.dumps(event[1], ensure_ascii=False))
-            elif event[0] == UI_HEADER.LOAD_GAME:
-                socketio.emit('load-prev-game', json.dumps(event[1], ensure_ascii=False))
+            elif event[0] == UI_HEADER.LOAD_LATEST_DATA:
+                socketio.emit('load-latest-data', json.dumps(event[1], ensure_ascii=False))
         socketio.sleep(0.1)
 
 socketio.start_background_task(receiver)

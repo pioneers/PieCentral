@@ -18,12 +18,14 @@ def serialize(saving):
 def load_json(path = "", fileName = "game_data.json"):
     with open(path + fileName) as json_file:
         data = json.load(json_file)
-        lcm_send(LCM_TARGETS.UI, UI_HEADER.LOAD_DATA, data)
+        print("sending ", UI_HEADER.LOAD_LATEST_DATA, " to target ", LCM_TARGETS.UI, "data is ", data)
+        lcm_send(LCM_TARGETS.UI, UI_HEADER.LOAD_LATEST_DATA, data)
         return
     print("JSON not loaded")
 
 def create_json(data, path = "", fileName = "game_data.json"):
     with open(path + fileName, 'w') as outfile:
         json.dump(data, outfile)
+        print("dumped")
         return True
     return False

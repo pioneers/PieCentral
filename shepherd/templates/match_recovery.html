@@ -90,6 +90,8 @@
 
       </div>
 
+      <button class="btn btn-danger" type="button" id="send-data">Send Data</button>
+
       <form id = "fieldContainer">
         <div id = 'individual-fields'>
           <div class="form-group row">
@@ -289,20 +291,20 @@
     </div>
 
     <script>
-    $(document).ready(function() {
+      $(document).ready(function() {
 
-      // var socket = io('http://127.0.0.1:5000');
+      var socket = io('http://127.0.0.1:5000');
 
-      // socket.on('connect', function(data) {
-      //   console.log("requesting latest data")
-      //   socket.emit('request-latest-data');
-      //   console.log("requested latest data")
-      // });
+      socket.on('connect', function(data) {
+        console.log("requesting latest data")
+        socket.emit('request-latest-data');
+        console.log("requested latest data")
+      });
 
-      // socket.on('load-latest-data', function(data) {
-      //   console.log("received latest data")
-      //   console.log(data)
-      // });
+      socket.on('load-latest-data', function(data) {
+        console.log("received latest data")
+        console.log(data)
+      });
 
       var data = {"GAME_STATE": "setup", "MATCH_NUMBER": "1", "STARTING_SPOTS": ["left", "left", "left", "left"], "MASTER_ROBOTS": {"blue": null, "gold": null}, "BUTTONS": {"gold_1": false, "gold_2": false, "blue_1": false, "blue_2": false}, "CODES_USED": [], "ALLIANCES": {"gold": {"name": "gold", "team_1_name": "Skyline", "team_2_name": "Albany", "team_1_number": "10", "team_2_number": "1", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}, "blue": {"name": "blue", "team_1_name": "CCPA", "team_2_name": "Pinole Valley", "team_1_number": "37", "team_2_number": "15", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}}}
 
@@ -347,12 +349,12 @@
         // indFields.appendChild(newField);
         console.log(indFields)
         console.log(indFields.innerHTML)
-        indFields.innerHTML += "<div class='form-group row'>"+ 
-            "<label class='col-sm-2 col-form-label'> " + var_name + " </label>"+
-            "<div class='col-md-10'>" +
-            "<input type='text' class='form-control' id='staticEmail' value='" + var_val + "'>" +
-            "</div>"+
-          "</div>"
+        indFields.innerHTML += "<div class='form-group row' id = '" + var_name + "_group'>"+ 
+        "<label class='col-sm-2 col-form-label'> " + var_name + " </label>"+
+        "<div class='col-md-10'>" +
+        "<input type='text' id = '" + var_name +"_input' class='form-control' id='staticEmail' value='" + var_val + "'>" +
+        "</div>"+
+        "</div>"
       }
 
       function generateTwoField(var_name, var_vals){
@@ -427,7 +429,26 @@
           "</div>"
       }
 
+      function updateJSON() {
+        for (var k in data){
+          if (typeof data[k] !== "object"){
+            data[k] = $("#" + k + "_input").val()
+          }
+          else if (k == "ALLIANCES") {
+            for (var team in data[k]) {
+              for (var attribute in team) {
+                if(attribute.includes("team_")) {
+                  team[attribute] = $(team +"_" + attribute).val()
+                }
+              }
+            }
+          }
+        }
+        console.log(data)
+      }
+
       generateFields(data);
+      $("#send-data").click(updateJSON)
 
       /*
       var socket = io('http://127.0.0.1:5000');
@@ -620,6 +641,6 @@
 
     });
   </script>
-  </body>
+</body>
 
-  </html>
+</html>

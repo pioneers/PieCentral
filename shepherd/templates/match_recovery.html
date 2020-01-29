@@ -127,6 +127,48 @@
             </div>
           </div>
         </div>
+
+        <div id = "four-fields">
+
+          <div class="form-group row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+              <div class="form-group row">
+              <h4 class="col-md-3 text-center">
+                GOLD 1
+              </h4>
+              <h4 class="col-md-3 text-center">
+                GOLD 2
+              </h4>
+              <h4 class="col-md-3 text-center">
+                BLUE 1
+              </h4>
+              <h4 class="col-md-3 text-center">
+                BLUE 2
+              </h4> 
+              </div>
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Field Name </label>
+            <div class="col-md-10">
+              <div class="form-group row">
+                <div class="col-md-3">
+                  <input type="text" class="form-control" id="staticEmail" value="fieldValue">
+                </div>
+                <div class="col-md-3">
+                  <input type="text" class="form-control" id="staticEmail" value="fieldValue">
+                </div>
+                <div class="col-md-3">
+                  <input type="text" class="form-control" id="staticEmail" value="fieldValue">
+                </div>
+                <div class="col-md-3">
+                  <input type="text" class="form-control" id="staticEmail" value="fieldValue">
+                </div>
+            </div>
+            </div>
+          </div>
+        </div>
       </form>
 
       <div class="input-group col-xs-6 bottom-padding">
@@ -282,9 +324,13 @@
             generateIndividualField(k, data[k]);
           }
           else if (Object.keys(data[k]).length == 2){
-            console.log("test in gen fields");
             generateTwoField(k, data[k]);
           }
+          else if (Object.keys(data[k]).length == 4){
+            console.log("test in gen fields");
+            generateFourField(k, data[k]);
+          }
+
         }
       }
 
@@ -322,18 +368,63 @@
         // newField2.style.display = 'compact';
         console.log("testing");
         var twoFields = document.getElementById("two-fields");
+        for (key in var_vals){
+          if (key.includes("gold")){
+            var gold_val = var_vals[key];
+          }
+          else if (key.includes("blue")){
+            var blue_val = var_vals[key];
+          }
+        }
+
         twoFields.innerHTML += 
         "<div class='form-group row'>"+ 
             "<label class='col-sm-2 col-form-label'> " + var_name + " </label>"+
             "<div class='col-md-5'>" +
-            "<input type='text' class='form-control' id='staticEmail' value='" + var_vals[Object.keys(var_vals)[0]] + "'>" +
+            "<input type='text' class='form-control' id='staticEmail' value='" + gold_val + "'>" +
             "</div>"+
             "<div class='col-md-5'>" +
-            "<input type='text' class='form-control' id='staticEmail' value='" + var_vals[Object.keys(var_vals)[1]] + "'>" +
+            "<input type='text' class='form-control' id='staticEmail' value='" + blue_val + "'>" +
             "</div>"+
           "</div>"
+      }
 
-
+      function generateFourField(var_name, var_vals){
+        var fourFields = document.getElementById("four-fields");
+        for (key in var_vals){
+          if (key.includes("gold_1")){
+            var gold_val_1 = var_vals[key];
+          }
+          else if (key.includes("gold_2")){
+            var gold_val_2 = var_vals[key];
+          }
+          else if (key.includes("blue_1")){
+            var blue_val_1 = var_vals[key];
+          }
+          else if (key.includes("blue_2")){
+            var blue_val_2 = var_vals[key];
+          }
+        }
+        fourFields.innerHTML += 
+        "<div class='form-group row'>"+ 
+            "<label class='col-sm-2 col-form-label'> " + var_name + " </label>"+
+            "<div class='col-md-10'>"+
+            "<div class='form-group row'>" +
+            "<div class='col-md-3'>" +
+            "<input type='text' class='form-control' id='staticEmail' value='" + gold_val_1 + "'>" +
+            "</div>"+
+            "<div class='col-md-3'>" +
+            "<input type='text' class='form-control' id='staticEmail' value='" + gold_val_2 + "'>" +
+            "</div>"+
+            "<div class='col-md-3'>" +
+            "<input type='text' class='form-control' id='staticEmail' value='" + blue_val_1 + "'>" +
+            "</div>"+
+            "<div class='col-md-3'>" +
+            "<input type='text' class='form-control' id='staticEmail' value='" + blue_val_2 + "'>" +
+            "</div>"+
+            "</div>"+
+            "</div>"+
+          "</div>"
       }
 
       generateFields(data);

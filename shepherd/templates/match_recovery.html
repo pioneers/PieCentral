@@ -345,11 +345,15 @@
           }
           else if (k == "ALLIANCES") {
             for (var team in data[k]) {
-              for (var attribute in team) {
+              for (var attribute in data[k][team]) {
                 if(attribute.includes("team_")) {
-                  team[attribute] = $(team +"_" + attribute).val()
+                  data[k][team][attribute] = $(team +"_" + attribute).val()
                 }
               }
+            }
+          } else {
+            for (var team in k) {
+              data[k][team] = $(k + "_" + team).val()
             }
           }
         }

@@ -9,9 +9,10 @@
   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script> -->
 
   <!-- Latest compiled and minified CSS -->
-<!--   <link rel="stylesheet" href="{{url_for('static', filename='bootstrap.min.css')}}"> -->
+  <!--   <link rel="stylesheet" href="{{url_for('static', filename='bootstrap.min.css')}}"> -->
   <link rel = "stylesheet" href = "../static/bootstrap.min.css">
 
+  <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"> </script>
   <!-- Styles -->
   <style>
     /*Disables spinning on number forms*/
@@ -51,20 +52,292 @@
       box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
     }
   </style>
-  <script>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-expand-sm navbar-light bg-light">
+    <a class="navbar-brand" href="#">Staff UI</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="../staff_gui.html">Match Creator</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="../score_adjustment.html">Score Adjustment</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="../stage_control.html">Stage Control
+            <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="../match_recovery.html">Match Recovery</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container" style="max-width:1405px">
+      <h2>Match Recovery</h2>
+      <div class="btn-group bottom-padding" role="group" aria-label="...">
+        <button type="button" class="btn btn-success" id="match-start"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> Set Stage</button>
+
+        <button type="button" class="btn" id="toggle-all"> Toggle All</button>
+
+
+      </div>
+
+      <form id = "fieldContainer">
+        <div id = 'individual-fields'>
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Field Name</label>
+            <div class="col-md-10">
+              <input type="text" class="form-control" id="staticEmail" value="fieldValue">
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Field Name</label>
+            <div class="col-md-10">
+              <input type="text" class="form-control" id="staticEmail" value="fieldValue">
+            </div>
+          </div>
+
+        </div>
+        <div id = "two-fields">
+
+          <div class="form-group row">
+            <div class="col-md-2"></div>
+            <h4 class="col-md-5 text-center">
+              GOLD
+            </h4>
+            <h4 class="col-md-5 text-center">
+              BLUE
+            </h4>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-2 col-form-label">Field Name </label>
+            <div class="col-md-5">
+              <input type="text" class="form-control" id="staticEmail" value="fieldValue">
+            </div>
+            <div class="col-md-5">
+              <input type="text" class="form-control" id="staticEmail" value="fieldValue">
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <div class="input-group col-xs-6 bottom-padding">
+        <input type="number" class="form-control" id="new-match-num" placeholder="Match number" aria-describedby="basicaddon2">
+        <span class="input-group-btn">
+          <button class="btn btn-default" id="populate-match" type="button">Populate</button>
+          <button class="btn btn-info" id="create-match" type="button">Create Match</button>
+        </span>
+      </div>
+
+      <form class="form-inline bottom-padding">
+        <div class = "row col-lg-12 d-flex justify-content-around">
+
+          <div class = "col-lg-5 text-center">
+            <div class = "row d-flex justify-content-between">
+              <div class="form-group">
+                <select id="blue-1-starting-spot">
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                  <option value="vending">Vending</option>
+                  <option value="shelf">Shelf</option>
+                </select>
+              </div>
+              <div class="form-group heartbeat-light blue-1-hb"></div>
+              <div class = "text-center">
+                <button class="btn btn-danger" type="button" id="stop-blue-1">Stop Blue 1</button>
+              </div>
+              <div class="form-group">
+                <input type="number" class="form-control" id="blue-1-number" style="width: 81px;" placeholder="Blue 1 #">
+              </div>
+              <div class="form-group">
+                <input type="text" class="form-control" id="blue-1-name" placeholder="Blue 1 Team Name">
+              </div>
+            </div>
+          </div>
+
+          <div class = "col-lg-5">
+
+            <div class = "row d-flex justify-content-between">
+              <div class="form-group">
+                <input type="text" class="form-control" id="gold-1-name" placeholder="Gold 1 Team Name">
+              </div>
+              <div class="form-group">
+                <input type="number" class="form-control" id="gold-1-number" style="width: 81px;" placeholder="Gold 1 #">
+              </div>
+              <button class="btn btn-danger" type="button" id="stop-gold-1">Stop Gold 1</button>
+              <div class="form-group heartbeat-light gold-1-hb"></div>
+              <div class="form-group">
+                <select id="gold-1-starting-spot">
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                  <option value="vending">Vending</option>
+                  <option value="shelf">Shelf</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+      <form class="form-inline bottom-padding">
+        <div class="form-group">
+          <input type="number" class="form-control" id="blue-1-custom-ip" placeholder="Blue 1 Custom IP">
+        </div>
+        <div class="form-group">
+          <input type="number" class="form-control" id="gold-1-custom-ip" placeholder="Gold 1 Custom IP">
+        </div>
+      </form>
+      <form class="form-inline bottom-padding">
+        <div class="form-group">
+          <select id="blue-2-starting-spot">
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+            <option value="vending">Vending</option>
+            <option value="shelf">Shelf</option>
+          </select>
+        </div>
+        <div class="form-group heartbeat-light blue-2-hb"></div>
+        <button class="btn btn-danger" type="button" id="stop-blue-2">Stop Blue 2</button>
+        <div class="form-group">
+          <input type="number" class="form-control" id="blue-2-number" style="width: 81px;" placeholder="Blue 2 #">
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" id="blue-2-name" placeholder="Blue 2 Team Name">
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control" id="gold-2-name" placeholder="Gold 2 Team Name">
+        </div>
+        <div class="form-group">
+          <input type="number" class="form-control" id="gold-2-number" style="width: 81px;" placeholder="Gold 2 #">
+        </div>
+        <button class="btn btn-danger" type="button" id="stop-gold-2">Stop Gold 2</button>
+        <div class="form-group heartbeat-light gold-2-hb"></div>
+        <div class="form-group">
+          <select id="gold-2-starting-spot">
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+            <option value="vending">Vending</option>
+            <option value="shelf">Shelf</option>
+          </select>
+        </div>
+      </form>
+      <form class="form-inline bottom-padding">
+        <div class="form-group">
+          <input type="number" class="form-control" id="blue-2-custom-ip" placeholder="Blue 2 Custom IP">
+        </div>
+        <div class="form-group">
+          <input type="number" class="form-control" id="gold-2-custom-ip" placeholder="Gold 2 Custom IP">
+        </div>
+      </form>
+
+      <div class="form-group">
+        <select id="Game Mode">
+          <option value="perk_selection">Perk Selection</option>
+          <option value="autonomous">Autonomous</option>
+          <option value="teleop">Teleop</option>
+        </select>
+      </div>
+    </div>
+
+    <script>
     $(document).ready(function() {
-      var socket = io('http://127.0.0.1:5000');
 
-      socket.on('connect', function(data) {
-        console.log("requesting latest data")
-        socket.emit('request-latest-data');
-        console.log("requested latest data")
-      });
+      // var socket = io('http://127.0.0.1:5000');
 
-      socket.on('load-latest-data', function(data) {
-        console.log("received latest data")
-        console.log(data)
-      });
+      // socket.on('connect', function(data) {
+      //   console.log("requesting latest data")
+      //   socket.emit('request-latest-data');
+      //   console.log("requested latest data")
+      // });
+
+      // socket.on('load-latest-data', function(data) {
+      //   console.log("received latest data")
+      //   console.log(data)
+      // });
+
+      var data = {"GAME_STATE": "setup", "MATCH_NUMBER": "1", "STARTING_SPOTS": ["left", "left", "left", "left"], "MASTER_ROBOTS": {"blue": null, "gold": null}, "BUTTONS": {"gold_1": false, "gold_2": false, "blue_1": false, "blue_2": false}, "CODES_USED": [], "ALLIANCES": {"gold": {"name": "gold", "team_1_name": "Skyline", "team_2_name": "Albany", "team_1_number": "10", "team_2_number": "1", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}, "blue": {"name": "blue", "team_1_name": "CCPA", "team_2_name": "Pinole Valley", "team_1_number": "37", "team_2_number": "15", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}}}
+
+      function generateAdditionalField(var_name, var_val, var_section){
+        var newField = document.createElement("input");
+        newField.value = var_val;
+        newField.placeholder = var_name;
+        newField.style.display = 'compact';
+        var_section.appendChild(newField);
+      }
+
+      function generateAdditionalFields(){
+
+      }
+
+      function generateFields(data){
+        for (var k in data){
+          if (typeof data[k] !== "object"){
+            generateIndividualField(k, data[k]);
+          }
+          else if (Object.keys(data[k]).length == 2){
+            console.log("test in gen fields");
+            generateTwoField(k, data[k]);
+          }
+        }
+      }
+
+
+      function generateIndividualField(var_name, var_val){
+        // var newField = document.createElement("input");
+        // var label = document.createElement("a");
+        // label.innerText = var_name;
+        // newField.value = var_val;
+        // newField.placeholder = var_name;
+        // newField.style.display = 'compact';
+        var indFields = document.getElementById("individual-fields");
+        // indFields.appendChild(label);
+        // indFields.appendChild(newField);
+        console.log(indFields)
+        console.log(indFields.innerHTML)
+        indFields.innerHTML += "<div class='form-group row'>"+ 
+            "<label class='col-sm-2 col-form-label'> " + var_name + " </label>"+
+            "<div class='col-md-10'>" +
+            "<input type='text' class='form-control' id='staticEmail' value='" + var_val + "'>" +
+            "</div>"+
+          "</div>"
+      }
+
+      function generateTwoField(var_name, var_vals){
+        // var newField = document.createElement("input");
+        // var label = document.createElement("a");
+        // var newField2
+        // label.innerText = var_name;
+        // newField.value = var_val[0];
+        // newField.placeholder = var_name;
+        // newField.style.display = 'compact';
+        // newField2.value = var_val[1];
+        // newField2.placeholder = var_name;
+        // newField2.style.display = 'compact';
+        console.log("testing");
+        var twoFields = document.getElementById("two-fields");
+        twoFields.innerHTML += 
+        "<div class='form-group row'>"+ 
+            "<label class='col-sm-2 col-form-label'> " + var_name + " </label>"+
+            "<div class='col-md-5'>" +
+            "<input type='text' class='form-control' id='staticEmail' value='" + var_vals[Object.keys(var_vals)[0]] + "'>" +
+            "</div>"+
+            "<div class='col-md-5'>" +
+            "<input type='text' class='form-control' id='staticEmail' value='" + var_vals[Object.keys(var_vals)[1]] + "'>" +
+            "</div>"+
+          "</div>"
+
+
+      }
+
+      generateFields(data);
+
       /*
       var socket = io('http://127.0.0.1:5000');
       var match_num = 0
@@ -209,11 +482,11 @@
 
      /** $("#match-next-stage").click(function() {
         socket.emit('ui-to-server-start-next-stage')
-    });**/
+      });**/
 
      /** $("#match-reset-stage").click(function() {
         socket.emit('ui-to-server-reset-stage')
-    });**/
+      });**/
 
       /*
       $("#match-reset").click(function() {
@@ -256,160 +529,6 @@
 
     });
   </script>
-</head>
+  </body>
 
-<body>
-  
-  <nav class="navbar navbar-expand-sm navbar-light bg-light">
-  <a class="navbar-brand" href="#">Staff UI</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" href="../staff_gui.html">Match Creator</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="../score_adjustment.html">Score Adjustment</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="../stage_control.html">Stage Control
-          <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item active">
-        <a class="nav-link" href="../match_recovery.html">Match Recovery</a>
-      </li>
-    </ul>
-  </div>
-</nav>
-
-  <div class="container" style="max-width:1405px">
-    <h2>Match Recovery</h2>
-    <div class="btn-group bottom-padding" role="group" aria-label="...">
-      <button type="button" class="btn btn-success" id="match-start"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> Set Stage</button>
-
-      <button type="button" class="btn" id="toggle-all"> Toggle All</button>
-
-
-    </div>
-
-    <div class="input-group col-xs-6 bottom-padding">
-      <input type="number" class="form-control" id="new-match-num" placeholder="Match number" aria-describedby="basicaddon2">
-      <span class="input-group-btn">
-        <button class="btn btn-default" id="populate-match" type="button">Populate</button>
-        <button class="btn btn-info" id="create-match" type="button">Create Match</button>
-      </span>
-    </div>
-
-    <form class="form-inline bottom-padding">
-      <div class = "row col-lg-12 d-flex justify-content-around">
-
-      <div class = "col-lg-5 text-center">
-      <div class = "row d-flex justify-content-between">
-      <div class="form-group">
-        <select id="blue-1-starting-spot">
-          <option value="left">Left</option>
-          <option value="right">Right</option>
-          <option value="vending">Vending</option>
-          <option value="shelf">Shelf</option>
-        </select>
-      </div>
-      <div class="form-group heartbeat-light blue-1-hb"></div>
-      <div class = "text-center">
-        <button class="btn btn-danger" type="button" id="stop-blue-1">Stop Blue 1</button>
-      </div>
-      <div class="form-group">
-        <input type="number" class="form-control" id="blue-1-number" style="width: 81px;" placeholder="Blue 1 #">
-      </div>
-      <div class="form-group">
-        <input type="text" class="form-control" id="blue-1-name" placeholder="Blue 1 Team Name">
-      </div>
-    </div>
-      </div>
-
-      <div class = "col-lg-5">
-        
-        <div class = "row d-flex justify-content-between">
-      <div class="form-group">
-        <input type="text" class="form-control" id="gold-1-name" placeholder="Gold 1 Team Name">
-      </div>
-      <div class="form-group">
-        <input type="number" class="form-control" id="gold-1-number" style="width: 81px;" placeholder="Gold 1 #">
-      </div>
-      <button class="btn btn-danger" type="button" id="stop-gold-1">Stop Gold 1</button>
-      <div class="form-group heartbeat-light gold-1-hb"></div>
-      <div class="form-group">
-        <select id="gold-1-starting-spot">
-          <option value="left">Left</option>
-          <option value="right">Right</option>
-          <option value="vending">Vending</option>
-          <option value="shelf">Shelf</option>
-        </select>
-      </div>
-    </div>
-      </div>
-      </div>
-    </form>
-    <form class="form-inline bottom-padding">
-      <div class="form-group">
-        <input type="number" class="form-control" id="blue-1-custom-ip" placeholder="Blue 1 Custom IP">
-      </div>
-      <div class="form-group">
-        <input type="number" class="form-control" id="gold-1-custom-ip" placeholder="Gold 1 Custom IP">
-      </div>
-    </form>
-    <form class="form-inline bottom-padding">
-      <div class="form-group">
-        <select id="blue-2-starting-spot">
-          <option value="left">Left</option>
-          <option value="right">Right</option>
-          <option value="vending">Vending</option>
-          <option value="shelf">Shelf</option>
-        </select>
-      </div>
-      <div class="form-group heartbeat-light blue-2-hb"></div>
-      <button class="btn btn-danger" type="button" id="stop-blue-2">Stop Blue 2</button>
-      <div class="form-group">
-        <input type="number" class="form-control" id="blue-2-number" style="width: 81px;" placeholder="Blue 2 #">
-      </div>
-      <div class="form-group">
-        <input type="text" class="form-control" id="blue-2-name" placeholder="Blue 2 Team Name">
-      </div>
-      <div class="form-group">
-        <input type="text" class="form-control" id="gold-2-name" placeholder="Gold 2 Team Name">
-      </div>
-      <div class="form-group">
-        <input type="number" class="form-control" id="gold-2-number" style="width: 81px;" placeholder="Gold 2 #">
-      </div>
-      <button class="btn btn-danger" type="button" id="stop-gold-2">Stop Gold 2</button>
-      <div class="form-group heartbeat-light gold-2-hb"></div>
-      <div class="form-group">
-        <select id="gold-2-starting-spot">
-          <option value="left">Left</option>
-          <option value="right">Right</option>
-          <option value="vending">Vending</option>
-          <option value="shelf">Shelf</option>
-        </select>
-      </div>
-    </form>
-    <form class="form-inline bottom-padding">
-      <div class="form-group">
-        <input type="number" class="form-control" id="blue-2-custom-ip" placeholder="Blue 2 Custom IP">
-      </div>
-      <div class="form-group">
-        <input type="number" class="form-control" id="gold-2-custom-ip" placeholder="Gold 2 Custom IP">
-      </div>
-    </form>
-
-    <div class="form-group">
-      <select id="Game Mode">
-        <option value="perk_selection">Perk Selection</option>
-        <option value="autonomous">Autonomous</option>
-        <option value="teleop">Teleop</option>
-      </select>
-    </div>
-  </div>
-</body>
-
-</html>
+  </html>

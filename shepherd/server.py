@@ -67,13 +67,14 @@ def ui_to_server_start_next_stage():
 def ui_to_server_reset_match():
     lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.RESET_MATCH)
 
-@socketio.on('load-prev-game-request')
-def ui_to_server_load_prev_game_request():
-    lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.RESET_MATCH)
-
 @socketio.on('request-latest-data')
 def ui_to_server_load_prev_game():
     lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.REQUEST_LATEST_DATA)
+
+@socketio.on('ui-to-server-latest-data')
+def ui_to_server_load_latest_data(data):
+    print("DATA", data, json.loads(data))
+    lcm_send(LCM_TARGETS.SHEPHERD, SHEPHERD_HEADER.UPDATE_SHEPHERD_DATA, json.loads(data))
 
 
 def receiver():

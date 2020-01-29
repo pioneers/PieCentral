@@ -431,7 +431,7 @@ def load_game(args):
                   "gold_score" : None})
 
 def load_game_data(args):
-    print("inside load game data")
+    print("inside load game data with data ", args)
     global GAME_STATE
     global MATCH_NUMBER
     global STARTING_SPOTS
@@ -448,9 +448,10 @@ def load_game_data(args):
     CODES_USED = args["CODES_USED"]
     ALLIANCES = args["ALLIANCES"]
 
-    for key in list(ALLIANCES.keys):
+    for key in ALLIANCES:
         if ALLIANCES[key] is not None:
             param_data = ALLIANCES[key]
+            print("param_data", param_data)
             ALLIANCES[key] = Alliance(param_data["name"], param_data["team_1_name"], param_data["team_1_number"], \
                 param_data["team_2_name"], param_data["team_2_number"], param_data["team_1_custom_ip"], \
                     param_data["team_2_custom_ip"])
@@ -477,7 +478,8 @@ SETUP_FUNCTIONS = {
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
     SHEPHERD_HEADER.GET_MATCH_INFO : get_match,
     SHEPHERD_HEADER.START_NEXT_STAGE: to_auto,
-    SHEPHERD_HEADER.REQUEST_LATEST_DATA: load_game
+    SHEPHERD_HEADER.REQUEST_LATEST_DATA: load_game,
+    SHEPHERD_HEADER.UPDATE_SHEPHERD_DATA: load_game_data
 }
 
 AUTO_FUNCTIONS = {
@@ -488,7 +490,8 @@ AUTO_FUNCTIONS = {
     #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
     SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections,
-    SHEPHERD_HEADER.REQUEST_LATEST_DATA: load_game
+    SHEPHERD_HEADER.REQUEST_LATEST_DATA: load_game,
+    SHEPHERD_HEADER.UPDATE_SHEPHERD_DATA: load_game_data
     }
 
 WAIT_FUNCTIONS = {
@@ -498,7 +501,8 @@ WAIT_FUNCTIONS = {
     SHEPHERD_HEADER.START_NEXT_STAGE : to_teleop,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
     SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections,
-    SHEPHERD_HEADER.REQUEST_LATEST_DATA: load_game
+    SHEPHERD_HEADER.REQUEST_LATEST_DATA: load_game,
+    SHEPHERD_HEADER.UPDATE_SHEPHERD_DATA: load_game_data
 }
 
 TELEOP_FUNCTIONS = {
@@ -509,7 +513,8 @@ TELEOP_FUNCTIONS = {
     #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
     SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections,
-    SHEPHERD_HEADER.REQUEST_LATEST_DATA: load_game
+    SHEPHERD_HEADER.REQUEST_LATEST_DATA: load_game,
+    SHEPHERD_HEADER.UPDATE_SHEPHERD_DATA: load_game_data
 
 }
 
@@ -522,7 +527,8 @@ END_FUNCTIONS = {
     SHEPHERD_HEADER.FINAL_SCORE : final_score,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
     SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections,
-    SHEPHERD_HEADER.REQUEST_LATEST_DATA: load_game
+    SHEPHERD_HEADER.REQUEST_LATEST_DATA: load_game,
+    SHEPHERD_HEADER.UPDATE_SHEPHERD_DATA: load_game_data
 }
 
 ###########################################

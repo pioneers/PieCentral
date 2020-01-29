@@ -62,7 +62,7 @@ class SHEPHERD_HEADER():
     REQUEST_LATEST_DATA = "request_latest_data"
         #
     
-    LOAD_PREV_GAME_REQUEST = "load_prev_game_request"
+    UPDATE_SHEPHERD_DATA = "update_shepherd_data"
         #
 
 # pylint: disable=invalid-name

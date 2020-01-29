@@ -338,6 +338,10 @@
 
       }
 
+      function sendData() {
+        updateJSON()
+        socket.emit('ui-to-server-latest-data', JSON.stringify(data))
+      }
       function updateJSON() {
         for (var k in data){
           if (typeof data[k] !== "object"){
@@ -361,7 +365,7 @@
       }
 
       generateFields(data);
-      $("#send-data").click(updateJSON)
+      $("#send-data").click(sendData)
 
       /*
       var socket = io('http://127.0.0.1:5000');

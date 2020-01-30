@@ -16,6 +16,7 @@ public:
 	double getKI();
 	double getKD();
 	/* Below are functions for the encoder. */
+	void updateEncoder();
 	void encoderSetup();
 	void resetEncoder();
 	double readPos();

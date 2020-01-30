@@ -28,7 +28,7 @@ typedef enum {
 
 PolarBear::PolarBear () : Device (DeviceID::POLAR_BEAR, 2) //,  encdr(encoder0PinA, encoder0PinB), pid(0.0, 0.0, 0.0, 0.0, (double) millis(), encdr)
 {
-	this->pid = new PID(0.0, 0.0, 0.0, 0.0, (double) millis())
+	this->pid = new PID(0.0, 0.0, 0.0, 0.0, (double) millis());
 	this->pwmInput = 0; // Setpoint to be used with PID
 	this->driveMode = 0;
 	this->motorEnabled = false;

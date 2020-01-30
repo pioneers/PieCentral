@@ -21,7 +21,7 @@ double PID::compute()
 	double deltaTime = currTime - lastTime;
 	double error = setPoint - enc->read();	//uses encoder reading as current position
 	errorSum += error * deltaTime;
-	double deriv = (error - lastError) / deltaTime
+	double deriv = (error - lastError) / deltaTime;
 	lastTime = currTime;
 	double out = kp * error + ki * errorSum + kd * deriv;
 	if (out > 1)

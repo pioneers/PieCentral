@@ -32,6 +32,8 @@ private:
 	double lastError;
 	double setPoint;
 	double errorSum;
+	double prevPos;
+	double prevVel;
 	Encoder* enc;
 };
 

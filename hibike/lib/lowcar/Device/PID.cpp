@@ -8,6 +8,8 @@ PID::PID(double SetPoint, double KP, double KI, double KD, double initTime):
 	kd = KD;
 	setPoint = SetPoint;
 	lastTime = initTime;
+	prevPos = enc->read();
+	prevVel = 0.0;
 }
 
 /* Computes a value between -1 and 1 inclusive to tell how to
@@ -19,11 +21,14 @@ double PID::compute()
 	updateEncoder();
 	double currTime = (double)(millis());
 	double deltaTime = currTime - lastTime;
-	double error = setPoint - enc->read();	//uses encoder reading as current position
+	double goal = prevPos + (prevVel + setPoint)*(deltaTime) / 2
+	double error = goal - enc->read();	//uses encoder reading as current position
 	errorSum += error * deltaTime;
 	double deriv = (error - lastError) / deltaTime;
 	lastTime = currTime;
 	double out = kp * error + ki * errorSum + kd * deriv;
+	prevPos = enc->read();
+	prevVel = setPoint;
 	if (out > 1)
 	{
 		return 1;

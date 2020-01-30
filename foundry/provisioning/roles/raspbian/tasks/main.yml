@@ -1,0 +1,55 @@
+---
+- block:
+    - name: upgrade kernel
+      command: bash /opt/scripts/tools/update_kernel.sh
+    - name: add user to dialout group
+      user:
+        name: "{{ ansible_env.USER }}"
+        group:
+            - dialout
+    - name: configure network interfaces
+      copy:
+        src: files/interfaces
+        dest: /etc/networking/interfaces
+    - name: disable apache
+      systemd:
+        name: apache2
+        state: stopped
+        enabled: no
+        daemon_reload: yes
+  become: yes
+  become_user: root 
+
+- name: initialize home directory
+  block:
+    - file:
+        path: "{{ ansible.env.HOME }}/bin"
+        state: directory
+    - file:
+        path: "{{ ansible.env.HOME }}/updates"
+        state: directory
+    - file:
+        path: "{{ ansible.env.HOME }}/student-code"
+        state: directory
+    - command: "git -init {[ ansible.env.HOME }}/student-code"
+    - copy:
+        src: files/update.sh
+        dest: "{{ ansible.env.HOME }}/bin/update.sh"
+        mode: "0755"
+
+- name: set up update service
+  block:
+    - copy:
+        src: files/update.service
+        dest: "{{ ansible.env.HOME }}/.config/systemd/user"
+    - systemd:
+        daemon_reload: yes
+        scope: user
+        name: update.service
+        enabled: yes
+  become: yes
+  become_user: root
+
+- name: reboot system
+  reboot:
+

@@ -29,9 +29,15 @@ yappi = "*"
 
 [dev-packages]
 cython = "~=0.29"
-pytest = "~=4.1"
+pytest = "~=5.3"
 pytest-timeout = "~=1.3"
 asynctest = "~=0.12"
 memory-profiler = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
+
+[scripts]
+build = "python setup.py build_ext --inplace"
+dev = "python -m runtime run --log-level DEBUG --log-pretty"
+prod = "python -m runtime run"
+test = "python -m pytest tests/test_packet.py tests/test_executor.py"

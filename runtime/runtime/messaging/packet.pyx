@@ -8,11 +8,8 @@ from libc.stdint cimport uint8_t, uint16_t
 
 from cobs import cobs
 
-from runtime.messaging.device import DeviceStructure, SmartSensorUID, get_field_bytes
+from runtime.messaging.device import SmartSensorUID, get_field_bytes
 from runtime.util.exception import RuntimeBaseException
-
-
-cpdef Py_ssize_t MAX_PARAMETERS = 16
 
 
 cpdef enum MessageType:

@@ -2,10 +2,12 @@
 
 ## Getting Started
 
-```
+```sh
 $ pip install -v --pre pyzmq \
   --install-option=--enable-drafts \
   --install-option=--zmq=4.3.2
+$ pipenv install --dev
+$ pipenv run dev
 ```
 
 ## TODO

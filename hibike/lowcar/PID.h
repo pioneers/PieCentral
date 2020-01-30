@@ -3,17 +3,25 @@
 
 #include "Arduino.h"
 #include <Encoder.h>
+#include "pindefs.h"
 
 class PID
 {
 public:
-	PID(double SetPoint, double KP, double KI, double KD, double initTime, Encoder* encoder);
+	PID(double SetPoint, double KP, double KI, double KD, double initTime);
 	double compute();
 	void setCoefficients(double KP, double KI, double KD);
 	void setSetpoint(double sd);
 	double getKP();
 	double getKI();
 	double getKD();
+	/* Below are functions for the encoder. */
+	void encoderSetup();
+	void resetEncoder();
+	double readPos();
+	double readVel();
+	void updateVel();
+	void updatePos();
 
 private:
 	double kp;

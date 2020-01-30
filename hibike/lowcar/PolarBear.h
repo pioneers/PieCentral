@@ -3,7 +3,6 @@
 
 #include "Device.h"
 #include "PID.h"
-#include "encoder.h"
 #include "LED.h"
 #include "pindefs.h"
 #include "defs.h"
@@ -17,7 +16,7 @@ public:
 	virtual void device_enable ();
 	virtual void device_disable ();
 	virtual void device_actions ();
-  
+
 private:
 	float pwmInput;
 	uint8_t driveMode;
@@ -27,7 +26,6 @@ private:
 	int currpwm2;
 	int delayMod;
 	float dpwm_dt;
-	Encoder *encdr;
 	PID *pid;
 	void drive(float target);
 };

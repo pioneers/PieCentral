@@ -2,8 +2,6 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import ctypes
 import dataclasses
-from numbers import Real
-from typing import Mapping
 
 from schema import Optional
 import structlog
@@ -12,7 +10,6 @@ import zmq.asyncio
 
 from runtime.service.base import Service
 from runtime.messaging.device import (
-    DeviceBuffer,
     DeviceMapping,
     SmartSensorStructure,
     get_device_type,

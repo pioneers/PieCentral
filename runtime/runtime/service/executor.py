@@ -26,7 +26,7 @@ from runtime.game.studentapi import (
     Gamepad,
     Robot,
 )
-from runtime.messaging.device import DeviceBuffer, DeviceMapping, get_device_type
+from runtime.messaging.device import DeviceMapping, get_device_type
 from runtime.service.base import Service
 from runtime.util import (
     POSITIVE_REAL,
@@ -128,7 +128,6 @@ class StudentCodeExecutor:
     aliases: DeviceAliasManager
     action_executor: ActionExecutor = dataclasses.field(default_factory=ActionExecutor)
     student_code: types.ModuleType = dataclasses.field(init=False, default=None)
-    # TODO: handle unlimited recursion
 
     def __enter__(self):
         return self
@@ -153,21 +152,28 @@ class StudentCodeExecutor:
             raise RuntimeBaseException('Cannot execute mode', mode=self.match.mode.name)
         return (self.get_function(f'{prefix}_setup'), self.get_function(f'{prefix}_main'))
 
-    def import_student_code(self):
-        if not self.student_code or not hasattr(self.student_code, '__file__'):
-            self.student_code = importlib.import_module(self.config['student_code'])
+    @property
+    def last_import_succeeded(self):
+        return hasattr(self.student_code, '__file__')
+
+    def import_student_code(self, student_code_name: str):
+        if not self.student_code or not self.last_import_succeeded:
+            self.student_code = importlib.import_module(student_code_name)
         else:
             self.student_code = importlib.reload(self.student_code)
 
-    def reload_student_code(self):
+    def reload_student_code(self, student_code_name: str):
+        import_task = functools.partial(self.import_student_code, student_code_name)
         try:
-            run_with_timeout(self.import_student_code, self.config['import_timeout'])
-        except (TimeoutError, NameError, SyntaxError) as exc:
-            self.student_code = types.ModuleType(self.config['student_code'])
+            run_with_timeout(import_task, self.config['import_timeout'])
+        except Exception as exc:
+            self.student_code = types.ModuleType(student_code_name)
             LOGGER.warn('Unable to import student code', exc=str(exc))
-        logger = structlog.get_logger(self.config['student_code'])
+
+        logger = structlog.get_logger(student_code_name)
         def _print(*values, sep=' ', _file=None, _flush=False):
             logger.info(sep.join(map(str, values)))
+
         self.student_code.print = _print
         self.student_code.Actions = Actions
         self.student_code.Alliance = Alliance
@@ -214,7 +220,7 @@ class StudentCodeExecutor:
                 raise EmergencyStopException
             self.action_executor.unregister_all()
             if self.match.mode is not Mode.IDLE:
-                self.reload_student_code()
+                self.reload_student_code(self.config['student_code'])
                 self.loop()
 
 
@@ -353,6 +359,6 @@ class ExecutorService(Service):
         command_thread = threading.Thread(target=lambda: asyncio.run(self.bootstrap()),
                                           daemon=True, name='command-thread')
         command_thread.start()
-        self.executor.reload_student_code()
+        self.executor.reload_student_code(self.config['student_code'])
         with self.executor:
             self.executor.spin()

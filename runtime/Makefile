@@ -30,7 +30,7 @@ shell: buildbase
 	docker run --rm -it $(NAME):development /bin/ash
 
 build:
-	python setup.py build_ext --inplace
+	pipenv run build
 
 package:
 	python setup.py sdist bdist_wheel
@@ -51,16 +51,13 @@ lint:
 		runtime/game/studentapi.py \
 		runtime/service
 
-test: buildbase
+testcontainer:
 	docker run --rm -it $(NAME):development python3 -m doctest \
 		runtime/util/exception.py \
 		runtime/service/device.py
-	# pipenv run pytest \
-	# 	runtime/journal.py \
-	# 	runtime/util.py \
-	# 	tests/test_asyncutil.py \
-	# 	tests/test_shm.py \
-	# 	tests/test_storeservice.py \
+
+test:
+	pipenv run test
 
 artifacts:
 	cp ../DevOps/frankfurter/build/*.tar.gz ../artifacts

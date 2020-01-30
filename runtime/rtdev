@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# rtdev -- Run runtime in development mode.
-
-python -m runtime run --log-level DEBUG --log-pretty

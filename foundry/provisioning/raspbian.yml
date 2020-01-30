@@ -3,6 +3,7 @@
   hosts: all
   roles:
     - base
+    - raspbian
   tasks:
     - name: set hostname
       become: yes

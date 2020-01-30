@@ -548,6 +548,10 @@
           "</div>"
       }
 
+      function sendData() {
+        updateJSON()
+        socket.emit('ui-to-server-latest-data', JSON.stringify(data))
+      }
       function updateJSON() {
         for (var k in data){
           if (typeof data[k] !== "object"){
@@ -555,11 +559,15 @@
           }
           else if (k == "ALLIANCES") {
             for (var team in data[k]) {
-              for (var attribute in team) {
+              for (var attribute in data[k][team]) {
                 if(attribute.includes("team_")) {
-                  team[attribute] = $(team +"_" + attribute).val()
+                  data[k][team][attribute] = $(team +"_" + attribute).val()
                 }
               }
+            }
+          } else {
+            for (var team in k) {
+              data[k][team] = $(k + "_" + team).val()
             }
           }
         }
@@ -567,7 +575,7 @@
       }
 
       generateFields(data);
-      $("#send-data").click(updateJSON)
+      $("#send-data").click(sendData)
 
       /*
       var socket = io('http://127.0.0.1:5000');

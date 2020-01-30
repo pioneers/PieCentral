@@ -24,7 +24,7 @@ ARDUINO_LIBS := Wire Servo
 
 ### USER_LIB_PATH
 ### Path to where your project's libraries are stored.
-SKETCH_LIBS = Adafruit_TCS34725 EEPROM SevenSeg TimerOne TimerThree FlexiTimer2 PID_v1 Encoder MFRC522 SPI NicoHID NicoHID/SingleReport
+SKETCH_LIBS = Adafruit_TCS34725 EEPROM SevenSeg TimerOne TimerThree FlexiTimer2 PID_v1 Encoder MFRC522 SPI NicoHID NicoHID/SingleReport lowcar/*
 USER_LIB_PATH     :=  $(realpath $(PROJECT_DIR)/lib)
 
 ### BOARD_TAG & BOARD_SUB
@@ -71,7 +71,7 @@ CXXFLAGS += -D UID_RANDOM=$(RANDOM)
 
 CXXFLAGS += -D DEVICE=$(DEVICE)
 
-LOCAL_CPP_SRCS := $(wildcard $(PROJECT_DIR)/lowcar/*.cpp)
+LOCAL_CPP_SRCS := $(wildcard $(PROJECT_DIR)/lowcar/main.cpp)
 
 ### MONITOR_PORT
 ### The port your board is connected to. Using an '*' tries all the ports and finds the right one.

@@ -25,3 +25,4 @@ $ pipenv run dev
 - [ ] Clear out old duty_cycle, other writeable parameters
 - [ ] Finish Runtime fctool
 - [ ] Log to the outside world
+- [ ] Motor check

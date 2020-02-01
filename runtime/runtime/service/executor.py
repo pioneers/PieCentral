@@ -27,6 +27,7 @@ from runtime.game.studentapi import (
     Robot,
 )
 from runtime.messaging.device import DeviceMapping, get_device_type
+from runtime.messaging.routing import Connection
 from runtime.service.base import Service
 from runtime.util import (
     POSITIVE_REAL,
@@ -305,12 +306,13 @@ class ExecutorService(Service):
         raise RuntimeBaseException('Unable to lint student code (failed to import)')
 
     async def listen_for_device_status(self):
-        while True:
-            status = await self.connections.device_status.recv()
-            devices = status.get('devices') or []
-            for device in devices:
-                device_type = get_device_type(device_name=device['device_type'])
-                await self.device_buffers.open(device['device_uid'], device_type)
+        with Connection.open(self.config['sockets']['device_status']) as connection:
+            while True:
+                status = await connection.recv()
+                devices = status.get('devices') or []
+                for device in devices:
+                    device_type = get_device_type(device_name=device['device_type'])
+                    await self.device_buffers.open(device['device_uid'], device_type)
 
     async def recv_request(self, command_conn):
         message_type, message_id, method, params = await command_conn.recv()
@@ -334,18 +336,19 @@ class ExecutorService(Service):
 
     async def main(self):
         asyncio.create_task(self.listen_for_device_status())
-        while True:
-            result = {'received': time.time()}
-            response = [self.response, None, None, result]
-            try:
-                response[1], method = await self.recv_request(self.connections.command)
-                result.update((await method()) or {})
-            except Exception as exc:
-                response[2], context = str(exc), getattr(exc, 'context', {})
-                LOGGER.error('Unable to execute command', **context, error=response[2])
-            finally:
-                result['completed'] = time.time()
-                await self.send_response(self.connections.command, response)
+        with Connection.open(self.config['sockets']['command']) as connection:
+            while True:
+                result = {'received': time.time()}
+                response = [self.response, None, None, result]
+                try:
+                    response[1], method = await self.recv_request(connection)
+                    result.update((await method()) or {})
+                except Exception as exc:
+                    response[2], context = str(exc), getattr(exc, 'context', {})
+                    LOGGER.error('Unable to execute command', **context, error=response[2])
+                finally:
+                    result['completed'] = time.time()
+                    await self.send_response(connection, response)
 
     def __call__(self):
         threading.current_thread().name = type(self).__name__.lower()

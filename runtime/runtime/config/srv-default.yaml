@@ -35,10 +35,9 @@ executor:
     log:
       socket_type: pub
       address: ipc:///tmp/log.sock
-      send_timeout: 5
     command:
       socket_type: rep
-      address: tcp://127.0.0.1:6002
+      address: tcp://*:6002
       bind: true
     device_status:
       socket_type: sub
@@ -55,7 +54,6 @@ device:
     log:
       socket_type: pub
       address: ipc:///tmp/log.sock
-      send_timeout: 5
     sensor_status:
       socket_type: pub
       address: ipc:///tmp/sensor-status.sock

@@ -2,6 +2,8 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import ctypes
 import dataclasses
+import threading
+import time
 
 from schema import Optional
 import structlog
@@ -14,7 +16,7 @@ from runtime.messaging.device import (
     SmartSensorStructure,
     get_device_type,
 )
-from runtime.messaging.routing import Connection, ConnectionManager
+from runtime.messaging.routing import Connection
 from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL, VALID_NAME, TTLMapping
 from runtime.util.exception import RuntimeBaseException
 
@@ -24,10 +26,13 @@ LOGGER = structlog.get_logger()
 
 @dataclasses.dataclass
 class DatagramServer:
-    connections: ConnectionManager
+    """
+    The datagram server represents
+    """
     config: dict
     device_buffers: DeviceMapping = dataclasses.field(init=False, default=None)
     clients: TTLMapping = dataclasses.field(default=None, init=False)
+    udp_context: zmq.Context = dataclasses.field(default_factory=zmq.Context.instance)
     send_count: int = 0
     recv_count: int = 0
 
@@ -49,7 +54,7 @@ class DatagramServer:
             await self.clients.keep_alive(address)
         else:
             socket_config = {'socket_type': 'RADIO', 'address': address}
-            self.clients[address] = self.connections.open_connection(address, socket_config)
+            self.clients[address] = Connection.open(socket_config, self.udp_context)
             asyncio.create_task(self.clients.expire(address))
             LOGGER.debug('New datagram client connected', address=address)
 
@@ -73,22 +78,23 @@ class DatagramServer:
                 struct.set_current(param.name, bool((button_map >> i) & 0b1))
 
     async def recv_loop(self):
-        while True:
-            message = await self.connections.datagram_recv.recv()
-            self.recv_count += 1
-            try:
-                address = message.get('src')
-                if address:
-                    await self.handle_client(address)
-                gamepads = message.get('gamepads') or {}
-                for gamepad_id, gamepad in gamepads.items():
-                    if 0 <= gamepad_id < self.config['max_gamepads']:
-                        await self.update_gamepad_data(gamepad_id, gamepad)
-                    else:
-                        LOGGER.warn('Invalid gamepad ID', gamepad_id=gamepad_id,
-                                    max_gamepads=self.config['max_gamepads'])
-            except RuntimeBaseException as exc:
-                LOGGER.warn('Encountered error while decoding datagram', exc=str(exc))
+        with Connection.open(self.config['sockets']['datagram_recv'], self.udp_context) as connection:
+            while True:
+                message = await connection.recv()
+                self.recv_count += 1
+                try:
+                    address = message.get('src')
+                    if address:
+                        await self.handle_client(address)
+                    gamepads = message.get('gamepads') or {}
+                    for gamepad_id, gamepad in gamepads.items():
+                        if 0 <= gamepad_id < self.config['max_gamepads']:
+                            await self.update_gamepad_data(gamepad_id, gamepad)
+                        else:
+                            LOGGER.warn('Invalid gamepad ID', gamepad_id=gamepad_id,
+                                        max_gamepads=self.config['max_gamepads'])
+                except RuntimeBaseException as exc:
+                    LOGGER.warn('Encountered error while decoding datagram', exc=str(exc))
 
     async def broadcast(self):
         device_updates = {}
@@ -97,9 +103,6 @@ class DatagramServer:
                 device_update = device_updates[str(device.struct.uid.to_int())] = {}
                 device_update['type'] = type(device.struct).__name__
                 device_update['params'] = params = {}
-
-                # device.struct.set_current('tag_detect', 1) # TODO: remove after testing
-
                 for param in device.struct.get_parameters(device.struct.send):
                     params[param.name] = device.struct.get_current(param.name)
                 device.struct.send = SmartSensorStructure.RESET_MAP
@@ -109,20 +112,19 @@ class DatagramServer:
             asyncio.create_task(client.send(update))
             self.send_count += 1
 
-    async def log_statistics(self):
+    async def log_statistics(self, connection: Connection):
         while True:
             await asyncio.sleep(self.config['log_interval'])
             bytes_sent = 0
             for client in self.clients.values():
                 bytes_sent += client.bytes_sent
                 client.bytes_sent = 0
-            recv_conn = self.connections.datagram_recv
             LOGGER.info(
                 'Datagram server statistics', clients=list(self.clients),
                 send_count=self.send_count, recv_count=self.recv_count,
-                bytes_sent=bytes_sent, bytes_recv=recv_conn.bytes_recv,
+                bytes_sent=bytes_sent, bytes_recv=connection.bytes_recv,
             )
-            self.send_count, self.recv_count, recv_conn.bytes_recv = 0, 0, 0
+            self.send_count, self.recv_count, cconnection.bytes_recv = 0, 0, 0
 
     async def send_loop(self):
         loop = asyncio.get_running_loop()
@@ -139,19 +141,21 @@ class DatagramServer:
                 LOGGER.warn('Send cycle timed out')
 
     async def listen_for_device_status(self):
-        while True:
-            status = await self.connections.sensor_status.recv()
-            devices = status.get('devices') or []
-            for device in devices:
-                device_type = get_device_type(device_name=device['device_type'])
-                await self.device_buffers.open(device['device_uid'], device_type)
+        with Connection.open(self.config['sockets']['sensor_status']) as connection:
+            while True:
+                status = await connection.recv()
+                devices = status.get('devices') or []
+                for device in devices:
+                    device_type = get_device_type(device_name=device['device_type'])
+                    await self.device_buffers.open(device['device_uid'], device_type)
 
     async def broadcast_status(self):
-        while True:
-            devices = [buffer.status for buffer in self.device_buffers.values()
-                       if not buffer.is_smart_sensor]
-            await self.connections.gamepad_status.send({'devices': devices})
-            await asyncio.sleep(self.config['gamepad_send_interval'])
+        with Connection.open(self.config['sockets']['gamepad_status']) as connection:
+            while True:
+                devices = [buffer.status for buffer in self.device_buffers.values()
+                           if not buffer.is_smart_sensor]
+                await connection.send({'devices': devices})
+                await asyncio.sleep(self.config['gamepad_send_interval'])
 
 
 @dataclasses.dataclass
@@ -173,35 +177,31 @@ class BrokerService(Service):
         },
     }
 
-    def serve_proxy(self, proxy):
-        frontend, backend = proxy['frontend'], proxy['backend']
-        frontend_socket = self.connections[frontend].socket
-        backend_socket = self.connections[backend].socket
-        LOGGER.debug('Serving proxy', frontend=frontend, backend=backend)
-        # `zmq.proxy` is a C extension function, which `pylint` cannot detect.
-        # pylint: disable=no-member
-        zmq.proxy(frontend_socket, backend_socket)
-        raise RuntimeBaseException('Proxy closed unexpectedly')
+    def serve_proxy(self, frontend: str, backend: str):
+        context = zmq.asyncio.Context()
+        time.sleep(0.05)  # Wait for context to start I/O thread
+        frontend_conn = Connection.open(self.config['sockets'][frontend], context)
+        backend_conn = Connection.open(self.config['sockets'][backend], context)
+        try:
+            with frontend_conn, backend_conn:
+                LOGGER.debug('Serving proxy', frontend=frontend, backend=backend)
+                # `zmq.proxy` is a C extension function, which `pylint` cannot detect.
+                # pylint: disable=no-member
+                zmq.proxy(frontend_conn.socket, backend_conn.socket)
+        finally:
+            raise RuntimeBaseException('Proxy closed unexpectedly')
 
-    async def serve_proxies(self):
-        with ThreadPoolExecutor(max_workers=self.config['max_workers']) as thread_pool:
-            loop = asyncio.get_running_loop()
-            proxies = [loop.run_in_executor(thread_pool, self.serve_proxy, proxy)
-                       for proxy in self.config['proxies'].values()]
-            await asyncio.gather(*proxies)
+    def start_proxies(self):
+        for proxy in self.config['proxies'].values():
+            proxy_thread = threading.Thread(target=self.serve_proxy, kwargs=proxy)
+            proxy_thread.start()
 
     async def main(self):
-        async def spam():
-            while True:
-                await self.connections.log_out.send({})
-                await asyncio.sleep(0.1)
-        with DatagramServer(self.connections, self.config) as datagram_server:
+        self.start_proxies()
+        with DatagramServer(self.config) as datagram_server:
             await asyncio.gather(
-                self.serve_proxies(),
                 datagram_server.recv_loop(),
                 datagram_server.send_loop(),
-                datagram_server.log_statistics(),
                 datagram_server.broadcast_status(),
                 datagram_server.listen_for_device_status(),
-                spam()
             )

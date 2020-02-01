@@ -126,9 +126,22 @@ def lint(ctx, ch='#', side=25):
 @cli.command()
 @click.pass_context
 def log(ctx):
+    # import zmq
+    # ctx = zmq.Context()
+    # socket = ctx.socket(zmq.SUB)
+    # # socket.bind('ipc:///tmp/log2.sock')
+    # socket.connect('tcp://127.0.0.1:6003')
+    # socket.subscribe(b'')
+    # print('Starting')
+    # while True:
+    #     print(socket.recv())
+
     with runtime.RuntimeClient(ctx.obj['host']) as client:
         while True:
-            print(client.recv_log())
+            try:
+                print(client.recv_log())
+            except ValueError:
+                click.echo(click.style('Failed to decode record', fg='red'))
 
 
 if __name__ == '__main__':

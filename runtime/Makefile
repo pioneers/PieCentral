@@ -47,17 +47,15 @@ artifacts-install:
 	$(nop)
 
 lint:
-	pylint \
-		runtime/game/studentapi.py \
-		runtime/service
+	pipenv run lint
+
+test:
+	pipenv run test
 
 testcontainer:
 	docker run --rm -it $(NAME):development python3 -m doctest \
 		runtime/util/exception.py \
 		runtime/service/device.py
-
-test:
-	pipenv run test
 
 artifacts:
 	cp ../DevOps/frankfurter/build/*.tar.gz ../artifacts

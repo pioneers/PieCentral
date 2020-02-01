@@ -3,11 +3,11 @@
 broker:
   replicas: 1
   sockets:
-    journal_in:
+    log_in:
       socket_type: sub
-      address: ipc:///tmp/journal.sock
+      address: ipc:///tmp/log.sock
       bind: true
-    journal_out:
+    log_out:
       socket_type: pub
       address: tcp://127.0.0.1:6003
       bind: true
@@ -24,17 +24,17 @@ broker:
       address: ipc:///tmp/sensor-status.sock
   max_workers: 5
   proxies:
-    journal:
-      frontend: journal_in
-      backend: journal_out
+    log:
+      frontend: log_in
+      backend: log_out
 
 executor:
   replicas: 1
   daemon: false
   sockets:
-    journal:
+    log:
       socket_type: pub
-      address: ipc:///tmp/journal.sock
+      address: ipc:///tmp/log.sock
       send_timeout: 5
     command:
       socket_type: rep
@@ -52,9 +52,9 @@ executor:
 device:
   replicas: 1
   sockets:
-    journal:
+    log:
       socket_type: pub
-      address: ipc:///tmp/journal.sock
+      address: ipc:///tmp/log.sock
       send_timeout: 5
     sensor_status:
       socket_type: pub

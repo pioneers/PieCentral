@@ -17,23 +17,6 @@ import zmq
 
 
 @dataclasses.dataclass
-class RuntimeClient:
-    ...
-    # address: str
-    # context: zmq.Context = dataclasses.field(default_factory=zmq.Context)
-    # socket: zmq.Socket = dataclasses.field(init=False, default=None)
-    #
-    # def __post_init__(self):
-    #     pass
-    #
-    # def dumps(self, data) -> bytes:
-    #     return msgpack.dumps(data)
-    #
-    # def loads(self, data: bytes):
-    #     return msgpack.loads(data, raw=False)
-
-
-@dataclasses.dataclass
 class Gamepad:
     a: bool = False
     b: bool = False

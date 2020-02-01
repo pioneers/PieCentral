@@ -3,8 +3,8 @@ import collections
 import dataclasses
 from numbers import Real
 import os
-from schema import And, Regex, Use
 from typing import Any, Callable, Mapping, Optional, TypeVar
+from schema import And, Regex, Use
 
 
 def get_module_path(filename: str) -> str:

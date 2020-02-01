@@ -81,7 +81,6 @@ class Connection:
         https://pyzmq.readthedocs.io/en/latest/api/zmq.html#zmq.Socket.copy_threshold
     """
     socket: zmq.Socket
-    chunk_size: int = 512
     copy: bool = True
     send_group: str = b''
     bytes_sent: int = 0
@@ -105,8 +104,7 @@ class Connection:
             # TODO: no copying
             await asyncio.get_running_loop().run_in_executor(None, self.udp_send, packet)
         else:
-            chunks = [packet[i : i+self.chunk_size] for i in range(0, len(packet), self.chunk_size)]
-            await self.socket.send_multipart(chunks, copy=self.copy)
+            await self.socket.send(packet, copy=self.copy)
         self.bytes_sent += len(packet)
 
     async def recv(self):
@@ -114,10 +112,7 @@ class Connection:
         if self.udp:
             packet = await asyncio.get_running_loop().run_in_executor(None, self.udp_recv)
         else:
-            chunks = await self.socket.recv_multipart(copy=self.copy)
-            packet = bytearray()  # Modified in place (fast, no-copy).
-            for chunk in chunks:
-                packet.extend(chunk)
+            packet = await self.socket.recv(copy=self.copy)
         self.bytes_recv += len(packet)
         return self.loads(packet)
 

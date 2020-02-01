@@ -1,12 +1,23 @@
+import asyncio
 import logging
 
 import structlog
 import structlog.processors
 import structlog.stdlib
 
+from runtime.messaging.routing import Connection
 
-def configure_logging(level: str = 'INFO', pretty: bool = False):
-    logging.basicConfig(format='%(message)s', level=level)
+
+LEVEL: str = 'INFO'
+PRETTY: bool = False
+
+
+def configure_logging(*extra_processors, level: str = None, pretty: bool = None):
+    """
+    .. _structlog Configuration
+        http://www.structlog.org/en/stable/configuration.html
+    """
+    logging.basicConfig(format='%(message)s', level=(level or LEVEL))
 
     processors = [
         structlog.stdlib.filter_by_level,
@@ -18,9 +29,10 @@ def configure_logging(level: str = 'INFO', pretty: bool = False):
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
     ]
+    processors.extend(extra_processors)
 
-    if pretty:
-        renderer = structlog.dev.ConsoleRenderer(pad_event=50)
+    if pretty or PRETTY:
+        renderer = structlog.dev.ConsoleRenderer(pad_event=40)
     else:
         renderer = structlog.processors.JSONRenderer()
         processors.append(structlog.stdlib.render_to_log_kwargs)
@@ -34,3 +46,10 @@ def configure_logging(level: str = 'INFO', pretty: bool = False):
         wrapper_class=structlog.stdlib.BoundLogger,
         cache_logger_on_first_use=True,
     )
+
+
+def make_publisher(log_conn):
+    def publish(logger, method_name, event):
+        asyncio.create_task(log_conn.send(event))
+        return event
+    return publish

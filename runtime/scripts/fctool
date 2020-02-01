@@ -1,34 +1,47 @@
 #!/usr/bin/env python3
 
 import asyncio
+import functools
+import logging
+import structlog
+from typing import Mapping
+
 import msgpack
 import zmq
 import zmq.asyncio
 import click
 
+import runtimeclient as runtime
 
-CONTEXT = zmq.Context()
+
+logging.disable()
+structlog.configure(
+    processors=[structlog.stdlib.filter_by_level],
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+)
 
 
-def _set_match(mode, alliance):
-    ...
-    #socket = context.socket(zmq.SUB)
-    #socket.connect('tcp://127.0.0.1:6003')
-    #socket.subscribe(b'')
-    #while True:
-    #    packet = await socket.recv()
-    #    print(packet)
+def catch_command_exc(cli):
+    @functools.wraps(cli)
+    def wrapper(*args, **kwargs):
+        try:
+            return cli(*args, **kwargs)
+        except runtime.RuntimeClientError as exc:
+            click.echo(click.style(str(exc), fg='red', bold=True))
+    return wrapper
 
 
 @click.group()
-@click.option('--cmd-addr', default='tcp://127.0.0.1:6002')
+@click.option('--host', default='127.0.0.1')
 @click.pass_context
-def cli(ctx, cmd_addr):
+def cli(ctx, host):
     """
     fctool -- Field control command-line interface
     """
     ctx.obj = ctx.obj or {}
-    ctx.obj['cmd_addr'] = cmd_addr
+    ctx.obj['host'] = host
+    logging.getLogger().propogate = False
 
 
 @cli.command('set-match')
@@ -38,24 +51,56 @@ def cli(ctx, cmd_addr):
               type=click.Choice(['BLUE', 'GOLD']))
 @click.pass_context
 def set_match(ctx, mode, alliance):
-    socket = CONTEXT.socket(zmq.REQ)
-    socket.connect(ctx.obj['cmd_addr'])
-    socket.send(msgpack.packb({'type': 'set_match', 'mode': mode, 'alliance': alliance}))
-    socket.close()
+    print(mode, alliance)
 
 
-@cli.command('list-aliases')
+@cli.group()
+def alias():
+    pass
+
+
+def display_aliases(aliases: Mapping[str, str]):
+    if aliases:
+        click.echo(click.style(f'{len(aliases)} aliases:', fg='green', bold=True))
+        for name, uid in aliases.items():
+            click.echo(f'  {name} -> {uid}')
+    else:
+        click.echo(click.style('No aliases', fg='yellow', bold=True))
+
+
+@alias.command('list')
 @click.pass_context
-def list_dev(ctx, ):
-    socket = CONTEXT.socket(zmq.REQ)
-    socket.connect(ctx.obj['cmd_addr'])
-    socket.send(msgpack.packb({'type': 'list_aliases'}))
-    chunks, packet = socket.recv_multipart(), bytearray()
-    for chunk in chunks:
-        packet.extend(chunk)
-    payload = msgpack.unpackb(packet, raw=False)
-    socket.close()
-    print(payload)
+@catch_command_exc
+def list_aliases(ctx):
+    """ List all human-readable device aliases for UIDs. """
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        aliases = client.send_command('list_aliases')
+        display_aliases(aliases['aliases'])
+
+
+@alias.command('set')
+@click.argument('name')
+@click.argument('uid')
+@click.pass_context
+@catch_command_exc
+def set_alias(ctx, name, uid):
+    """ Set a human-readable alias for a device UID. """
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        aliases = client.send_command('set_alias', name, uid)
+        click.echo('Successfully set alias!')
+        display_aliases(aliases['aliases'])
+
+
+@alias.command('del')
+@click.argument('name')
+@click.pass_context
+@catch_command_exc
+def del_alias(ctx, name):
+    """ Delete a human-readable alias for a device UID. """
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        aliases = client.send_command('del_alias', name)
+        click.echo('Successfully deleted alias!')
+        display_aliases(aliases['aliases'])
 
 
 @cli.command('lint')
@@ -79,8 +124,11 @@ def lint(ctx, ch='#', side=25):
 
 
 @cli.command()
-def listen(ctx):
-    pass
+@click.pass_context
+def log(ctx):
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        while True:
+            print(client.recv_log())
 
 
 if __name__ == '__main__':

@@ -14,7 +14,7 @@ import typing
 
 from pylint import epylint as lint
 import structlog
-from schema import And, Optional, Schema, SchemaError, Use
+from schema import Optional, Use
 
 from runtime.game.studentapi import (
     DeviceAliasManager,
@@ -47,8 +47,6 @@ class RequestType(enum.Enum):
     SET_ALIAS = enum.auto()
     DEL_ALIAS = enum.auto()
     LINT = enum.auto()
-    INITIALIZE_DEVICE = enum.auto()
-    TERMINATE_DEVICE = enum.auto()
 
 
 class ActionExecutor(threading.Thread):
@@ -233,6 +231,8 @@ class ExecutorService(Service):
     aliases: DeviceAliasManager = dataclasses.field(init=False, default=None)
     executor: StudentCodeExecutor = dataclasses.field(init=False, default=None)
 
+    request, response = 0, 1
+
     config_schema = {
         **Service.config_schema,
         'student_code': str,
@@ -245,21 +245,6 @@ class ExecutorService(Service):
         Optional('device_timeout', default=1): POSITIVE_REAL,
     }
 
-    request_schema = Schema({
-        'type': And(Use(str.upper), Use(RequestType.__getitem__)),
-        Optional('mode'): And(Use(str.upper), Use(Mode.__getitem__)),
-        Optional('alliance'): And(Use(str.upper), Use(Alliance.__getitem__)),
-        Optional('challenges'): [VALID_NAME],
-        Optional('seed'): int,
-        Optional('alias'): {
-            'name': VALID_NAME,
-            Optional('uid'): Use(int),
-        },
-        Optional('protocol'): str,
-        Optional('device_name'): str,
-        Optional('device_uid'): str,
-    })
-
     def __post_init__(self):
         self.device_buffers = DeviceMapping(self.config['device_timeout'], LOGGER)
 
@@ -271,45 +256,47 @@ class ExecutorService(Service):
         asyncio.create_task(self.aliases.load_initial_aliases())
         await super().bootstrap()
 
-    async def get_match(self, _request):
+    async def get_match(self):
         async with self.access:
             return self.match.as_dict()
 
-    async def set_match(self, request: dict):
+    async def set_match(self, mode: str, alliance: str):
         """ Set the match information. """
         async with self.access:
-            self.match.alliance, self.match.mode = request['alliance'], request['mode']
+            self.match.mode = Mode.__members__[mode.upper()]
+            self.match.alliance = Alliance.__members__[alliance.upper()]
             self.mode_changed.set()
             return self.match.as_dict()
 
-    async def run_challenge(self, request: dict):
-        seed = request['seed']
+    async def run_challenge(self, challenges: typing.List[str], seed: int):
         challenges = [getattr(self.executor.student_code, challenge)
-                      for challenge in request['challenges']]
+                      for challenge in challenges]
         with ProcessPoolExecutor() as executor:
             loop = asyncio.get_running_loop()
             answer = await loop.run_in_executor(executor, run_challenge, challenges, seed)
             LOGGER.info('Completed coding challenge', seed=seed, answer=answer,
-                        challenges=request['challenges'])
+                        challenges=challenges)
             # Serialize as a string, since the answer may exceed the capacity of an unsigned long.
             return {'answer': str(answer)}
 
-    async def list_aliases(self, _request):
+    async def list_aliases(self):
         async with self.access:
             return {'aliases': dict(self.aliases.data)}
 
-    async def set_alias(self, request):
+    async def set_alias(self, name: str, uid: str):
         async with self.access:
-            alias = request['alias']
-            self.aliases[alias['name']] = alias['uid']
+            self.aliases[name] = uid
             return {'aliases': dict(self.aliases.data)}
 
-    async def del_alias(self, request):
+    async def del_alias(self, name: str):
         async with self.access:
-            del self.aliases[request['alias']['name']]
+            try:
+                del self.aliases[name]
+            except KeyError as exc:
+                raise RuntimeBaseException('No such alias', name=name) from exc
             return {'aliases': dict(self.aliases.data)}
 
-    async def lint(self, _request):
+    async def lint(self):
         student_code = self.executor.student_code
         if hasattr(student_code, '__file__'):
             # TODO: ignore some lint issues
@@ -325,33 +312,40 @@ class ExecutorService(Service):
                 device_type = get_device_type(device_name=device['device_type'])
                 await self.device_buffers.open(device['device_uid'], device_type)
 
+    async def recv_request(self, command_conn):
+        message_type, message_id, method, params = await command_conn.recv()
+        context = {'message_id': message_id, 'method': method}
+        if message_type != self.request:
+            raise RuntimeBaseException('Received malformed request', **context)
+        if method.upper() not in RequestType.__members__:
+            raise RuntimeBaseException('Method not found', **context)
+        LOGGER.debug('Received request', **context)
+        return message_id, functools.partial(getattr(self, method), *params)
+
+    async def send_response(self, command_conn, response):
+        try:
+            await command_conn.send(response)
+        except OverflowError:
+            response[3] = None
+            LOGGER.error('Encountered overflow error')
+            await command_conn.send(response)
+        finally:
+            LOGGER.debug('Sent response', message_id=response[1])
+
     async def main(self):
         asyncio.create_task(self.listen_for_device_status())
-        command_conn = self.connections.command
         while True:
-            request, response = await command_conn.recv(), {'received': time.time()}
-            LOGGER.debug('Received request', **request)
+            result = {'received': time.time()}
+            response = [self.response, None, None, result]
             try:
-                request = self.request_schema.validate(request) or {}
-                command = getattr(self, request['type'].name.lower())
-                response.update(await command(request) or {})
-            except SchemaError as exc:
-                response['exc'] = str(exc)
-                LOGGER.error('Received bad command, treating as no-op')
-            except RuntimeBaseException as exc:
-                response['exc'] = str(exc)
-                response.update(exc.context)
-                LOGGER.error('Unable to execute command')
+                response[1], method = await self.recv_request(self.connections.command)
+                result.update((await method()) or {})
+            except Exception as exc:
+                response[2], context = str(exc), getattr(exc, 'context', {})
+                LOGGER.error('Unable to execute command', **context, error=response[2])
             finally:
-                response['completed'] = time.time()
-                # TODO: clean up nested try/except logic
-                try:
-                    await command_conn.send(response)
-                    LOGGER.debug('Sent response', **response)
-                except OverflowError:
-                    await command_conn.send({})
-                    LOGGER.warn('Encountered overflow error', **response)
-                response.clear()
+                result['completed'] = time.time()
+                await self.send_response(self.connections.command, response)
 
     def __call__(self):
         threading.current_thread().name = type(self).__name__.lower()

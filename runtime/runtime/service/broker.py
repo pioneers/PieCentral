@@ -180,16 +180,21 @@ class BrokerService(Service):
         LOGGER.debug('Serving proxy', frontend=frontend, backend=backend)
         # `zmq.proxy` is a C extension function, which `pylint` cannot detect.
         # pylint: disable=no-member
-        zmq.proxy(frontend_socket, backend_socket)  # FIXME
+        zmq.proxy(frontend_socket, backend_socket)
+        raise RuntimeBaseException('Proxy closed unexpectedly')
 
     async def serve_proxies(self):
         with ThreadPoolExecutor(max_workers=self.config['max_workers']) as thread_pool:
             loop = asyncio.get_running_loop()
             proxies = [loop.run_in_executor(thread_pool, self.serve_proxy, proxy)
                        for proxy in self.config['proxies'].values()]
-            await asyncio.wait(proxies)
+            await asyncio.gather(*proxies)
 
     async def main(self):
+        async def spam():
+            while True:
+                await self.connections.log_out.send({})
+                await asyncio.sleep(0.1)
         with DatagramServer(self.connections, self.config) as datagram_server:
             await asyncio.gather(
                 self.serve_proxies(),
@@ -198,4 +203,5 @@ class BrokerService(Service):
                 datagram_server.log_statistics(),
                 datagram_server.broadcast_status(),
                 datagram_server.listen_for_device_status(),
+                spam()
             )

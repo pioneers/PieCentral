@@ -17,3 +17,11 @@ $ pipenv run dev
 - [ ] Ensure all data structures are synchronized
 - [ ] Unlink Gamepad when done
 - [x] Create separate SensorStructure type
+- [ ] Use multiple write packets for too many parameter updates
+- [x] Finish Runtime Python client
+- [ ] Finish Runtime Node client
+- [ ] Integrate Dawn with Runtime
+- [ ] Add backpressure
+- [ ] Clear out old duty_cycle, other writeable parameters
+- [ ] Finish Runtime fctool
+- [ ] Log to the outside world

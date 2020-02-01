@@ -25,9 +25,11 @@ from runtime.messaging.device import (
     SmartSensorUID,
     get_device_type,
 )
+from runtime.monitoring import log
 from runtime.service.base import Service
 from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL
 from runtime.util.exception import RuntimeBaseException
+
 
 LOGGER = structlog.get_logger()
 
@@ -275,6 +277,12 @@ class DeviceService(Service):
     }
 
     def initialize_hotplugging(self):
+        """
+        Connect all existing sensors and start a thread to detect future hotplug events.
+
+        Returns::
+            asyncio.Queue: A queue to hold hotplug events.
+        """
         event_queue = asyncio.Queue(self.config['max_hotplug_events'])
         observer = SmartSensorObserver(event_queue)
         observer.handle_initial_sensors()
@@ -282,6 +290,7 @@ class DeviceService(Service):
         return event_queue
 
     async def open_serial_connections(self, hotplug_event, **serial_options):
+        """ Open a serial connection to a new sensor and schedule its read/write loops. """
         for port in hotplug_event.ports:
             serial_conn = aioserial.AioSerial(port, **serial_options)
             serial_conn.rts = False
@@ -296,12 +305,16 @@ class DeviceService(Service):
             sensor_task.add_done_callback(functools.partial(self.sensors.remove, sensor))
 
     async def broadcast_status(self):
+        """ Periodically notify all other services about currently available sensors. """
         while True:
             devices = [sensor.buffer.status for sensor in self.sensors if sensor.buffer]
             await self.connections.sensor_status.send({'devices': devices})
             await asyncio.sleep(self.config['broadcast_interval'])
 
     async def main(self):
+        log.configure_logging(log.make_publisher(self.connections.log))
+        LOGGER.info('OK!', x=1)
+
         asyncio.create_task(self.broadcast_status())
         event_queue = self.initialize_hotplugging()
         while True:

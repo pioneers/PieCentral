@@ -4,6 +4,8 @@
 #include <SevenSeg.h>
 #include "VoltageTracker.h"
 
+const int numOfDigits = 4;
+
 class disp_8
 {
 public:

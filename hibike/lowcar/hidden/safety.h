@@ -26,6 +26,6 @@ private:
   bool imbalance;
 
   VoltageTracker voltage_tracker;
-}
+};
 
 #endif

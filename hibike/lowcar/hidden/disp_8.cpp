@@ -6,22 +6,21 @@ disp_8::disp_8 (VoltageTracker v_tracker)
 {
   this->disp = SevenSeg(A, B, C, D, E, F, G);
 
-  this->disp_8::numOfDigits = 4;
-  this->disp_8::digitPins = {DISP_PIN_1, DISP_PIN_2, DISP_PIN_3, DISP_PIN_4};
+  this->digitPins = {DISP_PIN_1, DISP_PIN_2, DISP_PIN_3, DISP_PIN_4};
 
-  this->disp_8::last_LED_time = 0;  //Time the last LED switched
-  this->disp_8::sequence = 0; //used to switch states for the display.  Remember that the hangle_8_segment cannot be blocking.
+  this->last_LED_time = 0;  //Time the last LED switched
+  this->sequence = 0; //used to switch states for the display.  Remember that the hangle_8_segment cannot be blocking.
 
-  this->disp_8::segment_8_run = NORMAL_VOLT_READ;  //0 for the normal voltage readout.  1 for "Clear Calibration".  2 for "New Calibration"
+  this->segment_8_run = NORMAL_VOLT_READ;  //0 for the normal voltage readout.  1 for "Clear Calibration".  2 for "New Calibration"
 
-  this->disp_8::voltage_tracker = v_tracker;
+  this->voltage_tracker = v_tracker;
 }
 
 
 
 void disp_8::setup_display()
 {
-  disp.setDigitPins(disp_8::numOfDigits, disp_8::digitPins);
+  disp.setDigitPins(numOfDigits, digitPins);
   disp.setDPPin(DECIMAL_POINT);  //set the Decimal Point pin to #1
 }
 
@@ -40,88 +39,88 @@ void disp_8::test_display() //a function to ensure that all outputs of the displ
 void disp_8::handle_8_segment() //handles the 8-segment display, and prints out the global values.
 //MUST be called in the loop() without any if's
 {
-  if(disp_8::segment_8_run == NORMAL_VOLT_READ)
+  if(segment_8_run == NORMAL_VOLT_READ)
   {
     //Shows text / numbers of all voltages & then individual cells.
     //Changed every Second
-    switch(disp_8::sequence) {
+    switch(sequence) {
       case 0: disp.write("ALL");
               break;
-      case 1: disp.write(disp_8::voltage_tracker.get_voltage(V_BATT), 2);
+      case 1: disp.write(voltage_tracker.get_voltage(V_BATT), 2);
               break;
       case 2: disp.write("CEL.1");
               break;
-      case 3: disp.write(disp_8::voltage_tracker.get_voltage(V_CELL1), 2);
+      case 3: disp.write(voltage_tracker.get_voltage(V_CELL1), 2);
               break;
       case 4: disp.write("CEL.2");
               break;
-      case 5: disp.write(disp_8::voltage_tracker.get_voltage(DV_CELL2), 2);
+      case 5: disp.write(voltage_tracker.get_voltage(DV_CELL2), 2);
               break;
       case 6: disp.write("CEL.3");
               break;
-      case 7: disp.write(disp_8::voltage_tracker.get_voltage(DV_CELL3), 2);
+      case 7: disp.write(voltage_tracker.get_voltage(DV_CELL3), 2);
               break;
     }
 
     if (millis() > (last_LED_time + 1000)) //every second
     {
-      disp_8::sequence = disp_8::sequence + 1;
-      if(disp_8::sequence == 8)
+      sequence = sequence + 1;
+      if(sequence == 8)
       {
-        disp_8::sequence = 0;
+        sequence = 0;
       }
-      disp_8::last_LED_time = millis();
+      last_LED_time = millis();
     }
   }
-  else if(disp_8::segment_8_run == CLEAR_CALIB)
+  else if(segment_8_run == CLEAR_CALIB)
   {
-    if(disp_8::sequence == 0)
+    if(sequence == 0)
     {
       disp.write("CAL");
     }
-    else if(disp_8::sequence == 1)
+    else if(sequence == 1)
     {
       disp.write("CLR");
     }
 
-    if (millis() > (disp_8::last_LED_time + 750) ) //every 3/4 second
+    if (millis() > (last_LED_time + 750) ) //every 3/4 second
     {
-      disp_8::sequence = disp_8::sequence + 1;
-      if(disp_8::sequence == 2)
+      sequence = sequence + 1;
+      if(sequence == 2)
       {
-        disp_8::start_8_seg_sequence(NORMAL_VOLT_READ); //return to default Programming... showing battery voltages.
+        start_8_seg_sequence(NORMAL_VOLT_READ); //return to default Programming... showing battery voltages.
       }
-      disp_8::last_LED_time = millis();
+      last_LED_time = millis();
     }
 
   }
-  else if(disp_8::segment_8_run == NEW_CALIB)
+  else if(segment_8_run == NEW_CALIB)
   {
-    if(disp_8::voltage_tracker.get_triple_calibration())
+    if(voltage_tracker.get_triple_calibration())
     {
-      switch(disp_8::sequence) {
+      switch(sequence) {
         case 0: disp.write("CAL");
                 break;
         case 1: disp.write("DONE");
                 break;
         case 2: disp.write("CAL.1");
                 break;
-        case 3: disp.write(disp_8::voltage_tracker.get_calib(0), 3);
+        case 3: disp.write(voltage_tracker.get_calib(0), 3);
                 break;
         case 4: disp.write("CAL.2");
                 break;
-        case 5: disp.write(disp_8::voltage_tracker.get_calib(1), 3);
+        case 5: disp.write(voltage_tracker.get_calib(1), 3);
                 break;
         case 6: disp.write("CAL.3");
                 break;
-        case 7: disp.write(disp_8::voltage_tracker.get_calib(2), 3);
+        case 7: disp.write(voltage_tracker.get_calib(2), 3);
                 break;
       }
 
-      if (millis() > (disp_8::last_LED_time + 750) ) //every 3/4 second
+      if (millis() > (last_LED_time + 750) ) //every 3/4 second
       {
-        disp_8::sequence = disp_8::sequence + 1;
-        if(disp_8::sequence == 8)
+        sequence = sequence + 1;
+        if(sequence == 8)
         {
           start_8_seg_sequence(NORMAL_VOLT_READ); //return to default Programming... showing battery voltages.
         }
@@ -131,25 +130,25 @@ void disp_8::handle_8_segment() //handles the 8-segment display, and prints out 
     }
     else
     {
-      switch(disp_8::sequence) {
+      switch(sequence) {
         case 0: disp.write("CAL");
                 break;
         case 1: disp.write("DONE");
                 break;
         case 2: disp.write("CAL");
                 break;
-        case 3: disp.write(disp_8::voltage_tracker.get_voltage(VREF_GUESS), 3);
+        case 3: disp.write(voltage_tracker.get_voltage(VREF_GUESS), 3);
                 break;
       }
 
-      if (millis() > (disp_8::last_LED_time + 750) ) //every 3/4 second
+      if (millis() > (last_LED_time + 750) ) //every 3/4 second
       {
-        disp_8::sequence = disp_8::sequence + 1;
-        if(disp_8::sequence == 4)
+        sequence = sequence + 1;
+        if(sequence == 4)
         {
-          disp_8::start_8_seg_sequence(NORMAL_VOLT_READ); //return to default Programming... showing battery voltages.
+          start_8_seg_sequence(NORMAL_VOLT_READ); //return to default Programming... showing battery voltages.
         }
-        disp_8::last_LED_time = millis();
+        last_LED_time = millis();
       }
     }
   }
@@ -157,7 +156,7 @@ void disp_8::handle_8_segment() //handles the 8-segment display, and prints out 
 
 void disp_8::start_8_seg_sequence(SEQ_NUM sequence_num)
 {
-  disp_8::segment_8_run = sequence_num; //rel the display to run the right sequence
-  disp_8::sequence = 0;  //and reset the step in the sequence to zero.
-  disp_8::last_LED_time = millis();
+  segment_8_run = sequence_num; //rel the display to run the right sequence
+  sequence = 0;  //and reset the step in the sequence to zero.
+  last_LED_time = millis();
 }

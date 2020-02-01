@@ -5,6 +5,7 @@
 #include "VoltageTracker.h"
 
 const int numOfDigits = 4;
+SevenSeg disp = SevenSeg(A, B, C, D, E, F, G);
 
 class disp_8
 {

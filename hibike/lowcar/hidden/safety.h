@@ -11,6 +11,7 @@ public:
 
   void handle_safety();
   bool is_unsafe();
+  void buzz(bool should_buzz);
 
 private:
   bool unsafe_status;
@@ -26,6 +27,8 @@ private:
   bool imbalance;
 
   VoltageTracker voltage_tracker;
+
+  bool compute_safety();
 };
 
 #endif

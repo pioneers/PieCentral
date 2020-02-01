@@ -1,13 +1,13 @@
 #include "VoltageTracker.h"
 #include "pdb_defs.h"
 
-float v_cell1_var = 0;  // param 3
-float v_cell2_var = 0;  // param 4
-float v_cell3_var = 0;  // param 5
-float v_batt_var = 0;   // param 6
-float dv_cell2_var = 0; // param 7
-float dv_cell3_var = 0; // param 8
-float VoltageTracker:vref_guess_var = 0; // param 9
+float v_cell1 = 0;  // param 3
+float v_cell2 = 0;  // param 4
+float v_cell3 = 0;  // param 5
+float v_batt = 0;   // param 6
+float dv_cell2 = 0; // param 7
+float dv_cell3 = 0; // param 8
+float VoltageTracker:vref_guess = 0; // param 9
 
 float calib[3] = {0, 0, 0};
 
@@ -16,13 +16,13 @@ bool triple_calibration = true; //decide whether to use triple calibration or si
 float VoltageTracker::get_voltage (uint8_t param)
 {
 	switch (param) {
-		case V_CELL1: return v_cell1_var;
-		case V_CELL2: return v_cell2_var;
-		case V_CELL3: return v_cell3_var;
-		case V_BATT: return v_batt_var;
-		case DV_CELL2: return dv_cell2_var;
-		case DV_CELL3: return dv_cell3_var;
-		case VREF_GUESS: return vref_guess_var;
+		case V_CELL1: return v_cell1;
+		case V_CELL2: return v_cell2;
+		case V_CELL3: return v_cell3;
+		case V_BATT: return v_batt;
+		case DV_CELL2: return dv_cell2;
+		case DV_CELL3: return dv_cell3;
+		case VREF_GUESS: return vref_guess;
 		default: return 0;
 	}
 }
@@ -30,19 +30,19 @@ float VoltageTracker::get_voltage (uint8_t param)
 void VoltageTracker::set_voltage (uint8_t param, float value)
 {
 	switch (param) {
-		case V_CELL1: v_cell1_var = value;
+		case V_CELL1: v_cell1 = value;
 									break;
-		case V_CELL2: v_cell2_var = value;
+		case V_CELL2: v_cell2 = value;
 									break;
-		case V_CELL3: v_cell3_var = value;
+		case V_CELL3: v_cell3 = value;
 									break;
-		case V_BATT: v_batt_var = value;
+		case V_BATT: v_batt = value;
 									break;
-		case DV_CELL2: dv_cell2_var = value;
+		case DV_CELL2: dv_cell2 = value;
 									break;
-		case DV_CELL3: dv_cell3_var = value;
+		case DV_CELL3: dv_cell3 = value;
 									break;
-		case VREF_GUESS: vref_guess_var = value;
+		case VREF_GUESS: vref_guess = value;
 									break;
 	}
 }

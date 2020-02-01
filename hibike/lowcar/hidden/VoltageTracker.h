@@ -2,6 +2,7 @@
 #define VOLTAGE_TRACKER_H
 
 #include "pdb_defs.h"
+#include <stdint.h>
 
 class VoltageTracker
 {

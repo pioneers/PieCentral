@@ -4,7 +4,7 @@
 //Determines if the battery is safe or not, and takes appropriate action.
 //Code is regularly called (currently every 250ms)
 
-safety::safety(VoltageTracker v_tracker, int buzzer) {
+safety::safety(VoltageTracker v_tracker, int safety_buzzer) {
   bool unsafe_status = false;
 
   const float min_cell = 3.3;
@@ -17,7 +17,7 @@ safety::safety(VoltageTracker v_tracker, int buzzer) {
   const float end_d_cell = 0.1; //imbalance must be less than this before i'm happy again.
   bool imbalance = false;
 
-  int buzzer = buzzer;
+  int buzzer = safety_buzzer;
 
   VoltageTracker voltage_tracker = v_tracker;
 }
@@ -68,7 +68,7 @@ bool safety::compute_safety() //returns if i'm safe or not based on the most rec
   return unsafe;
 }
 
-void safety::buzz(boolean should_buzz)
+void safety::buzz(bool should_buzz)
 {
   if(should_buzz)
   {

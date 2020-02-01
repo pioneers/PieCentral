@@ -7,7 +7,7 @@ class eeprom
 {
 public:
 
-  eeprom (VoltageTracker v_tracker);
+  eeprom(VoltageTracker v_tracker);
 
   float get_calibration();
 

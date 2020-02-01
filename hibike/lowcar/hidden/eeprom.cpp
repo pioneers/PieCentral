@@ -3,7 +3,7 @@
 //Class for low-level functions that deal with storing the calibration values.
 eeprom::eeprom(VoltageTracker v_tracker)
 {
-  VoltageTracker eeprom::voltage_tracker = v_tracker;
+  VoltageTracker voltage_tracker = v_tracker;
 }
 
 // Returns calibration voltage.  Returns -1 (as float) if no calibration.
@@ -41,7 +41,7 @@ void eeprom::update_triple_calibration() //updates the global "calib" array base
       //instantiate a float.
       float f = 0.0f;
       EEPROM.get(next_addr + 5,f); //calibration value is stored in location 4
-      eeprom::voltage_tracker.set_calib(i - 1, f); // put value into the calibration array
+      voltage_tracker.set_calib(i - 1, f); // put value into the calibration array
       next_addr = next_addr + 5 + sizeof(float);
     }
       else

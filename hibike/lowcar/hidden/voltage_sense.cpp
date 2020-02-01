@@ -5,9 +5,9 @@
 
 voltage_sense::voltage_sense (eeprom ee_prom, disp_8 display_8, VoltageTracker v_tracker)
 {
-  eeprom voltage_sense::eeprom = ee_prom;
-  disp_8 voltage_sense::disp_8 = display_8;
-  VoltageTracker voltage_sense::voltage_tracker = v_tracker;
+  eeprom eeprom = ee_prom;
+  disp_8 disp_8 = display_8;
+  VoltageTracker voltage_tracker = v_tracker;
 }
 
 void voltage_sense::setup_sensing()
@@ -21,16 +21,16 @@ void voltage_sense::setup_sensing()
   //let's turn enable on, so we can measure the battery voltage.
   digitalWrite(ENABLE, HIGH);
 
-  if(voltage_sense::voltage_tracker.get_triple_calibration())
+  if(voltage_tracker.get_triple_calibration())
   {
-    voltage_sense::eeprom.update_triple_calibration();  //and then update the calibration values I use based on what I now know
+    eeprom.update_triple_calibration();  //and then update the calibration values I use based on what I now know
   }
   else
   {
-    float val = voltage_sense::eeprom.get_calibration();
+    float val = eeprom.get_calibration();
     if(val > 0) //by convention, val is -1 if there's no calibration.
     {
-      voltage_sense::voltage_tracker.set(VREF_GUESS, val);
+      voltage_tracker.set(VREF_GUESS, val);
     }
   }
 }
@@ -42,46 +42,46 @@ void voltage_sense::measure_cells() //measures the battery cells. Should call at
     int r_cell2 = analogRead(CELL2);
     int r_cell3 = analogRead(CELL3);
 
-    float calib_0 = voltage_sense::voltage_tracker.get_calib(0);
-    float calib_1 = voltage_sense::voltage_tracker.get_calib(1);
+    float calib_0 = voltage_tracker.get_calib(0);
+    float calib_1 = voltage_tracker.get_calib(1);
 
     float new_v_cell1 = float(r_cell1) * (R2 + R5) / R5 * calib_0 / ADC_COUNTS;
     float new_v_cell2 = float(r_cell2) * (R3 + R6) / R6 * calib_1 / ADC_COUNTS;
     float new_v_cell3 =(R4 +  R7) / R7 * calib[2] / ADC_COUNTS;
 
-    voltage_sense::voltage_tracker.set(V_CELL1, new_v_cell1);
-    voltage_sense::voltage_tracker.set(V_CELL2, new_v_cell2);
-    voltage_sense::voltage_tracker.set(V_CELL3, new_v_cell3);
+    voltage_tracker.set(V_CELL1, new_v_cell1);
+    voltage_tracker.set(V_CELL2, new_v_cell2);
+    voltage_tracker.set(V_CELL3, new_v_cell3);
 
-    voltage_sense::voltage_tracker.set(DV_CELL2, new_v_cell2 - new_v_cell1);
-    voltage_sense::voltage_tracker.set(DV_CELL3, new_v_cell3 - new_v_cell2);
+    voltage_tracker.set(DV_CELL2, new_v_cell2 - new_v_cell1);
+    voltage_tracker.set(DV_CELL3, new_v_cell3 - new_v_cell2);
 
-    voltage_sense::voltage_tracker.set(V_BATT, new_v_cell3);
+    voltage_tracker.set(V_BATT, new_v_cell3);
 }
 
 void voltage_sense::handle_calibration() //called very frequently by loop.
 {
   if (digitalRead(CALIB_BUTTON)) //I pressed the button, start calibrating.
     {
-      float calib_0 = voltage_sense::voltage_tracker.get_calib(0);
+      float calib_0 = voltage_tracker.get_calib(0);
       float calib_1 = voltage_tracker.get_calib(1);
       float calib_2 = voltage_tracker.get_calib(2);
 
-    if(voltage_sense::voltage_tracker.get_triple_calibration() && calib_0 == ADC_REF_NOM && calib_1 == ADC_REF_NOM & calib_2 == ADC_REF_NOM)
+    if(voltage_tracker.get_triple_calibration() && calib_0 == ADC_REF_NOM && calib_1 == ADC_REF_NOM & calib_2 == ADC_REF_NOM)
     {
       //i'm in triple calibration mode, but the calibration array is exactly the same as the datasheet values... which means i haven't been calibrated.
-      float vref_new = voltage_sense::calibrate();
-      calib_0 = voltage_sense::voltage_tracker.get_calib(0);
-      calib_1 = voltage_sense::voltage_tracker.get_calib(1);
-      calib_2 = voltage_sense::voltage_tracker.get_calib(2);
-      voltage_sense::eeprom.write_triple_eeprom(calib_0, calib_1, calib_2);
-      voltage_sense::disp_8.start_8_seg_sequence(NEW_CALIB);
+      float vref_new = calibrate();
+      calib_0 = voltage_tracker.get_calib(0);
+      calib_1 = voltage_tracker.get_calib(1);
+      calib_2 = voltage_tracker.get_calib(2);
+      eeprom.write_triple_eeprom(calib_0, calib_1, calib_2);
+      disp_8.start_8_seg_sequence(NEW_CALIB);
     }
-    else if(!voltage_sense::voltage_tracker.get_triple_calibration() && voltage_sense::eeprom.get_calibration() == -1.0) //i'm not in triple calibration mode, and i haven't been calibrated.
+    else if(!voltage_tracker.get_triple_calibration() && eeprom.get_calibration() == -1.0) //i'm not in triple calibration mode, and i haven't been calibrated.
     {
-      float vref_new = voltage_sense::calibrate();
-      voltage_sense::eeprom.write_single_eeprom(vref_new);
-      voltage_sense::disp_8.start_8_seg_sequence(NEW_CALIB);
+      float vref_new = calibrate();
+      eeprom.write_single_eeprom(vref_new);
+      disp_8.start_8_seg_sequence(NEW_CALIB);
     }
     else //I have already been calibrated with something.  reset it.
     {
@@ -91,13 +91,13 @@ void voltage_sense::handle_calibration() //called very frequently by loop.
         delay(1);
       }
       //reset all my calibration values as well, so my calibration values that i'm using are in lockstep with the EEPROM.
-      voltage_sense::voltage_tracker.set(VREF_GUESS, ADC_REF_NOM);
-      voltage_sense::voltage_tracker.set_calib(0, ADC_REF_NOM);
-      voltage_sense::voltage_tracker.set_calib(1, ADC_REF_NOM);
-      voltage_sense::voltage_tracker.set_calib(2, ADC_REF_NOM);
+      voltage_tracker.set(VREF_GUESS, ADC_REF_NOM);
+      voltage_tracker.set_calib(0, ADC_REF_NOM);
+      voltage_tracker.set_calib(1, ADC_REF_NOM);
+      voltage_tracker.set_calib(2, ADC_REF_NOM);
 
-      voltage_sense::eeprom.clear_eeprom();
-      voltage_sense::disp_8.start_8_seg_sequence(CLEAR_CALIB);
+      eeprom.clear_eeprom();
+      disp_8.start_8_seg_sequence(CLEAR_CALIB);
     }
   }
 }

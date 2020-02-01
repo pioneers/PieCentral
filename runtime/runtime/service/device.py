@@ -17,6 +17,7 @@ from schema import Optional
 from serial.serialutil import SerialException
 from serial.tools import list_ports
 import structlog
+from zmq.log.handlers import PUBHandler
 
 from runtime.messaging import packet as packetlib
 from runtime.messaging.device import (
@@ -25,6 +26,7 @@ from runtime.messaging.device import (
     SmartSensorUID,
     get_device_type,
 )
+from runtime.messaging.routing import Connection
 from runtime.monitoring import log
 from runtime.service.base import Service
 from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL
@@ -271,7 +273,7 @@ class DeviceService(Service):
         **Service.config_schema,
         Optional('baud_rate', default=115200): POSITIVE_INTEGER,
         Optional('max_hotplug_events', default=128): POSITIVE_INTEGER,
-        Optional('broadcast_interval', default=0.5): POSITIVE_REAL,
+        Optional('broadcast_interval', default=0.2): POSITIVE_REAL,
         Optional('write_interval', default=0.05): POSITIVE_REAL,
         Optional('terminate_timeout', default=2): POSITIVE_REAL,
     }
@@ -306,18 +308,20 @@ class DeviceService(Service):
 
     async def broadcast_status(self):
         """ Periodically notify all other services about currently available sensors. """
-        while True:
-            devices = [sensor.buffer.status for sensor in self.sensors if sensor.buffer]
-            await self.connections.sensor_status.send({'devices': devices})
-            await asyncio.sleep(self.config['broadcast_interval'])
+        with Connection.open(self.config['sockets']['sensor_status']) as connection:
+            while True:
+                devices = [sensor.buffer.status for sensor in self.sensors if sensor.buffer]
+                await connection.send({'devices': devices})
+                await asyncio.sleep(self.config['broadcast_interval'])
+
+                LOGGER.debug('Broadcasted status')
 
     async def main(self):
-        log.configure_logging(log.make_publisher(self.connections.log))
-        LOGGER.info('OK!', x=1)
-
-        asyncio.create_task(self.broadcast_status())
-        event_queue = self.initialize_hotplugging()
-        while True:
-            hotplug_event = await event_queue.get()
-            if hotplug_event.action is HotplugAction.ADD:
-                await self.open_serial_connections(hotplug_event, baudrate=self.config['baud_rate'])
+        with Connection.open(self.config['sockets']['log']) as connection:
+            log.configure_logging(log.make_publisher(connection))
+            asyncio.create_task(self.broadcast_status())
+            event_queue = self.initialize_hotplugging()
+            while True:
+                hotplug_event = await event_queue.get()
+                if hotplug_event.action is HotplugAction.ADD:
+                    await self.open_serial_connections(hotplug_event, baudrate=self.config['baud_rate'])

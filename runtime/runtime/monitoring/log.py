@@ -48,8 +48,8 @@ def configure_logging(*extra_processors, level: str = None, pretty: bool = None)
     )
 
 
-def make_publisher(log_conn):
-    def publish(logger, method_name, event):
-        asyncio.create_task(log_conn.send(event))
+def make_publisher(conn):
+    def publish(_logger, _method_name, event):
+        asyncio.create_task(conn.send(event.copy()))
         return event
     return publish

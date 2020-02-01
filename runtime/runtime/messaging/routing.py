@@ -21,29 +21,23 @@ import zmq.asyncio
 from runtime.util.exception import RuntimeBaseException
 
 
+if not hasattr(zmq, 'RADIO') or not hasattr(zmq, 'DISH'):
+    raise ImportError('Must enable ZMQ draft sockets to use RADIO/DISH')
+
 LOGGER = structlog.get_logger()
+UDP = set([zmq.RADIO, zmq.DISH])
 
 
-class SocketType(enum.IntEnum):
-    SUB = zmq.SUB
-    PUB = zmq.PUB
-    REQ = zmq.REQ
-    REP = zmq.REP
-    try:
-        DISH = zmq.DISH
-        RADIO = zmq.RADIO
-    except AttributeError:
-        raise ImportError('Must enable ZMQ draft sockets to use RADIO/DISH')
-
-
-UDP = set([SocketType.RADIO, SocketType.DISH])
-
-
-def make_socket(context: zmq.Context, socket_type: SocketType, address: Union[str, List[str]],
-                bind: bool = False, group: str = None, send_timeout=float('inf'),
-                recv_timeout=float('inf')):
+def make_socket(
+        context: zmq.Context,
+        socket_type: int,
+        address: Union[str, List[str]],
+        bind: bool = False,
+        group: str = None,
+        send_timeout=float('inf'),
+        recv_timeout=float('inf')):
     """ Initialize a raw ZMQ socket. """
-    socket = context.socket(socket_type.value)
+    socket = context.socket(socket_type)
     if not math.isinf(send_timeout):
         socket.setsockopt(zmq.SNDTIMEO, int(send_timeout))
     if not math.isinf(recv_timeout):
@@ -56,20 +50,11 @@ def make_socket(context: zmq.Context, socket_type: SocketType, address: Union[st
         for address in addresses:
             socket.connect(address)
 
-    if socket_type is SocketType.SUB:
+    if socket_type == zmq.SUB:
         socket.subscribe(b'')
-    if socket_type is SocketType.DISH:
+    if socket_type == zmq.DISH:
         socket.join(group or b'')
     return socket
-
-
-def get_socket_type(socket_type: Union[int, str, SocketType]) -> SocketType:
-    if isinstance(socket_type, str):
-        return SocketType.__members__[socket_type]
-    elif isinstance(socket_type, int):
-        return SocketType(socket_type)
-    else:
-        return socket_type
 
 
 @dataclasses.dataclass
@@ -87,9 +72,14 @@ class Connection:
     bytes_recv: int = 0
 
     def __post_init__(self):
-        self.udp = SocketType(self.socket.socket_type) in UDP
         self.udp_send = functools.partial(self.socket.send, copy=self.copy, group=self.send_group)
         self.udp_recv = functools.partial(self.socket.recv, copy=self.copy)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, _exc_type, _exc, _traceback):
+        self.close()
 
     def dumps(self, data) -> bytes:
         return msgpack.dumps(data)
@@ -97,70 +87,42 @@ class Connection:
     def loads(self, data: bytes):
         return msgpack.loads(data, raw=False)
 
+    @property
+    def _is_native_async(self):
+        return isinstance(self.socket.context, zmq.asyncio.Context)
+
     async def send(self, payload):
         """ Serialize the outbound data and send the packet in chunks. """
         packet = self.dumps(payload)
-        if self.udp:
-            # TODO: no copying
-            await asyncio.get_running_loop().run_in_executor(None, self.udp_send, packet)
-        else:
+        if self._is_native_async:
             await self.socket.send(packet, copy=self.copy)
+        else:
+            await asyncio.get_running_loop().run_in_executor(None, self.udp_send, packet)
         self.bytes_sent += len(packet)
 
     async def recv(self):
         """ Reassemble the incoming packet and deserialize the object. """
-        if self.udp:
-            packet = await asyncio.get_running_loop().run_in_executor(None, self.udp_recv)
-        else:
+        if self._is_native_async:
             packet = await self.socket.recv(copy=self.copy)
+        else:
+            packet = await asyncio.get_running_loop().run_in_executor(None, self.udp_recv)
         self.bytes_recv += len(packet)
         return self.loads(packet)
 
     async def req(self, payload):
-        if self.socket.type != SocketType.REQ.value:
+        if self.socket.type != zmq.REQ:
             raise RuntimeBaseException('Cannot make requests with non-REQ socket')
         await self.send(payload)
         return await self.recv()
 
     def close(self):
         self.socket.close()
+        LOGGER.debug('Closed connection')
 
-
-@dataclasses.dataclass
-class ConnectionManager(collections.abc.Mapping):
-    udp_context: zmq.Context = dataclasses.field(default_factory=zmq.Context)
-    stream_context: zmq.asyncio.Context = dataclasses.field(default_factory=zmq.asyncio.Context)
-    connections: Mapping[str, Connection] = dataclasses.field(default_factory=dict)
-
-    def open_connection(self, name: str, socket_config, **conn_options):
-        socket_type = get_socket_type(socket_config['socket_type'])
-        socket_config['socket_type'] = socket_type
-        context = self.udp_context if socket_type in UDP else self.stream_context
-        socket = make_socket(context, **socket_config)
-        connection = self.connections[name] = Connection(socket, **conn_options)
-        socket_config['socket_type'] = socket_type.name
-        LOGGER.debug('Created connection', name=name, **socket_config)
+    @staticmethod
+    def open(config, context=None, **options):
+        context = zmq.asyncio.Context.instance() or context
+        socket = make_socket(context, **config)
+        connection = Connection(socket, **options)
+        LOGGER.debug('Opened connection')
         return connection
-
-    def close_connection(self, name: str):
-        self.connections.pop(name).close()
-        LOGGER.debug('Closed connection', name=name)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, _type, _exc, _traceback):
-        for name in list(self.connections):
-            self.close_connection(name)
-
-    def __getattr__(self, name: str):
-        return self.connections.get(name)
-
-    def __getitem__(self, name: str):
-        return self.connections[name]
-
-    def __iter__(self):
-        return iter(self.connections)
-
-    def __len__(self):
-        return len(self.connections)

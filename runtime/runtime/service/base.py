@@ -3,9 +3,9 @@ import asyncio
 import dataclasses
 import threading
 
-from schema import Optional, Or, Schema, Use
+from schema import And, Optional, Or, Schema, Use
+import zmq
 
-from runtime.messaging.routing import ConnectionManager
 from runtime.util import POSITIVE_INTEGER, VALID_NAME
 
 
@@ -20,14 +20,13 @@ class Service(abc.ABC):
         https://github.com/zeromq/libzmq/issues/2941
     """
     config: dict
-    connections: ConnectionManager = dataclasses.field(default_factory=ConnectionManager)
 
     config_schema = {
         Optional('replicas', default=1): POSITIVE_INTEGER,
         Optional('daemon', default=True): bool,
         Optional('sockets', default={}): {
             VALID_NAME: {
-                'socket_type': Or(Use(str.upper), int),
+                'socket_type': And(Use(str.upper), Use(lambda socket_type: getattr(zmq, socket_type))),
                 'address': Or(str, [str]),
                 Optional('bind', default=False): bool,
                 Optional('send_timeout'): Use(float),
@@ -47,12 +46,9 @@ class Service(abc.ABC):
         asyncio.run(self.bootstrap(), debug=self.config['debug'])
 
     async def bootstrap(self):
-        with self.connections:
-            for name, socket_config in self.config['sockets'].items():
-                self.connections.open_connection(name, socket_config)
-            # TODO: handle Unix signals
-            # (https://docs.python.org/3/library/asyncio-eventloop.html#id13)
-            await self.main()
+        # TODO: handle Unix signals
+        # (https://docs.python.org/3/library/asyncio-eventloop.html#id13)
+        await self.main()
 
     @abc.abstractmethod
     async def main(self):

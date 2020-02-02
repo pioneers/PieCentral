@@ -81,6 +81,7 @@
     "react-redux": "5.0.6",
     "redux": "3.7.2",
     "redux-saga": "0.16.0",
+    "runtime-client": "../runtime/runtime-node-client",
     "seedrandom": "2.4.3",
     "smalltalk": "2.5.1",
     "socket.io-client": "^2.0.4",

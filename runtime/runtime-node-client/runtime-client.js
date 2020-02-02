@@ -1,201 +1,64 @@
-const zmq = require('zeromq'),
-  msgpack = require('@ygoe/msgpack');
+'use strict';
 
-//This is in case we change the protocol for some reason
-const type = {
-    request: 0,
-    reply: 1,
-    notification: 2
-};
+const zmq = require('zeromq');
+const { Radio, Dish } = require('zeromq/draft');
+const msgpack = require('@msgpack/msgpack');
+const _ = require('lodash');
 
-/**
- *  An implementation of a client connection to
- *  a runtime server, using zeromq and msgpack.
- */
 class RuntimeClient {
-
-  /**
-   * 
-   * @param {string} host - IP address of Runtime (ex: 'tcp://127.0.0.1:3000') 
-   */
-  constructor(host) {
-    this.socket = new zmq.Request;
-    this.msgid = 0;
-    try {
-      this.socket.connect(host);
-      console.log('Client NodeJS to Runtime port connected');
-    } catch(error) {
-      console.error(error);
-    }
+  constructor(host, socket_config) {
+    this.host = host;
+    this.socketConfigs = {
+      datagramSend: {protocol: 'udp', port: 6000, type: Radio},
+      datagramRecv: {protocol: 'udp', port: 6001, type: Dish},
+      command: {protocol: 'tcp', port: 6002, type: zmq.Request},
+      log: {protocol: 'tcp', port: 6003, type: zmq.Subscriber},
+    };
+    this.sockets = {};
+    this.bytes_sent = this.bytes_recv = this.message_id = 0;
+    this.copy = true;
   }
 
-  /**
-   * Set the robot's team alliance color
-   * @param {string} alliance - should be 'blue', 'gold', or 'none'
-   */
-  setAlliance(alliance) {
-    let msg = new RequestMessage(this.msgid, 'setAlliance', [alliance]);
-    this.msgid++;
-    this.socket.send(msg.toSocketMessage());
-    const [msg] = await this.socket.receive();
-    const decodedMsg =  msgpack.deserialize(msg);
-    const err = decodedMsg[2];
-    if(err) {
-      throw err;
-    } else {
-      return;
-    }
+  _getAddress(protocol, port) {
+    // FIXME
+    return `${protocol}://${this.host}:${port}`;
   }
 
-  /**
-   * Set the robot's current operating mode
-   * @param {string} mode - should be 'auto', 'teleop', 'idle', or 'estop'
-   */
-  setMode(mode) {
-    let msg = new RequestMessage(this.msgid, 'setMode', [mode]);
-    this.msgid++;
-    this.socket.send(msg.toSocketMessage());
-    const [msg] = await this.socket.receive();
-    const decodedMsg =  msgpack.deserialize(msg);
-    const err = decodedMsg[2];
-    if(err) {
-      throw err;
+  async connect(name, { protocol, port, type }) {
+    const socket = this.sockets[name] = new type();
+    const address = this._getAddress(protocol, port);
+    if (type !== Dish) {
+      socket.connect(address);
     } else {
-      return;
+      await socket.bind(address);
     }
+    if (type === zmq.Subscriber) {
+      socket.subscribe('');
+    }
+    if (type === Dish) {
+      socket.join('');
+    }
+    console.log(`Initialized socket on ${address}`);
   }
 
-  /**
-   * Set the starting zone of the robot
-   * @param {string} zone - should be 'left', 'right', or 'none'
-   */
-  setStartingZone(zone) {
-    let msg = new RequestMessage(this.msgid, 'setStartingZone', [zone]);
-    this.msgid++;
-    this.socket.send(msg.toSocketMessage());
-    const [msg] = await this.socket.receive();
-    const decodedMsg =  msgpack.deserialize(msg);
-    const err = decodedMsg[2];
-    if(err) {
-      throw err;
-    } else {
-      return;
-    }
-  }
-
-  /**
-   * Run the robot's coding challenge solution
-   * @param {int} seed - the seed for the challenge
-   * @param {int} timeout - how long to wait for the code to finish 
-   */
-  runCodingChallenge(seed, timeout = 'something') {
-    let msg = new RequestMessage(this.msgid, 'runCodingChallenge', [seed, timeout]);
-    this.msgid++;
-    this.socket.send(msg.toSocketMessage());
-    const [msg] = await this.socket.receive();
-    const decodedMsg =  msgpack.deserialize(msg);
-    const returnVal = decodedMsg[3];
-    if(returnVal != null) {
-      return returnVal;
-    } else {
-      throw decodedMsg[2];
-    }
-  }
-
-  /**
-   * Get a mapping of UIDs to names for all devices
-   * on the robot
-   */
-  listDeviceNames() {
-    let msg = new RequestMessage(this.msgid, 'listDeviceNames', []);
-    this.msgid++;
-    this.socket.send(msg.toSocketMessage());
-    const [msg] = await this.socket.receive();
-    const decodedMsg =  msgpack.deserialize(msg);
-    const returnVal = decodedMsg[3];
-    if(returnVal != null) {
-      return returnVal;
-    } else {
-      throw decodedMsg[2];
-    }
-  }
-
-  /**
-   * Set the name of the device with the passed in UID
-   * @param {string} uid - the UID of the device you want to name
-   * @param {string} name - the desired name of the device
-   */
-  setDeviceName(uid, name) {
-    let msg = new RequestMessage(this.msgid, 'setDeviceName', [uid, name]);
-    this.msgid++;
-    this.socket.send(msg.toSocketMessage());
-    const [msg] = await this.socket.receive();
-    const decodedMsg =  msgpack.deserialize(msg);
-    const err = decodedMsg[2];
-    if(err) {
-      throw err;
-    } else {
-      return;
-    }
-  }
-
-  /**
-   * Delete a device with the given UID
-   * @param {string} uid - the UID of the device to be deleted
-   */
-  delDeviceName(uid) {
-    let msg = new RequestMessage(this.msgid, 'delDeviceName', [uid]);
-    this.msgid++;
-    this.socket.send(msg.toSocketMessage());
-    const [msg] = await this.socket.receive();
-    const decodedMsg =  msgpack.deserialize(msg);
-    const err = decodedMsg[2];
-    if(err) {
-      throw err;
-    } else {
-      return;
+  async connectAll() {
+    for (const name of _.keys(this.socketConfigs)) {
+      await this.connect(name, this.socketConfigs[name]);
     }
   }
 }
 
-/**
- * A representation of a request
- * message to runtime. Should NOT 
- * be used
- */
-class RequestMessage {
-  constructor(msgid, method, params) {
-    this.msg = [type.request, msgid, method, params];
-  }
+async function test() {
+  let client = new RuntimeClient('127.0.0.1');
+  await client.connectAll();
 
-  toSocketMessage() {
-    return msgpack.serialize(this.msg);
-  }
-
-  toString() {
-    return this.msg.toString();
-  }
-
-  type() {
-    return this.msg[0];
-  }
-
-  msgid() {
-    return this.msg[1];
-  }
-
-  method() {
-    return this.msg[2];
-  }
-
-  params() {
-    return this.msg[3];
-  }
+  // TESTING
+  let sock = client.sockets.command;
+  await sock.send(msgpack.encode([0, 1, 'lint', []]));
+  const [result] = await sock.receive();
+  console.log(await msgpack.decode(result));
 }
 
-
-
-
-//The hostname used during testing, likely to change
-client = new RuntimeClient('tcp://127.0.0.1:3000');
-console.log(client);
+test()
+  .then(() => console.log('success!'))
+  .catch(console.log);

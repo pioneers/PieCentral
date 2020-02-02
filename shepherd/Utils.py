@@ -36,19 +36,11 @@ class SHEPHERD_HEADER():
     END_EXTENDED_TELEOP = "end_extended_teleop"
         # END_EXTENDED_TELEOP{}: ends the extended teloperated period
 
-    LAUNCH_BUTTON_TRIGGERED = "launch_button_triggered"
-        # LAUNCH_BUTTON_TRIGGERED{alliance, button}: takes in an alliance color and button number
-        # and activates the corresponding launch button timer
-
     CODE_RETRIEVAL = "code_retrieval"
         # CODE_RETRIEVAL{alliance, result}: retrieves code (from sensors.py)
 
     CODE_APPLICATION = "code_application"
         # CODE_APPLICATION{alliance, result}: applies code (from sensors.py)
-
-    APPLY_PERKS = "apply_perks"
-        # APPLY_PERKS{alliance, perk_1, perk_2, perk_3}: applies the chosen perks
-        # to the given alliance
 
     MASTER_ROBOT = "master_robot"
 
@@ -57,18 +49,12 @@ class SHEPHERD_HEADER():
         # ASSIGN_TEAMS{g1num, g2num, b1num, b2num}
     TEAM_RETRIEVAL = "team_retrieval"
         # TEAM_RETRIEVAL{}
-    TRIGGER_OVERDRIVE = "trigger_overdrive"
-        #TRIGGER_OVERDRIVE{size}
 
     ROBOT_CONNECTION_STATUS = "robot_connection_status"
         #ROBOT_CONNECTION_STATUS{team_number, connection[True/False]}
 
     REQUEST_CONNECTIONS = "request_connections"
         #REQUEST_CONNECTIONS{}
-
-# pylint: disable=invalid-name
-class SENSORS_HEADER():
-    FAILED_POWERUP = "failed_powerup"
 
 # pylint: disable=invalid-name
 class DAWN_HEADER():
@@ -106,22 +92,11 @@ class SCOREBOARD_HEADER():
     RESET_TIMERS = "reset_timers"
     ALL_INFO = "all_info"
 
-    LAUNCH_BUTTON_TIMER_START = "launch_button_timer_start"
-        # LAUNCH_BUTTON_TIMER_START{alliance, button}
-    PERKS_SELECTED = "perks_selected"
-        # PERKS_SELECTED{alliance, perk_1, perk_2, perk_3}
-    APPLIED_EFFECT = "applied_effect"
-        # APPLIED_EFFECT{alliance, effect}
-    OVERDRIVE_START = "overdrive_start"
-        # OVERDRIVE_START{}
-
 class TABLET_HEADER():
     TEAMS = "teams"
     #{b1num, b2num, g1num, g2num}
     CODE = "code"
     #{alliance, code}
-    COLLECT_PERKS = "collect_perks"
-    #{}
     COLLECT_CODES = "collect_codes"
     #{}
     RESET = "reset"
@@ -129,17 +104,11 @@ class TABLET_HEADER():
 
 # pylint: disable=invalid-name
 class CONSTANTS():
-    PERK_SELECTION_TIME = 30 # actually supposed to be 30
     AUTO_TIME = 30 # 30
     TELEOP_TIME = 180 # 180
-    OVERDRIVE_TIME = 30
     SPREADSHEET_ID = "1vurNOrlIIeCHEtK5aJVDfHrRM1AC2qWvIbtWqUgnmLk"
     CSV_FILE_NAME = "Sheets/fc2019.csv"
-    TAFFY_TIME = 15
-    TWIST_CHANCE = .3 #a value 0<x<1
-    COOLDOWN = 30
     STUDENT_DECODE_TIME = 1
-    CRATE_SIZES = ["fun", "full", "king"]
 
 # pylint: disable=invalid-name
 class ALLIANCE_COLOR():
@@ -160,38 +129,13 @@ class LCM_TARGETS():
 class TIMER_TYPES():
     MATCH = {"TYPE":"match", "NEEDS_FUNCTION": True,
              "FUNCTION":SHEPHERD_HEADER.STAGE_TIMER_END}
-    EXTENDED_TELEOP = {"TYPE":"extended_teleop", "NEEDS_FUNCTION": True,
-                       "FUNCTION":SHEPHERD_HEADER.END_EXTENDED_TELEOP}
-    OVERDRIVE_DELAY = {"TYPE":"overdrive_delay", "NEEDS_FUNCTION": True,
-                       "FUNCTION":SHEPHERD_HEADER.TRIGGER_OVERDRIVE}
     STUDENT_DECODE = {"TYPE":"student_decode", "NEEDS_FUNCTION": True,
                       "FUNCTION":SHEPHERD_HEADER.CODE_RETRIEVAL}
-    LAUNCH_BUTTON = {"TYPE":"extended_teleop", "NEEDS_FUNCTION": False}
 
 # pylint: disable=invalid-name
 class STATE():
     SETUP = "setup"
-    PERK_SELCTION = "perk_selection"
-    AUTO_WAIT = "auto_wait"
     AUTO = "auto"
     WAIT = "wait"
     TELEOP = "teleop"
     END = "end"
-
-class EFFECTS():
-    TWIST = "twist"
-    SPOILED_CANDY = "spoiled_candy"
-
-class PERKS():
-    EMPTY = "empty"
-    BUBBLEGUM = "bubblegum"
-    DIET = "diet"
-    SWEET_SPOT = "sweet_spot"
-    TAFFY = "taffy"
-    CHOCOLATE_COVERED_ESPRESSO_BEANS = "chocolate_covered_espresso_beans"
-    MINTY_FRESH_START = "minty_fresh_start"
-    RASPBERRY_COTTON_CANDY = "raspberry_cotton_candy"
-    ARTIFICIAL_SWEETENER = "artificial"
-    JAWBREAKER = "jawbreaker"
-    SOUR_GUMMY_WORMS = "sour_gummy_worms"
-    # To be continued TODO

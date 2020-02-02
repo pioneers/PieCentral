@@ -1,12 +1,8 @@
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import ctypes
 import dataclasses
-import threading
-import time
 
 from schema import Optional
-import structlog
 import zmq
 import zmq.asyncio
 
@@ -17,11 +13,13 @@ from runtime.messaging.device import (
     get_device_type,
 )
 from runtime.messaging.routing import Connection
+from runtime.monitoring import log
 from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL, VALID_NAME, TTLMapping
 from runtime.util.exception import RuntimeBaseException
 
 
-LOGGER = structlog.get_logger()
+LOG_CAPTURE = log.LogCapture()
+LOGGER = log.get_logger(LOG_CAPTURE)
 
 
 @dataclasses.dataclass
@@ -58,8 +56,8 @@ class DatagramServer:
             asyncio.create_task(self.clients.expire(address))
             LOGGER.debug('New datagram client connected', address=address)
 
-    def on_client_disconnect(self, address: str, _connection: Connection):
-        self.connections.close_connection(address)
+    def on_client_disconnect(self, address: str, connection: Connection):
+        connection.close()
         LOGGER.debug('Client disconnected', address=address)
 
     async def update_gamepad_data(self, gamepad_id: int, gamepad_data):
@@ -94,7 +92,7 @@ class DatagramServer:
                             LOGGER.warn('Invalid gamepad ID', gamepad_id=gamepad_id,
                                         max_gamepads=self.config['max_gamepads'])
                 except RuntimeBaseException as exc:
-                    LOGGER.warn('Encountered error while decoding datagram', exc=str(exc))
+                    LOGGER.warn('Encountered error while decoding datagram', exc_info=exc)
 
     async def broadcast(self):
         device_updates = {}
@@ -124,7 +122,7 @@ class DatagramServer:
                 send_count=self.send_count, recv_count=self.recv_count,
                 bytes_sent=bytes_sent, bytes_recv=connection.bytes_recv,
             )
-            self.send_count, self.recv_count, cconnection.bytes_recv = 0, 0, 0
+            self.send_count, self.recv_count, connection.bytes_recv = 0, 0, 0
 
     async def send_loop(self):
         loop = asyncio.get_running_loop()
@@ -177,27 +175,8 @@ class BrokerService(Service):
         },
     }
 
-    def serve_proxy(self, frontend: str, backend: str):
-        context = zmq.asyncio.Context()
-        time.sleep(0.05)  # Wait for context to start I/O thread
-        frontend_conn = Connection.open(self.config['sockets'][frontend], context)
-        backend_conn = Connection.open(self.config['sockets'][backend], context)
-        try:
-            with frontend_conn, backend_conn:
-                LOGGER.debug('Serving proxy', frontend=frontend, backend=backend)
-                # `zmq.proxy` is a C extension function, which `pylint` cannot detect.
-                # pylint: disable=no-member
-                zmq.proxy(frontend_conn.socket, backend_conn.socket)
-        finally:
-            raise RuntimeBaseException('Proxy closed unexpectedly')
-
-    def start_proxies(self):
-        for proxy in self.config['proxies'].values():
-            proxy_thread = threading.Thread(target=self.serve_proxy, kwargs=proxy)
-            proxy_thread.start()
-
     async def main(self):
-        self.start_proxies()
+        LOG_CAPTURE.connect(self.log_records)
         with DatagramServer(self.config) as datagram_server:
             await asyncio.gather(
                 datagram_server.recv_loop(),

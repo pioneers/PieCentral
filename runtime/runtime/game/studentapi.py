@@ -17,11 +17,13 @@ import structlog
 import yaml
 
 from runtime.messaging.device import DeviceBuffer, DeviceMapping
+from runtime.monitoring import log
 from runtime.util.exception import RuntimeBaseException, RuntimeExecutionError
 
 
 Action = typing.Callable[..., None]
-LOGGER = structlog.get_logger()
+LOG_CAPTURE = log.LogCapture()
+LOGGER = log.get_logger(LOG_CAPTURE)
 
 
 class DeviceAliasManager(collections.UserDict):

@@ -15,11 +15,13 @@ from schema import And, Optional, Regex, Schema, Use
 import structlog
 
 from runtime.messaging.routing import Connection
+from runtime.monitoring import log
 from runtime.util import VALID_NAME, TTLMapping
 from runtime.util.exception import RuntimeBaseException
 
 
-LOGGER = structlog.get_logger()
+LOG_CAPTURE = log.LogCapture()
+LOGGER = log.get_logger(LOG_CAPTURE)
 # The Smart Sensor protocol uses little Endian byte order (least-significant byte first).
 Structure = ctypes.LittleEndianStructure
 
@@ -183,7 +185,7 @@ def get_device_type(device_id: int = None, device_name: str = None,
     raise RuntimeBaseException('Device not found', device_id=device_id, protocol=protocol)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(frozen=True)
 class DeviceBuffer:
     shm: SharedMemory
     struct: DeviceStructure

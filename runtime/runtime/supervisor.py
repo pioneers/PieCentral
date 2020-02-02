@@ -5,14 +5,13 @@ import functools
 import logging
 from numbers import Real
 import operator
-import time
+import threading
 from typing import Any, Callable, Coroutine, Mapping, Set, Sequence
 import uuid
 
 import aiofiles
 import aioprocessing
 import backoff
-import structlog
 try:
     import uvloop
     uvloop.install()
@@ -20,31 +19,34 @@ except ImportError:
     pass
 import yaml
 import zmq.asyncio
+from zmq.devices import ThreadDevice
 
 from runtime import get_version
-from runtime.messaging.device import load_device_types
+from runtime.messaging.device import load_device_types, LOG_CAPTURE as DEV_LOG_CAPTURE
+from runtime.messaging.routing import Connection
 from runtime.service import SERVICES
 from runtime.service.base import Service
 from runtime.monitoring import retry, log
 from runtime.util.exception import EmergencyStopException
 
 
-LOGGER = structlog.get_logger()
+LOG_CAPTURE = log.LogCapture()
+LOGGER = log.get_logger(LOG_CAPTURE)
 
 
 async def run_subprocess(service: Service, config: dict):
     """ Run a subprocess indefinitely. """
     name = f'{service.__name__.lower()}-{uuid.uuid4()}'
     subprocess = aioprocessing.AioProcess(name=name, target=service(config),
-                                      daemon=config['daemon'])
+                                          daemon=config['daemon'])
     subprocess.start()
     try:
         await subprocess.coro_join()
     finally:
-        terminate_subprocess(subprocess)
+        await terminate_subprocess(subprocess)
 
 
-def terminate_subprocess(subprocess, timeout: Real = 2):
+async def terminate_subprocess(subprocess, timeout: Real = 2):
     """
     Terminate a subprocess using the SIGTERM and SIGKILL UNIX signals.
 
@@ -63,8 +65,8 @@ def terminate_subprocess(subprocess, timeout: Real = 2):
     context = {'name': subprocess.name, 'pid': subprocess.pid}
     subprocess.terminate()
     LOGGER.warn('Sent SIGTERM to subprocess', **context, terminate_timeout=timeout)
-    subprocess.join(timeout)
-    time.sleep(0.05)  # Allow `exitcode` to set.
+    await subprocess.coro_join(timeout)
+    await asyncio.sleep(0.05)  # Allow `exitcode` to set.
 
     if subprocess.is_alive():
         subprocess.kill()
@@ -105,8 +107,26 @@ async def spin(configs: Mapping[str, dict]):
         subprocess.cancel()
 
 
-async def start(srv_config_path: str, dev_schema_path: str, log_level: str,
-                log_pretty: bool, max_retries: int, retry_interval: Real):
+async def initialize_log(level: str, pretty: bool, frontend: str, backend: str):
+    log.PRETTY, log.FRONTEND_ADDR = pretty, frontend
+    log.make_proxy(frontend, backend).start()
+    await asyncio.sleep(0.2)
+    log.configure(*log.get_processors(pretty=pretty), level=level)
+    log_records = asyncio.Queue()
+    LOG_CAPTURE.connect(log_records)
+    DEV_LOG_CAPTURE.connect(log_records)
+    asyncio.create_task(log.drain_logs(log_records))
+
+
+async def start(
+        log_level: str,
+        log_pretty: str,
+        log_frontend: str,
+        log_backend: str,
+        srv_config_path: str,
+        dev_schema_path: str,
+        max_retries: int,
+        retry_interval: Real):
     """
     Start the subprocess supervisor.
 
@@ -120,8 +140,7 @@ async def start(srv_config_path: str, dev_schema_path: str, log_level: str,
         retry_interval: The duration between retries.
     """
     try:
-        log.LEVEL, log.PRETTY = log_level, log_pretty
-        log.configure_logging()
+        await initialize_log(log_level, log_pretty, log_frontend, log_backend)
         LOGGER.debug(f'Runtime v{get_version()}')
         LOGGER.debug(f'Configured logging', level=log_level, pretty=log_pretty)
 

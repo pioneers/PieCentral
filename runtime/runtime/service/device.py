@@ -16,8 +16,6 @@ from pyudev import Context, Device, Monitor, MonitorObserver
 from schema import Optional
 from serial.serialutil import SerialException
 from serial.tools import list_ports
-import structlog
-from zmq.log.handlers import PUBHandler
 
 from runtime.messaging import packet as packetlib
 from runtime.messaging.device import (
@@ -33,7 +31,8 @@ from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL
 from runtime.util.exception import RuntimeBaseException
 
 
-LOGGER = structlog.get_logger()
+LOG_CAPTURE = log.LogCapture()
+LOGGER = log.get_logger(LOG_CAPTURE)
 
 
 def is_smart_sensor(device: Device) -> bool:
@@ -175,7 +174,7 @@ class SmartSensor:
             try:
                 packet = await packetlib.recv(self.serial_conn)
             except packetlib.PacketEncodingException as exc:
-                LOGGER.warn(str(exc))
+                LOGGER.warn('Encountered a packet encoding exception', exc_info=exc)
             else:
                 await self.handle_inbound_packet(packet)
 
@@ -252,7 +251,7 @@ class SmartSensor:
                 self.write_commands_loop(),
             )
         except SerialException as exc:
-            LOGGER.error('Serial exception, closing Smart Sensor', message=str(exc))
+            LOGGER.error('Serial exception, closing Smart Sensor', exc_info=exc)
         finally:
             if self.buffer:
                 shm = self.buffer.shm
@@ -314,14 +313,11 @@ class DeviceService(Service):
                 await connection.send({'devices': devices})
                 await asyncio.sleep(self.config['broadcast_interval'])
 
-                LOGGER.debug('Broadcasted status')
-
     async def main(self):
-        with Connection.open(self.config['sockets']['log']) as connection:
-            log.configure_logging(log.make_publisher(connection))
-            asyncio.create_task(self.broadcast_status())
-            event_queue = self.initialize_hotplugging()
-            while True:
-                hotplug_event = await event_queue.get()
-                if hotplug_event.action is HotplugAction.ADD:
-                    await self.open_serial_connections(hotplug_event, baudrate=self.config['baud_rate'])
+        LOG_CAPTURE.connect(self.log_records)
+        asyncio.create_task(self.broadcast_status())
+        event_queue = self.initialize_hotplugging()
+        while True:
+            hotplug_event = await event_queue.get()
+            if hotplug_event.action is HotplugAction.ADD:
+                await self.open_serial_connections(hotplug_event, baudrate=self.config['baud_rate'])

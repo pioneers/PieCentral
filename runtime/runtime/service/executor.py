@@ -13,7 +13,6 @@ import types
 import typing
 
 from pylint import epylint as lint
-import structlog
 from schema import Optional, Use
 
 from runtime.game.studentapi import (
@@ -25,19 +24,21 @@ from runtime.game.studentapi import (
     Match,
     Gamepad,
     Robot,
+    LOG_CAPTURE as API_LOG_CAPTURE,
 )
 from runtime.messaging.device import DeviceMapping, get_device_type
 from runtime.messaging.routing import Connection
+from runtime.monitoring import log
 from runtime.service.base import Service
 from runtime.util import (
     POSITIVE_REAL,
-    VALID_NAME,
     get_module_path,
 )
 from runtime.util.exception import EmergencyStopException, RuntimeBaseException
 
 
-LOGGER = structlog.get_logger()
+LOG_CAPTURE = log.LogCapture()
+LOGGER = log.get_logger(LOG_CAPTURE)
 
 
 class RequestType(enum.Enum):
@@ -110,10 +111,13 @@ def run_with_timeout(func: typing.Callable[[], typing.Any], timeout: Real, *args
 Challenge = typing.Callable[[int], int]
 
 
-def run_challenge(challenges: typing.Iterable[Challenge], seed: int) -> int:
+def run_challenge(challenges: typing.Iterable[Challenge], seed: int) -> typing.List[int]:
     try:
-        reducer = lambda result, challenge: challenge(result)
-        return functools.reduce(reducer, challenges, seed)
+        answers, current = [seed], seed
+        for challenge in challenges:
+            current = challenge(current)
+            answers.append(current)
+        return answers
     except Exception as exc:
         LOGGER.error('Failed to run challenge', exc=str(exc))
 
@@ -169,7 +173,7 @@ class StudentCodeExecutor:
             self.student_code = types.ModuleType(student_code_name)
             LOGGER.warn('Unable to import student code', exc=str(exc))
 
-        logger = structlog.get_logger(student_code_name)
+        logger = log.get_logger(API_LOG_CAPTURE, student_code_name)
         def _print(*values, sep=' ', _file=None, _flush=False):
             logger.info(sep.join(map(str, values)))
 
@@ -270,15 +274,16 @@ class ExecutorService(Service):
             return self.match.as_dict()
 
     async def run_challenge(self, challenges: typing.List[str], seed: int):
-        challenges = [getattr(self.executor.student_code, challenge)
-                      for challenge in challenges]
+        challenge_functions = [getattr(self.executor.student_code, challenge)
+                               for challenge in challenges]
         with ProcessPoolExecutor() as executor:
             loop = asyncio.get_running_loop()
-            answer = await loop.run_in_executor(executor, run_challenge, challenges, seed)
-            LOGGER.info('Completed coding challenge', seed=seed, answer=answer,
-                        challenges=challenges)
+            answers = await loop.run_in_executor(executor, run_challenge, challenge_functions, seed)
             # Serialize as a string, since the answer may exceed the capacity of an unsigned long.
-            return {'answer': str(answer)}
+            answers = list(map(str, answers))
+            LOGGER.info('Completed coding challenge', seed=seed, answers=answers,
+                        challenges=challenges)
+            return {'answers': answers}
 
     async def list_aliases(self):
         async with self.access:
@@ -314,8 +319,8 @@ class ExecutorService(Service):
                     device_type = get_device_type(device_name=device['device_type'])
                     await self.device_buffers.open(device['device_uid'], device_type)
 
-    async def recv_request(self, command_conn):
-        message_type, message_id, method, params = await command_conn.recv()
+    async def recv_request(self, connection: Connection):
+        message_type, message_id, method, params = await connection.recv()
         context = {'message_id': message_id, 'method': method}
         if message_type != self.request:
             raise RuntimeBaseException('Received malformed request', **context)
@@ -324,19 +329,21 @@ class ExecutorService(Service):
         LOGGER.debug('Received request', **context)
         return message_id, functools.partial(getattr(self, method), *params)
 
-    async def send_response(self, command_conn, response):
+    async def send_response(self, connection: Connection, response):
         try:
-            await command_conn.send(response)
+            await connection.send(response)
         except OverflowError:
             response[3] = None
             LOGGER.error('Encountered overflow error')
-            await command_conn.send(response)
+            await connection.send(response)
         finally:
             LOGGER.debug('Sent response', message_id=response[1])
 
     async def main(self):
-        asyncio.create_task(self.listen_for_device_status())
+        LOG_CAPTURE.connect(self.log_records)
+        API_LOG_CAPTURE.connect(self.log_records)
         with Connection.open(self.config['sockets']['command']) as connection:
+            asyncio.create_task(self.listen_for_device_status())
             while True:
                 result = {'received': time.time()}
                 response = [self.response, None, None, result]

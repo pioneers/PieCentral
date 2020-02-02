@@ -26,6 +26,7 @@ uvloop = "*"
 yappi = "*"
 # Note: `pyzmq` should be installed separately because it relies on several
 # --install-option flags to use draft sockets.
+python-rapidjson = "*"
 
 [dev-packages]
 cython = "~=0.29"

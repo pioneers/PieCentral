@@ -21,6 +21,8 @@ structlog.configure(
     wrapper_class=structlog.stdlib.BoundLogger,
 )
 
+warn = lambda msg: click.echo(click.style(msg, fg='yellow', bold=True))
+
 
 def catch_command_exc(cli):
     @functools.wraps(cli)
@@ -37,21 +39,11 @@ def catch_command_exc(cli):
 @click.pass_context
 def cli(ctx, host):
     """
-    fctool -- Field control command-line interface
+    rtcli -- Runtime command-line interface
     """
     ctx.obj = ctx.obj or {}
     ctx.obj['host'] = host
     logging.getLogger().propogate = False
-
-
-@cli.command('set-match')
-@click.option('-m', '--mode', default='IDLE', help='Robot execution state',
-              type=click.Choice(['IDLE', 'AUTO', 'TELEOP', 'ESTOP']))
-@click.option('-a', '--alliance', default='BLUE', help='Robot alliance',
-              type=click.Choice(['BLUE', 'GOLD']))
-@click.pass_context
-def set_match(ctx, mode, alliance):
-    print(mode, alliance)
 
 
 @cli.group()
@@ -59,13 +51,31 @@ def alias():
     pass
 
 
+@cli.group()
+def match():
+    pass
+
+
 def display_aliases(aliases: Mapping[str, str]):
     if aliases:
         click.echo(click.style(f'{len(aliases)} aliases:', fg='green', bold=True))
         for name, uid in aliases.items():
-            click.echo(f'  {name} -> {uid}')
+            click.echo(f'  {name} => {uid}')
     else:
-        click.echo(click.style('No aliases', fg='yellow', bold=True))
+        warn('No aliases', fg='yellow', bold=True)
+
+
+def display_match(match):
+    alliance, mode = match['alliance'].upper(), match['mode'].upper()
+    alliance_color = 'yellow' if alliance == 'GOLD' else 'blue'
+    mode_color = {
+        'IDLE': 'white',
+        'AUTO': 'cyan',
+        'TELEOP': 'magenta',
+    }[mode]
+    click.echo('Current match:')
+    click.echo(click.style(f'  Mode: {mode}', fg=mode_color, bold=True))
+    click.echo(click.style(f'  Alliance: {alliance}', fg=alliance_color, bold=True))
 
 
 @alias.command('list')
@@ -103,39 +113,60 @@ def del_alias(ctx, name):
         display_aliases(aliases['aliases'])
 
 
+@match.command('get')
+@click.pass_context
+@catch_command_exc
+def get_match(ctx):
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        display_match(client.send_command('get_match'))
+
+
+@match.command('set')
+@click.argument('mode', default='IDLE',
+              type=click.Choice(['IDLE', 'AUTO', 'TELEOP', 'ESTOP']))
+@click.argument('alliance', default='BLUE',
+              type=click.Choice(['BLUE', 'GOLD']))
+@click.pass_context
+@catch_command_exc
+def set_match(ctx, mode, alliance):
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        display_match(client.send_command('set_match', mode, alliance))
+
+
+@cli.command('challenge')
+@click.argument('challenges', nargs=-1)
+@click.argument('seed', type=int)
+@click.pass_context
+@catch_command_exc
+def run_challenge(ctx, challenges, seed):
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        click.echo('Running coding challenge ...')
+        answers = client.send_command('run_challenge', challenges, seed).get('answers') or []
+        click.echo(click.style(f'Challenge completed successfully!', fg='green', bold=True))
+        if answers:
+            click.echo('Answers:')
+            for answer in answers:
+                click.echo(f' => {answer}')
+        else:
+            warn('No answers provided')
+
+
 @cli.command('lint')
 @click.pass_context
 def lint(ctx, ch='#', side=25):
-    socket = CONTEXT.socket(zmq.REQ)
-    socket.connect(ctx.obj['cmd_addr'])
-    socket.send(msgpack.packb({'type': 'lint'}))
-    chunks, packet = socket.recv_multipart(), bytearray()
-    for chunk in chunks:
-        packet.extend(chunk)
-    payload = msgpack.unpackb(packet, raw=False)
-    socket.close()
-
-    print(f'{ch*side} stdout {ch*side}', end='\n'*2)
-    print(payload['stdout'].strip(), end='\n'*2)
-    print(f'{ch*(8 + 2*side)}', end='\n'*3)
-    print(f'{ch*side} stderr {ch*side}', end='\n'*2)
-    print(payload['stderr'].strip(), end='\n'*2)
-    print(f'{ch*(8 + 2*side)}')
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        payload = client.send_command('lint')
+        print(f'{ch*side} stdout {ch*side}', end='\n'*2)
+        print(payload['stdout'].strip(), end='\n'*2)
+        print(f'{ch*(8 + 2*side)}', end='\n'*3)
+        print(f'{ch*side} stderr {ch*side}', end='\n'*2)
+        print(payload['stderr'].strip(), end='\n'*2)
+        print(f'{ch*(8 + 2*side)}')
 
 
 @cli.command()
 @click.pass_context
 def log(ctx):
-    # import zmq
-    # ctx = zmq.Context()
-    # socket = ctx.socket(zmq.SUB)
-    # # socket.bind('ipc:///tmp/log2.sock')
-    # socket.connect('tcp://127.0.0.1:6003')
-    # socket.subscribe(b'')
-    # print('Starting')
-    # while True:
-    #     print(socket.recv())
-
     with runtime.RuntimeClient(ctx.obj['host']) as client:
         while True:
             try:

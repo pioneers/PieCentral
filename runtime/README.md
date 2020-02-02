@@ -15,7 +15,7 @@ $ pipenv run dev
 - [ ] Try to write zeros to all devices on e-stop
 - [ ] Clean up exit handling (persist aliases, close all shared memory and connections, etc)
 - [ ] Ensure all data structures are synchronized
-- [ ] Unlink Gamepad when done
+- [x] Unlink Gamepad when done
 - [x] Create separate SensorStructure type
 - [ ] Use multiple write packets for too many parameter updates
 - [x] Finish Runtime Python client
@@ -24,5 +24,8 @@ $ pipenv run dev
 - [ ] Add backpressure
 - [ ] Clear out old duty_cycle, other writeable parameters
 - [ ] Finish Runtime fctool
-- [ ] Log to the outside world
+- [x] Log to the outside world
+- [ ] Keep log open until the very end
 - [ ] Motor check
+- [ ] Use frozen=True to make immutable dataclasses
+- [ ] Use exc_info=exc

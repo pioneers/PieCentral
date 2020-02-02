@@ -11,7 +11,7 @@ import dataclasses
 import enum
 import functools
 import math
-from typing import List, Mapping, Union
+from typing import List, Mapping, Optional, Union
 
 import msgpack
 import structlog
@@ -24,7 +24,6 @@ from runtime.util.exception import RuntimeBaseException
 if not hasattr(zmq, 'RADIO') or not hasattr(zmq, 'DISH'):
     raise ImportError('Must enable ZMQ draft sockets to use RADIO/DISH')
 
-LOGGER = structlog.get_logger()
 UDP = set([zmq.RADIO, zmq.DISH])
 
 
@@ -70,6 +69,7 @@ class Connection:
     send_group: str = b''
     bytes_sent: int = 0
     bytes_recv: int = 0
+    logger: Optional[structlog.BoundLoggerBase] = None
 
     def __post_init__(self):
         self.udp_send = functools.partial(self.socket.send, copy=self.copy, group=self.send_group)
@@ -117,12 +117,14 @@ class Connection:
 
     def close(self):
         self.socket.close()
-        LOGGER.debug('Closed connection')
+        if self.logger:
+            self.logger.debug('Closed connection')
 
     @staticmethod
     def open(config, context=None, **options):
         context = zmq.asyncio.Context.instance() or context
         socket = make_socket(context, **config)
         connection = Connection(socket, **options)
-        LOGGER.debug('Opened connection')
+        if connection.logger:
+            connection.logger.debug('Opened connection')
         return connection

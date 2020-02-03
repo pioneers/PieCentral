@@ -1,2 +1,0 @@
-Smart Sensor Specification
-==========================

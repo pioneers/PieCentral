@@ -269,6 +269,7 @@ class ExecutorService(Service):
 
     async def set_match(self, mode: str, alliance: str):
         """ Set the match information. """
+        # TODO: is stateless better here?
         async with self.access:
             self.match.mode = Mode.__members__[mode.upper()]
             self.match.alliance = Alliance.__members__[alliance.upper()]

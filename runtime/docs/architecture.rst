@@ -73,4 +73,23 @@ Communication
 
 Communication of state in distributed systems is inherently tricky.
 
+Shared Memory
+`````````````
+
+Runtime communicates gamepad and sensor parameters through shared memory buffers.
+These buffers are attached to ``ctypes`` structs to provide convenient field access.
+Every parameter has a name, type, and readable/writeable flags.
+Readable parameters have a ``current_<name>`` field in the struct representing the current parameter value.
+Writeable parameters have a ``desired_<name>`` field in the struct representing the desired parameter value.
+
+- Since these devices should be controlled at a very high frequency, it is important for reads and writes to be highly optimized.
+  Shared memory buffers outperform pipes and queues attached to a centralized memory store.
+- There is no need for synchronization because, typically, only one thread will write to a particular field in the buffer.
+  Atomic reads and writes to the entire buffer are not necessary.
+
+Sockets
+```````
+
+All other communication is handled through ZeroMQ_ sockets.
+
 .. _ZeroMQ: https://zeromq.org/

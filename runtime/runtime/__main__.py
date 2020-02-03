@@ -36,6 +36,12 @@ def run(**options):
 
 
 @cli.command()
+def validate():
+    """ Validates a configuration file. """
+    pass  # TODO
+
+
+@cli.command()
 def version():
     """ Print the PiE Runtime version and exit. """
     print(runtime.get_version())

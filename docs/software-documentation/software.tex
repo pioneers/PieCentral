@@ -130,41 +130,6 @@
 
   \chapter{Runtime}
 
-  \textsc{Runtime} is a Python application that runs on each robot to manage sensors and actuators, communicate with the field, and execute student code.
-
-  \section{Architecture}
-
-  Runtime is a distributed system, consisting of a decentralized set of processes.
-  While this increases the complexity of coordination and data sharing, there are numerous advantages to this architecture:
-  \begin{itemize}
-  \item
-    \textbf{Abstraction:} Each process performs a limited number of tasks and is easy to reason about.
-  \item
-    \textbf{Isolation:} Each process has a small ``blast radius,'' is unlikely to cause failures in other processes, and can restart independently.
-  \item
-    \textbf{Parallelism:} Many Python implementations implement a Global Interpreter Lock (GIL) for memory management reasons, meaning a multithreaded program cannot actually run on multiple physical cores simultaenously.
-    Multiprocessing does not face this issue, since each process runs its own Python interpreter.
-  \end{itemize}
-
-  \subsection{Services}
-
-  The basic
-
-  % The basic unit of execution in Runtime is a service, which consists of one or more processes.
-  % Although rare, a stateless service might have more than one process to speed up the execution of CPU-bound tasks.
-  % The services and their processes are supervised by the the Runtime engine.
-  %
-  % Almost all the main responsibilities of Runtime are siloed in services, whereas the engine is purposely designed to only manage services.
-  % Because of the engine has minimal responsibility, it can be made very reliable.
-  % A failure within the engine itself would indicate major issues.
-
-  Currently, the services Runtime has include:
-  \begin{itemize}
-  \item \texttt{broker}: Aggregates network requests.
-  \item \texttt{executor}: Executes student code and stores game state.
-  \item \texttt{devices}: Manages device events and Smart Sensor packet encoding/decoding.
-  \end{itemize}
-
   \subsection{Communication}
 
   Almost all communication in Runtime is accomplished with \href{https://zeromq.org/}{ZeroMQ} (ZMQ), a popular networking library.

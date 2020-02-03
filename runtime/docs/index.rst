@@ -15,6 +15,7 @@ Runtime is the application running on each PiE robot to manage devices, communic
    :caption: Contents:
 
    setup
+   workflow
    architecture
 
 

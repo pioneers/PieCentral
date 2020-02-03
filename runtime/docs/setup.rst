@@ -19,7 +19,7 @@ To run Runtime natively, you should acquire Linux with at least Python 3.8, sinc
 
 1. Install pipenv_, which combines the ``pip`` Python package manager with ``virtualenv``, a tool for creating isolated per-project Python environments.
 
-  .. code-block:: bash
+  .. code-block::
 
     pip3 install --user pipenv
 

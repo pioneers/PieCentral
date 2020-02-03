@@ -17,7 +17,9 @@ Runtime is the application running on each PiE robot to manage devices, communic
    setup
    workflow
    architecture
-
+   spec/control
+   spec/smart-sensor
+   spec/student-api
 
 Indices and tables
 ==================

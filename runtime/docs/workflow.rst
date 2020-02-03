@@ -37,7 +37,7 @@ Committing
       git rebase -i <source>
 
     First, the base of your current branch is moved onto the ``HEAD`` of the ``<source>`` branch, as if all the branches are merged sequentially.
-    Second, an interactive session will start that will allow you to squash many smaller, related commits into one or edit commit messages.
+    Second, an interactive session will start that will allow you to squash many smaller, related commits into one or edit commit messages; follow the provided instructions.
     For large features, this is preferable to squashing the entire branch when merging, since some of the history is preserved.
 
   - Alternatively, run:
@@ -47,7 +47,7 @@ Committing
       git pull origin <source>
 
     This forces a merge from the ``HEAD`` (tip) of the `<source>` branch into your current branch.
-    This is less desirable, since merging complicates the Git history.
+    This method is less desirable, since merging complicates the Git history.
 
 - **Required**: Clean up merged and stale branches to reduce clutter.
   For pull requests, there is an option to revert the change, so it's OK to delete associated branch.
@@ -72,6 +72,12 @@ The stashes are placed on a `stack <https://en.wikipedia.org/wiki/Stack_(abstrac
 
   git stash
   git stash pop
+
+Versioning
+----------
+
+Every release is associated with a version number, which follows a variant of `semver <https://semver.org/>`_.
+
 
 Other Notes
 ```````````
@@ -104,6 +110,12 @@ If the bad commit has already been pushed, you can force GitHub to accept your a
 
 Generally, this is not good practice.
 Only amend and force-push if you're the only one working on your branch.
+
+Code Style
+----------
+
+Follow the `Google Python style guide <https://google.github.io/styleguide/pyguide.html>`_ and the guidance of ``pylint``.
+Suppress the linter only with good reason.
 
 Documentation
 -------------

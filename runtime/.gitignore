@@ -7,3 +7,6 @@
 
 # Device aliases
 runtime/config/device-aliases.yaml
+
+# Documentation build
+docs/_build

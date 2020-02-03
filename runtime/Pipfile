@@ -37,6 +37,7 @@ memory-profiler = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
 autopep8 = "*"
+sphinx-autobuild = "*"
 
 [scripts]
 build = "python setup.py build_ext --inplace"

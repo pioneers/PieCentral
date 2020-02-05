@@ -26,7 +26,7 @@ const Peripheral = (props) => {
   const ActualPeripheral = typesToComponents[props.device_type] || GenericPeripheral;
   return (
     <ListGroupItem style={{ padding: '0px 0px 15px 0px', border: 'none' }}>
-      <ActualPeripheral{...props} />
+      <ActualPeripheral {...props} />
     </ListGroupItem>
   );
 };

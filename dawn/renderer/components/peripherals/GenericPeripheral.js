@@ -15,9 +15,9 @@ const GenericPeripheral = ({
       <div>{id}</div>
     </h4>
     {
-      _.map(param, obj => (
+      _.map(param, (obj) => (
         <div key={`${obj.param}-${device_name}-Overall`}>
-          <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${obj.param}-${device_name}`} >
+          <h4 style={{ clear: 'right', float: 'right', height: '10px' }} key={`${obj.param}-${device_name}`}>
             {`${obj.param}: ${numeral(obj.int_value || obj.float_value).format('+0.00')}`}
           </h4>
         </div>

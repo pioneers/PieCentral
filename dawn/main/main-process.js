@@ -2,7 +2,9 @@
  * Entrypoint for Dawn's main process
  */
 
-import { app, BrowserWindow, Menu, ipcMain } from 'electron';
+import {
+  app, BrowserWindow, Menu, ipcMain,
+} from 'electron';
 /* eslint import/no-extraneous-dependencies: ["error", {"peerDependencies": true}] */
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 

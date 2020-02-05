@@ -27,14 +27,14 @@ const filter = new Set([PeripheralTypes.TeamFlag]);
 const handleAccordion = (array) => {
   const peripheralGroups = {};
 
-  array.filter(p => !filter.has(p.device_type)).forEach((p) => {
+  array.filter((p) => !filter.has(p.device_type)).forEach((p) => {
     if (!(p.device_type in peripheralGroups)) {
       peripheralGroups[p.device_type] = [];
     }
     peripheralGroups[p.device_type].push(p);
   });
   return (
-    _.map(Object.keys(peripheralGroups), groups => (
+    _.map(Object.keys(peripheralGroups), (groups) => (
       <PanelGroup
         accordion
         style={{ marginBottom: '0px' }}
@@ -46,9 +46,9 @@ const handleAccordion = (array) => {
             <Panel.Title toggle style={{ fontWeight: 'bold' }}>{cleanerNames[groups] || 'Generic'}</Panel.Title>
           </Panel.Heading>
           <Panel.Collapse>
-            <Panel.Body style={{ padding: '10px' }} >
+            <Panel.Body style={{ padding: '10px' }}>
               {
-                _.map(peripheralGroups[groups], peripheral => (
+                _.map(peripheralGroups[groups], (peripheral) => (
                   <Peripheral
                     key={String(peripheral.uid)}
                     id={String(peripheral.uid)}
@@ -72,8 +72,8 @@ const PeripheralListComponent = (props) => {
   if (!props.connectionStatus) {
     errorMsg = 'You are currently disconnected from the robot.';
   } else if (!props.runtimeStatus) {
-    errorMsg = 'There appears to be some sort of General error. ' +
-      'No data is being received.';
+    errorMsg = 'There appears to be some sort of General error. '
+      + 'No data is being received.';
   }
 
   let panelBody = null;
@@ -104,7 +104,7 @@ PeripheralListComponent.propTypes = {
   peripherals: PropTypes.object.isRequired,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   peripherals: state.peripherals,
 });
 

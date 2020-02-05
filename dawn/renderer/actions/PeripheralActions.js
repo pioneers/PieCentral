@@ -1,4 +1,4 @@
-export const updatePeripherals = sensors => ({
+export const updatePeripherals = (sensors) => ({
   type: 'UPDATE_PERIPHERALS',
   peripherals: sensors,
 });

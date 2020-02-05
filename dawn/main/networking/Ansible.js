@@ -110,8 +110,8 @@ class ListenSocket {
   }
 
   studentCodeStatusListener(event, { studentCodeStatus }) {
-    if (studentCodeStatus === StudentCodeStatus.TELEOP ||
-    studentCodeStatus === StudentCodeStatus.AUTONOMOUS) {
+    if (studentCodeStatus === StudentCodeStatus.TELEOP
+    || studentCodeStatus === StudentCodeStatus.AUTONOMOUS) {
       this.statusUpdateTimeout = 5;
     }
   }
@@ -278,7 +278,7 @@ const Ansible = {
     ];
   },
   close() {
-    this.conns.forEach(conn => conn.close()); // Logger's fs closes automatically
+    this.conns.forEach((conn) => conn.close()); // Logger's fs closes automatically
   },
 };
 

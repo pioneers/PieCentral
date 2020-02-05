@@ -104,6 +104,7 @@ export class Logger {
     console.log(output);
     this._write(output, `\n[${(new Date()).toString()}]`);
   }
+
   debug(output) {
     this._write(output, `\n[${(new Date()).toString()} DEBUG]`);
   }

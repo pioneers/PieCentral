@@ -71,14 +71,16 @@ class DNavComponent extends React.Component {
           <Navbar.Toggle />
         </Navbar.Header>
         <Navbar.Collapse>
-          {this.props.runtimeStatus ?
-            <Navbar.Text id="runtime-version">
-              <Label bsStyle="info">{
+          {this.props.runtimeStatus
+            ? (
+              <Navbar.Text id="runtime-version">
+                <Label bsStyle="info">
+                  {
                 `Runtime v${this.props.runtimeVersion}: ${runtimeState[this.props.robotState]}`
               }
-              </Label>
-            </Navbar.Text> : ''
-          }
+                </Label>
+              </Navbar.Text>
+            ) : ''}
           <Navbar.Text id="battery-indicator">
             <StatusLabel
               connectionStatus={this.props.connectionStatus}
@@ -146,7 +148,7 @@ DNavComponent.propTypes = {
   goldMaster: PropTypes.number.isRequired,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   masterStatus: state.fieldStore.masterStatus,
   blueMaster: state.fieldStore.blueMaster,
   goldMaster: state.fieldStore.goldMaster,

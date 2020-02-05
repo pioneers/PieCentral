@@ -14,7 +14,7 @@ const asyncAlerts = (state = [], action) => {
         },
       ];
     case 'REMOVE_ASYNC_ALERT':
-      return state.filter(el => el.id !== action.id);
+      return state.filter((el) => el.id !== action.id);
     default:
       return state;
   }

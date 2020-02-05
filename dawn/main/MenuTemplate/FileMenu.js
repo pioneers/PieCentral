@@ -34,7 +34,7 @@ const FileMenu = {
       accelerator: 'CommandOrControl+S',
     },
     {
-      label: 'Save file as',
+      label: 'Save file as ...',
       click() {
         RendererBridge.reduxDispatch(saveFile(true));
       },

@@ -12,7 +12,6 @@ import { remote, ipcRenderer } from 'electron';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { getValidationState, logging } from '../utils/utils';
-import { updateFieldControl } from '../actions/FieldActions';
 import { ipChange } from '../actions/InfoActions';
 
 
@@ -144,37 +143,6 @@ class ConfigBoxComponent extends React.Component {
               />
               <FormControl.Feedback />
             </FormGroup>
-
-            <p>
-              Field Control Settings
-            </p>
-            <FormGroup
-              controlId="fcAddress"
-              validationState={getValidationState(this.state.fcAddress)}
-            >
-              <ControlLabel>Field Control IP Address</ControlLabel>
-              <FormControl
-                type="text"
-                value={this.state.fcAddress}
-                placeholder="i.e. 192.168.100.13"
-                onChange={this.handleFcChange}
-              />
-              <FormControl.Feedback />
-            </FormGroup>
-
-            <FormGroup
-              controlId="stationNumber"
-              validationState={(this.state.stationNumber >= 0 && this.state.stationNumber <= 4) ? 'success' : 'error'}
-            >
-              <ControlLabel>Field Control Station Number</ControlLabel>
-              <FormControl
-                type="number"
-                value={this.state.stationNumber}
-                placeholder="An integer from 0 to 4"
-                onChange={this.handleStationChange}
-              />
-              <FormControl.Feedback />
-            </FormGroup>
           </Modal.Body>
           <Modal.Footer>
             <Button
@@ -195,25 +163,8 @@ ConfigBoxComponent.propTypes = {
   shouldShow: PropTypes.bool.isRequired,
   hide: PropTypes.func.isRequired,
   ipAddress: PropTypes.string.isRequired,
-  stationNumber: PropTypes.number.isRequired,
   onIPChange: PropTypes.func.isRequired,
-  fcAddress: PropTypes.string.isRequired,
-  onFCUpdate: PropTypes.func.isRequired,
 };
-
-const mapDispatchToProps = (dispatch) => ({
-  onIPChange: (ipAddress) => {
-    dispatch(ipChange(ipAddress));
-  },
-  onFCUpdate: (config) => {
-    dispatch(updateFieldControl(config));
-  },
-});
-
-const mapStateToProps = (state) => ({
-  stationNumber: parseInt(state.fieldStore.stationNumber, 10),
-  fcAddress: state.fieldStore.bridgeAddress,
-});
 
 const ConfigBox = connect(mapStateToProps, mapDispatchToProps)(ConfigBoxComponent);
 

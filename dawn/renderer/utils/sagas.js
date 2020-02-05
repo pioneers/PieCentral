@@ -13,7 +13,6 @@ import {
 import { ipcRenderer, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
-import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
 import { TIMEOUT, defaults, logging } from './utils';

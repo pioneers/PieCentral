@@ -46,15 +46,6 @@ class AppComponent extends React.Component {
         });
       }
     });
-
-    storage.get('fieldControl', (err, data) => {
-      if (err) {
-        logging.log(err);
-        return;
-      }
-      this.props.onFCUpdate(data);
-      ipcRenderer.send('FC_CONFIG_CHANGE', data);
-    });
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -151,7 +142,6 @@ AppComponent.propTypes = {
   isRunningCode: PropTypes.bool.isRequired,
   asyncAlerts: PropTypes.array.isRequired,
   onAlertDone: PropTypes.func.isRequired,
-  onFCUpdate: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state) => ({
@@ -165,9 +155,6 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   onAlertDone(id) {
     dispatch(removeAsyncAlert(id));
-  },
-  onFCUpdate: (ipAddress) => {
-    dispatch(updateFieldControl(ipAddress));
   },
 });
 

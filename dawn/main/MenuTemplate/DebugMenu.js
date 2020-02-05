@@ -1,4 +1,3 @@
-import { fork } from 'child_process';
 import RendererBridge from '../RendererBridge';
 
 const DebugMenu = {

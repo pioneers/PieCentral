@@ -3,29 +3,20 @@
  */
 
 import {
-  app, BrowserWindow, Menu, ipcMain,
+  app, BrowserWindow, Menu,
 } from 'electron';
 /* eslint import/no-extraneous-dependencies: ["error", {"peerDependencies": true}] */
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
 import RendererBridge from './RendererBridge';
 import Template from './MenuTemplate/Template';
-import Ansible from './networking/Ansible';
-import FCObject from './networking/FieldControl';
 
 
 app.on('window-all-closed', () => {
   app.quit();
 });
 
-app.on('will-quit', () => {
-  Ansible.close();
-  if (process.env.NODE_ENV === 'development') {
-  }
-});
-
 app.on('ready', () => {
-  Ansible.setup();
   const mainWindow = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,

@@ -21,7 +21,7 @@ import {
   ansibleSaga,
 } from '../sagas';
 import fromGenerator from './redux-saga-test';
-import { TIMEOUT } from '../../utils/utils';
+import { TIMEOUT } from '../utils';
 
 describe('filesystem sagas', () => {
   it('should yield effects for opening file (unsaved)', () => {

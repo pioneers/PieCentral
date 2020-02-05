@@ -20,7 +20,7 @@ import {
 import { addAsyncAlert } from '../actions/AlertActions';
 import { updateCodeStatus, ipChange } from '../actions/InfoActions';
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   editorCode: state.editor.editorCode,
   editorTheme: state.settings.editorTheme,
   filepath: state.editor.filepath,
@@ -36,7 +36,7 @@ const mapStateToProps = state => ({
   consoleUnread: state.studentConsole.consoleUnread,
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   onAlertAdd: (heading, message) => {
     dispatch(addAsyncAlert(heading, message));
   },

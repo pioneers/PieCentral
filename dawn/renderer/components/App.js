@@ -158,7 +158,7 @@ AppComponent.propTypes = {
   onFCUpdate: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   connectionStatus: state.info.connectionStatus,
   runtimeStatus: state.info.runtimeStatus,
   masterStatus: state.fieldStore.masterStatus,
@@ -166,7 +166,7 @@ const mapStateToProps = state => ({
   asyncAlerts: state.asyncAlerts,
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   onAlertDone(id) {
     dispatch(removeAsyncAlert(id));
   },

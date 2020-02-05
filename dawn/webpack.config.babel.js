@@ -1,4 +1,4 @@
-import path from 'path';
+const path = require('path');
 
 const modules = {
   rules: [
@@ -16,7 +16,7 @@ const modules = {
   ],
 };
 
-export default [
+module.exports = [
   {
     entry: './renderer/index.js',
     devtool: 'cheap-module-eval-source-map',

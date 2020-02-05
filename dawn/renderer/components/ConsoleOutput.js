@@ -59,7 +59,7 @@ class ConsoleOutput extends React.Component {
                 }}
                 ref={(el) => { this.outerDiv = el; }}
               >
-                {this.props.output.map(line => (
+                {this.props.output.map((line) => (
                   <code key={`${line}-Code-${Math.random()}`}>{line}</code>
                 ))}
               </div>

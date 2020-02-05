@@ -36,7 +36,9 @@ import 'brace/theme/terminal';
 
 import ConsoleOutput from './ConsoleOutput';
 import TooltipButton from './TooltipButton';
-import { pathToName, robotState, defaults, timings, logging, windowInfo } from '../utils/utils';
+import {
+  pathToName, robotState, defaults, timings, logging, windowInfo,
+} from '../utils/utils';
 
 const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
@@ -200,8 +202,8 @@ class Editor extends React.Component {
   }
 
   getEditorHeight() {
-    const windowNonEditorHeight = windowInfo.NONEDITOR +
-      (this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
+    const windowNonEditorHeight = windowInfo.NONEDITOR
+      + (this.props.showConsole * (this.state.consoleHeight + windowInfo.CONSOLEPAD));
     return `${String(window.innerHeight - windowNonEditorHeight)}px`;
   }
 
@@ -260,8 +262,8 @@ class Editor extends React.Component {
     if (Editor.correctText(this.props.editorCode) !== this.props.editorCode) {
       this.props.onAlertAdd(
         'Invalid characters detected',
-        'Your code has non-ASCII characters, which won\'t work on the robot. ' +
-        'Please remove them and try again.',
+        'Your code has non-ASCII characters, which won\'t work on the robot. '
+        + 'Please remove them and try again.',
       );
       logging.log('Upload: Non-ASCII Issue');
       return;
@@ -278,8 +280,8 @@ class Editor extends React.Component {
   stopRobot() {
     this.setState({
       simulate: false,
-      modeDisplay: (this.state.mode === robotState.AUTONOMOUS) ?
-        robotState.AUTOSTR : robotState.TELEOPSTR,
+      modeDisplay: (this.state.mode === robotState.AUTONOMOUS)
+        ? robotState.AUTOSTR : robotState.TELEOPSTR,
     });
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
@@ -310,25 +312,24 @@ class Editor extends React.Component {
       }, timings.SEC);
     });
 
-    simulation.then(() =>
-      new Promise((resolve, reject) => {
-        logging.log(`Beginning ${timings.IDLE}s Cooldown`);
-        this.props.onUpdateCodeStatus(robotState.IDLE);
-        const timestamp = Date.now();
-        const coolInt = setInterval(() => {
-          const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
-          if (diff > timings.IDLE) {
-            clearInterval(coolInt);
-            resolve();
-          } else if (!this.state.simulate) {
-            clearInterval(coolInt);
-            logging.log('Cooldown Quit');
-            reject();
-          } else {
-            this.setState({ modeDisplay: `Cooldown: ${timings.IDLE - diff}` });
-          }
-        }, timings.SEC);
-      })).then(() => {
+    simulation.then(() => new Promise((resolve, reject) => {
+      logging.log(`Beginning ${timings.IDLE}s Cooldown`);
+      this.props.onUpdateCodeStatus(robotState.IDLE);
+      const timestamp = Date.now();
+      const coolInt = setInterval(() => {
+        const diff = Math.trunc((Date.now() - timestamp) / timings.SEC);
+        if (diff > timings.IDLE) {
+          clearInterval(coolInt);
+          resolve();
+        } else if (!this.state.simulate) {
+          clearInterval(coolInt);
+          logging.log('Cooldown Quit');
+          reject();
+        } else {
+          this.setState({ modeDisplay: `Cooldown: ${timings.IDLE - diff}` });
+        }
+      }, timings.SEC);
+    })).then(() => {
       new Promise((resolve, reject) => {
         logging.log(`Beginning ${timings.TELEOP}s ${robotState.TELEOPSTR}`);
         this.props.onUpdateCodeStatus(robotState.TELEOP);
@@ -430,7 +431,12 @@ class Editor extends React.Component {
     return (
       <Panel bsStyle="primary">
         <Panel.Heading>
-          <Panel.Title style={{ fontSize: '14px' }}>Editing: {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' } {changeMarker}</Panel.Title>
+          <Panel.Title style={{ fontSize: '14px' }}>
+            Editing:
+            {pathToName(this.props.filepath) ? pathToName(this.props.filepath) : '[ New File ]' }
+            {' '}
+            {changeMarker}
+          </Panel.Title>
         </Panel.Heading>
         <Panel.Body>
           <Form inline onSubmit={this.handleSubmitFontsize}>
@@ -442,16 +448,24 @@ class Editor extends React.Component {
               >
                 <MenuItem
                   onClick={this.props.onCreateNewFile}
-                >New File</MenuItem>
+                >
+                  New File
+                </MenuItem>
                 <MenuItem
                   onClick={this.props.onOpenFile}
-                >Open</MenuItem>
+                >
+                  Open
+                </MenuItem>
                 <MenuItem
                   onClick={this.props.onSaveFile}
-                >Save</MenuItem>
+                >
+                  Save
+                </MenuItem>
                 <MenuItem
                   onClick={_.partial(this.props.onSaveFile, true)}
-                >Save As</MenuItem>
+                >
+                  Save As
+                </MenuItem>
               </DropdownButton>
               <TooltipButton
                 id="upload"
@@ -588,31 +602,45 @@ class Editor extends React.Component {
                     <MenuItem
                       class="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(8)}
-                    >8</MenuItem>
+                    >
+                      8
+                    </MenuItem>
                     <MenuItem
                       class="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(12)}
-                    >12</MenuItem>
+                    >
+                      12
+                    </MenuItem>
                     <MenuItem
                       class="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(14)}
-                    >14</MenuItem>
+                    >
+                      14
+                    </MenuItem>
                     <MenuItem
                       class="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(16)}
-                    >16</MenuItem>
+                    >
+                      16
+                    </MenuItem>
                     <MenuItem
                       class="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(20)}
-                    >20</MenuItem>
+                    >
+                      20
+                    </MenuItem>
                     <MenuItem
                       class="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(24)}
-                    >24</MenuItem>
+                    >
+                      24
+                    </MenuItem>
                     <MenuItem
                       class="dropdown-item"
                       onClick={() => this.changeFontsizeToFont(28)}
-                    >28</MenuItem>
+                    >
+                      28
+                    </MenuItem>
                   </DropdownButton>
                 </OverlayTrigger>
               </InputGroup>
@@ -638,7 +666,7 @@ class Editor extends React.Component {
                 bsSize="small"
                 id="choose-theme"
               >
-                {this.themes.map(theme => (
+                {this.themes.map((theme) => (
                   <MenuItem
                     active={theme === this.props.editorTheme}
                     onClick={_.partial(this.changeTheme, theme)}

@@ -17,7 +17,7 @@ function getParams(peripheral) {
 }
 
 const peripherals = (state = initialPeripheralState, action) => {
-  const nextState = Object.assign({}, state);
+  const nextState = { ...state };
   const nextPeripherals = nextState.peripheralList;
   switch (action.type) {
     case 'UPDATE_PERIPHERALS': {

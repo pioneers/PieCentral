@@ -94,10 +94,10 @@ class UpdateBox extends React.Component {
 
   disableUploadUpdate() {
     return (
-      !(this.state.updateFilepath) ||
-      this.state.isUploading ||
-      !(this.props.connectionStatus && this.props.runtimeStatus) ||
-      this.props.isRunningCode
+      !(this.state.updateFilepath)
+      || this.state.isUploading
+      || !(this.props.connectionStatus && this.props.runtimeStatus)
+      || this.props.isRunningCode
     );
   }
 
@@ -151,7 +151,7 @@ UpdateBox.propTypes = {
   onAlertAdd: PropTypes.func.isRequired,
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   onAlertAdd: (heading, message) => {
     dispatch(addAsyncAlert(heading, message));
   },

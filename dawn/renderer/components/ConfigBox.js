@@ -114,9 +114,9 @@ class ConfigBoxComponent extends React.Component {
   }
 
   disableUploadUpdate() {
-    return (getValidationState(this.state.ipAddress) === 'error') ||
-      (getValidationState(this.state.fcAddress) === 'error') ||
-      (this.state.stationNumber < 0 && this.state.stationNumber > 4);
+    return (getValidationState(this.state.ipAddress) === 'error')
+      || (getValidationState(this.state.fcAddress) === 'error')
+      || (this.state.stationNumber < 0 && this.state.stationNumber > 4);
   }
 
   render() {
@@ -201,7 +201,7 @@ ConfigBoxComponent.propTypes = {
   onFCUpdate: PropTypes.func.isRequired,
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   onIPChange: (ipAddress) => {
     dispatch(ipChange(ipAddress));
   },
@@ -210,7 +210,7 @@ const mapDispatchToProps = dispatch => ({
   },
 });
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   stationNumber: parseInt(state.fieldStore.stationNumber, 10),
   fcAddress: state.fieldStore.bridgeAddress,
 });

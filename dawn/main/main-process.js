@@ -42,31 +42,17 @@ function teardownFC(event) { // eslint-disable-line no-unused-vars
   }
 }
 
-export default function showAPI() {
-  let api = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: false,
-    },
-    width: 1400,
-    height: 900,
-    show: false,
-  });
-  api.on('closed', () => {
-    api = null;
-  });
-  api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
-  api.once('ready-to-show', () => {
-    api.show();
-  });
-}
-
 app.on('ready', () => {
   Ansible.setup();
   ipcMain.on('FC_CONFIG_CHANGE', FCObject.changeFCInfo);
   ipcMain.on('FC_INITIALIZE', initializeFC);
   ipcMain.on('FC_TEARDOWN', teardownFC);
 
-  const mainWindow = new BrowserWindow();
+  const mainWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    },
+  });
 
   // Binding for the main process to inject into Redux workflow
   RendererBridge.registerWindow(mainWindow);

@@ -6,9 +6,9 @@
 
 import fs from 'fs';
 import _ from 'lodash';
-import { delay, eventChannel } from 'redux-saga';
+import { eventChannel } from 'redux-saga';
 import {
-  all, call, cps, fork, put, race, select, take, takeEvery,
+  all, call, cps, delay, fork, put, race, select, take, takeEvery,
 } from 'redux-saga/effects';
 import { ipcRenderer, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
@@ -267,7 +267,7 @@ function* ansibleGamepads() {
       }
     }
 
-    yield call(delay, 50); // wait 50 ms before updating again.
+    yield delay(50); // wait 50 ms before updating again.
   }
 }
 
@@ -539,19 +539,6 @@ function* uploadStudentCode() {
   }
 }
 
-function* handleFieldControl() {
-  const stateSlice = yield select((state) => ({
-    fieldControlStatus: state.fieldStore.fieldControl,
-  }));
-  if (stateSlice.fieldControlStatus) {
-    yield put(toggleFieldControl(false));
-    ipcRenderer.send('FC_TEARDOWN');
-  } else {
-    yield put(toggleFieldControl(true));
-    ipcRenderer.send('FC_INITIALIZE');
-  }
-}
-
 function timestampBounceback() {
   logging.log('Timestamp Requested in Sagas');
   ipcRenderer.send('TIMESTAMP_SEND');
@@ -571,7 +558,6 @@ export default function* rootSaga() {
     takeEvery('RESTART_RUNTIME', restartRuntime),
     takeEvery('DOWNLOAD_CODE', downloadStudentCode),
     takeEvery('UPLOAD_CODE', uploadStudentCode),
-    takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),

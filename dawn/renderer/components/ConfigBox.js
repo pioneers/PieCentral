@@ -70,7 +70,7 @@ class ConfigBoxComponent extends React.Component {
   saveChanges(e) {
     e.preventDefault();
     this.props.onIPChange(this.state.ipAddress);
-    this.setState({ originalIP: this.state.ipAddress });
+    this.setState(({ ipAddress }) => ({ originalIP: ipAddress }));
     storage.set('ipAddress', this.state.ipAddress, (err) => {
       if (err) logging.log(err);
     });
@@ -80,10 +80,10 @@ class ConfigBoxComponent extends React.Component {
       bridgeAddress: this.state.fcAddress,
     };
     this.props.onFCUpdate(newConfig);
-    this.setState({
-      originalSN: this.state.stationNumber,
-      originalFC: this.state.fcAddress,
-    });
+    this.setState(({ stationNumber, fcAddress }) => ({
+      originalSN: stationNumber,
+      originalFC: fcAddress,
+    }));
     storage.set('fieldControl', newConfig, (err) => {
       if (err) logging.log(err);
     });
@@ -105,11 +105,11 @@ class ConfigBoxComponent extends React.Component {
   }
 
   handleClose() {
-    this.setState({
-      ipAddress: this.state.originalIP,
-      stationNumber: this.state.originalSN,
-      fcAddress: this.state.originalFC,
-    });
+    this.setState(({ originalIP, originalSN, originalFC }) => ({
+      ipAddress: originalIP,
+      stationNumber: originalSN,
+      fcAddress: originalFC,
+    }));
     this.props.hide();
   }
 

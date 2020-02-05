@@ -26,11 +26,11 @@ class DNavComponent extends React.Component {
   }
 
   toggleUpdateModal() {
-    this.setState({ showUpdateModal: !this.state.showUpdateModal });
+    this.setState(({ showUpdateModal }) => ({ showUpdateModal: !showUpdateModal }));
   }
 
   toggleConfigModal() {
-    this.setState({ showConfigModal: !this.state.showConfigModal });
+    this.setState(({ showConfigModal }) => ({ showConfigModal: !showConfigModal }));
   }
 
   createHeader() {

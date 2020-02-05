@@ -278,11 +278,11 @@ class Editor extends React.Component {
   }
 
   stopRobot() {
-    this.setState({
+    this.setState(({ mode }) => ({
       simulate: false,
-      modeDisplay: (this.state.mode === robotState.AUTONOMOUS)
+      modeDisplay: (mode === robotState.AUTONOMOUS)
         ? robotState.AUTOSTR : robotState.TELEOPSTR,
-    });
+    }));
     this.props.onUpdateCodeStatus(robotState.IDLE);
   }
 
@@ -400,14 +400,16 @@ class Editor extends React.Component {
   }
 
   raiseConsole() {
-    this.setState({ consoleHeight: this.state.consoleHeight + windowInfo.UNIT }, () => {
+    this.setState(({ consoleHeight }) => {
       this.onWindowResize();
+      return { consoleHeight: consoleHeight + windowInfo.UNIT };
     });
   }
 
   lowerConsole() {
-    this.setState({ consoleHeight: this.state.consoleHeight - windowInfo.UNIT }, () => {
+    this.setState(({ consoleHeight }) => {
       this.onWindowResize();
+      return { consoleHeight: consoleHeight - windowInfo.UNIT };
     });
   }
 

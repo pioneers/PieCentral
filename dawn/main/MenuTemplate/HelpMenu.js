@@ -1,8 +1,26 @@
 /**
  * Defines the Help menu
  */
+import BrowserWindow from 'electron';
 import RendererBridge from '../RendererBridge';
-import showAPI from '../main-process';
+
+function showAPI() {
+  let api = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: false,
+    },
+    width: 1400,
+    height: 900,
+    show: false,
+  });
+  api.on('closed', () => {
+    api = null;
+  });
+  api.loadURL(`file://${__dirname}/../static/website-robot-api-master/robot_api.html`);
+  api.once('ready-to-show', () => {
+    api.show();
+  });
+}
 
 const HelpMenu = {
   label: 'Help',

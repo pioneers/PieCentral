@@ -1,3 +1,5 @@
+/* eslint max-classes-per-file: "off" */
+
 import dgram from 'dgram';
 import net from 'net';
 import { ipcMain } from 'electron';
@@ -268,14 +270,12 @@ class TCPServer {
 }
 
 const Ansible = {
-  conns: [],
   logger: new Logger('ansible', 'Ansible Debug'),
   setup() {
-    this.conns = [
-      new ListenSocket(this.logger),
-      new SendSocket(this.logger),
-      new TCPServer(this.logger),
-    ];
+    FCObject.conns.length = 0;
+    FCObject.conns.push(new ListenSocket(this.logger));
+    FCObject.conns.push(new SendSocket(this.logger));
+    FCObject.conns.push(new TCPServer(this.logger));
   },
   close() {
     this.conns.forEach((conn) => conn.close()); // Logger's fs closes automatically

@@ -2,15 +2,15 @@ import io from 'socket.io-client';
 import { updateRobot, updateHeart, updateMaster } from '../../renderer/actions/FieldActions';
 import RendererBridge from '../RendererBridge';
 import { Logger } from '../../renderer/utils/utils';
-import Ansible from './Ansible';
 
 class FCInternals {
-  constructor(stationNumber, bridgeAddress, logger) {
+  constructor(stationNumber, bridgeAddress, logger, conns) {
     this.socket = null;
     this.queuedPublish = null;
     this.stationNumber = stationNumber;
     this.bridgeAddress = bridgeAddress;
     this.logger = logger;
+    this.conns = conns || [];
     this.logger.log(`Field Control: SN-${this.stationNumber} BA-${this.bridgeAddress}`);
     this.init = this.init.bind(this);
     this.quit = this.quit.bind(this);
@@ -27,8 +27,8 @@ class FCInternals {
         RendererBridge.reduxDispatch(updateHeart());
       });
       this.socket.on('codes', (data) => {
-        if (Ansible.conns[2].socket !== null) {
-          Ansible.conns[2].socket.sendFieldControl(JSON.parse(data));
+        if (this.conns[2].socket !== null) {
+          this.conns[2].socket.sendFieldControl(JSON.parse(data));
         } else {
           this.logger.log('Trying to send FC Info to Disconnected Robot');
         }
@@ -50,6 +50,7 @@ class FCInternals {
 }
 
 const FCObject = {
+  conns: [],
   FCInternal: null,
   stationNumber: 4,
   bridgeAddress: 'localhost',
@@ -58,7 +59,8 @@ const FCObject = {
     if (this.FCInternal !== null) {
       this.FCInternal.quit();
     }
-    this.FCInternal = new FCInternals(this.stationNumber, this.bridgeAddress, FCObject.logger);
+    this.FCInternal = new FCInternals(this.stationNumber, this.bridgeAddress,
+      FCObject.logger, this.conns);
     this.FCInternal.init();
   },
   changeFCInfo(event, arg) {
@@ -73,6 +75,5 @@ const FCObject = {
     }
   },
 };
-
 
 export default FCObject;

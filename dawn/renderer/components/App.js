@@ -57,19 +57,16 @@ class AppComponent extends React.Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
-    const { asyncAlerts } = nextProps;
-    // If the alerts list has changed, display the latest one.
-    if (asyncAlerts !== this.props.asyncAlerts) {
-      const latestAlert = asyncAlerts[asyncAlerts.length - 1];
-      if (latestAlert !== undefined) {
-        this.updateAlert(latestAlert);
-      }
-    }
-  }
-
   shouldComponentUpdate(nextProps, nextState) {
     return nextProps !== this.props || nextState !== this.state;
+  }
+
+  componentDidUpdate(prevProps) {
+    const { asyncAlerts } = this.props;
+    if (prevProps.asyncAlerts !== asyncAlerts) {
+      const latestAlert = asyncAlerts[asyncAlerts.length - 1];
+      this.updateAlert(latestAlert);
+    }
   }
 
   addSteps(steps) {
@@ -136,7 +133,6 @@ class AppComponent extends React.Component {
         />
         <div style={{ height: '35px', marginBottom: '21px' }} />
         <Dashboard
-          {...this.props}
           addSteps={this.addSteps}
           addTooltip={this.addTooltip}
           connectionStatus={this.props.connectionStatus}

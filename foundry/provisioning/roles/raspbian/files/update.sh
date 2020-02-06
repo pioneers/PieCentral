@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Calls install_update on each of the update tarballs
+
 cd /home/ubuntu
 mkdir -p updates && chown ubuntu:ubuntu updates
 cd updates
@@ -7,10 +9,14 @@ cd updates
 for filename in $(find . -name "*.tar.gz" | sort); do
   tmp="/tmp/$(basename ${filename} .tar.gz)"
   mkdir -p "${tmp}"
-  tar -xf "${filename}" -C "${tmp}" --strip-components=1
-  if [ -e "${tmp}/install_update" ]; then
-    bash "${tmp}/install_update" "${tmp}"
-  fi
+  # tar -xf "${filename}" -C "${tmp}" --strip-components=1
+  # if [ -e "${tmp}/install_update" ]; then
+  #   bash "${tmp}/install_update" "${tmp}"
+  # fi
+
+  docker load ${filename}
+  # docker tag _the_assigned_tag myImage
+  docker run ${filename} 
   rm "${filename}"
   rm -rf "${tmp}"
 done

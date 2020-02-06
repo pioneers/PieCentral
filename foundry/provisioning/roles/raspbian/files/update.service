@@ -4,9 +4,12 @@ After=sysinit.target
 AssertPathExists=/home/ubuntu/bin/update.sh
 
 [Service]
-Type=oneshot
-ExecStart=/home/ubuntu/bin/update.sh
+Type=simple
 
 [Install]
 WantedBy=sysinit.target
 WantedBy=runtime.service
+
+[Path]
+PathChanged=/home/ubuntu/updates
+ExecStart=/home/ubuntu/bin/update.sh

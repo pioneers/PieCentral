@@ -259,7 +259,8 @@ void PolarBear::device_actions ()
 {
 	ctrl_LEDs();
 	pid->setSetpoint(pwmInput);
-	drive(pid->compute());
+	//drive(pid->compute());
+    drive(this->pwmInput); // Temporary change just to test if wheel turns.
 }
 
 /* Given a value between -1 and 1 inclusive,

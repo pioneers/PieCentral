@@ -306,24 +306,15 @@
       //   console.log(data)
       // });
 
-      var data = {"GAME_STATE": "setup", "MATCH_NUMBER": "1", "STARTING_SPOTS": ["left", "left", "left", "left"], "MASTER_ROBOTS": {"blue": null, "gold": null}, "BUTTONS": {"gold_1": false, "gold_2": false, "blue_1": false, "blue_2": false}, "CODES_USED": [], "ALLIANCES": {"gold": {"name": "gold", "team_1_name": "Skyline", "team_2_name": "Albany", "team_1_number": "10", "team_2_number": "1", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}, "blue": {"name": "blue", "team_1_name": "CCPA", "team_2_name": "Pinole Valley", "team_1_number": "37", "team_2_number": "15", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}}}
-
-      function generateAdditionalField(var_name, var_val, var_section){
-        var newField = document.createElement("input");
-        newField.value = var_val;
-        newField.placeholder = var_name;
-        newField.style.display = 'compact';
-        var_section.appendChild(newField);
-      }
-
-      function generateAdditionalFields(){
-
-      }
+      var data = {"GAME_STATE": "setup", "MATCH_NUMBER": "1", "STARTING_SPOTS": ["left", "left", "left", "left"], "MASTER_ROBOTS": {"blue": null, "gold": null}, "BUTTONS": {"gold_1": false, "gold_2": false, "blue_1": false, "blue_2": false}, "CODES_USED": [], "ALLIANCES": {"gold": {"name": "gold", "team_1_name": "Skyline", "team_2_name": "Albany", "team_1_number": "10", "team_2_number": "1", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}, "blue": {"name": "blue", "team_1_name": "CCPA", "team_2_name": "Pinole Valley", "team_2_number": "15", "team_1_number": "37", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}}}
 
       function generateFields(data){
         for (var k in data){
           if (typeof data[k] !== "object"){
             generateIndividualField(k, data[k]);
+          }
+          else if (Array.isArray(data[k])){
+            generateArrayFields(k, data[k]);
           }
           else if (k == "ALLIANCES") {
             generateAllianceFields(data[k]);
@@ -336,6 +327,16 @@
           }
 
         }
+      }
+
+      function generateArrayFields(var_name, array){
+        var input = "";
+        for (val of array){
+          input += val + ", "
+        }
+        generateIndividualField(var_name, input);
+
+
       }
 
       function generateAllianceFields(alliances){
@@ -386,13 +387,20 @@
             if (key.includes("team")){
               newColMd.className = "col-md-3";
             }
+            newColMd.id = "col_" + team + "_" + key
             newField.type = "text";
             newField.className = "form-control";
-            newField.id = team + key;
+            newField.id = team + "_" + key;
             newField.value = alliances[team][key]
             newColMd.appendChild(newField);
             console.log(key);
-            section.appendChild(newColMd);
+            if (key.includes("team_1") && document.getElementById(team + "_team_2_" + key.slice(7)) != null){
+              console.log("put before team 2")
+              section.insertBefore(newColMd, document.getElementById("col_" + team + "_team_2_" + key.slice(7)));
+            }
+            else{
+              section.appendChild(newColMd);
+            }
             }
             
             
@@ -549,24 +557,27 @@
 
       function sendData() {
         updateJSON()
-        socket.emit('ui-to-server-latest-data', JSON.stringify(data))
+        //socket.emit('ui-to-server-latest-data', JSON.stringify(data))
       }
       function updateJSON() {
         for (var k in data){
           if (typeof data[k] !== "object"){
             data[k] = $("#" + k + "_input").val()
           }
+          else if (Array.isArray(data[k])){
+            
+          }
           else if (k == "ALLIANCES") {
             for (var team in data[k]) {
               for (var attribute in data[k][team]) {
                 if(attribute.includes("team_")) {
-                  data[k][team][attribute] = $(team +"_" + attribute).val()
+                  data[k][team][attribute] = $("#" + team +"_" + attribute).val()
                 }
               }
             }
           } else {
             for (var team in k) {
-              data[k][team] = $(k + "_" + team).val()
+              data[k][team] = $("#" + k + "_" + team).val()
             }
           }
         }

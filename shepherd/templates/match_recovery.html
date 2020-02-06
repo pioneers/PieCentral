@@ -306,7 +306,7 @@
       //   console.log(data)
       // });
 
-      var data = {"GAME_STATE": "setup", "MATCH_NUMBER": "1", "STARTING_SPOTS": ["left", "left", "left", "left"], "MASTER_ROBOTS": {"blue": null, "gold": null}, "BUTTONS": {"gold_1": false, "gold_2": false, "blue_1": false, "blue_2": false}, "CODES_USED": [], "ALLIANCES": {"gold": {"team_1_name": "Skyline", "team_2_name": "Albany", "team_1_number": "10", "team_2_number": "1", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}, "blue": {"team_1_name": "CCPA", "team_2_name": "Pinole Valley", "team_1_number": "37", "team_2_number": "15", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}}}
+      var data = {"GAME_STATE": "setup", "MATCH_NUMBER": "1", "STARTING_SPOTS": ["left", "left", "left", "left"], "MASTER_ROBOTS": {"blue": null, "gold": null}, "BUTTONS": {"gold_1": false, "gold_2": false, "blue_1": false, "blue_2": false}, "CODES_USED": [], "ALLIANCES": {"gold": {"name": "gold", "team_1_name": "Skyline", "team_2_name": "Albany", "team_1_number": "10", "team_2_number": "1", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}, "blue": {"name": "blue", "team_1_name": "CCPA", "team_2_name": "Pinole Valley", "team_1_number": "37", "team_2_number": "15", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}}}
 
       function generateAdditionalField(var_name, var_val, var_section){
         var newField = document.createElement("input");
@@ -341,14 +341,13 @@
       function generateAllianceFields(alliances){
         var fourFields = document.getElementById("four-fields");
         var twoFields = document.getElementById("two-fields");
-        for (team in alliances){
+        for (team of ["gold", "blue"]){
           for (key in alliances[team]){
             if (key.includes("team")){
-              var section = document.getElementById(key.slice(7))
+              var section = document.getElementById("team_" + key.slice(7))
             }
             else{
               var section = document.getElementById(key);
-              console.log(key + section)
             }
 
             if (section == null){
@@ -359,7 +358,7 @@
               newLabel.className = "col-sm-2 col-form-label";
               var id = key
               if (key.includes("team")){
-                id = key.slice(7);
+                id = "team_" + key.slice(7);
               }
               var t = document.createTextNode(id);
               newLabel.appendChild(t);

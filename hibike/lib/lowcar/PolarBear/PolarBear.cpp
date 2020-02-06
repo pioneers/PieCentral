@@ -264,7 +264,7 @@ void PolarBear::device_actions ()
 }
 
 /* Calculates the sign of a float. */
-int PolarBear:sign(float x) {
+int PolarBear::sign(float x) {
     if (x > 0) {
         return 1;
     } else if (x < 0) {

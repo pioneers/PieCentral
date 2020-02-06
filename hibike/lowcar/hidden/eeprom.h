@@ -2,6 +2,7 @@
 #define EEPROM_H
 
 #include <EEPROM.h>
+#include "VoltageTracker.h"
 
 class eeprom
 {

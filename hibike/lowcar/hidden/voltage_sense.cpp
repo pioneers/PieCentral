@@ -1,4 +1,5 @@
 #include "voltage_sense.h"
+#include "disp_8.h"
 #include "pdb_defs.h"
 
 // Utility class that deals with calibration and measuring cell voltages.
@@ -30,7 +31,7 @@ void voltage_sense::setup_sensing()
     float val = eeprom.get_calibration();
     if(val > 0) //by convention, val is -1 if there's no calibration.
     {
-      voltage_tracker.set(VREF_GUESS, val);
+      voltage_tracker.set_voltage(VREF_GUESS, val);
     }
   }
 }
@@ -49,14 +50,14 @@ void voltage_sense::measure_cells() //measures the battery cells. Should call at
     float new_v_cell2 = float(r_cell2) * (R3 + R6) / R6 * calib_1 / ADC_COUNTS;
     float new_v_cell3 =(R4 +  R7) / R7 * calib[2] / ADC_COUNTS;
 
-    voltage_tracker.set(V_CELL1, new_v_cell1);
-    voltage_tracker.set(V_CELL2, new_v_cell2);
-    voltage_tracker.set(V_CELL3, new_v_cell3);
+    voltage_tracker.set_voltage(V_CELL1, new_v_cell1);
+    voltage_tracker.set_voltage(V_CELL2, new_v_cell2);
+    voltage_tracker.set_voltage(V_CELL3, new_v_cell3);
 
-    voltage_tracker.set(DV_CELL2, new_v_cell2 - new_v_cell1);
-    voltage_tracker.set(DV_CELL3, new_v_cell3 - new_v_cell2);
+    voltage_tracker.set_voltage(DV_CELL2, new_v_cell2 - new_v_cell1);
+    voltage_tracker.set_voltage(DV_CELL3, new_v_cell3 - new_v_cell2);
 
-    voltage_tracker.set(V_BATT, new_v_cell3);
+    voltage_tracker.set_voltage(V_BATT, new_v_cell3);
 }
 
 void voltage_sense::handle_calibration() //called very frequently by loop.
@@ -91,7 +92,7 @@ void voltage_sense::handle_calibration() //called very frequently by loop.
         delay(1);
       }
       //reset all my calibration values as well, so my calibration values that i'm using are in lockstep with the EEPROM.
-      voltage_tracker.set(VREF_GUESS, ADC_REF_NOM);
+      voltage_tracker.set_voltage(VREF_GUESS, ADC_REF_NOM);
       voltage_tracker.set_calib(0, ADC_REF_NOM);
       voltage_tracker.set_calib(1, ADC_REF_NOM);
       voltage_tracker.set_calib(2, ADC_REF_NOM);
@@ -139,6 +140,6 @@ float voltage_sense::calibrate() //calibrates the device.
 
     //avg all vrefs together to get best guess value
     float vref_guess = (vref1 + vref2 + vref3) / 3.0f;
-    voltage_tracker.set(VREF_GUESS, vref_guess);
+    voltage_tracker.set_voltage(VREF_GUESS, vref_guess);
     return vref_guess;
 }

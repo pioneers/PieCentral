@@ -5,29 +5,29 @@
 //Code is regularly called (currently every 250ms)
 
 safety::safety(VoltageTracker v_tracker, int safety_buzzer) {
-  bool unsafe_status = false;
+  unsafe_status = false;
 
   const float min_cell = 3.3;
   const float end_undervolt = 3.6; //I have to exceed this value to remove my undervolt condition.  (Aka if loading conditions momentarily spiked the battery...)
-  bool under_volt = false; //if i undervolt, i'll have to keep track if i'm no longer in an undervolt condition to avoid momentary beeps.
+  under_volt = false; //if i undervolt, i'll have to keep track if i'm no longer in an undervolt condition to avoid momentary beeps.
 
   const float max_cell = 4.4;
 
   const float d_cell = .3; //max voltage difference between cells.
   const float end_d_cell = 0.1; //imbalance must be less than this before i'm happy again.
-  bool imbalance = false;
+  imbalance = false;
 
-  int buzzer = safety_buzzer;
+  buzzer = safety_buzzer;
 
-  VoltageTracker voltage_tracker = v_tracker;
+  voltage_tracker = v_tracker;
 }
 
 bool safety::compute_safety() //returns if i'm safe or not based on the most recent reading.
 //Currently does only over and under voltage protection.  No time averaging.  So will need to be fancier later.
 {
-  float v_cell1 = voltage_tracker.get(V_CELL1);
-  float dv_cell2 = voltage_tracker.get(DV_CELL2);
-  float dv_cell3 = voltage_tracker.get(DV_CELL3);
+  float v_cell1 = voltage_tracker.get_voltage(V_CELL1);
+  float dv_cell2 = voltage_tracker.get_voltage(DV_CELL2);
+  float dv_cell3 = voltage_tracker.get_voltage(DV_CELL3);
 
   bool unsafe;
   // Case 0: Cell voltages are below minimum values.

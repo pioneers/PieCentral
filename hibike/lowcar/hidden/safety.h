@@ -2,6 +2,7 @@
 #define SAFETY_H
 
 #include "VoltageTracker.h"
+#include <Arduino.h>
 
 class safety
 {
@@ -25,6 +26,8 @@ private:
   const float d_cell; //max voltage difference between cells.
   const float end_d_cell; //imbalance must be less than this before i'm happy again.
   bool imbalance;
+
+  int buzzer;
 
   VoltageTracker voltage_tracker;
 

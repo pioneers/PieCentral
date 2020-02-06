@@ -62,7 +62,7 @@ def display_aliases(aliases: Mapping[str, str]):
         for name, uid in aliases.items():
             click.echo(f'  {name} => {uid}')
     else:
-        warn('No aliases', fg='yellow', bold=True)
+        warn('No aliases')
 
 
 def display_match(match):

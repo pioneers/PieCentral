@@ -6,7 +6,7 @@ import asyncio
 import collections
 import dataclasses
 import queue
-from typing import Mapping
+from typing import Mapping, Optional
 
 import msgpack
 import structlog
@@ -99,8 +99,8 @@ class RuntimeClient:
     def __exit__(self, _type, _exc, _traceback):
         self.close_all()
 
-    def _get_address(self, protocol: str, port: int) -> str:
-        return '{0}://{1}:{2}'.format(protocol, self.host, port)
+    def _get_address(self, protocol: str, port: int, host: Optional[str] = None) -> str:
+        return '{0}://{1}:{2}'.format(protocol, host or self.host, port)
 
     def _send(self, name: str, payload):
         packet = msgpack.dumps(payload)
@@ -134,7 +134,7 @@ class RuntimeClient:
         for name in list(self.sockets):
             self.close(name)
 
-    def send_datagram(self, gamepads: Mapping[int, Gamepad] = None, ip_addr: str = None):
+    def send_datagram(self, gamepads: Mapping[int, Gamepad] = None, host: str = None):
         """ Send a datagram with Gamepad data. """
         gamepad_data = {}
         for index, gamepad in gamepads.items():
@@ -143,7 +143,6 @@ class RuntimeClient:
                 'ly': gamepad.joystick_left_y,
                 'rx': gamepad.joystick_right_x,
                 'ry': gamepad.joystick_right_y,
-                'btn': 0x00000,
             }
             button_map = 0x00000
             for offset in range(17):
@@ -152,9 +151,9 @@ class RuntimeClient:
             gamepad_data[index]['btn'] = button_map
 
         payload = {'gamepads': gamepad_data}
-        if ip_addr:
+        if host:
             protocol, port, _ = self.socket_config['datagram_recv']
-            payload['src'] = self._get_address(protocol, port)
+            payload['src'] = self._get_address(protocol, port, host)
         return self._send('datagram_send', payload)
 
     def recv_datagram(self):
@@ -174,12 +173,12 @@ class RuntimeClient:
             message_type, res_message_id, error, result = self._recv('command')
             if message_type != self.response:
                 raise RuntimeClientError('Received malformed response')
-            if res_message_id != message_id:
+            elif res_message_id != message_id:
                 raise RuntimeClientError(
                     'Response message ID did not match '
                     '(expected: {0}, actual: {1})'.format(message_id, res_message_id)
                 )
-            if error:
+            elif error:
                 raise RuntimeClientError('Received error from server: {0}'.format(error))
         except (ValueError, msgpack.UnpackException) as exc:
             self.logger.error(str(exc))

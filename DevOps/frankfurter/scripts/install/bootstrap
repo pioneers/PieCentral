@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# bootstrap -- Beaglebone-side script that bootstraps the installation process.
+# bootstrap -- Raspberry Pi-side script that bootstraps the installation process.
 #
 # Runs interactively within an SSH client.
 # Designed to exit quickly so that setup is largely autonomous.

@@ -139,3 +139,22 @@ class STATE():
     WAIT = "wait"
     TELEOP = "teleop"
     END = "end"
+
+class INGREDIENT():
+    BREAD = "BREAD"
+    VEGETABLES = "Vegetables"
+    MEAT = "Meat"
+    CHEESE = "Cheese"
+
+class RECIPIES():
+    BREADSTICKS = "Breadsticks"
+    SALAD = "Salad"
+    COLD_CUTS = "Cold Cuts"
+    TURKEY = "Turkey"
+    CAESAR_SALAD = "Caesar Salad"
+    MEAT_AND_POTATOES = "Meat and Potatoes"
+    HAMBURGER = "Hamburgers"
+    GRILLED_CHEESE = "Grilled Cheese"
+    JALAPENO_POPPERZ = "Jalapeno Popperz"
+    CHEESEBURGER = "Cheeseburger"
+    SHEPHERDS_PIE = "Sherpherd's Pie"

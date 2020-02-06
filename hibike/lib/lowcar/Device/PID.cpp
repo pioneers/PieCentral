@@ -60,6 +60,8 @@ double PID::getKP() { return kp; }
 double PID::getKI() { return ki; }
 double PID::getKD() { return kd; }
 
+double PID::readPos() { return enc->read(); }
+double PID::readVel() { return 0.00; }
 
 /****************************************************
 * 				ENCODER FUNCTIONS
@@ -117,12 +119,5 @@ double PID::readVel() {
 
 void PID::updatePos() {
   pos = enc->read();
-}
-*/
-// Updates the encoder's velocity by calculating the position slope.
-void PID::updateVel() {
-  double enc_reading = pos;
-  vel = ((enc_reading - old_encoder0Pos)*1000000)/((float) interval_us);
-  old_encoder0Pos = enc_reading; // Save the current pos
 }
 */

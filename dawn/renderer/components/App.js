@@ -1,4 +1,130 @@
 import React from 'react';
+import { Button, ButtonGroup, EditableText, Card, Colors, Icon, Menu, MenuItem, Navbar, Popover, PopoverInteractionKind, Tooltip } from '@blueprintjs/core';
+import { IconNames } from "@blueprintjs/icons";
+import { VERSION } from '../constants/Constants';
+
+const ConsoleMenu = () => (
+  <Menu>
+    <MenuItem text="Open" icon={IconNames.MENU_OPEN} />
+    <MenuItem text="Close" icon={IconNames.MENU_CLOSED} />
+    <MenuItem text="Copy" icon={IconNames.DUPLICATE}></MenuItem>
+    <MenuItem text="Clear" icon={IconNames.CLEAN} />
+  </Menu>
+);
+
+const DebugMenu = () => (
+  <Menu>
+    <MenuItem text="Lint" icon={IconNames.CODE_BLOCK} />
+    <MenuItem text="Motor check" icon={IconNames.COG} />
+  </Menu>
+);
+
+class Toolbar extends React.Component {
+  render() {
+    return (
+      <Navbar>
+        <Navbar.Group>
+          <Navbar.Heading>
+            Dawn v
+            { VERSION }
+          </Navbar.Heading>
+          <Navbar.Divider />
+          <ButtonGroup>
+            <Button icon={IconNames.UPLOAD}>Upload</Button>
+            <Button icon={IconNames.DOWNLOAD}>Download</Button>
+          </ButtonGroup>
+          <Navbar.Divider />
+          <ButtonGroup>
+            <Button icon={IconNames.PLAY}>Start</Button>
+            <Button icon={IconNames.STOP}>Stop</Button>
+            <Button icon={IconNames.FLAME}>Emergency</Button>
+          </ButtonGroup>
+          <Navbar.Divider />
+          <ButtonGroup>
+            <Popover
+                content={<ConsoleMenu />}
+                interactionKind={PopoverInteractionKind.HOVER}
+                hoverOpenDelay={0}
+                hoverCloseDelay={200}>
+              <Button icon={IconNames.CONSOLE}>Console</Button>
+            </Popover>
+            <Popover
+                content={<DebugMenu />}
+                interactionKind={PopoverInteractionKind.HOVER}
+                hoverOpenDelay={0}
+                hoverCloseDelay={200}>
+              <Button icon={IconNames.DASHBOARD}>Debug</Button>
+            </Popover>
+            <Button icon={IconNames.COG}>Settings</Button>
+          </ButtonGroup>
+        </Navbar.Group>
+      </Navbar>
+    );
+  }
+}
+
+const Devices = {
+  LineFollower: {
+    displayName: 'Line Follower',
+    icon: IconNames.FLASH,
+  },
+  BatteryBuzzer: {
+    displayName: 'Battery',
+    icon: IconNames.OFFLINE,
+  },
+  TeamFlag: {
+    displayName: 'Team Flag',
+    icon: IconNames.FLAG,
+  },
+  ServoControl: {
+    displayName: 'Servo',
+    icon: IconNames.COG,
+  },
+  YogiBear: {
+    displayName: 'Motor (Yogi Bear)',
+    icon: IconNames.COG,
+  },
+  PolarBear: {
+    displayName: 'Motor (Polar Bear)',
+    icon: IconNames.COG,
+  },
+};
+
+const RobotStatus = ({ devices }) => (
+  <div className="status">
+    {devices.map(({ type, uid }) => (
+      <Card className="device-card">
+        <span><Icon icon={Devices[type].icon} /> {Devices[type].displayName}</span>
+        <div className="device-name">
+          <EditableText className="device-alias" placeholder="Assign a name" />
+          <pre className="device-uid">{uid}</pre>
+        </div>
+      </Card>
+    ))}
+  </div>
+);
+
+class App extends React.PureComponent {
+  render() {
+    const className = 'bp3-dark';
+    const background = Colors.DARK_GRAY1;
+
+    return (
+      <div className={`bg-theme bp3-text-large ${className}`} style={{ background }}>
+        <Toolbar />
+        <div>
+          <div className="editor"></div>
+          <RobotStatus devices={[{type: 'LineFollower', uid: '103949402920394'}, {type: 'PolarBear', uid: '103949402920394'}]} />
+        </div>
+      </div>
+    );
+  }
+}
+
+export default App;
+
+
+/*
 import Joyride from 'react-joyride';
 import PropTypes from 'prop-types';
 import { remote, ipcRenderer } from 'electron';
@@ -161,3 +287,4 @@ const mapDispatchToProps = (dispatch) => ({
 const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);
 
 export default App;
+*/

@@ -49,4 +49,11 @@ typedef enum {
   VREF_GUESS
 } PARAMS;
 
+// Enumerated values for disp_8
+typedef enum {
+  NORMAL_VOLT_READ,
+  CLEAR_CALIB,
+  NEW_CALIB
+} SEQ_NUM;
+
 #endif

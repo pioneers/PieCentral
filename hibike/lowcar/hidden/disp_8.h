@@ -3,6 +3,7 @@
 
 #include <SevenSeg.h>
 #include "VoltageTracker.h"
+#include "pdb_defs.h"
 
 const int numOfDigits = 4;
 SevenSeg disp = SevenSeg(A, B, C, D, E, F, G);
@@ -10,12 +11,6 @@ SevenSeg disp = SevenSeg(A, B, C, D, E, F, G);
 class disp_8
 {
 public:
-
-  typedef enum {
-    NORMAL_VOLT_READ,
-    CLEAR_CALIB,
-    NEW_CALIB
-  } SEQ_NUM;
 
   disp_8 (VoltageTracker v_tracker);
 
@@ -28,7 +23,7 @@ public:
   void setup_display();
 
 private:
-  
+
   int digitPins[numOfDigits];
 
   unsigned long last_LED_time;  //Time the last LED switched

@@ -19,9 +19,9 @@ public:
   float calibrate();
 
 private:
-  VoltageTracker voltage_tracker;
-  eeprom eeprom;
-  disp_8 disp_8;
+  VoltageTracker sense_voltage_tracker;
+  eeprom sense_eeprom;
+  disp_8 sense_disp_8;
 };
 
 #endif

@@ -87,25 +87,25 @@ int send_heartbeat_response(uint8_t id) { // id = for future heartbeat identific
   msg.payload_length = 0;
   int status = append_payload(&msg, id, sizeof(id));
 
-  if(status != 0){
+  if (status != 0) {
     return -1;
   }
   return send_message(&msg);
 }
 
-int send_heartbeat_request(uint8_t id) { // id = future hearbeat identification
+int send_heartbeat_request(uint8_t id) { // id = future heartbeat identification
   message_t msg;
   msg.messageID = HEART_BEAT_REQUEST;
   msg.payload_length = 0;
   int status = append_payload(&msg, id, sizeof(id));
 
-  if(status != 0){
+  if (status != 0) {
     return -1;
   }
   return send_message(&msg);
 }
 
-int send_subscription_response(uint16_t params, uint16_t delay, hibike_uid_t* uid) {
+int send_subscription_response(uint16_t params, uint16_t delay, hibike_uid_t *uid) {
   message_t msg;
   msg.messageID = SUBSCRIPTION_RESPONSE;
   msg.payload_length = 0;
@@ -122,7 +122,7 @@ int send_subscription_response(uint16_t params, uint16_t delay, hibike_uid_t* ui
   if (status != 0) {
     return -1;
   }
-  return send_message(&msg); 
+  return send_message(&msg);
 }
 
 int send_data_update(uint16_t params) { 
@@ -134,14 +134,14 @@ int send_data_update(uint16_t params) {
   for (uint16_t count = 0; (params >> count) > 0; count++) {
 
       // check if a particular bit is set
-      if (params & (1<<count)){
+      if (params & (1<<count)) {
         int bytes_written = device_read((uint8_t) count, &msg.payload[msg.payload_length], (size_t) sizeof(msg.payload) - msg.payload_length);
-        if(bytes_written){
+        if (bytes_written) {
           msg.payload_length += bytes_written;
         }
 
         // if we failed to write anything for a param, make sure its bit is unset
-        else{
+        else {
           params &= ~(1<<count);
         }
       }
@@ -171,7 +171,7 @@ int send_error_packet(uint8_t error_code) {
 
 
 
-int append_payload(message_t* msg, uint8_t* data, uint8_t length) {
+int append_payload(message_t *msg, uint8_t *data, uint8_t length) {
   memcpy(&(msg->payload[msg->payload_length]), data, length);
   msg->payload_length += length;
   if (msg->payload_length > MAX_PAYLOAD_SIZE) {
@@ -180,13 +180,13 @@ int append_payload(message_t* msg, uint8_t* data, uint8_t length) {
   return 0;
 }
 
-void append_buf(uint8_t* buf, uint8_t* offset, uint8_t* data, uint8_t length) {
+void append_buf(uint8_t *buf, uint8_t *offset, uint8_t *data, uint8_t length) {
   memcpy(&(buf[*offset]), data, length);
   *offset += length;
 }
 
 
-void uid_to_byte(uint8_t* data, hibike_uid_t* uid) {
+void uid_to_byte(uint8_t *data, hibike_uid_t *uid) {
   data[0] = (uint8_t) (uid->device_type & 0xFF);
   data[1] = (uint8_t) (uid->device_type >> 8);
   data[2] = uid->year;
@@ -202,18 +202,18 @@ void uid_to_byte(uint8_t* data, hibike_uid_t* uid) {
 
 
 
-uint8_t uint8_from_message(message_t* msg, uint8_t* offset) {
+uint8_t uint8_from_message(message_t *msg, uint8_t *offset) {
   uint8_t res = msg->payload[*offset];
   *offset += sizeof(res);
   return res;
 }
-uint16_t uint16_from_message(message_t* msg, uint8_t* offset) {
+uint16_t uint16_from_message(message_t *msg, uint8_t *offset) {
   uint16_t res = (msg->payload[*offset + 0] & 0xFF) << 0;
   res |= (msg->payload[*offset + 1] & 0xFF) << 8;
   *offset += sizeof(res);
   return res;
 }
-uint32_t uint32_from_message(message_t* msg, uint8_t* offset) {
+uint32_t uint32_from_message(message_t *msg, uint8_t *offset) {
   uint32_t res = (msg->payload[*offset + 0] & 0xFF) << 0;
   res |= (uint32_t)(msg->payload[*offset + 1] & 0xFF) << 8;
   res |= (uint32_t)(msg->payload[*offset + 2] & 0xFF) << 16;
@@ -221,7 +221,7 @@ uint32_t uint32_from_message(message_t* msg, uint8_t* offset) {
   *offset += sizeof(res);
   return res;
 }
-uint64_t uint64_from_message(message_t* msg, uint8_t* offset) {
+uint64_t uint64_from_message(message_t *msg, uint8_t *offset) {
   uint64_t res = (msg->payload[*offset + 0] & 0xFF) << 0;
   res |= (uint64_t)(msg->payload[*offset + 1] & 0xFF) << 8;
   res |= (uint64_t)(msg->payload[*offset + 2] & 0xFF) << 16;
@@ -237,7 +237,7 @@ uint64_t uint64_from_message(message_t* msg, uint8_t* offset) {
 void message_to_byte(uint8_t *data, message_t *msg) {
   data[0] = msg->messageID;
   data[1] = msg->payload_length;
-  for (int i = 0; i < msg->payload_length; i++){
+  for (int i = 0; i < msg->payload_length; i++) {
     data[i+MESSAGEID_BYTES+PAYLOAD_SIZE_BYTES] = msg->payload[i];
   }
 }

@@ -119,10 +119,3 @@ void PID::updatePos() {
   pos = enc->read();
 }
 */
-// Updates the encoder's velocity by calculating the position slope.
-void PID::updateVel() {
-  double enc_reading = pos;
-  vel = ((enc_reading - old_encoder0Pos)*1000000)/((float) interval_us);
-  old_encoder0Pos = enc_reading; // Save the current pos
-}
-*/

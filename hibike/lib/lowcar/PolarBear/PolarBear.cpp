@@ -292,26 +292,26 @@ void PolarBear::drive(float target)
 	int pwm_difference;
 	int delay = 1 / this->dpwm_dt; // About 784
 	if (direction > 0) { // Moving forwards
-		for (; currpwm1 < 255; currpwm1++) { // Set pwm1 to 255
-			analogWrite(PWM1, currpwm1);
-			delayMicroseconds(delay);
-		}
-		pwm_difference = currpwm2 - goal;
-        for (int step = sign(pwm_difference); currpwm2 != goal; currpwm2 += step) { // Moves currpwm2 to the goal
-            analogWrite(PWM2, currpwm2);
-            delayMicroseconds(delay);
-        }
-	} else if (direction < 0) { // Moving backwards
 		for (; currpwm2 < 255; currpwm2++) { // Set pwm2 to 255
 			analogWrite(PWM2, currpwm2);
 			delayMicroseconds(delay);
 		}
 		pwm_difference = currpwm1 - goal;
-        for (int step = sign(pwm_difference); currpwm1 != goal; currpwm1 += step) { // Moves currpwm1 to the goal
-            analogWrite(PWM1, currpwm1);
-            delayMicroseconds(delay);
-        }
-	} else { // Stopping; must set both to 255
+		for (int step = -sign(pwm_difference); currpwm1 != goal; currpwm1 += step) { // Moves currpwm1 to the goal
+		    analogWrite(PWM1, currpwm1);
+		    delayMicroseconds(delay);
+		}
+	} /*else if (direction < 0) { // Moving backwards
+		for (; currpwm1 < 255; currpwm1++) { // Set pwm1 to 255
+			analogWrite(PWM1, currpwm1);
+			delayMicroseconds(delay);
+		}
+		pwm_difference = currpwm2 - goal;
+		for (int step = -sign(pwm_difference); currpwm2 != goal; currpwm2 += step) { // Moves currpwm2 to the goal
+		    analogWrite(PWM2, currpwm2);
+		    delayMicroseconds(delay);
+		}
+	}*/ else { // Stopping; must set both to 255
 		for (; currpwm1 < 255; currpwm1++) {
 			analogWrite(PWM1, currpwm1);
 			delayMicroseconds(delay);

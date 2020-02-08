@@ -8,15 +8,12 @@ cd updates
 
 for filename in $(find . -name "*.tar.gz" | sort); do
   tmp="/tmp/$(basename ${filename} .tar.gz)"
-  mkdir -p "${tmp}"
-  # tar -xf "${filename}" -C "${tmp}" --strip-components=1
-  # if [ -e "${tmp}/install_update" ]; then
-  #   bash "${tmp}/install_update" "${tmp}"
-  # fi
 
-  docker load ${filename}
-  # docker tag _the_assigned_tag myImage
-  docker run ${filename} 
+  docker load -i "${filename}"
+  image="$(basename ${filename} ".tar.gz")"
+  docker stop "${image}"
+  docker rm "${image}"
+  docker run "${image}" --restart=always
   rm "${filename}"
   rm -rf "${tmp}"
 done

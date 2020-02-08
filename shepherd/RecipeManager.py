@@ -3,63 +3,77 @@ from Utils import *
 
 class RecipeManager():
 
+    master_recipes = [RECIPE_PROBABILITIES.EASY_RECIPE, RECIPE_PROBABILITIES.MEDIUM_RECIPE, \
+                      RECIPE_PROBABILITIES.HARD_RECIPE, RECIPE_PROBABILITIES.VERY_HARD_RECIPE]
     gold_recipes = []
     blue_recipes = []
     gold_recipes_completed = 0
-    blue_recipes_completed = 0
+    blue_recipes_completed = 0        
 
+    # FIXME: Fix this to actually have list of recipies, not the difficulties
+    def generate_recipes(self):
+        '''
+        reset recipe list with 4 newly selected recipes
+        both teams should have the same recipes
+        '''
+        self.gold_recipes = list(self.master_recipes)
+        self.blue_recipes = list(self.master_recipes)
 
-    def generate_recipes():
-    '''
-    reset recipe list with 4 newly selected recipes 
-    both teams should have the same recipes
-    '''
-        return 0
+    def next_recipe(self, team):
+        '''
+        pop the recipe from the front of the list
 
-    def next_repice(team):
-    '''
-    pop the recipe from the front of the list
-    '''
-        if team = ALLIANCE_COLOR.BLUE:
-            if len(blue_recipes) == 0:
+        The recipe being popped is done
+        '''
+        if team == ALLIANCE_COLOR.BLUE:
+            if len(self.blue_recipes) == 0:
                 return None
             else:
-                blue_recipes.pop(0)
+                self.blue_recipes.pop(0)
+                self.blue_recipes_completed += 1
         else:
-            if len(gold_recipes) == 0:
+            if len(self.gold_recipes) == 0:
                 return None
             else:
-                gold_recipes.pop(0)
+                self.gold_recipes.pop(0)
+                self.gold_recipes_completed += 1
 
-
-    def get_recipe(team):
+    def get_recipe(self, team):
         '''
         return first element of recipes
         '''
-        if team = ALLIANCE_COLOR.BLUE:
-            if len(blue_recipes) == 0:
-                return None          
-            return blue_recipes[0]
-        else:
-            if len(gold_recipes) == 0:
+        if team == ALLIANCE_COLOR.BLUE:
+            if len(self.blue_recipes) == 0:
                 return None
-            return gold_recipes[0]
+            return self.blue_recipes[0]
+        else:
+            if len(self.gold_recipes) == 0:
+                return None
+            return self.gold_recipes[0]
 
-    def check_recipe(ingredients):
-    '''
-    checks correctness of recipe 
-    '''
-        if len(Recipe) != len(ingredients):
+    def check_recipe(self, team, ingredients, num_cooked=0):
+        '''
+        checks correctness of recipe
+        '''
+        recipes = []
+        if team == ALLIANCE_COLOR.BLUE:
+            recipes = self.blue_recipes
+        else:
+            team = self.gold_recipes
+        if len(recipes) != len(ingredients):
             return False
         else:
             for item in ingredients:
-                if item not in Recipe:
-                    return False 
-        return True              
+                if item not in recipes:
+                    return False
+        return True
 
+    def set_recipes(self, gold_recipes, blue_recipes):
+        '''
+        overwrite recipes
+        '''
+        if gold_recipes != None:
+            self.gold_recipes = list(gold_recipes)
 
-    def set_recipes(gold_recipes, blue_recipes):
-    '''
-    overwrite recipes 
-    '''
-        return 0
+        if blue_recipes != None:
+            self.blue_recipes = list(blue_recipes)

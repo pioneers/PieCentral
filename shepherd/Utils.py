@@ -141,16 +141,19 @@ class STATE():
     END = "end"
 
 class INGREDIENT():
-    BREAD = "BREAD"
+    BREAD = "Bread"
     VEGETABLES = "Vegetables"
     MEAT = "Meat"
     CHEESE = "Cheese"
+    # COOKED_MEAT = "COOKED " + MEAT
+    # COOKED_BREAD = "COOKED " + BREAD
+    # COOKED_CHEESE = "COOKED " + CHEESE
 
 class RECIPIES():
     BREADSTICKS = "Breadsticks"
     SALAD = "Salad"
     COLD_CUTS = "Cold Cuts"
-    TURKEY = "Turkey"
+    TURKEY_SANDWICH = "Turkey Sandwich"
     CAESAR_SALAD = "Caesar Salad"
     MEAT_AND_POTATOES = "Meat and Potatoes"
     HAMBURGER = "Hamburgers"
@@ -158,3 +161,29 @@ class RECIPIES():
     JALAPENO_POPPERZ = "Jalapeno Popperz"
     CHEESEBURGER = "Cheeseburger"
     SHEPHERDS_PIE = "Sherpherd's Pie"
+    CHEESE_AND_CRACKERS = "Cheese and Crackers"
+
+class RECIPE_PROBABILITIES():
+    Ingredients = "Ingredients"
+    Cooked = "Cooked"
+    RECIPE_PROBABILITIES = {0: [], 1: [], 2:[], 3:[]}
+    EASY_RECIPE = {RECIPIES.BREADSTICKS:[INGREDIENT.BREAD], \
+                   RECIPIES.SALAD:[INGREDIENT.VEGETABLES], \
+                   RECIPIES.COLD_CUTS:[INGREDIENT.MEAT]}
+    MEDIUM_RECIPE = {RECIPIES.TURKEY_SANDWICH: [INGREDIENT.BREAD, INGREDIENT.MEAT], \
+                     RECIPIES.CAESAR_SALAD: [INGREDIENT.VEGETABLES, INGREDIENT.BREAD], \
+                     RECIPIES.MEAT_AND_POTATOES: [INGREDIENT.MEAT, INGREDIENT.VEGETABLES], \
+                     RECIPIES.CHEESE_AND_CRACKERS: [INGREDIENT.BREAD, INGREDIENT.CHEESE]}
+    HARD_RECIPE = {RECIPIES.HAMBURGER: {Ingredients:[INGREDIENT.BREAD, INGREDIENT.MEAT, \
+                                        INGREDIENT.VEGETABLES], Cooked:1}, \
+                    RECIPIES.GRILLED_CHEESE: {Ingredients:[INGREDIENT.BREAD, INGREDIENT.CHEESE], Cooked:1}, \
+                    RECIPIES.JALAPENO_POPPERZ: {Ingredients:[INGREDIENT.CHEESE, INGREDIENT.VEGETABLES], Cooked:1}, \
+                    RECIPIES.CHEESEBURGER: {Ingredients:[INGREDIENT.BREAD, INGREDIENT.MEAT, INGREDIENT.CHEESE], Cooked:1}
+                  }
+    VERY_HARD_RECIPE = {RECIPIES.SHEPHERDS_PIE: {Ingredients:[INGREDIENT.MEAT, INGREDIENT.VEGETABLES, INGREDIENT.CHEESE], Cooked:2}}
+
+
+class TELEOP_RECIPE_MAP():
+    MAPPING = {0:EASY_RECIPE, 1:MEDIUM_RECIPE, 2:HARD_RECIPE, 3:VERY_HARD_RECIPE, "Overtime":[]}
+
+    # 0: Easy, 1: Medium, 2: Hard, 3: Very Hard

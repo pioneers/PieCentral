@@ -33,6 +33,11 @@ app.on('ready', () => {
   RendererBridge.registerWindow(mainWindow);
 
   ipcMain.on('connect', (event, host) => Client.connect(host));
+  ipcMain.on('send_command', async (event, commandName, ...args) => {
+    let result = await Client.sendCommand(commandName, args);
+    event.returnValue = result;
+  });
+  ipcMain.on('disconnect', (event, host) => Client.disconnect());
 
   mainWindow.maximize();
   mainWindow.loadURL(`file://${path.resolve()}/static/index.html`);

@@ -8,7 +8,12 @@ class Client {
     }
     this.client = new RuntimeClient(host);
     await this.client.connectAll();
-    console.log(await this.client.sendCommand('lint'))
+  }
+
+  async sendCommand(commandName, args) {
+    if (this.client) {
+      return await this.client.sendCommand(commandName, args);
+    }
   }
 
   disconnect() {

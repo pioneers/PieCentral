@@ -3,17 +3,23 @@
  */
 
 import {
-  app, BrowserWindow, Menu,
+  app, BrowserWindow, ipcMain, Menu,
 } from 'electron';
 /* eslint import/no-extraneous-dependencies: ["error", {"peerDependencies": true}] */
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+import path from 'path';
 
 import RendererBridge from './RendererBridge';
 import Template from './MenuTemplate/Template';
+import Client from './client';
 
 
 app.on('window-all-closed', () => {
   app.quit();
+});
+
+app.on('will-quit', () => {
+  Client.disconnect();
 });
 
 app.on('ready', () => {
@@ -26,8 +32,10 @@ app.on('ready', () => {
   // Binding for the main process to inject into Redux workflow
   RendererBridge.registerWindow(mainWindow);
 
+  ipcMain.on('connect', (event, host) => Client.connect(host));
+
   mainWindow.maximize();
-  mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
+  mainWindow.loadURL(`file://${path.resolve()}/static/index.html`);
 
   const menu = Menu.buildFromTemplate(Template);
   Menu.setApplicationMenu(menu);

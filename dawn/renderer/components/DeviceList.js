@@ -39,7 +39,7 @@ const Device = (props) => {
   const { type, uid, alias } = props.device;
   const { icon, displayName } = DEVICE_TYPES[type];
   return (
-    <Card className="device-card">
+    <Card className="card">
       <span><Icon icon={icon} /> {displayName}</span>
       <div className="device-name">
         <EditableText
@@ -55,7 +55,7 @@ const Device = (props) => {
 };
 
 const DeviceList = (props) => (
-  <div className="status">
+  <div className="card-container devices-card">
     {props.devices.map((device, index) => (
       <Device
         key={index}

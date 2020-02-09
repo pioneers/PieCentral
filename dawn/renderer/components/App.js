@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import {
   Alignment,
   Button,
@@ -17,6 +18,7 @@ import { VERSION } from '../constants/Constants';
 
 import DeviceList from './DeviceList';
 import PreferencesMenu from './PreferencesMenu';
+import { withTheme } from './common';
 
 import { ipcRenderer } from 'electron';
 
@@ -41,7 +43,9 @@ const DebugMenu = () => (
 );
 
 const StatusIndicator = () => (
-  <span>Healthy</span>
+  <Tooltip content="Healthy">
+    <code>team42.local</code>
+  </Tooltip>
 );
 
 class Toolbar extends React.Component {
@@ -95,22 +99,21 @@ class Toolbar extends React.Component {
 
 class App extends React.PureComponent {
   render() {
-    const className = 'bp3-dark';
-    const background = Colors.DARK_GRAY1;
-
     return (
-      <div className={`bg-theme bp3-text-large ${className}`} style={{ background }}>
+      <div>
         <Toolbar />
-        <div>
-          <div className="editor"></div>
-          <DeviceList />
-        </div>
+        <div className="editor"></div>
+        <DeviceList />
       </div>
     );
   }
 }
 
-export default App;
+export default connect(
+  state => ({
+    darkTheme: state.preferences.darkTheme
+  }),
+)(withTheme(App));
 
 
 /*

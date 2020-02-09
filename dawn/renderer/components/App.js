@@ -1,7 +1,10 @@
 import React from 'react';
-import { Button, ButtonGroup, EditableText, Card, Colors, Icon, Menu, MenuItem, Navbar, Popover, PopoverInteractionKind, Tooltip } from '@blueprintjs/core';
+import { Button, ButtonGroup, Colors, Icon, Menu, MenuItem, Navbar, Popover, PopoverInteractionKind, Tooltip } from '@blueprintjs/core';
 import { IconNames } from "@blueprintjs/icons";
 import { VERSION } from '../constants/Constants';
+import DeviceList from './Device';
+
+import RuntimeClient from 'runtime-client';
 
 const ConsoleMenu = () => (
   <Menu>
@@ -63,47 +66,6 @@ class Toolbar extends React.Component {
   }
 }
 
-const Devices = {
-  LineFollower: {
-    displayName: 'Line Follower',
-    icon: IconNames.FLASH,
-  },
-  BatteryBuzzer: {
-    displayName: 'Battery',
-    icon: IconNames.OFFLINE,
-  },
-  TeamFlag: {
-    displayName: 'Team Flag',
-    icon: IconNames.FLAG,
-  },
-  ServoControl: {
-    displayName: 'Servo',
-    icon: IconNames.COG,
-  },
-  YogiBear: {
-    displayName: 'Motor (Yogi Bear)',
-    icon: IconNames.COG,
-  },
-  PolarBear: {
-    displayName: 'Motor (Polar Bear)',
-    icon: IconNames.COG,
-  },
-};
-
-const RobotStatus = ({ devices }) => (
-  <div className="status">
-    {devices.map(({ type, uid }) => (
-      <Card className="device-card">
-        <span><Icon icon={Devices[type].icon} /> {Devices[type].displayName}</span>
-        <div className="device-name">
-          <EditableText className="device-alias" placeholder="Assign a name" />
-          <pre className="device-uid">{uid}</pre>
-        </div>
-      </Card>
-    ))}
-  </div>
-);
-
 class App extends React.PureComponent {
   render() {
     const className = 'bp3-dark';
@@ -114,7 +76,7 @@ class App extends React.PureComponent {
         <Toolbar />
         <div>
           <div className="editor"></div>
-          <RobotStatus devices={[{type: 'LineFollower', uid: '103949402920394'}, {type: 'PolarBear', uid: '103949402920394'}]} />
+          <DeviceList />
         </div>
       </div>
     );

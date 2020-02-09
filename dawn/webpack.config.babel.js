@@ -34,6 +34,9 @@ module.exports = [
     },
     target: 'electron-renderer',
     module: modules,
+    node: {
+      __dirname: true,
+    },
   },
   {
     entry: './main/main-process.js',

@@ -1,17 +1,19 @@
-import { compose, createStore, applyMiddleware } from 'redux';
+import { compose, createStore, applyMiddleware, combineReducers } from 'redux';
 import createSagaMiddleware from 'redux-saga';
-
-import dawnApp from './reducers/dawnApp';
 import rootSaga from './utils/sagas';
 
+import devices from './reducers/devices';
 
 const sagaMiddleware = createSagaMiddleware();
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const reducer = combineReducers({
+  devices,
+});
 const store = createStore(
-  dawnApp,
-  composeEnhancers(applyMiddleware(sagaMiddleware)),
+  reducer,
+  // composeEnhancers(applyMiddleware(sagaMiddleware)),
 );
 
-sagaMiddleware.run(rootSaga);
+// sagaMiddleware.run(rootSaga);
 
 export default store;

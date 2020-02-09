@@ -1,8 +1,22 @@
 import React from 'react';
-import { Button, ButtonGroup, Colors, Icon, Menu, MenuItem, Navbar, Popover, PopoverInteractionKind, Tooltip } from '@blueprintjs/core';
+import {
+  Alignment,
+  Button,
+  ButtonGroup,
+  Colors,
+  Icon,
+  Menu,
+  MenuItem,
+  Navbar,
+  Popover,
+  PopoverInteractionKind,
+  Tooltip,
+} from '@blueprintjs/core';
 import { IconNames } from "@blueprintjs/icons";
 import { VERSION } from '../constants/Constants';
-import DeviceList from './Device';
+
+import DeviceList from './DeviceList';
+import PreferencesMenu from './PreferencesMenu';
 
 import { ipcRenderer } from 'electron';
 
@@ -19,9 +33,15 @@ const ConsoleMenu = () => (
 
 const DebugMenu = () => (
   <Menu>
-    <MenuItem text="Lint" icon={IconNames.CODE_BLOCK} />
+    <MenuItem text="Lint" icon={IconNames.CODE} />
+    <MenuItem text="Restart Runtime" icon={IconNames.RESET} />
     <MenuItem text="Motor check" icon={IconNames.COG} />
+    <MenuItem text="Statistics" icon={IconNames.TIMELINE_LINE_CHART} />
   </Menu>
+);
+
+const StatusIndicator = () => (
+  <span>Healthy</span>
 );
 
 class Toolbar extends React.Component {
@@ -60,8 +80,13 @@ class Toolbar extends React.Component {
                 hoverCloseDelay={200}>
               <Button icon={IconNames.DASHBOARD}>Debug</Button>
             </Popover>
-            <Button icon={IconNames.COG} onClick={() => ipcRenderer.send('connect', '127.0.0.1')}>Settings</Button>
+            <PreferencesMenu />
           </ButtonGroup>
+        </Navbar.Group>
+        <Navbar.Group align={Alignment.RIGHT}>
+          <Navbar.Heading>
+            <StatusIndicator />
+          </Navbar.Heading>
         </Navbar.Group>
       </Navbar>
     );

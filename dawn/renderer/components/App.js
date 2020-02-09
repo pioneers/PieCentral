@@ -4,6 +4,8 @@ import { IconNames } from "@blueprintjs/icons";
 import { VERSION } from '../constants/Constants';
 import DeviceList from './Device';
 
+import { ipcRenderer } from 'electron';
+
 import RuntimeClient from 'runtime-client';
 
 const ConsoleMenu = () => (
@@ -58,7 +60,7 @@ class Toolbar extends React.Component {
                 hoverCloseDelay={200}>
               <Button icon={IconNames.DASHBOARD}>Debug</Button>
             </Popover>
-            <Button icon={IconNames.COG}>Settings</Button>
+            <Button icon={IconNames.COG} onClick={() => ipcRenderer.send('connect', '127.0.0.1')}>Settings</Button>
           </ButtonGroup>
         </Navbar.Group>
       </Navbar>

@@ -314,6 +314,13 @@
             ],
             "version": "==2.8.0"
         },
+        "black": {
+            "hashes": [
+                "sha256:40c7d13615f9f183b5bab52afa4b3fa9eac62549149ba698185a5365db8efffc",
+                "sha256:814a1f5c9cf8dd8d325a224aa989be622fbaec9325ba13d884d9cf5485b47056"
+            ],
+            "version": "==18.3a4"
+        },
         "certifi": {
             "hashes": [
                 "sha256:017c25db2a153ce562900032d5bc68e9f191e44e9a0f762f373977de9df1fbb3",

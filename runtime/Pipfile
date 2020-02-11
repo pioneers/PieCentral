@@ -36,6 +36,7 @@ asynctest = "~=0.12"
 memory-profiler = "*"
 sphinx = "*"
 sphinx-rtd-theme = "*"
+black = "~=18.3a0"
 
 [scripts]
 build = "python setup.py build_ext --inplace"
@@ -43,3 +44,6 @@ dev = "python -m runtime run --log-level DEBUG --log-pretty"
 prod = "python -m runtime run"
 lint = "pylint runtime/game/studentapi.py runtime/service runtime/util"
 test = "python -m pytest tests/test_packet.py tests/test_executor.py"
+
+[pipenv]
+allow_prereleases = true

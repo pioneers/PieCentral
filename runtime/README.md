@@ -29,3 +29,4 @@ $ pipenv run dev
 - [ ] Motor check
 - [ ] Use frozen=True to make immutable dataclasses
 - [ ] Use exc_info=exc
+- [ ] Use black for code autoformatting

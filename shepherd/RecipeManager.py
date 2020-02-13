@@ -28,15 +28,11 @@ class RecipeManager():
         The recipe being popped is done
         '''
         if team == ALLIANCE_COLOR.BLUE:
-            if len(self.blue_recipes) == 0:
-                return
-            else:
+            if self.blue_recipes:
                 self.blue_recipes.pop(0)
                 self.blue_recipes_completed += 1
         else:
-            if len(self.gold_recipes) == 0:
-                return
-            else:
+            if self.gold_recipes:
                 self.gold_recipes.pop(0)
                 self.gold_recipes_completed += 1
 
@@ -45,11 +41,11 @@ class RecipeManager():
         return first element of recipes
         '''
         if team == ALLIANCE_COLOR.BLUE:
-            if len(self.blue_recipes) == 0:
+            if not self.blue_recipes:
                 return None
             return self.blue_recipes[0]
         else:
-            if len(self.gold_recipes) == 0:
+            if not self.gold_recipes:
                 return None
             return self.gold_recipes[0]
 

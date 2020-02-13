@@ -55,7 +55,7 @@ const Device = (props) => {
 };
 
 const DeviceList = (props) => (
-  <div className="card-container devices-card">
+  <div className="card-container devices-cards">
     {props.devices.map((device, index) => (
       <Device
         key={index}
@@ -67,6 +67,6 @@ const DeviceList = (props) => (
 );
 
 export default connect(
-  state => ({ devices: [{type: 'LineFollower', uid: '103949402920394'}, {type: 'BatteryBuzzer', alias: 'my_batt', uid: '103949402920394'}, {type: 'PolarBear', uid: '103949402920394'}]  }),
+  state => ({ devices: state.devices }),
   { renameDevice }
 )(DeviceList);

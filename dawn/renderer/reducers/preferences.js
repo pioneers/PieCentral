@@ -1,7 +1,10 @@
 const DEFAULT_PREFERENCES = {
-  darkTheme: true,
+  darkTheme: false,
   editor: {
     textSize: 12,
+  },
+  console: {
+    maxLines: 256,
   },
 };
 

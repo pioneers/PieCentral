@@ -4,6 +4,7 @@ import {
   Alignment,
   Button,
   ButtonGroup,
+  Classes,
   Colors,
   Icon,
   Menu,
@@ -17,21 +18,26 @@ import { IconNames } from "@blueprintjs/icons";
 import { VERSION } from '../constants/Constants';
 
 import DeviceList from './DeviceList';
-import PreferencesMenu from './PreferencesMenu';
-import { withTheme } from './common';
+import Preferences from './Preferences';
+import Console from './Console';
 
 import { ipcRenderer } from 'electron';
 
-import RuntimeClient from 'runtime-client';
+import { open, close, copy, clear } from '../actions/console';
 
-const ConsoleMenu = () => (
+// const copyToClipboard = (lines) => lines.join('\n');
+
+const ConsoleMenu = connect(
+  state => ({ lines: state.console.lines }),
+  { open, close, copy, clear },
+)((props) => (
   <Menu>
-    <MenuItem text="Open" icon={IconNames.MENU_OPEN} />
-    <MenuItem text="Close" icon={IconNames.MENU_CLOSED} />
+    <MenuItem text="Open" icon={IconNames.MENU_OPEN} onClick={props.open} />
+    <MenuItem text="Close" icon={IconNames.MENU_CLOSED} onClick={props.close} />
     <MenuItem text="Copy" icon={IconNames.DUPLICATE}></MenuItem>
-    <MenuItem text="Clear" icon={IconNames.CLEAN} />
+    <MenuItem text="Clear" icon={IconNames.CLEAN} onClick={props.clear} />
   </Menu>
-);
+));
 
 const DebugMenu = () => (
   <Menu>
@@ -84,7 +90,7 @@ class Toolbar extends React.Component {
                 hoverCloseDelay={200}>
               <Button icon={IconNames.DASHBOARD}>Debug</Button>
             </Popover>
-            <PreferencesMenu />
+            <Preferences />
           </ButtonGroup>
         </Navbar.Group>
         <Navbar.Group align={Alignment.RIGHT}>
@@ -97,13 +103,53 @@ class Toolbar extends React.Component {
   }
 }
 
-class App extends React.PureComponent {
+import AceEditor from 'react-ace';
+import "ace-builds/src-noconflict/theme-github";
+
+class Editor extends React.Component {
   render() {
     return (
-      <div>
+      <AceEditor
+        mode="python"
+        theme={this.props.theme}
+        className="editor-area"
+        width="100%"
+        style={{ minHeight: '100%' }}
+      />
+    );
+  }
+}
+
+class App extends React.PureComponent {
+  constructor() {
+    super();
+    this.state = {};
+  }
+
+  render() {
+    let className, background;
+    if (this.props.darkTheme) {
+      className = Classes.DARK;
+      background = Colors.DARK_GRAY1;
+    } else {
+      className = Classes.LIGHT;
+      background = Colors.LIGHT_GRAY1;
+    }
+    const style = { background, height: '100%' };
+    return (
+      <div className={`bg-theme ${Classes.TEXT_LARGE} ${className}`} style={style}>
         <Toolbar />
-        <div className="editor"></div>
-        <DeviceList />
+        <div className="container">
+          <main>
+            <div className="editor">
+              <Editor />
+            </div>
+            <div className="console">
+              <Console />
+            </div>
+          </main>
+          <DeviceList />
+        </div>
       </div>
     );
   }
@@ -113,7 +159,7 @@ export default connect(
   state => ({
     darkTheme: state.preferences.darkTheme
   }),
-)(withTheme(App));
+)(App);
 
 
 /*

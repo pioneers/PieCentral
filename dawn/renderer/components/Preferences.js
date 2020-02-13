@@ -19,7 +19,7 @@ import { IconNames } from '@blueprintjs/icons';
 
 import { toggleDarkTheme } from '../actions/preferences';
 
-class PreferencesMenu extends React.Component {
+class Preferences extends React.Component {
   constructor() {
     super();
     this.state = { isOpen: false };
@@ -72,11 +72,15 @@ class PreferencesMenu extends React.Component {
                   onChange={this.props.toggleDarkTheme}
                 />
               </FormGroup>
-              <FormGroup label="Editor theme" inline helperText="Color palette for the text editor">
+              <FormGroup label="Color palette" inline>
                 <HTMLSelect options={['Monokai']} />
               </FormGroup>
-              <FormGroup label="Editor size" inline>
-                <Slider min={10} max={50} value={this.props.editor.textSize} />
+              <FormGroup label="Text size" inline>
+                <Slider min={10} max={50} value={this.props.editor.textSize} labelStepSize={10} />
+              </FormGroup>
+              <H3>Console</H3>
+              <FormGroup label="Max lines" inline helperText="Truncate the console to this many lines.">
+                <NumericInput min={10} max={1000} value={this.props.console.maxLines} />
               </FormGroup>
             </div>
           </div>
@@ -98,4 +102,4 @@ class PreferencesMenu extends React.Component {
 export default connect(
   state => ({ ...state.preferences }),
   { toggleDarkTheme },
-)(PreferencesMenu);
+)(Preferences);

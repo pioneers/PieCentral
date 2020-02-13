@@ -150,12 +150,14 @@ def to_auto(args):
     except Exception as exc:
         log(exc)
         return
-    GAME_TIMER.start_timer(CONSTANTS.AUTO_TIME)
+    
+    start_time = time.time() + 5
     GAME_STATE = STATE.AUTO
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE, {"stage": GAME_STATE})
     enable_robots(True)
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
-             {"time" : GAME_TIMER.end_time})
+             {"start_time" : start_time, "time" : CONSTANTS.AUTO_TIME})
+    GAME_TIMER.start_timer(start_time - time.time() + CONSTANTS.AUTO_TIME)
     print("ENTERING AUTO STATE")
 
 def to_wait(args):
@@ -181,10 +183,15 @@ def to_teleop(args):
 
     Timer.reset_all()
     GAME_TIMER.start_timer(CONSTANTS.TELEOP_TIME)
+    start_time = time.time() + 5
 
     enable_robots(False)
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
              {"time" : GAME_TIMER.end_time})
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
+             {"start_time" : start_time, "time" : CONSTANTS.TELEOP_TIME})
+    GAME_TIMER.start_timer(start_time - time.time() + CONSTANTS.TELEOP_TIME)
+
     print("ENTERING TELEOP STATE")
 
 def to_end(args):

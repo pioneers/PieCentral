@@ -332,8 +332,9 @@
       function generateArrayFields(var_name, array){
         var input = "";
         for (val of array){
-          input += val + ", "
+          input += val + ","
         }
+        input = input.substring(0, input.length - 1)
         generateIndividualField(var_name, input);
 
 
@@ -395,84 +396,18 @@
             newColMd.appendChild(newField);
             console.log(key);
             if (key.includes("team_1") && document.getElementById(team + "_team_2_" + key.slice(7)) != null){
-              console.log("put before team 2")
               section.insertBefore(newColMd, document.getElementById("col_" + team + "_team_2_" + key.slice(7)));
             }
             else{
               section.appendChild(newColMd);
             }
-            }
-            
-            
+            } 
           }
-        
-        // var keys = Object.keys(blue_data);
-        // while(!keys.done){
-        //   if (keys.value.includes("team_1")){
-        //     label = keys.value.replace("team_1", "")
-        //     blue_val_1 = blue_data[keys.value]
-        //     gold_val_1 = gold_data[keys.value]
-        //     gold_1_id = "gold_" + keys.value
-        //     blue_1_id = "blue_" + keys.value
-        //     keys.next()
-        //     blue_val_2 = blue_data[keys.value]
-        //     gold_val_2 = gold_data[keys.value]
-        //     gold_2_id = "gold_" + keys.value
-        //     blue_2_id = "blue_" + keys.value
-        //     fourFields.innerHTML += 
-        //     "<div class='form-group row'>"+ 
-        //       "<label class='col-sm-2 col-form-label'> " + label + " </label>"+
-        //       "<div class='col-md-10'>"+
-        //       "<div class='form-group row'>" +
-        //       "<div class='col-md-3'>" +
-        //       "<input type='text' class='form-control' id='" + gold_1_id  + "' value='" + gold_val_1 + "'>" +
-        //       "</div>"+
-        //       "<div class='col-md-3'>" +
-        //       "<input type='text' class='form-control' id='" + gold_2_id  + "' value='" + gold_val_2 + "'>" +
-        //       "</div>"+
-        //       "<div class='col-md-3'>" +
-        //       "<input type='text' class='form-control' id='" + blue_1_id  + "' value='" + blue_val_1 + "'>" +
-        //       "</div>"+
-        //       "<div class='col-md-3'>" +
-        //       "<input type='text' class='form-control' id='" + blue_2_id  + "' value='" + blue_val_2 + "'>" +
-        //       "</div>"+
-        //       "</div>"+
-        //       "</div>"+
-        //     "</div>"
-        //   }
-        //   else {
-        //     label = keys.value;
-        //     blue_val_1 = blue_data[keys.value]
-        //     gold_val_1 = gold_data[keys.value]
-        //     gold_1_id = "gold_" + keys.value
-        //     blue_1_id = "blue_" + keys.value
-        //     twoFields.innerHTML += 
-        //   "<div class='form-group row' id = '" + label + "_group'>"+ 
-        //     "<label class='col-sm-2 col-form-label'> " + label + " </label>"+
-        //     "<div class='col-md-5'>" +
-        //     "<input type='text' class='form-control' id='" + gold_1_id  + "' value='" + gold_val + "'>" +
-        //     "</div>"+
-        //     "<div class='col-md-5'>" +
-        //     "<input type='text' class='form-control' id='" + blue_1_id  + "' value='" + blue_val + "'>" +
-        //     "</div>"+
-        //     "</div>"+
-        //   "</div>"
-        //   }
-        //   keys.next();
-        // }
       }
 
 
       function generateIndividualField(var_name, var_val){
-        // var newField = document.createElement("input");
-        // var label = document.createElement("a");
-        // label.innerText = var_name;
-        // newField.value = var_val;
-        // newField.placeholder = var_name;
-        // newField.style.display = 'compact';
         var indFields = document.getElementById("individual-fields");
-        // indFields.appendChild(label);
-        // indFields.appendChild(newField);
         console.log(indFields)
         console.log(indFields.innerHTML)
         indFields.innerHTML += "<div class='form-group row' id = '" + var_name + "_group'>"+ 
@@ -484,17 +419,6 @@
       }
 
       function generateTwoField(var_name, var_vals){
-        // var newField = document.createElement("input");
-        // var label = document.createElement("a");
-        // var newField2
-        // label.innerText = var_name;
-        // newField.value = var_val[0];
-        // newField.placeholder = var_name;
-        // newField.style.display = 'compact';
-        // newField2.value = var_val[1];
-        // newField2.placeholder = var_name;
-        // newField2.style.display = 'compact';
-        console.log("testing");
         var twoFields = document.getElementById("two-fields");
         for (key in var_vals){
           if (key.includes("gold")){
@@ -565,7 +489,9 @@
             data[k] = $("#" + k + "_input").val()
           }
           else if (Array.isArray(data[k])){
-            
+            var input_string = $("#" + k + "_input").val();
+            var arr = input_string.split(",");
+            data[k] = arr;
           }
           else if (k == "ALLIANCES") {
             for (var team in data[k]) {
@@ -575,9 +501,11 @@
                 }
               }
             }
-          } else {
-            for (var team in k) {
-              data[k][team] = $("#" + k + "_" + team).val()
+          } 
+          else {
+            for (var team in data[k]) {
+              console.log("alert" + k + "_" + team);
+              data[k][team] = $("#" + k + "_" + team).val();
             }
           }
         }

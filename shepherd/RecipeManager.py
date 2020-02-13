@@ -8,16 +8,18 @@ class RecipeManager():
     gold_recipes = []
     blue_recipes = []
     gold_recipes_completed = 0
-    blue_recipes_completed = 0        
+    blue_recipes_completed = 0
 
-    # FIXME: Fix this to actually have list of recipies, not the difficulties
     def generate_recipes(self):
         '''
         reset recipe list with 4 newly selected recipes
         both teams should have the same recipes
         '''
-        self.gold_recipes = list(self.master_recipes)
-        self.blue_recipes = list(self.master_recipes)
+        self.gold_recipes.clear()
+        self.blue_recipes.clear()
+        for recipe in self.master_recipes:
+            self.gold_recipes += list(recipe.values)
+            self.blue_recipes += list(recipe.values)
 
     def next_recipe(self, team):
         '''
@@ -27,13 +29,13 @@ class RecipeManager():
         '''
         if team == ALLIANCE_COLOR.BLUE:
             if len(self.blue_recipes) == 0:
-                return None
+                return
             else:
                 self.blue_recipes.pop(0)
                 self.blue_recipes_completed += 1
         else:
             if len(self.gold_recipes) == 0:
-                return None
+                return
             else:
                 self.gold_recipes.pop(0)
                 self.gold_recipes_completed += 1
@@ -59,7 +61,7 @@ class RecipeManager():
         if team == ALLIANCE_COLOR.BLUE:
             recipes = self.blue_recipes
         else:
-            team = self.gold_recipes
+            recipes = self.gold_recipes
         if len(recipes) != len(ingredients):
             return False
         else:

@@ -176,14 +176,17 @@ class RECIPE_PROBABILITIES():
                      RECIPIES.CHEESE_AND_CRACKERS: [INGREDIENT.BREAD, INGREDIENT.CHEESE]}
     HARD_RECIPE = {RECIPIES.HAMBURGER: {Ingredients:[INGREDIENT.BREAD, INGREDIENT.MEAT, \
                                         INGREDIENT.VEGETABLES], Cooked:1}, \
-                    RECIPIES.GRILLED_CHEESE: {Ingredients:[INGREDIENT.BREAD, INGREDIENT.CHEESE], Cooked:1}, \
-                    RECIPIES.JALAPENO_POPPERZ: {Ingredients:[INGREDIENT.CHEESE, INGREDIENT.VEGETABLES], Cooked:1}, \
-                    RECIPIES.CHEESEBURGER: {Ingredients:[INGREDIENT.BREAD, INGREDIENT.MEAT, INGREDIENT.CHEESE], Cooked:1}
+                    RECIPIES.GRILLED_CHEESE: {Ingredients:[INGREDIENT.BREAD, \
+                                              INGREDIENT.CHEESE], Cooked:1}, \
+                    RECIPIES.JALAPENO_POPPERZ: {Ingredients:[INGREDIENT.CHEESE, \
+                                                INGREDIENT.VEGETABLES], Cooked:1}, \
+                    RECIPIES.CHEESEBURGER: {Ingredients:[INGREDIENT.BREAD, \
+                                            INGREDIENT.MEAT, INGREDIENT.CHEESE], Cooked:1}
                   }
-    VERY_HARD_RECIPE = {RECIPIES.SHEPHERDS_PIE: {Ingredients:[INGREDIENT.MEAT, INGREDIENT.VEGETABLES, INGREDIENT.CHEESE], Cooked:2}}
-
+    VERY_HARD_RECIPE = {RECIPIES.SHEPHERDS_PIE: {Ingredients:[INGREDIENT.MEAT,\
+                                                INGREDIENT.VEGETABLES,\
+                                                INGREDIENT.CHEESE], Cooked:2}}
 
 class TELEOP_RECIPE_MAP():
     MAPPING = {0:[1, 0, 0, 0], 1:[0.1, 0.8, 0.1, 0], 2:[0.1, 0.1, 0.8, 0], 3:[0.1, 0.2, 0.3, 0.4]}
-    
     # 0: Easy, 1: Medium, 2: Hard, 3: Very Hard

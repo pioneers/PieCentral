@@ -12,6 +12,7 @@ class Alliance:
             team_1_number - Integer representing team number of first team
             team_2_number - Integer representing team number of second team
             score - Integer tracking the score of the Alliance
+            cooked - The number of ingredients that are cooked
     """
 
     def __init__(self, name, team_1_name, team_1_number, team_2_name,
@@ -21,6 +22,7 @@ class Alliance:
         self.team_2_name = team_2_name
         self.team_1_number = team_1_number
         self.team_2_number = team_2_number
+        self.cooked = 0
         self.score = 0
         self.team_1_connection = False
         self.team_2_connection = False
@@ -37,6 +39,7 @@ class Alliance:
 
     def reset(self):
         self.score = 0
+        self.cooked = 0
         self.team_1_connection = False
         self.team_2_connection = False
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.SCORE,

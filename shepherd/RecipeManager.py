@@ -59,7 +59,7 @@ class RecipeManager():
         if team == ALLIANCE_COLOR.BLUE:
             recipes = self.blue_recipes
         else:
-            team = self.gold_recipes
+            recipes = self.gold_recipes
         if len(recipes) != len(ingredients):
             return False
         else:

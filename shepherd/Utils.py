@@ -184,6 +184,6 @@ class RECIPE_PROBABILITIES():
 
 
 class TELEOP_RECIPE_MAP():
-    MAPPING = {0:[], 1:[], 2:[], 3:[], "Overtime":[]}
+    MAPPING = {0:[1, 0, 0, 0], 1:[0.1, 0.8, 0.1, 0], 2:[0.1, 0.1, 0.8, 0], 3:[0.1, 0.2, 0.3, 0.4]}
     
     # 0: Easy, 1: Medium, 2: Hard, 3: Very Hard

@@ -406,5 +406,5 @@ hibike/virtual_devices.txt
 .vagrant
 
 # Game State Log
-./shepherd/game_data.json
+shepherd/game_data.json
 

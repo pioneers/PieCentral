@@ -51,6 +51,16 @@
       border-radius: 50%;
       box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
     }
+    .gold-style{
+      font-family: Tahoma;
+      color: gold;
+    }
+
+    .blue-style{
+      font-family: Tahoma;
+      color: blue;
+    }
+
   </style>
 </head>
 
@@ -84,49 +94,23 @@
       <h2>Match Recovery</h2>
       <div class="btn-group bottom-padding" role="group" aria-label="...">
         <button type="button" class="btn btn-success" id="match-start"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> Set Stage</button>
-
-        <button type="button" class="btn" id="toggle-all"> Toggle All</button>
-
+        <button class="btn btn-danger" type="button" id="send-data">Send Data</button>
 
       </div>
 
-      <button class="btn btn-danger" type="button" id="send-data">Send Data</button>
 
       <form id = "fieldContainer">
-        <div id = 'individual-fields'>
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label">Field Name</label>
-            <div class="col-md-10">
-              <input type="text" class="form-control" id="staticEmail" value="fieldValue">
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label">Field Name</label>
-            <div class="col-md-10">
-              <input type="text" class="form-control" id="staticEmail" value="fieldValue">
-            </div>
-          </div>
-
-        </div>
+        <div id = 'individual-fields'></div>
         <div id = "two-fields">
 
           <div class="form-group row">
             <div class="col-md-2"></div>
-            <h4 class="col-md-5 text-center">
+            <h4 class="col-md-5 text-center gold-style">
               GOLD
             </h4>
-            <h4 class="col-md-5 text-center">
+            <h4 class="col-md-5 text-center blue-style">
               BLUE
             </h4>
-          </div>
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label">Field Name </label>
-            <div class="col-md-5">
-              <input type="text" class="form-control" id="staticEmail" value="fieldValue">
-            </div>
-            <div class="col-md-5">
-              <input type="text" class="form-control" id="staticEmail" value="fieldValue">
-            </div>
           </div>
         </div>
 
@@ -136,159 +120,23 @@
             <div class="col-md-2"></div>
             <div class="col-md-10">
               <div class="form-group row">
-              <h4 class="col-md-3 text-center">
+              <h4 class="col-md-3 text-center gold-style">
                 GOLD 1
               </h4>
-              <h4 class="col-md-3 text-center">
+              <h4 class="col-md-3 text-center gold-style">
                 GOLD 2
               </h4>
-              <h4 class="col-md-3 text-center">
+              <h4 class="col-md-3 text-center blue-style">
                 BLUE 1
               </h4>
-              <h4 class="col-md-3 text-center">
+              <h4 class="col-md-3 text-center blue-style">
                 BLUE 2
               </h4> 
               </div>
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-2 col-form-label">Field Name </label>
-            <div class="col-md-10">
-              <div class="form-group row">
-                <div class="col-md-3">
-                  <input type="text" class="form-control" id="staticEmail" value="fieldValue">
-                </div>
-                <div class="col-md-3">
-                  <input type="text" class="form-control" id="staticEmail" value="fieldValue">
-                </div>
-                <div class="col-md-3">
-                  <input type="text" class="form-control" id="staticEmail" value="fieldValue">
-                </div>
-                <div class="col-md-3">
-                  <input type="text" class="form-control" id="staticEmail" value="fieldValue">
-                </div>
-            </div>
-            </div>
-          </div>
         </div>
       </form>
-
-      <div class="input-group col-xs-6 bottom-padding">
-        <input type="number" class="form-control" id="new-match-num" placeholder="Match number" aria-describedby="basicaddon2">
-        <span class="input-group-btn">
-          <button class="btn btn-default" id="populate-match" type="button">Populate</button>
-          <button class="btn btn-info" id="create-match" type="button">Create Match</button>
-        </span>
-      </div>
-
-      <form class="form-inline bottom-padding">
-        <div class = "row col-lg-12 d-flex justify-content-around">
-
-          <div class = "col-lg-5 text-center">
-            <div class = "row d-flex justify-content-between">
-              <div class="form-group">
-                <select id="blue-1-starting-spot">
-                  <option value="left">Left</option>
-                  <option value="right">Right</option>
-                  <option value="vending">Vending</option>
-                  <option value="shelf">Shelf</option>
-                </select>
-              </div>
-              <div class="form-group heartbeat-light blue-1-hb"></div>
-              <div class = "text-center">
-                <button class="btn btn-danger" type="button" id="stop-blue-1">Stop Blue 1</button>
-              </div>
-              <div class="form-group">
-                <input type="number" class="form-control" id="blue-1-number" style="width: 81px;" placeholder="Blue 1 #">
-              </div>
-              <div class="form-group">
-                <input type="text" class="form-control" id="blue-1-name" placeholder="Blue 1 Team Name">
-              </div>
-            </div>
-          </div>
-
-          <div class = "col-lg-5">
-
-            <div class = "row d-flex justify-content-between">
-              <div class="form-group">
-                <input type="text" class="form-control" id="gold-1-name" placeholder="Gold 1 Team Name">
-              </div>
-              <div class="form-group">
-                <input type="number" class="form-control" id="gold-1-number" style="width: 81px;" placeholder="Gold 1 #">
-              </div>
-              <button class="btn btn-danger" type="button" id="stop-gold-1">Stop Gold 1</button>
-              <div class="form-group heartbeat-light gold-1-hb"></div>
-              <div class="form-group">
-                <select id="gold-1-starting-spot">
-                  <option value="left">Left</option>
-                  <option value="right">Right</option>
-                  <option value="vending">Vending</option>
-                  <option value="shelf">Shelf</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
-      </form>
-      <form class="form-inline bottom-padding">
-        <div class="form-group">
-          <input type="number" class="form-control" id="blue-1-custom-ip" placeholder="Blue 1 Custom IP">
-        </div>
-        <div class="form-group">
-          <input type="number" class="form-control" id="gold-1-custom-ip" placeholder="Gold 1 Custom IP">
-        </div>
-      </form>
-      <form class="form-inline bottom-padding">
-        <div class="form-group">
-          <select id="blue-2-starting-spot">
-            <option value="left">Left</option>
-            <option value="right">Right</option>
-            <option value="vending">Vending</option>
-            <option value="shelf">Shelf</option>
-          </select>
-        </div>
-        <div class="form-group heartbeat-light blue-2-hb"></div>
-        <button class="btn btn-danger" type="button" id="stop-blue-2">Stop Blue 2</button>
-        <div class="form-group">
-          <input type="number" class="form-control" id="blue-2-number" style="width: 81px;" placeholder="Blue 2 #">
-        </div>
-        <div class="form-group">
-          <input type="text" class="form-control" id="blue-2-name" placeholder="Blue 2 Team Name">
-        </div>
-        <div class="form-group">
-          <input type="text" class="form-control" id="gold-2-name" placeholder="Gold 2 Team Name">
-        </div>
-        <div class="form-group">
-          <input type="number" class="form-control" id="gold-2-number" style="width: 81px;" placeholder="Gold 2 #">
-        </div>
-        <button class="btn btn-danger" type="button" id="stop-gold-2">Stop Gold 2</button>
-        <div class="form-group heartbeat-light gold-2-hb"></div>
-        <div class="form-group">
-          <select id="gold-2-starting-spot">
-            <option value="left">Left</option>
-            <option value="right">Right</option>
-            <option value="vending">Vending</option>
-            <option value="shelf">Shelf</option>
-          </select>
-        </div>
-      </form>
-      <form class="form-inline bottom-padding">
-        <div class="form-group">
-          <input type="number" class="form-control" id="blue-2-custom-ip" placeholder="Blue 2 Custom IP">
-        </div>
-        <div class="form-group">
-          <input type="number" class="form-control" id="gold-2-custom-ip" placeholder="Gold 2 Custom IP">
-        </div>
-      </form>
-
-      <div class="form-group">
-        <select id="Game Mode">
-          <option value="perk_selection">Perk Selection</option>
-          <option value="autonomous">Autonomous</option>
-          <option value="teleop">Teleop</option>
-        </select>
-      </div>
-    </div>
 
     <script>
       $(document).ready(function() {
@@ -353,7 +201,6 @@
             }
 
             if (section == null){
-              console.log(key);
               var newRow = document.createElement("div");
               newRow.className = 'form-group row';
               var newLabel = document.createElement("label");
@@ -394,7 +241,6 @@
             newField.id = team + "_" + key;
             newField.value = alliances[team][key]
             newColMd.appendChild(newField);
-            console.log(key);
             if (key.includes("team_1") && document.getElementById(team + "_team_2_" + key.slice(7)) != null){
               section.insertBefore(newColMd, document.getElementById("col_" + team + "_team_2_" + key.slice(7)));
             }
@@ -408,8 +254,6 @@
 
       function generateIndividualField(var_name, var_val){
         var indFields = document.getElementById("individual-fields");
-        console.log(indFields)
-        console.log(indFields.innerHTML)
         indFields.innerHTML += "<div class='form-group row' id = '" + var_name + "_group'>"+ 
         "<label class='col-sm-2 col-form-label'> " + var_name + " </label>"+
         "<div class='col-md-10'>" +
@@ -504,7 +348,6 @@
           } 
           else {
             for (var team in data[k]) {
-              console.log("alert" + k + "_" + team);
               data[k][team] = $("#" + k + "_" + team).val();
             }
           }

@@ -3,23 +3,37 @@ import { connect } from 'react-redux';
 import { Collapse, Menu, MenuItem, Pre } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 
-class Console extends React.Component {
-  render() {
-    return (
-      <Collapse isOpen={this.props.isOpen}>
-          <Pre className="console-area">
-            {this.props.lines.map((line, index) => (
-              <span key={index}>
-                {line}
-                <br />
-              </span>
-            ))}
-          </Pre>
-      </Collapse>
-    );
-  }
-}
+import { toggle, copy, clear } from '../actions/console';
 
-export default connect(
-  state => state.console,
-)(Console);
+const Console = connect(state => state.console)((props) =>
+  <Collapse isOpen={props.isOpen}>
+      <Pre className="console-area">
+        {props.records.map((record, index) => (
+          <span key={index}>
+            {record.event}
+            <br />
+          </span>
+        ))}
+      </Pre>
+  </Collapse>
+);
+
+const ConsoleMenu = connect(state => state.console, { toggle, copy, clear })((props) => {
+  let icon, label;
+  if (props.isOpen) {
+    icon = IconNames.MENU_CLOSED;
+    label = 'Close';
+  } else {
+    icon = IconNames.MENU_OPEN;
+    label = 'Open';
+  }
+  return (
+    <Menu>
+      <MenuItem text={label} icon={icon} onClick={props.toggle} />
+      <MenuItem text="Copy" icon={IconNames.DUPLICATE}></MenuItem>
+      <MenuItem text="Clear" icon={IconNames.CLEAN} onClick={props.clear} />
+    </Menu>
+  );
+});
+
+export { Console, ConsoleMenu };

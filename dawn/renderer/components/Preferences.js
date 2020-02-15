@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron';
 import React from 'react';
 import { connect } from 'react-redux';
 import {
@@ -22,7 +23,10 @@ import { toggleDarkTheme } from '../actions/preferences';
 class Preferences extends React.Component {
   constructor() {
     super();
-    this.state = { isOpen: false };
+    this.state = {
+      isOpen: false,
+      confirming: false,
+    };
     this.close = this.close.bind(this);
     this.open = this.open.bind(this);
     this.confirm = this.confirm.bind(this);
@@ -37,7 +41,10 @@ class Preferences extends React.Component {
   }
 
   confirm() {
-    this.close();
+    this.setState({ confirming: true }, () => {
+      ipcRenderer.sendSync('connect', '127.0.0.1');
+      this.setState({ confirming: false, isOpen: false });
+    });
   }
 
   render() {
@@ -90,6 +97,7 @@ class Preferences extends React.Component {
               icon={IconNames.TICK_CIRCLE}
               intent={Intent.SUCCESS}
               onClick={this.confirm}
+              loading={this.state.confirming}
               large
             />
           </div>

@@ -30,3 +30,4 @@ $ pipenv run dev
 - [ ] Use frozen=True to make immutable dataclasses
 - [ ] Use exc_info=exc
 - [ ] Use black for code autoformatting
+- [ ] Validation for new configs

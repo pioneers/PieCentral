@@ -1,5 +1,5 @@
 const DEFAULT_CONSOLE = {
-  lines: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'],
+  records: [{'event': 'Starting'}],
   isOpen: true,
 };
 
@@ -8,9 +8,9 @@ const console = (state = DEFAULT_CONSOLE, action) => {
     case 'TOGGLE':
       return {...state, isOpen: !state.isOpen};
     case 'APPEND':
-      return {...state, lines: [...state.lines, ...action.payload.lines]};
+      return {...state, records: [...state.records, action.payload]};
     case 'CLEAR':
-      return {...state, lines: []};
+      return {...state, records: []};
     default:
       return state;
   }

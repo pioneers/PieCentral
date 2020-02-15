@@ -18,7 +18,7 @@ class Alliance:
     """
 
     def __init__(self, name, team_1_name, team_1_number, team_2_name,
-                 team_2_number, team_1_custom_ip=None, team_2_custom_ip=None,recipe_times = [],penalties = []):
+                 team_2_number, team_1_custom_ip=None, team_2_custom_ip=None):
         self.name = name
         self.team_1_name = team_1_name
         self.team_2_name = team_2_name
@@ -29,9 +29,9 @@ class Alliance:
         self.team_2_connection = False
         self.team_1_custom_ip = team_1_custom_ip
         self.team_2_custom_ip = team_2_custom_ip
-        self.recipe_times = recipe_times
-        self.recipe_count = len(recipe_times)
-        self.penalties = penalties
+        self.recipe_times = []
+        self.recipe_count = len(self.recipe_times)
+        self.penalties = []
 
     def change_score(self, amount):
         """ changes score of this alliance by Amount,
@@ -59,11 +59,11 @@ class Alliance:
                 str(self.team_1_number) + ", " + self.team_2_name + " " + str(self.team_2_number) +
                 "> <score: " + str(self.score) + ">")
 
-    def increment(self, time):
+    def increment(self, _time):
         #TODO: Add the time to the recipe_times
-        recipe_times.append(time)
-        recipe_count += 1
+        self.recipe_times.append(_time)
+        self.recipe_count += 1
 
-    def penalty(self,time):
+    def penalty(self, _time):
         #TODO: Add penalites
-        penalties.append(time)
+        self.penalties.append(_time)

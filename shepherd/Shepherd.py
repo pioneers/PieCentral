@@ -455,8 +455,14 @@ def load_game_data(args):
             ALLIANCES[key] = Alliance(param_data["name"], param_data["team_1_name"], param_data["team_1_number"], \
                 param_data["team_2_name"], param_data["team_2_number"], param_data["team_1_custom_ip"], \
                     param_data["team_2_custom_ip"])
-    
-
+    print("inside load game dataa with alliances ",ALLIANCES)
+    print("Game state",GAME_STATE)
+    print("match number",MATCH_NUMBER)
+    print("starting spots",STARTING_SPOTS)
+    print("master robots",MASTER_ROBOTS)
+    print("buttons",BUTTONS)
+    print("codes_used",CODES_USED)
+    print("alliances",ALLIANCES)
 
 def save_game():
 

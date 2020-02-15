@@ -404,3 +404,7 @@ hibike/virtual_devices.txt
 /dawn-*
 /artifacts
 .vagrant
+
+# Game State Log
+./shepherd/game_data.json
+

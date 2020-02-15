@@ -51,3 +51,7 @@ class Alliance:
         return ("<alliance: " + self.name + "> <teams: " + self.team_1_name + " " +
                 str(self.team_1_number) + ", " + self.team_2_name + " " + str(self.team_2_number) +
                 "> <score: " + str(self.score) + ">")
+    def __repr__(self):
+        return ("<alliance: " + self.name + "> <teams: " + self.team_1_name + " " +
+                str(self.team_1_number) + ", " + self.team_2_name + " " + str(self.team_2_number) +
+                "> <score: " + str(self.score) + ">")

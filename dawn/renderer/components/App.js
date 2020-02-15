@@ -1,116 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-  Alignment,
-  Button,
-  ButtonGroup,
   Classes,
   Colors,
-  Icon,
-  Menu,
-  MenuItem,
-  Navbar,
-  Popover,
-  PopoverInteractionKind,
-  Tooltip,
 } from '@blueprintjs/core';
 import { IconNames } from "@blueprintjs/icons";
-import { VERSION } from '../constants/Constants';
 
+import { Console } from './Console';
 import DeviceList from './DeviceList';
-import Preferences from './Preferences';
-import Console from './Console';
+import Toolbar from './Toolbar';
 
 import { ipcRenderer } from 'electron';
 
-import { toggle, copy, clear } from '../actions/console';
 
 // const copyToClipboard = (lines) => lines.join('\n');
-
-const ConsoleMenu = connect(
-  state => state.console,
-  { toggle, copy, clear },
-)((props) => {
-  let icon, label;
-  if (props.isOpen) {
-    icon = IconNames.MENU_CLOSED;
-    label = 'Close';
-  } else {
-    icon = IconNames.MENU_OPEN;
-    label = 'Open';
-  }
-  return (
-    <Menu>
-      <MenuItem text={label} icon={icon} onClick={props.toggle} />
-      <MenuItem text="Copy" icon={IconNames.DUPLICATE}></MenuItem>
-      <MenuItem text="Clear" icon={IconNames.CLEAN} onClick={props.clear} />
-    </Menu>
-  );
-});
-
-const DebugMenu = () => (
-  <Menu>
-    <MenuItem text="Lint" icon={IconNames.CODE} />
-    <MenuItem text="Restart Runtime" icon={IconNames.RESET} />
-    <MenuItem text="Motor check" icon={IconNames.COG} />
-    <MenuItem text="Statistics" icon={IconNames.TIMELINE_LINE_CHART} />
-  </Menu>
-);
-
-const StatusIndicator = () => (
-  <Tooltip content="Healthy">
-    <code>team42.local</code>
-  </Tooltip>
-);
-
-class Toolbar extends React.Component {
-  render() {
-    return (
-      <Navbar>
-        <Navbar.Group>
-          <Navbar.Heading>
-            Dawn v
-            { VERSION }
-          </Navbar.Heading>
-          <Navbar.Divider />
-          <ButtonGroup>
-            <Button icon={IconNames.UPLOAD}>Upload</Button>
-            <Button icon={IconNames.DOWNLOAD}>Download</Button>
-          </ButtonGroup>
-          <Navbar.Divider />
-          <ButtonGroup>
-            <Button icon={IconNames.PLAY}>Start</Button>
-            <Button icon={IconNames.STOP}>Stop</Button>
-            <Button icon={IconNames.FLAME}>Emergency</Button>
-          </ButtonGroup>
-          <Navbar.Divider />
-          <ButtonGroup>
-            <Popover
-                content={<ConsoleMenu />}
-                interactionKind={PopoverInteractionKind.HOVER}
-                hoverOpenDelay={0}
-                hoverCloseDelay={200}>
-              <Button icon={IconNames.CONSOLE}>Console</Button>
-            </Popover>
-            <Popover
-                content={<DebugMenu />}
-                interactionKind={PopoverInteractionKind.HOVER}
-                hoverOpenDelay={0}
-                hoverCloseDelay={200}>
-              <Button icon={IconNames.DASHBOARD}>Debug</Button>
-            </Popover>
-            <Preferences />
-          </ButtonGroup>
-        </Navbar.Group>
-        <Navbar.Group align={Alignment.RIGHT}>
-          <Navbar.Heading>
-            <StatusIndicator />
-          </Navbar.Heading>
-        </Navbar.Group>
-      </Navbar>
-    );
-  }
-}
 
 import AceEditor from 'react-ace';
 import "ace-builds/src-noconflict/theme-github";

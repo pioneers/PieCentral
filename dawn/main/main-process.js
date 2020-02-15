@@ -3,7 +3,7 @@
  */
 
 import {
-  app, BrowserWindow, ipcMain, Menu,
+  app, BrowserWindow, Menu,
 } from 'electron';
 /* eslint import/no-extraneous-dependencies: ["error", {"peerDependencies": true}] */
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
@@ -32,12 +32,7 @@ app.on('ready', () => {
   // Binding for the main process to inject into Redux workflow
   RendererBridge.registerWindow(mainWindow);
 
-  ipcMain.on('connect', (event, host) => Client.connect(host));
-  ipcMain.on('send_command', async (event, commandName, ...args) => {
-    let result = await Client.sendCommand(commandName, args);
-    event.returnValue = result;
-  });
-  ipcMain.on('disconnect', (event, host) => Client.disconnect());
+  Client.bindIPCHandlers();
 
   mainWindow.maximize();
   mainWindow.loadURL(`file://${path.resolve()}/static/index.html`);

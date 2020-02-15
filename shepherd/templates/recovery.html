@@ -1,60 +1,25 @@
 <html>
 
 <head>
-  <title>Staff UI</title>
+  <title>Recovery</title>
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <script type="text/javascript" src={{url_for( 'static', filename='jquery-1.12.3.min.js' )}}></script>
   <script type="text/javascript" src={{url_for( 'static', filename='tabletop.js' )}}></script>
   <script type="text/javascript" src={{url_for( 'static', filename='lcm_ws_bridge.js' )}}></script>
   <script type="text/javascript" src={{url_for( 'static', filename='socket.io.js' )}}></script>
   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script> -->
-  <link rel = "stylesheet" href = "../static/bootstrap.min.css">
 
   <!-- Latest compiled and minified CSS -->
-  <!--< link rel="stylesheet" href="{{url_for('static', filename='bootstrap.min.css')}}">-->
-  <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"> -->
+  <link rel="stylesheet" href="{{url_for('static', filename='bootstrap.min.css')}}">
 
   <!-- Styles -->
-  <style>
-    /*Disables spinning on number forms*/
 
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    input[type="number"] {
-      -moz-appearance: textfield;
-    }
-
-    .bottom-padding {
-      margin-bottom: 25px;
-    }
-
-    .form-inline {
-      flex-flow: row;
-    }
-
-    .led-green,
-    .heartbeat-light {
-      width: 24px;
-      height: 24px;
-      background-color: #ABFF00;
-      border-radius: 50%;
-      box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px;
-    }
-
-    .led-red {
-      width: 24px;
-      height: 24px;
-      background-color: #F00;
-      border-radius: 50%;
-      box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
-    }
-  </style>
-  <script>
+  <!-- Javascript -->
+  <script type="text/javascript" charset="utf-8">
     $(document).ready(function() {
 
+      var blueScore = 0;
+      var goldScore = 0;
       var socket = io('http://127.0.0.1:5000');
       var match_num = 0
       var blue_1_num = 0
@@ -76,44 +41,15 @@
       var gold_1_custom_ip = ""
       var gold_2_custom_ip = ""
 
-      function getCookie(cname) {
-          var name = cname + "=";
-          var ca = document.cookie.split(';');
-          for (var i = 0; i < ca.length; i++) {
-              var c = ca[i];
-              while (c.charAt(0) == ' ') c = c.substring(1);
-              if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
-          }
-          return "";
-      }
-
-      if (getCookie("match_num") != "") {
-        match_num = parseInt(decodeURIComponent(getCookie("match_num")))
-        blue_1_num = parseInt(decodeURIComponent(getCookie("blue_1_num")))
-        blue_1_name = decodeURIComponent(getCookie("blue_1_name"))
-        blue_2_num = parseInt(decodeURIComponent(getCookie("blue_2_num")))
-        blue_2_name = decodeURIComponent(getCookie("blue_2_name"))
-        gold_2_num = parseInt(decodeURIComponent(getCookie("gold_2_num")))
-        gold_2_name = decodeURIComponent(getCookie("gold_2_name"))
-        gold_1_num = parseInt(decodeURIComponent(getCookie("gold_1_num")))
-        gold_1_name = decodeURIComponent(getCookie("gold_1_name"))
-
-        blue_1_custom_ip = decodeURIComponent(getCookie("blue_1_custom_ip"))
-        blue_2_custom_ip = decodeURIComponent(getCookie("blue_2_custom_ip"))
-        gold_1_custom_ip = decodeURIComponent(getCookie("gold_1_custom_ip"))
-        gold_2_custom_ip = decodeURIComponent(getCookie("gold_2_custom_ip"))
-
-        setDefaultTeamsInfo()
-      }
 
       socket.on('connect', function(data) {
-        socket.emit('join', 'staff_gui');
+        socket.emit('join', 'recovery');
       });
 
-      $("#populate-match").click(function() {
+      $("#load-variables").click(function() {
         match_num = $("#new-match-num").val()
         console.log(match_num)
-        socket.emit('ui-to-server-teams-info-request', JSON.stringify({"match_num" : match_num}))
+        socket.emit('ui-to-server-variables-info-request', JSON.stringify({"match_num" : match_num}))
       });
 
       $("#create-match").click(function() {
@@ -130,6 +66,7 @@
 
                 "g2num" : gold_2_num, "g2name" : gold_2_name, 
                 "g2_starting_spot" : gold_2_starting_spot, "g2_custom_ip" : gold_2_custom_ip}
+        
         socket.emit('ui-to-server-setup-match', JSON.stringify(data))
         document.cookie = "match_num=" + match_num
         document.cookie = "blue_1_num=" + blue_1_num
@@ -145,9 +82,12 @@
         document.cookie = "blue_2_custom_ip" + blue_2_custom_ip
         document.cookie = "gold_1_custom_ip" + gold_1_custom_ip
         document.cookie = "gold_2_custom_ip" + gold_2_custom_ip
+
+        document.cookie = "gold-score" + blueScore
+        document.cookie = "blue-score" + goldScore
       });
 
-      socket.on('server-to-ui-teamsinfo', function(data) {
+      socket.on('server-to-ui-variablesinfo', function(data) {
         parsed_data = JSON.parse(data)
         match_num = parsed_data.match_num
         blue_1_num = parsed_data.b1num
@@ -158,6 +98,8 @@
         gold_1_name = parsed_data.g1name
         gold_2_num = parsed_data.g2num
         gold_2_name = parsed_data.g2name
+        blueScore = parsed_data.bscore
+        goldScore = parsed_data.gscore
         setDefaultTeamsInfo()
       });
 
@@ -171,6 +113,10 @@
         $("#gold-1-name").val(gold_1_name);
         $("#gold-2-number").val(gold_2_num);
         $("#gold-2-name").val(gold_2_name);
+        $("#gold-2-name").val(gold_2_name);
+        $("#gold-score").val(goldScore);
+        $("#blue-score").val(blueScore);
+
       }
 
       function setTeamsInfoVars() {
@@ -193,62 +139,49 @@
         blue_2_custom_ip = $("#blue-2-custom-ip").val();
         gold_1_custom_ip = $("#gold-1-custom-ip").val();
         gold_2_custom_ip = $("#gold-2-custom-ip").val();
+
+        goldScore = $("#gold-score").val();
+        blueScore = $("#blue-score").val();
       }
 
-      $("#match-start").click(function() {
-        socket.emit('ui-to-server-start-next-stage')
+
+      $("#blue-change").click(
+        function() {
+          blueScore = parseInt($("#blue-adjustment").val());
+          updateScores();
+        });
+
+      $("#gold-change").click(
+        function() {
+          goldScore = parseInt($("#gold-adjustment").val());
+          updateScores();
+        });
+
+      $("#reset-scores").click(
+      function() {
+        socket.emit('ui-to-server-score-request');
       });
 
-     /** $("#match-next-stage").click(function() {
-        socket.emit('ui-to-server-start-next-stage')
-    });**/
-
-     /** $("#match-reset-stage").click(function() {
-        socket.emit('ui-to-server-reset-stage')
-    });**/
-
-      $("#match-reset").click(function() {
-        socket.emit('ui-to-server-reset-match')
+      $("#send-scores").click(
+      function() {
+        data = {"blue_score" : blueScore, "gold_score" : goldScore}
+        socket.emit('ui-to-server-scores', JSON.stringify(data))
       });
 
-      socket.on('server-to-ui-connections', function(data) {
-        parsed_data = JSON.parse(data)
-        toggleBlue1(parsed_data.b_1_connection)
-        toggleBlue2(parsed_data.b_2_connection)
-        toggleGold1(parsed_data.g_1_connection)
-        toggleGold2(parsed_data.g_2_connection)
-      });
+      $(function() {
+      var button=document.getElementById("add-user");
+      button.addEventListener('click', function(event) {
+      event.preventDefault();
+      var cln = document.getElementsByClassName("user")[0].cloneNode(true);
+      document.getElementById("users").insertBefore(cln,this);
+      return false;
+   });
+})();
 
-      // Heartbeat
-      function toggleBlue1(connected) {
-        toggleLed($(".blue-1-hb"), connected);
-      }
-
-      function toggleBlue2(connected) {
-        toggleLed($(".blue-2-hb"), connected);
-      }
-
-      function toggleGold1(connected) {
-        toggleLed($(".gold-1-hb"), connected);
-      }
-
-      function toggleGold2(connected) {
-        toggleLed($(".gold-2-hb"), connected);
-      }
-
-      function toggleLed(lightName, connected) {
-        if (connected) {
-          lightName.toggleClass("led-red", false);
-        } else {
-          lightName.toggleClass("led-red", true);
-        }
-      }
-    });
   </script>
 </head>
 
 <body>
-  
   <nav class="navbar navbar-expand-sm navbar-light bg-light">
   <a class="navbar-brand" href="#">Staff UI</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -256,21 +189,21 @@
   </button>
   <div class="collapse navbar-collapse" id="navbarNav">
     <ul class="navbar-nav">
-      <li class="nav-item active">
-        <a class="nav-link" href="../staff_gui.html">Match Creator<span class="sr-only">(current)</span></a>
+      <li class="nav-item">
+        <a class="nav-link" href="../staff_gui.html">Match Creator</a>
       </li>
       <li class="nav-item">
+        <a class="nav-link" href="../recovery.html">Recovery</a>
+      </li>
+      <li class="nav-item active">
         <a class="nav-link" href="../score_adjustment.html">Score Adjustment</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="../stage_control.html">Stage Control</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="../match_recovery.html">Match Recovery</a>
-      </li>
     </ul>
   </div>
-</nav>
+  </nav>
 
   <div class="container" style="max-width:1405px">
     <h2>Match Creator</h2>
@@ -353,6 +286,9 @@
         <input type="number" class="form-control" id="blue-2-custom-ip" placeholder="Blue 2 Custom IP">
       </div>
       <div class="form-group">
+        <input type="number" class="form-control" id="blue-score" placeholder="Blue Score">
+      </div>
+      <div class="form-group">
         <input type="number" class="form-control" id="blue-2-number" style="width: 81px;" placeholder="Blue 2 #">
       </div>
       <div class="form-group">
@@ -367,6 +303,9 @@
       <div class="form-group">
         <input type="number" class="form-control" id="gold-2-custom-ip" placeholder="Gold 2 Custom IP">
       </div>
+      <div class="form-group">
+        <input type="number" class="form-control" id="gold-score" placeholder="Gold Score">
+      </div>
       <button class="btn btn-danger" type="button" id="stop-gold-2">Stop Gold 2</button>
       <div class="form-group heartbeat-light gold-2-hb"></div>
       <div class="form-group">
@@ -379,7 +318,20 @@
       </div>
     </form>
 
-  </div>
+    <form class="users" action="/servers.py" method = "post">
+      <div class="user">
+        <input name="name" type="text" placeholder="Name"><br>
+      </div>
+        <button id='add-user'>Add more variables</button><br><br> 
+        <input type="submit">  
+    </form>
+
+    
+
+
+
+  
+
 </body>
 
 </html>

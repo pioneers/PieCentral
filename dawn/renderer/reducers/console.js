@@ -5,11 +5,10 @@ const DEFAULT_CONSOLE = {
 
 const console = (state = DEFAULT_CONSOLE, action) => {
   switch (action.type) {
-    case 'OPEN':
-    case 'CLOSE':
-      return {...state, isOpen: action.payload.isOpen};
-    // case 'APPEND':
-    //   return {...state, lines: };
+    case 'TOGGLE':
+      return {...state, isOpen: !state.isOpen};
+    case 'APPEND':
+      return {...state, lines: [...state.lines, ...action.payload.lines]};
     case 'CLEAR':
       return {...state, lines: []};
     default:

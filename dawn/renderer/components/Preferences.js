@@ -58,10 +58,10 @@ class Preferences extends React.Component {
                 <NumericInput placeholder="Example: 42" min={0} max={100} />
               </FormGroup>
               <FormGroup
-                  label="IP Address"
-                  inline
-                  labelInfo="(optional)"
-                  helperText="Overrides the automatic address calculation."
+                label="IP Address"
+                inline
+                labelInfo="(optional)"
+                helperText="Overrides the automatic address calculation."
               >
                 <InputGroup placeholder="Example: 192.168.1.1" />
               </FormGroup>

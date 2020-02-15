@@ -466,6 +466,9 @@ def save_game():
         if alliance_processed[key] is not None:
             alliance_processed[key] = alliance_processed[key].__dict__
     print("in save game")
+    robot_order = ["blue_1", "blue_2", "gold_1", "gold_2"]
+    starting_spots_dict = {robot_order[i]: STARTING_SPOTS[i] for i in range(4)}
+
     game_serialization.create_json({"GAME_STATE": GAME_STATE, "MATCH_NUMBER": MATCH_NUMBER, "STARTING_SPOTS": STARTING_SPOTS, \
                 "MASTER_ROBOTS": MASTER_ROBOTS, "BUTTONS": BUTTONS, "CODES_USED": CODES_USED, "ALLIANCES": alliance_processed})
 

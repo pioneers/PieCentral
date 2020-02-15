@@ -23,21 +23,30 @@ import Console from './Console';
 
 import { ipcRenderer } from 'electron';
 
-import { open, close, copy, clear } from '../actions/console';
+import { toggle, copy, clear } from '../actions/console';
 
 // const copyToClipboard = (lines) => lines.join('\n');
 
 const ConsoleMenu = connect(
-  state => ({ lines: state.console.lines }),
-  { open, close, copy, clear },
-)((props) => (
-  <Menu>
-    <MenuItem text="Open" icon={IconNames.MENU_OPEN} onClick={props.open} />
-    <MenuItem text="Close" icon={IconNames.MENU_CLOSED} onClick={props.close} />
-    <MenuItem text="Copy" icon={IconNames.DUPLICATE}></MenuItem>
-    <MenuItem text="Clear" icon={IconNames.CLEAN} onClick={props.clear} />
-  </Menu>
-));
+  state => state.console,
+  { toggle, copy, clear },
+)((props) => {
+  let icon, label;
+  if (props.isOpen) {
+    icon = IconNames.MENU_CLOSED;
+    label = 'Close';
+  } else {
+    icon = IconNames.MENU_OPEN;
+    label = 'Open';
+  }
+  return (
+    <Menu>
+      <MenuItem text={label} icon={icon} onClick={props.toggle} />
+      <MenuItem text="Copy" icon={IconNames.DUPLICATE}></MenuItem>
+      <MenuItem text="Clear" icon={IconNames.CLEAN} onClick={props.clear} />
+    </Menu>
+  );
+});
 
 const DebugMenu = () => (
   <Menu>

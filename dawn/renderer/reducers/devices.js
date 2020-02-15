@@ -4,11 +4,6 @@ const DEFAULT = [
   {type: 'PolarBear', uid: '103949402920394'},
   {type: 'PolarBear', uid: '103949402920394'},
   {type: 'PolarBear', uid: '103949402920394'},
-  // {type: 'PolarBear', uid: '103949402920394'},
-  // {type: 'PolarBear', uid: '103949402920394'},
-  // {type: 'PolarBear', uid: '103949402920394'},
-  // {type: 'PolarBear', uid: '103949402920394'},
-  // {type: 'PolarBear', uid: '103949402920394'},
 ]
 
 const devices = (state = DEFAULT, action) => {

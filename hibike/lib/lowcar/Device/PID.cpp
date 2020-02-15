@@ -8,6 +8,7 @@ PID::PID(double SetPoint, double KP, double KI, double KD, double initTime):
 	kd = KD;
 	setPoint = SetPoint;
 	lastTime = initTime;
+	enc->write(0); //reset the encoder because why not
 	prevPos = enc->read();
 	prevVel = 0.0;
 }

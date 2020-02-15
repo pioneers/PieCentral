@@ -263,6 +263,16 @@ void PolarBear::device_actions ()
     drive(this->pwmInput); // Temporary change just to test if wheel turns.
 }
 
+/* Calculates the sign of a float. */
+int PolarBear::sign(float x) {
+    if (x > 0) {
+        return 1;
+    } else if (x < 0) {
+        return -1;
+    }
+    return 0;
+}
+
 /* Given a value between -1 and 1 inclusive,
 ** analogWrite to the appropriate pins to accelerate/decelerate
 ** Negative indicates moving backwards; Positive indicates moving forwards.
@@ -272,53 +282,54 @@ void PolarBear::device_actions ()
 */
 void PolarBear::drive(float target)
 {
-	int goal = (int) ((target * 255) < 0 ? (target * 255 * -1) : (target * 255));
-	int direction = (target > 0) ? 1 : ((target < 0) ? -1 : 0);
+    int direction = sign(target);
+    int goal;
+    if (target == 0) {
+        direction = 0;
+    } else {
+        goal = target * 255 * sign(target); // A number between 0 and 255 inclusive (255 is stop; 0 is max speed);
+    }
 	int pwm_difference;
 	int delay = 1 / this->dpwm_dt; // About 784
 	if (direction > 0) { // Moving forwards
-		for (; currpwm1 < 255; currpwm1++) { // Set pwm1 to 255
-			analogWrite(PWM1, currpwm1);
-			delayMicroseconds(delay);
-		}
-		pwm_difference = currpwm2 - goal;
-		if (pwm_difference < 0) { // Increase pwm2 (Move forward slower)
-			for (; currpwm2 < goal; currpwm2++) {
-				analogWrite(PWM2, currpwm2);
-				delayMicroseconds(delay);
-			}
-		} else { // Decrease pwm2 (Move forward faster)
-			for (; currpwm2 > goal; currpwm2--) {
-				analogWrite(PWM2, currpwm2);
-				delayMicroseconds(delay);
-			}
-		}
+		currpwm2 = 255;
+		currpwm1 = 255 - goal;
+
+		//for (; currpwm2 < 255; currpwm2++) { // Set pwm2 to 255
+		//	analogWrite(PWM2, currpwm2);
+		//	delayMicroseconds(delay);
+		//}
+		//pwm_difference = currpwm1 - goal;
+		//for (int step = -sign(pwm_difference); currpwm1 != goal; currpwm1 += step) { // Moves currpwm1 to the goal
+		//    analogWrite(PWM1, currpwm1);
+		//    delayMicroseconds(delay);
+		//}
 	} else if (direction < 0) { // Moving backwards
-		for (; currpwm2 < 255; currpwm2++) { // Set pwm2 to 255
-			analogWrite(PWM2, currpwm2);
-			delayMicroseconds(delay);
-		}
-		pwm_difference = currpwm1 - goal;
-		if (pwm_difference < 0) { // Increase pwm1 (Move backwards slower)
-			for (; currpwm1 < goal; currpwm1++) {
-				analogWrite(PWM1, currpwm1);
-				delayMicroseconds(delay);
-			}
-		} else { // Decrease pwm1 (Move backwards faster)
-			for (; currpwm1 > goal; currpwm1--) {
-				analogWrite(PWM1, currpwm1);
-				delayMicroseconds(delay);
-			}
-		}
+		currpwm1 = 255;
+		currpwm2 = 255 - goal;		
+		//for (; currpwm1 < 255; currpwm1++) { // Set pwm1 to 255
+		//	analogWrite(PWM1, currpwm1);
+		//	delayMicroseconds(delay);
+		//}
+		//pwm_difference = currpwm2 - goal;
+		//for (int step = -sign(pwm_difference); currpwm2 != goal; currpwm2 += step) { // Moves currpwm2 to the goal
+		//    analogWrite(PWM2, currpwm2);
+		//    delayMicroseconds(delay);
+		//}
 	} else { // Stopping; must set both to 255
-		for (; currpwm1 < 255; currpwm1++) {
-			analogWrite(PWM1, currpwm1);
-			delayMicroseconds(delay);
-		}
-		for (; currpwm2 < 255; currpwm2++) {
-			analogWrite(PWM2, currpwm2);
-			delayMicroseconds(delay);
-		}
-		return;
+		currpwm1 = 255;
+		currpwm2 = 255;
+		//for (; currpwm1 < 255; currpwm1++) {
+		//	analogWrite(PWM1, currpwm1);
+		//	delayMicroseconds(delay);
+		//}
+		//for (; currpwm2 < 255; currpwm2++) {
+		//	analogWrite(PWM2, currpwm2);
+		//	delayMicroseconds(delay);
+		//}
+		//return;
 	}
+	analogWrite(PWM1, currpwm1);
+	analogWrite(PWM2, currpwm2);
+	delayMicroseconds(delay);
 }

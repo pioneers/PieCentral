@@ -27,6 +27,7 @@ private:
 	int delayMod;
 	float dpwm_dt;
 	PID *pid;
+	int sign(float x);
 	void drive(float target);
 };
 

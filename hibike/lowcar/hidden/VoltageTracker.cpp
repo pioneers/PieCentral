@@ -7,7 +7,7 @@ float v_cell3 = 0;  // param 5
 float v_batt = 0;   // param 6
 float dv_cell2 = 0; // param 7
 float dv_cell3 = 0; // param 8
-float VoltageTracker:vref_guess = 0; // param 9
+float vref_guess = 0; // param 9
 
 float calib[3] = {0, 0, 0};
 

@@ -1,9 +1,8 @@
 #include "eeprom.h"
 
 //Class for low-level functions that deal with storing the calibration values.
-eeprom::eeprom(VoltageTracker v_tracker)
+eeprom::eeprom(VoltageTracker v_tracker) : voltage_tracker(v_tracker)
 {
-  VoltageTracker voltage_tracker = v_tracker;
 }
 
 // Returns calibration voltage.  Returns -1 (as float) if no calibration.

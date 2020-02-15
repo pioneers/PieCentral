@@ -16,7 +16,7 @@ BatteryBuzzer::BatteryBuzzer () : Device (DeviceID:: BATTERY_BUZZER, 1)
   this->safety = safety (voltage_tracker, buzzer);
   this->voltage_sense = voltage_sense (eeprom, disp_8, voltage_tracker);
 
-  voltage_tracker.set(VREF_GUESS, ADC_REF_NOM); //initial guesses, based on datasheet
+  voltage_tracker.set_voltage(VREF_GUESS, ADC_REF_NOM); //initial guesses, based on datasheet
   voltage_tracker.set_calib(0, ADC_REF_NOM);
   voltage_tracker.set_calib(1, ADC_REF_NOM);
   voltage_tracker.set_calib(2, ADC_REF_NOM);
@@ -43,22 +43,22 @@ uint8_t BatteryBuzzer::device_read (uint8_t param, uint8_t *data_buf, size_t dat
 
   switch(param) {
       case V_CELL1:
-        float_buf[0] = voltage_tracker.get(V_CELL1);
+        float_buf[0] = voltage_tracker.get_voltage(V_CELL1);
         break;
       case V_CELL2:
-        float_buf[0] = voltage_tracker.get(V_CELL2);
+        float_buf[0] = voltage_tracker.get_voltage(V_CELL2);
         break;
       case V_CELL3:
-        float_buf[0] = voltage_tracker.get(V_CELL3);
+        float_buf[0] = voltage_tracker.get_voltage(V_CELL3);
         break;
       case V_BATT:
-        float_buf[0] = voltage_tracker.get(V_BATT);
+        float_buf[0] = voltage_tracker.get_voltage(V_BATT);
         break;
       case DV_CELL2:
-        float_buf[0] = voltage_tracker.get(DV_CELL2);
+        float_buf[0] = voltage_tracker.get_voltage(DV_CELL2);
         break;
       case DV_CELL3:
-        float_buf[0] = voltage_tracker.get(DV_CELL3);
+        float_buf[0] = voltage_tracker.get_voltage(DV_CELL3);
         break;
     }
 
@@ -76,7 +76,7 @@ void BatteryBuzzer::device_enable ()
   voltage_sense.setup_sensing();
 }
 
-uint8_t BatteryBuzzer::device_actions ()
+void BatteryBuzzer::device_actions ()
 {
   disp_8.handle_8_segment();
   disp_8.handle_8_calibration();

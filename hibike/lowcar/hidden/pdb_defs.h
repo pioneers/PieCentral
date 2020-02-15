@@ -27,8 +27,8 @@
 #define C 7
 #define D 2
 #define E 0
-#define F 15
-#define G 14
+#define G 15
+#define H 14
 #define DECIMAL_POINT 1
 
 #define DISP_PIN_1 6

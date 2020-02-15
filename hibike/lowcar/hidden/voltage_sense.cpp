@@ -4,11 +4,11 @@
 
 // Utility class that deals with calibration and measuring cell voltages.
 
-voltage_sense::voltage_sense(eeprom ee_prom, disp_8 display_8, VoltageTracker v_tracker)
+voltage_sense::voltage_sense(eeprom ee_prom, disp_8 display_8, VoltageTracker v_tracker) :
+  sense_eeprom(ee_prom),
+  sense_disp_8(display_8),
+  sense_voltage_tracker(v_tracker)
 {
-  eeprom sense_eeprom = ee_prom;
-  disp_8 sense_disp_8 = display_8;
-  VoltageTracker sense_voltage_tracker = v_tracker;
 }
 
 void voltage_sense::setup_sensing()

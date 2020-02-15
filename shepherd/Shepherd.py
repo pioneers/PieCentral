@@ -9,6 +9,7 @@ from LCM import *
 from Timer import *
 from Utils import *
 from Code import *
+from RecipeManager import *
 from runtimeclient import RuntimeClientManager
 import Sheet
 import bot
@@ -186,6 +187,34 @@ def to_teleop(args):
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
              {"time" : CONSTANTS.TELEOP_TIME})
     print("ENTERING TELEOP STATE")
+
+def should_overtime(args):
+    '''
+    Decides whether to move into the overtime stage or the end stage
+    '''
+    cond1 = gold_recipes_completed == blue_recipes_completed
+    # cond2 = abs(blue_time - gold_time <= 15)
+
+    if (cond1 and cond2) {
+        to_overtime()
+    }
+    else {
+        to_end()
+    }
+
+def to_overtime(args):
+    '''
+    Move to the overtime stage
+    '''
+    global GAME_STATE
+    GAME_STATE = STATE.OVERTIME
+    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE, {"stage": GAME_STATE})
+
+    GAME_TIMER.start_timer(CONSTANTS.OVERTIME_TELEOP_TIME + 2)
+
+    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
+             {"time" : CONSTANTS.OVERTIME_TELEOP_TIME})
+    print("ENTERING OVERTIME STATE")
 
 def to_end(args):
     '''
@@ -427,7 +456,7 @@ WAIT_FUNCTIONS = {
 
 TELEOP_FUNCTIONS = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
-    SHEPHERD_HEADER.STAGE_TIMER_END : to_end,
+    SHEPHERD_HEADER.STAGE_TIMER_END : should_overtime,
     #SHEPHERD_HEADER.CODE_APPLICATION : apply_code,
     SHEPHERD_HEADER.ROBOT_OFF : disable_robot,
     #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,

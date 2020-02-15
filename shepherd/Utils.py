@@ -105,7 +105,8 @@ class TABLET_HEADER():
 # pylint: disable=invalid-name
 class CONSTANTS():
     AUTO_TIME = 30 # 30
-    TELEOP_TIME = 180 # 180
+    TELEOP_TIME = 120 # 120
+    OVERTIME_TELEOP_TIME = 40 # 40
     SPREADSHEET_ID = "1vurNOrlIIeCHEtK5aJVDfHrRM1AC2qWvIbtWqUgnmLk"
     CSV_FILE_NAME = "Sheets/fc2019.csv"
     STUDENT_DECODE_TIME = 1
@@ -138,6 +139,7 @@ class STATE():
     AUTO = "auto"
     WAIT = "wait"
     TELEOP = "teleop"
+    OVERTIME = "overtime"
     END = "end"
 
 class INGREDIENT():

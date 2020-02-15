@@ -1,6 +1,14 @@
 import keyMirror from 'keymirror';
 
 export const VERSION = '2.0.0';
+
+export const StatusType = keyMirror({
+  DISCONNECTED: null,
+  ERROR: null,
+  WARNING: null,
+  HEALTHY: null,
+});
+
 export const PeripheralTypes = keyMirror({
   MOTOR_SCALAR: null,
   SENSOR_BOOLEAN: null,

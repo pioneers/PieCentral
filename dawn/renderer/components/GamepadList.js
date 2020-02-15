@@ -8,7 +8,7 @@ import Gamepad from './Gamepad';
 
 const GamepadListComponent = (props) => {
   let interior;
-  if (_.some(props.gamepads, gamepad => gamepad !== undefined)) {
+  if (_.some(props.gamepads, (gamepad) => gamepad !== undefined)) {
     interior = _.map(
       props.gamepads,
       (gamepad, index) => <Gamepad key={index} index={parseInt(index, 10)} gamepad={gamepad} />,
@@ -41,7 +41,7 @@ GamepadListComponent.propTypes = {
   gamepads: PropTypes.object.isRequired,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   gamepads: state.gamepads.gamepads,
 });
 

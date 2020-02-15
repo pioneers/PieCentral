@@ -1,4 +1,4 @@
-import path from 'path';
+const path = require('path');
 
 const modules = {
   rules: [
@@ -13,10 +13,18 @@ const modules = {
       exclude: /node_modules/,
       loader: 'babel-loader',
     },
+    {
+      test: /\.css$/i,
+      use: ['style-loader', 'css-loader'],
+    },
+    {
+      test: /\.png$/i,
+      use: ['file-loader'],
+    },
   ],
 };
 
-export default [
+module.exports = [
   {
     entry: './renderer/index.js',
     devtool: 'cheap-module-eval-source-map',
@@ -26,6 +34,9 @@ export default [
     },
     target: 'electron-renderer',
     module: modules,
+    node: {
+      __dirname: true,
+    },
   },
   {
     entry: './main/main-process.js',
@@ -35,7 +46,7 @@ export default [
     },
     target: 'electron-main',
     node: {
-      __dirname: false,
+      __dirname: true,
       __filename: false,
     },
     module: modules,

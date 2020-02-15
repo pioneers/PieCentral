@@ -9,7 +9,7 @@ const StatusLabelComponent = (props) => {
   let labelText = 'Disconnected';
   const masterRobotHeader = 'Master Robot: Team ';
   const teamIP = props.ipAddress.substring(props.ipAddress.length - 2, props.ipAddress.length);
-  const shouldDisplayMaster = teamNumber => parseInt(teamIP, 10) === teamNumber
+  const shouldDisplayMaster = (teamNumber) => parseInt(teamIP, 10) === teamNumber
                                             && props.fieldControlStatus;
   let masterRobot = null;
   let masterRobotStyle = ' ';
@@ -56,7 +56,7 @@ StatusLabelComponent.propTypes = {
 };
 
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   batteryLevel: state.peripherals.batteryLevel,
   batterySafety: state.peripherals.batterySafety,
   masterStatus: state.fieldStore.masterStatus,

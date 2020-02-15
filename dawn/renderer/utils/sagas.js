@@ -6,15 +6,16 @@
 
 import fs from 'fs';
 import _ from 'lodash';
-import { delay, eventChannel } from 'redux-saga';
-import { all, call, cps, fork, put, race, select, take, takeEvery } from 'redux-saga/effects';
+import { eventChannel } from 'redux-saga';
+import {
+  all, call, cps, delay, fork, put, race, select, take, takeEvery,
+} from 'redux-saga/effects';
 import { ipcRenderer, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
 import { openFileSucceeded, saveFileSucceeded } from '../actions/EditorActions';
-import { toggleFieldControl } from '../actions/FieldActions';
 import { updateGamepads } from '../actions/GamepadsActions';
 import { runtimeConnect, runtimeDisconnect } from '../actions/InfoActions';
-import { TIMEOUT, defaults, logging } from '../utils/utils';
+import { TIMEOUT, defaults, logging } from './utils';
 
 
 const { Client } = require('ssh2');
@@ -104,7 +105,7 @@ function* writeFile(filepath, code) {
   yield put(saveFileSucceeded(code, filepath));
 }
 
-const editorState = state => ({
+const editorState = (state) => ({
   filepath: state.editor.filepath,
   code: state.editor.editorCode,
 });
@@ -127,7 +128,7 @@ function* saveFile(action) {
   }
 }
 
-const editorSavedState = state => ({
+const editorSavedState = (state) => ({
   savedCode: state.editor.latestSaveCode,
   code: state.editor.editorCode,
 });
@@ -220,7 +221,7 @@ function _needToUpdate(newGamepads) {
     if (gamepad != null && (gamepad.timestamp > _timestamps[index])) {
       _timestamps[index] = gamepad.timestamp;
       return true;
-    } else if (gamepad == null && _timestamps[index] != null) {
+    } if (gamepad == null && _timestamps[index] != null) {
       _timestamps[index] = null;
       return true;
     }
@@ -265,7 +266,7 @@ function* ansibleGamepads() {
       }
     }
 
-    yield call(delay, 50); // wait 50 ms before updating again.
+    yield delay(50); // wait 50 ms before updating again.
   }
 }
 
@@ -304,7 +305,7 @@ function* ansibleSaga() {
   }
 }
 
-const gamepadsState = state => ({
+const gamepadsState = (state) => ({
   studentCodeStatus: state.info.studentCodeStatus,
   gamepads: state.gamepads.gamepads,
 });
@@ -319,7 +320,7 @@ function* updateMainProcess() {
 
 function* restartRuntime() {
   const conn = new Client();
-  const stateSlice = yield select(state => ({
+  const stateSlice = yield select((state) => ({
     runtimeStatus: state.info.runtimeStatus,
     ipAddress: state.info.ipAddress,
   }));
@@ -361,7 +362,7 @@ function* restartRuntime() {
 
 function* downloadStudentCode() {
   const conn = new Client();
-  const stateSlice = yield select(state => ({
+  const stateSlice = yield select((state) => ({
     runtimeStatus: state.info.runtimeStatus,
     ipAddress: state.info.ipAddress,
   }));
@@ -453,7 +454,7 @@ function* downloadStudentCode() {
 
 function* uploadStudentCode() {
   const conn = new Client();
-  const stateSlice = yield select(state => ({
+  const stateSlice = yield select((state) => ({
     runtimeStatus: state.info.runtimeStatus,
     ipAddress: state.info.ipAddress,
     filepath: state.editor.filepath,
@@ -537,19 +538,6 @@ function* uploadStudentCode() {
   }
 }
 
-function* handleFieldControl() {
-  const stateSlice = yield select(state => ({
-    fieldControlStatus: state.fieldStore.fieldControl,
-  }));
-  if (stateSlice.fieldControlStatus) {
-    yield put(toggleFieldControl(false));
-    ipcRenderer.send('FC_TEARDOWN');
-  } else {
-    yield put(toggleFieldControl(true));
-    ipcRenderer.send('FC_INITIALIZE');
-  }
-}
-
 function timestampBounceback() {
   logging.log('Timestamp Requested in Sagas');
   ipcRenderer.send('TIMESTAMP_SEND');
@@ -569,7 +557,6 @@ export default function* rootSaga() {
     takeEvery('RESTART_RUNTIME', restartRuntime),
     takeEvery('DOWNLOAD_CODE', downloadStudentCode),
     takeEvery('UPLOAD_CODE', uploadStudentCode),
-    takeEvery('TOGGLE_FIELD_CONTROL', handleFieldControl),
     takeEvery('TIMESTAMP_CHECK', timestampBounceback),
     fork(runtimeHeartbeat),
     fork(ansibleGamepads),

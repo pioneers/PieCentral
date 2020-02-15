@@ -1,4 +1,80 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import {
+  Classes,
+  Colors,
+} from '@blueprintjs/core';
+import { IconNames } from "@blueprintjs/icons";
+
+import { Console } from './Console';
+import DeviceList from './DeviceList';
+import Toolbar from './Toolbar';
+
+import { ipcRenderer } from 'electron';
+
+
+// const copyToClipboard = (lines) => lines.join('\n');
+
+import AceEditor from 'react-ace';
+import "ace-builds/src-noconflict/theme-github";
+
+class Editor extends React.Component {
+  render() {
+    return (
+      <AceEditor
+        mode="python"
+        theme={this.props.theme}
+        className="editor-area"
+        width="100%"
+        style={{ minHeight: '100%' }}
+      />
+    );
+  }
+}
+
+class App extends React.PureComponent {
+  constructor() {
+    super();
+    this.state = {};
+  }
+
+  render() {
+    let className, background;
+    if (this.props.darkTheme) {
+      className = Classes.DARK;
+      background = Colors.DARK_GRAY1;
+    } else {
+      className = Classes.LIGHT;
+      background = Colors.LIGHT_GRAY1;
+    }
+    const style = { background, height: '100%' };
+    return (
+      <div className={`bg-theme ${Classes.TEXT_LARGE} ${className}`} style={style}>
+        <Toolbar />
+        <div className="container">
+          <main>
+            <div className="editor">
+              <Editor />
+            </div>
+            <div className="console">
+              <Console />
+            </div>
+          </main>
+          <DeviceList />
+        </div>
+      </div>
+    );
+  }
+}
+
+export default connect(
+  state => ({
+    darkTheme: state.preferences.darkTheme
+  }),
+)(App);
+
+
+/*
 import Joyride from 'react-joyride';
 import PropTypes from 'prop-types';
 import { remote, ipcRenderer } from 'electron';
@@ -46,30 +122,18 @@ class AppComponent extends React.Component {
         });
       }
     });
-
-    storage.get('fieldControl', (err, data) => {
-      if (err) {
-        logging.log(err);
-        return;
-      }
-      this.props.onFCUpdate(data);
-      ipcRenderer.send('FC_CONFIG_CHANGE', data);
-    });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { asyncAlerts } = nextProps;
-    // If the alerts list has changed, display the latest one.
-    if (asyncAlerts !== this.props.asyncAlerts) {
-      const latestAlert = asyncAlerts[asyncAlerts.length - 1];
-      if (latestAlert !== undefined) {
-        this.updateAlert(latestAlert);
-      }
-    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     return nextProps !== this.props || nextState !== this.state;
+  }
+
+  componentDidUpdate(prevProps) {
+    const { asyncAlerts } = this.props;
+    if (prevProps.asyncAlerts !== asyncAlerts) {
+      const latestAlert = asyncAlerts[asyncAlerts.length - 1];
+      this.updateAlert(latestAlert);
+    }
   }
 
   addSteps(steps) {
@@ -136,7 +200,6 @@ class AppComponent extends React.Component {
         />
         <div style={{ height: '35px', marginBottom: '21px' }} />
         <Dashboard
-          {...this.props}
           addSteps={this.addSteps}
           addTooltip={this.addTooltip}
           connectionStatus={this.props.connectionStatus}
@@ -155,10 +218,9 @@ AppComponent.propTypes = {
   isRunningCode: PropTypes.bool.isRequired,
   asyncAlerts: PropTypes.array.isRequired,
   onAlertDone: PropTypes.func.isRequired,
-  onFCUpdate: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   connectionStatus: state.info.connectionStatus,
   runtimeStatus: state.info.runtimeStatus,
   masterStatus: state.fieldStore.masterStatus,
@@ -166,15 +228,13 @@ const mapStateToProps = state => ({
   asyncAlerts: state.asyncAlerts,
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   onAlertDone(id) {
     dispatch(removeAsyncAlert(id));
-  },
-  onFCUpdate: (ipAddress) => {
-    dispatch(updateFieldControl(ipAddress));
   },
 });
 
 const App = connect(mapStateToProps, mapDispatchToProps)(AppComponent);
 
 export default App;
+*/

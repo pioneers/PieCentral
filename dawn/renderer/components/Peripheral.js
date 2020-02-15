@@ -26,13 +26,21 @@ const Peripheral = (props) => {
   const ActualPeripheral = typesToComponents[props.device_type] || GenericPeripheral;
   return (
     <ListGroupItem style={{ padding: '0px 0px 15px 0px', border: 'none' }}>
-      <ActualPeripheral{...props} />
+      <ActualPeripheral
+        id={props.id}
+        device_type={props.device_type}
+        device_name={props.device_name}
+        param={props.param}
+      />
     </ListGroupItem>
   );
 };
 
 Peripheral.propTypes = {
+  id: PropTypes.string,
   device_type: PropTypes.string.isRequired,
+  device_name: PropTypes.string,
+  param: PropTypes.any,
 };
 
 export default Peripheral;

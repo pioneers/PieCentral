@@ -1,17 +1,32 @@
-import { compose, createStore, applyMiddleware } from 'redux';
+import { ipcRenderer } from 'electron';
+import { compose, createStore, applyMiddleware, combineReducers } from 'redux';
 import createSagaMiddleware from 'redux-saga';
+import effects from './effects';
 
-import dawnApp from './reducers/dawnApp';
-import rootSaga from './utils/sagas';
-
+import console from './reducers/console';
+import connection from './reducers/connection';
+import devices from './reducers/devices';
+import preferences from './reducers/preferences';
 
 const sagaMiddleware = createSagaMiddleware();
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const reducer = combineReducers({
+  console,
+  connection,
+  devices,
+  preferences,
+});
+
 const store = createStore(
-  dawnApp,
+  reducer,
   composeEnhancers(applyMiddleware(sagaMiddleware)),
 );
 
-sagaMiddleware.run(rootSaga);
+ipcRenderer.on('dispatch', (event, action) => {
+  store.dispatch(action);
+});
+
+sagaMiddleware.run(effects);
 
 export default store;

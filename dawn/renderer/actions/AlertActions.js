@@ -12,7 +12,7 @@ export const addAsyncAlert = (heading, message) => ({
   message,
 });
 
-export const removeAsyncAlert = id => ({
+export const removeAsyncAlert = (id) => ({
   type: 'REMOVE_ASYNC_ALERT',
   id,
 });

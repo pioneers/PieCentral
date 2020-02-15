@@ -1,16 +1,4 @@
-import { fork } from 'child_process';
 import RendererBridge from '../RendererBridge';
-import FCObject from '../networking/FieldControl';
-
-let fakeRuntime = null;
-
-export function killFakeRuntime() {
-  if (fakeRuntime) {
-    fakeRuntime.kill();
-    fakeRuntime = null;
-    console.log('Fake runtime killed');
-  }
-}
 
 const DebugMenu = {
   label: 'Debug',
@@ -28,13 +16,6 @@ const DebugMenu = {
         RendererBridge.reduxDispatch({
           type: 'RESTART_RUNTIME',
         });
-      },
-    },
-    {
-      label: 'Restart FC',
-      click() {
-        FCObject.FCInternal.quit();
-        FCObject.setup();
       },
     },
     {
@@ -64,18 +45,5 @@ const DebugMenu = {
     },
   ],
 };
-
-if (process.env.NODE_ENV === 'development') {
-  DebugMenu.submenu.push({
-    label: 'Toggle Fake Runtime',
-    click() {
-      if (fakeRuntime) {
-        killFakeRuntime();
-      } else {
-        fakeRuntime = fork('./fake-runtime/FakeRuntime');
-      }
-    },
-  });
-}
 
 export default DebugMenu;

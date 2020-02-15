@@ -1,1 +1,9 @@
-*.pyc
+# Google protobufs
+*_pb2.py
+
+# Cython
+*.c
+*.cpp
+
+# Device aliases
+runtime/config/device-aliases.yaml

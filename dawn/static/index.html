@@ -3,17 +3,70 @@
   <head>
     <meta charset="UTF-8">
     <title>Dawn</title>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="smalltalk/css/smalltalk.min.css">
-    <link rel="stylesheet" href="../node_modules/react-joyride/lib/react-joyride-compiled.css">
-    <link rel="stylesheet" href="dawn.css">
-    <style type="text/css">
-      .ace_search_form.ace_nomatch {
-        color: #272822;
+    <link rel="stylesheet" href="../node_modules/normalize.css/normalize.css" />
+    <link rel="stylesheet" href="../node_modules/@blueprintjs/core/lib/css/blueprint.css" />
+    <link rel="stylesheet" href="../node_modules/@blueprintjs/icons/lib/css/blueprint-icons.css" />
+    <style>
+      html, body, #content, #content > .bg-theme {
+        height: 100%;
       }
-      .joyride-tooltip__footer .skip {
-        color: #ff0000;
-        font-weight: bold;
+      .bg-theme {
+        display: flex;
+        flex-direction: column;
+      }
+      .container {
+        display: flex;
+        flex-grow: 1;
+      }
+      main {
+        float: left;
+        width: 70%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        padding: 1rem;
+      }
+      .editor {
+        flex-grow: 1;
+      }
+      #ace-editor {
+        border-radius: 3px;
+      }
+      .card-container {
+        display: inline-block;
+        overflow: auto;
+      }
+      .card {
+        display: inline-block;
+        width: 100%;
+        margin-top: 1rem;
+      }
+      .devices-cards {
+        width: 30%;
+        float: right;
+        padding-right: 1rem;
+        max-height: 95vh;
+      }
+      .device-name {
+        display: block;
+        margin: 1rem 0;
+      }
+      .device-uid {
+        display: inline-block;
+        width: 50%;
+        text-align: right;
+        margin: 0;
+      }
+      .device-alias {
+        display: inline-block;
+        width: 50%;
+      }
+      .console-area {
+        height: 16rem;
+        overflow: auto;
+        margin-top: 1rem;
+        margin-bottom: 0;
       }
     </style>
   </head>

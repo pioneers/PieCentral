@@ -1,0 +1,179 @@
+#!/usr/bin/env python3
+
+import asyncio
+import functools
+import logging
+import structlog
+from typing import Mapping
+
+import msgpack
+import zmq
+import zmq.asyncio
+import click
+
+import runtimeclient as runtime
+
+
+logging.disable()
+structlog.configure(
+    processors=[structlog.stdlib.filter_by_level],
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+)
+
+warn = lambda msg: click.echo(click.style(msg, fg='yellow', bold=True))
+
+
+def catch_command_exc(cli):
+    @functools.wraps(cli)
+    def wrapper(*args, **kwargs):
+        try:
+            return cli(*args, **kwargs)
+        except runtime.RuntimeClientError as exc:
+            click.echo(click.style(str(exc), fg='red', bold=True))
+    return wrapper
+
+
+@click.group()
+@click.option('--host', default='127.0.0.1')
+@click.pass_context
+def cli(ctx, host):
+    """
+    rtcli -- Runtime command-line interface
+    """
+    ctx.obj = ctx.obj or {}
+    ctx.obj['host'] = host
+    logging.getLogger().propogate = False
+
+
+@cli.group()
+def alias():
+    pass
+
+
+@cli.group()
+def match():
+    pass
+
+
+def display_aliases(aliases: Mapping[str, str]):
+    if aliases:
+        click.echo(click.style(f'{len(aliases)} aliases:', fg='green', bold=True))
+        for name, uid in aliases.items():
+            click.echo(f'  {name} => {uid}')
+    else:
+        warn('No aliases')
+
+
+def display_match(match):
+    alliance, mode = match['alliance'].upper(), match['mode'].upper()
+    alliance_color = 'yellow' if alliance == 'GOLD' else 'blue'
+    mode_color = {
+        'IDLE': 'white',
+        'AUTO': 'cyan',
+        'TELEOP': 'magenta',
+    }[mode]
+    click.echo('Current match:')
+    click.echo(click.style(f'  Mode: {mode}', fg=mode_color, bold=True))
+    click.echo(click.style(f'  Alliance: {alliance}', fg=alliance_color, bold=True))
+
+
+@alias.command('list')
+@click.pass_context
+@catch_command_exc
+def list_aliases(ctx):
+    """ List all human-readable device aliases for UIDs. """
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        aliases = client.send_command('list_aliases')
+        display_aliases(aliases['aliases'])
+
+
+@alias.command('set')
+@click.argument('name')
+@click.argument('uid')
+@click.pass_context
+@catch_command_exc
+def set_alias(ctx, name, uid):
+    """ Set a human-readable alias for a device UID. """
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        aliases = client.send_command('set_alias', name, uid)
+        click.echo('Successfully set alias!')
+        display_aliases(aliases['aliases'])
+
+
+@alias.command('del')
+@click.argument('name')
+@click.pass_context
+@catch_command_exc
+def del_alias(ctx, name):
+    """ Delete a human-readable alias for a device UID. """
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        aliases = client.send_command('del_alias', name)
+        click.echo('Successfully deleted alias!')
+        display_aliases(aliases['aliases'])
+
+
+@match.command('get')
+@click.pass_context
+@catch_command_exc
+def get_match(ctx):
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        display_match(client.send_command('get_match'))
+
+
+@match.command('set')
+@click.argument('mode', default='IDLE',
+              type=click.Choice(['IDLE', 'AUTO', 'TELEOP', 'ESTOP']))
+@click.argument('alliance', default='BLUE',
+              type=click.Choice(['BLUE', 'GOLD']))
+@click.pass_context
+@catch_command_exc
+def set_match(ctx, mode, alliance):
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        display_match(client.send_command('set_match', mode, alliance))
+
+
+@cli.command('challenge')
+@click.argument('challenges', nargs=-1)
+@click.argument('seed', type=int)
+@click.pass_context
+@catch_command_exc
+def run_challenge(ctx, challenges, seed):
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        click.echo('Running coding challenge ...')
+        answers = client.send_command('run_challenge', challenges, seed).get('answers') or []
+        click.echo(click.style(f'Challenge completed successfully!', fg='green', bold=True))
+        if answers:
+            click.echo('Answers:')
+            for answer in answers:
+                click.echo(f' => {answer}')
+        else:
+            warn('No answers provided')
+
+
+@cli.command('lint')
+@click.pass_context
+def lint(ctx, ch='#', side=25):
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        payload = client.send_command('lint')
+        print(f'{ch*side} stdout {ch*side}', end='\n'*2)
+        print(payload['stdout'].strip(), end='\n'*2)
+        print(f'{ch*(8 + 2*side)}', end='\n'*3)
+        print(f'{ch*side} stderr {ch*side}', end='\n'*2)
+        print(payload['stderr'].strip(), end='\n'*2)
+        print(f'{ch*(8 + 2*side)}')
+
+
+@cli.command()
+@click.pass_context
+def log(ctx):
+    with runtime.RuntimeClient(ctx.obj['host']) as client:
+        while True:
+            try:
+                print(client.recv_log())
+            except ValueError:
+                click.echo(click.style('Failed to decode record', fg='red'))
+
+
+if __name__ == '__main__':
+    cli()

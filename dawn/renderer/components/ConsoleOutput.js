@@ -12,14 +12,11 @@ class ConsoleOutput extends React.Component {
     this.scrollToBottom();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.output.size === 0 && nextProps.output.size > 0 && !this.props.show) {
+  componentDidUpdate(prevProps) {
+    this.scrollToBottom();
+    if (prevProps.output.size === 0 && this.props.output.size > 0 && !prevProps.show) {
       this.props.toggleConsole();
     }
-  }
-
-  componentDidUpdate() {
-    this.scrollToBottom();
   }
 
   scrollToBottom() {
@@ -27,7 +24,6 @@ class ConsoleOutput extends React.Component {
       this.outerDiv.scrollTop = this.outerDiv.scrollHeight;
     }
   }
-
 
   render() {
     const height = `${String(this.props.height)}px`; // TODO: Use Panel.Collapse
@@ -59,7 +55,7 @@ class ConsoleOutput extends React.Component {
                 }}
                 ref={(el) => { this.outerDiv = el; }}
               >
-                {this.props.output.map(line => (
+                {this.props.output.map((line) => (
                   <code key={`${line}-Code-${Math.random()}`}>{line}</code>
                 ))}
               </div>

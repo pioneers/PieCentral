@@ -1,7 +1,9 @@
 //code that deals with displaying the data to the outside world.
 #include "disp_8.h"
 
-disp_8::disp_8 (VoltageTracker v_tracker) : voltage_tracker(v_tracker)
+disp_8::disp_8 (VoltageTracker v_tracker) :
+  voltage_tracker(v_tracker),
+  disp(SevenSeg(A, B, C, D, E, G, H))
 {
 
   this->digitPins[0] = DISP_PIN_1;
@@ -14,8 +16,6 @@ disp_8::disp_8 (VoltageTracker v_tracker) : voltage_tracker(v_tracker)
 
   this->segment_8_run = NORMAL_VOLT_READ;  //0 for the normal voltage readout.  1 for "Clear Calibration".  2 for "New Calibration"
 }
-
-
 
 void disp_8::setup_display()
 {

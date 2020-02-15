@@ -6,7 +6,6 @@
 #include "pdb_defs.h"
 
 const int numOfDigits = 4;
-SevenSeg disp(A, B, C, D, E, G, H); // Not alphabetical because Arduino overrides F
 
 class disp_8
 {
@@ -23,6 +22,8 @@ public:
   void setup_display();
 
 private:
+
+  SevenSeg disp;
 
   int digitPins[numOfDigits];
 

@@ -139,6 +139,7 @@ class STATE():
     AUTO = "auto"
     WAIT = "wait"
     TELEOP = "teleop"
+    LIMBO = "limbo"
     OVERTIME = "overtime"
     END = "end"
 

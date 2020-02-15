@@ -188,6 +188,18 @@ def to_teleop(args):
              {"time" : CONSTANTS.TELEOP_TIME})
     print("ENTERING TELEOP STATE")
 
+def to_limbo(args):
+    '''
+    Move to the limbo stage, after the teleop phase.
+    By the end, should be in wait state and the robots should be disabled.
+    Following phase decides whether to move into the overtime or end phase.
+    '''
+    global GAME_STATE
+    GAME_STATE = STATE.LIMBO
+    lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE, {"stage": GAME_STATE})
+    disable_robots()
+    print("ENTERING LIMBO STATE")
+
 def should_overtime(args):
     '''
     Decides whether to move into the overtime stage or the end stage
@@ -212,6 +224,7 @@ def to_overtime(args):
 
     GAME_TIMER.start_timer(CONSTANTS.OVERTIME_TELEOP_TIME + 2)
 
+    enable_robots(False)
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
              {"time" : CONSTANTS.OVERTIME_TELEOP_TIME})
     print("ENTERING OVERTIME STATE")
@@ -456,13 +469,21 @@ WAIT_FUNCTIONS = {
 
 TELEOP_FUNCTIONS = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
-    SHEPHERD_HEADER.STAGE_TIMER_END : should_overtime,
+    SHEPHERD_HEADER.STAGE_TIMER_END : to_limbo,
     #SHEPHERD_HEADER.CODE_APPLICATION : apply_code,
     SHEPHERD_HEADER.ROBOT_OFF : disable_robot,
     #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
     SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections
+}
 
+LIMBO_FUNCTIONS = {
+    SHEPHERD_HEADER.RESET_MATCH : reset,
+    SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
+    SHEPHERD_HEADER.GET_SCORES : get_score,
+    SHEPHERD_HEADER.START_NEXT_STAGE : should_overtime,
+    SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
+    SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections
 }
 
 END_FUNCTIONS = {

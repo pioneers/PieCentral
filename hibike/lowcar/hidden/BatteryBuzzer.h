@@ -13,11 +13,11 @@ class BatteryBuzzer : public Device
 public:
   bool triple_calibration;
   int buzzer;
-  VoltageTracker voltage_tracker;
-  disp_8 disp_8;
-  voltage_sense voltage_sense;
-  eeprom eeprom;
-  safety safety;
+  VoltageTracker bb_voltage_tracker;
+  disp_8 bb_disp_8;
+  voltage_sense bb_voltage_sense;
+  eeprom bb_eeprom;
+  safety bb_safety;
 
   //constructs a BatteryBuzzer; simply calls generic Device constructor with device type and year
   BatteryBuzzer ();

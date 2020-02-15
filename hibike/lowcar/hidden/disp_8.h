@@ -6,7 +6,7 @@
 #include "pdb_defs.h"
 
 const int numOfDigits = 4;
-SevenSeg disp = new SevenSeg(A, B, C, D, E, G, H); // Not alphabetical because Arduino overrides F
+SevenSeg disp(A, B, C, D, E, G, H); // Not alphabetical because Arduino overrides F
 
 class disp_8
 {

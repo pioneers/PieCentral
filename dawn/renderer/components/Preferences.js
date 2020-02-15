@@ -18,14 +18,16 @@ import {
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 
+import { truncate, MIN_LINES, MAX_LINES } from '../actions/console';
 import { toggleDarkTheme } from '../actions/preferences';
 
 class Preferences extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       isOpen: false,
       confirming: false,
+      maxLines: props.maxLines,
     };
     this.close = this.close.bind(this);
     this.open = this.open.bind(this);
@@ -42,6 +44,7 @@ class Preferences extends React.Component {
 
   confirm() {
     this.setState({ confirming: true }, () => {
+      this.props.truncate(this.state.maxLines);
       ipcRenderer.sendSync('connect', '127.0.0.1');
       this.setState({ confirming: false, isOpen: false });
     });
@@ -87,7 +90,12 @@ class Preferences extends React.Component {
               </FormGroup>
               <H3>Console</H3>
               <FormGroup label="Max lines" inline helperText="Truncate the console to this many lines.">
-                <NumericInput min={10} max={1000} value={this.props.console.maxLines} />
+                <NumericInput
+                  min={MIN_LINES}
+                  max={MAX_LINES}
+                  value={this.state.maxLines}
+                  onValueChange={(maxLines) => this.setState({ maxLines })}
+                />
               </FormGroup>
             </div>
           </div>
@@ -108,6 +116,6 @@ class Preferences extends React.Component {
 }
 
 export default connect(
-  state => ({ ...state.preferences }),
-  { toggleDarkTheme },
+  state => ({ maxLines: state.console.maxLines, ...state.preferences }),
+  { truncate, toggleDarkTheme },
 )(Preferences);

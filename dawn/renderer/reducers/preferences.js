@@ -3,9 +3,6 @@ const DEFAULT_PREFERENCES = {
   editor: {
     textSize: 12,
   },
-  console: {
-    maxLines: 256,
-  },
 };
 
 const preferences = (state = DEFAULT_PREFERENCES, action) => {

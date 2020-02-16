@@ -29,7 +29,7 @@ CMD ["/usr/bin/env", "pipenv", "run", "dev"]
 
 FROM base AS production
 # Reduce size of the package
-RUN strip --strip-all $(find / -name '*.so')
+RUN strip --strip-all $(find / -name '*.so') || exit 0
 RUN rm -rf /usr/local/lib/python3.8/config-*/libpython3.8.a /root/runtime/build /root/.local/share/virtualenv/seed-app-data /var/cache/apk/* && pipenv uninstall --skip-lock cython
 RUN apk del build-base python3-dev linux-headers
 CMD ["/usr/bin/env", "pipenv", "run", "prod"]

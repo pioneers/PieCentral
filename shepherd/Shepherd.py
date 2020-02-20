@@ -93,8 +93,6 @@ def to_setup(args):
     global GAME_STATE
     global STARTING_SPOTS
 
-    save_game()
-
     b1_name, b1_num, b1_starting_spot = args["b1name"], args["b1num"], args["b1_starting_spot"]
     b2_name, b2_num, b2_starting_spot = args["b2name"], args["b2num"], args["b2_starting_spot"]
     g1_name, g1_num, g1_starting_spot = args["g1name"], args["g1num"], args["g1_starting_spot"]
@@ -251,6 +249,9 @@ def reset(args=None):
     BUTTONS['gold_2'] = False
     BUTTONS['blue_1'] = False
     BUTTONS['blue_2'] = False
+    MASTER_ROBOTS['blue'] = ""
+    MASTER_ROBOTS['gold'] = ""
+    CODES_USED = []
     lcm_send(LCM_TARGETS.TABLET, TABLET_HEADER.RESET)
     lcm_send(LCM_TARGETS.DAWN, DAWN_HEADER.RESET)
     print("RESET MATCH, MOVE TO SETUP")
@@ -456,7 +457,7 @@ def load_game_data(args):
                 param_data["team_2_name"], param_data["team_2_number"], param_data["team_1_custom_ip"], \
                     param_data["team_2_custom_ip"])
             ALLIANCES[key].score = param_data["score"]
-    print("inside load game dataa with alliances ",ALLIANCES)
+    print("inside load game data with alliances ",ALLIANCES)
     print("Game state",GAME_STATE)
     print("match number",MATCH_NUMBER)
     print("starting spots",STARTING_SPOTS)
@@ -464,6 +465,7 @@ def load_game_data(args):
     print("buttons",BUTTONS)
     print("codes_used",CODES_USED)
     print("alliances",ALLIANCES)
+    save_game()
 
 def save_game():
 

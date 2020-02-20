@@ -152,9 +152,13 @@
       socket.on('load-latest-data', function(data) {
         console.log("received latest data")
         console.log(data)
+        generateFields(JSON.parse(data))
+        $("#send-data").click(() => sendData(JSON.parse(data)))
       });
 
-      var data = {"GAME_STATE": "setup", "MATCH_NUMBER": "1", "STARTING_SPOTS": ["left", "left", "left", "left"], "MASTER_ROBOTS": {"blue": null, "gold": null}, "BUTTONS": {"gold_1": false, "gold_2": false, "blue_1": false, "blue_2": false}, "CODES_USED": [], "ALLIANCES": {"gold": {"name": "gold", "team_1_name": "Skyline", "team_2_name": "Albany", "team_1_number": "10", "team_2_number": "1", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}, "blue": {"name": "blue", "team_1_name": "CCPA", "team_2_name": "Pinole Valley", "team_2_number": "15", "team_1_number": "37", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}}}
+      
+
+      // var data = {"GAME_STATE": "setup", "MATCH_NUMBER": "1", "STARTING_SPOTS": ["left", "left", "left", "left"], "MASTER_ROBOTS": {"blue": null, "gold": null}, "BUTTONS": {"gold_1": false, "gold_2": false, "blue_1": false, "blue_2": false}, "CODES_USED": [], "ALLIANCES": {"gold": {"name": "gold", "team_1_name": "Skyline", "team_2_name": "Albany", "team_1_number": "10", "team_2_number": "1", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}, "blue": {"name": "blue", "team_1_name": "CCPA", "team_2_name": "Pinole Valley", "team_2_number": "15", "team_1_number": "37", "score": 0, "team_1_connection": false, "team_2_connection": false, "team_1_custom_ip": null, "team_2_custom_ip": null}}}
 
       function generateFields(data){
         for (var k in data){
@@ -184,8 +188,6 @@
         }
         input = input.substring(0, input.length - 1)
         generateIndividualField(var_name, input);
-
-
       }
 
       function generateAllianceFields(alliances){
@@ -251,7 +253,6 @@
           }
       }
 
-
       function generateIndividualField(var_name, var_val){
         var indFields = document.getElementById("individual-fields");
         indFields.innerHTML += "<div class='form-group row' id = '" + var_name + "_group'>"+ 
@@ -267,9 +268,12 @@
         for (key in var_vals){
           if (key.includes("gold")){
             var gold_val = var_vals[key];
+            console.log(var_name)
+            console.log(key)
           }
           else if (key.includes("blue")){
             var blue_val = var_vals[key];
+            console.log(key)
           }
         }
 
@@ -277,10 +281,10 @@
         "<div class='form-group row' id = '" + var_name  + "_group'>"+ 
             "<label class='col-sm-2 col-form-label'> " + var_name + " </label>"+
             "<div class='col-md-5'>" +
-            "<input type='text' class='form-control' id='" + var_name +  + "_gold' value='" + gold_val + "'>" +
+            "<input type='text' class='form-control' id='" + var_name + "_gold" + "' value='" + gold_val + "'>" +
             "</div>"+
             "<div class='col-md-5'>" +
-            "<input type='text' class='form-control' id='" + var_name +  + "_blue' value='" + blue_val + "'>" +
+            "<input type='text' class='form-control' id='" + var_name + "_blue" + "' value='" + blue_val + "'>" +
             "</div>"+
           "</div>"
       }
@@ -323,15 +327,13 @@
           "</div>"
       }
 
-      function sendData() {
-        updateJSON()
-        data["ALLIANCES"]["gold"]["name"] = "bread" 
-        data["ALLIANCES"]["blue"]["name"] = "bread" 
+      function sendData(data) {
+        updateJSON(data)
         socket.emit('ui-to-server-latest-data', JSON.stringify(data))
       }
 
-      function updateJSON() {
-          for (var k in data){
+      function updateJSON(data) {
+        for (var k in data){
           if (typeof data[k] !== "object"){
             data[k] = $("#" + k + "_input").val()
           }
@@ -350,14 +352,13 @@
           else {
             for (var team in data[k]) {
               data[k][team] = $("#" + k + "_" + team).val();
+              console.log("#" + k + "_" + team)
+              console.log($("#" + k + "_" + team).val());
             }
           }
         }
         console.log(data)
       }
-
-      generateFields(data);
-      $("#send-data").click(sendData)
 
       /*
       var socket = io('http://127.0.0.1:5000');

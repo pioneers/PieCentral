@@ -394,6 +394,14 @@ def send_connections(args):
     #        "b_2_connection" : ALLIANCES[ALLIANCE_COLOR.BLUE].team_2_connection}
     # lcm_send(LCM_TARGETS.UI, UI_HEADER.CONNECTIONS, msg)
 
+def submit_recipe(args):
+    color1,color2,color3 = args["color1"],args["color2"],args["color3"]
+    side = args["side"]
+    ingredients = None #Change to a function that maps colors to ingredients
+    if RecipeManager.check_recipe(side,ingredients):
+        alliance.
+
+
 ###########################################
 # Event to Function Mappings for each Stage
 ###########################################

@@ -55,6 +55,12 @@ class SHEPHERD_HEADER():
 
     REQUEST_CONNECTIONS = "request_connections"
         #REQUEST_CONNECTIONS{}
+    COLOR_SENSORS = "color_sensors"
+        
+    HI_BUTTONS = "HI_buttons"
+    OVEN_BUTTONS = "oven_buttons"
+    RATS = "rats"
+    KING_RATS = "king_rats"
 
 # pylint: disable=invalid-name
 class DAWN_HEADER():

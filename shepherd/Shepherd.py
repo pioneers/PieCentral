@@ -455,6 +455,7 @@ def load_game_data(args):
             ALLIANCES[key] = Alliance(param_data["name"], param_data["team_1_name"], param_data["team_1_number"], \
                 param_data["team_2_name"], param_data["team_2_number"], param_data["team_1_custom_ip"], \
                     param_data["team_2_custom_ip"])
+            ALLIANCES[key].score = param_data["score"]
     print("inside load game dataa with alliances ",ALLIANCES)
     print("Game state",GAME_STATE)
     print("match number",MATCH_NUMBER)

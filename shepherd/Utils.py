@@ -55,8 +55,8 @@ class SHEPHERD_HEADER():
 
     REQUEST_CONNECTIONS = "request_connections"
         #REQUEST_CONNECTIONS{}
-    COLOR_SENSORS = "color_sensors"
-        
+    SUBMIT_RECIPE = "submit_recipe"
+
     HI_BUTTONS = "HI_buttons"
     OVEN_BUTTONS = "oven_buttons"
     RATS = "rats"
@@ -115,6 +115,7 @@ class CONSTANTS():
     SPREADSHEET_ID = "1vurNOrlIIeCHEtK5aJVDfHrRM1AC2qWvIbtWqUgnmLk"
     CSV_FILE_NAME = "Sheets/fc2019.csv"
     STUDENT_DECODE_TIME = 1
+    COLOR_DICTIONARY = {}
 
 # pylint: disable=invalid-name
 class ALLIANCE_COLOR():

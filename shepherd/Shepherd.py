@@ -181,6 +181,8 @@ def to_teleop(args):
 
     Timer.reset_all()
     GAME_TIMER.start_timer(CONSTANTS.TELEOP_TIME + 2)
+    from datetime import datetime
+    global tstart = datetime.now()
 
     enable_robots(False)
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
@@ -395,11 +397,23 @@ def send_connections(args):
     # lcm_send(LCM_TARGETS.UI, UI_HEADER.CONNECTIONS, msg)
 
 def submit_recipe(args):
+    """
+    Map colors to foods, check recipe correctness, increment the number of
+    recipes completed, store time in the recipe_times array, and update the
+    scoreboard of the resulting changes
+    """
+    from datetime import datetime
+    tend = datetime.now()
+    tdiff = tend-tstart
     color1,color2,color3 = args["color1"],args["color2"],args["color3"]
     side = args["side"]
-    ingredients = None #Change to a function that maps colors to ingredients
+    ingredients = None #Change to COLOR_DICTIONARY
     if RecipeManager.check_recipe(side,ingredients):
-        alliance.
+        alliance.recipe_times.append(tdiff)
+        alliance.recipe_count += 1
+        msg = {"recipe_count":1,"time_taken":tdiff}
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.FINISHED_RECIPE,msg)
+
 
 
 ###########################################

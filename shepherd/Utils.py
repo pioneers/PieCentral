@@ -149,7 +149,7 @@ class INGREDIENT():
     # COOKED_BREAD = "COOKED " + BREAD
     # COOKED_CHEESE = "COOKED " + CHEESE
 
-class RECIPIES():
+class RECIPES():
     BREADSTICKS = "Breadsticks"
     SALAD = "Salad"
     COLD_CUTS = "Cold Cuts"
@@ -166,27 +166,26 @@ class RECIPIES():
 class RECIPE_PROBABILITIES():
     Ingredients = "Ingredients"
     Cooked = "Cooked"
-    RECIPE_PROBABILITIES = {0: [], 1: [], 2:[], 3:[]}
-    EASY_RECIPE = {RECIPIES.BREADSTICKS:[INGREDIENT.BREAD], \
-                   RECIPIES.SALAD:[INGREDIENT.VEGETABLES], \
-                   RECIPIES.COLD_CUTS:[INGREDIENT.MEAT]}
-    MEDIUM_RECIPE = {RECIPIES.TURKEY_SANDWICH: [INGREDIENT.BREAD, INGREDIENT.MEAT], \
-                     RECIPIES.CAESAR_SALAD: [INGREDIENT.VEGETABLES, INGREDIENT.BREAD], \
-                     RECIPIES.MEAT_AND_POTATOES: [INGREDIENT.MEAT, INGREDIENT.VEGETABLES], \
-                     RECIPIES.CHEESE_AND_CRACKERS: [INGREDIENT.BREAD, INGREDIENT.CHEESE]}
-    HARD_RECIPE = {RECIPIES.HAMBURGER: {Ingredients:[INGREDIENT.BREAD, INGREDIENT.MEAT, \
+    RECIPE_PROBABILITIES = {0:[1, 0, 0, 0], 1:[0.1, 0.8, 0.1, 0], \
+        2:[0.1, 0.1, 0.8, 0], 3:[0.1, 0.2, 0.3, 0.4]}
+    # 0: First Recipe, 1: Second Recipe, 2: Third Recipe, 3: Overtime
+
+    EASY_RECIPE = {RECIPES.BREADSTICKS:[INGREDIENT.BREAD], \
+                   RECIPES.SALAD:[INGREDIENT.VEGETABLES], \
+                   RECIPES.COLD_CUTS:[INGREDIENT.MEAT]}
+    MEDIUM_RECIPE = {RECIPES.TURKEY_SANDWICH: [INGREDIENT.BREAD, INGREDIENT.MEAT], \
+                     RECIPES.CAESAR_SALAD: [INGREDIENT.VEGETABLES, INGREDIENT.BREAD], \
+                     RECIPES.MEAT_AND_POTATOES: [INGREDIENT.MEAT, INGREDIENT.VEGETABLES], \
+                     RECIPES.CHEESE_AND_CRACKERS: [INGREDIENT.BREAD, INGREDIENT.CHEESE]}
+    HARD_RECIPE = {RECIPES.HAMBURGER: {Ingredients:[INGREDIENT.BREAD, INGREDIENT.MEAT, \
                                         INGREDIENT.VEGETABLES], Cooked:1}, \
-                    RECIPIES.GRILLED_CHEESE: {Ingredients:[INGREDIENT.BREAD, \
+                    RECIPES.GRILLED_CHEESE: {Ingredients:[INGREDIENT.BREAD, \
                                               INGREDIENT.CHEESE], Cooked:1}, \
-                    RECIPIES.JALAPENO_POPPERZ: {Ingredients:[INGREDIENT.CHEESE, \
+                    RECIPES.JALAPENO_POPPERZ: {Ingredients:[INGREDIENT.CHEESE, \
                                                 INGREDIENT.VEGETABLES], Cooked:1}, \
-                    RECIPIES.CHEESEBURGER: {Ingredients:[INGREDIENT.BREAD, \
+                    RECIPES.CHEESEBURGER: {Ingredients:[INGREDIENT.BREAD, \
                                             INGREDIENT.MEAT, INGREDIENT.CHEESE], Cooked:1}
                   }
-    VERY_HARD_RECIPE = {RECIPIES.SHEPHERDS_PIE: {Ingredients:[INGREDIENT.MEAT,\
+    VERY_HARD_RECIPE = {RECIPES.SHEPHERDS_PIE: {Ingredients:[INGREDIENT.MEAT,\
                                                 INGREDIENT.VEGETABLES,\
                                                 INGREDIENT.CHEESE], Cooked:2}}
-
-class TELEOP_RECIPE_MAP():
-    MAPPING = {0:[1, 0, 0, 0], 1:[0.1, 0.8, 0.1, 0], 2:[0.1, 0.1, 0.8, 0], 3:[0.1, 0.2, 0.3, 0.4]}
-    # 0: Easy, 1: Medium, 2: Hard, 3: Very Hard

@@ -105,7 +105,8 @@ class TABLET_HEADER():
 # pylint: disable=invalid-name
 class CONSTANTS():
     AUTO_TIME = 30 # 30
-    TELEOP_TIME = 180 # 180
+    TELEOP_TIME = 120 # 120
+    OVERTIME_TELEOP_TIME = 40 # 40
     SPREADSHEET_ID = "1vurNOrlIIeCHEtK5aJVDfHrRM1AC2qWvIbtWqUgnmLk"
     CSV_FILE_NAME = "Sheets/fc2019.csv"
     STUDENT_DECODE_TIME = 1
@@ -138,4 +139,57 @@ class STATE():
     AUTO = "auto"
     WAIT = "wait"
     TELEOP = "teleop"
+    LIMBO = "limbo"
+    OVERTIME = "overtime"
     END = "end"
+
+class INGREDIENT():
+    BREAD = "Bread"
+    VEGETABLES = "Vegetables"
+    MEAT = "Meat"
+    CHEESE = "Cheese"
+    # COOKED_MEAT = "COOKED " + MEAT
+    # COOKED_BREAD = "COOKED " + BREAD
+    # COOKED_CHEESE = "COOKED " + CHEESE
+
+class RECIPIES():
+    BREADSTICKS = "Breadsticks"
+    SALAD = "Salad"
+    COLD_CUTS = "Cold Cuts"
+    TURKEY_SANDWICH = "Turkey Sandwich"
+    CAESAR_SALAD = "Caesar Salad"
+    MEAT_AND_POTATOES = "Meat and Potatoes"
+    HAMBURGER = "Hamburgers"
+    GRILLED_CHEESE = "Grilled Cheese"
+    JALAPENO_POPPERZ = "Jalapeno Popperz"
+    CHEESEBURGER = "Cheeseburger"
+    SHEPHERDS_PIE = "Sherpherd's Pie"
+    CHEESE_AND_CRACKERS = "Cheese and Crackers"
+
+class RECIPE_PROBABILITIES():
+    Ingredients = "Ingredients"
+    Cooked = "Cooked"
+    RECIPE_PROBABILITIES = {0: [], 1: [], 2:[], 3:[]}
+    EASY_RECIPE = {RECIPIES.BREADSTICKS:[INGREDIENT.BREAD], \
+                   RECIPIES.SALAD:[INGREDIENT.VEGETABLES], \
+                   RECIPIES.COLD_CUTS:[INGREDIENT.MEAT]}
+    MEDIUM_RECIPE = {RECIPIES.TURKEY_SANDWICH: [INGREDIENT.BREAD, INGREDIENT.MEAT], \
+                     RECIPIES.CAESAR_SALAD: [INGREDIENT.VEGETABLES, INGREDIENT.BREAD], \
+                     RECIPIES.MEAT_AND_POTATOES: [INGREDIENT.MEAT, INGREDIENT.VEGETABLES], \
+                     RECIPIES.CHEESE_AND_CRACKERS: [INGREDIENT.BREAD, INGREDIENT.CHEESE]}
+    HARD_RECIPE = {RECIPIES.HAMBURGER: {Ingredients:[INGREDIENT.BREAD, INGREDIENT.MEAT, \
+                                        INGREDIENT.VEGETABLES], Cooked:1}, \
+                    RECIPIES.GRILLED_CHEESE: {Ingredients:[INGREDIENT.BREAD, \
+                                              INGREDIENT.CHEESE], Cooked:1}, \
+                    RECIPIES.JALAPENO_POPPERZ: {Ingredients:[INGREDIENT.CHEESE, \
+                                                INGREDIENT.VEGETABLES], Cooked:1}, \
+                    RECIPIES.CHEESEBURGER: {Ingredients:[INGREDIENT.BREAD, \
+                                            INGREDIENT.MEAT, INGREDIENT.CHEESE], Cooked:1}
+                  }
+    VERY_HARD_RECIPE = {RECIPIES.SHEPHERDS_PIE: {Ingredients:[INGREDIENT.MEAT,\
+                                                INGREDIENT.VEGETABLES,\
+                                                INGREDIENT.CHEESE], Cooked:2}}
+
+class TELEOP_RECIPE_MAP():
+    MAPPING = {0:[1, 0, 0, 0], 1:[0.1, 0.8, 0.1, 0], 2:[0.1, 0.1, 0.8, 0], 3:[0.1, 0.2, 0.3, 0.4]}
+    # 0: Easy, 1: Medium, 2: Hard, 3: Very Hard

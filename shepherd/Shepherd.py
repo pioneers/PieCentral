@@ -20,6 +20,8 @@ clients = RuntimeClientManager((), ())
 __version__ = (1, 0, 0)
 
 
+
+
 ###########################################
 # Evergreen Methods
 ###########################################
@@ -395,6 +397,94 @@ def send_connections(args):
     # lcm_send(LCM_TARGETS.UI, UI_HEADER.CONNECTIONS, msg)
 
 ###########################################
+# RAT FUNCTIONS
+###########################################
+def move_rat(side):
+    """
+    Called through a yet to be determined LCM header
+    Where side is either ALLIANCE_COLOR.GOLD or ALLIANCE_COLOR.BLUE,
+    the side that the rat is going to.
+    Should subtract one rat from the side its leaving
+    and add one to the side its going to
+    """
+    if side.name == ALLIANCE_COLOR.BLUE:
+        gettingRatSide = ALLIANCE_COLOR.BLUE
+        removeRatSide = ALLIANCE_COLOR.GOLD
+    else:
+        gettingRatSide = ALLIANCE_COLOR.GOLD
+        removeRatSide = ALLIANCE_COLOR.BLUE
+
+    ALLIANCE[gettingRatSide].num_rats += 1
+    ALLIANCE[removeRatSide].num_rats -= 1
+
+
+def move_king_rat(side):
+    """
+    Called through a yet to be determined LCM header
+    Where side is either ALLIANCE_COLOR.GOLD or ALLIANCE_COLOR.BLUE,
+    the side that the rat is going to.
+    Should subtract two rats from the side they leaving and
+    add two to the side they going to
+    If the king rat hasn’t moved yet, only add rats and set king_moved to true.
+    """
+    global king_moved
+    if side.name == ALLIANCE_COLOR.BLUE:
+        gettingRatSide = ALLIANCE_COLOR.BLUE
+        removeRatSide = ALLIANCE_COLOR.GOLD
+    else:
+        gettingRatSide = ALLIANCE_COLOR.GOLD
+        removeRatSide = ALLIANCE_COLOR.BLUE
+
+    if king_moved == True:
+        ALLIANCE[gettingRatSide].num_rats += 2
+        ALLIANCE[removeRatSide].num_rats -= 2
+    else:
+        king_moved = True
+        ALLIANCE[gettingRatSide] += 2
+
+def call_health_inspector(side):
+    """
+    use functions in code.py and in the runtime manager to check the lvl 2 coding challenge.
+    If they pass, disable the robots and start a timer with an LCM header
+    set up to call the next function in the correct amount of time
+    """
+    #if #functions end up passing:
+        #disable_robots()
+        #durantionscore = #depends on functions
+
+    goldTimer = GAME_TIMER(TIMER_TYPES.STUDENT_DECODE)
+    blueTimer = GAME_TIMER(TIMER_TYPES.STUDENT_DECODE)
+    #Needs LCM header right now. Has something to do with runtime.
+
+    if side.name == ALLIANCE_COLOR.BLUE:
+        blueRatScore = ALLIANCE[ALLIANCE_COLOR.BLUE].num_rats
+        goldRatScore = ALLIANCE[ALLIANCE_COLOR.GOLD].num_rats
+    else:
+        goldRatScore = ALLIANCE[ALLIANCE_COLOR.GOLD].num_rats
+        blueratScore = ALLIANCE[ALLIANCE_COLOR.BLUE].num_rats
+
+    goldTimer.start_timer(side.)
+    blueTimer.start_timer()
+
+def enable_gold_alliance():
+    """
+    Called by an LCM header from the timer above
+    Re-enables the robots
+    Should depend on the score.
+    """
+    enable_robots(False)
+
+def enable_blue_alliance():
+    """
+    Called by an LCM header from the timer above
+    Re-enables the robots.
+    Should depend on the score.
+    """
+    enable_robots(False)
+
+
+
+###########################################
 # Event to Function Mappings for each Stage
 ###########################################
 
@@ -416,13 +506,34 @@ AUTO_FUNCTIONS = {
 
     }
 
+RAT_FUNCTIONS = {
+        SHEPHERD_RAT_TRACKER.INCREMENT_RAT = increment_rat
+        #INCREMENT_RAT{alliance}: adds 1 to rat count to given alliance.
+
+        SHEPHERD_RAT_TRACKER.DECREMENT_RAT = decrement_rat
+        #DECREMENT_RAT{alliance}: subtracts 1 from rat count of given alliance.
+
+        SHEPHERD_RAT_TRACKER.ADD_KING_RAT = add_king_rat
+        #ADD_KING_RAT{alliance}: adds king rat to the given alliance.
+
+        SHEPHERD_RAT_TRACKER.RMV_KING_RAT = rmv_king_rat
+        #RMV_KING_RAT{alliance}: removes king rat from the given alliance.
+
+        SHEPHERD_HEADER.HEALTH_INSPECT_LEFT_BLUE: enable_blue_alliance,
+        #ENABLE_BLUE_ALLIANCE{}: enables robots at given alliance.
+
+        SHEPHERD_HEADER.HEALTH_INSPECT_LEFT_GOLD:  enable_gold_alliance,
+        #ENABLE_GOLD_ALLIANCE{}: enables robots at given alliance.
+}
+
 WAIT_FUNCTIONS = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.SCORE_ADJUST : score_adjust,
     SHEPHERD_HEADER.GET_SCORES : get_score,
     SHEPHERD_HEADER.START_NEXT_STAGE : to_teleop,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
-    SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections
+    SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections,
+
 }
 
 TELEOP_FUNCTIONS = {

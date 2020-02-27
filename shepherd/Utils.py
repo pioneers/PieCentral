@@ -108,7 +108,6 @@ class CONSTANTS():
     TELEOP_TIME = 180 # 180
     SPREADSHEET_ID = "1vurNOrlIIeCHEtK5aJVDfHrRM1AC2qWvIbtWqUgnmLk"
     CSV_FILE_NAME = "Sheets/fc2019.csv"
-    STUDENT_DECODE_TIME = 1
 
 # pylint: disable=invalid-name
 class ALLIANCE_COLOR():
@@ -131,6 +130,20 @@ class TIMER_TYPES():
              "FUNCTION":SHEPHERD_HEADER.STAGE_TIMER_END}
     STUDENT_DECODE = {"TYPE":"student_decode", "NEEDS_FUNCTION": True,
                       "FUNCTION":SHEPHERD_HEADER.CODE_RETRIEVAL}
+
+# pylint: disable=invalid-name
+class SHEPHERD_RAT_TRACKER():
+    INCREMENT_RAT = "increment_rat"
+    #INCREMENT_RAT{alliance}: adds 1 to rat count to given alliance.
+
+    DECREMENT_RAT = "decrement_rat"
+    #DECREMENT_RAT{alliance}: subtracts 1 from rat count of given alliance.
+
+    ADD_KING_RAT = "add_king_rat"
+    #ADD_KING_RAT{alliance}: adds king rat to the given alliance.
+
+    RMV_KING_RAT = "rmv_king_rat"
+    #RMV_KING_RAT{alliance}: removes king rat from the given alliance.
 
 # pylint: disable=invalid-name
 class STATE():

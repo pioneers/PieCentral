@@ -12,10 +12,11 @@ class Alliance:
             team_1_number - Integer representing team number of first team
             team_2_number - Integer representing team number of second team
             score - Integer tracking the score of the Alliance
+            num_rats - Integer tracking the number of rats on this side
     """
 
     def __init__(self, name, team_1_name, team_1_number, team_2_name,
-                 team_2_number, team_1_custom_ip=None, team_2_custom_ip=None):
+                 team_2_number, num_rats = 3, team_1_custom_ip=None, team_2_custom_ip=None):
         self.name = name
         self.team_1_name = team_1_name
         self.team_2_name = team_2_name
@@ -26,6 +27,8 @@ class Alliance:
         self.team_2_connection = False
         self.team_1_custom_ip = team_1_custom_ip
         self.team_2_custom_ip = team_2_custom_ip
+        self.num_rats = rat_number
+        self.king_rat = king_rat
 
     def change_score(self, amount):
         """ changes score of this alliance by Amount,

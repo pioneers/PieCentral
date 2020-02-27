@@ -403,18 +403,42 @@ def submit_recipe(args):
     scoreboard of the resulting changes
     """
     from datetime import datetime
-    tend = datetime.now()
-    tdiff = tend-tstart
+    t_end = datetime.now()
+    tdiff = t_end-tstart
     color1,color2,color3 = args["color1"],args["color2"],args["color3"]
     side = args["side"]
-    ingredients = None #Change to COLOR_DICTIONARY
+    ingredients = CONSTANTS.COLOR_DICTIONARY
     if RecipeManager.check_recipe(side,ingredients):
-        alliance.recipe_times.append(tdiff)
-        alliance.recipe_count += 1
+        ALLIANCES[side].recipe_times.append(tdiff)
+        ALLIANCES[side].recipe_count += 1
         msg = {"recipe_count":1,"time_taken":tdiff}
         lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.FINISHED_RECIPE,msg)
 
+def oven_done(args):
+    ALLIANCES[side].cooked += 1
+    return None
 
+def oven_auto(args):
+    pass
+
+def oven_teleop(args):
+    pass
+
+def rats(side):
+    ALLIANCES[side].num_rats += 1
+    ALLIANCES[other_side(side)].num_rats -= 1
+
+def king_rats(side):
+    other = other_side(side)
+    ALLIANCES[side].king_rat = 1
+    if ALLIANCES[other].king_rats != 0:
+        ALLIANCES[other].king_rat = 0
+
+def other_side(side):
+    if (side == ALLIANCE_COLOR.GOLD):
+        return ALLIANCE_COLOR.BLUE
+    else:
+        return ALLIANCE_COLOR.GOLD
 
 ###########################################
 # Event to Function Mappings for each Stage
@@ -434,7 +458,8 @@ AUTO_FUNCTIONS = {
     SHEPHERD_HEADER.ROBOT_OFF : disable_robot,
     #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
-    SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections
+    SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections,
+    SHEPHERD_HEADER.OVEN_PRESS: oven_auto
 
     }
 
@@ -454,8 +479,12 @@ TELEOP_FUNCTIONS = {
     SHEPHERD_HEADER.ROBOT_OFF : disable_robot,
     #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
     SHEPHERD_HEADER.ROBOT_CONNECTION_STATUS: set_connections,
-    SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections
-
+    SHEPHERD_HEADER.REQUEST_CONNECTIONS: send_connections,
+    SHEPHERD_HEADER.SUBMIT_RECIPE: submit_recipe,
+    SHEPHERD_HEADER.RATS: rats,
+    SHEPHERD_HEADER.KING_RATS: king_rat,
+    SHEPHERD_HEADER.OVEN_DONE: oven_done,
+    SHEPHERD_HEADER.OVEN_PRESS: oven_teleop
 }
 
 END_FUNCTIONS = {

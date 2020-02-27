@@ -58,7 +58,8 @@ class SHEPHERD_HEADER():
     SUBMIT_RECIPE = "submit_recipe"
 
     HI_BUTTONS = "HI_buttons"
-    OVEN_BUTTONS = "oven_buttons"
+    OVEN_PRESS = "oven_press"
+    OVEN_TELEOP = "oven_teleop"
     RATS = "rats"
     KING_RATS = "king_rats"
 

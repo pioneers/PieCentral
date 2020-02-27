@@ -463,8 +463,15 @@ def call_health_inspector(side):
         goldRatScore = ALLIANCE[ALLIANCE_COLOR.GOLD].num_rats
         blueratScore = ALLIANCE[ALLIANCE_COLOR.BLUE].num_rats
 
-    goldTimer.start_timer(side.)
-    blueTimer.start_timer()
+    if ALLIANCE[ALLIANCE_COLOR.BLUE].king_rat == True:
+        blueRatScore += 2
+    elif ALLIANCE[ALLIANCE_COLOR.GOLD].king_rat == True:
+        goldRatScore += 2
+
+    #Not quite sure if the king rat is guaranteed to be on a side.
+
+    goldTimer.start_timer(goldRatScore)
+    blueTimer.start_timer(blueRatScore)
 
 def enable_gold_alliance():
     """

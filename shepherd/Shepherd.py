@@ -207,7 +207,8 @@ def should_overtime(args):
     cond1 = gold_recipes_completed == blue_recipes_completed
     # cond2 = abs(blue_time - gold_time <= 15)
 
-    if (cond1 and cond2) {
+    # if (cond1 and cond2) {
+    if (cond1) {
         to_overtime()
     }
     else {
@@ -223,7 +224,7 @@ def to_overtime(args):
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE, {"stage": GAME_STATE})
 
     GAME_TIMER.start_timer(CONSTANTS.OVERTIME_TELEOP_TIME + 2)
-
+    # generate a 4th recipe through RecipeManager
     enable_robots(False)
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
              {"time" : CONSTANTS.OVERTIME_TELEOP_TIME})

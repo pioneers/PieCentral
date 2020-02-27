@@ -13,6 +13,7 @@ from runtimeclient import RuntimeClientManager
 import Sheet
 import bot
 import audio
+import RecipeManager
 
 
 clients = RuntimeClientManager((), ())
@@ -176,13 +177,13 @@ def to_teleop(args):
     By the end, should be in teleop state and the teleop match timer should be started.
     '''
     global GAME_STATE
+    global tstart
+    tstart = datetime.datetime.now()
     GAME_STATE = STATE.TELEOP
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE, {"stage": GAME_STATE})
 
     Timer.reset_all()
     GAME_TIMER.start_timer(CONSTANTS.TELEOP_TIME + 2)
-    from datetime import datetime
-    global tstart = datetime.now()
 
     enable_robots(False)
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
@@ -402,19 +403,21 @@ def submit_recipe(args):
     recipes completed, store time in the recipe_times array, and update the
     scoreboard of the resulting changes
     """
-    from datetime import datetime
-    t_end = datetime.now()
+    t_end = datetime.datetime.now()
     tdiff = t_end-tstart
-    color1,color2,color3 = args["color1"],args["color2"],args["color3"]
+    color1, color2, color3 = args["color1"], args["color2"], args["color3"]
     side = args["side"]
+    #pylint: disable=broad-except
     ingredients = CONSTANTS.COLOR_DICTIONARY
-    if RecipeManager.check_recipe(side,ingredients):
+    #pylint: disable=undefined-variable
+    if RecipeManager.check_recipe(side, ingredients):
         ALLIANCES[side].recipe_times.append(tdiff)
         ALLIANCES[side].recipe_count += 1
-        msg = {"recipe_count":1,"time_taken":tdiff}
-        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.FINISHED_RECIPE,msg)
+        msg = {"recipe_count":1, "time_taken":tdiff}
+        lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.FINISHED_RECIPE, msg)
 
 def oven_done(args):
+    side = args["side"]
     ALLIANCES[side].cooked += 1
     return None
 
@@ -428,7 +431,7 @@ def rats(side):
     ALLIANCES[side].num_rats += 1
     ALLIANCES[other_side(side)].num_rats -= 1
 
-def king_rats(side):
+def king_rat(side):
     other = other_side(side)
     ALLIANCES[side].king_rat = 1
     if ALLIANCES[other].king_rats != 0:
@@ -437,8 +440,7 @@ def king_rats(side):
 def other_side(side):
     if (side == ALLIANCE_COLOR.GOLD):
         return ALLIANCE_COLOR.BLUE
-    else:
-        return ALLIANCE_COLOR.GOLD
+    return ALLIANCE_COLOR.GOLD
 
 ###########################################
 # Event to Function Mappings for each Stage
@@ -521,6 +523,8 @@ MASTER_ROBOTS = {ALLIANCE_COLOR.BLUE: None, ALLIANCE_COLOR.GOLD: None}
 STUDENT_DECODE_TIMER = Timer(TIMER_TYPES.STUDENT_DECODE)
 
 CODES_USED = []
+
+tstart = 0
 
 #nothing
 

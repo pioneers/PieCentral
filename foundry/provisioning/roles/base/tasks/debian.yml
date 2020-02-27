@@ -56,6 +56,8 @@
     - name: add docker repo
       apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+    - name: docker-ce workaround
+      shell: docker_workaround.sh
     - name: install docker
       apt:
         name:

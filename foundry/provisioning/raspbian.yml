@@ -1,6 +1,6 @@
 ---
 - name: provision raspberry pi
-  hosts: all
+  hosts: localhost
   roles:
     - base
     - raspbian
@@ -10,18 +10,20 @@
       become_user: root
       hostname:
         name: team{{ team_num }}
+    - name: change the raspberry pi hostname files
+      become: yes
+      become_method: sudo
+      become_user: root
+      replace: 
+        path: /etc/hosts
+        regexp: "raspberrypi"
+        replace: "team{{ team_num }}"
     - name: install Avahi
       become: yes
       become_method: sudo
       become_user: root
       apt:
         name: avahi-daemon
-    - name: change the raspberry pi hostname files
-      become: yes
-      become_method: sudo
-      become_user: root
-      lineinfile: 
-        path: /etc/host
 
   # TODO: Take team number as an argument
   #       Command line argument --extra-vars '{"team_num":"__"}'

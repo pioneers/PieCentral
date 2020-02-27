@@ -407,9 +407,12 @@ def submit_recipe(args):
     tdiff = t_end-tstart
     color1, color2, color3 = args["color1"], args["color2"], args["color3"]
     side = args["side"]
+    fcolor1 = CONSTANTS.COLOR_DICTIONARY[color1]
+    fcolor2 = CONSTANTS.COLOR_DICTIONARY[color2]
+    fcolor3 = CONSTANTS.COLOR_DICTIONARY[color3]
     #pylint: disable=broad-except
-    ingredients = CONSTANTS.COLOR_DICTIONARY
-    #pylint: disable=undefined-variable
+    ingredients = [fcolor1, fcolor2, fcolor3]
+    #pylint: disable=no-member
     if RecipeManager.check_recipe(side, ingredients):
         ALLIANCES[side].recipe_times.append(tdiff)
         ALLIANCES[side].recipe_count += 1
@@ -419,7 +422,6 @@ def submit_recipe(args):
 def oven_done(args):
     side = args["side"]
     ALLIANCES[side].cooked += 1
-    return None
 
 def oven_auto(args):
     pass
@@ -438,7 +440,7 @@ def king_rat(side):
         ALLIANCES[other].king_rat = 0
 
 def other_side(side):
-    if (side == ALLIANCE_COLOR.GOLD):
+    if side == ALLIANCE_COLOR.GOLD:
         return ALLIANCE_COLOR.BLUE
     return ALLIANCE_COLOR.GOLD
 
@@ -485,8 +487,8 @@ TELEOP_FUNCTIONS = {
     SHEPHERD_HEADER.SUBMIT_RECIPE: submit_recipe,
     SHEPHERD_HEADER.RATS: rats,
     SHEPHERD_HEADER.KING_RATS: king_rat,
-    SHEPHERD_HEADER.OVEN_DONE: oven_done,
-    SHEPHERD_HEADER.OVEN_PRESS: oven_teleop
+    SHEPHERD_HEADER.OVEN_PRESS: oven_done,
+    SHEPHERD_HEADER.OVEN_TELEOP: oven_teleop
 }
 
 END_FUNCTIONS = {

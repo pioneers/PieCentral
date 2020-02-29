@@ -74,4 +74,6 @@
     group: sys
     owner: root
     mode: 0755
+
+- name: command to enable ssh
   command: "sudo systemctl enable ssh && sudo systemctl start ssh"

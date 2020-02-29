@@ -54,6 +54,10 @@
   copy:
     src: files/update.service
     dest: "{{ ansible.env.HOME }}/.config/systemd/user"
+  become: yes
+  become_user: root
+
+- name: systemd
   systemd:
     daemon_reload: yes
     scope: user

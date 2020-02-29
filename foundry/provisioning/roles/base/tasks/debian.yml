@@ -61,7 +61,10 @@
       apt_repository:
         repo: deb [arch=arm64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
         state: present
+    - name: docker-ce workaround
+      command: bash {{ role_path }}/files/docker_workaround.sh
     - name: install docker
+      ignore_errors: yes
       apt:
         update_cache: yes
         state: latest

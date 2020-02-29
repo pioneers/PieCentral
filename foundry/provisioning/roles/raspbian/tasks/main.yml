@@ -50,6 +50,20 @@
     dest: "{{ ansible_env.HOME }}/bin/update.sh"
     mode: "0755"
 
+- name: .config check
+  stat:
+    path: "{{ ansible_env.HOME }}/.config/systemd/user"
+  register: config_folder
+
+- name: make .config
+  file:
+    path: "{{ ansible_env.HOME }}/.config/systemd/user"
+    state: directory
+    mode: 0755
+    group: root
+    owner: root
+  when: config_folder.stat.exists
+
 - name: set up update service
   copy:
     src: files/update.service

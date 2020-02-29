@@ -38,6 +38,8 @@
   register: config_folder
 
 - name: make .config
+  become: true
+  become_user: root
   file:
     path: "{{ ansible_env.HOME }}/.config/systemd/user"
     state: directory

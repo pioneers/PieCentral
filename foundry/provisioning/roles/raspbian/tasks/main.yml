@@ -16,26 +16,26 @@
 
 - name: initialize home directory
   file:
-    path: "{{ ansible.env.HOME }}/bin"
+    path: "{{ ansible_env.HOME }}/bin"
     state: directory
   file:
-    path: "{{ ansible.env.HOME }}/updates"
+    path: "{{ ansible_env.HOME }}/updates"
     state: directory
   file:
-    path: "{{ ansible.env.HOME }}/student-code"
+    path: "{{ ansible_env.HOME }}/student-code"
     state: directory
     #- command: "git -init {[ ansible.env.HOME }}/student-code"
 
 - name: copy update.sh
   copy:
     src: files/update.sh
-    dest: "{{ ansible.env.HOME }}/bin/update.sh"
+    dest: "{{ ansible_env.HOME }}/bin/update.sh"
     mode: "0755"
 
 - name: set up update service
   copy:
     src: files/update.service
-    dest: "{{ ansible.env.HOME }}/.config/systemd/user"
+    dest: "{{ ansible_env.HOME }}/.config/systemd/user"
   become: yes
   become_user: root
 

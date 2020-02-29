@@ -32,6 +32,40 @@
   become: yes
   become_user: root 
 
-#- include: home_dir.yml
+- name: initialize home directory
+  file:
+    path: "{{ ansible.env.HOME }}/bin"
+    state: directory
+  file:
+    path: "{{ ansible.env.HOME }}/updates"
+    state: directory
+  file:
+    path: "{{ ansible.env.HOME }}/student-code"
+    state: directory
+    #- command: "git -init {[ ansible.env.HOME }}/student-code"
+  copy:
+    src: files/update.sh
+    dest: "{{ ansible.env.HOME }}/bin/update.sh"
+    mode: "0755"
 
+- name: set up update service
+  copy:
+    src: files/update.service
+    dest: "{{ ansible.env.HOME }}/.config/systemd/user"
+  systemd:
+    daemon_reload: yes
+    scope: user
+    name: update.service
+    enabled: yes
+  become: yes
+  become_user: root
 
+- name: enable ssh
+  copy:
+    content: ""
+    dest: /boot/ssh
+    force: no
+    group: sys
+    owner: root
+    mode: 0755
+  command: "sudo systemctl enable ssh && sudo systemctl start ssh"

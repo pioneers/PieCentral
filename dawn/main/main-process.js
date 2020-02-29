@@ -19,6 +19,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('will-quit', () => {
+  Client.unbindIPCHandlers();
   Client.disconnect();
 });
 

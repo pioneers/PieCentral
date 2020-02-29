@@ -52,7 +52,7 @@ class DatagramServer:
         if address in self.clients:
             await self.clients.keep_alive(address)
         else:
-            socket_config = {'socket_type': 'RADIO', 'address': address}
+            socket_config = {'socket_type': zmq.RADIO, 'address': address}
             self.clients[address] = Connection.open(socket_config, self.udp_context)
             asyncio.create_task(self.clients.expire(address))
             LOGGER.debug('New datagram client connected', address=address)

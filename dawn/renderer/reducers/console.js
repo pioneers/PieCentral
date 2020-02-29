@@ -1,5 +1,5 @@
 const DEFAULT_CONSOLE = {
-  records: [{'event': 'Starting'}],
+  records: [],
   isOpen: true,
   maxLines: 256,
 };

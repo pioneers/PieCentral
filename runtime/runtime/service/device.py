@@ -319,6 +319,8 @@ class DeviceService(Service):
                 except Exception as exc:
                     LOGGER.error(str(exc), exc_info=exc)
                 await asyncio.sleep(self.config['broadcast_interval'])
+                LOGGER.info(f'Broadcasting device status! {i}', devices=len(devices))
+                i += 1
 
     async def handle_sensor_command(self, method, *params):
         command = SmartSensorCommand.__members__[method.upper()]

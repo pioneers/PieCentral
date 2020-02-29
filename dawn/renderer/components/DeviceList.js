@@ -33,10 +33,15 @@ const DEVICE_TYPES = {
     displayName: 'Motor (Polar Bear)',
     icon: IconNames.COG,
   },
+  RFID: {
+    displayName: 'RFID',
+    icon: IconNames.FEED,
+  }
 };
 
 const Device = (props) => {
   const { type, uid, alias } = props.device;
+  // FIXME: unknown device
   const { icon, displayName } = DEVICE_TYPES[type];
   return (
     <Card className="card">
@@ -54,19 +59,19 @@ const Device = (props) => {
   );
 };
 
+// FIXME
 const DeviceList = (props) => (
   <div className="card-container devices-cards">
     {props.devices.map((device, index) => (
       <Device
         key={index}
         device={device}
-        renameDevice={alias => props.renameDevice(index, alias)}
+        renameDevice={() => null}
       />
     ))}
   </div>
 );
 
 export default connect(
-  state => ({ devices: state.devices }),
-  { renameDevice }
+  state => ({ devices: state.devices.sensors.concat(state.devices.gamepads) }),
 )(DeviceList);

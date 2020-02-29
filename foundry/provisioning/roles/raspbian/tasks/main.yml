@@ -44,7 +44,7 @@
     mode: 0755
     group: root
     owner: root
-  when: config_folder.stat.exists
+  when: config_folder.stat.exists == false
 
 - name: set up update service
   copy:

@@ -83,6 +83,8 @@
   become_user: root
 
 - name: enable ssh
+  become: true
+  become_user: root
   copy:
     content: ""
     dest: /boot/ssh
@@ -92,4 +94,6 @@
     mode: 0755
 
 - name: command to enable ssh
+  become: true
+  become_user: root
   command: "sudo systemctl enable ssh && sudo systemctl start ssh"

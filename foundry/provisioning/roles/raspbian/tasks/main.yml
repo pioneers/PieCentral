@@ -43,6 +43,8 @@
     path: "{{ ansible.env.HOME }}/student-code"
     state: directory
     #- command: "git -init {[ ansible.env.HOME }}/student-code"
+
+- name: copy update.sh
   copy:
     src: files/update.sh
     dest: "{{ ansible.env.HOME }}/bin/update.sh"

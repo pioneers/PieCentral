@@ -61,6 +61,17 @@ class RuntimeClient:
         4. log: Subscribes to asynchronous notifications over TCP from
             Runtime or student code print statements.
 
+    Example::
+
+        >>> client = RuntimeClient('team00.local')
+        >>> client.connect_all()
+        >>> client.send_command('set_match', 'TELEOP', 'BLUE')  # Start teleop
+        >>> client.send_command('set_match', 'IDLE', 'BLUE')  # Stop teleop
+        >>> client.send_command('set_match', 'IDLE', 'BLUE')  # Runtime already stopped; idempotent
+        >>> client.close_all()
+
+    Warning::
+
     .. _ZMQ:
         https://zeromq.org/
     """
@@ -86,8 +97,7 @@ class RuntimeClient:
         return self
 
     def __exit__(self, _type, _exc, _traceback):
-        for name in list(self.sockets):
-            self.close(name)
+        self.close_all()
 
     def _get_address(self, protocol: str, port: int) -> str:
         return '{0}://{1}:{2}'.format(protocol, self.host, port)
@@ -119,6 +129,10 @@ class RuntimeClient:
     def connect_all(self):
         for name, config in self.socket_config.items():
             self.connect(name, *config)
+
+    def close_all(self):
+        for name in list(self.sockets):
+            self.close(name)
 
     def send_datagram(self, gamepads: Mapping[int, Gamepad] = None, ip_addr: str = None):
         """ Send a datagram with Gamepad data. """

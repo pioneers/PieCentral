@@ -399,6 +399,15 @@ def send_connections(args):
 ###########################################
 # RAT FUNCTIONS
 ###########################################
+
+""" Last updated Feb 29, 2020. Need to ask Matt exactly how the timers will be working.
+Only the general framework of everything.
+Do not use this at all!
+"""
+king_moved = False
+#Not quite sure how generate_code is supposed to work in this scenario
+codes = []
+
 def move_rat(side):
     """
     Called through a yet to be determined LCM header
@@ -444,10 +453,16 @@ def move_king_rat(side):
 
 def call_health_inspector(side):
     """
-    use functions in code.py and in the runtime manager to check the lvl 2 coding challenge.
+    Use functions in code.py and in the runtime manager to check the lvl 2 coding challenge.
+    Need to ask Matt exactly how timers and lcm headers work.
     If they pass, disable the robots and start a timer with an LCM header
     set up to call the next function in the correct amount of time
+    Q 1-3 need a random integer anywhere from 0 to 2359.
+    client = RuntimeClient('team00.local')
+    CLIENT WILL BE IN REFERENCE TO WHATEVER WE ASSIGN CLIENT TO!
+    THE FOLLOWING CODE ISN'T OPERATIONAL.
     """
+    randomSeed = random.randint(0, 2359)
     #if #functions end up passing:
         #disable_robots()
         #durantionscore = #depends on functions
@@ -467,8 +482,6 @@ def call_health_inspector(side):
         blueRatScore += 2
     elif ALLIANCE[ALLIANCE_COLOR.GOLD].king_rat == True:
         goldRatScore += 2
-
-    #Not quite sure if the king rat is guaranteed to be on a side.
 
     goldTimer.start_timer(goldRatScore)
     blueTimer.start_timer(blueRatScore)

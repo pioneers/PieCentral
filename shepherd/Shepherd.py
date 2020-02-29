@@ -404,9 +404,6 @@ def send_connections(args):
 Only the general framework of everything.
 Do not use this at all!
 """
-king_moved = False
-#Not quite sure how generate_code is supposed to work in this scenario
-codes = []
 
 def move_rat(side):
     """
@@ -461,8 +458,10 @@ def call_health_inspector(side):
     client = RuntimeClient('team00.local')
     CLIENT WILL BE IN REFERENCE TO WHATEVER WE ASSIGN CLIENT TO!
     THE FOLLOWING CODE ISN'T OPERATIONAL.
+    We have to change the list of function names if we change the functions in the file.
     """
     randomSeed = random.randint(0, 2359)
+    seedAnswerResults = Code.answers(randomSeed, 2)
     #if #functions end up passing:
         #disable_robots()
         #durantionscore = #depends on functions

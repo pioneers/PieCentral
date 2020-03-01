@@ -84,6 +84,7 @@ enum class DeviceID : uint16_t {
 	RFID				= 0x0B,
 	SERVO_CONTROL		= 0x07,
 	COLOR_SENSOR		= 0x09,
+	KOALA_BEAR			= 0x0D,
 	EXAMPLE_DEVICE		= 0xFF
 };
 

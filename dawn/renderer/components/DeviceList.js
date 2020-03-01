@@ -39,10 +39,14 @@ const DEVICE_TYPES = {
   }
 };
 
+const DEFAULT_DEVICE_TYPE = {
+  displayName: 'Generic',
+  icon: IconNames.DIAGRAM_TREE,
+};
+
 const Device = (props) => {
   const { type, uid, alias } = props.device;
-  // FIXME: unknown device
-  const { icon, displayName } = DEVICE_TYPES[type];
+  let { icon, displayName } = DEVICE_TYPES[type] || DEFAULT_DEVICE_TYPE;
   return (
     <Card className="card">
       <span><Icon icon={icon} /> {displayName}</span>

@@ -3,7 +3,9 @@ import os from 'os';
 import _ from 'lodash';
 import RuntimeClient from 'runtime-client';
 import RendererBridge from './RendererBridge';
+
 import { append } from '../renderer/actions/console';
+import { addHeartbeat } from '../renderer/actions/connection';
 import { updateSensors } from '../renderer/actions/devices';
 
 const getIPAddress = (family = 'IPv4', internal = false) => {
@@ -51,11 +53,12 @@ class Client {
       while (true) {
         let datagram = await client.recvDatagram();
         if (datagram) {
+          RendererBridge.reduxDispatch(addHeartbeat());
           RendererBridge.reduxDispatch(updateSensors(datagram));
         }
       }
     } catch {
-      console.log('Stopping sensor update listener.')
+      console.log('Stopping sensor update listener.');
     }
   }
 

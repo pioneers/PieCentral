@@ -23,7 +23,7 @@ const devices = (state = DEFAULT_DEVICES, action) => {
       }));
 
       let newUIDs = _.difference(_.keys(action.payload.sensors), existingUIDs);
-      console.log(newUIDs);
+      // console.log(newUIDs);
       // sensors = sensors.concat();
 
       // let newSensors = _.keys(action.payload.sensors).filter(

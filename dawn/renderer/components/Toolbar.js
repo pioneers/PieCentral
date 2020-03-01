@@ -12,7 +12,7 @@ import {
   Tooltip,
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
-import { VERSION, StatusType } from '../constants/Constants';
+import { VERSION, ConnectionStatus } from '../constants/Constants';
 
 import { ConsoleMenu } from './Console';
 import Preferences from './Preferences';
@@ -81,5 +81,5 @@ class Toolbar extends React.Component {
 }
 
 export default connect(state => ({
-  disconnected: state.connection.status === StatusType.DISCONNECTED,
+  disconnected: state.connection.status === ConnectionStatus.DISCONNECTED,
 }))(Toolbar);

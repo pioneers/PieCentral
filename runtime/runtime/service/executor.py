@@ -305,6 +305,13 @@ class ExecutorService(Service):
     def __post_init__(self):
         self.device_buffers = DeviceMapping(self.config['device_timeout'], LOGGER)
 
+    @property
+    def student_code(self):
+        student_code = self.executor.student_code
+        if student_code is None:
+            raise RuntimeBaseException('Student code has not yet been loaded')
+        return student_code
+
     async def bootstrap(self):
         self.aliases = DeviceAliasManager(self.config['device_aliases'],
                                           self.config['persist_timeout'], LOGGER)
@@ -328,7 +335,7 @@ class ExecutorService(Service):
             return self.match.as_dict()
 
     async def run_challenge(self, challenges: typing.List[str], seed: int):
-        challenge_functions = [getattr(self.executor.student_code, challenge)
+        challenge_functions = [getattr(self.student_code, challenge)
                                for challenge in challenges]
         with ProcessPoolExecutor() as executor:
             loop = asyncio.get_running_loop()
@@ -357,7 +364,7 @@ class ExecutorService(Service):
             return {'aliases': dict(self.aliases.data)}
 
     async def lint(self):
-        student_code = self.executor.student_code
+        student_code = self.student_code
         if hasattr(student_code, '__file__'):
             # TODO: ignore some lint issues
             stdout, stderr = lint.py_run(student_code.__file__, return_std=True)

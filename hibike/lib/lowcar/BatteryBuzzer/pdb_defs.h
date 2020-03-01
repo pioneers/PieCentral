@@ -38,22 +38,22 @@
 
 // Enumerated values for BatteryBuzzer and VoltageTracker
 typedef enum {
-  IS_UNSAFE,
-  CALIBRATED,
-  V_CELL1,
-  V_CELL2,
-  V_CELL3,
-  V_BATT,
-  DV_CELL2,
-  DV_CELL3,
-  VREF_GUESS
+	IS_UNSAFE,
+	CALIBRATED,
+	V_CELL1,
+	V_CELL2,
+	V_CELL3,
+	V_BATT,
+	DV_CELL2,
+	DV_CELL3,
+	VREF_GUESS
 } PARAMS;
 
 // Enumerated values for disp_8
 typedef enum {
-  NORMAL_VOLT_READ,
-  CLEAR_CALIB,
-  NEW_CALIB
+	NORMAL_VOLT_READ,
+	CLEAR_CALIB,
+	NEW_CALIB
 } SEQ_NUM;
 
 #endif

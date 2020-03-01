@@ -53,6 +53,26 @@
                                                           {"number": 1  , "name": "servo1"     , "type": "float" , "read": true , "write": true  }
                                                      ]
     },
+	
+    {"id": 13,     "name": "KoalaBear",      "params": [
+                                                          {"number": 0  , "name": "duty_cycle_a"		, "type": "float"	, "read": true , "write": true  },
+                                                          {"number": 1  , "name": "pid_kp_a"			, "type": "float"	, "read": true , "write": true  },
+                                                          {"number": 2  , "name": "pid_ki_a"			, "type": "float"	, "read": true , "write": true  },
+                                                          {"number": 3  , "name": "pid_kd_a"			, "type": "float"	, "read": true , "write": true  },
+                                                          {"number": 4  , "name": "enc_a"				, "type": "float"	, "read": true , "write": true  },
+                                                          {"number": 5  , "name": "deadband_a"			, "type": "float"	, "read": true , "write": true  },
+                                                          {"number": 6  , "name": "motor_enabled_a"		, "type": "bool"	, "read": true , "write": true  },
+                                                          {"number": 7  , "name": "drive_mode_a"		, "type": "int"		, "read": true , "write": true  },
+                                                          {"number": 8  , "name": "duty_cycle_b"		, "type": "float"	, "read": true , "write": true  },
+                                                          {"number": 9  , "name": "pid_kp_b"			, "type": "float"	, "read": true , "write": true  },
+                                                          {"number": 10  , "name": "pid_ki_b"			, "type": "float"	, "read": true , "write": true  },
+                                                          {"number": 11  , "name": "pid_kd_b"			, "type": "float"	, "read": true , "write": true  },
+                                                          {"number": 12  , "name": "enc_b"				, "type": "float"	, "read": true , "write": true  },
+                                                          {"number": 13  , "name": "deadband_b"			, "type": "float"	, "read": true , "write": true  }
+														  {"number": 14  , "name": "motor_enabled_b"	, "type": "bool"	, "read": true , "write": true  }
+														  {"number": 15  , "name": "drive_mode_b"		, "type": "int"		, "read": true , "write": true  }
+                                                     ]
+    },
 
     {"id": 12,     "name": "PolarBear",      "params": [
                                                           {"number": 0  , "name": "duty_cycle"          , "type": "float"    , "read": true , "write": true  },

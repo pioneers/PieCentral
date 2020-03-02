@@ -32,6 +32,21 @@
   become: yes
   become_user: root 
 
+- name: create networking directory
+  file:
+    path: "etc/networking"
+    state: directory
+    recurse: yes
+  become: yes
+  become_user: root
+
+- name: configure wifi
+  copy:
+    src: files/wpa_supplicant.conf
+    dest: /etc/wpa_supplicant/wpa_supplicant.conf
+  become: yes
+  become_user: root 
+
 - name: initialize home directory
   file:
     path: "{{ ansible_env.HOME }}/bin"

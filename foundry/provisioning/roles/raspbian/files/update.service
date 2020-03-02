@@ -1,15 +1,19 @@
+# update.service
+
 [Unit]
 Description=Robot software updater
 After=sysinit.target
-AssertPathExists=/home/ubuntu/bin/update.sh
+AssertPathExists=/home/pi/bin/update.sh
 
 [Service]
 Type=simple
+Restart=always
+ExecStart=/home/pi/bin/update.sh
+
+[Path]
+PathChanged=/home/pi/updates
+ExecStart=/home/pi/bin/update.sh
 
 [Install]
 WantedBy=sysinit.target
-WantedBy=runtime.service
 
-[Path]
-PathChanged=/home/ubuntu/updates
-ExecStart=/home/ubuntu/bin/update.sh

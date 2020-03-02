@@ -4,9 +4,35 @@ import { all, delay, fork, put, takeLatest, select } from 'redux-saga/effects';
 import { addHeartbeat, setStatus } from './actions/connection';
 import { ConnectionStatus } from './constants/Constants';
 
-function *sendDatagrams(interval = 50) {
+import RuntimeClient from 'runtime-client';
+import _ from 'lodash';
+
+function *updateGamepads(interval = 50) {
   while (true) {
-    ipcRenderer.send('sendDatagram', {}, '127.0.0.1');  // FIXME
+    let gamepads = Array.prototype.slice.call(navigator.getGamepads());
+
+    // Windows has a bug where a second, "ghost" gamepad is returned, even when
+    // only one is connected. The filter on "mapping" ensures only one gamepad
+    // is returned.
+    gamepads = _.chain(gamepads)
+      .filter((gamepad) => gamepad && gamepad.mapping === 'standard')
+      .keyBy('index')
+      .mapValues((gamepad) => {
+        let inputs = {
+          joystick_left_x: gamepad.axes[0],
+          joystick_left_y: gamepad.axes[1],
+          joystick_right_x: gamepad.axes[2],
+          joystick_right_y: gamepad.axes[3],
+        };
+        let buttons = _.map(gamepad.buttons, (button) => button.pressed);
+        for (const [i, button_name] of RuntimeClient.BUTTONS.entries()) {
+          inputs[button_name] = buttons[i];
+        }
+        return inputs;
+      })
+      .value();
+
+    ipcRenderer.send('sendDatagram', gamepads, '127.0.0.1');  // FIXME
     yield delay(interval);
   }
 }
@@ -35,7 +61,7 @@ function *monitorHealth(points = 5, interval = 200) {
 
 export default function *effects() {
   yield all([
-    fork(sendDatagrams),
+    fork(updateGamepads),
     fork(monitorHealth),
     // takeLatest('CONNECT', connect),
   ]);

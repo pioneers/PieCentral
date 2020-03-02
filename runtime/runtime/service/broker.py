@@ -88,6 +88,7 @@ class DatagramServer:
                         await self.handle_client(address)
                     gamepads = message.get('gamepads') or {}
                     for gamepad_id, gamepad in gamepads.items():
+                        gamepad_id = int(gamepad_id)
                         if 0 <= gamepad_id < self.config['max_gamepads']:
                             await self.update_gamepad_data(gamepad_id, gamepad)
                         else:

@@ -18,6 +18,8 @@ import { ConsoleMenu } from './Console';
 import Preferences from './Preferences';
 import Status from './Status';
 
+import { Mode, setMatch } from '../actions/connection';
+
 const DebugMenu = () => (
   <Menu>
     <MenuItem text="Lint" icon={IconNames.CODE} />
@@ -26,6 +28,23 @@ const DebugMenu = () => (
     <MenuItem text="Statistics" icon={IconNames.TIMELINE_LINE_CHART} />
   </Menu>
 );
+
+const ModeMenu = connect(
+  null, { setMatch },
+)((props) => (
+  <Menu>
+    <MenuItem
+      text="Autonomous"
+      icon={IconNames.DRIVE_TIME}
+      onClick={() => props.setMatch(Mode.AUTO)}
+    />
+    <MenuItem
+      text="Teleop"
+      icon={IconNames.CELL_TOWER}
+      onClick={() => props.setMatch(Mode.TELEOP)}
+    />
+  </Menu>
+));
 
 class Toolbar extends React.Component {
   render() {
@@ -47,9 +66,27 @@ class Toolbar extends React.Component {
           </ButtonGroup>
           <Navbar.Divider />
           <ButtonGroup>
-            <Button icon={IconNames.PLAY} disabled={this.props.disconnected}>Start</Button>
-            <Button icon={IconNames.STOP} disabled={this.props.disconnected}>Stop</Button>
-            <Button icon={IconNames.FLAME} disabled={this.props.disconnected}>Emergency</Button>
+            <Popover
+                content={<ModeMenu />}
+                interactionKind={PopoverInteractionKind.HOVER}
+                hoverOpenDelay={0}
+                hoverCloseDelay={200}>
+              <Button icon={IconNames.PLAY} disabled={this.props.disconnected} rightIcon={IconNames.CARET_DOWN}>Start</Button>
+            </Popover>
+            <Button
+              icon={IconNames.STOP}
+              disabled={this.props.disconnected}
+              onClick={() => this.props.setMatch(Mode.IDLE)}
+            >
+              Stop
+            </Button>
+            <Button
+              icon={IconNames.FLAME}
+              disabled={this.props.disconnected}
+              onClick={() => this.props.setMatch(Mode.ESTOP)}
+            >
+              Emergency
+            </Button>
           </ButtonGroup>
           <Navbar.Divider />
           <ButtonGroup>
@@ -58,14 +95,14 @@ class Toolbar extends React.Component {
                 interactionKind={PopoverInteractionKind.HOVER}
                 hoverOpenDelay={0}
                 hoverCloseDelay={200}>
-              <Button icon={IconNames.CONSOLE}>Console</Button>
+              <Button icon={IconNames.CONSOLE} rightIcon={IconNames.CARET_DOWN}>Console</Button>
             </Popover>
             <Popover
                 content={<DebugMenu />}
                 interactionKind={PopoverInteractionKind.HOVER}
                 hoverOpenDelay={0}
                 hoverCloseDelay={200}>
-              <Button icon={IconNames.DASHBOARD}>Debug</Button>
+              <Button icon={IconNames.DASHBOARD} rightIcon={IconNames.CARET_DOWN}>Debug</Button>
             </Popover>
             <Preferences />
           </ButtonGroup>
@@ -80,6 +117,7 @@ class Toolbar extends React.Component {
   }
 }
 
-export default connect(state => ({
-  disconnected: state.connection.status === ConnectionStatus.DISCONNECTED,
-}))(Toolbar);
+export default connect(
+  state => ({ disconnected: state.connection.status === ConnectionStatus.DISCONNECTED }),
+  { setMatch },
+)(Toolbar);

@@ -1,7 +1,7 @@
 import { eventChannel } from 'redux-saga';
 import { ipcRenderer } from 'electron';
 import { all, delay, fork, put, takeLatest, select } from 'redux-saga/effects';
-import { addHeartbeat, setStatus, disconnect } from './actions/connection';
+import { addHeartbeat, setConnectionStatus } from './actions/connection';
 import { ConnectionStatus } from './constants/Constants';
 
 import RuntimeClient from 'runtime-client';
@@ -48,26 +48,37 @@ function *monitorHealth(points = 5, interval = 200) {
     if (heartbeats.length > 0) {
       let meanInterval = (new Date() - heartbeats[0]) / heartbeats.length;  // in ms
       if (meanInterval < LATENCY_THRESHOLD.WARNING) {
-        yield put(setStatus(ConnectionStatus.HEALTHY));
+        yield put(setConnectionStatus(ConnectionStatus.HEALTHY));
       } else if (meanInterval < LATENCY_THRESHOLD.DISCONNECTED) {
-        yield put(setStatus(ConnectionStatus.WARNING));
+        yield put(setConnectionStatus(ConnectionStatus.WARNING));
       } else {
-        yield put(disconnect());
-        yield put(setStatus(ConnectionStatus.DISCONNECTED));
+        yield put(setConnectionStatus(ConnectionStatus.DISCONNECTED));
       }
     }
     yield delay(interval);
   }
 }
 
-function *sendDisconnect() {
-   ipcRenderer.send('disconnect');
+function *handleMatchChange() {
+  let match = yield select((state) => state.connection.match);
+  ipcRenderer.send('sendCommand', 'set_match', [
+    match.mode || null,
+    match.alliance || null,
+  ]);
+}
+
+function *handleStatusChange() {
+  let status = yield select((state) => state.connection.status);
+  if (status === ConnectionStatus.DISCONNECTED) {
+    ipcRenderer.send('disconnect');
+  }
 }
 
 export default function *effects() {
   yield all([
     fork(updateGamepads),
     fork(monitorHealth),
-    takeLatest('DISCONNECT', sendDisconnect),
+    takeLatest('SET_MATCH', handleMatchChange),
+    takeLatest('SET_CONNECTION_STATUS', handleStatusChange),
   ]);
 }

@@ -59,17 +59,15 @@ function *monitorHealth(points = 5, interval = 200) {
   }
 }
 
-function *handleMatchChange() {
-  let match = yield select((state) => state.connection.match);
-  ipcRenderer.send('sendCommand', 'set_match', [
-    match.mode || null,
-    match.alliance || null,
-  ]);
+function *handleMatchChange(action) {
+  let { mode, alliance, send } = action.payload;
+  if (send) {
+    ipcRenderer.send('sendCommand', 'set_match', [mode || null, alliance || null]);
+  }
 }
 
-function *handleStatusChange() {
-  let status = yield select((state) => state.connection.status);
-  if (status === ConnectionStatus.DISCONNECTED) {
+function *handleStatusChange(action) {
+  if (action.payload.status === ConnectionStatus.DISCONNECTED) {
     ipcRenderer.send('disconnect');
   }
 }
@@ -80,5 +78,6 @@ export default function *effects() {
     fork(monitorHealth),
     takeLatest('SET_MATCH', handleMatchChange),
     takeLatest('SET_CONNECTION_STATUS', handleStatusChange),
+    // TODO: retry
   ]);
 }

@@ -15,6 +15,6 @@ export const Alliance = {
 
 export const { addHeartbeat, setMatch, setConnectionStatus } = createActions({
   ADD_HEARTBEAT: () => new Date(),
-  SET_MATCH: (mode = null, alliance = null) => ({ mode, alliance }),
+  SET_MATCH: (mode = null, alliance = null, send = true) => ({ mode, alliance, send }),
   SET_CONNECTION_STATUS: status => ({ status }),
 });

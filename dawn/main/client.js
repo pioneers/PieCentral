@@ -5,7 +5,7 @@ import RuntimeClient from 'runtime-client';
 import RendererBridge from './RendererBridge';
 
 import { append } from '../renderer/actions/console';
-import { addHeartbeat } from '../renderer/actions/connection';
+import { addHeartbeat, setMatch } from '../renderer/actions/connection';
 import { updateSensors } from '../renderer/actions/devices';
 
 const getIPAddress = (family = 'IPv4', internal = false) => {
@@ -19,7 +19,14 @@ class Client {
   constructor() {
     this.bindIPCHandlers = this.bindIPCHandlers.bind(this);
     this.unbindIPCHandlers = this.unbindIPCHandlers.bind(this);
-    this.disconnect = this.disconnect.bind(this);
+    this.initialize = this.initialize.bind(this);
+  }
+
+  async initialize() {
+    let aliases = await this.client.sendCommand('list_aliases');
+    let match = await this.client.sendCommand('get_match');
+    console.log(match);
+    RendererBridge.reduxDispatch(setMatch(match.mode, match.alliance, false));
   }
 
   async connect(event, host) {
@@ -27,6 +34,7 @@ class Client {
     this.host = host;
     this.client = new RuntimeClient(host);
     await this.client.connectAll();
+    await this.initialize();
     event.returnValue = true;
 
     await Promise.all([

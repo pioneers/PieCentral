@@ -1,7 +1,7 @@
 import { eventChannel } from 'redux-saga';
 import { ipcRenderer } from 'electron';
 import { all, delay, fork, put, takeLatest, select } from 'redux-saga/effects';
-import { addHeartbeat, setStatus } from './actions/connection';
+import { addHeartbeat, setStatus, disconnect } from './actions/connection';
 import { ConnectionStatus } from './constants/Constants';
 
 import RuntimeClient from 'runtime-client';
@@ -52,6 +52,7 @@ function *monitorHealth(points = 5, interval = 200) {
       } else if (meanInterval < LATENCY_THRESHOLD.DISCONNECTED) {
         yield put(setStatus(ConnectionStatus.WARNING));
       } else {
+        yield put(disconnect());
         yield put(setStatus(ConnectionStatus.DISCONNECTED));
       }
     }
@@ -59,10 +60,14 @@ function *monitorHealth(points = 5, interval = 200) {
   }
 }
 
+function *sendDisconnect() {
+   ipcRenderer.send('disconnect');
+}
+
 export default function *effects() {
   yield all([
     fork(updateGamepads),
     fork(monitorHealth),
-    // takeLatest('CONNECT', connect),
+    takeLatest('DISCONNECT', sendDisconnect),
   ]);
 }

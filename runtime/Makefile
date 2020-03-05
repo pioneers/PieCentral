@@ -41,7 +41,7 @@ package:
 
 install:
 	pip3 install pipenv
-	pipenv install --dev
+	pipenv install --dev --pre
 
 artifacts-install:
 	$(nop)

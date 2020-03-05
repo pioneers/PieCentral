@@ -131,7 +131,7 @@ class StudentCodeExecutor:
     aliases: DeviceAliasManager
     action_executor: ActionExecutor = dataclasses.field(default_factory=ActionExecutor)
     student_code: types.ModuleType = dataclasses.field(init=False,
-        default_factory=lambda: types.ModuleType('studentcode'))
+                                                       default_factory=lambda: types.ModuleType('studentcode'))
 
     def __enter__(self):
         return self
@@ -144,7 +144,7 @@ class StudentCodeExecutor:
             func = getattr(self.student_code, name)
         except AttributeError:
             LOGGER.warn('Unable to get function, using stub', func=name)
-            func = lambda: None
+            def func(): return None
         return func
 
     def get_functions(self):
@@ -175,6 +175,7 @@ class StudentCodeExecutor:
             LOGGER.warn('Unable to import student code', exc=str(exc))
 
         logger = log.get_logger(API_LOG_CAPTURE, student_code_name)
+
         def _print(*values, sep=' ', _file=None, _flush=False):
             logger.info(sep.join(map(str, values)))
 

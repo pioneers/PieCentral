@@ -34,6 +34,7 @@ class TTLMapping(collections.UserDict):
             Called when an entry expires. Return value is ignored.
         refreshed: A mapping of keys to condition variables.
     """
+
     def __init__(self, ttl: Real, on_expiration: Optional[Callable[[Any, Any], None]] = None):
         self.ttl, self.on_expiration, self.refreshed = ttl, on_expiration, {}
         super().__init__()

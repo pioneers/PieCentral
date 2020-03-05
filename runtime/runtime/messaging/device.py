@@ -232,7 +232,10 @@ class DeviceMapping(TTLMapping):
         else:
             self[device_uid] = DeviceBuffer.open(device_type, device_uid, create=create)
             asyncio.create_task(self.expire(device_uid))
-            self.logger.debug('Opened device', device_uid=device_uid, device_type=device_type.__name__)
+            self.logger.debug(
+                'Opened device',
+                device_uid=device_uid,
+                device_type=device_type.__name__)
 
     def on_device_disconnect(self, device_uid: str, device_buffer: DeviceBuffer):
         del device_buffer.struct

@@ -79,6 +79,7 @@ class SmartSensorObserver(MonitorObserver):
     Event data related to smart sensors are put into a queue for consumption by
     the main thread.
     """
+
     def __init__(self, hotplug_queue: asyncio.Queue, name: str = 'smart-sensor-observer',
                  subsystem: str = 'usb', device_type: str = 'usb_interface'):
         self.hotplug_queue = hotplug_queue
@@ -145,7 +146,7 @@ class SmartSensor:
         await self.ready.wait()
         for param in self.buffer.struct.get_parameters(packet.parameter_map):
             size = ctypes.sizeof(param.type)
-            value = param.type.from_buffer(param_buf[offset : offset+size])
+            value = param.type.from_buffer(param_buf[offset: offset + size])
             self.buffer.struct.set_current(param.name, value)
             offset += size
         if offset != len(param_buf):
@@ -200,10 +201,10 @@ class SmartSensor:
                 self.buffer.struct.read = SmartSensorStructure.RESET_MAP
                 await packetlib.send(self.serial_conn, packet)
 
-            count = (count + 1)%cycle_period
+            count = (count + 1) % cycle_period
             if count == 0:
                 end = time.time()
-                start, frequency = end, round(cycle_period/(end - start), 3)
+                start, frequency = end, round(cycle_period / (end - start), 3)
                 LOGGER.debug('Estimated parameter write frequency',
                              frequency=frequency, uid=self.buffer.struct.uid.to_int())
 

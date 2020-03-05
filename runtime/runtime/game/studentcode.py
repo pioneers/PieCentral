@@ -7,18 +7,24 @@ MOTOR = '56704262785351728773095'
 #     print('You cannot import me')
 #     time.sleep(1)
 
+
 async def autonomous_actions(n=1000):
     print('Running autonomous action ...')
     for i in range(n):
         print(f'Doing action computation ({i+1}/{n}) ...')
         await Actions.sleep(0.5)
 
+
 def autonomous_setup():
     print('Autonomous setup has begun!')
     Robot.run(autonomous_actions)
 
+
 def autonomous_main():
-    print(Robot.get_value('51975776734790250051004', 'id'), Robot.get_value('51975776734790250051004', 'tag_detect'))
+    print(
+        Robot.get_value(
+            '51975776734790250051004', 'id'), Robot.get_value(
+            '51975776734790250051004', 'tag_detect'))
     # print('Running autonomous main ...')
     # start = time.time()
     # print('I wrote an infinite loop')
@@ -30,8 +36,10 @@ def autonomous_main():
     #
     # Robot.run(autonomous_actions)
 
+
 def teleop_setup():
     print('Teleop setup has begun!')
+
 
 def teleop_main():
     # print('Running teleop main ...')
@@ -55,5 +63,6 @@ def teleop_main():
 #     print('Running autonomous main ...')
 #     autonomous_main()
 
+
 def double(x):
-    return 2*x
+    return 2 * x

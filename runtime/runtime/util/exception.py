@@ -25,6 +25,7 @@ class RuntimeBaseException(Exception):
         RuntimeBaseException('Error', dev_ids=[2, 3])
 
     """
+
     def __init__(self, message, **context):
         super().__init__(message)
         self.context = context

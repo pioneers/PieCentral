@@ -110,6 +110,7 @@ class CONSTANTS():
     RECIPE1_TIME = 40 #40
     RECIPE2_TIME = 40 #40
     RECIPE3_TIME = 40 #40
+    RECIPE_LOSE_TIME = 90 #90
     SPREADSHEET_ID = "1vurNOrlIIeCHEtK5aJVDfHrRM1AC2qWvIbtWqUgnmLk"
     CSV_FILE_NAME = "Sheets/fc2019.csv"
     STUDENT_DECODE_TIME = 1
@@ -135,6 +136,10 @@ class TIMER_TYPES():
              "FUNCTION":SHEPHERD_HEADER.STAGE_TIMER_END}
     STUDENT_DECODE = {"TYPE":"student_decode", "NEEDS_FUNCTION": True,
                       "FUNCTION":SHEPHERD_HEADER.CODE_RETRIEVAL}
+    RECIPE = {"TYPE":"recipe_next", "NEEDS_FUNCTION": True, 
+                "FUNCTION":SHEPHERD_HEADER.NEXT_RECIPE}
+    RECIPE_LOSE = {"TYPE":"recipe_lose", "NEEDS_FUNCTION": True,
+                "FUNCTION":SHEPHERD_HEADER.CHECK_RECIPE_COMPLETION}
 
 # pylint: disable=invalid-name
 class STATE():
@@ -155,7 +160,7 @@ class INGREDIENT():
     # COOKED_BREAD = "COOKED " + BREAD
     # COOKED_CHEESE = "COOKED " + CHEESE
 
-class RECIPIES():
+class RECIPES():
     BREADSTICKS = "Breadsticks"
     SALAD = "Salad"
     COLD_CUTS = "Cold Cuts"

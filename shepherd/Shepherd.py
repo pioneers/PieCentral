@@ -517,6 +517,8 @@ BUTTONS = {'gold_1': False, 'gold_2': False, 'blue_1': False, 'blue_2': False}
 STARTING_SPOTS = ["unknown", "unknown", "unknown", "unknown"]
 MASTER_ROBOTS = {ALLIANCE_COLOR.BLUE: None, ALLIANCE_COLOR.GOLD: None}
 
+RECIPE_TIMER = Timer(TIMER_TYPES.RECIPE)
+
 STUDENT_DECODE_TIMER = Timer(TIMER_TYPES.STUDENT_DECODE)
 
 CODES_USED = []

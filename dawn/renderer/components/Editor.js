@@ -87,6 +87,7 @@ class Editor extends React.Component {
     this.startRobot = this.startRobot.bind(this);
     this.stopRobot = this.stopRobot.bind(this);
     this.upload = this.upload.bind(this);
+    this.uploadAndSave = this.uploadAndSave.bind(this);
     this.estop = this.estop.bind(this);
     this.simulateCompetition = this.simulateCompetition.bind(this);
     this.raiseConsole = this.raiseConsole.bind(this);
@@ -255,6 +256,30 @@ class Editor extends React.Component {
         'Please save first',
       );
       logging.log('Upload: Not Working on Saved File');
+      return;
+    }
+    if (Editor.correctText(this.props.editorCode) !== this.props.editorCode) {
+      this.props.onAlertAdd(
+        'Invalid characters detected',
+        'Your code has non-ASCII characters, which won\'t work on the robot. ' +
+        'Please remove them and try again.',
+      );
+      logging.log('Upload: Non-ASCII Issue');
+      return;
+    }
+
+    this.props.onUploadCode();
+  }
+
+  uploadAndSave() {
+    const { filepath } = this.props;
+    this.props.onSaveFile();
+    if (filepath === '') {
+      this.props.onAlertAdd(
+        'Not Working on a File',
+        'Please save first',
+      );
+      logging.log('Upload: Not Working on File');
       return;
     }
     if (Editor.correctText(this.props.editorCode) !== this.props.editorCode) {
@@ -452,11 +477,21 @@ class Editor extends React.Component {
                 <MenuItem
                   onClick={_.partial(this.props.onSaveFile, true)}
                 >Save As</MenuItem>
+                <MenuItem
+                  onClick={this.props.uploadAndSave}
+                >Save and Upload</MenuItem>
               </DropdownButton>
               <TooltipButton
                 id="upload"
                 text="Upload"
                 onClick={this.upload}
+                glyph="upload"
+                disabled={false}
+              />
+              <TooltipButton
+                id="Upload and save"
+                text="Upload and save"
+                onClick={this.uploadAndSave}
                 glyph="upload"
                 disabled={false}
               />

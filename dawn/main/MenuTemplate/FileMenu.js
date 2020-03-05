@@ -40,6 +40,13 @@ const FileMenu = {
       },
       accelerator: 'CommandOrControl+Shift+S',
     },
+    {
+      label: 'Save and Upload',
+      click() {
+        RendererBridge.reduxDispatch(uploadAndSave(true));
+      },
+      accelerator: 'CommandOrControl+Shift+U',
+    },
   ],
 };
 

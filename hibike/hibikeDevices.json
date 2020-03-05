@@ -68,8 +68,8 @@
                                                           {"number": 10  , "name": "pid_ki_b"			, "type": "float"	, "read": true , "write": true  },
                                                           {"number": 11  , "name": "pid_kd_b"			, "type": "float"	, "read": true , "write": true  },
                                                           {"number": 12  , "name": "enc_b"				, "type": "float"	, "read": true , "write": true  },
-                                                          {"number": 13  , "name": "deadband_b"			, "type": "float"	, "read": true , "write": true  }
-														  {"number": 14  , "name": "motor_enabled_b"	, "type": "bool"	, "read": true , "write": true  }
+                                                          {"number": 13  , "name": "deadband_b"			, "type": "float"	, "read": true , "write": true  },
+														  {"number": 14  , "name": "motor_enabled_b"	, "type": "bool"	, "read": true , "write": true  },
 														  {"number": 15  , "name": "drive_mode_b"		, "type": "int"		, "read": true , "write": true  }
                                                      ]
     },

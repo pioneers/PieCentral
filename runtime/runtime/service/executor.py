@@ -130,7 +130,8 @@ class StudentCodeExecutor:
     device_buffers: DeviceMapping
     aliases: DeviceAliasManager
     action_executor: ActionExecutor = dataclasses.field(default_factory=ActionExecutor)
-    student_code: types.ModuleType = dataclasses.field(init=False, default=None)
+    student_code: types.ModuleType = dataclasses.field(init=False,
+        default_factory=lambda: types.ModuleType('studentcode'))
 
     def __enter__(self):
         return self

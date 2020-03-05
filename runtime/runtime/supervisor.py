@@ -149,7 +149,7 @@ async def start(
         LOGGER.debug(f'Configured logging', level=log_level, pretty=log_pretty)
 
         async with aiofiles.open(srv_config_path) as config_file:
-            service_config = yaml.load(await config_file.read())
+            service_config = yaml.safe_load(await config_file.read())
         LOGGER.debug(f'Read configuration from disk', srv_config_path=srv_config_path)
 
         async with aiofiles.open(dev_schema_path) as schema_file:

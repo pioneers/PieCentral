@@ -53,7 +53,7 @@ class LogCapture:
         Note::
             The queue should only be connected in the thread that is draining the queue.
         """
-        self.loop, self.events = loop or asyncio.get_running_loop(), events
+        self.loop, self.events = asyncio.get_running_loop(), events
         self.thread_id = threading.get_ident()
 
     @property

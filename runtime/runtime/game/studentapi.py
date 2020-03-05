@@ -50,7 +50,8 @@ class DeviceAliasManager(collections.UserDict):
         logger: A logger instance.
         persisting: A lock to ensure persistence operations are atomic (sequential).
     """
-    def __init__(self, filename: str, persist_timeout: Real,
+
+    def __init__(self, filename: str, persist_timeout: Real = 60,
                  logger: structlog.BoundLoggerBase = None):
         super().__init__()
         self.filename, self.persist_timeout = filename, persist_timeout
@@ -66,7 +67,11 @@ class DeviceAliasManager(collections.UserDict):
         async with self.persisting:
             try:
                 async with aiofiles.open(self.filename) as alias_file:
-                    self.data.update(yaml.load(await alias_file.read()))
+                    aliases = yaml.safe_load(await alias_file.read())
+                    if not isinstance(aliases, dict):
+                        raise yaml.error.YAMLError
+                    for alias, uid in aliases.items():
+                        self.data[alias] = str(uid)
                 self.logger.debug('Loaded initial aliases', aliases=self.data)
             except FileNotFoundError:
                 self.logger.warning('Device aliases do not yet exist')

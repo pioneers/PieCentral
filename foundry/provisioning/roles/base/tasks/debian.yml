@@ -8,6 +8,9 @@
       command: uname -r
       register: kernel_release
       changed_when: no
+    - name: install aptitude using apt
+      apt:
+        name: aptitude
     - name: install development packages
       apt:
         name:
@@ -25,7 +28,7 @@
           - less
           - fortune
           - build-essential
-          - "linux-headers-{{ kernel_release.stdout }}"
+          # - "linux-headers-{{ kernel_release.stdout }}"
     # The desktop is quite heavyweight, and there are issues with the screen
     # not refreshing, so this is not installed by default.
     - name: install desktop
@@ -52,15 +55,19 @@
           - software-properties-common
     - name: add docker gpg key
       apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
     - name: add docker repo
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+        repo: deb [arch=arm64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+        state: present
     - name: docker-ce workaround
-      shell: docker_workaround.sh
+      command: bash {{ role_path }}/files/docker_workaround.sh
     - name: install docker
       ignore_errors: yes
       apt:
+        update_cache: yes
+        state: latest
         name:
           - docker-ce-cli
           - containerd.io

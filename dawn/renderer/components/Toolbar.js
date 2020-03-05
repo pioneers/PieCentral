@@ -4,11 +4,13 @@ import {
   Alignment,
   Button,
   ButtonGroup,
+  Colors,
   Navbar,
   Menu,
   MenuItem,
   Popover,
   PopoverInteractionKind,
+  Tag,
   Tooltip,
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
@@ -104,11 +106,14 @@ class Toolbar extends React.Component {
                 hoverCloseDelay={200}>
               <Button icon={IconNames.DASHBOARD} rightIcon={IconNames.CARET_DOWN}>Debug</Button>
             </Popover>
+            <Button icon={IconNames.HELP}>Help</Button>
             <Preferences />
           </ButtonGroup>
         </Navbar.Group>
         <Navbar.Group align={Alignment.RIGHT}>
           <Navbar.Heading>
+            <Tag icon={IconNames.DRIVE_TIME} large>Teleop</Tag>
+            <Tag icon={IconNames.FLAG} style={{ background: Colors.GOLD3 }} large>Blue</Tag>
             <Status />
           </Navbar.Heading>
         </Navbar.Group>

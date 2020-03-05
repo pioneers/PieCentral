@@ -4,6 +4,7 @@ import {
   Card,
   EditableText,
   Icon,
+  Tag,
 } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import { renameDevice } from '../actions/devices';
@@ -36,7 +37,7 @@ const DEVICE_TYPES = {
   RFID: {
     displayName: 'RFID',
     icon: IconNames.FEED,
-  }
+  },
 };
 
 const DEFAULT_DEVICE_TYPE = {
@@ -66,6 +67,9 @@ const Device = (props) => {
 // FIXME
 const DeviceList = (props) => (
   <div className="card-container devices-cards">
+    <Card className="card">
+      <Tag icon={IconNames.FLAG} style={{  }} large>Blue</Tag>
+    </Card>
     {props.devices.map((device, index) => (
       <Device
         key={index}
@@ -77,5 +81,5 @@ const DeviceList = (props) => (
 );
 
 export default connect(
-  state => ({ devices: state.devices.sensors.concat(state.devices.gamepads) }),
+  state => ({ devices: state.devices.order }),
 )(DeviceList);

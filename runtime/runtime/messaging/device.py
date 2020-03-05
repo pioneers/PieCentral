@@ -14,7 +14,7 @@ import zmq
 from schema import And, Optional, Regex, Schema, Use
 import structlog
 
-from runtime.messaging.routing import Connection
+from runtime.messaging.connection import Connection
 from runtime.monitoring import log
 from runtime.util import VALID_NAME, TTLMapping
 from runtime.util.exception import RuntimeBaseException

@@ -8,5 +8,5 @@ class MockService(Service):
 
 
 @pytest.mark.asyncio
-async def test_run_subprocess(service: ):
+async def test_run_subprocess(service: Service):
     pass

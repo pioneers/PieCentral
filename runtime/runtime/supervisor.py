@@ -1,3 +1,7 @@
+"""
+The supervisor runs all subprocesses.
+"""
+
 import asyncio
 import collections
 import dataclasses
@@ -22,8 +26,8 @@ import zmq.asyncio
 from zmq.devices import ThreadDevice
 
 from runtime import get_version
+from runtime.messaging.connection import Connection
 from runtime.messaging.device import load_device_types, LOG_CAPTURE as DEV_LOG_CAPTURE
-from runtime.messaging.routing import Connection
 from runtime.service import SERVICES
 from runtime.service.base import Service
 from runtime.monitoring import retry, log
@@ -48,7 +52,7 @@ async def run_subprocess(service: Service, config: dict):
 
 async def terminate_subprocess(subprocess, timeout: Real = 2):
     """
-    Terminate a subprocess using the SIGTERM and SIGKILL UNIX signals.
+    Terminate a subprocess using the SIGTERM (and SIGKILL) UNIX signals.
 
     Arguments:
         subprocess: The subprocess to terminate.
@@ -131,10 +135,10 @@ async def start(
     Start the subprocess supervisor.
 
     Arguments:
-        srv_config_path: The path to the service configuration.
-        dev_schema_path: The path to the device schema.
         log_level: How verbose the log to standard output should be.
         log_pretty: Whether log records should be prettified when printed.
+        srv_config_path: The path to the service configuration.
+        dev_schema_path: The path to the device schema.
         max_retries: The maximum number of times to restart all the
             subprocesses before the supervisor exits.
         retry_interval: The duration between retries.

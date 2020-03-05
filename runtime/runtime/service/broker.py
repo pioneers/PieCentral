@@ -12,7 +12,7 @@ from runtime.messaging.device import (
     SmartSensorStructure,
     get_device_type,
 )
-from runtime.messaging.routing import Connection
+from runtime.messaging.connection import Connection
 from runtime.monitoring import log
 from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL, VALID_NAME, TTLMapping
 from runtime.util.exception import RuntimeBaseException

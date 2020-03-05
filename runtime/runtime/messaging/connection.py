@@ -1,7 +1,7 @@
 """
-Low-level routing module for building networking topologies using ZMQ.
+Low-level networking module for building topologies using ZMQ.
 
-The purpose of this module is to deliver packets of bytes between two endpoints.
+The purpose of this module is to deliver data between endpoints.
 """
 
 import asyncio

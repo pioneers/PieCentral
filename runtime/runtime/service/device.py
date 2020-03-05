@@ -24,7 +24,7 @@ from runtime.messaging.device import (
     SmartSensorUID,
     get_device_type,
 )
-from runtime.messaging.routing import Connection
+from runtime.messaging.connection import Connection
 from runtime.monitoring import log
 from runtime.service.base import Service
 from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL

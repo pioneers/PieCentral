@@ -26,8 +26,8 @@ from runtime.game.studentapi import (
     Robot,
     LOG_CAPTURE as API_LOG_CAPTURE,
 )
+from runtime.messaging.connection import Connection
 from runtime.messaging.device import DeviceMapping, get_device_type
-from runtime.messaging.routing import Connection
 from runtime.monitoring import log
 from runtime.service.base import Service
 from runtime.util import (

@@ -13,7 +13,7 @@ import zmq
 import zmq.asyncio
 import zmq.devices
 
-from runtime.messaging.routing import Connection
+from runtime.messaging.connection import Connection
 
 
 FRONTEND_ADDR: str = None

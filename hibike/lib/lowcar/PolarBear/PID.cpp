@@ -1,5 +1,8 @@
 #include "PID.h"
 
+#define encoder0PinA	14
+#define encoder0PinB	15
+
 PID::PID(double SetPoint, double KP, double KI, double KD, double initTime):
 	enc(encoder0PinA, encoder0PinB)
 {

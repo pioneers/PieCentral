@@ -48,14 +48,14 @@ void Device::loop ()
 			case MessageID::DEVICE_READ:
 				//read all specified values from device and store in curr_msg; set payload[0:2] to successfully read params
 				payload_ptr_uint16 = (uint16_t *) this->curr_msg.payload; //store the pointer to the front of the payload, cast to uint16_t
-				*payload_ptr_uint16 = device_rw_all(&(this->curr_msg), curr_msg.payload[0], RWMode::READ);
+				*payload_ptr_uint16 = device_rw_all(&(this->curr_msg), *(uint8_t *)payload_ptr_uint16, RWMode::READ); //payload_ptr_uint16 contains bitmap for rw
 				this->msngr->send_message(MessageID::DEVICE_DATA, &(this->curr_msg)); //report device data back to controller
 				break;
 				
 			case MessageID::DEVICE_WRITE:
 				//attempt to write specified specified params to device; set payload[0:2] to successfully written params
 				payload_ptr_uint16 = (uint16_t *) this->curr_msg.payload; //store pointer to the front of the payload, cast to uint16_t
-				*payload_ptr_uint16 = device_rw_all(&(this->curr_msg), curr_msg.payload[0], RWMode::WRITE);
+				*payload_ptr_uint16 = device_rw_all(&(this->curr_msg), *(uint8_t *)payload_ptr_uint16, RWMode::WRITE);  //payload_ptr_uint16 contains bitmap for rw
 				device_rw_all(&(this->curr_msg), curr_msg.payload[0], RWMode::READ); //read all values from device and store in curr_msg
 				this->msngr->send_message(MessageID::DEVICE_DATA, &(this->curr_msg)); //report device data back to controller
 				break;

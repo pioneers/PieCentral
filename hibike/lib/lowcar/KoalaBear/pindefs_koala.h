@@ -6,9 +6,9 @@
 #define BIN1		6 //second motor, PWM1
 #define BIN2		3 //second motor, PWM2
 
-#define LED1		A3	//red
-#define LED2		A4	//yellow
-#define LED3		A5	//green
+#define LED_RED		A3	//red
+#define LED_YELLOW	A4	//yellow
+#define LED_GREEN	A5	//green
 
 #define HEARTBEAT	A2	//flashes on heartbeats
 

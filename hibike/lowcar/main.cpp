@@ -4,6 +4,7 @@
 #include "RFID.h"
 #include "ServoControl.h"
 #include "PolarBear.h"
+#include "KoalaBear.h"
 
 /* This main file should be as simple as possible.
  * Every device runs this main file.

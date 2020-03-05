@@ -1,10 +1,9 @@
 #include "LED.h"
-#include "pindefs.h"
-//#include "encoder.h"
-//#include "current_limit.h"
-//#include "motor.h"
 #include "Arduino.h"
-//#include "PolarBear.h"
+
+#define LED_RED		2
+#define LED_YELLOW	3
+#define LED_GREEN	4
 
 //place all LED control functions in here
 void ctrl_LEDs() {

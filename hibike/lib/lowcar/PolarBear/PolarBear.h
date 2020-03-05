@@ -4,8 +4,11 @@
 #include "Device.h"
 #include "PID.h"
 #include "LED.h"
-#include "pindefs.h"
 #include "defs.h"
+
+#define feedback A3
+#define PWM1 6
+#define PWM2 9
 
 class PolarBear : public Device
 {

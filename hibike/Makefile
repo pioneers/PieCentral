@@ -66,8 +66,8 @@ ifeq "$(AVR_GCC_VERSION)" "1"
     CXXFLAGS += -fdiagnostics-color
 endif
 ### random uid
-RANDOM := 0x$(shell head -c 8 /dev/urandom | xxd -p)
-CXXFLAGS += -D UID_RANDOM=$(RANDOM)
+URANDOM := 0x$(shell xxd -l 8 -ps /dev/urandom)
+CXXFLAGS += -D UID_RANDOM=$(URANDOM)
 
 CXXFLAGS += -D DEVICE=$(DEVICE)
 

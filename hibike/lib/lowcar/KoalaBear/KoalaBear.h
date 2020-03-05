@@ -3,7 +3,7 @@
 
 #include "Device.h"
 #include "PID.h"
-#include "LED.h"
+#include "LEDKoala.h"
 #include "pindefs_koala.h"
 #include "defs.h"
 #include <SPI.h>
@@ -23,9 +23,12 @@ private:
 	uint8_t* drivemodes;
 	bool* enabled;
 	float* deadbands;
+	LEDKoala* led;
+	int prev_led_time;
+	int curr_led_mtr;
 	
 	int sign (float x);
-	void drive (float target);
+	void drive (float target, uint8_t mtr);
 	void write_current_lim ();
 	void read_current_lim ();
 	void electrical_setup();

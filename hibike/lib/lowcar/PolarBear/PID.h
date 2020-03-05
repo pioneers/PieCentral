@@ -3,7 +3,6 @@
 
 #include "Arduino.h"
 #include <Encoder.h>
-#include "pindefs.h"
 
 class PID
 {

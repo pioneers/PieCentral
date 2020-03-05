@@ -49,4 +49,6 @@ check_sensor $1
 # avrdude -v -patmega32u4 -cavr109 -P/dev/ttyACM0 -b57600 -D -Uflash:w:"$1":i
 make clean-uid DEVICE="$1"
 
+echo "$URANDOM"
+
 make upload DEVICE="$1"

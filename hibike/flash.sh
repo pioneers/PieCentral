@@ -47,6 +47,8 @@ check_sensor $1
 # echo "device is:  $1"
 # /Applications/Arduino.app/Contents/Java/hardware/tools/avr/bin/avrdude -C/Users/bduckering/Library/Arduino15/packages/SparkFun/hardware/avr/1.0.3/avrdude.conf -v -patmega32u4 -cavr109 -P/dev/cu.usbmodem1421 -b57600 -D -Uflash:w:"$1":i
 # avrdude -v -patmega32u4 -cavr109 -P/dev/ttyACM0 -b57600 -D -Uflash:w:"$1":i
+make clean # make sure that it makes a new UID
+
 make clean-uid DEVICE="$1"
 
 echo "$URANDOM"

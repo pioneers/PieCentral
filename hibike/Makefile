@@ -71,7 +71,7 @@ CXXFLAGS += -D UID_RANDOM=$(URANDOM)
 
 CXXFLAGS += -D DEVICE=$(DEVICE)
 
-LOCAL_CPP_SRCS := $(wildcard $(PROJECT_DIR)/lowcar/main.cpp)
+LOCAL_CPP_SRCS := $(wildcard $(PROJECT_DIR)/main.cpp)
 
 ### MONITOR_PORT
 ### The port your board is connected to. Using an '*' tries all the ports and finds the right one.

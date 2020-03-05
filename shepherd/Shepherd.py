@@ -373,6 +373,9 @@ def log(Exception):
 ###########################################
 # Game Specific Methods
 ###########################################
+def check_recipe_completion(args):
+
+
 def disable_robot(args):
     '''
     Send message to Dawn to disable the robots of team
@@ -470,6 +473,8 @@ WAIT_FUNCTIONS = {
 TELEOP_FUNCTIONS = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.STAGE_TIMER_END : to_limbo,
+    SHEPHERD_HEADER.CHECK_RECIPE_COMPLETION: check_recipe_completion,
+    SHEPHERD_HEADER.
     #SHEPHERD_HEADER.CODE_APPLICATION : apply_code,
     SHEPHERD_HEADER.ROBOT_OFF : disable_robot,
     #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
@@ -518,6 +523,7 @@ STARTING_SPOTS = ["unknown", "unknown", "unknown", "unknown"]
 MASTER_ROBOTS = {ALLIANCE_COLOR.BLUE: None, ALLIANCE_COLOR.GOLD: None}
 
 RECIPE_TIMER = Timer(TIMER_TYPES.RECIPE)
+RECIPE_LOSE_TIMER = Timer(TIMER_TYPES.RECIPE_LOSE)
 
 STUDENT_DECODE_TIMER = Timer(TIMER_TYPES.STUDENT_DECODE)
 

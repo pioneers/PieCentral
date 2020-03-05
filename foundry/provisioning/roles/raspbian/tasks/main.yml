@@ -1,65 +1,82 @@
 ---
-- block:
-    - name: upgrade kernel
-      command: bash /opt/scripts/tools/update_kernel.sh
-    - name: add user to dialout group
-      user:
-        name: "{{ ansible_env.USER }}"
-        group:
-            - dialout
-    - name: configure network interfaces
-      copy:
-        src: files/interfaces
-        dest: /etc/networking/interfaces
-    - name: disable apache
-      systemd:
-        name: apache2
-        state: stopped
-        enabled: no
-        daemon_reload: yes
+- name: create networking directory
+  file:
+    path: "etc/networking"
+    state: directory
+    recurse: yes
+  become: yes
+  become_user: root
+
+- name: configure network interfaces
+  copy:
+    src: files/interfaces
+    dest: /etc/networking/interfaces
   become: yes
   become_user: root 
 
 - name: initialize home directory
-  block:
-    - file:
-        path: "{{ ansible.env.HOME }}/bin"
-        state: directory
-    - file:
-        path: "{{ ansible.env.HOME }}/updates"
-        state: directory
-    - file:
-        path: "{{ ansible.env.HOME }}/student-code"
-        state: directory
-    - command: "git -init {[ ansible.env.HOME }}/student-code"
-    - copy:
-        src: files/update.sh
-        dest: "{{ ansible.env.HOME }}/bin/update.sh"
-        mode: "0755"
+  file:
+    path: "{{ ansible_env.HOME }}/bin"
+    state: directory
+  file:
+    path: "{{ ansible_env.HOME }}/updates"
+    state: directory
+  file:
+    path: "{{ ansible_env.HOME }}/student-code"
+    state: directory
+    #- command: "git -init {[ ansible.env.HOME }}/student-code"
+
+- name: copy update.sh
+  copy:
+    src: files/update.sh
+    dest: "{{ ansible_env.HOME }}/bin/update.sh"
+    mode: "0755"
+
+- name: .config check
+  stat:
+    path: "{{ ansible_env.HOME }}/.config/systemd/user"
+  register: config_folder
+
+- name: make .config
+  become: true
+  become_user: root
+  file:
+    path: "{{ ansible_env.HOME }}/.config/systemd/user"
+    state: directory
+    mode: 0755
+    group: root
+    owner: root
+  when: config_folder.stat.exists == false
 
 - name: set up update service
-  block:
-    - copy:
-        src: files/update.service
-        dest: "{{ ansible.env.HOME }}/.config/systemd/user"
-    - systemd:
-        daemon_reload: yes
-        scope: user
-        name: update.service
-        enabled: yes
+  copy:
+    src: files/update.service
+    dest: "{{ ansible_env.HOME }}/.config/systemd/user"
+  become: yes
+  become_user: root
+
+- name: systemd
+  systemd:
+    daemon_reload: yes
+    scope: user
+    name: update.service
+    enabled: yes
   become: yes
   become_user: root
 
 - name: enable ssh
-  block:
-    - copy:
-        content: ""
-        dest: /boot/ssh
-        force: no
-        group: sys
-        owner: root
-        mode: 0755
-    - command: "sudo systemctl enable ssh && sudo systemctl start ssh"
+  become: true
+  become_user: root
+  copy:
+    content: ""
+    dest: /boot/ssh
+    force: no
+    group: sys
+    owner: root
+    mode: 0755
 
-- name: reboot system
-  reboot:
+- name: command to enable ssh
+  become: true
+  become_user: root
+  command: "sudo systemctl enable ssh && sudo systemctl start ssh"
+

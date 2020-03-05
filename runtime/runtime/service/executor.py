@@ -260,7 +260,7 @@ class ExecutorService(Service):
                                           self.config['persist_timeout'], LOGGER)
         self.executor = StudentCodeExecutor(self.config, self.match, self.mode_changed,
                                             self.device_buffers, self.aliases)
-        asyncio.create_task(self.aliases.load_initial_aliases())
+        await self.aliases.load_existing_aliases()
         await super().bootstrap()
 
     async def get_match(self):
@@ -269,7 +269,6 @@ class ExecutorService(Service):
 
     async def set_match(self, mode: str, alliance: str):
         """ Set the match information. """
-        # TODO: is stateless better here?
         async with self.access:
             self.match.mode = Mode.__members__[mode.upper()]
             self.match.alliance = Alliance.__members__[alliance.upper()]

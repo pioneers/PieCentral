@@ -21,29 +21,49 @@ FRONTEND_ADDR: str = None
 
 @dataclasses.dataclass
 class LogCapture:
+    """
+    A ``structlog`` processor that intercepts events and pushes them to a queue.
+
+    References::
+        http://www.structlog.org/en/stable/processors.html
+    """
     loop: Optional[asyncio.AbstractEventLoop] = None
-    records: Optional[asyncio.Queue] = None
+    events: Optional[asyncio.Queue] = None
     thread_id: Optional[int] = None
 
-    def __call__(self, _logger, _method, event):
+    def __call__(self, _logger, _method: str, event: dict):
+        """
+        Pushes log events to a queue that is possibly drained in another thread.
+        """
         if self.connected:
             if self.thread_id == threading.get_ident():
                 call_soon = self.loop.call_soon
             else:
                 call_soon = self.loop.call_soon_threadsafe
-            call_soon(self.records.put_nowait, event.copy())
+            call_soon(self.events.put_nowait, event.copy())
         return event
 
-    def connect(self, records: asyncio.Queue):
-        self.loop, self.records = asyncio.get_running_loop(), records
+    def connect(self, events: asyncio.Queue):
+        """
+        Connect the log capture to a queue.
+
+        Arguments:
+            events: The queue to push to.
+
+        Note::
+            The queue should only be connected in the thread that is draining the queue.
+        """
+        self.loop, self.events = loop or asyncio.get_running_loop(), events
         self.thread_id = threading.get_ident()
 
     @property
     def connected(self):
-        return bool(self.loop and self.records and self.thread_id)
+        """  """
+        return bool(self.loop and self.events and self.thread_id)
 
 
 def get_logger(capture: LogCapture, *args, **kwargs):
+    """ Return a structlog instance with a log capture  """
     return structlog.get_logger(*args, processors=get_processors(capture), **kwargs)
 
 

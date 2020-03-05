@@ -11,7 +11,8 @@ Refer to the [documentation](docs).
 - [x] Create separate SensorStructure type
 - [ ] Use multiple write packets for too many parameter updates
 - [x] Finish Runtime Python client
-- [ ] Finish Runtime Node client
+- [x] Finish Runtime Node client
+- [ ] Use generator for Runtime Node log read
 - [ ] Integrate Dawn with Runtime
 - [ ] Add backpressure
 - [ ] Clear out old duty_cycle, other writeable parameters
@@ -21,3 +22,5 @@ Refer to the [documentation](docs).
 - [ ] Motor check
 - [ ] Use frozen=True to make immutable dataclasses
 - [ ] Use exc_info=exc
+- [ ] Testing mode for student API
+- [ ] Better get_value failure handling

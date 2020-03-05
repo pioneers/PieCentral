@@ -185,7 +185,7 @@ def get_device_type(device_id: int = None, device_name: str = None,
     raise RuntimeBaseException('Device not found', device_id=device_id, protocol=protocol)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass
 class DeviceBuffer:
     shm: SharedMemory
     struct: DeviceStructure

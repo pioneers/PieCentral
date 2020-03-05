@@ -76,7 +76,8 @@ class DatagramServer:
                 struct.set_current(param.name, bool((button_map >> i) & 0b1))
 
     async def recv_loop(self):
-        with Connection.open(self.config['sockets']['datagram_recv'], self.udp_context) as connection:
+        datagram_recv = self.config['sockets']['datagram_recv']
+        with Connection.open(datagram_recv, self.udp_context) as connection:
             while True:
                 message = await connection.recv()
                 self.recv_count += 1

@@ -107,6 +107,9 @@ class CONSTANTS():
     AUTO_TIME = 30 # 30
     TELEOP_TIME = 120 # 120
     OVERTIME_TELEOP_TIME = 40 # 40
+    RECIPE1_TIME = 40 #40
+    RECIPE2_TIME = 40 #40
+    RECIPE3_TIME = 40 #40
     SPREADSHEET_ID = "1vurNOrlIIeCHEtK5aJVDfHrRM1AC2qWvIbtWqUgnmLk"
     CSV_FILE_NAME = "Sheets/fc2019.csv"
     STUDENT_DECODE_TIME = 1
@@ -163,7 +166,7 @@ class RECIPIES():
     GRILLED_CHEESE = "Grilled Cheese"
     JALAPENO_POPPERZ = "Jalapeno Popperz"
     CHEESEBURGER = "Cheeseburger"
-    SHEPHERDS_PIE = "Sherpherd's Pie"
+    SHEPHERDS_PIE = "Shepherd's Pie"
     CHEESE_AND_CRACKERS = "Cheese and Crackers"
 
 class RECIPE_PROBABILITIES():

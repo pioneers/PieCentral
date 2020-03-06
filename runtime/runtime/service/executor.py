@@ -341,7 +341,7 @@ class ExecutorService(Service):
         API_LOG_CAPTURE.connect(self.log_records)
         with RPCConnection.open(self.config['sockets']['command'], logger=LOGGER) as connection:
             await asyncio.gather(
-                connection.handle_rpc(self.dispatch),
+                connection.dispatch_loop(self.dispatch),
                 self.listen_for_device_status(),
                 self.send_device_commands(),
             )

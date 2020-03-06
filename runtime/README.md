@@ -4,7 +4,7 @@ Refer to the [documentation](docs).
 
 ## TODO
 
-- [ ] Try to write zeros to all devices on e-stop
+- [~] Try to write zeros to all devices on e-stop (no need)
 - [ ] Clean up exit handling (persist aliases, close all shared memory and connections, etc)
 - [ ] Ensure all data structures are synchronized
 - [x] Unlink Gamepad when done

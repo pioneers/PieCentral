@@ -154,7 +154,7 @@ class RPCConnection(Connection):
             if self.logger:
                 self.logger.debug('Sent response', **context)
 
-    async def handle_rpc_req(self, dispatch):
+    async def _handle_rpc_call(self, dispatch):
         try:
             message_type, message_id, method, params = await self.recv()
         except (TypeError, ValueError) as exc:
@@ -174,10 +174,11 @@ class RPCConnection(Connection):
         finally:
             await self._respond_rpc(response, context)
 
-    async def handle_rpc(self, dispatch):
+    async def dispatch_loop(self, dispatch, sync=True):
+        handle = self._handle_rpc_call if sync else self._handle_rpc_notification
         while True:
             try:
-                await self.handle_rpc_req(dispatch)
+                await handle(dispatch)
             except RuntimeBaseException as exc:
                 if self.logger:
                     self.logger.error(str(exc), exc_info=exc, **exc.context)
@@ -196,3 +197,17 @@ class RPCConnection(Connection):
         if error:
             raise RuntimeBaseException('RPC returned an error', err=str(error))
         return result
+
+    async def _handle_rpc_notification(self, dispatch):
+        try:
+            message_type, method, params = await self.recv()
+        except (TypeError, ValueError) as exc:
+            raise RuntimeBaseException('Malformed RPC notification') from exc
+        if message_type != RPCConnection.NOTIFICATION:
+            raise RuntimeBaseException('Malformed RPC request (not a notification)', method=method)
+        if self.logger:
+            self.logger.debug('Received notification', method=method)
+        asyncio.create_task(dispatch(method, *params))
+
+    async def notify(self, method, *params):
+        await self.send([RPCConnection.NOTIFICATION, method, params])

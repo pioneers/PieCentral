@@ -95,6 +95,10 @@ cpdef Packet make_ping():
     return Packet(PING, b'')
 
 
+cpdef Packet make_disable():
+    return Packet(DEV_DISABLE, b'')
+
+
 cpdef Packet make_sub_req():
     cdef string payload
     return Packet(SUB_REQ, payload)

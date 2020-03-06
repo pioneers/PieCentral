@@ -281,13 +281,6 @@ class DeviceBuffer:
         return DeviceBuffer(shm, device_type.from_buffer(shm.buf))
 
 
-class DeviceEvent(enum.Enum):
-    CONNECT = enum.auto()
-    DISCONNECT = enum.auto()
-    HEARTBEAT_RES = enum.auto()
-    ERROR = enum.auto()
-
-
 class DeviceMapping(TTLMapping):
     """
     """
@@ -313,28 +306,9 @@ class DeviceMapping(TTLMapping):
         self.logger.debug('Device disconnected', device_uid=device_uid)
 
 
-@dataclasses.dataclass
-class SmartSensorProxy(collections.UserDict):
-    connections: Connection
-    command_publisher: Connection
-    ready: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
-    buffer: DeviceBuffer = dataclasses.field(default=None, init=False)
-
-    async def ping(self):
-        pass
-
-    async def request_subscription(self):
-        pass
-
-    async def request_heartbeat(self):
-        pass
-
-    def read_soon(self, param_name: str):
-        pass
-
-    def write_soon(self, param_name: str, value):
-        pass
-
-    async def event_loop(self):
-        while True:
-            event = await self.event_subscriber.recv()
+class SmartSensorCommand(enum.Enum):
+    PING_ALL = enum.auto()
+    DISABLE_ALL = enum.auto()
+    REQ_SUB = enum.auto()
+    REQ_HEART = enum.auto()
+    RTT = enum.auto()

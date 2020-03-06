@@ -29,9 +29,6 @@ runprod: builddev
 shell: buildbase
 	docker run --rm -it $(NAME):development /bin/ash
 
-build:
-	pipenv run build
-
 package:
 	python setup.py sdist bdist_wheel
 
@@ -42,6 +39,7 @@ package:
 install:
 	pip3 install pipenv
 	pipenv install --dev --pre
+	pipenv run build
 
 artifacts-install:
 	$(nop)

@@ -77,8 +77,6 @@ class Connection:
     udp_send: Optional[Callable] = None
     udp_recv: Optional[Callable] = None
 
-    RPC_REQUEST, RPC_RESPONSE = 0, 1
-
     def __post_init__(self):
         self.udp_send = functools.partial(self.socket.send, copy=self.copy, group=self.send_group)
         self.udp_recv = functools.partial(self.socket.recv, copy=self.copy)
@@ -117,36 +115,6 @@ class Connection:
         self.bytes_recv += len(packet)
         return self.loads(packet)
 
-    async def _respond_rpc(self, response, context):
-        try:
-            await self.send(response)
-        except OverflowError:
-            response[3] = None
-            if self.logger:
-                self.logger.error('Encountered overflow while serializing response', **context)
-            await self.send(response)
-        finally:
-            if self.logger:
-                self.logger.debug('Sent response', **context)
-
-    async def handle_rpc_req(self, dispatch):
-        try:
-            message_type, message_id, method, params = await self.recv()
-        except (TypeError, ValueError) as exc:
-            raise RuntimeBaseException('Malformed RPC request') from exc
-        context = {'message_id': message_id, 'method': method}
-        if message_type != Connection.RPC_REQUEST:
-            raise RuntimeBaseException('Malformed RPC request (not a request)', **context)
-
-        response = [Connection.RPC_RESPONSE, message_id, None, None]
-        try:
-            response[3] = await dispatch(method, *params)
-        except Exception as exc:
-            response[2] = str(exc)
-            raise RuntimeBaseException('Unable to execute command', **context) from exc
-        finally:
-            await self._respond_rpc(response, context)
-
     async def req(self, payload):
         if self.socket.type != zmq.REQ:
             raise RuntimeBaseException('Cannot make requests with non-REQ socket')
@@ -158,11 +126,73 @@ class Connection:
         if self.logger:
             self.logger.debug('Closed connection')
 
-    @staticmethod
-    def open(config, context=None, **options):
+    @classmethod
+    def open(cls, config, context=None, **options):
         context = zmq.asyncio.Context.instance() or context
         socket = make_socket(context, **config)
-        connection = Connection(socket, **options)
+        connection = cls(socket, **options)
         if connection.logger:
             connection.logger.debug('Opened connection')
         return connection
+
+
+@dataclasses.dataclass
+class RPCConnection(Connection):
+    message_id: int = 0
+
+    REQUEST, RESPONSE, NOTIFICATION = 0, 1, 2
+
+    async def _respond_rpc(self, response, context):
+        try:
+            await self.send(response)
+        except OverflowError as exc:
+            response[3] = None
+            await self.send(response)
+            raise RuntimeBaseException('Encountered overflow while serializing response',
+                                       **context) from exc
+        finally:
+            if self.logger:
+                self.logger.debug('Sent response', **context)
+
+    async def handle_rpc_req(self, dispatch):
+        try:
+            message_type, message_id, method, params = await self.recv()
+        except (TypeError, ValueError) as exc:
+            raise RuntimeBaseException('Malformed RPC request') from exc
+        context = {'message_id': message_id, 'method': method}
+        if message_type != RPCConnection.REQUEST:
+            raise RuntimeBaseException('Malformed RPC request (not a request)', **context)
+        if self.logger:
+            self.logger.debug('Received request', **context)
+
+        response = [RPCConnection.RESPONSE, message_id, None, None]
+        try:
+            response[3] = await dispatch(method, *params)
+        except Exception as exc:
+            response[2] = str(exc)
+            raise RuntimeBaseException('Unable to execute command', **context) from exc
+        finally:
+            await self._respond_rpc(response, context)
+
+    async def handle_rpc(self, dispatch):
+        while True:
+            try:
+                await self.handle_rpc_req(dispatch)
+            except RuntimeBaseException as exc:
+                if self.logger:
+                    self.logger.error(str(exc), exc_info=exc, **exc.context)
+
+    async def call(self, method, *params, message_id: Optional[int] = None):
+        if message_id is None:
+            message_id = self.message_id
+            self.message_id += 1
+        response = await self.req([RPCConnection.REQUEST, message_id, method, params])
+        message_type, res_msg_id, error, result = response
+        if message_type != RPCConnection.RESPONSE:
+            raise RuntimeBaseException('RPC response has bad type')
+        if message_id != res_msg_id:
+            raise RuntimeBaseException('RPC message IDs do not match',
+                                       req_msg_id=message_id, res_msg_id=res_msg_id)
+        if error:
+            raise RuntimeBaseException('RPC returned an error', err=str(error))
+        return result

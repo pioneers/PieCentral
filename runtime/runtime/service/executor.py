@@ -26,8 +26,8 @@ from runtime.game.studentapi import (
     Robot,
     LOG_CAPTURE as API_LOG_CAPTURE,
 )
-from runtime.messaging.connection import Connection
-from runtime.messaging.device import DeviceMapping, get_device_type
+from runtime.messaging.connection import Connection, RPCConnection
+from runtime.messaging.device import DeviceMapping, SmartSensorCommand, get_device_type
 from runtime.monitoring import log
 from runtime.service.base import Service
 from runtime.util import (
@@ -219,7 +219,7 @@ class StudentCodeExecutor:
         while True:
             self.mode_changed.wait()
             self.mode_changed.clear()
-            LOGGER.debug('Setting match information', mode=self.match.mode.name,
+            LOGGER.debug('Set match information', mode=self.match.mode.name,
                          alliance=self.match.mode.name)
             if self.match.mode is Mode.ESTOP:
                 raise EmergencyStopException
@@ -235,12 +235,9 @@ class ExecutorService(Service):
     match: Match = dataclasses.field(default_factory=Match)
     mode_changed: threading.Event = dataclasses.field(default_factory=threading.Event)
     devices_buffers: DeviceMapping = dataclasses.field(init=False, default=None)
-    sensor_commands: asyncio.Queue = dataclasses.field(init=False,
-                                                       default_factory=asyncio.Queue)
+    sensor_commands: asyncio.Queue = dataclasses.field(init=False, default=None)
     aliases: DeviceAliasManager = dataclasses.field(init=False, default=None)
     executor: StudentCodeExecutor = dataclasses.field(init=False, default=None)
-
-    request, response = 0, 1
 
     config_schema = {
         **Service.config_schema,
@@ -262,6 +259,7 @@ class ExecutorService(Service):
                                           self.config['persist_timeout'], LOGGER)
         self.executor = StudentCodeExecutor(self.config, self.match, self.mode_changed,
                                             self.device_buffers, self.aliases)
+        self.sensor_commands = asyncio.Queue()
         await self.aliases.load_existing_aliases()
         await super().bootstrap()
 
@@ -275,8 +273,7 @@ class ExecutorService(Service):
             self.match.mode = Mode.__members__[mode.upper()]
             self.match.alliance = Alliance.__members__[alliance.upper()]
             self.mode_changed.set()
-            # if self.match.mode is Mode.IDLE:
-            #     self.sensor_commands.put_nowait({''})
+            self.sensor_commands.put_nowait((SmartSensorCommand.DISABLE_ALL.name, ))
             return self.match.as_dict()
 
     async def run_challenge(self, challenges: typing.List[str], seed: int):
@@ -326,30 +323,28 @@ class ExecutorService(Service):
                     await self.device_buffers.open(device['device_uid'], device_type)
 
     async def send_device_commands(self):
-        with Connection.open(self.config['sockets']['device_command']) as connection:
+        with RPCConnection.open(self.config['sockets']['sensor_command'], logger=LOGGER) as connection:
             while True:
-                await connection.send(await self.sensor_commands.get())
+                method, *params = await self.sensor_commands.get()
+                await connection.call(method, *params)
 
     async def dispatch(self, method, *params):
         if method.upper() not in RequestType.__members__:
             raise RuntimeBaseException('Method not found', method=method)
         result = {'received': time.time()}
-        method = getattr(self, method)
-        result.update(await method(*params))
+        result.update(await getattr(self, method)(*params))
         result['completed'] = time.time()
         return result
 
     async def main(self):
         LOG_CAPTURE.connect(self.log_records)
         API_LOG_CAPTURE.connect(self.log_records)
-        with Connection.open(self.config['sockets']['command'], logger=LOGGER) as connection:
-            asyncio.create_task(self.listen_for_device_status())
-            asyncio.create_task(self.send_device_commands())
-            while True:
-                try:
-                    await connection.handle_rpc_req(self.dispatch)
-                except RuntimeBaseException as exc:
-                    LOGGER.error(str(exc), **exc.context, exc_info=exc)
+        with RPCConnection.open(self.config['sockets']['command'], logger=LOGGER) as connection:
+            await asyncio.gather(
+                connection.handle_rpc(self.dispatch),
+                self.listen_for_device_status(),
+                self.send_device_commands(),
+            )
 
     def __call__(self):
         threading.current_thread().name = type(self).__name__.lower()

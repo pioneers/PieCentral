@@ -21,9 +21,10 @@ from runtime.messaging.device import (
     DeviceBuffer,
     SmartSensorStructure,
     SmartSensorUID,
+    SmartSensorCommand,
     get_device_type,
 )
-from runtime.messaging.connection import Connection
+from runtime.messaging.connection import Connection, RPCConnection
 from runtime.monitoring import log
 from runtime.service.base import Service
 from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL
@@ -178,7 +179,7 @@ class SmartSensor:
             else:
                 await self.handle_inbound_packet(packet)
 
-    async def write_parameters_loop(self, cycle_period: int = 1000):
+    async def write_loop(self, cycle_period: int = 1000):
         await self.ready.wait()
         loop = asyncio.get_running_loop()
         start, count = loop.time(), 0
@@ -202,9 +203,6 @@ class SmartSensor:
                 LOGGER.debug('Estimated parameter write frequency',
                              frequency=frequency, uid=self.buffer.struct.uid.to_int())
 
-    async def write_commands_loop(self):
-        pass
-
     @backoff.on_exception(backoff.constant, asyncio.TimeoutError, max_tries=10, logger=LOGGER)
     async def ping(self, timeout: Real = 1):
         """
@@ -225,10 +223,16 @@ class SmartSensor:
         Raises::
             asyncio.TimeoutError: Device never responded with a subscription request.
         """
-        LOGGER.debug('Pinging new device', timeout=timeout)
         await packetlib.send(self.serial_conn, packetlib.make_ping())
+        LOGGER.debug('Pinged device', timeout=timeout)
         # Block until the subscription request arrives.
         await asyncio.wait_for(self.ready.wait(), timeout)
+
+    @backoff.on_exception(backoff.constant, Exception, max_tries=10, logger=LOGGER)
+    async def disable(self):
+        await packetlib.send(self.serial_conn, packetlib.make_disable())
+        LOGGER.debug('Disabled device')
+        self.buffer.struct.write = self.buffer.struct.read = SmartSensorStructure.RESET_MAP
 
     @backoff.on_exception(backoff.constant, BufferError, max_tries=5, interval=1, logger=LOGGER)
     async def terminate(self, shm: SharedMemory):
@@ -242,8 +246,7 @@ class SmartSensor:
             await asyncio.gather(
                 self.ping(),
                 self.read_loop(),
-                self.write_parameters_loop(),
-                self.write_commands_loop(),
+                self.write_loop(),
             )
         except SerialException as exc:
             LOGGER.error('Serial exception, closing Smart Sensor', exc_info=exc)
@@ -268,7 +271,7 @@ class DeviceService(Service):
         Optional('baud_rate', default=115200): POSITIVE_INTEGER,
         Optional('max_hotplug_events', default=128): POSITIVE_INTEGER,
         Optional('broadcast_interval', default=0.2): POSITIVE_REAL,
-        Optional('write_interval', default=0.05): POSITIVE_REAL,
+        Optional('write_interval', default=0.02): POSITIVE_REAL,
         Optional('terminate_timeout', default=2): POSITIVE_REAL,
     }
 
@@ -302,15 +305,33 @@ class DeviceService(Service):
 
     async def broadcast_status(self):
         """ Periodically notify all other services about currently available sensors. """
-        with Connection.open(self.config['sockets']['sensor_status']) as connection:
+        with Connection.open(self.config['sockets']['sensor_status'], logger=LOGGER) as connection:
             while True:
                 devices = [sensor.buffer.status for sensor in self.sensors if sensor.buffer]
                 await connection.send({'devices': devices})
                 await asyncio.sleep(self.config['broadcast_interval'])
 
+    async def dispatch(self, method, *params):
+        command = SmartSensorCommand.__members__[method.upper()]
+        if command is SmartSensorCommand.PING_ALL:
+            await asyncio.gather(*[sensor.ping() for sensor in self.sensors])
+        elif command is SmartSensorCommand.DISABLE_ALL:
+            await asyncio.gather(*[sensor.disable() for sensor in self.sensors])
+        elif command is SmartSensorCommand.REQ_SUB:
+            pass
+        elif command is SmartSensorCommand.REQ_HEART:
+            pass
+        elif command is SmartSensorCommand.RTT:
+            pass
+
+    async def listen_for_sensor_commands(self):
+        with RPCConnection.open(self.config['sockets']['sensor_command'], logger=LOGGER) as connection:
+            await connection.handle_rpc(self.dispatch)
+
     async def main(self):
         LOG_CAPTURE.connect(self.log_records)
         asyncio.create_task(self.broadcast_status())
+        asyncio.create_task(self.listen_for_sensor_commands())
         event_queue = self.initialize_hotplugging()
         while True:
             hotplug_event = await event_queue.get()

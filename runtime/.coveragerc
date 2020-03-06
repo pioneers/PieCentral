@@ -7,3 +7,4 @@ omit =
 
 [report]
 show_missing = True
+fail_under = 80

@@ -25,7 +25,7 @@ executor:
       address: tcp://*:6002
       bind: true
     sensor_command:
-      socket_type: pub
+      socket_type: req
       address: ipc:///tmp/sensor-command.sock
     device_status:
       socket_type: sub
@@ -44,6 +44,6 @@ device:
       address: ipc:///tmp/sensor-status.sock
       bind: true
     sensor_command:
-      socket_type: sub
+      socket_type: rep
       address: ipc:///tmp/sensor-command.sock
       bind: true

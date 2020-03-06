@@ -43,27 +43,12 @@ async def device_mapping():
     return devlib.DeviceMapping(0.2)
 
 
-@pytest.fixture
-def sensor_uid():
-    return devlib.SmartSensorUID(device_type=0x_beef, year=0x11, id=0x_ffff_ffff_ffff_ffff)
-
-
 def test_param_limit():
     params = [devlib.SmartSensorStructure.Parameter(f'param{i}', ctypes.c_float)
               for i in range(devlib.SmartSensorStructure.MAX_PARAMETERS + 1)]
     with pytest.raises(RuntimeBaseException):
         devlib.SmartSensorStructure.make_type('Sensor', 0, params)
     assert isinstance(devlib.DeviceStructure.make_type('Device', 0, params), type)
-
-
-def test_get_field_bytes(device_buffer):
-    assert devlib.get_field_bytes(device_buffer.struct.current_param1, 'value') == b'\xb6\xf3\x9d\xbf'
-    assert devlib.get_field_bytes(device_buffer.struct.current_param2, 'value') == b'\xef\xbe\xad\xde'
-    assert devlib.get_field_bytes(device_buffer.struct.current_param3, 'value') == b'\x01'
-
-
-def test_uid_to_int(sensor_uid):
-    assert sensor_uid.to_int() == 0x_beef_11_ffff_ffff_ffff_ffff
 
 
 def test_parameter_bitmap_translation(device_buffer):

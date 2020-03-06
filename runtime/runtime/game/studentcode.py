@@ -26,6 +26,7 @@ def autonomous_setup():
     # Robot.run(autonomous_actions)
     # Robot.run(set_motor)
 
+
 def autonomous_main():
     Robot.set_value(MOTOR, 'duty_cycle', 0.2)
     print(Robot.get_value(MOTOR, 'duty_cycle'))

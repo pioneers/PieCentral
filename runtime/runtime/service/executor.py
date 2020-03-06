@@ -57,11 +57,33 @@ class RequestType(enum.Enum):
 
 
 class ActionExecutor(threading.Thread):
+    """
+    Execute asynchronous student code actions.
+
+    Actions are coroutine functions that run outside the main execution loop
+    (i.e., "(autonomous|teleop)_main"). Actions allow students to run
+    long-running "background" tasks.
+
+    Note that only one invocation of an action is allowed to run at any given
+    time to prevent unintended side effects. Code that needs to run regularly
+    should be placed in the main execution loop. Highly parallel code can be
+    written as a group of concurrent coroutines.
+
+    Since the main execution loop is synchronous, actions are run in a separate
+    OS thread to ensure the main loop is not blocked. The two threads share
+    state (e.g., device buffers for sensors).
+
+    Attributes:
+        running_actions: Maps actions (callables) to asyncio tasks.
+        loop; The event loop running inside the action executor thread.
+    """
+
     def __init__(self, name: str = 'action-executor'):
         self.running_actions, self.loop = dict(), None
         super().__init__(target=self, daemon=True, name=name)
 
     def __call__(self):
+        """ Action executor thread entry point. """
         # Need to explicitly create a new loop instead of using `get_event_loop`,
         # since this is not the main thread (https://stackoverflow.com/a/55278365).
         self.loop = asyncio.new_event_loop()
@@ -71,17 +93,36 @@ class ActionExecutor(threading.Thread):
         finally:
             self.loop.close()
 
-    def is_running(self, action):
+    def is_running(self, action: Action):
+        """ Check whether an action is currently running. """
         return action in self.running_actions
 
     def register_action_threadsafe(self, action, *args, timeout: Real = 30):
+        """
+        Register an action from a different thread.
+
+        See ``ActionExecutor.egister_action`` for signature.
+        """
         self.loop.call_soon_threadsafe(self.register_action, action, timeout, *args)
 
     def unregister_all(self):
-        for action in self.running_actions:
+        for action in list(self.running_actions):
             self.loop.call_soon_threadsafe(self.unregister_action, action)
 
     def register_action(self, action: Action, timeout: Real, *args):
+        """
+        Register an action for execution.
+
+        Note that this must be called from the same thread as the one running
+        this action executor.
+
+        Arguments:
+            action: A coroutine function that accepts a number of positional
+                arguments. The return value is ignored. The action should *not*
+                shield itself from cancellation by asyncio.
+            timeout: The maximum duration in seconds this action should run for.
+            args: Positional arguments to pass to the action.
+        """
         if not inspect.iscoroutinefunction(action):
             LOGGER.warn('Action should be a coroutine function')
         elif self.is_running(action):
@@ -94,6 +135,7 @@ class ActionExecutor(threading.Thread):
             LOGGER.debug('Registered action', action=action.__name__)
 
     def unregister_action(self, action: Action, *_):
+        """ Unregister an action by cancelling its associated task. """
         try:
             self.running_actions.pop(action).cancel()
             LOGGER.debug('Unregistered action', action=action.__name__)
@@ -102,10 +144,11 @@ class ActionExecutor(threading.Thread):
 
 
 def handle_timeout(_signum: int, _stack_frame):
+    """ Signal handler that raises a timeout. """
     raise TimeoutError('Task timed out')
 
 
-def run_with_timeout(func: typing.Callable[[], typing.Any], timeout: Real, *args, **kwargs):
+def run_with_timeout(func: typing.Callable, timeout: Real, *args, **kwargs):
     signal.setitimer(signal.ITIMER_REAL, float(timeout))
     try:
         return func(*args, **kwargs)
@@ -116,7 +159,7 @@ def run_with_timeout(func: typing.Callable[[], typing.Any], timeout: Real, *args
 Challenge = typing.Callable[[int], int]
 
 
-def run_challenge(challenges: typing.Iterable[Challenge], seed: int) -> typing.List[int]:
+def run_challenge(challenges: typing.Iterable[Challenge], seed: int) -> typing.Iterable[int]:
     try:
         answers, current = [seed], seed
         for challenge in challenges:
@@ -127,6 +170,9 @@ def run_challenge(challenges: typing.Iterable[Challenge], seed: int) -> typing.L
         LOGGER.error('Failed to run challenge', exc=str(exc))
 
 
+EMPTY_STUDENT_CODE = types.ModuleType('studentcode')
+
+
 @dataclasses.dataclass
 class StudentCodeExecutor:
     config: dict
@@ -135,14 +181,14 @@ class StudentCodeExecutor:
     device_buffers: DeviceMapping
     aliases: DeviceAliasManager
     action_executor: ActionExecutor = dataclasses.field(default_factory=ActionExecutor)
-    student_code: types.ModuleType = dataclasses.field(init=False,
-                                                       default_factory=lambda: types.ModuleType('studentcode'))
+    student_code: types.ModuleType = dataclasses.field(init=False, default=EMPTY_STUDENT_CODE)
 
     def __enter__(self):
         return self
 
     def __exit__(self, _type, _exc, _traceback):
         self.device_buffers.clear()
+        self.student_code = EMPTY_STUDENT_CODE
 
     def get_function(self, name: str):
         try:
@@ -176,7 +222,7 @@ class StudentCodeExecutor:
         try:
             run_with_timeout(import_task, self.config['import_timeout'])
         except Exception as exc:
-            self.student_code = types.ModuleType(student_code_name)
+            self.student_code = EMPTY_STUDENT_CODE
             LOGGER.warn('Unable to import student code', exc=str(exc))
 
         logger = log.get_logger(API_LOG_CAPTURE, student_code_name)
@@ -343,7 +389,8 @@ class ExecutorService(Service):
         LOG_CAPTURE.connect(self.log_records)
         API_LOG_CAPTURE.connect(self.log_records)
         command_conn = RPCConnection.open(self.config['sockets']['command'], logger=LOGGER)
-        sensor_event_conn = RPCConnection.open(self.config['sockets']['device_status'], logger=LOGGER)
+        sensor_event_conn = RPCConnection.open(
+            self.config['sockets']['device_status'], logger=LOGGER)
         with command_conn, sensor_event_conn:
             await asyncio.gather(
                 command_conn.dispatch_loop(self.handle_command),

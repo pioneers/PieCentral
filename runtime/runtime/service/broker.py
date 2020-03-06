@@ -8,11 +8,12 @@ import zmq.asyncio
 
 from runtime.service.base import Service
 from runtime.messaging.device import (
+    DeviceEvent,
     DeviceMapping,
     SmartSensorStructure,
     get_device_type,
 )
-from runtime.messaging.connection import Connection
+from runtime.messaging.connection import Connection, RPCConnection
 from runtime.monitoring import log
 from runtime.util import POSITIVE_INTEGER, POSITIVE_REAL, VALID_NAME, TTLMapping
 from runtime.util.exception import RuntimeBaseException
@@ -98,13 +99,9 @@ class DatagramServer:
     async def broadcast(self):
         device_updates = {}
         for device in self.device_buffers.values():
-            if device.is_smart_sensor:
-                device_update = device_updates[str(device.struct.uid.to_int())] = {}
-                device_update['type'] = type(device.struct).__name__
-                device_update['params'] = params = {}
-                for param in device.struct.get_parameters(device.struct.send):
-                    params[param.name] = device.struct.get_current(param.name)
-                device.struct.send = SmartSensorStructure.RESET_MAP
+            if device.is_smart_sensor and not device.closing:
+                uid, payload = device.struct.get_update()
+                device_updates[str(uid)] = payload
 
         update = {'devices': device_updates}
         for client in self.clients.values():
@@ -139,21 +136,19 @@ class DatagramServer:
             except asyncio.TimeoutError:
                 LOGGER.warn('Send cycle timed out')
 
-    async def listen_for_device_status(self):
-        with Connection.open(self.config['sockets']['sensor_status']) as connection:
-            while True:
-                status = await connection.recv()
-                devices = status.get('devices') or []
-                for device in devices:
-                    device_type = get_device_type(device_name=device['device_type'])
-                    await self.device_buffers.open(device['device_uid'], device_type)
+    async def handle_sensor_event(self, method, *params):
+        event = DeviceEvent.__members__[method.upper()]
+        if event is DeviceEvent.UPDATE:
+            for device in params[0]:
+                device_type = get_device_type(device_name=device['device_type'])
+                await self.device_buffers.open(device['device_uid'], device_type)
 
     async def broadcast_status(self):
-        with Connection.open(self.config['sockets']['gamepad_status']) as connection:
+        with RPCConnection.open(self.config['sockets']['gamepad_status']) as connection:
             while True:
                 devices = [buffer.status for buffer in self.device_buffers.values()
                            if not buffer.is_smart_sensor]
-                await connection.send({'devices': devices})
+                await connection.notify(DeviceEvent.UPDATE.name, devices)
                 await asyncio.sleep(self.config['gamepad_send_interval'])
 
 
@@ -178,10 +173,12 @@ class BrokerService(Service):
 
     async def main(self):
         LOG_CAPTURE.connect(self.log_records)
-        with DatagramServer(self.config) as datagram_server:
+        datagram_server = DatagramServer(self.config)
+        sensor_event_conn = RPCConnection.open(self.config['sockets']['sensor_status'])
+        with datagram_server, sensor_event_conn:
             await asyncio.gather(
                 datagram_server.recv_loop(),
                 datagram_server.send_loop(),
                 datagram_server.broadcast_status(),
-                datagram_server.listen_for_device_status(),
+                sensor_event_conn.dispatch_loop(datagram_server.handle_sensor_event, sync=False),
             )

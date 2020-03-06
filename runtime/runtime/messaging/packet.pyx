@@ -8,8 +8,11 @@ from libc.stdint cimport uint8_t, uint16_t
 
 from cobs import cobs
 
-from runtime.messaging.device import SmartSensorUID, get_field_bytes
 from runtime.util.exception import RuntimeBaseException
+
+
+# The Smart Sensor protocol uses little Endian byte order (least-significant byte first).
+Structure = ctypes.LittleEndianStructure
 
 
 cpdef enum MessageType:
@@ -29,6 +32,42 @@ cpdef enum ErrorCode:
     UNEXPECTED_DELIM  = 0xFD
     BAD_CHECKSUM      = 0xFE
     GENERIC           = 0xFF
+
+
+class SmartSensorUID(Structure):
+    """
+    A Smart Sensor Unique Identifer (UID).
+
+    The UID is effectively a 96-bit integer that encodes Sensor metadata:
+      * `device_type`: An integer denoting the type of Sensor. The types are
+            given by the Smart Sensor protocol specification.
+      * `year`: The year the Sensor is from. 2016 is denoted as year zero.
+      * `id`: A randomly generated ID. This ensures the probability of a UID
+            collision (two devices of the same type from the same year) is
+            negligible.
+    """
+    _pack_ = 1  # Ensure the fields are byte-aligned (pack as densely as possible)
+    _fields_ = [
+        ('device_type', ctypes.c_uint16),
+        ('year', ctypes.c_uint8),
+        ('id', ctypes.c_uint64),
+    ]
+
+    def to_int(self) -> int:
+        """
+        Return an integer representation of this UID.
+
+        Warning::
+            Serializing the UID as an integer may fail if the serializer cannot
+            represent integers larger than 64 bits (UID is 96 bits).
+        """
+        return (self.device_type << 72) | (self.year << 64) | self.id
+
+
+def get_field_bytes(structure: ctypes.Structure, field_name: str) -> bytes:
+    field_description = getattr(type(structure), field_name)
+    field_ref = ctypes.byref(structure, field_description.offset)
+    return ctypes.string_at(field_ref, field_description.size)
 
 
 cpdef uint8_t checksum(string buf) nogil:

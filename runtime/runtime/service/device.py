@@ -20,7 +20,7 @@ from runtime.messaging import packet as packetlib
 from runtime.messaging.device import (
     DeviceBuffer,
     SmartSensorStructure,
-    SmartSensorUID,
+    DeviceEvent,
     SmartSensorCommand,
     get_device_type,
 )
@@ -116,12 +116,15 @@ class SmartSensor:
     write_interval: Real = 0.05
     terminate_timeout: Real = 2
     ready: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
+    rtt_down: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
     buffer: DeviceBuffer = dataclasses.field(default=None, init=False)
+
+    RTT_ID: int = 0xff
 
     def __hash__(self):
         return hash(self.serial_conn.port)
 
-    async def initialize_sensor(self, uid: SmartSensorUID):
+    async def initialize_sensor(self, uid: packetlib.SmartSensorUID):
         device_type = get_device_type(uid.device_type)
         device_uid = f'smart-sensor-{uid.to_int()}'
         self.buffer = DeviceBuffer.open(device_type, device_uid, create=True)
@@ -159,7 +162,8 @@ class SmartSensor:
             # LOGGER.debug('Received heartbeat request and sent response',
             #              heartbeat_id=response.heartbeat_id)
         elif packet.message_id == packetlib.MessageType.HEARTBEAT_RES:
-            pass
+            if packet.heartbeat_id == SmartSensor.RTT_ID:
+                self.rtt_down.set()
         elif packet.message_id == packetlib.MessageType.DEV_DATA:
             await self.handle_dev_data(packet)
         elif packet.message_id == packetlib.MessageType.SUB_RES:
@@ -185,15 +189,14 @@ class SmartSensor:
         start, count = loop.time(), 0
         while True:
             await asyncio.sleep(self.write_interval)
+            if not self.buffer.struct:
+                break
 
-            if self.buffer.struct.write != SmartSensorStructure.RESET_MAP:
-                packet = packetlib.make_dev_write(self.buffer.struct)
-                self.buffer.struct.write = SmartSensorStructure.RESET_MAP
+            packet = self.buffer.struct.make_write()
+            if packet:
                 await packetlib.send(self.serial_conn, packet)
-
-            if self.buffer.struct.read != SmartSensorStructure.RESET_MAP:
-                packet = packetlib.make_dev_read(self.buffer.struct)
-                self.buffer.struct.read = SmartSensorStructure.RESET_MAP
+            packet = self.buffer.struct.make_read()
+            if packet:
                 await packetlib.send(self.serial_conn, packet)
 
             count = (count + 1) % cycle_period
@@ -232,33 +235,35 @@ class SmartSensor:
     async def disable(self):
         await packetlib.send(self.serial_conn, packetlib.make_disable())
         LOGGER.debug('Disabled device')
-        self.buffer.struct.write = self.buffer.struct.read = SmartSensorStructure.RESET_MAP
+        if self.buffer.struct:
+            self.buffer.struct.reset()
 
-    @backoff.on_exception(backoff.constant, BufferError, max_tries=5, interval=1, logger=LOGGER)
-    async def terminate(self, shm: SharedMemory):
-        shm.close()
-        shm.unlink()
-        LOGGER.info('Smart sensor terminated', device_uid=shm.name)
+    async def rtt(self, timeout: Real = 5) -> Real:
+        """
+        Measure the round-trip time of a packet sent to the Smart Sensor and back.
+        """
+        loop = asyncio.get_running_loop()
+        start = loop.time()
+        self.rtt_down.clear()
+        await packetlib.send(self.serial_conn, packetlib.make_heartbeat_req(SmartSensor.RTT_ID))
+        try:
+            await asyncio.wait_for(self.rtt_down.wait(), timeout)
+        except asyncio.TimeoutError:
+            LOGGER.warn('Never received round-trip-time indicator')
+        finally:
+            return loop.time() - start
 
     async def spin(self):
         """ Run this sensor indefinitely. """
+        tasks = asyncio.gather(self.ping(), self.read_loop(), self.write_loop())
         try:
-            await asyncio.gather(
-                self.ping(),
-                self.read_loop(),
-                self.write_loop(),
-            )
+            await tasks
         except SerialException as exc:
             LOGGER.error('Serial exception, closing Smart Sensor', exc_info=exc)
         finally:
+            tasks.cancel()
             if self.buffer:
-                shm = self.buffer.shm
-                # NOTE: `shm.close` can fail sometimes because the ctype struct
-                # maintains a pointer to the buffer. We need to trigger the
-                # garbage collection of the struct.
-                del self.buffer
-                await asyncio.sleep(self.terminate_timeout)
-                await self.terminate(shm)
+                await self.buffer.close(self.terminate_timeout)
 
 
 @dataclasses.dataclass
@@ -301,17 +306,21 @@ class DeviceService(Service):
             )
             self.sensors.add(sensor)
             sensor_task = asyncio.create_task(sensor.spin())
-            sensor_task.add_done_callback(functools.partial(self.sensors.remove, sensor))
+            sensor_task.add_done_callback(lambda *_: self.sensors.remove(sensor))
 
     async def broadcast_status(self):
         """ Periodically notify all other services about currently available sensors. """
-        with Connection.open(self.config['sockets']['sensor_status'], logger=LOGGER) as connection:
+        with RPCConnection.open(self.config['sockets']['sensor_status'], logger=LOGGER) as connection:
             while True:
-                devices = [sensor.buffer.status for sensor in self.sensors if sensor.buffer]
-                await connection.send({'devices': devices})
+                try:
+                    sensors = [sensor.buffer.status for sensor in self.sensors
+                               if sensor.ready.is_set() and not sensor.buffer.closing]
+                    await connection.notify(DeviceEvent.UPDATE.name, sensors)
+                except Exception as exc:
+                    LOGGER.error(str(exc), exc_info=exc)
                 await asyncio.sleep(self.config['broadcast_interval'])
 
-    async def dispatch(self, method, *params):
+    async def handle_sensor_command(self, method, *params):
         command = SmartSensorCommand.__members__[method.upper()]
         if command is SmartSensorCommand.PING_ALL:
             await asyncio.gather(*[sensor.ping() for sensor in self.sensors])
@@ -324,16 +333,13 @@ class DeviceService(Service):
         elif command is SmartSensorCommand.RTT:
             pass
 
-    async def listen_for_sensor_commands(self):
-        with RPCConnection.open(self.config['sockets']['sensor_command'], logger=LOGGER) as connection:
-            await connection.handle_rpc(self.dispatch)
-
     async def main(self):
         LOG_CAPTURE.connect(self.log_records)
-        asyncio.create_task(self.broadcast_status())
-        asyncio.create_task(self.listen_for_sensor_commands())
-        event_queue = self.initialize_hotplugging()
-        while True:
-            hotplug_event = await event_queue.get()
-            if hotplug_event.action is HotplugAction.ADD:
-                await self.open_serial_connections(hotplug_event, baudrate=self.config['baud_rate'])
+        with RPCConnection.open(self.config['sockets']['sensor_command'], logger=LOGGER) as cmd_conn:
+            asyncio.create_task(self.broadcast_status())
+            asyncio.create_task(cmd_conn.dispatch_loop(self.handle_sensor_command))
+            event_queue = self.initialize_hotplugging()
+            while True:
+                hotplug_event = await event_queue.get()
+                if hotplug_event.action is HotplugAction.ADD:
+                    await self.open_serial_connections(hotplug_event, baudrate=self.config['baud_rate'])

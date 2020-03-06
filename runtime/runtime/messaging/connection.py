@@ -205,8 +205,9 @@ class RPCConnection(Connection):
             raise RuntimeBaseException('Malformed RPC notification') from exc
         if message_type != RPCConnection.NOTIFICATION:
             raise RuntimeBaseException('Malformed RPC request (not a notification)', method=method)
-        if self.logger:
-            self.logger.debug('Received notification', method=method)
+        # FIXME: too verbose
+        # if self.logger:
+        #     self.logger.debug('Received notification', method=method)
         asyncio.create_task(dispatch(method, *params))
 
     async def notify(self, method, *params):

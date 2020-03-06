@@ -10,14 +10,16 @@ import enum
 from multiprocessing.shared_memory import SharedMemory
 from numbers import Real
 import time
-from typing import Callable, Iterable, List, Union
+import typing
 
+import backoff
 import cachetools
 import yaml
 import zmq
 from schema import And, Optional, Regex, Schema, Use
 import structlog
 
+from runtime.messaging import packet as packetlib
 from runtime.messaging.connection import Connection
 from runtime.monitoring import log
 from runtime.util import VALID_NAME, ParameterValue, TTLMapping
@@ -26,13 +28,11 @@ from runtime.util.exception import RuntimeBaseException
 
 LOG_CAPTURE = log.LogCapture()
 LOGGER = log.get_logger(LOG_CAPTURE)
-# The Smart Sensor protocol uses little Endian byte order (least-significant byte first).
-Structure = ctypes.LittleEndianStructure
 
 
 @cachetools.cached(cache={})
 def make_timestamped_parameter(param_type) -> type:
-    class TimestampedParameter(Structure):
+    class TimestampedParameter(packetlib.Structure):
         _fields_ = [
             ('value', param_type),
             ('last_updated', ctypes.c_double),
@@ -45,43 +45,7 @@ def make_timestamped_parameter(param_type) -> type:
     return TimestampedParameter
 
 
-class SmartSensorUID(Structure):
-    """
-    A Smart Sensor Unique Identifer (UID).
-
-    The UID is effectively a 96-bit integer that encodes Sensor metadata:
-      * `device_type`: An integer denoting the type of Sensor. The types are
-            given by the Smart Sensor protocol specification.
-      * `year`: The year the Sensor is from. 2016 is denoted as year zero.
-      * `id`: A randomly generated ID. This ensures the probability of a UID
-            collision (two devices of the same type from the same year) is
-            negligible.
-    """
-    _pack_ = 1  # Ensure the fields are byte-aligned (pack as densely as possible)
-    _fields_ = [
-        ('device_type', ctypes.c_uint16),
-        ('year', ctypes.c_uint8),
-        ('id', ctypes.c_uint64),
-    ]
-
-    def to_int(self) -> int:
-        """
-        Return an integer representation of this UID.
-
-        Warning::
-            Serializing the UID as an integer may fail if the serializer cannot
-            represent integers larger than 64 bits (UID is 96 bits).
-        """
-        return (self.device_type << 72) | (self.year << 64) | self.id
-
-
-def get_field_bytes(structure: ctypes.Structure, field_name: str) -> bytes:
-    field_description = getattr(type(structure), field_name)
-    field_ref = ctypes.byref(structure, field_description.offset)
-    return ctypes.string_at(field_ref, field_description.size)
-
-
-class DeviceStructure(Structure):
+class DeviceStructure(packetlib.Structure):
     """
     A device with readable/writeable parameters.
 
@@ -117,14 +81,14 @@ class DeviceStructure(Structure):
         getattr(self, f'desired_{param_name}').value = value
 
     @classmethod
-    def get_parameters(cls, bitmap: int) -> Iterable[Parameter]:
+    def get_parameters(cls, bitmap: int) -> typing.Iterable[Parameter]:
         """ Translate a parameter bitmap into parameters. """
         for i in range(len(cls._params)):
             if (bitmap >> i) & 0b1:
                 yield cls._params[i]
 
     @classmethod
-    def make_type(cls: type, name: str, type_id: int, params: List[Parameter],
+    def make_type(cls: type, name: str, type_id: int, params: typing.List[Parameter],
                   *extra_fields, base_cls: type = None) -> type:
         """
         Make a device type (C-style structure) from a parameter configuration.
@@ -176,9 +140,33 @@ class SmartSensorStructure(DeviceStructure):
         super().set_current(param_name, value)
         self.send |= 1 << self._param_ids[param_name]
 
+    def make_read(self) -> typing.Optional[packetlib.Packet]:
+        if self.read != SmartSensorStructure.RESET_MAP:
+            packet = packetlib.make_dev_read(self)
+            self.read = SmartSensorStructure.RESET_MAP
+            return packet
+
+    def make_write(self) -> typing.Optional[packetlib.Packet]:
+        if self.write != SmartSensorStructure.RESET_MAP:
+            packet = packetlib.make_dev_write(self)
+            self.write = SmartSensorStructure.RESET_MAP
+            return packet
+
+    def get_update(self):
+        update = {
+            'type': type(self).__name__,
+            'params': {param.name: self.get_current(param.name)
+                       for param in self.get_parameters(self.send)}
+        }
+        self.send = SmartSensorStructure.RESET_MAP
+        return self.uid.to_int(), update
+
+    def reset(self):
+        self.read = self.write = self.send = SmartSensorStructure.RESET_MAP
+
     @classmethod
     def make_type(cls: type, name: str, type_id: int,
-                  params: List[DeviceStructure.Parameter]) -> type:
+                  params: typing.List[DeviceStructure.Parameter]) -> type:
         """
         Make a device type with extra fields to implement the Smart Sensor protocol.
 
@@ -200,7 +188,7 @@ class SmartSensorStructure(DeviceStructure):
             ('send', ctypes.c_uint16),
             ('delay', ctypes.c_uint16),
             ('subscription', ctypes.c_uint16),
-            ('uid', SmartSensorUID),
+            ('uid', packetlib.SmartSensorUID),
         ]
         return DeviceStructure.make_type(name, type_id, params, *extra_fields, base_cls=cls)
 
@@ -255,7 +243,9 @@ def get_device_type(device_id: int = None, device_name: str = None,
 @dataclasses.dataclass
 class DeviceBuffer:
     shm: SharedMemory
-    struct: DeviceStructure
+    struct: typing.Optional[DeviceStructure]
+    create: bool = False
+    closing: bool = dataclasses.field(default=False, init=False)
 
     @property
     def is_smart_sensor(self):
@@ -278,7 +268,20 @@ class DeviceBuffer:
             LOGGER.warn('Shared memory block already exists', **context)
         else:
             LOGGER.debug('Opened shared memory block', create=create, **context)
-        return DeviceBuffer(shm, device_type.from_buffer(shm.buf))
+        return DeviceBuffer(shm, device_type.from_buffer(shm.buf), create=create)
+
+    @backoff.on_exception(backoff.constant, BufferError, max_tries=5, interval=1, logger=LOGGER)
+    async def close(self, timeout: Real = 0):
+        # NOTE: `shm.close` can fail sometimes because the ctype struct
+        # maintains a pointer to the buffer. We need to trigger the
+        # garbage collection of the struct.
+        del self.struct
+        self.closing = True
+        await asyncio.sleep(timeout)
+        self.shm.close()
+        if self.create:
+            self.shm.unlink()
+        LOGGER.debug('Closed device buffer')
 
 
 class DeviceMapping(TTLMapping):
@@ -301,9 +304,12 @@ class DeviceMapping(TTLMapping):
                 device_type=device_type.__name__)
 
     def on_device_disconnect(self, device_uid: str, device_buffer: DeviceBuffer):
-        del device_buffer.struct
-        device_buffer.shm.close()
-        self.logger.debug('Device disconnected', device_uid=device_uid)
+        asyncio.create_task(device_buffer.close())
+        self.logger.info('Device terminated', device_uid=device_uid)
+
+
+class DeviceEvent(enum.Enum):
+    UPDATE = enum.auto()
 
 
 class SmartSensorCommand(enum.Enum):

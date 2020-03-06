@@ -27,7 +27,12 @@ from runtime.game.studentapi import (
     LOG_CAPTURE as API_LOG_CAPTURE,
 )
 from runtime.messaging.connection import Connection, RPCConnection
-from runtime.messaging.device import DeviceMapping, SmartSensorCommand, get_device_type
+from runtime.messaging.device import (
+    DeviceEvent,
+    DeviceMapping,
+    SmartSensorCommand,
+    get_device_type,
+)
 from runtime.monitoring import log
 from runtime.service.base import Service
 from runtime.util import (
@@ -313,14 +318,12 @@ class ExecutorService(Service):
             return {'stdout': stdout.read(), 'stderr': stderr.read()}
         raise RuntimeBaseException('Unable to lint student code (failed to import)')
 
-    async def listen_for_device_status(self):
-        with Connection.open(self.config['sockets']['device_status'], logger=LOGGER) as connection:
-            while True:
-                status = await connection.recv()
-                devices = status.get('devices') or []
-                for device in devices:
-                    device_type = get_device_type(device_name=device['device_type'])
-                    await self.device_buffers.open(device['device_uid'], device_type)
+    async def handle_sensor_event(self, method, *params):
+        event = DeviceEvent.__members__[method.upper()]
+        if event is DeviceEvent.UPDATE:
+            for device in params[0]:
+                device_type = get_device_type(device_name=device['device_type'])
+                await self.device_buffers.open(device['device_uid'], device_type)
 
     async def send_device_commands(self):
         with RPCConnection.open(self.config['sockets']['sensor_command'], logger=LOGGER) as connection:
@@ -328,7 +331,7 @@ class ExecutorService(Service):
                 method, *params = await self.sensor_commands.get()
                 await connection.call(method, *params)
 
-    async def dispatch(self, method, *params):
+    async def handle_command(self, method, *params):
         if method.upper() not in RequestType.__members__:
             raise RuntimeBaseException('Method not found', method=method)
         result = {'received': time.time()}
@@ -339,10 +342,12 @@ class ExecutorService(Service):
     async def main(self):
         LOG_CAPTURE.connect(self.log_records)
         API_LOG_CAPTURE.connect(self.log_records)
-        with RPCConnection.open(self.config['sockets']['command'], logger=LOGGER) as connection:
+        command_conn = RPCConnection.open(self.config['sockets']['command'], logger=LOGGER)
+        sensor_event_conn = RPCConnection.open(self.config['sockets']['device_status'], logger=LOGGER)
+        with command_conn, sensor_event_conn:
             await asyncio.gather(
-                connection.dispatch_loop(self.dispatch),
-                self.listen_for_device_status(),
+                command_conn.dispatch_loop(self.handle_command),
+                sensor_event_conn.dispatch_loop(self.handle_sensor_event, sync=False),
                 self.send_device_commands(),
             )
 

@@ -5,13 +5,10 @@ The purpose of this module is to deliver data between endpoints.
 """
 
 import asyncio
-import collections
-import collections.abc
 import dataclasses
-import enum
 import functools
 import math
-from typing import List, Mapping, Optional, Union
+from typing import Callable, List, Optional, Union
 
 import msgpack
 import structlog
@@ -24,7 +21,7 @@ from runtime.util.exception import RuntimeBaseException
 if not hasattr(zmq, 'RADIO') or not hasattr(zmq, 'DISH'):
     raise ImportError('Must enable ZMQ draft sockets to use RADIO/DISH')
 
-UDP = set([zmq.RADIO, zmq.DISH])
+UDP = set([zmq.RADIO, zmq.DISH])  # pylint: disable=no-member
 
 
 def make_socket(
@@ -35,7 +32,13 @@ def make_socket(
         group: str = None,
         send_timeout=float('inf'),
         recv_timeout=float('inf')):
-    """ Initialize a raw ZMQ socket. """
+    """
+    Make a raw ZMQ socket.
+
+    Arguments:
+        context: The ZMQ context.
+        socket_type: A constant
+    """
     socket = context.socket(socket_type)
     if not math.isinf(send_timeout):
         socket.setsockopt(zmq.SNDTIMEO, int(send_timeout))
@@ -46,8 +49,8 @@ def make_socket(
         socket.bind(address)
     else:
         addresses = address if isinstance(address, list) else [address]
-        for address in addresses:
-            socket.connect(address)
+        for addr in addresses:
+            socket.connect(addr)
 
     if socket_type == zmq.SUB:
         socket.subscribe(b'')
@@ -70,6 +73,8 @@ class Connection:
     bytes_sent: int = 0
     bytes_recv: int = 0
     logger: Optional[structlog.BoundLoggerBase] = None
+    udp_send: Optional[Callable] = None
+    udp_recv: Optional[Callable] = None
 
     def __post_init__(self):
         self.udp_send = functools.partial(self.socket.send, copy=self.copy, group=self.send_group)

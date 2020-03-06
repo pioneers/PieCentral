@@ -1,20 +1,21 @@
 FROM python:3.8-alpine AS base
-ENV SHELL /bin/sh
-ENV ZMQ_VERSION 4.3.2
 LABEL maintainer="devops@pioneers.berkeley.edu"
+ENV SHELL /bin/sh
 # Reduce size of the package
-RUN apk add binutils build-base python3-dev libuv
+RUN apk add binutils build-base python3-dev libuv udev
+RUN strip --strip-all /usr/local/lib/*.so*
+RUN strip --strip-all /usr/local/lib/python3.8/lib-dynload/*.so*
+RUN rm -f /usr/local/lib/python3.8/config-*/libpython3.8.a
+# Build libzmq with DRAFT socket support
 WORKDIR /tmp
+ENV ZMQ_VERSION 4.3.2
 RUN wget https://github.com/zeromq/libzmq/releases/download/v${ZMQ_VERSION}/zeromq-${ZMQ_VERSION}.tar.gz -O libzmq.tar.gz
 RUN tar -xzf libzmq.tar.gz
 WORKDIR /tmp/zeromq-${ZMQ_VERSION}
 RUN ./configure --prefix=/usr/local --enable-drafts
-RUN make -j && make install
+RUN make && make install
 WORKDIR /tmp
 RUN rm libzmq.tar.gz && rm -rf zeromq-${ZMQ_VERSION}
-RUN strip --strip-all /usr/local/lib/*.so*
-RUN strip --strip-all /usr/local/lib/python3.8/lib-dynload/*.so*
-RUN rm -f /usr/local/lib/python3.8/config-*/libpython3.8.a
 RUN pip3 install pipenv
 WORKDIR /root/runtime
 ADD Pipfile Pipfile

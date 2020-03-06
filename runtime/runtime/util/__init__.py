@@ -3,7 +3,7 @@ import collections
 import dataclasses
 from numbers import Real
 import os
-from typing import Any, Callable, Mapping, Optional, TypeVar
+from typing import Any, Callable, Mapping, Optional, TypeVar, Union
 from schema import And, Regex, Use
 
 
@@ -17,6 +17,8 @@ def get_module_path(filename: str) -> str:
 VALID_NAME = Regex(r'^[a-zA-Z_]\w*$')
 POSITIVE_INTEGER = And(int, lambda n: n > 0)
 POSITIVE_REAL = And(Use(float), lambda x: x > 0)
+
+ParameterValue = Union[str, bytes, Real, bool]
 
 
 class TTLMapping(collections.UserDict):

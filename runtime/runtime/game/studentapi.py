@@ -25,6 +25,7 @@ import yaml
 
 from runtime.messaging.device import DeviceBuffer, DeviceMapping
 from runtime.monitoring import log
+from runtime.util import ParameterValue
 from runtime.util.exception import RuntimeBaseException, RuntimeExecutionError
 
 
@@ -245,9 +246,6 @@ class Gamepad(DeviceAPI):
                                         mode=self.mode.name, gamepad_id=gamepad_id,
                                         param=param)
         return super()._get_value(f'gamepad-{gamepad_id}', param)
-
-
-ParameterValue = typing.Union[str, Real, bool]
 
 
 @dataclasses.dataclass

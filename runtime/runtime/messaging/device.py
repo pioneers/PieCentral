@@ -270,9 +270,9 @@ class DeviceBuffer:
         context = {'device_type': device_type.__name__, 'device_uid': device_uid}
         try:
             shm = SharedMemory(device_uid, create=create, size=ctypes.sizeof(device_type))
-        except FileNotFoundError:
-            LOGGER.error('Cannot attach to nonexistent shared memory block', **context)
-            raise
+        except FileNotFoundError as exc:
+            raise RuntimeBaseException('Cannot attach to nonexistent shared memory block',
+                                       **context) from exc
         except FileExistsError:
             shm = SharedMemory(device_uid)
             LOGGER.warn('Shared memory block already exists', **context)

@@ -1,10 +1,21 @@
 import ctypes
+import multiprocessing
+from multiprocessing.managers import SharedMemoryManager
+import time
 
 from schema import SchemaError
 import pytest
 
 from runtime.messaging import device as devlib
 from runtime.util.exception import RuntimeBaseException
+
+
+@pytest.fixture
+def shm_manager():
+    manager = SharedMemoryManager()
+    manager.start()
+    yield manager
+    manager.shutdown()
 
 
 @pytest.fixture
@@ -17,13 +28,14 @@ def device_type():
 
 
 @pytest.fixture
-def device_buffer(device_type):
-    buf = bytearray([0]) * ctypes.sizeof(device_type)
-    device = devlib.DeviceBuffer(buf, device_type.from_buffer(buf))
+def device_buffer(shm_manager, device_type):
+    shm = shm_manager.SharedMemory(ctypes.sizeof(device_type))
+    device = devlib.DeviceBuffer(shm, device_type.from_buffer(shm.buf))
     device.struct.set_current('param1', -1.234)
     device.struct.set_current('param2', 0xdeadbeef)
     device.struct.set_current('param3', True)
-    return device
+    yield device
+    del device.struct
 
 
 @pytest.fixture
@@ -91,10 +103,38 @@ def test_device_type_registry_bad():
         devlib.load_device_types({'smartsensor': {'Device': dev_config}})
 
 
-def test_device_buffer(device_type):
+@pytest.mark.timeout(5)
+def test_device_buffer_ipc(device_buffer):
     assert device_buffer.is_smart_sensor
-    assert device_buffer.status == {'device_type': 'Sensor', 'device_uid': ''}
+    uid = device_buffer.shm.name
+    assert device_buffer.status == {'device_type': 'Sensor', 'device_uid': uid}
+
+    def target():
+        buf = devlib.DeviceBuffer.open(type(device_buffer.struct), uid)
+        try:
+            assert buf.struct.get_current('param3')
+            while buf.struct.get_current('param3'):
+                time.sleep(0.1)
+        finally:
+            del buf.struct
+
+    child = multiprocessing.Process(target=target)
+    child.start()
+    time.sleep(0.1)
+    device_buffer.struct.set_current('param3', False)
+    child.join()
+    assert child.exitcode == 0
 
 
-def test_device_buffer_shm(device_type):
-    pass
+def test_device_buffer_missing_attach(device_type):
+    with pytest.raises(RuntimeBaseException):
+        devlib.DeviceBuffer.open(device_type, 'does_not_exist')
+
+
+def test_device_buffer_existing_attach(device_buffer):
+    duplicate_buffer = devlib.DeviceBuffer.open(type(device_buffer.struct),
+                                                device_buffer.shm.name, create=True)
+    assert duplicate_buffer.shm.name == device_buffer.shm.name
+    assert duplicate_buffer.shm.size == device_buffer.shm.size
+    del duplicate_buffer.struct
+    duplicate_buffer.shm.close()

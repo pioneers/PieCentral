@@ -39,6 +39,11 @@ def device_buffer(shm_manager, device_type):
 
 
 @pytest.fixture
+async def device_mapping():
+    return devlib.DeviceMapping(0.2)
+
+
+@pytest.fixture
 def sensor_uid():
     return devlib.SmartSensorUID(device_type=0x_beef, year=0x11, id=0x_ffff_ffff_ffff_ffff)
 
@@ -138,3 +143,8 @@ def test_device_buffer_existing_attach(device_buffer):
     assert duplicate_buffer.shm.size == device_buffer.shm.size
     del duplicate_buffer.struct
     duplicate_buffer.shm.close()
+
+
+@pytest.mark.asyncio
+async def test_device_mapping_open(device_mapping):
+    pass

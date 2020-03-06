@@ -5,6 +5,7 @@ The purpose of this module is to deliver data between endpoints.
 """
 
 import asyncio
+import collections
 import dataclasses
 import functools
 import math
@@ -76,6 +77,8 @@ class Connection:
     udp_send: Optional[Callable] = None
     udp_recv: Optional[Callable] = None
 
+    RPC_REQUEST, RPC_RESPONSE = 0, 1
+
     def __post_init__(self):
         self.udp_send = functools.partial(self.socket.send, copy=self.copy, group=self.send_group)
         self.udp_recv = functools.partial(self.socket.recv, copy=self.copy)
@@ -113,6 +116,36 @@ class Connection:
             packet = await asyncio.get_running_loop().run_in_executor(None, self.udp_recv)
         self.bytes_recv += len(packet)
         return self.loads(packet)
+
+    async def _respond_rpc(self, response, context):
+        try:
+            await self.send(response)
+        except OverflowError:
+            response[3] = None
+            if self.logger:
+                self.logger.error('Encountered overflow while serializing response', **context)
+            await self.send(response)
+        finally:
+            if self.logger:
+                self.logger.debug('Sent response', **context)
+
+    async def handle_rpc_req(self, dispatch):
+        try:
+            message_type, message_id, method, params = await self.recv()
+        except (TypeError, ValueError) as exc:
+            raise RuntimeBaseException('Malformed RPC request') from exc
+        context = {'message_id': message_id, 'method': method}
+        if message_type != Connection.RPC_REQUEST:
+            raise RuntimeBaseException('Malformed RPC request (not a request)', **context)
+
+        response = [Connection.RPC_RESPONSE, message_id, None, None]
+        try:
+            response[3] = await dispatch(method, *params)
+        except Exception as exc:
+            response[2] = str(exc)
+            raise RuntimeBaseException('Unable to execute command', **context) from exc
+        finally:
+            await self._respond_rpc(response, context)
 
     async def req(self, payload):
         if self.socket.type != zmq.REQ:

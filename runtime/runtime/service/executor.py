@@ -235,6 +235,8 @@ class ExecutorService(Service):
     match: Match = dataclasses.field(default_factory=Match)
     mode_changed: threading.Event = dataclasses.field(default_factory=threading.Event)
     devices_buffers: DeviceMapping = dataclasses.field(init=False, default=None)
+    sensor_commands: asyncio.Queue = dataclasses.field(init=False,
+                                                       default_factory=asyncio.Queue)
     aliases: DeviceAliasManager = dataclasses.field(init=False, default=None)
     executor: StudentCodeExecutor = dataclasses.field(init=False, default=None)
 
@@ -273,6 +275,8 @@ class ExecutorService(Service):
             self.match.mode = Mode.__members__[mode.upper()]
             self.match.alliance = Alliance.__members__[alliance.upper()]
             self.mode_changed.set()
+            # if self.match.mode is Mode.IDLE:
+            #     self.sensor_commands.put_nowait({''})
             return self.match.as_dict()
 
     async def run_challenge(self, challenges: typing.List[str], seed: int):
@@ -313,7 +317,7 @@ class ExecutorService(Service):
         raise RuntimeBaseException('Unable to lint student code (failed to import)')
 
     async def listen_for_device_status(self):
-        with Connection.open(self.config['sockets']['device_status']) as connection:
+        with Connection.open(self.config['sockets']['device_status'], logger=LOGGER) as connection:
             while True:
                 status = await connection.recv()
                 devices = status.get('devices') or []
@@ -321,43 +325,31 @@ class ExecutorService(Service):
                     device_type = get_device_type(device_name=device['device_type'])
                     await self.device_buffers.open(device['device_uid'], device_type)
 
-    async def recv_request(self, connection: Connection):
-        message_type, message_id, method, params = await connection.recv()
-        context = {'message_id': message_id, 'method': method}
-        if message_type != self.request:
-            raise RuntimeBaseException('Received malformed request', **context)
-        if method.upper() not in RequestType.__members__:
-            raise RuntimeBaseException('Method not found', **context)
-        LOGGER.debug('Received request', **context)
-        return message_id, functools.partial(getattr(self, method), *params)
+    async def send_device_commands(self):
+        with Connection.open(self.config['sockets']['device_command']) as connection:
+            while True:
+                await connection.send(await self.sensor_commands.get())
 
-    async def send_response(self, connection: Connection, response):
-        try:
-            await connection.send(response)
-        except OverflowError:
-            response[3] = None
-            LOGGER.error('Encountered overflow error')
-            await connection.send(response)
-        finally:
-            LOGGER.debug('Sent response', message_id=response[1])
+    async def dispatch(self, method, *params):
+        if method.upper() not in RequestType.__members__:
+            raise RuntimeBaseException('Method not found', method=method)
+        result = {'received': time.time()}
+        method = getattr(self, method)
+        result.update(await method(*params))
+        result['completed'] = time.time()
+        return result
 
     async def main(self):
         LOG_CAPTURE.connect(self.log_records)
         API_LOG_CAPTURE.connect(self.log_records)
-        with Connection.open(self.config['sockets']['command']) as connection:
+        with Connection.open(self.config['sockets']['command'], logger=LOGGER) as connection:
             asyncio.create_task(self.listen_for_device_status())
+            asyncio.create_task(self.send_device_commands())
             while True:
-                result = {'received': time.time()}
-                response = [self.response, None, None, result]
                 try:
-                    response[1], method = await self.recv_request(connection)
-                    result.update((await method()) or {})
-                except Exception as exc:
-                    response[2], context = str(exc), getattr(exc, 'context', {})
-                    LOGGER.error('Unable to execute command', **context, error=response[2])
-                finally:
-                    result['completed'] = time.time()
-                    await self.send_response(connection, response)
+                    await connection.handle_rpc_req(self.dispatch)
+                except RuntimeBaseException as exc:
+                    LOGGER.error(str(exc), **exc.context, exc_info=exc)
 
     def __call__(self):
         threading.current_thread().name = type(self).__name__.lower()

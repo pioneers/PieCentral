@@ -21,7 +21,7 @@ structlog.configure(
     wrapper_class=structlog.stdlib.BoundLogger,
 )
 
-warn = lambda msg: click.echo(click.style(msg, fg='yellow', bold=True))
+warn = lambda msg, fg='yellow', bold=True: click.echo(click.style(msg, fg=fg, bold=bold))
 
 
 def catch_command_exc(cli):
@@ -66,8 +66,12 @@ def display_aliases(aliases: Mapping[str, str]):
 
 
 def display_match(match):
-    alliance, mode = match['alliance'].upper(), match['mode'].upper()
-    alliance_color = 'yellow' if alliance == 'GOLD' else 'blue'
+    alliance, mode = str(match['alliance']).upper(), match['mode'].upper()
+    alliance_color = {
+        'BLUE': 'blue',
+        'GOLD': 'yellow',
+        'NONE': 'white',
+    }[alliance]
     mode_color = {
         'IDLE': 'white',
         'AUTO': 'cyan',

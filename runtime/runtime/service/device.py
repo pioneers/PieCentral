@@ -174,7 +174,7 @@ class SmartSensor:
             try:
                 packet = await packetlib.recv(self.serial_conn)
             except packetlib.PacketEncodingException as exc:
-                LOGGER.warn('Encountered a packet encoding exception', exc_info=exc)
+                LOGGER.warn('Encountered a packet encoding exception')
             else:
                 await self.handle_inbound_packet(packet)
 

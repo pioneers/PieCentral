@@ -219,7 +219,7 @@ class Match(StudentAPI):
 
     def as_dict(self) -> dict:
         """ Export this match as a serializable dictionary. """
-        return {'alliance': self.alliance.name, 'mode': self.mode.name}
+        return {'alliance': self.alliance and self.alliance.name, 'mode': self.mode.name}
 
 
 @dataclasses.dataclass

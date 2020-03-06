@@ -32,9 +32,12 @@ shell: buildbase
 package:
 	python setup.py sdist bdist_wheel
 
-#clean:
-#	rm -f runtime/*.cpython-*.so runtime/*.c
-#	rm -f runtime/packet.cpp runtime/buffer.cpp
+build:
+	pipenv run build
+
+clean:
+	find runtime \( -name '*.cpython-*.so' -o -name '*.c' -o -name '*.cpp' \) -delete
+	rm -rf build dist
 
 install:
 	pip3 install pipenv
@@ -56,4 +59,3 @@ testcontainer:
 		runtime/service/device.py
 
 artifacts:
-	cp ../DevOps/frankfurter/build/*.tar.gz ../artifacts

@@ -1,3 +1,13 @@
 [run]
 branch = True
-omit = runtime/game/studentcode.py
+omit =
+  runtime/__init__.py
+  runtime/__main__.py
+  runtime/game/__init__.py
+  runtime/game/studentcode.py
+  runtime/messaging/__init__.py
+  runtime/monitoring/__init__.py
+  runtime/service/__init__.py
+
+[report]
+show_missing = True

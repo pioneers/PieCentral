@@ -28,6 +28,10 @@ from runtime.monitoring import log
 from runtime.util.exception import RuntimeBaseException, RuntimeExecutionError
 
 
+__all__ = ['DeviceAliasManager', 'safe', 'Mode', 'Alliance', 'Actions', 'Match',
+           'Gamepad', 'Robot']
+
+
 Action = typing.Callable[..., None]
 LOG_CAPTURE = log.LogCapture()
 LOGGER = log.get_logger(LOG_CAPTURE)
@@ -90,7 +94,7 @@ class DeviceAliasManager(collections.UserDict):
         The mapping is written as an object of strings to strings.
         """
         async with self.persisting:
-            tmp_path = os.path.join(tempfile.gettempdir(), f'dev-aliases-{uuid.uuid4()}')
+            tmp_path = os.path.join(tempfile.gettempdir(), f'dev-aliases-{uuid.uuid4()}.yaml')
             async with aiofiles.open(tmp_path, mode='w+') as alias_file:
                 await alias_file.write(yaml.dump(self.data, default_flow_style=False))
             try:

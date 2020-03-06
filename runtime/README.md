@@ -24,3 +24,4 @@ Refer to the [documentation](docs).
 - [ ] Use exc_info=exc
 - [ ] Testing mode for student API
 - [ ] Better get_value failure handling
+- [ ] Add option to run in unsafe mode

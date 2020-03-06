@@ -96,7 +96,9 @@ class DeviceStructure(Structure):
         fields = list(extra_fields)
         for param in params:
             ctype = make_timestamped_parameter(param.type)
-            fields.extend([(f'current_{param.name}', ctype), (f'desired_{param.name}', ctype)])
+            fields.append((f'current_{param.name}', ctype))
+            if param.writeable:
+                fields.append((f'desired_{param.name}', ctype))
         return type(name, (base_cls or cls, ), {
             '_params': params,
             '_param_ids': {param.name: index for index, param in enumerate(params)},
@@ -114,8 +116,8 @@ class SmartSensorStructure(DeviceStructure):
         self.write |= 1 << self._param_ids[param_name]
 
     def set_current(self, param_name: str, value):
-        self.send |= 1 << self._param_ids[param_name]
         super().set_current(param_name, value)
+        self.send |= 1 << self._param_ids[param_name]
 
     @classmethod
     def make_type(cls: type, name: str, type_id: int, params: List[DeviceStructure.Parameter]):

@@ -15,8 +15,9 @@ from runtime.game.studentapi import (
     Gamepad,
     Robot,
 )
-from runtime.messaging.device import DeviceBuffer, SmartSensorStructure
+from runtime.messaging.device import DeviceBuffer, DeviceStructure, SmartSensorStructure
 from runtime.monitoring import log
+from runtime.service.executor import ActionExecutor
 from runtime.util.exception import RuntimeExecutionError
 
 
@@ -44,11 +45,11 @@ def aliases():
 
 @pytest.fixture
 def gamepad():
-    gamepad_type = SmartSensorStructure.make_type('Gamepad', 0, [
-        SmartSensorStructure.Parameter('button_a', ctypes.c_bool),
-        SmartSensorStructure.Parameter('joystick_left_x', ctypes.c_float),
+    gamepad_type = DeviceStructure.make_type('Gamepad', 0, [
+        DeviceStructure.Parameter('button_a', ctypes.c_bool),
+        DeviceStructure.Parameter('joystick_left_x', ctypes.c_float),
     ])
-    buf = bytearray([0])*ctypes.sizeof(gamepad_type)
+    buf = bytearray([0]) * ctypes.sizeof(gamepad_type)
     device = DeviceBuffer(buf, gamepad_type.from_buffer(buf))
     device.struct.set_current('button_a', False)
     device.struct.set_current('joystick_left_x', 1.234)
@@ -56,8 +57,15 @@ def gamepad():
 
 
 @pytest.fixture
-def robot():
-    pass
+def robot(mocker):
+    motor_type = SmartSensorStructure.make_type('Motor', 0, [
+        SmartSensorStructure.Parameter('duty_cycle', ctypes.c_float, writeable=True),
+    ])
+    buf = bytearray([0]) * ctypes.sizeof(motor_type)
+    device = DeviceBuffer(buf, motor_type.from_buffer(buf))
+    device.struct.set_current('duty_cycle', 0.1234)
+    action_executor = ActionExecutor()
+    return Robot({'smart-sensor-1234': device}, action_executor, {'left_motor': '1234'})
 
 
 @pytest.mark.asyncio
@@ -131,11 +139,35 @@ def test_gamepad_get(gamepad):
     assert abs(gamepad.get_value('joystick_left_x') - 1.234) <= 1e-6
 
 
-def test_gamepad_bad(gamepad):
+def test_gamepad_get_bad(gamepad):
     assert gamepad.get_value('button_a', 2) is None
     assert gamepad.get_value('bad_field') is None
+    assert gamepad.get_value(123.23) is None
 
 
 def test_gamepad_get_auto(gamepad):
     gamepad.mode = Mode.AUTO
     assert gamepad.get_value('button_a') is None
+
+
+def test_robot_get(robot):
+    assert pytest.approx(robot.get_value('1234', 'duty_cycle')) == 0.1234
+    assert pytest.approx(robot.get_value('left_motor', 'duty_cycle')) == 0.1234
+
+
+def test_robot_get_bad(robot):
+    assert robot.get_value(None, 'duty_cycle') is None
+    assert robot.get_value('1234', 1.2) is None
+
+
+def test_robot_set(robot):
+    robot.set_value('1234', 'duty_cycle', -0.1234)
+    struct = robot.device_buffers['smart-sensor-1234'].struct
+    assert pytest.approx(struct.desired_duty_cycle.value) == -0.1234
+
+
+def test_robot_set_bad(robot):
+    robot.set_value('1234', None, -0.1234)
+    robot.set_value('1234', 'bad_field', -0.1234)
+    robot.set_value('1234', 'duty_cycle', True)
+    assert pytest.approx(robot.get_value('1234', 'duty_cycle')) == 0.1234

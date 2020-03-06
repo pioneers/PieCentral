@@ -41,7 +41,6 @@ def make_timestamped_parameter(param_type) -> type:
         def __setattr__(self, name: str, value):
             if name == 'value':
                 self.last_updated = time.time()
-            # TODO: validate parameter bounds? or saturate
             super().__setattr__(name, value)
     return TimestampedParameter
 
@@ -104,11 +103,6 @@ class DeviceStructure(Structure):
         ['name', 'type', 'lower', 'upper', 'readable', 'writeable'],
         defaults=[float('-inf'), float('inf'), True, False],
     )
-
-    @classmethod
-    def _normalize_param_id(cls, param_id: Union[int, str]) -> str:
-        """ Translate a parameter index into its name. """
-        return param_id if isinstance(param_id, str) else cls._params[param_id].name
 
     def get_current(self, param_name: str) -> ParameterValue:
         """ Get the current value of a parameter. """
@@ -230,6 +224,8 @@ DEVICES = {}
 
 
 def load_device_types(schema: str, sensor_protocol: str = 'smartsensor'):
+    """
+    """
     schema = DEVICE_SCHEMA.validate(schema)
     for protocol, devices in schema.items():
         dev_configs = DEVICES.setdefault(protocol, {})
@@ -245,9 +241,12 @@ def load_device_types(schema: str, sensor_protocol: str = 'smartsensor'):
 @cachetools.cached(cache={})
 def get_device_type(device_id: int = None, device_name: str = None,
                     protocol: str = None) -> type:
+    """
+    """
     protocols = [protocol] if protocol is not None else DEVICES.keys()
     for protocol in protocols:
-        for name, device in DEVICES[protocol].items():
+        devices = DEVICES.get(protocol) or {}
+        for name, device in devices.items():
             if device_id == device.type_id or name == device_name:
                 return device
     raise RuntimeBaseException('Device not found', device_id=device_id, protocol=protocol)

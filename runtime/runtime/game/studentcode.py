@@ -1,7 +1,7 @@
 import time
 
 RFID = '51975776734790250051004'
-MOTOR = '56704262785351728773095'
+MOTOR = '56689544289225244464409'
 
 # while True:
 #     print('You cannot import me')
@@ -15,16 +15,21 @@ async def autonomous_actions(n=1000):
         await Actions.sleep(0.5)
 
 
+async def set_motor():
+    Robot.set_value(MOTOR, 'duty_cycle', 0.2)
+    await Actions.sleep(2)
+    Robot.set_value(MOTOR, 'duty_cycle', 0)
+
+
 def autonomous_setup():
     print('Autonomous setup has begun!')
-    Robot.run(autonomous_actions)
-
+    # Robot.run(autonomous_actions)
+    # Robot.run(set_motor)
 
 def autonomous_main():
-    print(
-        Robot.get_value(
-            '51975776734790250051004', 'id'), Robot.get_value(
-            '51975776734790250051004', 'tag_detect'))
+    Robot.set_value(MOTOR, 'duty_cycle', 0.2)
+    print(Robot.get_value(MOTOR, 'duty_cycle'))
+
     # print('Running autonomous main ...')
     # start = time.time()
     # print('I wrote an infinite loop')

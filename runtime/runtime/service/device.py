@@ -7,7 +7,6 @@ import functools
 from multiprocessing.shared_memory import SharedMemory
 from numbers import Real
 import os
-import time
 from typing import Iterable, Set
 
 import aioserial
@@ -181,15 +180,10 @@ class SmartSensor:
 
     async def write_parameters_loop(self, cycle_period: int = 1000):
         await self.ready.wait()
-        start, count = time.time(), 0
+        loop = asyncio.get_running_loop()
+        start, count = loop.time(), 0
         while True:
             await asyncio.sleep(self.write_interval)
-
-            # Testing
-            # self.buffer.struct.write = 0xffff
-            # self.buffer.struct.set_desired('duty_cycle', 0.5)
-            # self.buffer.struct.set_desired('enc_pos', 20)  # Doesn't work
-            # self.buffer.struct.set_desired('deadband', 1)
 
             if self.buffer.struct.write != SmartSensorStructure.RESET_MAP:
                 packet = packetlib.make_dev_write(self.buffer.struct)
@@ -203,7 +197,7 @@ class SmartSensor:
 
             count = (count + 1) % cycle_period
             if count == 0:
-                end = time.time()
+                end = loop.time()
                 start, frequency = end, round(cycle_period / (end - start), 3)
                 LOGGER.debug('Estimated parameter write frequency',
                              frequency=frequency, uid=self.buffer.struct.uid.to_int())

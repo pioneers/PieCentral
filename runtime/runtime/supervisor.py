@@ -30,7 +30,7 @@ from runtime.messaging.connection import Connection
 from runtime.messaging.device import load_device_types, LOG_CAPTURE as DEV_LOG_CAPTURE
 from runtime.service import SERVICES
 from runtime.service.base import Service
-from runtime.monitoring import retry, log
+from runtime.monitoring import log
 from runtime.util.exception import EmergencyStopException
 
 

@@ -2,7 +2,7 @@ FROM python:3.8-alpine AS base
 LABEL maintainer="devops@pioneers.berkeley.edu"
 ENV SHELL /bin/sh
 # Reduce size of the package
-RUN apk add binutils build-base python3-dev libuv udev
+RUN apk add binutils build-base python3-dev libuv udev linux-headers
 RUN strip --strip-all /usr/local/lib/*.so*
 RUN strip --strip-all /usr/local/lib/python3.8/lib-dynload/*.so*
 RUN rm -f /usr/local/lib/python3.8/config-*/libpython3.8.a

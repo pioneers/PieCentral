@@ -318,11 +318,12 @@ class ExecutorService(Service):
         async with self.access:
             return self.match.as_dict()
 
-    async def set_match(self, mode: str, alliance: str):
+    async def set_match(self, mode: str, alliance: typing.Optional[str]):
         """ Set the match information. """
         async with self.access:
             self.match.mode = Mode.__members__[mode.upper()]
-            self.match.alliance = Alliance.__members__[alliance.upper()]
+            if alliance is not None:
+                self.match.alliance = Alliance.__members__[alliance.upper()]
             self.mode_changed.set()
             self.sensor_commands.put_nowait((SmartSensorCommand.DISABLE_ALL.name, ))
             return self.match.as_dict()

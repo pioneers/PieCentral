@@ -1,7 +1,6 @@
 import fs from 'fs';
 import { assert } from 'chai';
-import { call, delay, take } from 'redux-saga/effects';
-// import { remote } from 'electron';
+import { delay, take } from 'redux-saga/effects';
 import { openFileSucceeded, saveFileSucceeded } from '../../actions/EditorActions';
 import { runtimeConnect, runtimeDisconnect } from '../../actions/InfoActions';
 import {

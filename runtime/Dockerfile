@@ -31,6 +31,10 @@ EXPOSE 6000-6010
 FROM base AS development
 RUN pipenv install --pre --dev
 ADD runtime runtime
+ADD .coveragerc .coveragerc
+ADD .pylintrc .pylintrc
+ADD pytest.ini pytest.ini
+ADD tests tests
 CMD ["/usr/bin/env", "pipenv", "run", "dev"]
 
 FROM base AS production

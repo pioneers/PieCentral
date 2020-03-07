@@ -53,7 +53,7 @@ const Ansible = {
   async recvLogs() {
     try {
       for await (const log of this.conn.recvLogs()) {
-        if (log.logger === 'runtime.game.studentapi' && log.event) {
+        if (log.logger === 'runtime.game.studentcode' && log.event) {
           RendererBridge.reduxDispatch(updateConsole(`[${log.timestamp}] ${log.event}\n`));
         }
       }

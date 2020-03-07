@@ -7,8 +7,8 @@ AssertPathExists=/home/pi/bin/update.sh
 
 [Service]
 Type=simple
-Restart=always
-ExecStart=/home/pi/bin/update.sh
+ExecStart=-/home/pi/bin/update.sh
+RemainAfterExit=yes
 
 [Path]
 PathChanged=/home/pi/updates

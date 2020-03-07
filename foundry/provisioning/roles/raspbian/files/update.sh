@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Calls install_update on each of the update tarballs
+# Reloads docker images placed in /home/pi/updates
+# Calls install_update on update tarballs
 
 cd /home/pi
 mkdir -p updates && chown pi updates
@@ -13,10 +14,23 @@ for filename in $(find . -name "*.tar.gz" | sort); do
   then
     image="pioneers/runtime:prod"
   fi
-  docker stop ${proj}
-  docker rm ${proj}
-  docker load -i "${filename}"
-  docker run --name=${proj} --restart=always --mount source=studentcode,destination=/root/runtime/game/studentcode.py "${image}" 
-  rm -f "${filename}"
+
+  if [ "${proj}" =~ "update" ]
+  then
+    tmp="/tmp/$(basename ${filename} .tar.gz)"
+    mkdir -p "${tmp}"
+    tar -xf "${filename}" -C "${tmp}" --strip-components=1
+    if [ -e "${tmp}/install_update" ]; then
+      bash "${tmp}/install_update" "${tmp}"
+    fi
+    rm "${filename}"
+    rm -rf "${tmp}"
+  else
+    docker stop ${proj}
+    docker rm ${proj}
+    docker load -i "${filename}"
+    docker run --name=${proj} --restart=always --mount source=studentcode,destination=/root/runtime/game/studentcode.py "${image}" 
+    rm -f "${filename}"
+  fi
 done
 sync

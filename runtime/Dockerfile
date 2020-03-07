@@ -19,9 +19,8 @@ RUN rm libzmq.tar.gz && rm -rf zeromq-${ZMQ_VERSION}
 # Install pip packages
 WORKDIR /root/runtime
 RUN pip3 install pipenv
-ADD Pipfile Pipfile
-ADD setup.py setup.py
 ADD runtime runtime
+COPY Pipfile setup.py .
 RUN pipenv install --pre
 RUN pipenv run build
 RUN pipenv run pip3 install --pre pyzmq --install-option=--enable-drafts --install-option=--zmq=${ZMQ_VERSION}
@@ -31,10 +30,7 @@ EXPOSE 6000-6010
 FROM base AS development
 RUN pipenv install --pre --dev
 ADD runtime runtime
-ADD .coveragerc .coveragerc
-ADD .pylintrc .pylintrc
-ADD pytest.ini pytest.ini
-ADD tests tests
+COPY .coveragerc .pylintrc pytest.ini tests .
 CMD ["/usr/bin/env", "pipenv", "run", "dev"]
 
 FROM base AS production

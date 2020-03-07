@@ -1,5 +1,4 @@
-dist: docker-xenial
-sudo: required
+dist: xenial
 os:
   - linux
 matrix:
@@ -28,7 +27,6 @@ addons:
   apt:
     packages:
       - python3-pip
-      - libasound2-dev
       - socat
 env:
   global:
@@ -75,7 +73,7 @@ branches:
 deploy:
   provider: script
   script: ./DevOps/pipeline/deploy-artifacts.sh "$APP_ID" "$TRAVIS_TAG" "$(pwd)/artifacts"
-  skip_cleanup: true
+  cleanup: true
   on:
     branch: master
     tags: true

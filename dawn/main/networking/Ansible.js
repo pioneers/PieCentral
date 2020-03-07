@@ -2,7 +2,16 @@ import os from 'os';
 import _ from 'lodash';
 import RuntimeClient from 'runtime-client';
 import { ipcMain } from 'electron';
-import { Logger } from '../../renderer/utils/utils';
+
+import RendererBridge from '../RendererBridge';
+import { updateConsole } from '../../renderer/actions/ConsoleActions';
+import {
+  ansibleDisconnect,
+  infoPerMessage,
+  updateCodeStatus,
+} from '../../renderer/actions/InfoActions';
+import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
+import { robotState, Logger } from '../../renderer/utils/utils';
 
 const getIPAddress = (family = 'IPv4') => {
   const interfaces = os.networkInterfaces();
@@ -16,9 +25,17 @@ const Ansible = {
   conn: null,
   async recvDatagrams() {
     try {
-      while (this.conn !== null) {
-        const datagram = await this.conn.recvDatagram();
-        console.log(datagram);
+      for await (const datagram of this.conn.recvDatagrams()) {
+        let sensorData = _.map(datagram.devices, ({ type, params }, uid) => {
+          return {
+            device_type: type,
+            uid: uid,
+          };
+        });
+        console.log(sensorData);
+        RendererBridge.reduxDispatch(updateCodeStatus(robotState.TELEOP));
+        RendererBridge.reduxDispatch(infoPerMessage(2));
+        RendererBridge.reduxDispatch(updatePeripherals(sensorData));
       }
     } catch (e) {
       console.log(e);
@@ -26,9 +43,10 @@ const Ansible = {
   },
   async recvLogs() {
     try {
-      while (this.conn !== null) {
-        const log = await this.conn.recvLog();
-        console.log(log);
+      for await (const log of this.conn.recvLogs()) {
+        if (log.logger === 'runtime.game.studentapi' && log.event) {
+          RendererBridge.reduxDispatch(updateConsole(`[${log.timestamp}] ${log.event}\n`));
+        }
       }
     } catch (e) {
       console.log(e);
@@ -67,6 +85,7 @@ const Ansible = {
   },
   close() {
     if (this.conn !== null) {
+      RendererBridge.reduxDispatch(ansibleDisconnect());
       this.conn.closeAll();
     }
   },

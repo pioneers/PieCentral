@@ -3,7 +3,7 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
 
 [packages]
 google-api-python-client = "*"
@@ -16,4 +16,3 @@ google-auth-httplib2 = "*"
 google-auth-oauthlib = "*"
 msgpack-rpc-python = "*"
 numpy = "*"
-simpleaudio = "*"

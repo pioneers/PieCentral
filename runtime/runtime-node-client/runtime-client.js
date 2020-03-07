@@ -32,10 +32,10 @@ class RuntimeClient {
     return await socket.send(packet);
   }
 
-  async _recv(name) {
+  async *_recv(name) {
     for await (const [packet] of this.sockets[name]) {
       this.bytes_recv += packet.length;
-      return msgpack.decode(packet);
+      yield msgpack.decode(packet);
     }
   }
 
@@ -66,8 +66,8 @@ class RuntimeClient {
     return await this._send('datagramSend', payload);
   }
 
-  async recvDatagram() {
-    return await this._recv('datagramRecv');
+  recvDatagrams() {
+    return this._recv('datagramRecv');
   }
 
   async sendCommand(commandName, args) {
@@ -86,8 +86,8 @@ class RuntimeClient {
     return result;
   }
 
-  async recvLog() {
-    return await this._recv('log');
+  recvLogs() {
+    return this._recv('log');
   }
 
   async connect(name, { protocol, port, type }) {

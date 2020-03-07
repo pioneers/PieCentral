@@ -1,0 +1,45 @@
+---
+- name: set up flashed raspberry pi
+  hosts: localhost
+  tasks:
+    - name: change the raspberry pi hostname files
+      become: yes
+      become_method: sudo
+      become_user: root
+      replace: 
+        path: /etc/hosts
+        regexp: "raspberrypi"
+        replace: "team{{ team_num }}"
+    - name: team number in wpa_supplicant
+      become: yes
+      become_user: root
+      replace:
+        path: /etc/wpa_supplicant/wpa_supplicant.conf
+        regexp: "Team1"
+        replace: "Team{{ team_num }}"
+    - name: password in wpa_supplicant
+      become: yes
+      become_user: root
+      replace:
+        path: /etc/wpa_supplicant/wpa_supplicant.conf
+        regexp: "21124297"
+        replace: "{{ password }}"
+    - name: team num in interfaces, pad 0
+      become: yes
+      become_user: root
+      replace:
+        path: /etc/networking/interfaces
+        after: "address 192.168.\d{1,3}.2"
+        regexp: "\d{2}"
+        replace: "0{{ team_num }}"
+        when: team_num < 10
+    - name: team num in interfaces, no padding
+      become: yes
+      become_user: root
+      replace:
+        path: /etc/networking/interfaces
+        after: "address 192.168.\d{1,3}.2"
+        regexp: "\d{2}"
+        replace: "{{ team_num }}"
+        when: team_num >= 10
+      

@@ -18,6 +18,20 @@
         path: /etc/hosts
         regexp: "raspberrypi"
         replace: "team{{ team_num }}"
+    - name: team number in wpa_supplicant
+      become: yes
+      become_user: root
+      replace:
+        path: /etc/wpa_supplicant/wpa_supplicant.conf
+        regexp: "Team1"
+        replace: "Team{{ team_num }}"
+    - name: team number in interfaces file
+      become: yes
+      become_user: root
+      replace:
+        path: /etc/networking/interfaces
+        regexp: "address 192.168.128.201"
+        replace: "address 192.168.128.2{{ team_num }}"
     - name: install Avahi
       become: yes
       become_method: sudo

@@ -16,4 +16,4 @@ ExecStart=/home/pi/bin/update.sh
 
 [Install]
 WantedBy=sysinit.target
-
+WantedBy=runtime.service

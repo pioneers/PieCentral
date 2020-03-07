@@ -18,11 +18,13 @@ wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
 
 # From the networking spec
 iface field inet dhcp
+    address 192.168.128.201
     netmask 255.255.255.0
     network 192.168.128.0
     gateway 192.168.128.1
 
 iface team inet dhcp
+    address 192.168.0.201
     netmask 255.255.255.0
     network 192.168.0.0
     gateway 192.168.0.1

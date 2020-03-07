@@ -1,0 +1,14 @@
+# runtime.service
+
+[Unit]
+Description=Robot runtime daemon
+After=sysinit.target
+Wants=update.service
+
+[Service]
+Type=simple
+ExecStart=docker run --name=runtime --rm --restart=always --mount source=studentcode,destination=/root/runtime/game/studentcode.py pioneers/runtime:prod
+ExecStop=docker stop runtime
+
+[Install]
+WantedBy=sysinit.target

@@ -27,9 +27,8 @@ for filename in $(find . -name "*.tar.gz" | sort); do
     rm -rf "${tmp}"
   else
     docker stop ${proj}
-    docker rm ${proj}
     docker load -i "${filename}"
-    docker run --name=${proj} --restart=always --mount source=studentcode,destination=/root/runtime/game/studentcode.py "${image}" 
+    systemctl restart ${proj}.service
     rm -f "${filename}"
   fi
 done

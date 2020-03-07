@@ -13,7 +13,7 @@ RUN wget https://github.com/zeromq/libzmq/releases/download/v${ZMQ_VERSION}/zero
 RUN tar -xzf libzmq.tar.gz
 WORKDIR /tmp/zeromq-${ZMQ_VERSION}
 RUN ./configure --prefix=/usr/local --enable-drafts
-RUN make -j 4 && make install
+RUN make -j 8 && make install
 WORKDIR /tmp
 RUN rm libzmq.tar.gz && rm -rf zeromq-${ZMQ_VERSION}
 # Install pip packages
@@ -21,9 +21,8 @@ WORKDIR /root/runtime
 RUN pip3 install pipenv
 ADD runtime runtime
 COPY Pipfile setup.py /root/runtime/
-RUN pipenv install --pre
+RUN pipenv install --pre && pipenv run pip3 install --pre pyzmq --install-option=--enable-drafts --install-option=--zmq=${ZMQ_VERSION}
 RUN pipenv run build
-RUN pipenv run pip3 install --pre pyzmq --install-option=--enable-drafts --install-option=--zmq=${ZMQ_VERSION}
 RUN rm -rf ~/.cache
 EXPOSE 6000-6010
 

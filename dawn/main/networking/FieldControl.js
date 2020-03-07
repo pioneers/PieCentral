@@ -59,8 +59,10 @@ const FCObject = {
     if (this.FCInternal !== null) {
       this.FCInternal.quit();
     }
-    this.FCInternal = new FCInternals(this.stationNumber, this.bridgeAddress,
-      FCObject.logger, this.conns);
+    this.FCInternal = new FCInternals(
+      this.stationNumber, this.bridgeAddress,
+      FCObject.logger, this.conns,
+    );
     this.FCInternal.init();
   },
   changeFCInfo(event, arg) {

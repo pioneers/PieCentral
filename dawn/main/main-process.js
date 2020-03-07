@@ -9,7 +9,6 @@ import {
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
 import RendererBridge from './RendererBridge';
-import { killFakeRuntime } from './MenuTemplate/DebugMenu';
 import Template from './MenuTemplate/Template';
 import Ansible from './networking/Ansible';
 import FCObject from './networking/FieldControl';
@@ -21,10 +20,8 @@ app.on('window-all-closed', () => {
 
 app.on('will-quit', () => {
   Ansible.close();
-  FCObject.FCInternal.quit();
-
-  if (process.env.NODE_ENV === 'development') {
-    killFakeRuntime();
+  if (FCObject.FCInternal !== null) {
+    FCObject.FCInternal.quit();
   }
 });
 

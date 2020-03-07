@@ -8,28 +8,26 @@ python_version = "3.8"
 [packages]
 aiofiles = "*"
 aioprocessing = "*"
-aiorwlock = "*"
 aioserial = "*"
 backoff = "*"
 cachetools = "*"
 click = "~=7.0"
 colorama = "*"
 cobs = "~=1.1"
+cython = "~=0.29"  # FIXME
 msgpack = "*"
-pylint = "~=2.2"
 pyserial = "~=3.4"
+pylint = "~=2.2"
+python-rapidjson = "*"
 pyudev = "~=0.21"
 pyyaml = "~=3.13"
 schema = "*"
 structlog = "*"
 uvloop = "*"
-yappi = "*"
 # Note: `pyzmq` should be installed separately because it relies on several
 # --install-option flags to use draft sockets.
-python-rapidjson = "*"
 
 [dev-packages]
-cython = "~=0.29"
 pytest = "~=5.3"
 pytest-timeout = "~=1.3"
 asynctest = "~=0.12"
@@ -41,6 +39,7 @@ sphinx-autobuild = "*"
 pytest-asyncio = "*"
 pytest-cov = "*"
 pytest-mock = "*"
+yappi = "*"
 
 [scripts]
 build = "python setup.py build_ext --inplace"

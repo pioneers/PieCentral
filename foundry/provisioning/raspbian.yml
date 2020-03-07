@@ -1,43 +1,51 @@
 ---
+# To run: `ansible-playbook raspbian.yml --extra-vars "team_num=XX password=XXXXXXXX"`
 - name: provision raspberry pi
   hosts: localhost
   roles:
     - base
     - raspbian
   tasks:
-    - name: set hostname
-      become: yes
-      become_user: root
-      hostname:
-        name: team{{ team_num }}
-    - name: change the raspberry pi hostname files
-      become: yes
-      become_method: sudo
-      become_user: root
-      replace: 
-        path: /etc/hosts
-        regexp: "raspberrypi"
-        replace: "team{{ team_num }}"
     - name: team number in wpa_supplicant
       become: yes
       become_user: root
       replace:
         path: /etc/wpa_supplicant/wpa_supplicant.conf
-        regexp: "Team1"
+        regexp: "Team[0-9]{2}"
         replace: "Team{{ team_num }}"
-    - name: team number in interfaces file
+    - name: password in wpa_supplicant
+      become: yes
+      become_user: root
+      replace:
+        path: /etc/wpa_supplicant/wpa_supplicant.conf
+        regexp: "21124297"
+        replace: "{{ password }}"
+    - name: team num in interfaces
       become: yes
       become_user: root
       replace:
         path: /etc/networking/interfaces
-        regexp: "address 192.168.128.201"
-        replace: "address 192.168.128.2{{ team_num }}"
+        regexp: 'address 192.168.(128|0).2([0-9]{2})'
+        replace: 'address 192.168.\1.2{{ team_num }}'
     - name: install Avahi
       become: yes
       become_method: sudo
       become_user: root
       apt:
         name: avahi-daemon
+    - name: set hostname
+      become: yes
+      become_user: root
+      hostname:
+        name: "team{{ team_num }}"
+    - name: change the raspberry pi hostname files
+      become: yes
+      become_method: sudo
+      become_user: root
+      replace: 
+        path: /etc/hosts
+        regexp: "(raspberrypi|team[0-9]{2}"
+        replace: "team{{ team_num }}"
 
   # TODO: Take team number as an argument
   #       Command line argument --extra-vars '{"team_num":"__"}'

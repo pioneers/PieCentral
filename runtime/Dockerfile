@@ -13,21 +13,24 @@ RUN wget https://github.com/zeromq/libzmq/releases/download/v${ZMQ_VERSION}/zero
 RUN tar -xzf libzmq.tar.gz
 WORKDIR /tmp/zeromq-${ZMQ_VERSION}
 RUN ./configure --prefix=/usr/local --enable-drafts
-RUN make && make install
+RUN make -j 4 && make install
 WORKDIR /tmp
 RUN rm libzmq.tar.gz && rm -rf zeromq-${ZMQ_VERSION}
-RUN pip3 install pipenv
+# Install pip packages
 WORKDIR /root/runtime
-ADD Pipfile Pipfile
-RUN pipenv install
-EXPOSE 6000-6010
+RUN pip3 install pipenv
+ADD Pipfile.lock Pipfile.lock
+RUN pipenv install --skip-lock
 RUN pipenv run pip3 install -v --pre pyzmq --install-option=--enable-drafts --install-option=--zmq=${ZMQ_VERSION}
-CMD ["/usr/bin/env", "pipenv", "run", "python3", "-m", "runtime", "run", "-l", "DEBUG", "-p"]
-# --deploy, --dev
+EXPOSE 6000-6010
 
 FROM base AS development
 ADD runtime runtime
+RUN pipenv run build
+CMD ["/usr/bin/env", "pipenv", "run", "dev"]
 
 FROM base AS production
 ADD runtime runtime
+RUN pipenv run build
 RUN apk del binutils build-base python3-dev
+CMD ["/usr/bin/env", "pipenv", "run", "prod"]

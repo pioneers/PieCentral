@@ -44,8 +44,10 @@ pytest-mock = "*"
 
 [scripts]
 build = "python setup.py build_ext --inplace"
+clean = "find runtime ( -name '*.cpython-*.so' -o -name '*.c' -o -name '*.cpp' ) -delete"
 dev = "python -m runtime run --log-level DEBUG --log-pretty"
 prod = "python -m runtime run"
+# FIXME: remove build and dist
 lint = "pylint runtime/game/studentapi.py runtime/messaging/connection.py runtime/service runtime/util"
 test = "bash -c 'python -m pytest tests/test_*.py'"
 format = "autopep8 --recursive --aggressive --max-line-length 100 --in-place runtime"

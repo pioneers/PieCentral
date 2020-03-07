@@ -18,7 +18,7 @@ setup(
     long_description_content_type='text/markdown',
     author='PiE Runtime Team',
     author_email='runtime@pioneers.berkeley.edu',
-    python_requires='>=3.7.0',
+    python_requires='>=3.8.0',
     url='https://github.com/pioneers/PieCentral',
     packages=['runtime'],
     install_requires=[

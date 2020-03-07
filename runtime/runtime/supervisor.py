@@ -157,8 +157,13 @@ async def start(
         load_device_types(dev_schema)
         LOGGER.debug(f'Read device schema from disk', dev_schema_path=dev_schema_path)
 
-        make_retryable = backoff.on_predicate(backoff.constant, interval=retry_interval,
-                                              max_tries=max_retries, logger=LOGGER)
+        make_retryable = backoff.on_exception(
+            backoff.constant,
+            Exception,
+            interval=retry_interval,
+            max_tries=max_retries,
+            logger=LOGGER,
+        )
         await make_retryable(spin)(service_config)
     except Exception as exc:
         LOGGER.critical('Error reached the top of the call stack')

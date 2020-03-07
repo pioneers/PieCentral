@@ -11,7 +11,7 @@ import {
   updateCodeStatus,
 } from '../../renderer/actions/InfoActions';
 import { updatePeripherals } from '../../renderer/actions/PeripheralActions';
-import { robotState, Logger } from '../../renderer/utils/utils';
+import { robotState, Logger, runtimeState } from '../../renderer/utils/utils';
 
 const getIPAddress = (family = 'IPv4') => {
   const interfaces = os.networkInterfaces();
@@ -23,6 +23,7 @@ const getIPAddress = (family = 'IPv4') => {
 const Ansible = {
   logger: new Logger('ansible', 'Ansible Debug'),
   conn: null,
+  currentCodeStatus: null,
   async recvDatagrams() {
     try {
       for await (const datagram of this.conn.recvDatagrams()) {
@@ -32,10 +33,21 @@ const Ansible = {
             uid: uid,
           };
         });
-        console.log(sensorData);
-        RendererBridge.reduxDispatch(updateCodeStatus(robotState.TELEOP));
-        RendererBridge.reduxDispatch(infoPerMessage(2));
-        RendererBridge.reduxDispatch(updatePeripherals(sensorData));
+
+        if (this.currentCodeStatus === null) {
+          RendererBridge.reduxDispatch(infoPerMessage(runtimeState.STUDENT_STOPPED));
+          RendererBridge.reduxDispatch(updateCodeStatus(robotState.IDLE));
+        } else {
+          let status;
+          switch (this.currentCodeStatus) {
+            case robotState.TELEOP: status = runtimeState.TELEOP; break;
+            case robotState.AUTONOMOUS: status = runtimeState.AUTONOMOUS; break;
+            case robotState.ESTOP: status = runtimeState.ESTOP; break;
+            default: status = runtimeState.STUDENT_STOPPED;
+          }
+          RendererBridge.reduxDispatch(infoPerMessage(status));
+          RendererBridge.reduxDispatch(updatePeripherals(sensorData));
+        }
       }
     } catch (e) {
       console.log(e);
@@ -79,13 +91,25 @@ const Ansible = {
       }
     });
 
-    // ipcMain.on('studentCodeStatus', (event, { studentCodeStatus }) => {
-    //   console.log(studentCodeStatus);
-    // });
+    ipcMain.on('studentCodeStatus', (event, { studentCodeStatus }) => {
+      if (this.conn !== null && this.currentCodeStatus !== studentCodeStatus) {
+        this.currentCodeStatus = studentCodeStatus;
+
+        let mode;
+        switch (studentCodeStatus) {
+          case robotState.TELEOP: mode = 'TELEOP'; break;
+          case robotState.AUTONOMOUS: mode = 'AUTO'; break;
+          case robotState.ESTOP: mode = 'ESTOP'; break;
+          default: mode = 'IDLE';
+        }
+        console.log(`Setting mode: ${mode}`);
+        return this.conn.sendCommand('set_match', [mode, null]);
+      }
+    });
   },
   close() {
+    RendererBridge.reduxDispatch(ansibleDisconnect());
     if (this.conn !== null) {
-      RendererBridge.reduxDispatch(ansibleDisconnect());
       this.conn.closeAll();
     }
   },

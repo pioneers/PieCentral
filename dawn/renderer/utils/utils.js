@@ -58,8 +58,8 @@ export const runtimeState = {
 
 export const defaults = {
   PORT: 22,
-  USERNAME: 'ubuntu',
-  PASSWORD: 'temppwd',
+  USERNAME: 'pi',
+  PASSWORD: 'raspberry',
   IPADDRESS: '192.168.7.2',
   STUDENTCODELOC: './PieCentral/runtime/studentCode.py',
 };

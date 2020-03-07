@@ -75,15 +75,16 @@ class RuntimeClient {
     this.messageId = messageId;
     let payload = [RuntimeClient.REQUEST, messageId, commandName, args || []];
     await this._send('command', payload);
-    let [resType, resId, error, result] = await this._recv('command');
-    if (resType !== RuntimeClient.RESPONSE) {
-      throw Error('Received malformed response');
-    } else if (resId !== messageId) {
-      throw Error(`Response message ID did not match (expected: ${messageId}, actual: ${resId})`);
-    } else if (error) {
-      throw Error(`Received error from server: ${error}`);
+    for await (const [resType, resId, error, result] of this._recv('command')) {
+      if (resType !== RuntimeClient.RESPONSE) {
+        throw Error('Received malformed response');
+      } else if (resId !== messageId) {
+        throw Error(`Response message ID did not match (expected: ${messageId}, actual: ${resId})`);
+      } else if (error) {
+        throw Error(`Received error from server: ${error}`);
+      }
+      return result;
     }
-    return result;
   }
 
   recvLogs() {

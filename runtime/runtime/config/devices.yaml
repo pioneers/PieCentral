@@ -235,10 +235,83 @@ smartsensor:
       - name: deadband
         type: float
         writeable: true
+  KoalaBear:
+    id: 13
+    params:
+      - name: duty_cycle_a
+        type: float
+        writeable: true
+        lower: -1.0
+        upper: 1.0
+        subscribed: true
+      - name: pid_kp_a
+        type: float
+        readable: false
+        writeable: true
+        lower: 0.0
+      - name: pid_ki_a
+        type: float
+        readable: false
+        writeable: true
+        lower: 0.0
+      - name: pid_kd_a
+        type: float
+        readable: false
+        writeable: true
+        lower: 0.0
+      - name: enc_pos_a
+        type: float
+        writeable: true
+        subscribed: true
+      - name: deadband_a
+        type: float
+        writeable: true
+      - name: motor_enabled_a
+        type: bool
+        writeable: true
+        subscribed: true
+      - name: drive_mode_a
+        type: uint8
+        writeable: true
+      - name: duty_cycle_b
+        type: float
+        writeable: true
+        lower: -1.0
+        upper: 1.0
+        subscribed: true
+      - name: pid_kp_b
+        type: float
+        readable: false
+        writeable: true
+        lower: 0.0
+      - name: pid_ki_b
+        type: float
+        readable: false
+        writeable: true
+        lower: 0.0
+      - name: pid_kd_b
+        type: float
+        readable: false
+        writeable: true
+        lower: 0.0
+      - name: enc_pos_b
+        type: float
+        writeable: true
+        subscribed: true
+      - name: deadband_b
+        type: float
+        writeable: true
+      - name: motor_enabled_b
+        type: bool
+        writeable: true
+        subscribed: true
+      - name: drive_mode_b
+        type: uint8
+        writeable: true
 
 dawn:
   Gamepad:
-    id: 13
+    id: 14
     params:
       - name: button_a
         type: bool

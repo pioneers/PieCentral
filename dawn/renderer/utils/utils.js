@@ -60,8 +60,8 @@ export const defaults = {
   PORT: 22,
   USERNAME: 'pi',
   PASSWORD: 'raspberry',
-  IPADDRESS: '192.168.7.2',
-  STUDENTCODELOC: './PieCentral/runtime/studentCode.py',
+  IPADDRESS: '192.168.0.10',
+  STUDENTCODELOC: '/home/pi/studentcode.py',
 };
 
 export const timings = {

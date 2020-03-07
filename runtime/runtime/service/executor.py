@@ -289,6 +289,8 @@ class ExecutorService(Service):
     sensor_commands: asyncio.Queue = dataclasses.field(init=False, default=None)
     aliases: DeviceAliasManager = dataclasses.field(init=False, default=None)
     executor: StudentCodeExecutor = dataclasses.field(init=False, default=None)
+    executor_ready: threading.Event = dataclasses.field(init=False,
+                                                        default_factory=threading.Event)
 
     config_schema = {
         **Service.config_schema,
@@ -311,6 +313,7 @@ class ExecutorService(Service):
         self.executor = StudentCodeExecutor(self.config, self.match, self.mode_changed,
                                             self.device_buffers, self.aliases)
         self.sensor_commands = asyncio.Queue()
+        self.executor_ready.set()
         await self.aliases.load_existing_aliases()
         await super().bootstrap()
 
@@ -405,6 +408,7 @@ class ExecutorService(Service):
         command_thread = threading.Thread(target=lambda: asyncio.run(self.bootstrap()),
                                           daemon=True, name='command-thread')
         command_thread.start()
+        self.executor_ready.wait()
         self.executor.reload_student_code(self.config['student_code'])
         with self.executor:
             self.executor.spin()

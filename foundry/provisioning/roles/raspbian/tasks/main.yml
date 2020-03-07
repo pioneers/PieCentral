@@ -71,7 +71,7 @@
   register: config_folder
 
 - name: make .config
-  become: true
+  become: yes
   become_user: root
   file:
     path: "{{ ansible_env.HOME }}/.config/systemd/system"
@@ -88,18 +88,35 @@
   become: yes
   become_user: root
 
-- name: systemd
+- name: set up runtime service
+  copy:
+    src: files/runtime.service
+    dest: "/etc/systemd/system/runtime.service" # "{{ ansible_env.HOME }}/.config/systemd/user"
+  become: yes
+  become_user: root
+
+- name: enable update service
   systemd:
     daemon_reload: yes
     scope: system
     name: update.service
     state: started
     enabled: yes
-  become: true
+  become: yes
+  become_user: root
+
+- name: enable runtime service
+  systemd:
+    daemon_reload: yes
+    scope: system
+    name: runtime.service
+    state: started
+    enabled: yes
+  become: yes
   become_user: root
 
 - name: enable ssh
-  become: true
+  become: yes
   become_user: root
   copy:
     content: ""
@@ -110,7 +127,7 @@
     mode: 0400
 
 - name: command to enable ssh
-  become: true
+  become: yes
   become_user: root
   command: "systemctl enable ssh"
   command: "systemctl start ssh"

@@ -4,7 +4,7 @@ const initialPeripheralState = {
   peripheralList: {},
   batterySafety: false,
   batteryLevel: 0,
-  runtimeVersion: '0.0.0',
+  runtimeVersion: '2.0.0',
 };
 
 function getParams(peripheral) {

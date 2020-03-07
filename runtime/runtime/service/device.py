@@ -162,8 +162,6 @@ class SmartSensor:
         if packet.message_id == packetlib.MessageType.HEARTBEAT_REQ:
             response = packetlib.make_heartbeat_res(packet.heartbeat_id)
             await packetlib.send(self.serial_conn, response)
-            # LOGGER.debug('Received heartbeat request and sent response',
-            #              heartbeat_id=response.heartbeat_id)
         elif packet.message_id == packetlib.MessageType.HEARTBEAT_RES:
             if packet.heartbeat_id == SmartSensor.RTT_ID:
                 self.rtt_down.set()

@@ -27,12 +27,9 @@ const Ansible = {
   async recvDatagrams() {
     try {
       for await (const datagram of this.conn.recvDatagrams()) {
-        let sensorData = _.map(datagram.devices, ({ type, params }, uid) => {
-          return {
-            device_type: type,
-            uid: uid,
-          };
-        });
+        const sensorData = _.map(datagram.devices, ({ type }, uid) => ({
+          device_type: type, uid,
+        }));
 
         if (this.currentCodeStatus === null) {
           RendererBridge.reduxDispatch(infoPerMessage(runtimeState.STUDENT_STOPPED));
@@ -78,6 +75,7 @@ const Ansible = {
         ]));
     });
 
+    // eslint-disable-next-line consistent-return
     ipcMain.on('stateUpdate', (event, data) => {
       if (this.conn !== null) {
         const gamepads = _.mapValues(data.gamepads, ({ axes, buttons }) => ({
@@ -91,6 +89,7 @@ const Ansible = {
       }
     });
 
+    // eslint-disable-next-line consistent-return
     ipcMain.on('studentCodeStatus', (event, { studentCodeStatus }) => {
       if (this.conn !== null && this.currentCodeStatus !== studentCodeStatus) {
         this.currentCodeStatus = studentCodeStatus;

@@ -1,7 +1,6 @@
 import fs from 'fs';
 import { assert } from 'chai';
-import { delay } from 'redux-saga';
-import { call, take } from 'redux-saga/effects';
+import { call, delay, take } from 'redux-saga/effects';
 // import { remote } from 'electron';
 import { openFileSucceeded, saveFileSucceeded } from '../../actions/EditorActions';
 import { runtimeConnect, runtimeDisconnect } from '../../actions/InfoActions';
@@ -113,7 +112,7 @@ describe('runtime sagas', () => {
     const expect = fromGenerator(assert, runtimeHeartbeat());
     expect.next().race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, TIMEOUT),
+      timeout: delay(TIMEOUT),
     });
     expect.next({
       update: {
@@ -126,7 +125,7 @@ describe('runtime sagas', () => {
     const expect = fromGenerator(assert, runtimeHeartbeat());
     expect.next().race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, TIMEOUT),
+      timeout: delay(TIMEOUT),
     });
     expect.next({
       timeout: TIMEOUT,

@@ -47,6 +47,6 @@ clean = "find runtime ( -name '*.cpython-*.so' -o -name '*.c' -o -name '*.cpp' )
 dev = "python -m runtime run --log-level DEBUG --log-pretty"
 prod = "python -m runtime run"
 # FIXME: remove build and dist
-lint = "pylint runtime/game/studentapi.py runtime/messaging/connection.py runtime/service runtime/util"
-test = "bash -c 'python -m pytest tests/test_*.py'"
+lint = "pylint --exit-zero runtime/game/studentapi.py runtime/messaging/connection.py runtime/service runtime/util"
+test = "sh -c 'python -m pytest tests/test_*.py'"
 format = "autopep8 --recursive --aggressive --max-line-length 100 --in-place runtime"

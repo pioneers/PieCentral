@@ -6,9 +6,9 @@
 
 import fs from 'fs';
 import _ from 'lodash';
-import { delay, eventChannel } from 'redux-saga';
+import { eventChannel } from 'redux-saga';
 import {
-  all, call, cps, fork, put, race, select, take, takeEvery,
+  all, call, cps, delay, fork, put, race, select, take, takeEvery,
 } from 'redux-saga/effects';
 import { ipcRenderer, remote } from 'electron';
 import { addAsyncAlert } from '../actions/AlertActions';
@@ -203,7 +203,7 @@ function* runtimeHeartbeat() {
     // runtime. Only the winner will have a value.
     const result = yield race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, TIMEOUT),
+      timeout: delay(TIMEOUT),
     });
 
     // If update wins, we assume we are connected, otherwise disconnected.
@@ -267,7 +267,7 @@ function* ansibleGamepads() {
       }
     }
 
-    yield call(delay, 50); // wait 50 ms before updating again.
+    yield delay(50); // wait 50 ms before updating again.
   }
 }
 

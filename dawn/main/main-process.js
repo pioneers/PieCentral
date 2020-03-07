@@ -7,6 +7,7 @@ import {
 } from 'electron';
 /* eslint import/no-extraneous-dependencies: ["error", {"peerDependencies": true}] */
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+import path from 'path';
 
 import RendererBridge from './RendererBridge';
 import Template from './MenuTemplate/Template';
@@ -55,7 +56,7 @@ app.on('ready', () => {
   RendererBridge.registerWindow(mainWindow);
 
   mainWindow.maximize();
-  mainWindow.loadURL(`file://${__dirname}/../static/index.html`);
+  mainWindow.loadURL(`file://${path.resolve()}/static/index.html`);
 
   const menu = Menu.buildFromTemplate(Template);
   Menu.setApplicationMenu(menu);

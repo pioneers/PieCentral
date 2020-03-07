@@ -18,8 +18,8 @@
       become_user: root
       replace:
         path: /etc/wpa_supplicant/wpa_supplicant.conf
-        regexp: "21124297"
-        replace: "{{ password }}"
+        regexp: "psk=[0-9]{8}"
+        replace: "psk={{ password }}"
     - name: team num in interfaces
       become: yes
       become_user: root

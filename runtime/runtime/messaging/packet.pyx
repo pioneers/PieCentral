@@ -99,7 +99,7 @@ cdef class Packet:
     cpdef string encode(self) nogil:
         cdef Py_ssize_t payload_len = self.payload.size()
         cdef string packet
-        if self.message_id > 0xFF or payload_len > 0xFF:
+        if self.message_id > 0xff or payload_len > 0xff:
             return packet
         packet += (<uint8_t> self.message_id)
         packet += (<uint8_t> payload_len)
@@ -138,8 +138,13 @@ cpdef Packet make_disable():
     return Packet(DEV_DISABLE, b'')
 
 
-cpdef Packet make_sub_req():
+cpdef Packet make_sub_req(sensor_struct, uint16_t delay):
     cdef string payload
+    cdef uint16_t sub_map = sensor_struct.make_subscription()
+    payload += (<uint8_t> (sub_map & 0xff))
+    payload += (<uint8_t> ((sub_map >> 8) & 0xff))
+    payload += (<uint8_t> (delay & 0xff))
+    payload += (<uint8_t> ((delay >> 8) & 0xff))
     return Packet(SUB_REQ, payload)
 
 

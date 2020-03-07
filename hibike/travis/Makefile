@@ -11,7 +11,7 @@ artifacts-install:
 	$(nop)
 
 lint:
-	cd .. && find . -type d -name "hibike_packet_extension" -prune -o -type f -name "*.py" -print | xargs pylint
+	cd .. && find . -type d -name "hibike_packet_extension" -prune -o -type f -name "*.py" -print | xargs pylint --exit-zero
 
 unit_tests:
 	cd .. && pipenv run python -m unittest hibike_tests/*.py

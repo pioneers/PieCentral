@@ -64,8 +64,8 @@ class DeviceStructure(packetlib.Structure):
     """
     Parameter = collections.namedtuple(
         'Parameter',
-        ['name', 'type', 'lower', 'upper', 'readable', 'writeable'],
-        defaults=[float('-inf'), float('inf'), True, False],
+        ['name', 'type', 'lower', 'upper', 'readable', 'writeable', 'subscribed'],
+        defaults=[float('-inf'), float('inf'), True, False, False],
     )
 
     def get_current(self, param_name: str) -> ParameterValue:
@@ -152,6 +152,14 @@ class SmartSensorStructure(DeviceStructure):
             self.write = SmartSensorStructure.RESET_MAP
             return packet
 
+    @classmethod
+    def make_subscription(cls) -> int:
+        params = 0
+        for i in range(len(cls._params)):
+            if cls._params[i].subscribed:
+                params |= 1 << i
+        return params
+
     def get_update(self):
         update = {
             'type': type(self).__name__,
@@ -204,6 +212,7 @@ DEVICE_SCHEMA = Schema({
                 Optional('upper'): Use(float),
                 Optional('readable'): Use(bool),
                 Optional('writeable'): Use(bool),
+                Optional('subscribed'): Use(bool),
             }]
         }
     }
@@ -211,8 +220,9 @@ DEVICE_SCHEMA = Schema({
 DEVICES = {}
 
 
-def load_device_types(schema: str, sensor_protocol: str = 'smartsensor'):
+def load_device_types(schema: dict, sensor_protocol: str = 'smartsensor'):
     """
+    Populate the device type registry.
     """
     schema = DEVICE_SCHEMA.validate(schema)
     for protocol, devices in schema.items():
@@ -230,6 +240,7 @@ def load_device_types(schema: str, sensor_protocol: str = 'smartsensor'):
 def get_device_type(device_id: int = None, device_name: str = None,
                     protocol: str = None) -> type:
     """
+    Get a device type from its integer identifier, name, or protocol.
     """
     protocols = [protocol] if protocol is not None else DEVICES.keys()
     for protocol in protocols:

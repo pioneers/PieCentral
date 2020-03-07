@@ -115,6 +115,7 @@ class SmartSensor:
     command_queue: asyncio.Queue = dataclasses.field(default_factory=asyncio.Queue)
     write_interval: Real = 0.05
     terminate_timeout: Real = 2
+    sub_delay: Real = 0.04
     ready: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
     rtt_down: asyncio.Event = dataclasses.field(default_factory=asyncio.Event, init=False)
     buffer: DeviceBuffer = dataclasses.field(default=None, init=False)
@@ -128,6 +129,8 @@ class SmartSensor:
         device_type = get_device_type(uid.device_type)
         device_uid = f'smart-sensor-{uid.to_int()}'
         self.buffer = DeviceBuffer.open(device_type, device_uid, create=True)
+        await packetlib.send(self.serial_conn,
+                             packetlib.make_sub_req(self.buffer.struct, self.sub_delay))
         LOGGER.info('Initialized new sensor', device_type=device_type.__name__,
                     device_uid=device_uid)
 

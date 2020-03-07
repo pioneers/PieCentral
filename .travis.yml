@@ -1,14 +1,15 @@
 dist: xenial
+sudo: required
 os:
   - linux
-matrix:
+jobs:
   include:
     - name: Dawn
       language: node_js
       env: TEST_DIR=dawn
     - name: Hibike
       language: python
-      python: 3.6
+      python: 3.8
       env: TEST_DIR=hibike/travis
     - name: Runtime
       language: python

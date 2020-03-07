@@ -6,28 +6,37 @@ smartsensor:
     params:
       - name: switch0
         type: bool
+        subscribed: true
       - name: switch1
         type: bool
+        subscribed: true
       - name: switch2
         type: bool
+        subscribed: true
   LineFollower:
     id: 1
     params:
       - name: left
         type: bool
+        subscribed: true
       - name: center
         type: bool
+        subscribed: true
       - name: right
         type: bool
+        subscribed: true
   Potentiometer:
     id: 2
     params:
       - name: pot0
         type: float
+        subscribed: true
       - name: pot1
         type: float
+        subscribed: true
       - name: pot2
         type: float
+        subscribed: true
   Encoder:
     id: 3
     params:
@@ -38,6 +47,7 @@ smartsensor:
     params:
       - name: is_unsafe
         type: bool
+        subscribed: true
       - name: calibrated
         type: bool
       - name: v_cell1
@@ -48,6 +58,7 @@ smartsensor:
         type: float
       - name: v_batt
         type: float
+        subscribed: true
       - name: dv_cell2
         type: float
       - name: dv_cell3
@@ -84,11 +95,13 @@ smartsensor:
         writeable: true
         lower: -1.0
         upper: 1.0
+        subscribed: true
       - name: servo1
         type: float
         writeable: true
         lower: -1.0
         upper: 1.0
+        subscribed: true
   YogiBear:
     id: 10
     params:
@@ -97,6 +110,7 @@ smartsensor:
         writeable: true
         lower: -1.0
         upper: 1.0
+        subscribed: true
       - name: pid_pos_setpoint
         type: float
         readable: false
@@ -141,8 +155,10 @@ smartsensor:
       - name: enc_pos
         type: float
         writeable: true
+        subscribed: true
       - name: enc_vel
         type: float
+        subscribed: true
       - name: motor_current
         type: float
       - name: deadband
@@ -153,8 +169,10 @@ smartsensor:
     params:
       - name: id
         type: uint32
+        subscribed: true
       - name: tag_detect
         type: uint8
+        subscribed: true
   PolarBear:
     id: 12
     params:
@@ -163,6 +181,7 @@ smartsensor:
         writeable: true
         lower: -1.0
         upper: 1.0
+        subscribed: true
       - name: pid_pos_setpoint
         type: float
         readable: false
@@ -207,8 +226,10 @@ smartsensor:
       - name: enc_pos
         type: float
         writeable: true
+        subscribed: true
       - name: enc_vel
         type: float
+        subscribed: true
       - name: motor_current
         type: float
       - name: deadband

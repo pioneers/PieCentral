@@ -91,13 +91,15 @@ class RuntimeClient {
     return this._recv('log');
   }
 
-  async connect(name, { protocol, port, type }) {
+  async connect(name, { protocol, port, type }, localhost = '127.0.0.1') {
     const socket = this.sockets[name] = new type();
-    const address = this._getAddress(protocol, port);
-    if (type !== Dish) {
-      socket.connect(address);
-    } else {
+    let address;
+    if (type === Dish) {
+      address = this._getAddress(protocol, port, localhost);
       await socket.bind(address);
+    } else {
+      address = this._getAddress(protocol, port);
+      socket.connect(address);
     }
     if (type === zmq.Subscriber) {
       socket.subscribe('');

@@ -6,7 +6,7 @@ import asyncio
 import collections
 import dataclasses
 import queue
-from typing import Mapping
+from typing import Mapping, Optional
 
 import msgpack
 import structlog
@@ -99,8 +99,8 @@ class RuntimeClient:
     def __exit__(self, _type, _exc, _traceback):
         self.close_all()
 
-    def _get_address(self, protocol: str, port: int) -> str:
-        return '{0}://{1}:{2}'.format(protocol, self.host, port)
+    def _get_address(self, protocol: str, port: int, host: Optional[str] = None) -> str:
+        return '{0}://{1}:{2}'.format(protocol, host or self.host, port)
 
     def _send(self, name: str, payload):
         packet = msgpack.dumps(payload)
@@ -112,14 +112,16 @@ class RuntimeClient:
         self.bytes_recv += len(packet)
         return msgpack.loads(packet, raw=False)
 
-    def connect(self, name: str, protocol: str, port: int, socket_type: int):
+    def connect(self, name: str, protocol: str, port: int, socket_type: int,
+                localhost: str = '127.0.0.1'):
         """ Connect a socket. """
         socket = self.sockets[name] = self.context.socket(socket_type)
-        address = self._get_address(protocol, port)
-        if socket_type != zmq.DISH:
-            socket.connect(address)
-        else:
+        if socket_type == zmq.DISH:
+            address = self._get_address(protocol, port, localhost)
             socket.bind(address)
+        else:
+            address = self._get_address(protocol, port)
+            socket.connect(address)
         if socket_type == zmq.SUB:
             socket.subscribe(b'')
         if socket_type == zmq.DISH:

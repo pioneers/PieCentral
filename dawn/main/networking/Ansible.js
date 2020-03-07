@@ -62,7 +62,7 @@ const Ansible = {
     }
   },
   setup() {
-    const host = '127.0.0.1' || getIPAddress(); // TODO
+    const host = getIPAddress();
 
     ipcMain.on('ipAddress', (event, { ipAddress }) => {
       this.close();

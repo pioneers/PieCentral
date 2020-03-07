@@ -21,15 +21,18 @@ COPY Pipfile setup.py .coveragerc .pylintrc pytest.ini /root/runtime/
 RUN pipenv install --pre && pipenv run pip3 install --pre pyzmq --install-option=--enable-drafts --install-option=--zmq=${ZMQ_VERSION}
 RUN pipenv run build
 RUN rm -rf ~/.cache
-EXPOSE 6000-6010
+EXPOSE 6000/udp
+EXPOSE 6001/udp
+EXPOSE 6002/tcp
+EXPOSE 6003/tcp
 
-FROM base AS development
-RUN pipenv install --pre --dev
-CMD ["/usr/bin/env", "pipenv", "run", "dev"]
+# FROM base AS development
+# RUN pipenv install --pre --dev
+# CMD ["/usr/bin/env", "pipenv", "run", "dev"]
 
 FROM base AS production
 # Reduce size of the package
 RUN strip --strip-all $(find / -name '*.so') || exit 0
-RUN rm -rf /usr/local/lib/python3.8/config-*/libpython3.8.a /root/runtime/build /root/.local/share/virtualenv/seed-app-data /var/cache/apk/* && pipenv uninstall --skip-lock cython
+RUN rm -rf /usr/local/lib/python3.8/config-*/libpython3.8.a /root/runtime/build /root/.local/share/virtualenv/seed-app-data /var/cache/apk/* /root/runtime/runtime/game/studentcode.py && pipenv uninstall --skip-lock cython
 RUN apk del build-base python3-dev linux-headers
 CMD ["/usr/bin/env", "pipenv", "run", "prod"]

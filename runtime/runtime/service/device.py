@@ -56,7 +56,7 @@ def get_com_ports(devices: Iterable[Device]) -> Iterable[str]:
         for filename in os.listdir(device.sys_path):
             if filename.startswith('tty'):
                 for port in ports:
-                    if port.location in device.sys_path:
+                    if port.location and port.location in device.sys_path:
                         yield port.device
                         break
 
@@ -208,7 +208,7 @@ class SmartSensor:
                              frequency=frequency, uid=self.buffer.struct.uid.to_int())
 
     @backoff.on_exception(backoff.constant, asyncio.TimeoutError, max_tries=10, logger=LOGGER)
-    async def ping(self, timeout: Real = 1):
+    async def ping(self, timeout: Real = 3):
         """
         Initialize this sensor's data structures and notify all proxies.
 

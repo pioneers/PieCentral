@@ -1,11 +1,7 @@
 FROM python:3.8-alpine AS base
 LABEL maintainer="devops@pioneers.berkeley.edu"
 ENV SHELL /bin/sh
-# Reduce size of the package
-RUN apk add binutils build-base python3-dev libuv udev linux-headers
-RUN strip --strip-all /usr/local/lib/*.so*
-RUN strip --strip-all /usr/local/lib/python3.8/lib-dynload/*.so*
-RUN rm -f /usr/local/lib/python3.8/config-*/libpython3.8.a
+RUN apk add binutils build-base python3-dev libuv eudev-dev linux-headers
 # Build libzmq with DRAFT socket support
 WORKDIR /tmp
 ENV ZMQ_VERSION 4.3.2
@@ -20,7 +16,8 @@ RUN rm libzmq.tar.gz && rm -rf zeromq-${ZMQ_VERSION}
 WORKDIR /root/runtime
 RUN pip3 install pipenv
 ADD runtime runtime
-COPY Pipfile setup.py .coveragerc .pylintrc pytest.ini tests /root/runtime/
+ADD tests tests
+COPY Pipfile setup.py .coveragerc .pylintrc pytest.ini /root/runtime/
 RUN pipenv install --pre && pipenv run pip3 install --pre pyzmq --install-option=--enable-drafts --install-option=--zmq=${ZMQ_VERSION}
 RUN pipenv run build
 RUN rm -rf ~/.cache
@@ -31,5 +28,8 @@ RUN pipenv install --pre --dev
 CMD ["/usr/bin/env", "pipenv", "run", "dev"]
 
 FROM base AS production
+# Reduce size of the package
+RUN strip --strip-all $(find / -name '*.so')
+RUN rm -rf /usr/local/lib/python3.8/config-*/libpython3.8.a /root/runtime/build /root/.local/share/virtualenv/seed-app-data /var/cache/apk/* && pipenv uninstall --skip-lock cython
 RUN apk del build-base python3-dev linux-headers
 CMD ["/usr/bin/env", "pipenv", "run", "prod"]

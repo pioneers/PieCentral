@@ -7,7 +7,7 @@ Wants=update.service
 
 [Service]
 Type=simple
-ExecStart=docker run --name=runtime --rm --restart=always --mount source=studentcode,destination=/root/runtime/game/studentcode.py pioneers/runtime:prod
+ExecStart=docker run --name=runtime --memory-reservation 600M -p 6000:6000/udp -p 6001:6001/udp -p 6002:6002/tcp -p 6003:6003/tcp --privileged --mount source=studentcode,destination=/root/runtime/game/studentcode.py pioneers/runtime:latest
 ExecStop=docker stop runtime
 
 [Install]

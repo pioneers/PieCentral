@@ -1,6 +1,7 @@
 ---
 # Usage: `ansible-playbook raspbian_setup.yml --extra-vars "team_num=XX password=XXXXXXXX"`
 # Usage: Reboot at the end.
+# TODO: Remove and make it a subset of raspbian.yml that runs with a flag
 - name: set up flashed raspberry pi
   hosts: localhost
   tasks:
@@ -9,8 +10,8 @@
       become_user: root
       replace:
         path: /etc/wpa_supplicant/wpa_supplicant.conf
-        regexp: 'ssid=Team[0-9]{2}'
-        replace: 'ssid=Team{{ team_num }}'
+        regexp: 'ssid="Team[0-9]{2}"'
+        replace: 'ssid="Team{{ team_num }}"'
     - name: password in wpa_supplicant
       become: yes
       become_user: root
@@ -23,8 +24,15 @@
       become_user: root
       replace:
         path: /etc/networking/interfaces
-        regexp: 'address 192.168.(128|0).2([0-9]{2})'
-        replace: 'address 192.168.\1.2{{ team_num }}'
+        regexp: 'address 192.168.128.2([0-9]{2})'
+        replace: 'address 192.168.128.2{{ team_num }}'
+    - name: team num in dhcpcd
+      become: yes
+      become_user: root
+      replace:
+        path: /etc/dhcpcd.conf
+        regexp: 'address 192.168.128.2([0-9]{2})'
+        replace: 'address 192.168.128.2{{ team_num }}'
     - name: set hostname
       become: yes
       become_user: root

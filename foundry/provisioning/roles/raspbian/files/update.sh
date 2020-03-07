@@ -10,9 +10,9 @@ cd updates
 for filename in $(find . -name "*.tar.gz" | sort); do
   proj="$(basename ${filename} ".tar.gz")"
   image=""
-  if [ "${proj}" = "runtime" ];
+  if [ "${proj}" = *"runtime"* ];
   then
-    image="pioneers/runtime:prod"
+    image="pioneers/runtime:latest"
   fi
 
   if [ "${proj}" =~ "update" ]
@@ -26,7 +26,7 @@ for filename in $(find . -name "*.tar.gz" | sort); do
     rm "${filename}"
     rm -rf "${tmp}"
   else
-    docker stop ${proj}
+    docker stop $(docker ps -aq)
     docker load -i "${filename}"
     systemctl restart ${proj}.service
     rm -f "${filename}"

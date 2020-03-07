@@ -47,6 +47,13 @@
   become: yes
   become_user: root 
 
+- name: configure dhcp
+  copy:
+    src: files/dhcpcd.conf
+    dest: /etc/dhcpcd.conf
+  become: yes
+  become_user: root 
+
 - name: initialize home directory
   file:
     path: "{{ ansible_env.HOME }}/bin"

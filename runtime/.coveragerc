@@ -1,0 +1,10 @@
+[run]
+branch = True
+omit =
+  runtime/__*__.py
+  runtime/*/__*__.py
+  runtime/game/studentcode.py
+
+[report]
+show_missing = True
+# fail_under = 80

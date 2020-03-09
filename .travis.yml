@@ -1,8 +1,7 @@
-dist: xenial
-sudo: required
+dist: bionic
 os:
   - linux
-matrix:
+jobs:
   include:
     - name: Dawn
       language: node_js
@@ -13,21 +12,21 @@ matrix:
       env: TEST_DIR=hibike/travis
     - name: Runtime
       language: python
-      python: 3.6
+      arch: arm64
+      python: 3.8
       env: TEST_DIR=runtime
     - name: Shepherd
       language: python
-      python: 3.7
+      python: 3.8
       env: TEST_DIR=shepherd
     - name: Foundry
       language: python
-      python: 3.7
+      python: 3.8
       env: TEST_DIR=foundry
 addons:
   apt:
     packages:
       - python3-pip
-      - libasound2-dev
       - socat
 env:
   global:
@@ -74,7 +73,7 @@ branches:
 deploy:
   provider: script
   script: ./DevOps/pipeline/deploy-artifacts.sh "$APP_ID" "$TRAVIS_TAG" "$(pwd)/artifacts"
-  skip_cleanup: true
+  cleanup: true
   on:
     branch: master
     tags: true

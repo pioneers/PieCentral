@@ -1,22 +1,32 @@
-.PHONY: install artifacts-install lint test artifacts
+.PHONY: build-dev-image build-prod-image clean install artifacts-install lint test artifacts
 
-install:
-	cd build-deps && wget https://github.com/google/protobuf/releases/download/v3.2.0/protoc-3.2.0-linux-x86_64.zip
-	cd build-deps && unzip protoc-3.2.0-linux-x86_64.zip
-	pip3 install pipenv
-	pipenv install --dev
+USER=pioneers
+PROJECT=runtime
+NAME=$(USER)/$(PROJECT)
+BUILD_FLAGS=
+
+build-dev-image:
+	docker build $(BUILD_FLAGS) --target development -t $(NAME):development .
+
+build-prod-image:
+	docker build $(BUILD_FLAGS) --quiet --target production -t $(NAME):latest --force-rm --pull .
+
+clean:
+	docker image rm $(shell docker images --filter="reference=pioneers/runtime:*" -q) --force
+
+shell: build-dev-image
+	docker run --rm -it $(NAME):development /bin/ash
+
+install: build-dev-image
 
 artifacts-install:
 	$(nop)
 
 lint:
-	pylint ansible.py runtime.py statemanager.py studentapi.py runtimeUtil.py fakedawn.py hibikesimulator.py
+	docker run --rm -i $(NAME):development /usr/bin/env pipenv run lint
 
 test:
-	cd ../DevOps/frankfurter/scripts/update && ./create_update -p
-	protoc -I=../ansible-protos --python_out=. ../ansible-protos/*.proto
-	python3 runtime.py --test
-	python3 runtime.py --test optionalTestsWork
+	docker run --rm -i $(NAME):development /usr/bin/env pipenv run test
 
-artifacts:
-	cp ../DevOps/frankfurter/build/*.tar.gz ../artifacts
+artifacts: build-prod-image
+	docker save $(NAME):latest | gzip --best > ../artifacts/$(PROJECT)-production.tar.gz

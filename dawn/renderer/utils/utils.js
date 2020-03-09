@@ -58,10 +58,10 @@ export const runtimeState = {
 
 export const defaults = {
   PORT: 22,
-  USERNAME: 'ubuntu',
-  PASSWORD: 'temppwd',
-  IPADDRESS: '192.168.7.2',
-  STUDENTCODELOC: './PieCentral/runtime/studentCode.py',
+  USERNAME: 'pi',
+  PASSWORD: 'raspberry',
+  IPADDRESS: '192.168.0.10',
+  STUDENTCODELOC: '/home/pi/studentcode.py',
 };
 
 export const timings = {
@@ -104,6 +104,7 @@ export class Logger {
     console.log(output);
     this._write(output, `\n[${(new Date()).toString()}]`);
   }
+
   debug(output) {
     this._write(output, `\n[${(new Date()).toString()} DEBUG]`);
   }

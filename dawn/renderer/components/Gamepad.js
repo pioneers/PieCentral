@@ -27,15 +27,20 @@ class Gamepad extends React.Component {
 
   roundedValues() {
     return {
-      axes: _.map(this.props.gamepad.axes, axis => numeral(axis).format('0.00000')),
-      buttons: _.map(this.props.gamepad.buttons, button => numeral(button).format('0')),
+      axes: _.map(this.props.gamepad.axes, (axis) => numeral(axis).format('0.00000')),
+      buttons: _.map(this.props.gamepad.buttons, (button) => numeral(button).format('0')),
     };
   }
 
   renderHeader() {
     return (
       <div>
-        <h4 style={{ display: 'inline' }}> Gamepad {this.props.index} </h4>
+        <h4 style={{ display: 'inline' }}>
+          {' '}
+          Gamepad
+          {this.props.index}
+          {' '}
+        </h4>
       </div>
     );
   }

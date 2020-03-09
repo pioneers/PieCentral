@@ -70,7 +70,7 @@ class ConfigBoxComponent extends React.Component {
   saveChanges(e) {
     e.preventDefault();
     this.props.onIPChange(this.state.ipAddress);
-    this.setState({ originalIP: this.state.ipAddress });
+    this.setState(({ ipAddress }) => ({ originalIP: ipAddress }));
     storage.set('ipAddress', this.state.ipAddress, (err) => {
       if (err) logging.log(err);
     });
@@ -80,10 +80,10 @@ class ConfigBoxComponent extends React.Component {
       bridgeAddress: this.state.fcAddress,
     };
     this.props.onFCUpdate(newConfig);
-    this.setState({
-      originalSN: this.state.stationNumber,
-      originalFC: this.state.fcAddress,
-    });
+    this.setState(({ stationNumber, fcAddress }) => ({
+      originalSN: stationNumber,
+      originalFC: fcAddress,
+    }));
     storage.set('fieldControl', newConfig, (err) => {
       if (err) logging.log(err);
     });
@@ -105,18 +105,18 @@ class ConfigBoxComponent extends React.Component {
   }
 
   handleClose() {
-    this.setState({
-      ipAddress: this.state.originalIP,
-      stationNumber: this.state.originalSN,
-      fcAddress: this.state.originalFC,
-    });
+    this.setState(({ originalIP, originalSN, originalFC }) => ({
+      ipAddress: originalIP,
+      stationNumber: originalSN,
+      fcAddress: originalFC,
+    }));
     this.props.hide();
   }
 
   disableUploadUpdate() {
-    return (getValidationState(this.state.ipAddress) === 'error') ||
-      (getValidationState(this.state.fcAddress) === 'error') ||
-      (this.state.stationNumber < 0 && this.state.stationNumber > 4);
+    return (getValidationState(this.state.ipAddress) === 'error')
+      || (getValidationState(this.state.fcAddress) === 'error')
+      || (this.state.stationNumber < 0 && this.state.stationNumber > 4);
   }
 
   render() {
@@ -201,7 +201,7 @@ ConfigBoxComponent.propTypes = {
   onFCUpdate: PropTypes.func.isRequired,
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   onIPChange: (ipAddress) => {
     dispatch(ipChange(ipAddress));
   },
@@ -210,7 +210,7 @@ const mapDispatchToProps = dispatch => ({
   },
 });
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   stationNumber: parseInt(state.fieldStore.stationNumber, 10),
   fcAddress: state.fieldStore.bridgeAddress,
 });

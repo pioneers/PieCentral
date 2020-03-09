@@ -86,30 +86,3 @@ class RuntimeClientManager:
         gold_master = self.clients[gold_team]
         if gold_master:
             gold_master.set_master()"""
-
-
-"""
-client = RuntimeClient('192.168.128.107', 6020)
-client.connect()
-import time
-from Code import decode
-x = 1
-client.run_challenge(x)
-time.sleep(0.2)
-print('Robot answer:', client.get_challenge_solution())
-print('Authoritative answer:', decode(x))
-""" #pylint: disable=pointless-string-statement
-
-# client = RuntimeClient('192.168.128.115', 6020)
-# client.connect()
-# client.set_mode('idle')
-
-# print('OK!')
-# client.set_alliance('blue')
-# client.set_starting_zone('left')
-# client.run_challenge(123)
-# time.sleep(0.2)
-# print(client.get_challenge_solution())
-# time.sleep(1)
-# client.run_challenge(123)
-# print(client.get_challenge_solution())

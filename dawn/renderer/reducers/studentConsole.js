@@ -9,6 +9,8 @@ const initialState = {
   consoleUnread: false,
 };
 
+const MAX_LINES = 512;
+
 const studentConsole = (state = initialState, action) => {
   switch (action.type) {
     case 'UPDATE_CONSOLE':
@@ -17,7 +19,7 @@ const studentConsole = (state = initialState, action) => {
         consoleData: [
           ...state.consoleData,
           action.consoleOutput,
-        ],
+        ].slice(-MAX_LINES),
         consoleUnread: !state.showConsole,
       };
     case 'CLEAR_CONSOLE':

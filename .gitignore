@@ -404,3 +404,6 @@ hibike/virtual_devices.txt
 /dawn-*
 /artifacts
 .vagrant
+
+# Exported Docker containers
+runtime-*.tar.gz

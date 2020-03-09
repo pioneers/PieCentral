@@ -44,10 +44,10 @@
         },
         "flask": {
             "hashes": [
-                "sha256:2271c0070dbcb5275fad4a82e29f23ab92682dc45f9dfbc22c02ba9b9322ce48",
-                "sha256:a080b744b7e345ccfcbc77954861cb05b3c63786e93f2b3875e0913d44b43f05"
+                "sha256:13f9f196f330c7c2c5d7a5cf91af894110ca0215ac051b5844701f2bfd934d52",
+                "sha256:45eb5a6fd193d6cf7e0cf5d8a5b31f83d5faae0293695626f539a823e93b13f6"
             ],
-            "version": "==1.0.2"
+            "version": "==1.1.1"
         },
         "itsdangerous": {
             "hashes": [
@@ -58,10 +58,10 @@
         },
         "jinja2": {
             "hashes": [
-                "sha256:93187ffbc7808079673ef52771baa950426fd664d3aad1d0fa3e95644360e250",
-                "sha256:b0eaf100007721b5c16c1fc1eecb87409464edc10469ddc9a22a27a99123be49"
+                "sha256:c10142f819c2d22bdcd17548c46fa9b77cf4fda45097854c689666bf425e7484",
+                "sha256:c922560ac46888d47384de1dbdc3daaa2ea993af4b26a436dec31fa2c19ec668"
             ],
-            "version": "==2.11.1"
+            "version": "==3.0.0a1"
         },
         "markupsafe": {
             "hashes": [
@@ -136,10 +136,10 @@
         },
         "werkzeug": {
             "hashes": [
-                "sha256:97660b282aa7e29f94f3fe378e5c7162d7ab9d601a8dbb1cbb2ffc8f0e54607d",
-                "sha256:cfd1281b1748288e59762c0e174d64d8bcb2b70e7c57bc4a1203c8825af24ac3"
+                "sha256:169ba8a33788476292d04186ab33b01d6add475033dfc07215e6d219cc077096",
+                "sha256:6dc65cf9091cf750012f56f2cad759fa9e879f511b5ff8685e456b4e3bf90d16"
             ],
-            "version": "==0.15.3"
+            "version": "==1.0.0"
         }
     },
     "develop": {
@@ -212,9 +212,9 @@
         },
         "yappi": {
             "hashes": [
-                "sha256:7f814131515d51db62b1a3468bcb84de30499124752806a5a6e11caf0b4344bf"
+                "sha256:b8db9bc607610d6da4e27e87ec828ebddec4bdaac89ca07ebfe9a153b0641580"
             ],
-            "version": "==1.0"
+            "version": "==1.2.3"
         }
     }
 }

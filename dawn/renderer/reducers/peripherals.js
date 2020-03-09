@@ -4,7 +4,7 @@ const initialPeripheralState = {
   peripheralList: {},
   batterySafety: false,
   batteryLevel: 0,
-  runtimeVersion: '0.0.0',
+  runtimeVersion: '2.0.0',
 };
 
 function getParams(peripheral) {
@@ -17,7 +17,7 @@ function getParams(peripheral) {
 }
 
 const peripherals = (state = initialPeripheralState, action) => {
-  const nextState = Object.assign({}, state);
+  const nextState = { ...state };
   const nextPeripherals = nextState.peripheralList;
   switch (action.type) {
     case 'UPDATE_PERIPHERALS': {

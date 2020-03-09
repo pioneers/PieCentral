@@ -1,8 +1,6 @@
 import fs from 'fs';
 import { assert } from 'chai';
-import { delay } from 'redux-saga';
-import { call, take } from 'redux-saga/effects';
-// import { remote } from 'electron';
+import { delay, take } from 'redux-saga/effects';
 import { openFileSucceeded, saveFileSucceeded } from '../../actions/EditorActions';
 import { runtimeConnect, runtimeDisconnect } from '../../actions/InfoActions';
 import {
@@ -21,7 +19,7 @@ import {
   ansibleSaga,
 } from '../sagas';
 import fromGenerator from './redux-saga-test';
-import { TIMEOUT } from '../../utils/utils';
+import { TIMEOUT } from '../utils';
 
 describe('filesystem sagas', () => {
   it('should yield effects for opening file (unsaved)', () => {
@@ -113,7 +111,7 @@ describe('runtime sagas', () => {
     const expect = fromGenerator(assert, runtimeHeartbeat());
     expect.next().race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, TIMEOUT),
+      timeout: delay(TIMEOUT),
     });
     expect.next({
       update: {
@@ -126,7 +124,7 @@ describe('runtime sagas', () => {
     const expect = fromGenerator(assert, runtimeHeartbeat());
     expect.next().race({
       update: take('PER_MESSAGE'),
-      timeout: call(delay, TIMEOUT),
+      timeout: delay(TIMEOUT),
     });
     expect.next({
       timeout: TIMEOUT,

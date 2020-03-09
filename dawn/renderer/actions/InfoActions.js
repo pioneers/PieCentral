@@ -1,4 +1,4 @@
-export const infoPerMessage = stateChange => ({
+export const infoPerMessage = (stateChange) => ({
   type: 'PER_MESSAGE',
   robotState: stateChange,
 });
@@ -19,12 +19,12 @@ export const runtimeDisconnect = () => ({
   type: 'RUNTIME_DISCONNECT',
 });
 
-export const updateCodeStatus = studentCodeStatus => ({
+export const updateCodeStatus = (studentCodeStatus) => ({
   type: 'CODE_STATUS',
   studentCodeStatus,
 });
 
-export const ipChange = ipAddress => ({
+export const ipChange = (ipAddress) => ({
   type: 'IP_CHANGE',
   ipAddress,
 });

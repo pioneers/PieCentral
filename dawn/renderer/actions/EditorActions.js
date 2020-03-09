@@ -2,7 +2,7 @@
  * Actions for the editor state.
  */
 
-export const editorUpdate = newVal => ({
+export const editorUpdate = (newVal) => ({
   type: 'UPDATE_EDITOR',
   code: newVal,
 });
@@ -23,7 +23,7 @@ export const openFile = () => ({
   type: 'OPEN_FILE',
 });
 
-export const dragFile = filepath => ({
+export const dragFile = (filepath) => ({
   type: 'DRAG_FILE',
   filepath,
 });

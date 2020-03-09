@@ -10,7 +10,7 @@
   },
   "main": "runtime-client.js",
   "scripts": {
-    "preinstall": "npm install zeromq@6.0.0-beta.6 --zmq-draft --build-from-source"
+    "postinstall": "npm install zeromq@6.0.0-beta.6 --zmq-draft --build-from-source"
   },
   "devDependencies": {},
   "dependencies": {

@@ -61,7 +61,7 @@ export const defaults = {
   USERNAME: 'pi',
   PASSWORD: 'raspberry',
   IPADDRESS: '192.168.0.10',
-  STUDENTCODELOC: '/home/pi/studentcode.py',
+  STUDENTCODELOC: '/home/pi/PieCentral/runtime/runtime/game/studentcode.py',
 };
 
 export const timings = {

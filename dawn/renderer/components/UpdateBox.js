@@ -45,17 +45,39 @@ class UpdateBox extends React.Component {
           logging.log('SSH Connection');
           sftp.fastPut(
             this.state.updateFilepath,
-            `/home/${defaults.USERNAME}/updates/${update}`, (err2) => {
-              this.setState({ isUploading: false });
-              conn.end();
-              this.props.hide();
+            `./updates/${update}`, (err2) => {
               if (err2) {
+                conn.end();
+                this.setState({ isUploading: false });
+                this.props.hide();
                 this.props.onAlertAdd(
                   'Robot Connectivity Error',
                   `Dawn was unable to upload the update to the robot
                   Please check your robot connectivity.`,
                 );
                 logging.log(err2);
+              } else {
+                conn.exec(
+                  'sudo -H /home/ubuntu/bin/update.sh && sudo systemctl restart runtime.service',
+                  { pty: true }, (uperr, stream) => {
+                    if (uperr) {
+                      this.props.onAlertAdd(
+                        'Update Script Error',
+                        `Dawn was unable to run update scripts.
+                        Please check your robot connectivity.`,
+                      );
+                    }
+                    stream.write(`${defaults.PASSWORD}\n`);
+                    stream.on('exit', (code) => {
+                      logging.log(`Update Script Returned ${code}`);
+                      setTimeout(() => {
+                        this.setState({ isUploading: false });
+                        this.props.hide();
+                      }, 10000);
+                      conn.end();
+                    });
+                  },
+                );
               }
             },
           );
@@ -72,10 +94,10 @@ class UpdateBox extends React.Component {
 
   disableUploadUpdate() {
     return (
-      !(this.state.updateFilepath)
-      || this.state.isUploading
-      || !(this.props.connectionStatus && this.props.runtimeStatus)
-      || this.props.isRunningCode
+      !(this.state.updateFilepath) ||
+      this.state.isUploading ||
+      !(this.props.connectionStatus && this.props.runtimeStatus) ||
+      this.props.isRunningCode
     );
   }
 
@@ -129,7 +151,7 @@ UpdateBox.propTypes = {
   onAlertAdd: PropTypes.func.isRequired,
 };
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   onAlertAdd: (heading, message) => {
     dispatch(addAsyncAlert(heading, message));
   },

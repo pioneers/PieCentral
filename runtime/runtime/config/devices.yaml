@@ -236,7 +236,7 @@ smartsensor:
         type: float
         writeable: true
   KoalaBear:
-    id: 3
+    id: 13
     params:
       - name: duty_cycle_a
         type: float

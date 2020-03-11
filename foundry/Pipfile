@@ -3,8 +3,8 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
 
 [packages]
-ansible = "~=2.8"
-ansible-lint = "~=4.1"
+ansible = "~=2.9"
+ansible-lint = "~=4.2"

@@ -1,14 +1,16 @@
 ---
 - name: set timezone
   become: yes
-  become_user: root
   timezone:
     name: "{{ timezone }}"
+- name: set datetime
+  become: yes
+  command: date --set="{{ datetime }}"
+  when: datetime is defined
 - name: install debian apt packages
   import_tasks: debian.yml
   when: ansible_facts['os_family']|lower == 'debian'
   become: yes
-  become_user: root
 - name: configure git
   template:
     src: gitconfig.j2
@@ -35,7 +37,6 @@
     install_script_path: /tmp/zsh-install.sh
 - name: configure user
   become: yes
-  become_user: root
   user:
     name: "{{ ansible_env.USER }}"
     shell: /usr/bin/zsh

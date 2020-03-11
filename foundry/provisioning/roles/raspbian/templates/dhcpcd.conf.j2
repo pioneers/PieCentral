@@ -1,19 +1,11 @@
 # A sample configuration for dhcpcd.
 # See dhcpcd.conf(5) for details.
 
-# Allow users of this group to interact with dhcpcd via the control socket.
-#controlgroup wheel
-
 # Inform the DHCP server of our hostname for DDNS.
 hostname
 
 # Use the hardware address of the interface for the Client ID.
 clientid
-# or
-# Use the same DUID + IAID as set in DHCPv6 for DHCPv4 ClientID as per RFC4361.
-# Some non-RFC compliant DHCP servers do not reply with this set.
-# In this case, comment out duid and enable clientid above.
-#duid
 
 # Persist interface configuration when dhcpcd exits.
 persistent
@@ -29,23 +21,17 @@ option classless_static_routes
 # Respect the network MTU. This is applied to DHCP routes.
 option interface_mtu
 
-# Most distributions have NTP support.
-#option ntp_servers
-
 # A ServerID is required by RFC2131.
 require dhcp_server_identifier
 
-# Generate SLAAC address using the Hardware Address of the interface
-#slaac hwaddr
-# OR generate Stable Private IPv6 Addresses based from the DUID
+# Generate Stable Private IPv6 Addresses based from the DUID
 slaac private
 
-# Example static IP configuration:
+# Static IP configuration for Ethernet:
 interface eth0
 static ip_address=192.168.6.2/24
-#static ip6_address=fd51:42f8:caae:d92e::ff/64
-static routers=192.168.0.1
-static domain_name_servers=192.168.0.1 8.8.8.8
+static routers=192.168.6.1
+static domain_name_servers=192.168.6.1 8.8.8.8
 
 interface wlan0
 arping 192.168.0.1
@@ -56,9 +42,8 @@ static ip_address=192.168.0.200/24
 static routers=192.168.0.1
 static domain_name_servers=192.168.0.1
 
-# CHANGE THIS FOR EACH TEAM
 profile field
-static ip_address=192.168.128.201/24
+static ip_address=192.168.128.2{{ '%02d' | format(team_number|int) }}/24
 static routers=192.168.128.1
 static domain_name_servers=192.168.128.1
 

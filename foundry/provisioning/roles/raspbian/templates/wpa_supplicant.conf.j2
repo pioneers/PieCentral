@@ -3,15 +3,15 @@ update_config=1
 country=US
 
 network={
-  ssid="Mother Base"
-  psk="pieisgreat"
+  ssid="{{ field_net.ssid }}"
+  psk="{{ field_net.psk }}"
   priority=100
   id_str="field"
 }
 
 network={
-  ssid="Team00"
-  psk="00000000"
+  ssid="Team{{ '%02d' | format(team_number|int) }}"
+  psk="{{ team_psk }}"
   priority=200
   id_str="team"
 }

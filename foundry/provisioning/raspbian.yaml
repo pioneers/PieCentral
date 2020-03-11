@@ -1,0 +1,10 @@
+---
+- name: provision raspberry pi
+  hosts: all
+  roles:
+    # - role: base
+    #   when: '"team" not in ansible_run_tags'
+    - role: raspbian
+  vars:
+    ansible_user: pi
+    ansible_password: raspberry

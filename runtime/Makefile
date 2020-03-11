@@ -20,4 +20,4 @@ test:
 	python3 -m runtime --test optionalTestsWork
 
 artifacts:
-	./package.sh && mv *.zip ../artifacts
+	./package.sh && mv *.tar.gz ../artifacts

@@ -1,6 +1,7 @@
 """Functions and classes for communication with Dawn."""
 
 import asyncio
+import os
 import socket
 import threading
 import time
@@ -363,7 +364,8 @@ class TCPClass(AnsibleHandler):
 
         proto_message = notification_pb2.Notification()
         proto_message.header = notification_pb2.Notification.SENSOR_MAPPING
-        with open('namedPeripherals.csv', 'r') as mapping_file:
+        peripherals_file = os.path.join(os.path.dirname(__file__), 'namedPeripherals.csv')
+        with open(peripherals_file, 'r') as mapping_file:
             sensor_mappings = csv.reader(mapping_file)
             for row in sensor_mappings:
                 pair = proto_message.sensor_mapping.add()

@@ -5,7 +5,7 @@ AssertPathExists=/home/pi/updates
 Wants=update.service
 
 [Path]
-DirectoryNotEmpty=/home/pi/updates
+PathChanged=/home/pi/updates
 
 [Install]
 WantedBy=multi-user.target

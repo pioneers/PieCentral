@@ -4,6 +4,7 @@ import asyncio
 import csv
 import inspect
 import io
+import os
 import time
 
 from .util import *
@@ -110,6 +111,10 @@ class Robot(StudentAPI):
                      "pid_pos_kd", "current_thresh", "enc_pos"],
         "PolarBear": ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki",
                       "pid_pos_kd", "current_thresh", "enc_pos"],
+        "KoalaBear": ["duty_cycle_a", "pid_kp_a", "pid_ki_a", "pid_kd_a", "enc_a",
+                      "deadband_a", "motor_enabled_a", "drive_mode_a",
+                      "duty_cycle_b", "pid_kp_b", "pid_ki_b", "pid_kd_b", "enc_b",
+                      "deadband_b", "motor_enabled_b", "drive_mode_b"],
     }
     deviceName_to_readParams = {
         "LimitSwitch": ["switch0", "switch1", "switch2"],
@@ -118,6 +123,7 @@ class Robot(StudentAPI):
         "ServoControl": ["servo0", "servo1"],
         "YogiBear": ["duty_cycle", "enc_pos", "enc_vel"],
         "PolarBear": ["duty_cycle", "enc_pos", "enc_vel"],
+        "KoalaBear": ["duty_cycle_a", "enc_a", "duty_cycle_b", "enc_b"],
         "RFID": ["id", "tag_detect"],
     }
     param_to_valid_values = {
@@ -253,7 +259,8 @@ class Robot(StudentAPI):
         # Probably `bool` here
 
     def _create_sensor_mapping(self, filename="namedPeripherals.csv"):
-        with open(filename, "r") as f:
+        peripherals_file = os.path.join(os.path.dirname(__file__), filename)
+        with open(peripherals_file, "r") as f:
             sensor_mappings = csv.reader(f)
             self.sensor_mappings = {name: int(uid)
                                     for name, uid in sensor_mappings}

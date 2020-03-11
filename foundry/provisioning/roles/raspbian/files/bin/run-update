@@ -2,6 +2,8 @@
 
 # run-update -- Update the Raspberry Pi
 
+sleep 5  # Wait for copying to complete
+
 tmp=/tmp/update-${RANDOM}
 update_script=dist/update.sh
 mkdir -p "$tmp" && cd "$tmp"

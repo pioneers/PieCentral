@@ -4,57 +4,48 @@
   tags:
     - never
     - team
-- name: initialize user executables
+- name: initialize .local
   file:
-    path: "{{ ansible_env.HOME }}/.local/bin"
+    path: "{{ ansible_env.HOME }}/.local"
     state: directory
-    recurse: yes
+    mode: '0755'
+- name: copy scripts
+  copy:
+    src: bin
+    dest: "{{ ansible_env.HOME }}/.local"
     mode: '0755'
 - name: initialize updates
   file:
     path: "{{ ansible_env.HOME }}/updates"
     state: directory
     mode: '0755'
-- name: initialize student code
-  command: "git init '{{ ansible_env.HOME }}/student-code'"
+- name: initialize persistent storage
+  command: "git init '{{ ansible_env.HOME }}/storage'"
   args:
-    creates: "{{ ansible_env.HOME }}/student-code/.git/HEAD"
-- name: copy update script
-  copy:
-    src: run-update
-    dest: "{{ ansible_env.HOME }}/.local/bin"
-    mode: '0755'
+    creates: "{{ ansible_env.HOME }}/storage/.git/HEAD"
 - name: install python packages
   pip:
     name:
       - ansible
       - virtualenv
     extra_args: --user --trusted-host pypi.org --trusted-host files.pythonhosted.org
-- name: copy update service
+- name: copy systemd units
   become: yes
   copy:
-    src: update.service
+    src: systemd/
     dest: /etc/systemd/system
-- name: copy runtime service
-  become: yes
-  copy:
-    src: runtime.service
-    dest: /etc/systemd/system
-- name: enable update service
+- name: "enable {{ item }}"
   become: yes
   systemd:
     daemon_reload: yes
     enabled: yes
-    name: update
+    name: "{{ item }}"
     scope: system
-- name: enable runtime service
-  become: yes
-  systemd:
-    daemon_reload: yes
-    enabled: yes
-    name: runtime
-    scope: system
-- name: disable docker service
+  loop:
+    - update.path
+    - upload.path
+    - runtime.service
+- name: disable docker.service
   become: yes
   systemd:
     daemon_reload: yes
@@ -62,7 +53,32 @@
     name: docker
     scope: system
     state: stopped
-# - name: reboot
-#   become: yes
-#   reboot:
-#     reboot_timeout: 300
+- name: add user to dialout
+  become: yes
+  user:
+    name: "{{ ansible_env.USER }}"
+    groups:
+      - dialout
+- name: install zmq (draft)
+  become: yes
+  block:
+    - name: download source
+      unarchive:
+        src: https://github.com/zeromq/libzmq/releases/download/v{{ zmq_version }}/zeromq-{{ zmq_version }}.tar.gz
+        dest: /tmp
+        remote_src: yes
+    - name: build from source
+      shell: |
+        cd /tmp/zeromq-{{ zmq_version }}
+        ./configure --prefix=/usr/local --enable-drafts
+        make -j 4
+        make install
+    - name: install python bindings
+      pip:
+        name: pyzmq
+        extra_args: --pre --install-option=--enable-drafts --install-option=--zmq=/usr/local
+  when: zmq_version is defined
+- name: reboot
+  become: yes
+  reboot:
+    reboot_timeout: 300

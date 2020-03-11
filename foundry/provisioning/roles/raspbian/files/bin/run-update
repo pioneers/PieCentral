@@ -7,10 +7,10 @@ update_script=dist/update.sh
 mkdir -p "$tmp" && cd "$tmp"
 echo "Running updates (from $(pwd)) ..."
 
-for filename in $(find ~/updates -name "*.zip" | sort); do
+for filename in $(find ~/updates -name "*.tar.gz" | sort); do
   echo "Update $filename"
   cp "$filename" "$tmp"
-  unzip $(basename $filename)
+  tar -xmzf $(basename $filename)
   if [ -e "$update_script" ]; then
     bash -x "$update_script"
   fi

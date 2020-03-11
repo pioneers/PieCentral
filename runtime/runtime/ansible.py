@@ -506,7 +506,7 @@ class TCPClass(AnsibleHandler):
 
 def load_coding_challenges():
     try:
-        import studentCode as student_code
+        import studentcode as student_code
     except:
         return []
 

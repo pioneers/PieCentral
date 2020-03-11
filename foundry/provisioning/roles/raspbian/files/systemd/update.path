@@ -1,0 +1,11 @@
+[Unit]
+Desciption=software update monitor
+After=multi-user.target
+AssertPathExists=/home/pi/updates
+Wants=update.service
+
+[Path]
+DirectoryNotEmpty=/home/pi/updates
+
+[Install]
+WantedBy=multi-user.target

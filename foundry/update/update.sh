@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd dist && ansible-playbook --connection=local --inventory=localhost, update.yml
+cd dist && sudo -u pi bash -l -c "ansible-playbook --connection=local --inventory=localhost, update.yml"

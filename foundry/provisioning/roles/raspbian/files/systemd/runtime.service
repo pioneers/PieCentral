@@ -3,10 +3,18 @@ Description=runtime daemon
 After=multi-user.target
 Wants=update.service
 AssertPathExists=/home/pi/venv/bin/activate
+AssertPathExists=/home/pi/storage
 
 [Service]
 Type=simple
+User=pi
+Group=dialout
+Environment=PYTHONPATH=/home/pi/storage
 ExecStart=/bin/bash -c "source /home/pi/venv/bin/activate && python3 -m runtime"
+Restart=on-failure
+RestartPreventExitStatus=255  # E-stop
+RestartSec=3s
+OOMScoreAdjust=-1000  # Disable OOM
 
 [Install]
 WantedBy=multi-user.target

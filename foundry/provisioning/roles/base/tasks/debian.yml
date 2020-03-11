@@ -77,6 +77,16 @@
 - name: install python (latest)
   become: yes
   block:
+    - name: install dev packages (headers)
+      apt:
+        name:
+          - zlib1g-dev
+          - libncurses5-dev
+          - libgdbm-dev
+          - libnss3-dev
+          - libssl-dev
+          - libreadline-dev
+          - libffi-dev
     - name: download source
       unarchive:
         src: https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tar.xz
@@ -86,7 +96,7 @@
       shell: |
         cd /tmp/Python-3.8.2
         ./configure --enable-optimizations
-        make
+        make -j 4
         make test
         make install
   tags:

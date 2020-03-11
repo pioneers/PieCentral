@@ -2,10 +2,10 @@ def autonomous_setup():
     pass
 
 def autonomous_main():
-    pass
+    print('Running auto main ...')
 
 def teleop_setup():
     pass
 
 def teleop_main():
-    pass
+    print('Running teleop main ...')

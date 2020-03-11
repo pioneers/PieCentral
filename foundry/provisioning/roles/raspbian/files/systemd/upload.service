@@ -1,0 +1,13 @@
+[Unit]
+Description=student code upload handler
+After=multi-user.target
+AssertPathExists=/home/pi/storage
+
+[Service]
+Type=oneshot
+User=pi
+ExecStart=/bin/bash /home/pi/.local/bin/commit-code
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=upload.path

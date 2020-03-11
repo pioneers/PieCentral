@@ -25,7 +25,7 @@ class AutoIntEnum(IntEnum):
 class RUNTIME_CONFIG(Enum):
     """Assorted runtime constants."""
     STUDENT_CODE_TIMELIMIT      = 1
-    STUDENT_CODE_HZ             = 20 # Number of times to execute studentCode.main per second
+    STUDENT_CODE_HZ             = 20 # Number of times to execute studentcode.main per second
     DEBUG_DELIMITER_STRING      = "\n****************** RUNTIME MESSAGE ******************"
     PIPE_READY                  = ["ready"]
     TEST_OUTPUT_DIR             = "../test_outputs/"
@@ -154,7 +154,7 @@ class BadThing:
         """Create a human readable error message for students from a traceback."""
         errorList = []
         for error in traceback.format_tb(tb):
-            if "studentCode.py" in error:
+            if "studentcode.py" in error:
                 index = error.find("line")
                 error = error[index:]
                 errorList.append(error)

@@ -13,9 +13,11 @@
         - name: backup virtualenv
           command: "mv '{{ venv }}' '{{ venv_backup }}'"
           when: venv_status.stat.exists == True
+        - name: get python version
+          shell: "command -v python2 || command -v python3"
+          register: python_version
         - name: create virtualenv
-          # TODO: change to python3.8
-          command: "virtualenv -p python3 '{{ venv }}'"
+          command: "virtualenv -p '{{ python_version.stdout }}' --system-site-packages '{{ venv }}'"
           args:
             creates: "{{ venv }}"
         - name: install packages
@@ -29,8 +31,6 @@
           register: venv_backup_status
         - name: restore virtualenv
           shell: "rm -rf '{{ venv }}' && mv '{{ venv_backup }}' '{{ venv }}'"
-          args:
-           executable: /bin/bash
           when: venv_backup_status.stat.exists == True
     - name: restart runtime
       become: yes

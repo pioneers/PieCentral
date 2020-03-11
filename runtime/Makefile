@@ -1,5 +1,7 @@
 .PHONY: install artifacts-install lint test artifacts
 
+export PYTHONPATH := $(PYTHONPATH):$(shell realpath .)
+
 install:
 	cd build-deps && wget https://github.com/protocolbuffers/protobuf/releases/download/v3.5.1/protoc-3.5.1-linux-aarch_64.zip
 	cd build-deps && unzip protoc-3.5.1-linux-aarch_64.zip

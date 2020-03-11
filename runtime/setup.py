@@ -12,6 +12,5 @@ setuptools.setup(
         'Programming Language :: Python :: 3',
     ],
     python_requires='>=3.6',
-    package_data={'runtime': ['runtime/hibikeDevices.json', 'namedPeripherals.csv']},
     include_package_data=True,
 )

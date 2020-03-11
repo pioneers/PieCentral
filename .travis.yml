@@ -13,7 +13,8 @@ matrix:
       env: TEST_DIR=hibike/travis
     - name: Runtime
       language: python
-      python: 3.6
+      python: 3.8
+      arch: arm64
       env: TEST_DIR=runtime
     - name: Shepherd
       language: python

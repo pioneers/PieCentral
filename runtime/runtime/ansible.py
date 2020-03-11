@@ -8,10 +8,10 @@ import sys
 import selectors
 import csv
 import aio_msgpack_rpc as rpc
-import runtime_pb2
-import ansible_pb2
-import notification_pb2
-from runtimeUtil import *
+from . import runtime_pb2
+from . import ansible_pb2
+from . import notification_pb2
+from .util import *
 
 UDP_SEND_PORT = 1235
 UDP_RECV_PORT = 1236

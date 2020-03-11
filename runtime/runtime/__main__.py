@@ -11,15 +11,15 @@ import threading
 import traceback
 import warnings
 
-from ansible import (
+from .ansible import (
     TCPClass,
     UDPRecvClass,
     UDPSendClass,
     FieldControlServer,
     run_field_control_server,
 )
-import runtime_pb2
-from runtimeUtil import (
+from . import runtime_pb2
+from .util import (
     BAD_EVENTS,
     BadThing,
     HIBIKE_COMMANDS,
@@ -29,8 +29,8 @@ from runtimeUtil import (
     SM_COMMANDS,
     StudentAPIError,
 )
-from statemanager import StateManager
-from studentapi import Actions, Gamepad, Field, Robot
+from .statemanager import StateManager
+from .studentapi import Actions, Gamepad, Field, Robot
 
 COROUTINE_WARNING = """
 The PiE API has upgraded the above RuntimeWarning to a runtime error!
@@ -431,7 +431,7 @@ def start_hibike(bad_things_queue, state_queue, pipe):
 
     try:
         add_paths()
-        import hibike_process # pylint: disable=import-error
+        from . import hibike_process # pylint: disable=import-error
         hibike_process.hibike_process(bad_things_queue, state_queue, pipe)
     except Exception as e:
         bad_things_queue.put(BadThing(sys.exc_info(), str(e)))

@@ -1,6 +1,6 @@
 import sys
 
-from runtimeUtil import *
+from runtime.util import *
 
 
 class HibikeSimulator:

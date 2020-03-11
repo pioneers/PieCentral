@@ -12,25 +12,13 @@ import aioprocessing
 import serial
 
 from spawn_virtual_devices import spawn_device, get_virtual_ports
-from hibike_process import hotplug_async
+from runtime.hibike_process import hotplug_async
 from hibike_tests.utils import AsyncTestCase
-import hibike_message as hm
+from runtime import hibike_message as hm
 from hibike_tester import Hibike
 
-def add_runtime_to_path():
-    """
-    Enable import of runtime modules.
-    """
-    path = os.path.dirname(os.path.abspath(__file__))
-    parent_path = path.rstrip("hibike_tests").rstrip("hibike/")
-    runtime = os.path.join(parent_path, "runtime")
-    sys.path.insert(1, runtime)
-
-
-add_runtime_to_path()
-# We must import runtimeUtil to deserialize error messages
 # pylint: disable=import-error, wrong-import-position, unused-import
-import runtimeUtil
+from runtime import util as runtimeUtil
 
 
 

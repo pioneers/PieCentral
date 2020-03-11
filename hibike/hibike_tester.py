@@ -6,8 +6,8 @@ import time
 import queue
 from multiprocessing import Process, Pipe, Queue
 
-import hibike_process
-import hibike_message
+from runtime import hibike_process
+from runtime import hibike_message
 
 class Hibike:
     """

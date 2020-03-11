@@ -13,7 +13,7 @@ import aioprocessing
 import aiofiles
 
 
-import hibike_message as hm
+from . import hibike_message as hm
 try:
     import hibike_packet
     USING_PACKET_EXTENSION = True
@@ -365,7 +365,7 @@ async def dispatch_instructions(devices, bad_things_queue, state_queue,
     sys.path.insert(1, runtime)
     # Pylint doesn't understand our import shenanigans
     # pylint: disable=import-error
-    import runtimeUtil
+    from . import util as runtimeUtil
 
     while True:
         instruction, args = await pipe_from_child.coro_recv(loop=event_loop)

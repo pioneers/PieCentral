@@ -2,9 +2,8 @@ import sys
 import time
 import traceback
 
-import runtime_pb2
-
-from runtimeUtil import *
+from . import runtime_pb2
+from .util import *
 
 
 class StateManager: # pylint: disable=too-many-public-methods

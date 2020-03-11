@@ -2,9 +2,7 @@
 Unit tests for functions in hibike_process.
 """
 import asyncio
-import os
 import random
-import sys
 import time
 import unittest
 
@@ -14,13 +12,10 @@ import serial
 from spawn_virtual_devices import spawn_device, get_virtual_ports
 from runtime.hibike_process import hotplug_async
 from hibike_tests.utils import AsyncTestCase
-from runtime import hibike_message as hm
 from hibike_tester import Hibike
-
-# pylint: disable=import-error, wrong-import-position, unused-import
+from runtime import hibike_message as hm
+# pylint: disable=import-error
 from runtime import util as runtimeUtil
-
-
 
 
 VIRTUAL_DEVICE_STARTUP_TIME = 2

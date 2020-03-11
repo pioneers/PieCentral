@@ -1,19 +1,13 @@
-# update.service
-
 [Unit]
-Description=Robot software updater
-After=sysinit.target
-AssertPathExists=/home/pi/bin/update.sh
+Description=software updater
+After=multi-user.target
+AssertPathExists=/home/pi/updates
 
 [Service]
-Type=simple
-ExecStart=-/home/pi/bin/update.sh
-RemainAfterExit=yes
-
-[Path]
-PathChanged=/home/pi/updates
-ExecStart=/home/pi/bin/update.sh
+Type=oneshot
+User=pi
+ExecStart=/bin/bash /home/pi/.local/bin/run-update
 
 [Install]
-WantedBy=sysinit.target
+WantedBy=multi-user.target
 WantedBy=runtime.service

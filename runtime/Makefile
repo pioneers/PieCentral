@@ -18,4 +18,4 @@ test:
 	python3 -m runtime --test optionalTestsWork
 
 artifacts:
-	python3 setup.py sdist bdist_wheel && cp dist/*.whl ../artifacts
+	./package.sh && mv *.zip ../artifacts

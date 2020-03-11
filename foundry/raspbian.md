@@ -77,7 +77,10 @@ $ ssh pi@192.168.0.2
 ### Running the Playbook
 
 ```sh
-$ ansible-playbook provisioning/raspbian.yaml \
+$ ansible-playbook provisioning/raspbian.yml \
   --inventory=192.168.0.2, \
-  --extra-vars "team_number=** team_psk=******** datetime='$(date)'"
+  --extra-vars="datetime='$(date)'"
+$ ansible-playbook provisioning/raspbian.yml \
+  --inventory=192.168.0.2, \
+  --extra-vars "team_number=** team_psk=********"
 ```

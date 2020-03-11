@@ -25,6 +25,7 @@
           - less
           - fortune
           - build-essential
+          - xz-utils
     # The desktop is quite heavyweight, and there are issues with the screen
     # not refreshing, so this is not installed by default.
     - name: install desktop
@@ -73,15 +74,36 @@
           - docker
   tags:
     - docker
-- block:
-    - name: install python
-      apt:
-        name:
-          - python3
-          - python3-pip
-          - python3-dev
-    - name: install pipenv
-      command: pip3 install pipenv
+- name: install python (latest)
+  become: yes
+  block:
+    - name: download source
+      unarchive:
+        src: https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tar.xz
+        dest: /tmp
+        remote_src: yes
+    - name: build from source
+      shell: |
+        cd /tmp/Python-3.8.2
+        ./configure --enable-optimizations
+        make
+        make test
+        make install
+  tags:
+    - never
+    - python-latest
+- name: install python
+  apt:
+    name:
+      - python3
+      - python3-pip
+      - python3-dev
+  tags:
+    - python
+- name: install pipenv
+  pip:
+    name: pipenv
+    extra_args: --user --trusted-host pypi.org --trusted-host files.pythonhosted.org
   tags:
     - python
 - block:

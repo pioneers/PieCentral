@@ -1,9 +1,5 @@
 ---
 - block:
-    - name: uninstall aufs-dkms
-      apt:
-        name: aufs-dkms
-        state: absent
     - name: upgrade existing packages
       apt:
         upgrade: 'yes'
@@ -26,6 +22,14 @@
           - fortune
           - build-essential
           - xz-utils
+    # FIXME: For some reason, this is not uninstalled even though the package
+    #        is clearly listed in `apt list`, which causes failures when
+    #        installing `docker` and `python`.
+    - name: uninstall aufs-dkms
+      apt:
+        name: aufs-dkms
+        state: absent
+      ignore_errors: yes
     # The desktop is quite heavyweight, and there are issues with the screen
     # not refreshing, so this is not installed by default.
     - name: install desktop
@@ -98,11 +102,13 @@
         ./configure --enable-optimizations
         make -j 4
         make test
-        make install
-  tags:
-    - never
-    - python-latest
+        make altinstall
+  # FIXME: Make python installable without latest build.
+  # tags:
+  #   - never
+  #   - python-latest
 - name: install python
+  ignore_errors: yes
   apt:
     name:
       - python3

@@ -1,11 +1,17 @@
 ---
+- name: set hostname (loopback)
+  become: yes
+  replace:
+    path: /etc/hosts
+    regexp: raspberrypi
+    replace: "team{{ '%02d' | format(team_number|int) }}"
 - name: set hostname
   become: yes
   hostname:
     name: "team{{ '%02d' | format(team_number|int) }}"
 - name: save team number
   copy:
-    content: "{{ team_number }}"
+    content: "{{ team_number }}\n"
     dest: "{{ ansible_env.HOME }}/team-number.txt"
 - become: yes
   block:
@@ -27,3 +33,6 @@
       dest: /etc/dhcpcd.conf
       mode: '0664'
       backup: yes
+    tags:
+      - never
+      - dhcpcd

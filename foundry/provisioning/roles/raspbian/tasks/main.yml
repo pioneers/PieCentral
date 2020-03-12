@@ -34,6 +34,17 @@
   copy:
     src: systemd/
     dest: /etc/systemd/system
+  # TODO: remove
+  tags:
+    - team
+- name: copy jouranl configuration
+  become: yes
+  copy:
+    src: 00-journal.conf
+    dest: /etc/systemd/journald.conf
+  # TODO: remove
+  tags:
+    - team
 - name: "enable {{ item }}"
   become: yes
   systemd:
@@ -45,14 +56,24 @@
     - update.path
     - upload.path
     - runtime.service
-- name: disable docker.service
+  # TODO: remove
+  tags:
+    - team
+- name: "disable {{ item }}"
   become: yes
   systemd:
     daemon_reload: yes
     enabled: no
-    name: docker
+    name: "{{ item }}"
     scope: system
     state: stopped
+  loop:
+    - docker.service
+    - containerd.service
+    - dhcpcd.service
+  # TODO: remove
+  tags:
+    - team
 - name: add user to dialout
   become: yes
   user:
@@ -82,3 +103,5 @@
   become: yes
   reboot:
     reboot_timeout: 300
+  tags:
+    - always

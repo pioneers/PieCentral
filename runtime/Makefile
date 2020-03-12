@@ -21,3 +21,6 @@ test:
 
 artifacts:
 	./package.sh && mv *.tar.gz ../artifacts
+
+clean:
+	rm -rf build dist runtime.egg-info

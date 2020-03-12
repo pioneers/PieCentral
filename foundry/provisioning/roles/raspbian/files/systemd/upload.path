@@ -1,5 +1,4 @@
 [Unit]
-Desciption=student code upload monitor
 After=multi-user.target
 AssertPathExists=/home/pi/storage
 Wants=update.service

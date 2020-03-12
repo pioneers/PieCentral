@@ -374,6 +374,12 @@ def log(Exception):
 # Game Specific Methods
 ###########################################
 def check_recipe_completion(args):
+    '''
+    Ends game if no recipe has been completed
+    '''
+    if (RECIPE_MANAGER.completed)
+def next_recipe(args):
+
 
 
 def disable_robot(args):
@@ -474,7 +480,7 @@ TELEOP_FUNCTIONS = {
     SHEPHERD_HEADER.RESET_MATCH : reset,
     SHEPHERD_HEADER.STAGE_TIMER_END : to_limbo,
     SHEPHERD_HEADER.CHECK_RECIPE_COMPLETION: check_recipe_completion,
-    SHEPHERD_HEADER.
+    SHEPHERD_HEADER.NEXT_RECIPE: next_recipe,
     #SHEPHERD_HEADER.CODE_APPLICATION : apply_code,
     SHEPHERD_HEADER.ROBOT_OFF : disable_robot,
     #SHEPHERD_HEADER.CODE_RETRIEVAL : bounce_code,
@@ -526,6 +532,8 @@ RECIPE_TIMER = Timer(TIMER_TYPES.RECIPE)
 RECIPE_LOSE_TIMER = Timer(TIMER_TYPES.RECIPE_LOSE)
 
 STUDENT_DECODE_TIMER = Timer(TIMER_TYPES.STUDENT_DECODE)
+
+RECIPE_MANAGER = RecipeManager()
 
 CODES_USED = []
 

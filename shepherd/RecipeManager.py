@@ -93,18 +93,18 @@ def distribute_recipe():
     master_recipes.pop(0)
     master_recipes_names.pop(0)
 
-def get_recipe(team):
+def get_recipe(team, recipeNum=0):
     '''
     return first element of recipes
     '''
     if team == ALLIANCE_COLOR.BLUE:
         if not blue_recipes:
             return None
-        return blue_recipes[0]
+        return blue_recipes[recipeNum]
     else:
         if not gold_recipes:
             return None
-        return gold_recipes[0]
+        return gold_recipes[recipeNum]
 
 def check_recipe(team, ingredients, num_cooked=0):
     '''

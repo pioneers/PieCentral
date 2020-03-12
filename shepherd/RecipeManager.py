@@ -95,7 +95,7 @@ def distribute_recipe():
 
 def get_recipe(team, recipeNum=0):
     '''
-    return first element of recipes
+    return first (or recipeNum) element of recipes
     '''
     if team == ALLIANCE_COLOR.BLUE:
         if not blue_recipes:

@@ -1,0 +1,99 @@
+#!/bin/bash
+
+# create_update -- Package a PiE robot software update as a GZIPed tarball.
+#
+# Includes `hibike`, `runtime`, compiled protobufs, offline runtime
+# documentation Dawn displays to students, and system resources (e.g.
+# configuration files). An `install_update` script included in the tarball
+# knows how to install these files.
+
+source "$(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env"
+
+usage="Package a PiE robot software update as a GZIPped tarball.\n"
+usage=$usage"Usage: $(basename $0) [-hp]\n\n"
+usage=$usage"Options:\n"
+usage=$usage$indent"-h  Show this help message.\n"
+usage=$usage$indent"-p  Compile protobufs (default: not compiled).\n"
+usage=$usage$indent"-P  Download and include Python packages."
+
+compile_protos=''
+while getopts ":hp" opt; do
+  case $opt in
+    h)
+      echo -e "$usage" >&2
+      exit
+      ;;
+    p) compile_protos=true;;
+    \?)
+      echo -e $error"Invalid option: '-$OPTARG'"$clear >&2
+      echo -e "Use '-h' to see usage." >&2
+      exit 1
+      ;;
+  esac
+done
+
+function verify_protoc {
+  if ! type "protoc" > /dev/null 2> /dev/null; then
+    echo -e $error"Protobuf compiler is not available."$clear
+    echo "See 'https://github.com/google/protobuf/#protocol-compiler-installation' for installation instructions."
+    exit 1
+  elif [ ! $(protoc --version | grep -E '\s3\.(2|3)\.[0-9]+$') ]; then
+    echo -e $error"You must use protoc with version 3.2.x or 3.3.x!"$clear
+    exit 1
+  fi
+}
+
+if [ $compile_protos ]; then
+  verify_protoc
+fi
+
+echo "Don't forget to pull the latest code before running this script!"
+echo "Current commit is: $(git rev-parse --short HEAD)"
+echo
+
+current_time="$(date +%s%N)"
+update_basename="frankfurter-update-$current_time"
+build_dir="$tmp_dir/$update_basename"
+
+mkdir -p "$build_dir"
+echo "Build directory: $build_dir"
+
+# Copy packages that do not require modifications
+packages=("$hibike" "$runtime" "$frank_resources" "$frankfurter/scripts/update/install_update")
+for package in ${packages[@]}; do
+  echo -e "$indent""Copied $package"
+  cp -R "$package" "$build_dir"
+done
+
+if [ $compile_protos ]; then
+  protoc -I="$protos" --python_out="$build_dir/$(basename $runtime)" "$protos/"*".proto"
+  echo -e "$indent""Compiled and copied protobufs in $protos"
+fi
+
+# Copy and rename offline API documentation
+cp -R "$api_docs" "$build_dir/docs"
+echo -e "$indent""Copied $api_docs"
+
+# Download Python packages from pip
+# requirements="$tmp_dir/requirements.txt"
+# make_requirements > "$requirements"
+# mkdir "$build_dir/python"
+# deps_without_hashes=$(cat "$requirements" | xargs -n 1 | grep --invert-match '^\-\-hash')
+# NOTE: will download for 'manylinux' platform, but may fail with some packages.
+# echo $deps_without_hashes | xargs -n 1 pip3 download -d "$build_dir/python" > /dev/null
+# rm "$requirements"
+# echo -e "$indent""Downloaded Python packages into $build_dir/python"
+
+# GZIP tarball
+rm -f "$frankfurter/build/"*
+echo
+echo "Removed old tarballs."
+mkdir -p "$frankfurter/build"
+tarball="$frankfurter/build/$update_basename.tar.gz"
+cd "$tmp_dir"
+tar -pzcf "$tarball" "$update_basename"
+echo "Tarball available at: "
+echo -e "$success$indent$tarball$clear"
+
+rm -rf "$tmp_dir/frankfurter-update-"*
+echo "Cleaned builds."

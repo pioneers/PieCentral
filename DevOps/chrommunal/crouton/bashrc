@@ -1,0 +1,16 @@
+if [[ $- != *i* ]] ; then
+  # Shell is non-interactive, so no need to do anything
+  return
+fi
+
+alias dawn='sudo startxiwi -n trusty /opt/dawn/dawn'
+alias term='sudo enter-chroot'
+alias ubuntu='sudo startunity -X xorg'
+alias screenfetch='/./usr/local/bin/screenfetch-dev -E'
+alias help="echo 'dawn - Launch GUI'; echo 'term - Start Terminal'; echo 'ubuntu - Start Ubuntu'; echo 'help - Display this menu'"
+
+clear
+screenfetch
+echo 'Welcome to Pioneers in Engineering Student Chromebook!'
+echo "Type 'help' for a list of useful commands"
+cd ~

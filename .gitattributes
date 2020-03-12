@@ -1,0 +1,12 @@
+ansible-protos/* linguist-detectable=true
+dawn/static/website-robot-api-master/assets/main.css linguist-vendored
+dawn/static/website-robot-api-master/assets/css/* linguist-vendored
+dawn/static/website-robot-api-master/assets/fonts/* linguist-vendored
+hibike/Arduino-Makefile/* linguist-vendored
+hibike/lib/* linguist-vendored
+hibike/lib/hibike/* linguist-vendored=false
+shepherd/static/Spoiled_Candies.xcf filter=lfs diff=lfs merge=lfs -text
+shepherd/static/Twisted.xcf filter=lfs diff=lfs merge=lfs -text
+shepherd/static/BlueTwisted.xcf filter=lfs diff=lfs merge=lfs -text
+shepherd/static/GoldTwisted.xcf filter=lfs diff=lfs merge=lfs -text
+shepherd/static/icons[[:space:]]copy.ai filter=lfs diff=lfs merge=lfs -text

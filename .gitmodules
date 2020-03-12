@@ -1,0 +1,3 @@
+[submodule "hibike/hibike_packet"]
+	path = hibike/hibike_packet_extension
+	url = https://github.com/pioneers/hibike_packet.git

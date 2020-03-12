@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# frank-docker -- Run Frankfurter as a docker image
+
+source $(git rev-parse --show-toplevel)/DevOps/frankfurter/scripts/tools/env
+set -e
+
+docker build -t frankfurter "$piecentral"
+docker run -d --memory="512m" -p 1234:1234 -p 1235:1235 -p 1236:1236 frankfurter

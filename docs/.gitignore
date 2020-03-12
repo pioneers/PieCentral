@@ -1,0 +1,10 @@
+# Ignore intermediate products of compilation
+*.log
+*.out
+*.toc
+*.aux
+*.fls
+*.fdb_latexmk
+*.gz
+# Ignore final product
+*.pdf

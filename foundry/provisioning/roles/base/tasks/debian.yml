@@ -1,0 +1,120 @@
+---
+- block:
+    - name: upgrade existing packages
+      apt:
+        upgrade: 'yes'
+        update_cache: yes
+    - name: set kernel release
+      command: uname -r
+      register: kernel_release
+      changed_when: no
+    - name: install development packages
+      apt:
+        name:
+          - vim
+          - zsh
+          - git
+          - gcc
+          - make
+          - wget
+          - htop
+          - curl
+          - zip
+          - unzip
+          - hub
+          - less
+          - fortune
+          - build-essential
+          - "linux-headers-{{ kernel_release.stdout }}"
+    # The desktop is quite heavyweight, and there are issues with the screen
+    # not refreshing, so this is not installed by default.
+    - name: install desktop
+      apt:
+        name:
+          - xorg
+          - gdm3  # Might not need this
+          - budgie-desktop
+          - budgie-indicator-applet
+      tags:
+        - never
+        - desktop
+    - name: clean packages
+      apt:
+        autoclean: yes
+        autoremove: yes
+- block:
+    - name: install docker dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - gnupg2
+          - software-properties-common
+    - name: add docker gpg key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+    - name: add docker repo
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+    - name: install docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+    - name: add user to docker group
+      user:
+        name: "{{ ansible_env.USER }}"
+        groups:
+          - docker
+  tags:
+    - docker
+- block:
+    - name: install python
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - python3-dev
+    - name: install pipenv
+      command: pip3 install pipenv
+  tags:
+    - python
+- block:
+    - name: install node
+      apt:
+        name:
+          - nodejs
+          - npm
+    - name: download nvm install script
+      get_url:
+        url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh
+        dest: "{{ install_script_path }}"
+    - name: install nvm
+      command: "bash {{ install_script_path }}"
+      args:
+        creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+    - name: delete nvm install script
+      file:
+        state: absent
+        path: "{{ install_script_path }}"
+  vars:
+    install_script_path: /tmp/nvm-install.sh
+  tags:
+    - node
+- name: install ruby
+  apt:
+    name:
+      - ruby
+      - ruby-dev
+  tags:
+    - ruby
+- block:
+    - name: copy quotes file
+      copy:
+        src: pie-fortunes
+        dest: "{{ fortune_path }}/pie-fortunes"
+    - name: compile quotes file
+      command: strfile -c % "{{ fortune_path }}/pie-fortunes" "{{ fortune_path }}/pie-fortunes.dat"
+  vars:
+    fortune_path: /usr/share/games/fortunes

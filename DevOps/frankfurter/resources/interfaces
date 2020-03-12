@@ -1,0 +1,38 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.6.2
+    netmask 255.255.255.0
+    network 192.168.0.0
+    gateway 192.168.0.1
+
+auto ra0
+iface ra0 inet manual
+wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
+
+# From the networking spec
+iface field inet static
+    address 192.168.128.200
+    netmask 255.255.255.0
+    network 192.168.128.0
+    gateway 192.168.128.1
+
+iface team inet static
+    address 192.168.0.200
+    netmask 255.255.255.0
+    network 192.168.0.0
+    gateway 192.168.0.1
+
+# Ethernet/RNDIS gadget (g_ether)
+# Used by: /opt/scripts/boot/autoconfigure_usb0.sh
+iface usb0 inet static
+    address 192.168.7.2
+    netmask 255.255.255.252
+    network 192.168.7.0
+    gateway 192.168.7.1

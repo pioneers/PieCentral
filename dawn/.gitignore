@@ -1,0 +1,16 @@
+**/.DS_Store
+nbproject
+manifest.mf
+build.xml
+*.swp
+
+node_modules
+
+.project
+.settings
+.idea/*
+
+build
+
+*.log
+*~

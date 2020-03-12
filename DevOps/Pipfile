@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+
+[requires]
+python_version = "3.7"
+
+[packages]
+selenium = "~=3.14"
+pyjwt = "~=1.6"
+cryptography = "~=2.3"
+click = "~=7.0"
+pytest = "~=3.8"
+PyGithub = "~=1.43"
+slackclient = "~=1.3"

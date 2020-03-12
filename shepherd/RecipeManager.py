@@ -40,7 +40,8 @@ def generate_recipes():
         for idx in range(len(bounds) - 1):
             curr_i = len(bounds) - 1 - idx
             if bounds[curr_i - 1] != bounds[curr_i] \
-                and bounds[curr_i - 1] < randomSpoken and randomSpoken <= bounds[curr_i]:
+                and bounds[curr_i - 1] < randomSpoken \
+                    and randomSpoken <= bounds[curr_i]:
                 recipe_name, recipe_ingred = getRandomRecipes(MASTER_RECIPES[curr_i - 1])
                 master_recipes_names.append(recipe_name)
                 master_recipes.append(recipe_ingred)
@@ -101,10 +102,12 @@ def get_recipe(team, recipeNum=0):
         if not blue_recipes:
             return None
         return blue_recipes[recipeNum]
-    else:
+    elif team == ALLIANCE_COLOR.GOLD:
         if not gold_recipes:
             return None
         return gold_recipes[recipeNum]
+    else:
+        assert False, "Invalid Team Name"
 
 def check_recipe(team, ingredients, num_cooked=0):
     '''
@@ -117,10 +120,9 @@ def check_recipe(team, ingredients, num_cooked=0):
         recipes = gold_recipes
     if len(recipes) != len(ingredients):
         return False
-    else:
-        for item in ingredients:
-            if item not in recipes:
-                return False
+    for item in ingredients:
+        if item not in recipes:
+            return False
     return True
 
 def set_recipes(gold_recipes_in, blue_recipes_in):

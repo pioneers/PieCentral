@@ -101,7 +101,7 @@ void Device::loop ()
 	}
 
 	//if it's time to send logs
-	if ((this->logging_delay > 0) && (this->curr_time - this->prev_log_time >= this->logging_delay)) {
+	if ((this->logging_delay > 0) && (this->curr_time - this->prev_log_time >= this->logging_delay) && this->logs.len() > 0) {
 		this->prev_log_time = this->curr_time;
 		this->send_logs();
 	}

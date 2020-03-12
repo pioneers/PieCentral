@@ -55,6 +55,7 @@ enum class MessageID : uint8_t {
 	DEVICE_DISABLE			= 0x16,
 	HEARTBEAT_REQUEST		= 0x17,
 	HEARTBEAT_RESPONSE		= 0x18,
+	LOGGING					= 0x19,
 	ERROR					= 0xFF
 };
 

@@ -6,19 +6,20 @@ const float Device::ALPHA = 0.25;		//tuning parameter for how the interpolation 
 
 //Device constructor
 //initializer list at end of this line initializes the this->msngr and this->led variables properly
-Device::Device (DeviceID dev_id, uint8_t dev_year, uint32_t disable_time, uint32_t heartbeat_delay) : msngr(), led()
+Device::Device (DeviceID dev_id, uint8_t dev_year, uint32_t disable_time, uint32_t heartbeat_delay, uint32_t logging_delay) : msngr(), led()
 {
 	//initialize primitive variables
 	this->sub_delay = 0; //default 0 to signal not subscribed
 	this->params = 0; //nothing subscribed to right now
 	this->disable_time = disable_time;
 	this->heartbeat_delay = heartbeat_delay;
-	this->prev_sub_time = this->prev_hb_time = this->prev_hbresp_time = this->curr_time = millis(); //init all these times
+	this->logging_delay = logging_delay;
+	this->prev_sub_time = this->prev_hb_time = this->prev_hbresp_time = this->prev_log_time = this->curr_time = millis(); //init all these times
 	
 	this->UID.device_type = dev_id;
 	this->UID.year = dev_year;
 	this->UID.id = UID_RANDOM; //this is defined at compile time by the flash script
-	
+
 	device_enable(); //call device's enable function
 }
 
@@ -98,6 +99,12 @@ void Device::loop ()
 	if ((this->disable_time > 0)  && (this->curr_time - this->prev_hbresp_time >= this->disable_time)) {
 		device_disable();
 	}
+
+	//if it's time to send logs
+	if ((this->logging_delay > 0) && (this->curr_time - this->prev_log_time >= this->logging_delay)) {
+		this->prev_log_time = this->curr_time;
+		this->send_logs();
+	}
 	
 	device_actions(); //do device-specific actions
 }
@@ -174,4 +181,9 @@ void Device::update_sub_delay (uint8_t payload_val)
 	payload_val = min(payload_val, 100); //don't want the value to be > 100
 	float holding = max(Device::MAX_SUB_DELAY_MS * (float) payload_val / 100.0, Device::MIN_SUB_DELAY_MS); //interpolate between min delay and max delay
 	this->sub_delay = (uint16_t)(Device::ALPHA * this->sub_delay + (1.0 - Device::ALPHA) * holding); //set the new sub_delay
+}
+
+void Device::send_logs ()
+{
+	// todo
 }

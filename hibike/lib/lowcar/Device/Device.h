@@ -4,6 +4,7 @@
 #include "defs.h"
 #include "Messenger.h"
 #include "StatusLED.h"
+#include "StringBuilder.h"
 
 class Device
 {	
@@ -15,7 +16,7 @@ public:
 	 * calls device_enable to enable the device
 	 * dev_id and dev_year are the device type and device year of the device
 	 */
-	Device (DeviceID dev_id, uint8_t dev_year, uint32_t disable_time = 1000, uint32_t heartbeat_delay = 200);
+	Device (DeviceID dev_id, uint8_t dev_year, uint32_t disable_time = 1000, uint32_t heartbeat_delay = 200, uint32_t logging_delay = 1000);
 	
 	/* Generic device loop function that wraps all device actions
 	 * asks Messenger to read a new packet, if any, and responds appropriately
@@ -68,6 +69,9 @@ public:
 	 */
 	virtual void device_actions ();
 
+protected:
+	StringBuilder logs;
+
 private:
 	//******************************* PRIVATE VARIABLES AND HELPER METHOD ************************************** //
 	const static float MAX_SUB_DELAY_MS;	//maximum tolerable subscription delay, in ms
@@ -80,13 +84,16 @@ private:
 	uint16_t params; //bitmap for which parameters are subscribed to on this device
 	uint16_t sub_delay; //time between successive subscription responses (ms)
 	uint32_t disable_time, heartbeat_delay; //time betweeen heartbeat requests (ms)
-	uint64_t prev_sub_time, prev_hb_time, prev_hbresp_time, curr_time; //variables to hold times (ms)
+	uint32_t logging_delay; //time between sending logs (ms)
+	uint64_t prev_sub_time, prev_hb_time, prev_hbresp_time, prev_log_time, curr_time; //variables to hold times (ms)
 	message_t curr_msg; //current message being processed
 	
 	//read or write data to device (more detail in source file)
 	uint16_t device_rw_all (message_t *msg, uint16_t params, RWMode mode);
 	//update subscription delays on heartbeat response packets
 	void update_sub_delay (uint8_t payload_val);
+	//sends the logs every logging_delay ms
+	void send_logs ();
 };
 
 #endif

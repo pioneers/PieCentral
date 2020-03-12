@@ -185,5 +185,21 @@ void Device::update_sub_delay (uint8_t payload_val)
 
 void Device::send_logs ()
 {
-	// todo
+	message_t msg;
+	int log_len = this->logs.len();
+	int log_str = this->logs.str();
+	for (int start = 0; start < log_len; start += MAX_PAYLOAD_SIZE)
+	{
+		msg.payload_length = MAX_PAYLOAD_SIZE;
+		if (start + msg.payload_length > log_len)
+		{
+			msg.payload_length = log_len - start;
+		}
+		for (int i = 0; i < msg.payload_length; i++)
+		{
+			msg.payload[i] = log_str[start + i];
+		}
+		this->msngr->send_message(MessageID::LOGGING, &msg);
+	}
+	this->logs.clear();
 }

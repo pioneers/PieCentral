@@ -52,14 +52,15 @@ class UpdateBox extends React.Component {
               if (err2) {
                 this.props.onAlertAdd(
                   'Robot Connectivity Error',
-                  `Dawn was unable to upload the update to the robot
-                  Please check your robot connectivity.`,
+                  `Dawn was unable to upload the update to the robot.
+                  Please check your connectivity, or try restarting the robot.`,
                 );
                 logging.log(err2);
               } else {
                 this.props.onAlertAdd(
                   'Robot Update Initiated',
-                  'Update is installing. Please leave your robot on for the next two minutes.',
+                  `Update is installing and Runtime will restart soon.
+                  Please leave your robot on for the next two minutes.`,
                 );
               }
             },

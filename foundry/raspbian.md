@@ -112,9 +112,9 @@ For example:
 >>> int(ceil(512*(7129087+1)/(32*1024*1024)))  # bs=32M
 ```
 
-### Configuration
-1. Flash card with base image.
-1. Power the Pi, connect Ethernet (`192.168.1.2`), and record the MAC address in the log.
+### Recommended Deployment Procedure
+1. Flash a microSD card with the base image.
+1. Power the Pi, connect Ethernet (`192.168.1.2`), and record the Pi's `wlan0` MAC address in a deployment log (Google spreadsheet).
 1. Power the router, adding the router password to the log, changing the SSID, and adding the ARP reservation.
 1. Run the team configuration playbook.
 1. Check whether Dawn is connected.

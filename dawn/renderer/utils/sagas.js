@@ -371,7 +371,7 @@ function* downloadStudentCode() {
   } catch (fileErr) {
     fs.mkdirSync(path);
   }
-  if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
+  if (stateSlice.runtimeStatus) {
     logging.log(`Downloading to ${path}`);
     const errors = yield call(() => new Promise((resolve) => {
       conn.on('error', (err) => {
@@ -458,7 +458,7 @@ function* uploadStudentCode() {
     ipAddress: state.info.ipAddress,
     filepath: state.editor.filepath,
   }));
-  if (stateSlice.runtimeStatus && stateSlice.ipAddress !== defaults.IPADDRESS) {
+  if (stateSlice.runtimeStatus) {
     logging.log(`Uploading ${stateSlice.filepath}`);
     const errors = yield call(() => new Promise((resolve) => {
       conn.on('error', (err) => {

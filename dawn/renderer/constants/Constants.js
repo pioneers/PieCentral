@@ -20,6 +20,7 @@ export const PeripheralTypes = keyMirror({
   GameValues: null,
   master: null,
   PolarBear: null,
+  KoalaBear: null,
 });
 
 export const ActionTypes = keyMirror({

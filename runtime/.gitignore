@@ -1,1 +1,4 @@
 *.pyc
+
+# For built updates
+*.tar.gz

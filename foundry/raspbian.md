@@ -1,10 +1,19 @@
 # Raspbian Provisioning
 
-## Building the Fabric Base Image
+The robot is controlled by a [Raspberry Pi](https://www.raspberrypi.org/), a single-board computer (SBC) running a variant of Debian Linux called Raspbian.
+PiE builds a customized operating system off of Raspbian to support our robotics competition.
+In particular,
+1. The Pi must start Runtime on boot.
+1. The Pi must be able to update itself (typically the Runtime source and system configuration files).
+1. The Pi must accept student code.
 
-Before you begin, you should be aware that building the base image need only be done once every season.
+## Writing the Base Image
+
+Before you begin, you should be aware that building the base image only needs to be done once every season.
 During deployment, a single base image is cloned across multiple microSD cards.
-This procedure exists only for the sake of reproducibility.
+Afterwards, team-specific configuration (*i.e.*, router pairing) and integration testing is performed for each Pi individually.
+
+The procedure for generating the base image exists for the sake of reproducibility.
 
 Download the [latest Raspbian Lite image](https://downloads.raspberrypi.org/raspbian_lite_latest).
 At the time of this writing, this image was:
@@ -14,15 +23,15 @@ Kernel version: 4.19
 SHA-256: 12ae6e17bf95b6ba83beca61e7394e7411b45eba7e6a520f434b0748ea7370e8
 ```
 
-Using a app like [Etcher](https://www.balena.io/etcher/), burn this image to a microSD card.
+Using a app like [Etcher](https://www.balena.io/etcher/), flash this image to a microSD card.
 This will create two partitions named `boot` and `rootfs`.
-Alternatively, use the `dd` utility like so (check the intended `of` with `lsblk`):
+Alternatively, use the `dd` utility like so (check the intended output `of` with `lsblk`):
 ```bash
 $ dd status=progress if=2020-02-13-raspbian-buster-lite.img of=/dev/mmcblk0 bs=32M conv=fsync
 ```
 Writing to storage probably requires `sudo`.
 
-### Basic Configuration
+## Basic Configuration
 
 Insert the flashed card into a Raspberry Pi, attach a keyboard and monitor to the Pi, then power the Pi with a 5V 2A micro-USB power supply.
 You should see the Pi boot.
@@ -42,9 +51,9 @@ Interfacing Options > [everything else] > No
 Advanced Options > Expand Filesystem
 ```
 
-Finish, then reboot.
+Select `Finish` from the main menu, then reboot.
 
-### Setting Up Networking
+## Bootstrap Installation
 
 Connect your laptop to the Pi over Ethernet (you may need a Ethernet-to-USB adapter).
 On the Pi, log in again as `pi` and `raspberry`.
@@ -53,7 +62,7 @@ Run `ip a` to confirm the `eth0` network interface is available, then assign the
 pi@raspberrypi:~ $ sudo ip a add 192.168.1.2/24 dev eth0
 ```
 
-On your laptop, assign the Ethernet interface the gateway IP address (in the example above, `192.168.1.1`) similarly:
+On your laptop, assign the Ethernet interface an IP address (such as `192.168.1.1`) similarly:
 ```sh
 $ sudo ip a add 192.168.1.1/24 dev eth0
 ```
@@ -80,12 +89,24 @@ $ ansible-playbook provisioning/raspbian.yml \
 
 The `--check` and `--list-tasks` flags are helpful for performing a dry-run.
 `--start-at-task="<task>"` can be used for redriving failed tasks.
-Issue an update to the base image:
 
+You can use a disk editor like GParted to shrink the size of the base card's partition down to a more reasonable size for cloning (about 3GB instead of the entire size of the card).
+Then, use `raspi-config` during the team configuration stage to re-expand the cloned card.
+
+To read the card image (probably requires `sudo` as well):
 ```sh
-$ scp ../runtime/runtime-*.tar.gz pi@192.168.1.2:~/updates
+$ dd status=progress if=/dev/mmcblk0 of=$(date +%Y-%m-%d)-foundry-raspbian.img bs=32M count=<count>
+```
+To determine how many blocks of size `bs` to ready, run `fdisk -l` to find the end of the last partition, add one, multiply by the sector size (typically 512 bytes) to get the size of the segment to clone in bytes, divide by your chosen block size, then round up.
+For example:
+```python
+>>> from math import ceil
+>>> int(ceil(512*(7129087+1)/(32*1024*1024)))  # bs=32M
 ```
 
+## Router Pairing
+
+Connect to the Pi over SSH, as before.
 To extend the base image for a particular team, run:
 
 ```sh
@@ -95,40 +116,37 @@ $ ansible-playbook provisioning/raspbian.yml \
   --extra-vars "team_number=** team_psk=********"
 ```
 
-You can use a disk editor like GParted to shrink the size of the base card's partition down to a more reasonable size for cloning (~3 GiB instead of the entire size of the card).
-Then, use `raspi-config` during the team configuration stage to re-expand the cloned card.
-To read the card image (probably requires `sudo` as well):
+## Router Setup
 
-```sh
-$ fdisk -l
-$ dd status=progress if=/dev/mmcblk0 of=$(date +%Y-%m-%d)-foundry-raspbian.img bs=32M count=<count>
-```
+Run `ip a` to determine the MAC address of the Pi's wireless interface `wlan0`, and record this MAC address in a deployment log (*e.g.*, a Google spreadsheet).
+Power the router, add the router password to the log, change the SSID to `Team**`, where `**` stands for the two-digit team number, and add a static ARP reservation mapping the MAC address to `192.168.0.2`.
 
-To compute how many blocks to copy, take the end of the last partition, add one, multiply by the sector size (typically 512 bytes), divide by your chosen block size, then round up.
+## Integration Testing
 
-For example:
-```python
->>> from math import ceil
->>> int(ceil(512*(7129087+1)/(32*1024*1024)))  # bs=32M
-```
-
-### Recommended Deployment Procedure
-1. Flash a microSD card with the base image.
-1. Power the Pi, connect Ethernet (`192.168.1.2`), and record the Pi's `wlan0` MAC address in a deployment log (Google spreadsheet).
-1. Power the router, adding the router password to the log, changing the SSID, and adding the ARP reservation.
-1. Run the team configuration playbook.
-1. Check whether Dawn is connected.
-1. Record team number on both the Pi and the router box with stickers.
-
-Validation playbook (interactive):
-
+From `runtime`, run `./package.sh` to generate the latest build of Runtime.
+Run the interactive validation playbook, connecting to SSH as before:
 ```sh
 $ export RUNTIME_DIR=$(git rev-parse --show-toplevel)/runtime
 $ ansible-playbook validation/raspbian.yml \
   --inventory=192.168.1.2, \
   --extra-vars="{
     'team_number': **,
-    'update': '$(echo $RUNTIME_DIR/runtime-*.tar.gz | head)',
+    'update': '$(echo $RUNTIME_DIR/runtime-*.tar.gz | sort -r | head)',
     'student_code': '$RUNTIME_DIR/studentcode.py'
   }"
 ```
+This playbook checks:
+* Whether `systemd` runs Runtime
+* Whether Runtime can be updated
+* Whether SSH is consistently enabled after multiple reboots
+* Whether student code uploads are committed.
+
+Connecting your laptop to the `Team**` router, check whether Dawn connects to `192.168.0.2`.
+
+Label both the Pi enclosure and router box with a sticker with the team number written on it.
+
+## References
+
+1. [`systemd` manuals](https://www.freedesktop.org/software/systemd/man/)
+1. [`ansible` concepts](https://docs.ansible.com/ansible/latest/user_guide/basic_concepts.html)
+1. [`ansible` modules](https://docs.ansible.com/ansible/latest/modules/modules_by_category.html#modules-by-category)

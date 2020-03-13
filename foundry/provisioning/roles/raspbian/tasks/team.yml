@@ -1,4 +1,5 @@
 ---
+# TODO: expand disk to full capacity
 - name: set hostname (loopback)
   become: yes
   replace:

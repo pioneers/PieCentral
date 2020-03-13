@@ -10,16 +10,14 @@ import aioprocessing
 import serial
 
 from spawn_virtual_devices import spawn_device, get_virtual_ports
-from runtime.hibike_process import hotplug_async
 from hibike_tests.utils import AsyncTestCase
 from hibike_tester import Hibike
 from runtime import hibike_message as hm
-# pylint: disable=import-error
-from runtime import util as runtimeUtil
+from runtime.hibike_process import hotplug_async
 
 
 VIRTUAL_DEVICE_STARTUP_TIME = 2
-VIRTUAL_DEVICE_CONFIG_FILE = "virtual_devices.txt"
+VIRTUAL_DEVICE_CONFIG_FILE = "../runtime/runtime/virtual_devices.txt"
 
 
 def spawn_virtual_devices(device_types):

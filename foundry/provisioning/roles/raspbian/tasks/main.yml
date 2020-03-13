@@ -11,16 +11,12 @@
     path: /etc/pam.d/sshd
     regexp: '^account\s+required\s+pam_nologin.so'
     line: '# account required pam_nologin.so'
-  tags:
-    - repair
 - name: prevent lockout (login)
   become: yes
   lineinfile:
     path: /etc/pam.d/login
     regexp: '^auth\s+requisite\s+pam_nologin.so'
     line: '# auth requisite pam_nologin.so'
-  tags:
-    - repair
 - name: initialize .local
   file:
     path: "{{ ansible_env.HOME }}/.local"
@@ -37,7 +33,7 @@
     state: directory
     mode: '0755'
 - name: initialize persistent storage
-  command: "git init '{{ ansible_env.HOME }}/storage'"
+  command: "git init '{{ ansible_env.HOME }}/storage'"  # noqa 303
   args:
     creates: "{{ ansible_env.HOME }}/storage/.git/HEAD"
 - name: install python packages
@@ -59,17 +55,11 @@
     - { unit: "runtime.service", root: "etc" }
     - { unit: "ssh.service", root: "lib" }
     - { unit: "ssh@.service", root: "lib" }
-  tags:
-    - repair
-    - team
 - name: copy journal configuration
   become: yes
   copy:
     src: journald.conf
     dest: /etc/systemd/journald.conf
-  tags:
-    - repair
-    - team
 - name: "enable {{ item }}"
   become: yes
   systemd:
@@ -83,14 +73,6 @@
     - runtime.service
     - ssh.service
     - ssh.socket
-  tags:
-    - repair
-    - team
-- name: "enable ssh"
-  become: yes
-  sysvinit:
-    name: ssh
-    enabled: yes
 - name: "disable {{ item }}"
   become: yes
   systemd:
@@ -103,9 +85,6 @@
     - docker.service
     - containerd.service
     - dhcpcd.service
-  # TODO: remove
-  tags:
-    - team
 - name: update user
   become: yes
   user:

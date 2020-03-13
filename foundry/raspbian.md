@@ -120,6 +120,15 @@ For example:
 1. Check whether Dawn is connected.
 1. Record team number on both the Pi and the router box with stickers.
 
+Validation playbook (interactive):
+
 ```sh
-$ ansible-playbook validation/raspbian.yml --inventory=192.168.0.2, --extra-vars="team_number=44"
+$ export RUNTIME_DIR=$(git rev-parse --show-toplevel)/runtime
+$ ansible-playbook validation/raspbian.yml \
+  --inventory=192.168.1.2, \
+  --extra-vars="{
+    'team_number': **,
+    'update': '$(echo $RUNTIME_DIR/runtime-*.tar.gz | head)',
+    'student_code': '$RUNTIME_DIR/studentcode.py'
+  }"
 ```

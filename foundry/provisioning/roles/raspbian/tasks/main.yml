@@ -1,9 +1,26 @@
 ---
 - name: team-specific configuration
   import_tasks: team.yml
+  when: "'team_number' in ansible_run_tags"
   tags:
     - never
     - team
+- name: prevent lockout (sshd)
+  become: yes
+  lineinfile:
+    path: /etc/pam.d/sshd
+    regexp: '^account\s+required\s+pam_nologin.so'
+    line: '# account required pam_nologin.so'
+  tags:
+    - repair
+- name: prevent lockout (login)
+  become: yes
+  lineinfile:
+    path: /etc/pam.d/login
+    regexp: '^auth\s+requisite\s+pam_nologin.so'
+    line: '# auth requisite pam_nologin.so'
+  tags:
+    - repair
 - name: initialize .local
   file:
     path: "{{ ansible_env.HOME }}/.local"
@@ -32,18 +49,26 @@
 - name: copy systemd units
   become: yes
   copy:
-    src: systemd/
-    dest: /etc/systemd/system
-  # TODO: remove
+    src: "systemd/{{ item.unit }}"
+    dest: "/{{ item.root }}/systemd/system"
+  loop:
+    - { unit: "update.path", root: "etc" }
+    - { unit: "upload.path", root: "etc" }
+    - { unit: "update.service", root: "etc" }
+    - { unit: "upload.service", root: "etc" }
+    - { unit: "runtime.service", root: "etc" }
+    - { unit: "ssh.service", root: "lib" }
+    - { unit: "ssh@.service", root: "lib" }
   tags:
+    - repair
     - team
-- name: copy jouranl configuration
+- name: copy journal configuration
   become: yes
   copy:
-    src: 00-journal.conf
+    src: journald.conf
     dest: /etc/systemd/journald.conf
-  # TODO: remove
   tags:
+    - repair
     - team
 - name: "enable {{ item }}"
   become: yes
@@ -56,9 +81,16 @@
     - update.path
     - upload.path
     - runtime.service
-  # TODO: remove
+    - ssh.service
+    - ssh.socket
   tags:
+    - repair
     - team
+- name: "enable ssh"
+  become: yes
+  sysvinit:
+    name: ssh
+    enabled: yes
 - name: "disable {{ item }}"
   become: yes
   systemd:
@@ -74,7 +106,7 @@
   # TODO: remove
   tags:
     - team
-- name: add user to dialout
+- name: update user
   become: yes
   user:
     name: "{{ ansible_env.USER }}"
@@ -105,3 +137,4 @@
     reboot_timeout: 300
   tags:
     - always
+    - reboot

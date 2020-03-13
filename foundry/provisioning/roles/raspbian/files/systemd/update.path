@@ -1,5 +1,4 @@
 [Unit]
-After=multi-user.target
 AssertPathExists=/home/pi/updates
 Wants=update.service
 

@@ -119,3 +119,7 @@ For example:
 1. Run the team configuration playbook.
 1. Check whether Dawn is connected.
 1. Record team number on both the Pi and the router box with stickers.
+
+```sh
+$ ansible-playbook validation/raspbian.yml --inventory=192.168.0.2, --extra-vars="team_number=44"
+```

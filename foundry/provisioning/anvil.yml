@@ -18,10 +18,7 @@
       hostname:
         name: anvil.local
     - name: generate SSH key
-      command: "ssh-keygen -t rsa -b 4096 -C '{{ user.email }}' -N '' -f {{ ansible_env.HOME }}/.ssh/id_rsa"
-      ignore_errors: yes
-      args:
-        creates:
-          - "{{ ansible_env.HOME }}/.ssh/id_rsa"
-          - "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
+      user:
+        ssh_key_bits: 4096
+        ssh_key_comment: "{{ user.email }}"
     # TODO: install git hooks to PieCentral

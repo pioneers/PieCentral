@@ -1,6 +1,5 @@
 [Unit]
 Description=software updater
-After=multi-user.target
 AssertPathExists=/home/pi/.local/bin/run-update
 
 [Service]
@@ -9,5 +8,4 @@ User=pi
 ExecStart=/bin/bash /home/pi/.local/bin/run-update
 
 [Install]
-WantedBy=multi-user.target
 WantedBy=update.path

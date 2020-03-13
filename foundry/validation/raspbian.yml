@@ -1,0 +1,13 @@
+---
+- name: validate raspbian install
+  hosts: all
+  tasks:
+  - name: reboot check
+    become: yes
+    reboot:
+      reboot_timeout: 200
+    loop: [1, 2, 3, 4, 5, 6, 7]
+  vars:
+    ansible_user: pi
+    ansible_password: raspberry
+    ansible_python_interpreter: python3

@@ -34,6 +34,7 @@ class StateManager: # pylint: disable=too-many-public-methods
             "ServoControl": ["servo0", "servo1"],
             "YogiBear": ["duty_cycle", "enc_pos", "enc_vel"],
             "PolarBear": ["duty_cycle", "enc_pos", "enc_vel"],
+            "KoalaBear": ["duty_cycle_a", "duty_cycle_b", "enc_a", "enc_b"],
             "RFID": ["id", "tag_detect"],
             "ExampleDevice": ["hazuki", "sapphire", "reina", "asuka"]
         }

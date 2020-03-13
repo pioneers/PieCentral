@@ -110,6 +110,8 @@ class Robot(StudentAPI):
                      "pid_pos_kd", "current_thresh", "enc_pos"],
         "PolarBear": ["duty_cycle", "pid_pos_setpoint", "pid_pos_kp", "pid_pos_ki",
                       "pid_pos_kd", "current_thresh", "enc_pos"],
+        "KoalaBear": ["duty_cycle_a", "duty_cycle_b", "pid_kp_a", "pid_ki_a", "pid_kd_a",
+                        "pid_kp_b", "pid_ki_b", "pidf_kd_b", "enc_a", "enc_b"]
     }
     deviceName_to_readParams = {
         "LimitSwitch": ["switch0", "switch1", "switch2"],
@@ -118,12 +120,17 @@ class Robot(StudentAPI):
         "ServoControl": ["servo0", "servo1"],
         "YogiBear": ["duty_cycle", "enc_pos", "enc_vel"],
         "PolarBear": ["duty_cycle", "enc_pos", "enc_vel"],
+        "KoalaBear": ["duty_cycle_a", "duty_cycle_b", "enc_a", "enc_b"]
         "RFID": ["id", "tag_detect"],
     }
     param_to_valid_values = {
         "servo0": [(float, int), -1, 1],
         "servo1": [(float, int), -1, 1],
         "duty_cycle": [(float, int), -1, 1],
+        "duty_cycle_a": [(float, int), -1, 1],
+        "duty_cycle_b": [(float, int), -1, 1],
+        "enc_a": [(float, int), 0, 0],
+        "enc_b": [(float, int), 0, 0],
         "pid_pos_setpoint": [(float, int), -float("inf"), float("inf")],
         "pid_pos_kp": [(float, int), 0, float("inf")],
         "pid_pos_ki": [(float, int), 0, float("inf")],

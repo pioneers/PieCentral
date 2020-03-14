@@ -4,31 +4,21 @@
   roles:
     - base
   tasks:
+    - name: set kernel release
+      command: uname -r
+      register: kernel_release
+      changed_when: no
+    - name: upgrade linux headers
+      become: yes
+      apt:
+        name:
+          - "linux-headers-{{ kernel_release.stdout }}"
     - name: set hostname
       become: yes
-      become_user: root
       hostname:
         name: anvil.local
     - name: generate SSH key
-      command: "ssh-keygen -t rsa -b 4096 -C '{{ user.email }}' -N '' -f {{ ansible_env.HOME }}/.ssh/id_rsa"
-      ignore_errors: yes
-      args:
-        creates:
-          - "{{ ansible_env.HOME }}/.ssh/id_rsa"
-          - "{{ ansible_env.HOME }}/.ssh/id_rsa.pub"
-    - become: yes
-      become_user: root
-      block:
-        - name: disable static motd
-          copy:
-            content: ''
-            dest: /etc/motd
-          tags:
-            - suppress-default-motd
-        - name: install motd
-          template:
-            src: 20-logo.j2
-            dest: /etc/update-motd.d/20-logo
-            mode: '0755'
-            backup: yes
+      user:
+        ssh_key_bits: 4096
+        ssh_key_comment: "{{ user.email }}"
     # TODO: install git hooks to PieCentral

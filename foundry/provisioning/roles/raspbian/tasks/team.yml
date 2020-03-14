@@ -1,0 +1,39 @@
+---
+# TODO: expand disk to full capacity
+- name: set hostname (loopback)
+  become: yes
+  replace:
+    path: /etc/hosts
+    regexp: raspberrypi
+    replace: "team{{ '%02d' | format(team_number|int) }}"
+- name: set hostname
+  become: yes
+  hostname:
+    name: "team{{ '%02d' | format(team_number|int) }}"
+- name: save team number
+  copy:
+    content: "{{ team_number }}\n"
+    dest: "{{ ansible_env.HOME }}/team-number.txt"
+- become: yes
+  block:
+  - name: configure interfaces
+    template:
+      src: interfaces.j2
+      dest: /etc/network/interfaces
+      mode: '0644'
+      backup: yes
+  - name: configure known networks
+    template:
+      src: wpa_supplicant.conf.j2
+      dest: /etc/wpa_supplicant/wpa_supplicant.conf
+      mode: '0600'
+      backup: yes
+  - name: configure dhcpcd
+    template:
+      src: dhcpcd.conf.j2
+      dest: /etc/dhcpcd.conf
+      mode: '0664'
+      backup: yes
+    tags:
+      - never
+      - dhcpcd

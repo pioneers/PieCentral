@@ -1,1 +1,6 @@
 *.pyc
+
+# For built updates
+*.tar.gz
+
+virtual_devices.txt

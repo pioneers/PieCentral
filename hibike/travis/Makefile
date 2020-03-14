@@ -2,6 +2,8 @@
 DEVICES := BatteryBuzzer ExampleDevice LimitSwitch LineFollower Potentiometer \
 	RFID ServoControl PolarBear
 
+export PYTHONPATH := $(PYTHONPATH):$(shell realpath ../../runtime)
+
 .PHONY: install artifacts-install lint test $(DEVICES)
 
 install:

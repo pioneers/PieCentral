@@ -20,6 +20,7 @@ cleanerNames[PeripheralTypes.RFID] = 'RFID';
 cleanerNames[PeripheralTypes.YogiBear] = 'Yogi Bear';
 cleanerNames[PeripheralTypes.GameValues] = 'Game Values';
 cleanerNames[PeripheralTypes.PolarBear] = 'Polar Bear';
+cleanerNames[PeripheralTypes.KoalaBear] = 'Koala Bear';
 
 
 const filter = new Set([PeripheralTypes.TeamFlag]);

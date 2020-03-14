@@ -1,0 +1,45 @@
+---
+- name: run update
+  hosts: all
+  tasks:
+    - name: check if virtualenv exists
+      stat:
+        path: "{{ venv }}"
+      register: venv_status
+    - name: remove existing virtualenv backups
+      command: "rm -rf '{{ venv_backup }}'"
+    - name: install new virtualenv
+      block:
+        - name: backup virtualenv
+          command: "mv '{{ venv }}' '{{ venv_backup }}'"
+          when: venv_status.stat.exists == True
+        - name: get python version
+          shell: "command -v python3.8 || command -v python3"
+          register: python_version
+        - name: create virtualenv
+          command: "virtualenv -p '{{ python_version.stdout }}' --system-site-packages '{{ venv }}'"
+          args:
+            creates: "{{ venv }}"
+        - name: install packages
+          shell: ". {{ venv }}/bin/activate && pip3 install *.whl *.tar.gz"
+          args:
+           executable: /bin/bash
+      rescue:
+        - name: check if virtualenv backup exists
+          stat:
+            path: "{{ venv_backup }}"
+          register: venv_backup_status
+        - name: restore virtualenv
+          shell: "rm -rf '{{ venv }}' && mv '{{ venv_backup }}' '{{ venv }}'"
+          when: venv_backup_status.stat.exists == True
+    - name: restart runtime
+      become: yes
+      systemd:
+        daemon_reload: yes
+        name: runtime
+        scope: system
+        state: restarted
+  vars:
+    ansible_python_interpreter: python3
+    venv: "{{ ansible_env.HOME }}/venv"
+    venv_backup: "{{ ansible_env.HOME }}/venv-backup"

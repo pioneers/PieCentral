@@ -17,7 +17,7 @@ import time
 
 # pylint: disable=import-error
 import serial_asyncio
-import hibike_message as hm
+from runtime import hibike_message as hm
 
 
 # Format of default values storage:

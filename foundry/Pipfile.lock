@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "511f8b9274df1344c4ea8de00944af0002f2fd578b3c944c2e6c29758de83800"
+            "sha256": "3c40d572d3a460fbaa23cc8aad5b003a7209ef371b157c8ddee6ac1c24296f71"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.7"
+            "python_version": "3.8"
         },
         "sources": [
             {
@@ -17,16 +17,16 @@
     "default": {
         "ansible": {
             "hashes": [
-                "sha256:c364ff5807cb88af29b161a3a1d88ff737f10b930a24be66d88769ee204f4536"
+                "sha256:59cf3a0781f89992d1dae5205b07e802dff1db205eebd238de9e503b62b8cbc9"
             ],
-            "version": "==2.8.8"
+            "version": "==2.9.6"
         },
         "ansible-lint": {
             "hashes": [
-                "sha256:9430ea6e654ba4bf5b9c6921efc040f46cda9c4fd2896a99ff71d21037bcb123",
-                "sha256:c1b442b01091eca13ef11d98c3376e9489ba5b69a8467828ca86044f384bc0a1"
+                "sha256:b9fc9a6564f5d60a4284497f966f38ef78f0e2505edbe2bd1225f1ade31c2d8a",
+                "sha256:eb925d8682d70563ccb80e2aca7b3edf84fb0b768cea3edc6846aac7abdc414a"
             ],
-            "version": "==4.1.0"
+            "version": "==4.2.0"
         },
         "cffi": {
             "hashes": [
@@ -134,9 +134,10 @@
         },
         "pycparser": {
             "hashes": [
-                "sha256:a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3"
+                "sha256:2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0",
+                "sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705"
             ],
-            "version": "==2.19"
+            "version": "==2.20"
         },
         "pyyaml": {
             "hashes": [
@@ -159,6 +160,7 @@
                 "sha256:0962fd7999e064c4865f96fb1e23079075f4a2a14849bcdc5cdba53a24f9759b",
                 "sha256:099c644a778bf72ffa00524f78dd0b6476bca94a1da344130f4bf3381ce5b954"
             ],
+            "markers": "python_version >= '3.7'",
             "version": "==0.16.10"
         },
         "ruamel.yaml.clib": {

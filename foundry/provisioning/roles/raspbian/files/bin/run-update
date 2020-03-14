@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# run-update -- Update the Raspberry Pi
+
+sleep 5  # Wait for copying to complete
+
+tmp=/tmp/update-${RANDOM}
+update_script=dist/update.sh
+mkdir -p "$tmp" && cd "$tmp"
+echo "Running updates (from $(pwd)) ..."
+
+for filename in $(find ~/updates -name "*.tar.gz" | sort); do
+  echo "Update $filename"
+  cp "$filename" "$tmp"
+  tar -xmzf $(basename $filename)
+  if [ -e "$update_script" ]; then
+    bash -x "$update_script"
+  fi
+  rm -rf "$tmp/"* "$filename"
+done
+
+sync  # Persist cached file writes by flushing buffers
+cd ~ && rm -rf "$tmp"
+echo "Cleaned up, update completed successfully"

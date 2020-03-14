@@ -2,9 +2,7 @@
 Unit tests for functions in hibike_process.
 """
 import asyncio
-import os
 import random
-import sys
 import time
 import unittest
 
@@ -12,31 +10,14 @@ import aioprocessing
 import serial
 
 from spawn_virtual_devices import spawn_device, get_virtual_ports
-from hibike_process import hotplug_async
 from hibike_tests.utils import AsyncTestCase
-import hibike_message as hm
 from hibike_tester import Hibike
-
-def add_runtime_to_path():
-    """
-    Enable import of runtime modules.
-    """
-    path = os.path.dirname(os.path.abspath(__file__))
-    parent_path = path.rstrip("hibike_tests").rstrip("hibike/")
-    runtime = os.path.join(parent_path, "runtime")
-    sys.path.insert(1, runtime)
-
-
-add_runtime_to_path()
-# We must import runtimeUtil to deserialize error messages
-# pylint: disable=import-error, wrong-import-position, unused-import
-import runtimeUtil
-
-
+from runtime import hibike_message as hm
+from runtime.hibike_process import hotplug_async
 
 
 VIRTUAL_DEVICE_STARTUP_TIME = 2
-VIRTUAL_DEVICE_CONFIG_FILE = "virtual_devices.txt"
+VIRTUAL_DEVICE_CONFIG_FILE = "../runtime/runtime/virtual_devices.txt"
 
 
 def spawn_virtual_devices(device_types):

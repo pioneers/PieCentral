@@ -1,0 +1,9 @@
+[Unit]
+AssertPathExists=/home/pi/storage
+Wants=update.service
+
+[Path]
+PathChanged=/home/pi/storage/studentcode.py
+
+[Install]
+WantedBy=multi-user.target

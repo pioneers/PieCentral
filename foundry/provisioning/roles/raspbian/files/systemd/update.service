@@ -1,0 +1,11 @@
+[Unit]
+Description=software updater
+AssertPathExists=/home/pi/.local/bin/run-update
+
+[Service]
+Type=oneshot
+User=pi
+ExecStart=/bin/bash /home/pi/.local/bin/run-update
+
+[Install]
+WantedBy=update.path

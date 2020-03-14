@@ -1,0 +1,119 @@
+---
+- name: team-specific configuration
+  import_tasks: team.yml
+  when: "'team_number' in ansible_run_tags"
+  tags:
+    - never
+    - team
+- name: prevent lockout (sshd)
+  become: yes
+  lineinfile:
+    path: /etc/pam.d/sshd
+    regexp: '^account\s+required\s+pam_nologin.so'
+    line: '# account required pam_nologin.so'
+- name: prevent lockout (login)
+  become: yes
+  lineinfile:
+    path: /etc/pam.d/login
+    regexp: '^auth\s+requisite\s+pam_nologin.so'
+    line: '# auth requisite pam_nologin.so'
+- name: initialize .local
+  file:
+    path: "{{ ansible_env.HOME }}/.local"
+    state: directory
+    mode: '0755'
+- name: copy scripts
+  copy:
+    src: bin
+    dest: "{{ ansible_env.HOME }}/.local"
+    mode: '0755'
+- name: initialize updates
+  file:
+    path: "{{ ansible_env.HOME }}/updates"
+    state: directory
+    mode: '0755'
+- name: initialize persistent storage
+  command: "git init '{{ ansible_env.HOME }}/storage'"  # noqa 303
+  args:
+    creates: "{{ ansible_env.HOME }}/storage/.git/HEAD"
+- name: install python packages
+  pip:
+    name:
+      - ansible
+      - virtualenv
+    extra_args: --user --trusted-host pypi.org --trusted-host files.pythonhosted.org
+- name: copy systemd units
+  become: yes
+  copy:
+    src: "systemd/{{ item.unit }}"
+    dest: "/{{ item.root }}/systemd/system"
+  loop:
+    - { unit: "update.path", root: "etc" }
+    - { unit: "upload.path", root: "etc" }
+    - { unit: "update.service", root: "etc" }
+    - { unit: "upload.service", root: "etc" }
+    - { unit: "runtime.service", root: "etc" }
+    - { unit: "ssh.service", root: "lib" }
+    - { unit: "ssh@.service", root: "lib" }
+- name: copy journal configuration
+  become: yes
+  copy:
+    src: journald.conf
+    dest: /etc/systemd/journald.conf
+- name: "enable {{ item }}"
+  become: yes
+  systemd:
+    daemon_reload: yes
+    enabled: yes
+    name: "{{ item }}"
+    scope: system
+  loop:
+    - update.path
+    - upload.path
+    - runtime.service
+    - ssh.service
+    - ssh.socket
+- name: "disable {{ item }}"
+  become: yes
+  systemd:
+    daemon_reload: yes
+    enabled: no
+    name: "{{ item }}"
+    scope: system
+    state: stopped
+  loop:
+    - docker.service
+    - containerd.service
+    - dhcpcd.service
+- name: update user
+  become: yes
+  user:
+    name: "{{ ansible_env.USER }}"
+    groups:
+      - dialout
+- name: install zmq (draft)
+  become: yes
+  block:
+    - name: download source
+      unarchive:
+        src: https://github.com/zeromq/libzmq/releases/download/v{{ zmq_version }}/zeromq-{{ zmq_version }}.tar.gz
+        dest: /tmp
+        remote_src: yes
+    - name: build from source
+      shell: |
+        cd /tmp/zeromq-{{ zmq_version }}
+        ./configure --prefix=/usr/local --enable-drafts
+        make -j 4
+        make install
+    - name: install python bindings
+      pip:
+        name: pyzmq
+        extra_args: --pre --install-option=--enable-drafts --install-option=--zmq=/usr/local
+  when: zmq_version is defined
+- name: reboot
+  become: yes
+  reboot:
+    reboot_timeout: 300
+  tags:
+    - always
+    - reboot

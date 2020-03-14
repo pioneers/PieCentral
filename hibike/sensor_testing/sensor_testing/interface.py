@@ -20,7 +20,7 @@ add_paths()
 
 # pylint: disable=wrong-import-position
 import hibike_tester
-import hibike_message
+import hibike_message  # pylint: disable=import-error
 
 
 HIBIKE_INSTANCE = hibike_tester.Hibike()

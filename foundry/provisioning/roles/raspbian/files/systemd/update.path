@@ -1,0 +1,9 @@
+[Unit]
+AssertPathExists=/home/pi/updates
+Wants=update.service
+
+[Path]
+PathChanged=/home/pi/updates
+
+[Install]
+WantedBy=multi-user.target

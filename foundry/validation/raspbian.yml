@@ -1,0 +1,78 @@
+---
+- name: validate raspbian install
+  hosts: all
+  tasks:
+    - name: check if services are healthy
+      block:
+        - name: get service information
+          service_facts:
+        - name: check if runtime is registered with systemd
+          assert:
+            that: ansible_facts.services['runtime.service'].source == "systemd"
+        - name: check if runtime is running
+          assert:
+            that: ansible_facts.services['runtime.service'].state == "running"
+        - name: check if runtime is enabled
+          assert:
+            that: ansible_facts.services['runtime.service'].status == "enabled"
+      tags:
+        - always
+        - services
+    - name: check if updates are installed
+      block:
+      - name: upload an update
+        copy:
+          src: "{{ update }}"
+          dest: "{{ ansible_env.HOME }}/updates/runtime-latest.tar.gz"
+      - name: wait for update to complete
+        wait_for:
+          delay: 60
+          path: "{{ ansible_env.HOME }}/updates/runtime-latest.tar.gz"
+          state: absent
+      when: "'update' is defined"
+      tags:
+        - update
+    - name: check if student code is committed
+      block:
+        - name: get commit count (before)
+          shell: cd storage && git rev-list --count master
+          args:
+            executable: /bin/bash
+          register: commits_before
+        - name: upload student code
+          copy:
+            src: "{{ student_code }}"
+            dest: "{{ ansible_env.HOME }}/storage/studentcode.py"
+        - name: wait for upload service to commit the uploaded code
+          pause:
+            seconds: 5
+        - name: get commit count (after)
+          shell: cd storage && git rev-list --count master
+          args:
+            executable: /bin/bash
+          register: commits_after
+        - name: check if commit count incremented
+          assert:
+            that: "{{ commits_after.stdout|int - commits_before.stdout|int }} == 1"
+        # FIXME: `ssh` fails here for some reason.
+        #        "kex_exchange_identification: read: Connection reset by peer"
+        # - name: check if code works as intended from Dawn
+        #   pause:
+        #     prompt: "Student code is ready to be checked."
+        #     echo: no
+        - name: remove commit
+          shell: cd storage && git reset --hard HEAD^
+          args:
+            executable: /bin/bash
+      when: "'student_code' is defined"
+      tags:
+        - student_code
+    - name: ensure ssh works consistently across reboots
+      become: yes
+      reboot:
+        reboot_timeout: 150
+      loop: [1, 2, 3]
+  vars:
+    ansible_user: pi
+    ansible_password: raspberry
+    ansible_python_interpreter: python3

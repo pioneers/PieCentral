@@ -4,9 +4,9 @@ import socket
 import threading
 import queue
 import time
-import runtime_pb2
-import ansible_pb2
-import notification_pb2
+from runtime import runtime_pb2
+from runtime import ansible_pb2
+from runtime import notification_pb2
 
 DATA = [0]
 SEND_PORT = 1236

@@ -11,7 +11,7 @@ import threading
 
 import serial
 
-import hibike_message
+from runtime import hibike_message
 import spawn_virtual_devices
 from hibike_tests.utils import run_with_random_data
 

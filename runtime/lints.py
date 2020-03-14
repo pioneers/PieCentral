@@ -8,7 +8,7 @@ def register(linter):
 
 class ImportStudentCode(BaseChecker):
     """
-    An extra lint to ensure that studentCode isn't imported anywhere but
+    An extra lint to ensure that studentcode isn't imported anywhere but
     the appropriate places.
     """
     __implements__ = IAstroidChecker
@@ -20,7 +20,7 @@ class ImportStudentCode(BaseChecker):
     priority = -1
     msgs = {
         'E9999': (
-            'Imports studentCode',
+            'Imports studentcode',
             'no-import-student-code',
             "You shouldn't import student code, except in run_student_code"
         ),
@@ -31,7 +31,7 @@ class ImportStudentCode(BaseChecker):
         self._stack = []
 
     def _ok_to_import(self):
-        """Are we inside a function where it's ok to import studentCode?"""
+        """Are we inside a function where it's ok to import studentcode?"""
         return len(self._stack) > 0 and len(self.OK_TO_IMPORT_FUNCTIONS & set(self._stack)) > 0
 
     def visit_functiondef(self, node):
@@ -41,12 +41,12 @@ class ImportStudentCode(BaseChecker):
         self._stack.pop()
 
     def visit_importfrom(self, node):
-        if node.modname == 'studentCode':
+        if node.modname == 'studentcode':
             if not self._ok_to_import():
                 self.add_message('no-import-student-code', node=node)
 
     def visit_import(self, node):
         mods = [name[0] for name in node.names]
-        if 'studentCode' in mods:
+        if 'studentcode' in mods:
             if not self._ok_to_import():
                 self.add_message('no-import-student-code', node=node)

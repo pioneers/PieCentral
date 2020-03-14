@@ -36,7 +36,7 @@ import 'brace/theme/terminal';
 
 import ConsoleOutput from './ConsoleOutput';
 import TooltipButton from './TooltipButton';
-import { pathToName, robotState, defaults, timings, logging, windowInfo } from '../utils/utils';
+import { pathToName, robotState, timings, logging, windowInfo } from '../utils/utils';
 
 const { dialog } = remote;
 const currentWindow = remote.getCurrentWindow();
@@ -465,7 +465,7 @@ class Editor extends React.Component {
                 text="Download from Robot"
                 onClick={this.props.onDownloadCode}
                 glyph="download"
-                disabled={!this.props.runtimeStatus || this.props.ipAddress === defaults.IPADDRESS}
+                disabled={!this.props.runtimeStatus}
               />
             </ButtonGroup>
             {' '}
@@ -698,7 +698,6 @@ Editor.propTypes = {
   onUpdateCodeStatus: PropTypes.func.isRequired,
   isRunningCode: PropTypes.bool.isRequired,
   runtimeStatus: PropTypes.bool.isRequired,
-  ipAddress: PropTypes.string.isRequired,
   fieldControlActivity: PropTypes.bool.isRequired,
   onDownloadCode: PropTypes.func.isRequired,
   onUploadCode: PropTypes.func.isRequired,

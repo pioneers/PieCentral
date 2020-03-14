@@ -4,10 +4,6 @@
       apt:
         upgrade: 'yes'
         update_cache: yes
-    - name: set kernel release
-      command: uname -r
-      register: kernel_release
-      changed_when: no
     - name: install development packages
       apt:
         name:
@@ -25,7 +21,15 @@
           - less
           - fortune
           - build-essential
-          - "linux-headers-{{ kernel_release.stdout }}"
+          - xz-utils
+    # FIXME: For some reason, this is not uninstalled even though the package
+    #        is clearly listed in `apt list`, which causes failures when
+    #        installing `docker` and `python`.
+    - name: uninstall aufs-dkms
+      apt:
+        name: aufs-dkms
+        state: absent
+      ignore_errors: yes
     # The desktop is quite heavyweight, and there are issues with the screen
     # not refreshing, so this is not installed by default.
     - name: install desktop
@@ -52,12 +56,16 @@
           - software-properties-common
     - name: add docker gpg key
       apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
     - name: add docker repo
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+        repo: deb https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+        state: present
     - name: install docker
+      ignore_errors: yes
       apt:
+        update_cache: yes
         name:
           - docker-ce
           - docker-ce-cli
@@ -69,15 +77,48 @@
           - docker
   tags:
     - docker
-- block:
-    - name: install python
+- name: install python (latest)
+  become: yes
+  block:
+    - name: install dev packages (headers)
       apt:
         name:
-          - python3
-          - python3-pip
-          - python3-dev
-    - name: install pipenv
-      command: pip3 install pipenv
+          - zlib1g-dev
+          - libncurses5-dev
+          - libgdbm-dev
+          - libnss3-dev
+          - libssl-dev
+          - libreadline-dev
+          - libffi-dev
+    - name: download source
+      unarchive:
+        src: https://www.python.org/ftp/python/3.8.2/Python-3.8.2.tar.xz
+        dest: /tmp
+        remote_src: yes
+    - name: build from source
+      shell: |
+        cd /tmp/Python-3.8.2
+        ./configure --enable-optimizations
+        make -j 4
+        make test
+        make altinstall
+  # FIXME: Make python installable without latest build.
+  # tags:
+  #   - never
+  #   - python-latest
+- name: install python
+  ignore_errors: yes
+  apt:
+    name:
+      - python3
+      - python3-pip
+      - python3-dev
+  tags:
+    - python
+- name: install pipenv
+  pip:
+    name: pipenv
+    extra_args: --user --trusted-host pypi.org --trusted-host files.pythonhosted.org
   tags:
     - python
 - block:
@@ -101,6 +142,7 @@
   vars:
     install_script_path: /tmp/nvm-install.sh
   tags:
+    - never
     - node
 - name: install ruby
   apt:
@@ -108,6 +150,7 @@
       - ruby
       - ruby-dev
   tags:
+    - never
     - ruby
 - block:
     - name: copy quotes file
@@ -118,3 +161,16 @@
       command: strfile -c % "{{ fortune_path }}/pie-fortunes" "{{ fortune_path }}/pie-fortunes.dat"
   vars:
     fortune_path: /usr/share/games/fortunes
+- block:
+    - name: disable static motd
+      copy:
+        content: ''
+        dest: /etc/motd
+    - name: install motd
+      template:
+        src: 20-logo.j2
+        dest: /etc/update-motd.d/20-logo
+        mode: '0755'
+        backup: yes
+  tags:
+    - motd

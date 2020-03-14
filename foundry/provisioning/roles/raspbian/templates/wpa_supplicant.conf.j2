@@ -1,0 +1,17 @@
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+country=US
+
+network={
+  ssid="{{ field_net.ssid }}"
+  psk="{{ field_net.psk }}"
+  priority=100
+  id_str="field"
+}
+
+network={
+  ssid="Team{{ '%02d' | format(team_number|int) }}"
+  psk="{{ team_psk }}"
+  priority=200
+  id_str="team"
+}

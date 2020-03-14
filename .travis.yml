@@ -27,6 +27,7 @@ matrix:
 addons:
   apt:
     packages:
+      - python3-setuptools
       - python3-pip
       - libasound2-dev
       - socat

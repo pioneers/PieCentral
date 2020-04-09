@@ -39,13 +39,13 @@ def generate_recipes():
         randomSpoken = random.randint(1, 100)
         for idx in range(len(bounds) - 1):
             curr_i = len(bounds) - 1 - idx
-            if bounds[curr_i - 1] != bounds[curr_i] \
-                and bounds[curr_i - 1] < randomSpoken \
+            if bounds[curr_i - 1] != bounds[curr_i]:
+                if bounds[curr_i - 1] < randomSpoken \
                     and randomSpoken <= bounds[curr_i]:
-                recipe_name, recipe_ingred = getRandomRecipes(MASTER_RECIPES[curr_i - 1])
-                master_recipes_names.append(recipe_name)
-                master_recipes.append(recipe_ingred)
-                break
+                    recipe_name, recipe_ingred = getRandomRecipes(MASTER_RECIPES[curr_i - 1])
+                    master_recipes_names.append(recipe_name)
+                    master_recipes.append(recipe_ingred)
+                    break
 
 def rngBoundaries(probs):
     overall = sum(probs)
@@ -98,16 +98,15 @@ def get_recipe(team, recipeNum=0):
     '''
     return first (or recipeNum) element of recipes
     '''
-    if team == ALLIANCE_COLOR.BLUE:
-        if not blue_recipes:
-            return None
+    assert team == ALLIANCE_COLOR.BLUE \
+        or team == ALLIANCE_COLOR.GOLD, \
+            "Invalid Team Name"
+    if team == ALLIANCE_COLOR.BLUE \
+        and team in blue_recipes:
         return blue_recipes[recipeNum]
-    elif team == ALLIANCE_COLOR.GOLD:
-        if not gold_recipes:
-            return None
+    elif team == ALLIANCE_COLOR.GOLD \
+        and team in gold_recipes:
         return gold_recipes[recipeNum]
-    else:
-        assert False, "Invalid Team Name"
 
 def check_recipe(team, ingredients, num_cooked=0):
     '''

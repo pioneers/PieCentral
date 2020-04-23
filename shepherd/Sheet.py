@@ -76,15 +76,16 @@ def get_online_match(match_number):
     spreadsheet = service.spreadsheets() # pylint: disable=no-member
     game_data = spreadsheet.values().get(
         spreadsheetId=spreadsheetId, range=range_name).execute()
-    row = 48
+
     for i, j in enumerate(game_data['values']):
         if int(j[0]) == match_number:
             row = i
-    match = game_data['values'][row]
-    return {"b1name" : match[3], "b1num" : match[2],
-            "b2name" : match[5], "b2num" : match[4],
-            "g1name" : match[7], "g1num" : match[6],
-            "g2name" : match[9], "g2num" : match[8]}
+            match = game_data['values'][row]
+            return {"b1name" : match[3], "b1num" : match[2],
+                    "b2name" : match[5], "b2num" : match[4],
+                    "g1name" : match[7], "g1num" : match[6],
+                    "g2name" : match[9], "g2num" : match[8]}
+    return None
 
 def get_offline_match(match_number):
     """

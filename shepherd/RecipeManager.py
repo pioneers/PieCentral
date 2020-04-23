@@ -36,18 +36,18 @@ class RecipeManager():
                 self.gold_recipes.pop(0)
                 self.gold_recipes_completed += 1
 
-    def get_recipe(self, team):
+    def get_recipe(self, team, index=0):
         '''
         return first element of recipes
         '''
         if team == ALLIANCE_COLOR.BLUE:
             if not self.blue_recipes:
                 return None
-            return self.blue_recipes[0]
+            return self.blue_recipes[index]
         else:
             if not self.gold_recipes:
                 return None
-            return self.gold_recipes[0]
+            return self.gold_recipes[index]
 
     def check_recipe(self, team, ingredients, num_cooked=0):
         '''

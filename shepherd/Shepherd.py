@@ -181,7 +181,9 @@ def to_teleop(args):
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE, {"stage": GAME_STATE})
 
     Timer.reset_all()
-    GAME_TIMER.start_timer(CONSTANTS.TELEOP_TIME + 2)
+    GAME_TIMER.start_timer(CONSTANTS.TELEOP_TIME)
+    RECIPE_LOSE_TIMER.start_timer(CONSTANTS.RECIPE_LOSE_TIME)
+    RECIPE_TIMER.start_timer(CONSTANTS.RECIPE_TIME)
 
     enable_robots(False)
     lcm_send(LCM_TARGETS.SCOREBOARD, SCOREBOARD_HEADER.STAGE_TIMER_START,
@@ -377,8 +379,14 @@ def check_recipe_completion(args):
     '''
     Ends game if no recipe has been completed
     '''
-    if (RECIPE_MANAGER.completed)
+    if RECIPE_MANAGER.gold_recipes_completed == 0 or RECIPE_MANAGER.blue_recipes_completed == 0:
+        to_end()
+
 def next_recipe(args):
+    """
+    Start the next recipe
+    """
+    RECIPE_TIMER.start_timer(CONSTANTS.RECIPE_TIME)
 
 
 

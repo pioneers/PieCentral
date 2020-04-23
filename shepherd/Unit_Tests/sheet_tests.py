@@ -17,11 +17,9 @@ def get_online_match(match_number):
 
 class TestStringMethods(unittest.TestCase):
 
-    def test_upper(self):
-        self.assertEqual('foo'.upper(), 'FOO')
-
-    def test_isupper(self):
-        self.assertTrue('FOO'.isupper())
+    def test_online(self):
+    	match_five = {'b1name': 'El Cerrito', 'b1num': '12', 'b2name': 'Hercules', 'b2num': '9', 'g1name': 'LPS Richmond', 'g1num': '4', 'g2name': 'Middle College', 'g2num': '6'}
+    	self.assertEqual(sheet.get_online_match(5), )
 
 if __name__ == '__main__':
     unittest.main()

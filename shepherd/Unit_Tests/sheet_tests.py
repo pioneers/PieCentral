@@ -1,7 +1,18 @@
 import sys
 import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
-dir_path = dir_path.replace('/Unit_Tests', '')
-dir_path = dir_path.replace('\\Unit_Tests', '')
-sys.path.append(dir_path)
+sys.path.append(os.path.abspath(os.path.join(dir_path, os.pardir)))
 import Sheet as sheet
+from doctest import testmod
+
+def test_online():
+    """
+    """
+    return
+
+
+
+
+
+if __name__ == '__main__':
+    testmod(name ='convert_time', verbose = False)

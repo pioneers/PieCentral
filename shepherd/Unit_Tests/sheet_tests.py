@@ -3,6 +3,7 @@ import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.abspath(os.path.join(dir_path, os.pardir)))
 import Sheet as sheet
+import Utils
 import unittest
 
 print(sheet.get_online_match(5))
@@ -16,4 +17,5 @@ class TestStringMethods(unittest.TestCase):
     	self.assertEqual(sheet.get_online_match(24), match_24)
 
 if __name__ == '__main__':
-    unittest.main()
+	Utils.CONSTANTS.SPREADSHEET_ID = Utils.CONSTANTS.TESTING_SPREADSHEET_ID
+	unittest.main()

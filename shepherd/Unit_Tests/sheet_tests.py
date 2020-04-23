@@ -19,7 +19,7 @@ class TestStringMethods(unittest.TestCase):
 
     def test_online(self):
     	match_five = {'b1name': 'El Cerrito', 'b1num': '12', 'b2name': 'Hercules', 'b2num': '9', 'g1name': 'LPS Richmond', 'g1num': '4', 'g2name': 'Middle College', 'g2num': '6'}
-    	self.assertEqual(sheet.get_online_match(5), )
+    	self.assertEqual(sheet.get_online_match(5), match_five)
 
 if __name__ == '__main__':
     unittest.main()

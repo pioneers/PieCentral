@@ -7,11 +7,11 @@ Shepherd brings together all the data on the game field into one centralized loc
 
 Shepherd is essentially a [Flask](https://palletsprojects.com/p/flask/) web app that communicates with:
 
-Arduino devices on the field over USB serial.
-Each robot's [Runtime](https://github.com/pioneers/PieCentral/tree/master/runtime) instance using MessagePack remote procedure calls over TCP.
-Each driver station's [Dawn](https://github.com/pioneers/PieCentral/tree/master/dawn) instance.
-Each scoreboard client, which is rendered with jQuery. Typically, there is a scoreboard on each side of the field, a projection for spectators, and a fourth for the field control staff.
-Each perk selection tablet (specific to Sugar Blast).
+* Arduino devices on the field over USB serial.
+* Each robot's [Runtime](https://github.com/pioneers/PieCentral/tree/master/runtime) instance using MessagePack remote procedure calls over TCP.
+* Each driver station's [Dawn](https://github.com/pioneers/PieCentral/tree/master/dawn) instance.
+* Each scoreboard client, which is rendered with jQuery. Typically, there is a scoreboard on each side of the field, a projection for spectators, and a fourth for the field control staff.
+* Each perk selection tablet (specific to Sugar Blast).
 
 ## Installing dependencies
 

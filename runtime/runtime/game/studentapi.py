@@ -23,9 +23,9 @@ import aiofiles
 import structlog
 import yaml
 
-from runtime.messaging.device import DeviceBuffer, DeviceMapping
-from runtime.monitoring import log
-from runtime.util import ParameterValue
+# from runtime.messaging.device import DeviceBuffer, DeviceMapping
+# from runtime.monitoring import log
+# from runtime.util import ParameterValue
 from runtime.util.exception import RuntimeBaseException, RuntimeExecutionError
 
 
@@ -34,8 +34,9 @@ __all__ = ['DeviceAliasManager', 'safe', 'Mode', 'Alliance', 'Actions', 'Match',
 
 
 Action = typing.Callable[..., None]
-LOG_CAPTURE = log.LogCapture()
-LOGGER = log.get_logger(LOG_CAPTURE)
+DeviceMapping = DeviceBuffer = ParameterValue = None
+# LOG_CAPTURE = log.LogCapture()
+# LOGGER = log.get_logger(LOG_CAPTURE)
 
 
 class DeviceAliasManager(collections.UserDict):
@@ -173,7 +174,14 @@ class DeviceAPI(StudentAPI):
             ) from exc
 
 
-class Mode(enum.Enum):
+class NameEnum(enum.Enum):
+    """ Enum that mirrors each member's name as the value. """
+    def _generate_next_value(name, _start, _count, _last_values):
+        return name
+
+
+@enum.unique
+class Mode(NameEnum):
     """
     The mode represents the execution state of the robot.
 
@@ -189,7 +197,8 @@ class Mode(enum.Enum):
     ESTOP = enum.auto()
 
 
-class Alliance(enum.Enum):
+@enum.unique
+class Alliance(NameEnum):
     """
     The alliance are the teams playing the game.
 
@@ -209,6 +218,18 @@ class Actions(StudentAPI):
     async def sleep(seconds: Real):
         """ Suspend execution of this awaitable. """
         await asyncio.sleep(seconds)
+
+
+class Field(StudentAPI):
+    def send(self, message):
+        """
+        Broadcast a message to all other allies.
+        """
+
+    def recv(self):
+        """
+        Read a message from an ally.
+        """
 
 
 @dataclasses.dataclass

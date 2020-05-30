@@ -34,56 +34,6 @@ from runtime.monitoring import log
 from runtime.util.exception import EmergencyStopException
 
 
-LOG_CAPTURE = log.LogCapture()
-LOGGER = log.get_logger(LOG_CAPTURE)
-
-
-async def run_subprocess(service: Service, config: dict):
-    """ Run a subprocess indefinitely. """
-    name = f'{service.__name__.lower()}-{uuid.uuid4()}'
-    subprocess = aioprocessing.AioProcess(name=name, target=service(config),
-                                          daemon=config['daemon'])
-    subprocess.start()
-    try:
-        await subprocess.coro_join()
-    finally:
-        await terminate_subprocess(subprocess)
-
-
-async def terminate_subprocess(subprocess, timeout: Real = 2):
-    """
-    Terminate a subprocess using the SIGTERM (and SIGKILL) UNIX signals.
-
-    Arguments:
-        subprocess: The subprocess to terminate.
-        timeout: The maximum amount of time to wait after sending SIGTERM,
-            which allows the subprocess to handle termination gracefully. If
-            the subprocess is still alive after the timeout, SIGKILL is used to
-            force termination through the OS. An ungraceful shutdown may leave
-            the system in an inconsistent state (for example, an interrupted
-            file write may corrupt the file).
-
-    Raises::
-        EmergencyStopException: If the subprocess triggers an emergency stop.
-    """
-    context = {'name': subprocess.name, 'pid': subprocess.pid}
-    subprocess.terminate()
-    LOGGER.warn('Sent SIGTERM to subprocess', **context, terminate_timeout=timeout)
-    await subprocess.coro_join(timeout)
-    await asyncio.sleep(0.05)  # Allow `exitcode` to set.
-
-    if subprocess.is_alive():
-        subprocess.kill()
-        LOGGER.critical('Sent SIGKILL to subprocess '
-                        '(unable to terminate gracefully)', **context)
-    else:
-        LOGGER.debug('Subprocess terminated cleanly', **context)
-
-    if subprocess.exitcode == EmergencyStopException.EXIT_CODE:
-        LOGGER.critical('Received emergency stop', **context)
-        raise EmergencyStopException
-
-
 async def spin(configs: Mapping[str, dict]):
     """
     Spin up, then clean up, all subprocesses.
@@ -109,17 +59,6 @@ async def spin(configs: Mapping[str, dict]):
     done, pending = await asyncio.wait(subprocesses, return_when=asyncio.FIRST_COMPLETED)
     for subprocess in pending:
         subprocess.cancel()
-
-
-async def initialize_log(level: str, pretty: bool, frontend: str, backend: str):
-    log.PRETTY, log.FRONTEND_ADDR = pretty, frontend
-    log.make_proxy(frontend, backend).start()
-    await asyncio.sleep(0.2)
-    log.configure(*log.get_processors(pretty=pretty), level=level)
-    log_records = asyncio.Queue()
-    LOG_CAPTURE.connect(log_records)
-    DEV_LOG_CAPTURE.connect(log_records)
-    asyncio.create_task(log.drain_logs(log_records))
 
 
 async def start(

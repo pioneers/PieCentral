@@ -1,0 +1,48 @@
+# Runtime service configuration
+
+log:
+  level: DEBUG
+  pretty: True
+  addresses:
+    frontend: ipc:///tmp/log.ipc
+    backend: tcp://*:6003
+  max_workers: 5
+health:
+  interval: 60
+executor:
+  mailbox:
+    payload_limit: 1024
+    buffer_size: 32
+  timeout:
+    import: 2
+    autonomous_setup: 1
+    autonomous_main: 0.05
+    teleop_setup: 1
+    teleop_main: 0.05
+    challenge: 5
+  student_code: runtime.game.studentcode
+  addresses:
+    rpc: ipc:///tmp/executor.ipc
+device:
+  baud_rate: 115200
+  max_hotplug_events: 256
+  status_interval: 0.1
+  write_interval: 0.02
+  subscribe_interval: 0.04
+  terminate_timeout: 2
+  discover:
+    max_tries: 10
+    timeout: 2
+  addresses:
+    rpc: ipc:///tmp/device-rpc.ipc
+    status: ipc:///tmp/device-status.ipc
+    dawn: udp://*:6000
+  dawn_outbound_port: 6001
+supervisor:
+  retry:
+    max: 5
+    interval: 1
+  subprocess:
+    timeout: 2
+  addresses:
+    rpc: tcp://127.0.0.1:6002

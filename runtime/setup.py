@@ -1,6 +1,5 @@
 from setuptools import setup, Extension
 from Cython.Build import cythonize
-from runtime import get_version
 
 DESCRIPTION = 'PiE runtime daemon'
 try:
@@ -12,7 +11,7 @@ except FileNotFoundError:
 # Inspired by: `https://github.com/kennethreitz/setup.py/blob/master/setup.py`
 setup(
     name='runtime',
-    version=get_version(),
+    version='2.0.0a0',
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
@@ -40,7 +39,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
     ],
     ext_modules=cythonize(
-        ['runtime/messaging/packet.pyx'],
+        ['runtime/packet.pyx'],
         language_level=3,
         nthreads=4,
     ),

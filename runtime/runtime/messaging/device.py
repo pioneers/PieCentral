@@ -22,12 +22,7 @@ import structlog
 from runtime.messaging import packet as packetlib
 from runtime.messaging.connection import Connection
 from runtime.monitoring import log
-from runtime.util import VALID_NAME, ParameterValue, TTLMapping
 from runtime.util.exception import RuntimeBaseException
-
-
-LOG_CAPTURE = log.LogCapture()
-LOGGER = log.get_logger(LOG_CAPTURE)
 
 
 @cachetools.cached(cache={})
@@ -79,13 +74,6 @@ class DeviceStructure(packetlib.Structure):
     def set_desired(self, param_name: str, value: ParameterValue):
         """ Set the desired value of a parameter. """
         getattr(self, f'desired_{param_name}').value = value
-
-    @classmethod
-    def get_parameters(cls, bitmap: int) -> typing.Iterable[Parameter]:
-        """ Translate a parameter bitmap into parameters. """
-        for i in range(len(cls._params)):
-            if (bitmap >> i) & 0b1:
-                yield cls._params[i]
 
     @classmethod
     def make_type(cls: type, name: str, type_id: int, params: typing.List[Parameter],
@@ -152,14 +140,6 @@ class SmartSensorStructure(DeviceStructure):
             self.write = SmartSensorStructure.RESET_MAP
             return packet
 
-    @classmethod
-    def make_subscription(cls) -> int:
-        params = 0
-        for i in range(len(cls._params)):
-            if cls._params[i].subscribed:
-                params |= 1 << i
-        return params
-
     def get_update(self):
         update = {
             'type': type(self).__name__,
@@ -188,111 +168,6 @@ class SmartSensorStructure(DeviceStructure):
 
         See ``DeviceStructure.make_type`` for a similar signature.
         """
-        if len(params) > cls.MAX_PARAMETERS:
-            raise RuntimeBaseException('Maxmimum number of Smart Sensor parameters exceeded')
-        extra_fields = [
-            ('write', ctypes.c_uint16),
-            ('read', ctypes.c_uint16),
-            ('send', ctypes.c_uint16),
-            ('delay', ctypes.c_uint16),
-            ('subscription', ctypes.c_uint16),
-            ('uid', packetlib.SmartSensorUID),
-        ]
-        return DeviceStructure.make_type(name, type_id, params, *extra_fields, base_cls=cls)
-
-
-DEVICE_SCHEMA = Schema({
-    And(Use(str), VALID_NAME): {        # Protocol name
-        And(Use(str), VALID_NAME): {    # Device name
-            'id': And(Use(int), lambda type_id: 0 <= type_id < 0xFFFF),
-            'params': [{
-                'name': Use(str),
-                'type': And(Use(str), Use(lambda dev_type: getattr(ctypes, f'c_{dev_type}'))),
-                Optional('lower'): Use(float),
-                Optional('upper'): Use(float),
-                Optional('readable'): Use(bool),
-                Optional('writeable'): Use(bool),
-                Optional('subscribed'): Use(bool),
-            }]
-        }
-    }
-})
-DEVICES = {}
-
-
-def load_device_types(schema: dict, sensor_protocol: str = 'smartsensor'):
-    """
-    Populate the device type registry.
-    """
-    schema = DEVICE_SCHEMA.validate(schema)
-    for protocol, devices in schema.items():
-        dev_configs = DEVICES.setdefault(protocol, {})
-        device_type = SmartSensorStructure if protocol == sensor_protocol else DeviceStructure
-        for device_name, device_conf in devices.items():
-            params = [DeviceStructure.Parameter(**param_conf)
-                      for param_conf in device_conf['params']]
-            type_id = device_conf['id']
-            dev_configs[device_name] = device_type.make_type(device_name, type_id, params)
-            LOGGER.debug('Loaded device type', name=device_name, type_id=type_id)
-
-
-@cachetools.cached(cache={})
-def get_device_type(device_id: int = None, device_name: str = None,
-                    protocol: str = None) -> type:
-    """
-    Get a device type from its integer identifier, name, or protocol.
-    """
-    protocols = [protocol] if protocol is not None else DEVICES.keys()
-    for protocol in protocols:
-        devices = DEVICES.get(protocol) or {}
-        for name, device in devices.items():
-            if device_id == device.type_id or name == device_name:
-                return device
-    raise RuntimeBaseException('Device not found', device_id=device_id, protocol=protocol)
-
-
-@dataclasses.dataclass
-class DeviceBuffer:
-    shm: SharedMemory
-    struct: typing.Optional[DeviceStructure]
-    create: bool = False
-    closing: bool = dataclasses.field(default=False, init=False)
-
-    @property
-    def is_smart_sensor(self):
-        return isinstance(self.struct, SmartSensorStructure)
-
-    @property
-    def status(self):
-        return {'device_type': type(self.struct).__name__, 'device_uid': self.shm.name}
-
-    @classmethod
-    def open(cls, device_type: type, device_uid: str, *, create=False):
-        context = {'device_type': device_type.__name__, 'device_uid': device_uid}
-        try:
-            shm = SharedMemory(device_uid, create=create, size=ctypes.sizeof(device_type))
-        except FileNotFoundError as exc:
-            raise RuntimeBaseException('Cannot attach to nonexistent shared memory block',
-                                       **context) from exc
-        except FileExistsError:
-            shm = SharedMemory(device_uid)
-            LOGGER.warn('Shared memory block already exists', **context)
-        else:
-            LOGGER.debug('Opened shared memory block', create=create, **context)
-        return DeviceBuffer(shm, device_type.from_buffer(shm.buf), create=create)
-
-    @backoff.on_exception(backoff.constant, BufferError, max_tries=5, interval=1, logger=LOGGER)
-    async def close(self, timeout: Real = 0):
-        # NOTE: `shm.close` can fail sometimes because the ctype struct
-        # maintains a pointer to the buffer. We need to trigger the
-        # garbage collection of the struct.
-        del self.struct
-        self.closing = True
-        await asyncio.sleep(timeout)
-        self.shm.close()
-        if self.create:
-            self.shm.unlink()
-        LOGGER.debug('Closed device buffer')
 
 
 class DeviceMapping(TTLMapping):
@@ -317,15 +192,3 @@ class DeviceMapping(TTLMapping):
     def on_device_disconnect(self, device_uid: str, device_buffer: DeviceBuffer):
         asyncio.create_task(device_buffer.close())
         self.logger.info('Device terminated', device_uid=device_uid)
-
-
-class DeviceEvent(enum.Enum):
-    UPDATE = enum.auto()
-
-
-class SmartSensorCommand(enum.Enum):
-    PING_ALL = enum.auto()
-    DISABLE_ALL = enum.auto()
-    REQ_SUB = enum.auto()
-    REQ_HEART = enum.auto()
-    RTT = enum.auto()

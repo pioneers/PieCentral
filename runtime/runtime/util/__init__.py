@@ -3,6 +3,7 @@ import collections
 import dataclasses
 from numbers import Real
 import os
+import typing
 from typing import Any, Callable, Mapping, Optional, TypeVar, Union
 from schema import And, Regex, Use
 
@@ -19,6 +20,36 @@ POSITIVE_INTEGER = And(int, lambda n: n > 0)
 POSITIVE_REAL = And(Use(float), lambda x: x > 0)
 
 ParameterValue = Union[str, bytes, Real, bool]
+
+
+@dataclasses.dataclass
+class PacketTransportStatistics:
+    bytes_recv: int = 0
+    bytes_sent: int = 0
+    packets_recv: int = 0
+    packets_sent: int = 0
+
+    rounding: typing.ClassVar[int] = 3
+
+    def reset(self):
+        self.bytes_recv = self.bytes_sent = 0
+        self.packets_recv = self.packets_sent = 0
+
+    def record_recv(self, packet_size: int):
+        self.bytes_recv += packet_size
+        self.packets_recv += 1
+
+    def record_send(self, packet_size: int):
+        self.bytes_sent += packet_size
+        self.packets_sent += 1
+
+    def as_dict(self) -> dict:
+        stats = dataclasses.asdict(self)
+        if self.packets_recv:
+            stats['mean_bytes_recv'] = round(self.bytes_recv/self.packets_recv, self.rounding)
+        if self.packets_sent:
+            stats['mean_bytes_sent'] = round(self.bytes_sent/self.packets_sent, self.rounding)
+        return stats
 
 
 class TTLMapping(collections.UserDict):

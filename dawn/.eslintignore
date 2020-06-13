@@ -1,4 +1,0 @@
-build/*
-static/*
-release.js
-renderer/utils/test/redux-saga-test.js

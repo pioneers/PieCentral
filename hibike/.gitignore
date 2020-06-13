@@ -1,7 +1,0 @@
-*.pyc
-*.o
-**/.DS_Store
-bin/
-images/
-!lib/
-virtual_devices.txt

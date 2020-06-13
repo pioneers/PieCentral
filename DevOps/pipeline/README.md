@@ -1,2 +1,0 @@
-# Pipeline
-Build automation.

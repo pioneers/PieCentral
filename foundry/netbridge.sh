@@ -1,6 +1,11 @@
 #!/bin/bash
 
-# netbridge.sh -- Host-side script
+# netbridge.sh -- Allows this machine to serve as a network bridge for another host
+#
+#  1. This machine (the bridge) will be configured to accept network requests
+#     from one network interface and forward them to another.
+#  2. The remote machine will be configured to route all of its network traffic
+#     to the bridge.
 
 set -e
 ip link
@@ -24,4 +29,9 @@ iptables -A FORWARD -i "${forward}" -o "${accept}" -m state --state RELATED,ESTA
 iptables -A FORWARD -i "${accept}" -o "${forward}" -j ACCEPT
 
 sysctl -w net.ipv4.ip_forward=1
-ssh "$remote_user"@"$remote_ip" "sudo ip route add default via ${host_ip}"
+ssh "${remote_user}"@"${remote_ip}" "sudo ip route add default via ${host_ip}"
+
+# To undo (without rebooting both machines):
+#  1. Remote: route delete default gw "$host_ip"
+#  2. Bridge: sysctl -w net.ipv4.ip_forward=0
+#  3. Bridge: undo `iptables` entries

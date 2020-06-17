@@ -1,9 +1,10 @@
 ---
+# No need to update the default 'pi' user password from 'raspberry', since we
+# want to help staff debug student robots.
 - name: provision raspberry pi
   hosts: all
   roles:
     - role: base
-      when: '"team" not in ansible_run_tags'
     - role: raspbian
   vars:
     ansible_user: pi

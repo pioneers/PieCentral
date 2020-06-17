@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd ~/storage
+git add *.py
+git commit -m "[$(date --utc +%F-%H-%M-%S)] Student code update"
